@@ -8,7 +8,7 @@ Her employer, Jorah, was not a cruel man. He was a man of accounts. Her family�
 
 Elara set the pen down. She flexed her hand, examined the whorls of black staining her fingertips. The original accusation was nonsense. She knew the law. “Inciting riot” required stones thrown, property damaged. Matthias’s crime was talking about a dead carpenter in a way that annoyed powerful men. The difference between nuisance and capital offense was three lines of her handwriting.
 
-She picked up the pen again. Dipped it. The inkwell was a small clay cup shaped like a lotus, a gift from her mother years ago. The irony was a cold pebble in her throat. Her mother had been a scribe’s daughter too. She had prized accuracy.
+She picked up the pen again, dipped it. The inkwell was a small clay cup shaped like a lotus, a gift from her mother years ago. The irony was a cold pebble in her throat. Her mother had been a scribe’s daughter too. She had prized accuracy.
 
 The first two alterations were easy. She wrote them, her hand moving with its own memory. The script flowed, the letters leaning into one another with the proper, official slant. She reached the blank space where the witness statement must go.
 
@@ -24,7 +24,7 @@ The lamp sputtered. A long, skeletal shadow of her hand leapt across the wall.
 
 She thought of Tirzah’s face that morning, pinched with a hope she didn’t dare voice. She had brought Elara a fig, placed it silently on the corner of the desk. A bribe to the gods. A sister’s entire future, balanced on the sweetness of a piece of fruit.
 
-Elara put the fig in her mouth now. It was overripe, almost fermented. The taste filled her head, sweet and cloying and wrong.
+Elara put the fig in her mouth now. Overripe, almost fermented. The taste filled her head, sweet and cloying and wrong.
 
 She wrote the first word. I.
 
@@ -116,7 +116,7 @@ A sudden, sharp knock exploded against the front door of the house downstairs.
 
 It was not Shem’s polite, single rap. This was the pounding of a fist, insistent, urgent, three heavy blows that shook the frame.
 
-Elara froze on the top stair, her hand flying to the leather case at her belt. Her heart kicked against her ribs, a wild animal trapped. It was too early. Jorah would not come himself. The city guard did not knock.
+Elara froze on the top stair, her hand flying to the leather case at her belt. Her heart kicked against her ribs, a wild animal trapped. Too early. Jorah would not come himself. A city guard did not knock.
 
 From his bed, her father grunted, startled from sleep.
 
@@ -130,7 +130,7 @@ Her father’s shuffling steps approached the door below. She heard the rasp of 
 
 A man from the Sanhedrin was not there for the document. He was there for her father: a missed tax levy, three years old, a bureaucratic ghost suddenly given flesh and authority. Elara stood on the stair, the leather case a dead weight against her hip, and listened as the steward’s assistant, a pockmarked youth with a self-important scroll, recited the figures in a nasal monotone. Her father’s silence was heavier than any protest. The penalty was a fine, payable by sundown, or a week’s labor on the city walls. A small thing. A nuisance. It had nothing to do with Jorah, or Matthias, or the forged parchment sweating against her leg.
 
-The coincidence was a hammer blow. For a dizzying moment, suspended between the scriptorium and the downstairs drama, she believed her act had summoned this, that the universe was balancing her moral theft with a petty financial demand. Then logic reasserted itself. Jorah would have cleared the debt if she delivered the forgery. This was separate. Simply life, in its relentless, grinding pettiness.
+The coincidence was a hammer blow. For a dizzying moment, suspended between the scriptorium and the downstairs drama, she believed her act had summoned this, that the universe was balancing her moral theft with a petty financial demand. Then logic reasserted itself. Jorah would have cleared the debt if she delivered the forgery. This was separate. Simply life, in its constant, grinding pettiness.
 
 She used it. While her father pleaded with the assistant in a broken whisper, she slipped out the back door into the alley, still blue with predawn chill. The fine was impossible. The week’s labor would break his back. But Jorah’s payment, once she delivered the document, would cover it five times over. The forgery was no longer just about saving her sister. It was about buying off a random, cruel stroke of bad luck. The mathematics grew uglier, more compelling. She walked faster.
 
@@ -168,7 +168,7 @@ Night fell completely. The house below was quiet, peaceful for the first time in
 
 She looked down at her hands in the dim light. The ink stains were there, as always, etched into the whorls of her fingertips, a map of her life’s work. She had always seen them as a badge of skill, a mark of her unique worth. Now she saw them for what they were: a permanent contamination. She could scrub her skin with pumice and vinegar until it bled. The black would remain, deep in the grooves. Part of her.
 
-She was a weaver, yes. But she had learned that the tapestry of the law, of society, was not some sacred, immutable text. It was a fabric made by human hands, and human hands could insert a rotten thread. The pattern would hold. It would even look whole, to a casual eye. But the weakness was there, waiting for a stress it could not bear. She had become that weakness. Her precision, her great gift, was now a flaw in the weave.
+She was a weaver, yes. But she had learned that the fabric of the law, of society, was not some sacred, immutable text. It was a fabric made by human hands, and human hands could insert a rotten thread. The pattern would hold. It would even look whole, to a casual eye. But the weakness was there, waiting for a stress it could not bear. She had become that weakness. Her precision, her great gift, was now a flaw in the weave.
 
 From the street came the sound of laughter, bright and careless. A door slammed shut. The ordinary world went on, oblivious to the single, deliberate lie now buried in its foundation.
 
