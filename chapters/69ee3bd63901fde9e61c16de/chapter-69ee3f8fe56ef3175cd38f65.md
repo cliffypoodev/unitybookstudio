@@ -1,0 +1,231 @@
+The rooftop tiles held the day’s heat like a banked furnace. Cornelius knelt on the woven reed mat, the rough fibers pressing a familiar grid into his shins. He had placed the mat just so, its edge aligned with the seam between two terracotta slabs. To the west, the Mediterranean blazed, a sheet of hammered copper under the sinking sun. A light caught the rim of the ceramic bowl beside him, the one he kept filled with water for the ritual washing. A fly traced frantic circles above the surface, its shadow a jagged stitch on the pale stucco wall.
+
+His lips moved through the afternoon prayers, the Hebrew syllables awkward in his mouth. A soldier’s Latin had a different shape—all hard angles and commands. This language flowed, pooled in the back of his throat. He often wondered if the God of Abraham heard the accent, if it mattered. The prayer shawl lay across his shoulders, its white wool scratchy against his tunic. He focused on the sensation, a physical anchor. Devotion was a discipline. You showed up. You performed the motions. You did not wait for a feeling.
+
+A memory surfaced, unbidden. Not Germania—not the woman’s face. A simpler thing. His daughter, Livia, at six years old, trying to thread beads onto a string. Her small face pinched with concentration, tongue peeking from the corner of her mouth. The bead kept slipping. She hadn’t cried. She’d just set her jaw and tried again, her little fingers stubborn. The image was so clear it stole his breath for a second. Why now? The prayer shawl, the beads. His mind made useless connections.
+
+He finished the blessing, his hands coming to rest on his thighs. The silence that followed was not peaceful. It was a held space, waiting to be filled. Down in the courtyard, he heard the slap of sandals on stone—Decima, probably, heading to the kitchen. The scent of baking bread and seared fish drifted up, mingling with the dry smell of rosemary from the pots along the parapet. His stomach tightened. He had not eaten since dawn.
+
+His eyes traced a crack in the parapet mortar. It ran diagonally, a thin black river through the whitewash. He’d meant to have it repaired last month. He kept forgetting. The crack ended at a fossil embedded in the stone, a small spiral shell. A creature that had lived and died in some ancient sea, now locked in a wall built by Herod’s engineers. Utterly irrelevant. His gaze stuck there.
+
+The light changed.
+
+It wasn’t a darkening. The sun hadn’t moved. But the quality of the air altered, thickening. The copper glare on the sea dulled to a leaden grey, though the sky remained a cloudless blue. The sounds from the street below—the cart wheels, the vendor’s cry—didn’t fade so much as they seemed to push through a wall of wool. His own breathing grew loud in his ears.
+
+A prickling started at the nape of his neck, a fine electrical sensation that skittered down his spine. His hands, resting on his thighs, went cold. Not the cold of fear, but a physical chill, as if the stored heat had leached from the tiles beneath him into some other place. He did not move. A centurion’s training: assess the threat. Identify the source. There was no source. Only the wrong light, the muffled world, the shell in the wall seeming to swell in his vision.
+
+The air in front of him shimmered.
+
+No. Not shimmered. That was the wrong word, a cheap word. The air gathered. It coalesced, pulling the light into a knot of brilliance that hurt to look at but which he could not look away from. It had no shape at first—just a concentration of presence, a focal point of absolute attention. Then it resolved.
+
+A man stood before him. Or the impression of a man. He was tall, clad in a simple robe that seemed woven from the same substance as the altered light. His features were clear yet impossible to fix in detail—the eyes too bright, the expression serene and terrible. He stood on the tiles, but his feet did not quite touch them. The rosemary plant behind him was visible through the faint edge of his form.
+
+Cornelius’s mouth was desert-dry. His heart was a hard, slow drum against his ribs. He had heard tales. In synagogue, they spoke of messengers. In Germania, men swore they saw spirits in the fog. He had believed none of it. Belief was for doctrine. This was a data point, an anomaly in the field. His mind scrabbled for a tactical assessment and found nothing.
+
+The figure spoke. Its voice was not a sound. It arrived inside his skull, bypassing his ears, a clean tone that vibrated in the marrow of his jaw.
+
+“Cornelius.”
+
+He tried to answer. His throat produced a dry click. He managed a stiff nod, the motion jerky.
+
+“Your prayers and your alms have ascended as a memorial before God.”
+
+The words landed, each one a weight. They did not feel like comfort. They felt like an audit. A ledger opened, entries reviewed. His nightly prayers in this spot, the coins given to the synagogue, the food sent to the beggars at the harbor gate—all of it tallied. The chill in his hands deepened.
+
+“Now send men to Joppa, and bring one Simon who is called Peter. He is lodging with Simon, a tanner, whose house is by the sea.”
+
+Joppa. The Jewish port. Peter. The name meant nothing, then it did—a rumor, a whisper among the God-fearers. A fisherman turned preacher, a man who supposedly healed the sick. A Jew. The command was logistical. Send men. Retrieve an asset. His military mind latched onto the clarity of it, a brief reprieve from the terror. Destination. Objective. He formed the questions in a silent rush. What route? How many men? What is the threat environment? What are the mission parameters upon retrieval?
+
+The figure was not finished.
+
+“He will speak words to you by which you and all your household will be saved.”
+
+Saved.
+
+The word detonated in the quiet space. It was not a military term. It was not a ritual term. It was a word from a different lexicon entirely, one that spoke of shipwrecks and drowning men. It implied a current he could not see, a danger he had not acknowledged. Saved from what? His own record? The quiet rot in his soul? The child in Germania who still died every night behind his eyes?
+
+The figure began to fade. The light bled back into the air, the granular quality dissolving. The fly buzzed. The sun glared. The fossil shell was just a fossil again.
+
+Cornelius was alone.
+
+He knelt, paralyzed. The chill retreated from his hands, leaving behind a tingling numbness. His knees ached from the unyielding tile. He became aware of a tremor in his right leg, a fine vibration he could not stop. He pressed the palm of his hand hard against his thigh to quell it. It didn’t work.
+
+Slowly, with the care of a man whose bones might be glass, he pushed himself up. The world tilted, then righted itself. He stood on the solarium, the prayer shawl slipping from his shoulders to pool on the mat. The water in the bowl was utterly still. He looked into it. His own reflection stared back—a Roman face, lined, hair cropped short, eyes wide and dark. A centurion’s face. It looked like a stranger’s.
+
+He had received an order.
+
+His entire life was a chain of orders given and obeyed. He understood hierarchy. This was a command from a higher authority than the legate, than the Emperor himself. It should have been simple. Execute.
+
+But his hands would not move to fold the shawl. His mind kept snagging on the word saved. It implied a deliverance he had not asked for, a rescue from a fate he thought he deserved. His discipline, his prayers, his alms—they were not a down payment on salvation. They were the walls of a house he’d built on a cliff edge. That voice had not commended the house. It had told him to send for a man who knew the way off the cliff.
+
+The back of his neck was damp with sweat. The sun touched the horizon, bleeding red into the sea. Shadows stretched long across the rooftop, turning the rosemary pots into hunched, waiting shapes.
+
+He had to move. He had to call for a scribe, draft orders, select two reliable men from his century, arrange for fast horses. The mechanics were straightforward. Yet his feet remained rooted. A profound, unnamable reluctance held him. To bring a Jewish holy man here, into the heart of his Roman household—it was to tear a seam in the world he navigated so carefully. To admit the crack in the mortar, to acknowledge the fault line.
+
+From the courtyard below, Drusilla’s voice floated up, calling his name for the evening meal. The sound was normal, mundane. It was the sound of the life he had built.
+
+He closed his eyes. When he opened them, his reflection in the water bowl was gone, obscured by the trembling of the surface. His own hand was gripping the rim, knuckles white.
+
+He let go. He picked up the prayer shawl, folded it once, twice, into a tight square. The action was automatic, precise. He placed it on the mat. He straightened his tunic. He inhaled, and the air smelled only of bread and sea salt.
+
+Decision settled over him, not as a wave of courage, but as the only possible next move in a sequence that had been set in motion long before this afternoon. You did not debate a divine command. You implemented it.
+
+He turned and walked toward the stairs, his steps firm on the warm tile. But as he descended into the gathering twilight of his home, the image that stayed with him was not the angelic face. It was the fly, tracing its endless, meaningless circles above the still, waiting water.
+
+*
+
+The courier found him in his study, a small room off the atrium. Cornelius was staring at a blank wax tablet, the stylus cold in his hand.
+
+“Centurion? You summoned me?”
+
+He looked up. The young legionary, Linus, stood at attention in the doorway, his face expectant.
+
+“Yes.” Cornelius’s voice sounded rough. He cleared his throat. “I need two men. Discreet. Good riders. They go to Joppa at first light.”
+
+“Joppa, sir? A message for the garrison?”
+
+“No.” Cornelius looked past him, to where the last of the sunset painted a bloody stripe on the atrium floor. “They are to find a man. A Jew named Peter. He is to be brought here.”
+
+Linus blinked. “Brought here, sir? Under guard?”
+
+“Under escort.” The distinction felt vital. “They are to request, to explain... that Cornelius the centurion, a God-fearer, was instructed by a holy angel to summon him.” The words tasted absurd, theatrical. They hung in the quiet room.
+
+Linus’s expression did not change, but his eyes flickered, just for an instant. Confusion. Doubt. “An angel, sir?”
+
+“You heard the order, soldier.”
+
+“Yes, centurion.” Linus snapped back to formality. “Two men. At first light. Request and escort. Shall I have the scribe draft a formal summons?”
+
+Cornelius looked down at the blank tablet. He could write it himself. But the words wouldn’t come. “Yes. Have it sealed with my ring.” He paused. “The message is to say... he will speak words by which we may be saved.”
+
+He did not look up to see the soldier’s reaction. He heard the soft scrape of hobnails on mosaic as Linus turned, the hesitation, then the quick steps retreating down the hall.
+
+Alone again, Cornelius set the stylus down. He pressed the heel of his hand against his sternum, where a tightness had lodged, a fist of cold iron. He had given the order. The mechanism was in motion.
+
+Through the open door, he watched the red light on the floor fade to grey, then to nothing. The house settled into evening. Somewhere, a door closed. A servant laughed, then hushed.
+
+He sat in the dark for a long time, listening to the silence, which was no longer empty, but charged with a waiting he could not define. The angel was gone. The command remained. And between the order and its execution lay a gulf, and in that gulf, Cornelius felt the first, real, terrifying tremor of hope.
+
+The study door clicked shut. Its sound was final, like the closing of a trap. Cornelius stared at the space where Linus had stood. The air still held the scent of the young man’s oiled leather and the dust of the barracks road. A single curl of wax lay on the table edge where the scribe earlier had trimmed his seal. It was the pale yellow of an old bruise.
+
+He should rise. Go to the triclinium. Drusilla would have the meal laid out—lentil stew, the fish, bread still warm from the ashes. She would ask about his day in the tone that was not a question but a probe for cracks in the foundation. He would give the usual answers. The training yard. The supply ledgers. Nothing of note.
+
+He did not move.
+
+The tightness beneath his hand had softened from a fist to a dull, persistent ache. Familiar. He’d carried a version of it since Germania, a companion as constant as his shadow. He’d named it discipline. Purpose. Now, in the dark room, he recognized it for what it was: the quiet, grinding pressure of a stone settled on his chest.
+
+From the atrium, the soft plink of water dripping into the impluvium pool marked time. One. Two. Three. The roof cistern had a leak he’d been meaning to fix. He listened to the irregular rhythm. It was not a calming sound. It was the sound of something being slowly emptied.
+
+His eyes adjusted. The room was not pitch-black. A sliver of moonlight, reflected off the white courtyard plaster, fell across the floor and lit the legs of his chair, the stacked scrolls on a shelf, the corner of his armor stand. The cuirass hung there, the bronze greaves below it. They were not regalia. They were tools, well-maintained, their edges catching the weak light in thin, sharp lines. They represented an order he understood. A threat you could see, you could flank, you could break with a shield wall.
+
+What was the tactical objective of an angel?
+
+The question was absurd. It circled in his head anyway, a drill sergeant’s bark with no answer. Send for Peter. The man was an asset. Retrieve the asset. But the objective... saved. It was not a military objective. Salvation was not a hill to be taken. It was a state of being. A surrender.
+
+He pushed back from the table. The chair legs scraped on the tile, a noise like a bone breaking. He walked to the armor stand. He did not touch the cuirass. He ran a finger along the cold curve of a greave. The metal was smooth, perfect. He had polished it himself that morning, the motion mindless, the rag moving in circles until his own face stared back from the bronze, distorted and grim.
+
+His reflection now was in the dark window, a ghost overlaid on the deeper black of the garden. He looked like a man waiting for a verdict.
+
+A noise from the hallway—a light, shuffling step. He turned.
+
+Decima stood in the doorway, a small clay lamp in her hand. The flame guttered in the draft, painting her aged face in jumping shadows. She was Greek, had been in the household since before Livia was born. She did not startle at finding him standing in the dark.
+
+“The mistress asks if you are coming to eat.”
+
+“Shortly.”
+
+She didn’t leave. She took a step into the room, the lamp held high. Her eyes, milky at the edges, searched his face. “You missed the evening libation. I poured it for you. At the lararium.”
+
+He had forgotten. The daily offering to the household gods. A pinch of incense, a few drops of wine. A habit from his father’s house, maintained not from belief but from a deeper, stubborn sense of continuity. A thread to a time when the world made a simpler kind of sense.
+
+“Thank you,” he said.
+
+She nodded once, a sharp dip of her chin. Her gaze drifted past him to the armor, then back. “Linus left in a hurry. The men are talking in the kitchen. They say you’re sending riders to Joppa at dawn.”
+
+News traveled through the house faster than through the legion’s courier service. “It is true.”
+
+“For a Jew.”
+
+“Yes.”
+
+She was silent for a long moment. The lamp’s smoke, thin and black, curled toward the ceiling. “Is it trouble, master?”
+
+The question was so direct it startled him. Decima never asked about his duties. She polished silver and scolded kitchen girls and knew where every spare blanket was stored. Trouble was her domain—leaky roofs, spoiled grain, fevers. Not angels.
+
+“I do not know,” he said, and the honesty of it scraped his throat raw.
+
+She absorbed this. Her free hand, knotted with veins, plucked at the wool of her shawl. “The God-fearers at the harbor synagogue... they speak sometimes of a Jewish holy man. One who heals. They say his shadow can cure a fever.” She said it flatly, a report on the weather. “Perhaps it is the same one.”
+
+Peter. A healer. A man whose shadow had power. The image was at once more human and more unnerving than the angel’s pronouncement. A man was a variable you could not control. A man had opinions, prejudices, fears. A Jewish holy man would look at this house, at the lararium, at the standards of the Italian Cohort leaning in the corner, and he would see contamination. A centurion’s disciplined piety would be, to him, a grotesque parody.
+
+“Perhaps,” Cornelius echoed.
+
+Decima watched him a moment longer, then seemed to come to some conclusion. She gave another nod. “I will tell the mistress you are finishing reports.” She turned to go, then paused at the threshold. Without looking back, she said, “The water in the solarium bowl. It was shaking. After you came down. I went to empty it. The whole surface was trembling, like a skin over a boiling pot. But the water was cold.”
+
+She left, taking the light with her. The darkness rushed back in, thicker now.
+
+Cornelius stood very still. He saw the bowl, the fly, the perfect stillness after the vision. He had gripped the rim. His hand had been shaking. That was all. A natural tremor.
+
+But he knew the difference between a shaking hand and water vibrating in a stationary bowl. He had seen water behave like that once before, in a bronze cup placed on the ground as a cavalry charge passed a hundred paces away. The vibration of the earth traveled up through the stone, into the vessel. A deep foundational tremor.
+
+He walked out into the atrium. The moon was higher now, silvering the rectangular pool, the potted laurels, the geometric perfection of the mosaic floor. His house. Ordered, clean, prosperous. A proof of a life lived correctly. From the triclinium, he heard the low murmur of Drusilla’s voice, the higher, lighter answer of his daughter. A slice of laughter. The familiar clatter of a dish.
+
+He should go to them. He should sit at the head of the couch, break bread, ask Livia about her lessons. Perform the evening ritual of family.
+
+His feet carried him past the dining room entrance down a short colonnade to the rear of the house. He unbolted a small, heavy door made of cedar.
+
+The armory was a narrow, windowless room smelling of linseed oil and iron. His personal weapons rested here, not the standard-issue gear. A Spanish gladius, its blade worn thinner from years of sharpening. A parazonium dagger with an ivory handle, a gift from a legate long dead. A cavalry shield, curved and light. He ignored them all.
+
+On a low shelf sat an old wooden box, unadorned. He lifted the lid.
+
+Inside, on a bed of faded wool, lay a child’s leather shoe. Small, meant for a foot no longer than his hand. The stitching along the sole was frayed, the leather cracked and stiff. It was not Roman. It was a barbarian design, crude but sturdy. One thin leather lace was still threaded through the eyelets, knotted in a clumsy, childish bow.
+
+He had not taken it as a trophy. He did not know why he had taken it at all. In the chaotic, smoky aftermath of the raid, he had stood in the trampled mud of the village path and seen it lying there, separated from its owner. A tiny, abandoned thing. He had picked it up. He had put it in his belt pouch. He had carried it for ten years.
+
+He never looked at it. But he knew, with the precision of a surgeon locating a buried arrowhead, exactly where it was in his house. Its presence was a low, constant frequency in the walls.
+
+His fingers hovered above it. He did not touch it. The air in the box was stale, carrying a ghost of woodsmoke and a sour, forgotten smell of sweat.
+
+The angel’s words returned, not as a voice, but as a cold weight settling in the room. They had felt like absolution when he heard them. Now, in the dark with the shoe, they felt like an indictment. A memorial was for the dead. His prayers stood before God like a stone marker over a grave. His own grave? Or the child’s?
+
+He had believed, in some unexamined chamber of his heart, that his devotion was building something. A wall between himself and the past. A foundation for a cleaner future. The angel had not praised the wall. He had commanded a breach in it. Send for Peter. He will speak words.
+
+Words were not actions. Words were not rituals or alms or discipline. Words were air. They could be lies, promises, curses, truths. What words could possibly reach across a decade and touch the cold, silent center of that small leather shoe?
+
+All his household. Drusilla, with her quiet disappointments. Livia, with her fierce, fragile hope. Decima. Linus. The cook, the stable boy. The entire, ordered structure of his life was suddenly swept into the pronouncement. They were all standing on the cliff edge. They just didn’t know it.
+
+He closed the box lid. The sound was softer than the study door, more final.
+
+He left the armory, bolted the door behind him. The moonlit atrium seemed different now, not a sanctuary but a stage. Every object—the marble bench, the bronze statue of Mercury, the loom in the corner where Drusilla wove—seemed poised, waiting for the next line in a play whose script he had not read.
+
+He walked to the triclinium entrance. He stood outside the pool of lamplight, watching.
+
+Drusilla reclined on a couch, picking at a bunch of grapes. Livia sat on a stool beside her, chattering about a new dye the merchant from Tyre had shown her, a purple so deep it was almost black. Her hands moved as she talked, sketching the color in the air. Her profile, sharp and earnest, was his mother’s profile. For a dizzying instant, he saw the line of his own blood stretching backward and forward through time, a river he was about to divert into an unknown channel.
+
+He must have made a sound. Livia turned. Her face lit, not with a daughter’s polite greeting, but with a sudden, unguarded joy that was like a physical blow.
+
+“Father! We saved you the fish. It’s gone cold, but I told them not to take it away.”
+
+He forced his feet to carry him into the light. He forced his mouth into the approximation of a smile. “Cold fish is still fish.”
+
+He took his place. He ate. He tasted nothing. He answered Livia’s questions about Joppa—yes, it was a port; yes, it had a Jewish quarter; no, he had not been there in years. He felt Drusilla’s gaze on him, a steady, assessing pressure. She said little.
+
+The meal ended. Servants cleared the plates. Livia kissed his cheek and retired. Drusilla lingered, pouring herself a last cup of watered wine.
+
+“This errand to Joppa,” she said, not looking at him. “It is important?”
+
+“It is.”
+
+“The household is talking of visions.” She said the word as if it were a type of insect, something that might spoil the food.
+
+“Let them talk.”
+
+She finally looked at him. In the lamplight, he saw the fine lines at the corners of her eyes, the tight set of her mouth. She was afraid. Not of visions, but of the disruption they heralded. Of the crack in the perfect mortar of their life. “Is it safe?”
+
+He thought of the angel’s terrible serenity. He thought of the word saved. “I do not know,” he said again.
+
+She held his gaze for a long moment, then looked away, dismissing the unanswerable. She rose, smoothing her stola. “I will see the kitchen is locked.”
+
+He sat alone at the table, surrounded by the ruins of the ordinary evening. The silence was back, but it was no longer the empty silence of the rooftop. Dense, crowded with the echoes of the angel’s voice, the memory of trembling water, the imagined face of a Jewish fisherman, the silent accusation of a small leather shoe in a dark box. It was the silence of a world holding its breath.
+
+He had given the orders. The mechanism was in motion. There was nothing left to do but wait, and in the waiting, to feel the last solid ground of his old life turn to sand beneath his feet.
