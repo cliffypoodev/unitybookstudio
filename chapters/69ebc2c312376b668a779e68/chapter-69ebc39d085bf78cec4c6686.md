@@ -44,7 +44,7 @@ The brush slipped, smearing a tiny line of slip onto the jar’s good shoulder. 
 
 “This teacher,” Miriam said, her voice tighter than she intended, “is he here? In Judea?”
 
-“He walked these hills.” The woman’s tone shifted, grew distant. “He was killed for it. Outside Jerusalem. A place of a skull.”
+“He walked these hills.” The woman’s tone grew distant. “He was killed for it. Outside Jerusalem. A place of a skull.”
 
 The cold fact of it landed in the workshop’s heat. Miriam’s breath caught, just for a second. She had heard whispers of trouble in Jerusalem, of rabble-rousers and Roman nails. It was a world away, a rumor that blew in with the desert wind and settled like dust. You brushed it off.
 
@@ -120,7 +120,7 @@ She should pray. She should eat the bit of bread and cheese left for her. She sh
 
 She picked up the mended jar.
 
-Heavier than it looked. Well-fired. The crack had been a clean one, as if it had fallen against a stone. She traced the seam with her finger. The potter’s truth was this: a mended vessel was never as strong as a whole one. The flaw was part of its story now. The weakest point.
+It was heavier than it looked. Well-fired. The crack had been a clean one, as if it had fallen against a stone. She traced the seam with her finger. The potter’s truth was this: a mended vessel was never as strong as a whole one. The flaw was part of its story now. The weakest point.
 
 What treasure? Miriam’s life was a ledger of practicalities: clay, water, fire; the coin her father would get for the six lamps; the price of ochre earth; the weight of an empty sack. Treasure was for kings and thieves, not for potters’ daughters in backwater Judea.
 
@@ -138,11 +138,11 @@ The woman entered, her movements unhurried. She went straight to the bench, exam
 
 “I understand.” The woman untied her cloth bundle. Inside were two round, flat loaves of bread, still warm, and a little clay pot of honey. “From Levi’s wife. In thanks for your skill.”
 
-Miriam stared at the food. It was too much payment for a simple mend. “This is not necessary.”
+Miriam stared at the food. Too much payment for a simple mend. “This is not necessary.”
 
 “All gifts are necessary.” The woman’s eyes met hers. “Will you share it with me? I find I am weary of my own company.”
 
-A request, not a demand. But it felt like a crossing. Miriam’s father’s warning hummed in her blood. She looked at the bread, the golden honey, the humble jar with its dark scar. Her stomach tightened, empty. She nodded.
+A request, not a demand. But it felt like a crossing. Miriam heard her father’s warning hum in her blood. She looked at the bread, the golden honey, the humble jar with its dark scar. Her stomach tightened, empty. She nodded.
 
 They sat on low stools near the doorway, where the last of the evening’s cool air drifted in. The woman broke a loaf, dipped a piece in the honey, and handed it to Miriam. The taste was startlingly sweet, rich and floral. Miriam could not remember the last time she had tasted honey.
 
