@@ -250,7 +250,7 @@ The widow’s house crouched behind a high wall in Thyatira’s wealthiest distr
 
 The widow herself sat beneath a vine-covered pergola, her chair draped in Tyrian purple. The real thing. The imperial shade.
 
-The widow followed her gaze. “A gift,” she said. “From a friend in Rome.” She gestured to the stool across from her. “Sit.”
+The widow followed Miriam’s gaze. “A gift,” she said. “From a friend in Rome.” She gestured to the stool across from her. “Sit.”
 
 Miriam perched on the edge of the stool. Her tools lay heavy in her lap.
 
