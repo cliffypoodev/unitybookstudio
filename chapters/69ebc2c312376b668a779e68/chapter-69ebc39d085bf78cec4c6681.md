@@ -86,7 +86,7 @@ Theon’s hand stilled. Egypt. His Egypt. The grain decrees he had transcribed d
 
 A sharp metallic taste flooded Theon’s mouth. The taste of the ink, he told himself, or the stale water. But it was the taste of envy, sour and startling. He envied a dead Hebrew prophet a choice he could not comprehend. The feeling was so alien, so unwelcome, that he almost laughed. Such a sound would have been a crack in the silent Scriptorium.
 
-He pushed the emotion down, buried it under the next line of text. He wrote of walls falling down, of harlots spared, of kingdoms subdued. The words flowed from his pen, but they no longer felt like simple transcription. They felt like an incantation. Each name, each act of faith, was a weight placed on a scale inside him, tipping it away from the solid ground of fact.
+He pushed the emotion down, buried it under the next line of text. He wrote of walls falling down, of harlots spared, of kingdoms subdued. The words flowed from his pen, but they no longer felt like simple transcription. They felt like an incantation. Each name, each act of faith was a weight placed on a scale inside him, tipping it away from the solid ground of fact.
 
 He reached the end of the chapter. The lamplight was growing feeble, the wick drowning in its own pool of oil. Dawn was a distant rumor. His eyes burned. The final sentences rose from the scroll. And all these, though commended through their faith, did not receive what was promised, since God had provided something better for us, that apart from us they should not be made perfect.
 
