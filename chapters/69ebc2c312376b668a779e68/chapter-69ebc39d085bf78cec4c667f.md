@@ -10,7 +10,7 @@ Not a man. Something that used the shape of a man the way a scribe uses a wax ta
 
 Gaius’s mouth was desert-dry. He had made the proper offerings that very evening. A pinch of incense for the household gods, a murmured plea to Mithras for strength. This was not an answer. This was an incursion.
 
-The being spoke. The voice bypassed his ears, settling directly into the bones of his skull. It was not loud. It was inescapable.
+The being spoke. The voice bypassed his ears, settling directly into the bones of his skull. It was not loud. Inescapable.
 
 “Gaius Valerius Saturninus.”
 
@@ -70,7 +70,7 @@ When Jude left, Gaius was alone again with the echo. He did not return to the le
 
 Words that could save.
 
-Gaius, the pious Roman, the man of accounts and orders, had just dispatched his servants on a beggar’s errand to a source of contamination. His world, so rigidly calibrated, had developed a crack. Through it poured a terrible, undeniable curiosity. He did not pray. He simply watched the dark sea and waited for the crack to widen.
+Gaius, the pious Roman, the man of accounts and orders, had just dispatched his servants on a beggar’s errand to a source of contamination. His world, so rigidly calibrated, had developed a crack. Through it poured a terrible, clear curiosity. He did not pray. He simply watched the dark sea and waited for the crack to widen.
 
 * * *
 
