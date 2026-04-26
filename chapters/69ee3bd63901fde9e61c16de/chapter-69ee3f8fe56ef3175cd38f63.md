@@ -28,7 +28,7 @@ Peter’s hand closed around the bag of almonds. The familiar heat rose in his c
 
 Peter said nothing. The Law had commands about the stranger within the gate, but Rome was not a stranger. It was the gate itself. It was the wall around the city, the tax on the salt, the soldier who could demand your cloak. To share the news of the Messiah with such a one? This thought was not just radical. It felt like a violation of a sacred order. The Messiah was for the lost sheep of the house of Israel. The net was for fish, not for stones.
 
-He moved on, the incident already folding into the background noise of the market. At the oil-seller’s, he waited behind a woman arguing over the sediment in her last amphora. Peter’s gaze drifted. He noticed the cracked heel of the oil-seller’s sandal. The man had painted the leather with something black to cover the split, but it was peeling now, showing the rotten leather beneath. A futile repair. Beyond the stall, in a slice of shadow between two buildings, a cat licked at a fish head. The cat was missing the tip of one ear.
+He moved on, the incident already folding into the background noise of the market. At the oil-seller’s, he waited behind a woman arguing over the sediment in her last amphora. Peter’s gaze drifted. He noticed the cracked heel of the oil-seller’s sandal. A man had painted the leather with something black to cover the split, but it was peeling now, showing the rotten leather beneath. A futile repair. Beyond the stall, in a slice of shadow between two buildings, a cat licked at a fish head. The cat was missing the tip of one ear.
 
 “You, brother. Your turn.”
 
@@ -62,7 +62,7 @@ At the edge of the market, he passed the woman who had spilled the dates. She wa
 
 Peter walked on. He did not look back.
 
-The path home climbed away from the harbor, a narrow defile between whitewashed walls where the air grew still and hot. The smell of fish gave way to woodsmoke and baking bread. From an open doorway came the rhythmic thump of a loom. Peter kept his eyes on the cobbles, worn smooth in the center by generations of feet. He counted his steps. It was a habit from childhood, a way to quiet a restless mind. Forty-seven, forty-eight. The grinding stone was a dull, insistent pressure against his spine.
+One path home climbed away from the harbor, a narrow defile between whitewashed walls where the air grew still and hot. The smell of fish gave way to woodsmoke and baking bread. From an open doorway came the rhythmic thump of a loom. Peter kept his eyes on the cobbles, worn smooth in the center by generations of feet. He counted his steps. It was a habit from childhood, a way to quiet a restless mind. Forty-seven, forty-eight. The grinding stone was a dull, insistent pressure against his spine.
 
 Ahead, two of his companions, Thomas and Philip, stood at a stall selling clay lamps. Thomas held one up to the light, squinting at the maker’s mark on its base. Philip was watching the street, his arms crossed. He saw Peter first and nodded, a tight dip of the chin.
 
