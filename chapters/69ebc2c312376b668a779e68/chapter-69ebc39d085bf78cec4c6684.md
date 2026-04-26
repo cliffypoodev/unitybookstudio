@@ -8,13 +8,13 @@ A fly buzzed near her ear. She didn’t swat it.
 
 Her gaze traveled down the slope. Their land—her land—was a patchwork of silver-green and dusty brown, a stubborn hummock fighting the rocky hillside. A stone press at the lower terrace stood like a forgotten monument, its wooden screw bleached gray by sun. Cleaning it was a day’s work. Oiling the mechanism was another. The harvest would take a week with hired hands she couldn’t afford, and the merchants from Hebron would arrive in three days. They would look at her, a woman alone, and they would see a discount.
 
-The bitterness rose then, not as a wave but as a slow seep, like groundwater finding a crack in a jar. It tasted of copper and old olives. He hadn’t just left her. He had left her this: a kingdom of dust and debt. His new brothers spoke of freedom from the Law, but her law was the sun’s arc, the tree’s thirst, the relentless arithmetic of yield and tax. His faith offered grace. Hers demanded sweat.
+The bitterness rose then, not as a wave but as a slow seep, like groundwater finding a crack in a jar. It tasted of copper and old olives. He hadn’t just left her. He had left her this: a kingdom of dust and debt. His new brothers spoke of freedom from the Law, but her law was the sun’s arc, the tree’s thirst, the constant arithmetic of yield and tax. His faith offered grace. Hers demanded sweat.
 
-She pushed off from the tree. Her sandals scuffed the earth, kicking up a small plume that settled on the hem of her robe. The faded blue dye was uneven. A crack in one of the irrigation channels caught her eye, a dark line in the pale clay. It was new. One more thing.
+She pushed off from the tree. Her sandals scuffed the earth, kicking up a small plume that settled on the hem of her robe. The faded blue dye was uneven. A crack in one of the irrigation channels caught her eye, a dark line in the pale clay. New. One more thing.
 
 A memory surfaced, unbidden and sharp. Reuben’s hands, stained dark from the first pressing, cupping her face. “The oil is like the Spirit, Tamar. It sustains the light.” He’d been so earnest, his eyes alight with a fervor that had once thrilled her. Now it exhausted her. What good was a spirit that didn’t mend walls or pay the Roman land tax? The lamp in her house burned olive oil. It gave a smoky, practical light. It did not preach.
 
-She walked to the terrace edge, looking down the road to Bethany. Empty. That silence was a physical presence. In it, she heard the ghost of his last argument. Not a shout. Reuben never shouted. It was worse—a calm, immovable conviction.
+She walked to the terrace edge, looking down the road to Bethany. Empty. That silence was a physical presence. In it, she heard the ghost of his last argument. Not a shout. Reuben never shouted. Worse—a calm, immovable conviction.
 
 “I must go to them,” he had said, packing a single bag. “The community shares all things. My hands are needed.”
 
@@ -30,7 +30,7 @@ He had kissed her forehead, as if blessing a child, and walked out. That was eig
 
 The dog was gone now too.
 
-A sudden, sharp cry above made her flinch. A hawk circled, a dark slash on the bleached sky. It was hunting. Everything was always hunting. She was hunting for enough coppers to hire the day laborers from the village. The merchants would hunt for weakness. The tax collector hunted for his percentage.
+A sudden, sharp cry above made her flinch. A hawk circled, a dark slash on the bleached sky. Hunting. Everything was always hunting. She was hunting for enough coppers to hire the day laborers from the village. The merchants would hunt for weakness. The tax collector hunted for his percentage.
 
 She turned back to the press. She should start scrubbing the stone basin, dig out the old paste of pits and pulp. Her body refused. She stood there, a vessel of tired bones and resentment. The sun pressed down on her shoulders, a heavy, insistent hand.
 
@@ -240,7 +240,7 @@ She had to move. The oil needed to settle, the sediment to sink. In a day, she w
 
 She stood, her joints protesting. The night air was cool now, a relief after the hammer-blow of the sun. She walked to the edge of the light, looking out at the grove. The olives were dark shapes against the sky, a deeper blackness. They would over-ripen, then fall. The ground would be a slick, rotting carpet. The birds would grow fat. A quiet, slow-motion ruin.
 
-Her gaze drifted to the lean-to. No light showed. Was he sleeping? Awake and staring at the thatch? Was he praying? The thought ignited a fresh, petty spark. Let him pray. His prayers built nothing but disappointment.
+Her gaze drifted to the lean-to. No light showed. Was he sleeping? Awake and staring at the thatch? Was he praying? That thought ignited a fresh, petty spark. Let him pray. His prayers built nothing but disappointment.
 
 But the spark guttered out, leaving only ashes. His failure did not make her success. They were not opposite sides of a scale. They were two separate, sinking stones.
 
