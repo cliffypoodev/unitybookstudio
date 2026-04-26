@@ -22,7 +22,7 @@ Men stood in small clusters. Ten, maybe twelve. Their voices were a low murmur, 
 
 Her father moved to a central space where the earth was worn smooth. He set his lamp on a flat stone that seemed placed there for the purpose. Leah hovered near the tunnel entrance, a spectator. She found a spot where the wall curved and sat, drawing her knees to her chest. The earth here was cool through her thin tunic. A fragment of pottery, an edge of blue glaze, was half-embedded in the floor near her foot. She picked at it with her thumbnail.
 
-The prayer began. It was not the soaring, communal recitation of the synagogue. This was different. A threadbare tapestry of whispers, woven by men who kept their eyes on the ground or the dark niches. The words were familiar—blessings, the Shema—but the tone was all wrong. Hungry. Desperate. It sounded like men holding onto a rope in the dark, telling each other it was still there.
+The prayer began. It was not the soaring, communal recitation of the synagogue. This was different. A threadbare fabric of whispers, woven by men who kept their eyes on the ground or the dark niches. The words were familiar—blessings, the Shema—but the tone was all wrong. Hungry. Desperate. It sounded like men holding onto a rope in the dark, telling each other it was still there.
 
 Leah stopped picking at the pottery. She listened to the spaces between the words. A fear was there. A new flavor in the under-the-world air, metallic and sour.
 
