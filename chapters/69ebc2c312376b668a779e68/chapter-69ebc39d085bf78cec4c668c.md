@@ -30,7 +30,7 @@ Elara unfolded the letter fully.
 
 They say he walked out of his own tomb. They say he ate fish with his friends afterward, that the holes in his hands still bled a little. I touched one of the women who touched him. Her fingers were warm.
 
-The words wriggled in her gut like eels. She pressed a hand to her stomach. The fire spat.
+The words wriggled in her gut like eels. She pressed a hand to her stomach. A fire spat.
 
 Miriam had never lied. Not even as a child, not even to save her own skin.
 
@@ -44,7 +44,7 @@ Elara laughed. A short, sharp sound, like a dog’s bark. Home. As if Judea were
 
 She folded the letter along its creases, then unfolded it. Folded it again. The papyrus was softening at the edges from her sweat.
 
-The fire burned low. She should stir it. She should card the wool.
+One fire burned low. She should stir it. She should card the wool.
 
 A knock at the door.
 
