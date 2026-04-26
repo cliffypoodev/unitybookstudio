@@ -1,0 +1,333 @@
+The well rope creaked under Marcus’s calloused hands. Water sloshed into the clay jug, cool against his sun-baked skin. He wiped his forehead with the back of his wrist, leaving a streak of dust. The olive tree’s shadow stretched long across the cracked earth, but the heat clung like a second tunic.
+
+A pebble skittered down the slope. He didn’t turn. He’d heard them coming—sandals scuffing dirt, the whisper of linen, the too-careful footsteps of men trying not to be heard.
+
+“You’re drawing from the wrong side.” The voice was Samaritan, the accent thick as curdled milk.
+
+Marcus set the jug down. Slowly. A knife at his belt wasn’t ceremonial. He turned.
+
+Three men stood at the edge of his field. Their robes were patched but clean, their beards uneven, as if they’d taken shears to them in haste. The leader—a gaunt man with a pilgrim’s sunburnt nose—held out a hand, palm up. Not a threat. Not yet. “The well’s boundary runs along that stone.” He pointed to a lichen-crusted marker half-buried in the dirt. “You’ve been drawing from our half since the rains stopped.”
+
+Marcus spat. One wind carried it sideways. “Your half.”
+
+The gaunt man’s fingers twitched. “The land belongs to the Lord. We only tend it.”
+
+“Tend it?” Marcus laughed, a dry rasp. “I broke my back clearing this field. Dug the well with these hands.” He held them up, the scars white against his leathery skin. “Where were you when the stones cut my palms open?”
+
+The second man—thick-necked, with a fisherman’s shoulders—stepped forward. “We don’t want trouble. Just water.”
+
+The third man hadn’t spoken. His eyes flicked between Marcus’s knife and the olive tree, where a rusted legionary helmet hung from a branch, its crest long since rotted away.
+
+Marcus picked up the jug. Water slopped over the rim, darkening the dirt. “There’s a village two miles east. Their well’s deep enough for your parched tongues.”
+
+The gaunt man shook his head. “We’re bound for Shechem. The brothers there are expecting us before Sabbath.”
+
+Brothers. That word again. Marcus had heard it muttered in the market, always with that same quiet fervor. Followers of the Way, they called themselves, as if it were a road you could walk without leaving ruts in someone else’s land.
+
+The thick-necked man rubbed his throat. “We’d pay. For the water.”
+
+Marcus’s grip tightened on the jug. Silver was scarce here. A retired legionary’s pension bought a roof, not loyalty. But the way the man said it—like payment was a concession, not a right—set his teeth on edge.
+
+The silent one finally spoke. “You were at Caesarea.” His voice was softer than the others, almost curious. “The Tenth Legion?”
+
+Marcus stilled. The helmet hadn’t been touched in years. The dust on its rim was thicker than the soil.
+
+The gaunt man shot the silent one a look. “We’re not here to talk about old wars.”
+
+But the silent one kept staring at the helmet. “My uncle served under Corbulo.”
+
+“Enough.” The gaunt man’s patience frayed. “We need water, not stories.”
+
+Marcus set the jug down again. Hard. “Take it.”
+
+The thick-necked man blinked. “What?”
+
+“Take the water.” Marcus stepped back, hand resting on his knife. “And then get off my land.”
+
+The gaunt man’s lips pressed into a line. He nodded to the silent one, who hurried forward with a wineskin. As he knelt to fill it, his sleeve rode up, revealing a livid scar across his forearm, a brand, poorly healed. A slave’s mark.
+
+Marcus exhaled through his nose. Of course. Runaway slaves, debtors, men with nowhere else to go. No wonder they clung to this “Way” like a raft in a storm.
+
+The silent one stood, the full wineskin slung over his shoulder. He hesitated. “You could come with us. To Shechem.”
+
+The thick-necked man groaned. “Eli—”
+
+“The brothers share everything. Food. Work. Even the land.” Eli’s gaze flicked to the helmet again. “No one owns it. No one starves.”
+
+Marcus’s laugh was a bark. “Tell that to the ants when your sandal crushes them.”
+
+Eli opened his mouth, but the gaunt man gripped his arm. “We’re leaving.”
+
+They retreated up the slope, their shadows merging with the dusk. The gaunt man’s voice carried back, sharp with reproach. Eli’s reply was too quiet to hear.
+
+Marcus waited until their footsteps faded. Then he kicked the jug over. Water seeped into the dirt, swallowed without a trace.
+
+The olive leaves rustled. The helmet swayed, its empty eye sockets staring at nothing.
+
+He’d lied about the village well. It had run dry a week ago.
+
+The next morning, the well rope was gone.
+
+Marcus ran his thumb over the raw groove in the wooden pulley where the fibers had sawed through. No frayed ends. Cut clean. He crouched, scanning the dirt. Boot prints overlapped sandal marks in a chaotic dance around the well’s rim. More than three sets this time.
+
+A shadow moved at the tree line.
+
+He didn’t stand. Didn’t reach for the knife. He let them think he hadn’t seen.
+
+The rustle of fabric. A child’s stifled giggle.
+
+When he lunged, the boy yelped and tripped backward into the scrub. Marcus caught him by the wrist before he could scramble away. Skinny thing, maybe ten years old, ribs sharp under his tunic. The boy kicked, his heel connecting with Marcus’s shin.
+
+“Easy.” Marcus shook him once, hard enough to rattle teeth. “Where’s the rope?”
+
+The boy’s chin jutted. “Don’t know.”
+
+Liar. His eyes darted left, toward the stand of fig trees where the path curved toward Shechem. Marcus dragged him forward. The boy stumbled, then went rigid as Marcus plucked the coil of braided hemp from his belt.
+
+“Thief.”
+
+“Not stealing!” The boy twisted, voice cracking. “We put it back at sundown. Just borrowing.”
+
+Marcus snorted. “Borrowing.”
+
+“For the cistern! The brothers dug it deep, but the pulley broke and—” The boy bit his lip, realizing too late he’d said too much.
+
+So they’d settled nearby. Not just passing through. Marcus released him. The boy bolted, sandals slapping against his bare heels as he vanished into the brush.
+
+He found their camp in a hollow between two hills, hidden from the road. A dozen lean-tos cobbled together from olive branches and frayed cloaks. A fire pit lined with smooth stones. And the cistern, a raw, gaping mouth in the earth, half-shrouded by a makeshift awning.
+
+They’d dug deep, just as the boy said. Deeper than they should have needed to.
+
+Marcus counted eight adults. Mostly men, but two women knelt by the fire, grinding barley between stones. The gaunt Samaritan from yesterday stood at the cistern’s edge, lowering a bucket with Marcus’s rope.
+
+No one noticed him until he stepped into the clearing.
+
+The barley mortar clattered. A woman gasped. The gaunt man’s head snapped up, his grip tightening on the rope.
+
+Marcus held up the coil. “You forgot to ask.”
+
+Silence. Then, from behind the awning, a voice said, “He’s right.”
+
+A woman emerged, wiping her hands on a faded blue shawl. She was older than the others, her face lined by more than sun. Her hair, streaked with gray, was bound in a simple knot at her nape. She moved like someone accustomed to walking on uneven ground, slow, deliberate, never off-balance.
+
+The gaunt man bristled. “Miriam, he’s—”
+
+“Using what’s his.” She plucked the rope from his hands and crossed to Marcus. Up close, her eyes were the color of wet slate. “We meant no theft. The children were told to return it.”
+
+Marcus let the coil drop at her feet. “Tell them to ask next time.”
+
+She studied him. Not the way the others did—like a wolf sizing up a rival, but like a potter examining a cracked vessel, deciding if it could hold water. “You’re alone out here.”
+
+“I was.”
+
+A smile flickered at the corner of her mouth. “The land is wide enough to share.”
+
+“The land doesn’t belong to you.”
+
+“Nor to you.” She tilted her head toward the cistern. “The water rises where it wills. We only catch it.”
+
+Marcus glanced at the excavation. The sides were shored up with woven reeds, the bottom already glistening with seepage. They’d known where to dig. Known the water was there, waiting.
+
+“How?”
+
+Miriam followed his gaze. “One of our brothers was a well-digger in Galilee. He reads the earth like a scroll.”
+
+The gaunt man muttered something under his breath. Miriam shot him a look, and he subsided, scowling.
+
+Marcus nudged the rope with his boot. “You won’t last the summer on seepage.”
+
+“Perhaps not.” She folded her arms, shawl rippling in the hot breeze. “But the rains will come.”
+
+“Not for months.”
+
+Her shoulders lifted. “Then we’ll thirst a little.”
+
+A child’s cough rattled from one of the lean-tos. The boy Marcus had caught crouched in the doorway, clutching his knees. His cheeks were flushed.
+
+Marcus exhaled through his nose. “You’ve got sick ones.”
+
+“The little ones feel the heat worst.” Miriam didn’t turn. “We have hyssop. It helps.”
+
+Roman camps had lost more men to fever than to blades. He’d seen it, bodies curled around their own sweat, lips cracked with thirst, begging for water that only made the cramps worse.
+
+“Boil the water first.” The words left his mouth before he could stop them.
+
+Miriam’s eyebrows rose.
+
+Marcus scowled. “Or don’t. See if I care.”
+
+She bent, retrieving the rope. Her fingers brushed a smooth, flat stone at the cistern’s edge, a polishing stone, the kind used to sharpen blades. But this one was worn down to a glossy oval, edges softened by years of handling.
+
+When she straightened, she pressed it into his palm.
+
+Marcus stiffened. “What’s this?”
+
+“A gift.” Her fingers lingered over his for a heartbeat. “To remember.”
+
+The stone was warm. Unnaturally so, as if it had been cupped in someone’s hands all morning. He almost dropped it.
+
+“I don’t want—”
+
+“You will.” Miriam turned away, calling to the others in a language he didn’t know—Aramaic maybe, or something older. The gaunt man shot Marcus a final glare before following her.
+
+The boy in the lean-to coughed again, a wet, hollow sound.
+
+Marcus clenched the stone until his knuckles ached.
+
+He left without another word.
+
+At dusk, he returned.
+
+No one challenged him. They were too busy hauling water, tending the fire, bundling herbs. Miriam sat apart from the others, mending a torn tunic by the last of the light. She didn’t look up as he approached.
+
+Marcus dropped the sack beside her. Dried figs. A wedge of hard cheese. A clay flask of vinegar, the best thing he knew for fever.
+
+Miriam’s needle paused. “You didn’t have to.”
+
+“I know.”
+
+She set the tunic aside. The stone he’d been given lay in his pocket, catching the firelight in his mind.
+
+Marcus jerked his chin at the boy, now sleeping fitfully under a patched blanket. “He’ll live?”
+
+“If it’s God’s will.”
+
+“God.” Marcus spat the word. “What god lets children starve?”
+
+Miriam picked up a pebble from the ground, running her thumb over its surface. “The same one who made men who feed them.”
+
+A log collapsed in the fire. Sparks spiraled upward, vanishing into the dark.
+
+Marcus turned to go.
+
+Her voice followed him, quiet but clear. “The rope will be returned by morning.”
+
+He didn’t answer.
+
+The stone weighed nothing in his pocket. It felt like a debt.
+
+The cairn stood knee-high, a rough circle of stones where the path forked. Marcus nudged the largest rock with his boot. It held.
+
+Miriam’s people had built it at first light, marking the new boundary. Not his. Not theirs. Shared. The word sat like a pebble in his sandal, small, persistent, impossible to ignore.
+
+He crouched, pressing his palm to the earth. The soil here was different. Loose. Recently turned. He scraped away a handful, revealing a network of shallow channels carved into the hardpan. They fanned outward from the cairn, delicate as veins, directing runoff toward the lower field where his barley struggled.
+
+Clever.
+
+A shadow fell across the dirt. Miriam stood beside him, a basket of wilted greens balanced on her hip. She wore the same blue shawl, though the dye had faded further in the sun. “Your field floods when it rains.”
+
+Marcus let the dirt sift through his fingers. “And yours?”
+
+“Washes away.” She nodded toward the channels. “The brothers dug these last night. The water will go where it’s needed now.”
+
+He stood, wiping his hands on his tunic. “You’re staying.”
+
+“For a season.” Her gaze drifted to the horizon, where the first heat haze shimmered. “The brothers in Shechem sent word. There’s trouble near the border. We’ll wait until it passes.”
+
+Marcus snorted. “Trouble follows men like you.”
+
+“Men like me?”
+
+“Runaways. Zealots.” He flicked a glance at her wrist, where the edge of a scar peeked from her sleeve. “Slaves.”
+
+Miriam adjusted her basket. The scar disappeared under the fabric. “And what follows men like you, Marcus of the Tenth?”
+
+The helmet. The pension. A silence that stretched longer each year. He didn’t answer.
+
+A child’s laughter carried from the well. Ezra—healthy again, cheeks no longer flushed—perched on the pulley beam, kicking his legs while a woman drew water. Marcus’s rope creaked under the weight of the bucket.
+
+Miriam followed his gaze. “He’s called Ezra. His mother died in a village raid. His father...” She shrugged. “Some debts can’t be repaid.”
+
+Marcus flexed his hand. The polished stone was in his pocket, smooth as a worry bead. “You take in strays.”
+
+“We were all strays once.” She plucked a sprig of thyme from her basket and held it out. “For your bread.”
+
+He took it. The leaves bruised under his thumb, releasing a sharp, green scent. Roman officers had paid a month’s wages for spices like this. He’d seen them grind precious herbs into their wine, wasting the flavor on tongues numbed by excess.
+
+Miriam’s fingers were stained yellow at the tips. Dye maybe. Or medicine.
+
+“You’re staring,” she said.
+
+Marcus tossed the thyme into his mouth. The bitterness made his eyes water. “Tastes like piss.”
+
+She laughed, sudden and unguarded. “You’re supposed to cook it first.”
+
+He spat the leaves out. “Next time, say so.”
+
+“Next time.” Miriam’s smile lingered as she turned toward the well. “I’ll remember.”
+
+They came at dusk. Not to steal, not to beg, but to work.
+
+Marcus watched from the olive tree as the gaunt Samaritan and two others hoisted sacks of grain onto their shoulders—his grain, harvested from his field—and carried it to a flat stone near the fire pit. The thick-necked fisherman knelt beside it, grinding the barley with a rhythmic, circular motion. No one spoke. No one looked his way.
+
+Ezra scampered between the lean-tos, gathering kindling. When he stumbled, dropping an armful of twigs, Eli caught him by the elbow before he could faceplant into the dirt. The boy grinned, sheepish, and Eli ruffled his hair before sending him off again.
+
+Miriam stood apart, stirring a clay pot over the fire. The smell of onions and something earthy—lentils maybe—drifted across the clearing.
+
+Marcus’s stomach growled.
+
+He’d eaten alone for fifteen years. First in the barracks, then in this godsforsaken field. Meals were fuel, not ritual. Bread torn with his hands. Olives spat into the dirt. Wine swallowed straight from the skin.
+
+A woman at the fire ladled stew into wooden bowls. She handed the first to Ezra, who blew on it eagerly before passing it to the gaunt man. The second bowl went to Eli. The third to the fisherman.
+
+Miriam took the fourth. She didn’t eat. She walked toward the olive tree, steam curling from the bowl in her hands.
+
+Marcus straightened. “I’m not hungry.”
+
+“Liar.” She thrust the bowl at him. “Eat.”
+
+The stew was thick, studded with lentils and flecks of green. He took a grudging sip. The broth was richer than he expected, flavored with garlic and that damned thyme.
+
+Miriam watched him swallow. “Well?”
+
+“Needs salt.”
+
+She rolled her eyes and turned to go.
+
+Marcus caught her wrist. The scar under her sleeve was rough under his fingers. “Sit.”
+
+She hesitated, then settled beside him in the dirt. Firelight painted her profile in gold and shadow.
+
+For a while, they ate in silence. The stew was good. He hated that it was good.
+
+Ezra dashed past, chasing a scrawny dog that had appeared from the brush. The gaunt man called after him, exasperated but fond. Eli said something that made the fisherman laugh, a deep, rolling sound that startled Marcus. He hadn’t realized the man could laugh.
+
+Miriam set her empty bowl aside. “You’re thinking too loud.”
+
+Marcus swirled the dregs of his stew. “They’ll leave.”
+
+“All men leave, one way or another.”
+
+“Not what I meant.”
+
+She plucked a fallen olive leaf from the ground, twisting the stem between her fingers. “You want to know if it’s worth it. Sharing your land. Your water. Watching children play where you’ve walked alone for years.”
+
+“Yes.”
+
+Miriam leaned back, bracing her hands on the dirt. “When the rains come, your field won’t flood. Your barley will grow taller. Next summer, when the heat comes, you’ll have help digging the well deeper.” She nodded toward Ezra, who was now attempting to balance a stick on his nose while the dog barked. “And when the Romans next demand taxes, there will be more hands to hide the grain.”
+
+Marcus snorted. “Practical.”
+
+“Is that a bad thing?”
+
+He didn’t answer. The fire popped, sending up a shower of sparks. The gaunt man was telling a story now, his hands shaping the air. The others leaned in, bowls forgotten. Even the fisherman.
+
+Marcus recognized the cadence. Campfire tales. The kind soldiers told to keep the dark at bay.
+
+Miriam’s shoulder brushed his as she stood. “They’ll want to hear about the Euphrates.”
+
+He stiffened. “I’m not one of your brothers.”
+
+“No.” She looked down at him, her shawl slipping to reveal the scar again, a ragged line, old and poorly healed. “But you’re not alone either.”
+
+The polished stone warmed in his palm as the first stars emerged.
+
+Marcus sat on the well’s rim, listening to the murmur of voices from the camp. The gaunt man’s story had ended. Someone was singing now, a low, meandering tune in a language he didn’t know.
+
+Ezra’s laughter punctuated the melody. The dog barked. A woman shushed them both, her voice fond.
+
+The cairn stood solid in the twilight, its stones holding fast.
+
+Marcus closed his fingers around the stone. It fit perfectly.
+
+When the wind shifted, carrying the scent of thyme and woodsmoke, he didn’t move away.
