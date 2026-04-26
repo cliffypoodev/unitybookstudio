@@ -4,7 +4,7 @@ He heard the market before he saw it. A donkey brayed, long and aggrieved. A pot
 
 Ephesus unrolled itself in the gray dawn. His shop occupied the corner where the Street of the Bakers met the wider avenue leading to the Agora. Across the way, Demetrius’s silver workshop was shuttered tight, an unusual sight. Usually, the apprentice was already sweeping the step, the tap-tap-tap of small hammers a counterpoint to Silas’s own work. Not today. One silence from that quarter felt deliberate, like a held breath.
 
-The first customer was old Miriam, who came every day for a barley loaf and three words. “The usual,” she said, her coins already in her wrinkled palm. Her eyes, milk-filmed, scanned his shelves. They were only a quarter full. “Light on the batch today, Silas?”
+The first customer was old Miriam, who came every day for a barley loaf and three words. “The usual,” she said, her coins already in her wrinkled palm. Her eyes, milk-filmed, scanned his shelves, which were only a quarter full. “Light on the batch today, Silas?”
 
 “Slow rise,” he said, wrapping her loaf in a scrap of cloth. It was a lie. The rise was fine. The orders were not.
 
@@ -32,13 +32,13 @@ Silas froze, his hand halfway to the loaves. We. One man didn’t mean his famil
 
 “I run a bakery,” Silas said, his voice tighter than he intended. “Not a confessional.”
 
-“Even a baker needs to eat where the wind doesn’t bite,” the man said. It was a coded thing, a phrase that meant nothing and everything. A warning. The wind was changing.
+“Even a baker needs to eat where the wind doesn’t bite,” the man said. It was a coded thing, a phrase that meant nothing and everything. A warning. A wind was changing.
 
 Silas wrapped the stale loaves. His fingers felt thick, clumsy. As he handed them over, their eyes met. The man’s gaze held no fervor, only a weary calculation, and a question.
 
 The man left without another word, slipping into the stream of the street.
 
-For a long minute, Silas stood behind his counter. The warmth of the ovens felt suddenly stifling. He walked to the open shutter. The crowd in the avenue was thicker now, clumping into groups. He saw brawny arms, the telltale leather aprons of metalworkers. Their voices were a low, angry buzz.
+For a long minute, Silas stood behind his counter. The warmth of the ovens felt suddenly stifling. He walked to the open shutter. One crowd in the avenue was thicker now, clumping into groups. He saw brawny arms, the telltale leather aprons of metalworkers. Their voices were a low, angry buzz.
 
 Then he saw Demetrius. The silversmith stood on the steps of a colonnade, addressing a knot of men. His face was flushed, his hands carving shapes of fury in the air. He pointed—not toward the theatre, not toward the foreigner’s usual haunts. His finger swept in an arc that, to Silas’s dawning horror, seemed to encompass the entire market quarter. The homes where people lived. The shops.
 
@@ -74,7 +74,7 @@ Then the direction changed. The mob, a single organism now, turned and surged ou
 
 His blood went cold. He ran then, not with the mob’s purpose, but against the current of onlookers, using back alleys he knew from a lifetime of deliveries. The smell of baking bread was gone, replaced by the stink of sweat and fear and the dust kicked up by hundreds of sandals. He came out onto a narrow street of plastered houses. He was too late.
 
-The door of a small house was splintered inward. A clay pot of basil lay shattered on the threshold. From inside came the smash of pottery, the crunch of wood giving way. A man stumbled out, his tunic ripped, his face a mask of terror. He was not a silversmith. He was a dyer, his forearms stained blue to the elbow. Silas had sold him bread last week. The man saw Silas, his eyes wide with a plea, before two burly smiths dragged him back inside. The mob’s chant had broken into a thousand sharp fragments—curses, cries, the brutal sound of things breaking.
+One door of a small house was splintered inward. A clay pot of basil lay shattered on the threshold. From inside came the smash of pottery, the crunch of wood giving way. A man stumbled out, his tunic ripped, his face a mask of terror. He was not a silversmith. He was a dyer, his forearms stained blue to the elbow. Silas had sold him bread last week. The man saw Silas, his eyes wide with a plea, before two burly smiths dragged him back inside. The mob’s chant had broken into a thousand sharp fragments—curses, cries, the brutal sound of things breaking.
 
 This was not a protest. This was a settling of accounts. A purge.
 
