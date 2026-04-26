@@ -1,8 +1,8 @@
 Dust motes danced in the thick shafts of light that speared through the high windows of the Scriptorium. Theon dipped his reed pen, the faint scratch of its tip the only sound for a dozen paces around his station. He worked with the precise, unhurried rhythm of a man whose life was measured in lines of text. The air smelled of papyrus, beeswax, and a faint, sweet rot that clung to the oldest scrolls. He always preferred the morning. The light was best then, direct and honest, unlike the flickering oil lamps that cast deceptive shadows later in the day.
 
-His current commission lay open on the low desk before him, a collection of administrative decrees regarding grain shipments from Egypt to Rome. Mundane. Predictable. Theon’s fingers moved, replicating the elegant Greek script with almost perfect fidelity. Each stroke was a testament to his training, years spent honing his craft under the stern gaze of the Head Scribe, a man whose patience was as thin as the finest papyrus. Theon’s neck ached, a familiar dull throb that had been his companion since he began his apprenticeship a decade ago. He ignored it. Pain was simply another physical fact, like the grain of the wood beneath his elbows.
+His current commission lay open on the low desk before him, a collection of administrative decrees regarding grain shipments from Egypt to Rome. Mundane. Predictable. Theon’s fingers moved, replicating the elegant Greek script with almost perfect fidelity. Each stroke was proof of his training, years spent honing his craft under the stern gaze of the Head Scribe, a man whose patience was as thin as the finest papyrus. Theon’s neck ached, a familiar dull throb that had been his companion since he began his apprenticeship a decade ago. He ignored it. Pain was simply another physical fact, like the grain of the wood beneath his elbows.
 
-A shadow fell across his work. Theon did not flinch, did not look up. He completed the word, a perfectly formed emporion, then slowly raised his head.
+A shadow fell across his work. Theon did not flinch or look up. He completed the word, a perfectly formed emporion, then slowly raised his head.
 
 Silas, the Library’s Senior Archivist, stood over him. Silas’s robes were a deep, almost oppressive blue, and his face, usually a map of consternation, held a peculiar, pinched expression. He carried a rolled scroll, bound not with the usual simple twine but with a thin, knotted leather cord. The cord looked old, softened by countless hands.
 
@@ -10,9 +10,9 @@ Silas, the Library’s Senior Archivist, stood over him. Silas’s robes were a 
 
 “Archivist,” Theon replied, his voice level. He set his pen carefully in its inkwell.
 
-“A new task.” Silas unfurled the scroll with a snap that made several nearby scribes glance up. The papyrus was rougher than the administrative texts Theon usually handled, a darker, almost reddish hue beneath the light. It was clearly not from the Library’s own stores.
+“A new task.” Silas unfurled the scroll with a snap that made several nearby scribes glance up. The papyrus was rougher than the administrative texts Theon usually handled, a darker, almost reddish hue beneath the light. Clearly not from the Library’s own stores.
 
-Theon’s gaze fell to the script. It was Greek, but unpolished, less formal than the classical texts he copied daily. The letters leaned, almost urgent, across the page. “What is this?” he asked, the question escaping him before he could rein it in. He rarely asked questions. Questions implied a lack of understanding, an inefficiency.
+Theon’s gaze fell to the script. Greek, but unpolished, less formal than the classical texts he copied daily. The letters leaned, almost urgent, across the page. “What is this?” he asked, the question escaping him before he could rein it in. He rarely asked questions. Questions implied a lack of understanding, an inefficiency.
 
 “A letter,” Silas answered, his tone clipped. “From a sect in Judea. The ‘Nazarenes,’ they call themselves. A... curious document.” He smoothed a section of the scroll with a thumb, a gesture Theon found uncharacteristically hesitant. “It requires transcription. Multiple copies. For certain... interested parties.”
 
@@ -34,7 +34,7 @@ The writing was less elegant, more forceful. Theon found himself adjusting his g
 
 “Amen.” The word, a Hebrew affirmation, felt foreign on his tongue, even unspoken. It was not a word he used in his meticulous, rational world. He copied it with the same care he gave to every other letter, a perfect circle, a precise line. Yet the word hung in the air, a small, insistent vibration.
 
-He continued, line after painstaking line. The author, Paul, seemed to argue with an invisible opponent, to exhort an unseen audience. It was less a letter and more a sermon poured onto papyrus. Theon’s usual detachment began to fray at the edges. He found himself reading ahead, not to anticipate the next word to copy, but to follow the peculiar logic. I am astonished that you are so quickly deserting him who called you in the grace of Christ and are turning to a different gospel—not that there is another one, but there are some who trouble you and want to distort the gospel of Christ.
+He continued, line after painstaking line. The author, Paul, seemed to argue with an invisible opponent, to exhort an unseen audience. Less a letter and more a sermon poured onto papyrus. Theon’s usual detachment began to fray at the edges. He found himself reading ahead, not to anticipate the next word to copy, but to follow the peculiar logic. I am astonished that you are so quickly deserting him who called you in the grace of Christ and are turning to a different gospel—not that there is another one, but there are some who trouble you and want to distort the gospel of Christ.
 
 Deserting? Troubling? Distorting? These were not terms used in the cool, measured debates of the philosophers, nor in the dry directives of the consuls. These were words of passion, of judgment. Theon’s brow furrowed. He paused, his pen poised over the papyrus. A tiny drop of ink formed on the tip, then fell onto his clean sheet, a stark black tear on the pristine surface. He cursed under his breath, a rare outburst.
 
