@@ -4,7 +4,7 @@ This was different. This was a greasy, rising panic, seeping up through the deck
 
 Elias leaned on the rail of the mid-deck, a scrap of salt pork forgotten in his hand. The sky to the west was the color of a fresh bruise, yellow at the edges, purple at the heart. A following wind, they’d called it this morning. A damn gale was the truth of it now. The sails were reefed tight, the deck crew moving with a tense, deliberate speed he recognized. Bad weather was coming. Soon.
 
-One hatch to the lower hold banged open. A soldier’s helmet appeared, then the rest of him, blinking in the gray light. He looked pale. Behind him, voices rose in a tangled plea—Aramaic, Greek, a bit of Latin begging for mercy. One soldier slammed the hatch shut, cutting the sound to a muffled wail. He saw Elias watching and straightened his tunic.
+One hatch to the lower hold banged open. A soldier’s helmet appeared, then the rest of him, blinking in the gray light. He looked pale. Behind him, voices rose in a tangled plea—Aramaic, Greek, a bit of Latin begging for mercy. The soldier slammed the hatch shut, cutting the sound to a muffled wail. He saw Elias watching and straightened his tunic.
 
 “They’re your problem down there, not mine,” Elias said before the man could speak.
 
@@ -16,7 +16,7 @@ One hatch to the lower hold banged open. A soldier’s helmet appeared, then the
 
 Elias grunted. That was Julius’s mistake. He never let a condemned man feel like a man. He kept him in chains, in the dark, reminded him of his station. Hope was a more dangerous cargo than storm water. It shifted. “And?”
 
-“And it’s working,” the soldier said, his voice tight with something that wasn’t fear. It was offense. “They were weeping like children. Now they’re... listening. It isn’t right.”
+“And it’s working,” the soldier said, his voice tight with something that wasn’t fear. Offense. “They were weeping like children. Now they’re... listening. It isn’t right.”
 
 A larger wave lifted the Castor’s stern. The timbers groaned a long, deep complaint. The soldier grabbed a stay to keep his feet. Elias didn’t move. His legs knew the rhythm already.
 
@@ -72,7 +72,7 @@ But Elias was already moving, shouting for axes, for men to start hacking at the
 
 One hatch burst open. Not from a command, but from the force of men scrambling up from below, terror finally overwhelming song. They spilled onto the deck, slipping on the wet planks, eyes wild with the understanding that the walls of their world were breaking.
 
-And behind them, last came the little Pharisee, Paul. He stood in the hatchway, one hand on the frame, his hair and beard plastered to his skin by spray. He didn’t look at the chaos of men fighting the sea. He looked at the centurion. His voice, when he spoke, didn’t shout. It cut, somehow, clean through the wind.
+And behind them, last, came the little Pharisee, Paul. He stood in the hatchway, one hand on the frame, his hair and beard plastered to his skin by spray. He didn’t look at the chaos of men fighting the sea. He looked at the centurion. His voice, when he spoke, didn’t shout. It cut, somehow, clean through the wind.
 
 “You should have listened to me, Julius. But now, you must listen. Everyone on this ship will live. Not a hair from the head of any of you will be lost.”
 
@@ -104,7 +104,7 @@ Paul turned. Water streamed down the deep lines of his face. His too-large eyes 
 
 “Do we?” Paul asked. A genuine question. He looked past Elias, at the screaming chaos. “They have stopped believing they will die. Look at them.”
 
-Elias looked. The woman was bailing now, her children passing her a cracked jug. The young soldier was heaving on a rope, his face set in a grimace of effort, not terror. They were still afraid—he could see it in the whites of their eyes—but it was a sharp, clean fear, a tool. Not the drowning panic from the hold. The difference was the man in front of him.
+Elias looked. A woman was bailing now, her children passing her a cracked jug. The young soldier was heaving on a rope, his face set in a grimace of effort, not terror. They were still afraid—he could see it in the whites of their eyes—but it was a sharp, clean fear, a tool. Not the drowning panic from the hold. The difference was the man in front of him.
 
 “You have traded their panic for focus,” Elias shouted. “A fair trade. But focus won’t mend a cracked keel.”
 
@@ -132,7 +132,7 @@ And like a man tuning his ear to a single instrument in a riotous orchestra, Eli
 
 A cold knot, dense and solid, formed in Elias’s gut. It wasn’t belief. It was the collapse of a simpler world. This man, this chained, beaten, irrelevant little prophet had seen a weather report in a dream, and it was coming true. Elias had spent a lifetime reading the sky, the water, the smell of the air. His skill was his temple. Now a stranger walked in and recited the liturgy backward, and the temple shook.
 
-The Castor gave a final, sickening lurch. The deck tilted to an angle that made standing impossible. Men slid, screaming, into the scuppers. The mainmast let out a splintering crack. Time. The ship was coming apart.
+The Castor gave a final, sickening lurch. The deck tilted to an angle that made standing impossible. Men slid, screaming, into the scuppers. The mainmast let out a splintering crack. Time. This ship was coming apart.
 
 In the midst of the sliding chaos, Paul braced himself against the tilting forecastle bulkhead. He was fumbling at the sodden leather pouch tied to his belt. With clumsy, cold-stiff fingers, he pulled out a small linen bundle. Soaked. He peeled back the cloth, revealing a broken piece of flatbread, waterlogged and crumbling.
 
@@ -152,9 +152,9 @@ The deck shuddered again, a final convulsion. The sound of tearing oak was a sho
 
 Paul closed his hand around the bread, nodded once as if a transaction were complete, and turned to join the others.
 
-The world did not end with a final crack, but with a long, shuddering sigh. The Castor settled into a crippled list, her deck a steep hill, but she stopped moving. The wind, as if exhausted by its own fury, dropped to a moan, then a whisper. The black wall of cloud tore apart, revealing a sliver of silver-blue sky to the east, and beneath it, a smudge of land.
+A world did not end with a final crack, but with a long, shuddering sigh. The Castor settled into a crippled list, her deck a steep hill, but she stopped moving. The wind, as if exhausted by its own fury, dropped to a moan, then a whisper. The black wall of cloud tore apart, revealing a sliver of silver-blue sky to the east, and beneath it, a smudge of land.
 
-That silence was louder than the storm had been. A ringing in the ears, punctuated by the slap of loose rigging, the sob of a man, the steady, defeated trickle of water draining from the scuppers. Elias lay where he had fallen, his cheek against the wet, splintered grain of the deck. He breathed. That was the first fact. The second was the ache in every muscle, a deep, bone-weariness. The third was the memory of the bread in the prisoner’s hand, an image etched behind his eyes.
+The silence was louder than the storm had been. A ringing in the ears, punctuated by the slap of loose rigging, the sob of a man, the steady, defeated trickle of water draining from the scuppers. Elias lay where he had fallen, his cheek against the wet, splintered grain of the deck. He breathed. That was the first fact. The second was the ache in every muscle, a deep, bone-weariness. The third was the memory of the bread in the prisoner’s hand, an image etched behind his eyes.
 
 He pushed himself up. The scene was one of shattered, damp survival. The mainmast was a jagged stump. The deck was a graveyard of tangled rope, shattered barrels, and personal debris—a child’s wooden doll, a waterlogged scroll unfurling like a dead tongue. But the people were alive. They clumped together, shivering, their faces blank with shock. The centurion, Julius, was already moving, his voice hoarse but steady, directing soldiers to take stock, tend to the wounded, and secure what remained.
 
@@ -220,7 +220,7 @@ Just before they disappeared into the scrubby trees, Paul glanced back. Not at t
 
 The sun was warm on Elias’s salt-crusted shoulders. The air smelled of pine and damp earth. A normal day on a normal island. He had survived. He should have felt relief, the sharp, clean weight of survival.
 
-All he felt was the quiet and, in the quiet, the echo of a song sung in a dark hold, and the memory of a calm so profound it had felt like a different kind of weather. He had navigated by stars and currents all his life. Now he was left with the unsettling suspicion that there were other currents, invisible and deep, that other men might sail by. He did not believe it. He could not. But he could no longer disbelieve it, either. The thought sat in him like a splinter—too small to dig out, too present to ignore.
+All he felt was the quiet and, in the quiet, the echo of a song sung in a dark hold, and the memory of a calm so profound it had felt like a different kind of weather. He had navigated by stars and currents all his life. Now he was left with the unsettling suspicion that there were other currents, invisible and deep, that other men might sail by. He did not believe it. He could not. But he could no longer disbelieve it, either. One thought sat in him like a splinter—too small to dig out, too present to ignore.
 
 He looked down at his empty, calloused hands. They had held an axe, ropes, the wheel of a ship. Now they held nothing. He closed them into fists, then let them fall open. He turned his back on the sea and walked up the beach, toward the smoke of a cooking fire, the sound of unfamiliar voices. The world had not changed. The sky was the same sky. The land was solid beneath his feet.
 
