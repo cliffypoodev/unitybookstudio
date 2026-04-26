@@ -186,8 +186,6 @@ Miriam’s needle paused. “You didn’t have to.”
 
 “I know.”
 
-She set the tunic aside. The stone he’d been given lay in his pocket, catching the firelight in his mind.
-
 Marcus jerked his chin at the boy, now sleeping fitfully under a patched blanket. “He’ll live?”
 
 “If it’s God’s will.”
