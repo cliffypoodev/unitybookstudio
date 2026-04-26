@@ -1,4 +1,4 @@
-Lysander reclined on a new cushion stuffed with Egyptian goose down and tried to enjoy the afternoon quiet. It was the wrong kind of quiet. The house, a sprawling villa of imported marble and brilliant white stucco overlooking the Lechaeum Road, was never silent. Usually, it thrummed with the commerce of his father’s life: the clink of abacus beads from the counting room, the murmur of agents from Alexandria and Rome in the atrium, the rhythmic scrape of the stone polisher’s tools on the peristyle floor. Today, the only sound was the distant, fretful call of a dove from the garden. It was the quiet of absence. His father’s absence.
+Lysander reclined on a new cushion stuffed with Egyptian goose down and tried to enjoy the afternoon quiet. It was the wrong kind of quiet. The house, a wide villa of imported marble and brilliant white stucco overlooking the Lechaeum Road, was never silent. Usually, it thrummed with the commerce of his father’s life: the clink of abacus beads from the counting room, the murmur of agents from Alexandria and Rome in the atrium, the rhythmic scrape of the stone polisher’s tools on the peristyle floor. Today, the only sound was the distant, fretful call of a dove from the garden. It was the quiet of absence. His father’s absence.
 
 Marcus, son of Gaius, merchant of Corinth, was at the fuller’s workshop again.
 
@@ -6,7 +6,7 @@ Lysander took a slow sip of unmixed wine. The clay cup was cheap, a plain thing 
 
 A slave girl—Thracian, he thought, by the sharp cut of her cheekbones—entered to trim the wicks of the lamps. She moved with a liquid grace, her bare feet whispering on the mosaic of Dionysus triumphant. She didn’t look at him. He watched the line of her neck, the way her simple tunic fell from her shoulder. There was a story there, probably. A village burned, a father sold for debt. He used to invent such stories for them. Lately, he couldn’t muster the energy. She was just a shape moving through his father’s expensive silence.
 
-The problem was the workshop. Not the fact of it—Marcus owned shares in tanneries, potteries, three shipping syndicates. A fuller’s operation was small change. The problem was that Marcus went there. In person. In the afternoon heat, when respectable men of his station were at the baths or napping. He came home smelling not of incense and oil, but of lye and cheap wool and something else—a scent of close, unwashed bodies and fervent talk.
+That was the problem with the workshop. Not the fact of it—Marcus owned shares in tanneries, potteries, three shipping syndicates. A fuller’s operation was small change. The problem was that Marcus went there. In person. In the afternoon heat, when respectable men of his station were at the baths or napping. He came home smelling not of incense and oil, but of lye and cheap wool and something else—a scent of close, unwashed bodies and fervent talk.
 
 “He listens to them,” the house steward, a pinched-lipped Cappadocian named Diodorus, had confided yesterday, his voice hushed with scandal. “These... people. Jews, mostly. Some Greeks. Freedmen. A woman who sells fish. They meet in the back room. They talk of a dead Judean prophet and share a common meal. Your father pays the rent.”
 
@@ -16,7 +16,7 @@ Diodorus had merely inclined his head, his expression saying what his loyalty fo
 
 The dove called again. A single, repeated note. It sounded like a question.
 
-Lysander set the cracked cup down too hard. A bead of dark wine slid down the side. He stood, the movement abrupt, unsettling the cushion. He needed to move. He paced the length of the andron, his sandals slapping softly on the geometric patterns of the floor. Past the fresco of the sea god, past the bronze statue of a discus thrower his father had won in a bet. Everything here was acquired, traded, calculated. A testament to good taste and better credit. A world of surfaces, polished and predictable. His father had built it. Now he was spending his afternoons in a room that likely stank of urine and desperation.
+Lysander set the cracked cup down too hard. A bead of dark wine slid down the side. He stood, the movement abrupt, unsettling the cushion. He needed to move. He paced the length of the andron, his sandals slapping softly on the geometric patterns of the floor. Past the fresco of the sea god, past the bronze statue of a discus thrower his father had won in a bet. Everything here was acquired, traded, calculated. A proof of good taste and better credit. A world of surfaces, polished and predictable. His father had built it. Now he was spending his afternoons in a room that likely stank of urine and desperation.
 
 Why?
 
@@ -152,7 +152,7 @@ The wine followed. The same cup, passed from lip to lip. He watched an old woman
 
 The ritual ended. They began to talk again, but the tone had changed. Lighter. They shared news: a brother traveling from Ephesus, a baby due in the house of Chloe. They took up a collection for the family of the dockworker. Coins clinked into a wooden box—asses, dupondii, no gold. A pittance. A fortune.
 
-Lysander could not breathe. The heat, the smell, the palpable web of connection in the room pressed on him. A net. He felt its threads brushing against him, trying to snag. This was what had straightened his father’s spine. Not an idea, but a body. A breathing, sweating, broken body of people who believed a dead man had conquered death and then told them to share their bread and their burdens. Insane. The most terrifyingly coherent thing he had ever witnessed.
+Lysander could not breathe. The heat, the smell, the thick web of connection in the room pressed on him. A net. He felt its threads brushing against him, trying to snag. This was what had straightened his father’s spine. Not an idea, but a body. A breathing, sweating, broken body of people who believed a dead man had conquered death and then told them to share their bread and their burdens. Insane. The most terrifyingly coherent thing he had ever witnessed.
 
 He had to get out.
 
@@ -170,7 +170,7 @@ He began the long walk uphill, toward the marble and the silence. The pressure b
 
 The study was his sanctuary. Scrolls in cedarwood racks, a wax tablet for accounts, a single good chair of worn leather. The lamp on the desk was bronze, shaped like an owl. Its light pooled on the polished wood, a small, contained sun. Lysander sat in the chair but did not light the lamp. Dawn was a grey smear at the window. He had not slept. The smell of the workshop clung to the back of his throat, a ghost of sweat and coarse bread.
 
-He had come here for proof. Not of faith, but of finance. His father’s private strongbox was set into the wall behind a hanging tapestry of the siege of Troy. The wool was thick, dusty. He knew the combination. His eighteenth birthday gift: access to the family numbers. A test he had failed through disinterest.
+He had come here for proof. Not of faith, but of finance. His father’s private strongbox was set into the wall behind a hanging fabric of the siege of Troy. The wool was thick, dusty. He knew the combination. His eighteenth birthday gift: access to the family numbers. A test he had failed through disinterest.
 
 His fingers found the brass mechanism. The click was satisfyingly solid. The door swung inward.
 
