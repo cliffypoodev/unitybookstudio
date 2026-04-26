@@ -34,7 +34,7 @@ He carried an armful back to his table. The first scroll was a formal deposition
 
 He worked. The depositions bled into one another. A fish-seller from the Lower City reported a neighbor refusing market meats, calling them defiled. A wool carder spoke of secret night meetings in a potter’s field outside the Dung Gate. A Roman decurion, his Latin translated into clumsy Aramaic, complained of a Jewish servant who became difficult, speaking of a higher lord than the Emperor, and was dismissed. The words became a drone. Elias’s hand moved, transcribing names, places, fragments of preached sentiment. He is the Christ. The law is fulfilled. The Temple made with hands will be replaced.
 
-His wrist began to ache. He switched hands, massaging the cramp from his fingers. He reached for the next scroll. This one was different. The papyrus was cheaper, fibrous, the ink a watered-down brown. The hand was unpracticed, letters sprawling and uneven, as if written by someone who rarely held a pen. A common person’s denunciation.
+His wrist began to ache. He switched hands, massaging the cramp from his fingers. He reached for the next scroll. This one was different. The papyrus was cheaper, fibrous, the ink a watered-down brown. The hand was unpracticed, letters wide and uneven, as if written by someone who rarely held a pen. A common person’s denunciation.
 
 “I, Jared son of Tobias, stonecutter, swear this is true. The man Yeshua bar-Jacob, a mason of the Lower City, has several times spoken against the Temple offerings. He said the blood of goats cannot cleanse a man. He said the true sacrifice is a broken spirit. He has broken bread with known followers of the crucified magician from Galilee. His wife, Miriam, also attends these gatherings. They have a son, Caleb, who is learning his father’s trade. They dwell in the house with the green door on the Street of the Olive Press, by the third cistern.”
 
@@ -46,7 +46,7 @@ The name was a pebble dropped into the still pool of his concentration. Ripples 
 
 Miriam. She had lived in his grandfather’s neighborhood. A lifetime ago, before his father’s scribal skill had lifted them to a better street, before the long hours of study, before the dust.
 
-It could not be the same Miriam. Jerusalem was full of Miriams. It was like naming a child “Stone” or “Water.” Yet the details clung. A Street of the Olive Press was near his grandfather’s old house. The green door—he could almost see it, the paint a faded, milky verdigris. He had run past it a hundred times.
+It could not be the same Miriam. Jerusalem was full of Miriams. It was like naming a child “Stone” or “Water.” Yet the details clung. The Street of the Olive Press was near his grandfather’s old house. The green door—he could almost see it, the paint a faded, milky verdigris. He had run past it a hundred times.
 
 His eyes went back to the text. “A son, Caleb, who is learning his father’s trade.”
 
