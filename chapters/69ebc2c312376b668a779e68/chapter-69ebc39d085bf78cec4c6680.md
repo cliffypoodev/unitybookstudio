@@ -1,4 +1,4 @@
-The heat was a physical thing. It pressed down from a white sky and rose in shimmering waves from the hard-packed earth, filling the space between the two lumbering wagons with the smell of dust, donkey, and the faint metallic tang of salt. Theron rode the lead wagon’s bench, a wide-brimmed straw hat low over his eyes. His hands, calloused and permanently dusted with a pale grit, rested on his thighs. He counted the donkey’s steps, a habit. Four hundred and seventy-two since the last marker stone. The rhythm was a comfort, a real thing. The cargo behind him was another real thing: forty sealed clay amphorae, each packed tight with salt from the southern pans. In Antioch, that salt would preserve fish, cure hides, season the tables of men who’d never sweat under this particular sun. It had weight. It had value he could count.
+The heat was a physical thing. It pressed down from a white sky and rose in flickering waves from the hard-packed earth, filling the space between the two lumbering wagons with the smell of dust, donkey, and the faint metallic tang of salt. Theron rode the lead wagon’s bench, a wide-brimmed straw hat low over his eyes. His hands, calloused and permanently dusted with a pale grit, rested on his thighs. He counted the donkey’s steps, a habit. Four hundred and seventy-two since the last marker stone. The rhythm was a comfort, a real thing. The cargo behind him was another real thing: forty sealed clay amphorae, each packed tight with salt from the southern pans. In Antioch, that salt would preserve fish, cure hides, season the tables of men who’d never sweat under this particular sun. It had weight. It had value he could count.
 
 The second wagon, ten lengths back, carried the noise.
 
@@ -26,13 +26,13 @@ Silas smiled, a tolerant stretch of his lips. “You see the clay, but not the p
 
 But Silas didn’t move. He stood beside the wagon, his long frame angled against the sun. “Your cargo. It preserves. It keeps corruption at bay.” He nodded slowly, as if agreeing with himself. “A fitting trade. You carry a symbol, brother, even if you don’t know it.”
 
-Theron looked at him then. The man’s eyes were bright, the kind of bright that came from inside, not from the sun. It was unsettling. “It’s salt,” Theron said, his voice flat. “It keeps fish from stinking. That’s all.”
+Theron looked at him then. The man’s eyes were bright, the kind of bright that came from inside, not from the sun. Unsettling. “It’s salt,” Theron said, his voice flat. “It keeps fish from stinking. That’s all.”
 
 He clicked his tongue, and the donkey leaned into its harness. The wagon groaned forward, leaving Silas standing in the dust. The man’s shadow shrank, then vanished as he turned back to his own wagon. The voices started up again, lower now, a susurrus of disagreement under the creak of axles.
 
 They made camp where a stubborn outcrop of rock threw a sliver of shade. Theron tended to his animals first, rubbing the donkeys down with a coarse cloth, checking their hooves for stones. The ritual was peace. The animals’ warm breath, the simple economy of care and result. Behind him, the followers built a small fire. The smell of flatbread and beans began to mix with the evening chill.
 
-Theron sat apart, his back against a wheel, chewing on a strip of dried mutton. It was tough. It required attention. He watched the firelight play on their faces as they ate. Jude spoke rapidly, beans spilling from his bread as he gestured. Miriam listened, her hands folding and refolding a scrap of linen in her lap. Silas stared into the flames.
+Theron sat apart, his back against a wheel, chewing on a strip of dried mutton. Tough. It required attention. He watched the firelight play on their faces as they ate. Jude spoke rapidly, beans spilling from his bread as he gestured. Miriam listened, her hands folding and refolding a scrap of linen in her lap. Silas stared into the flames.
 
 “He said the temple veil was rent,” Jude was saying, his voice hushed with awe. “Top to bottom. At the very hour.”
 
@@ -214,7 +214,7 @@ A guard jabbed a stylus into the seal of an amphora, breaking it open. He dipped
 
 Inside the walls, the world compressed into a roar of life. Streets narrow as canyons channeled the noise upward. Hawkers screamed prices for dates, for pottery, for amulets. A dye-seller’s hands were stained a permanent, violent blue. The smell of frying fish oil warred with the reek of a tanner’s alley. Theron guided his wagon through the press, his donkeys’ ears flat against their skulls. He knew this quarter. He went straight to the warehouse of Kostas, a Greek factor with a reputation for fair weights.
 
-The transaction was clean. Kostas, a man with a beard like frayed rope and eyes that missed nothing, inspected the salt again. He haggled over the price per measure, but it was a dance they both knew. They settled. Kostas’s slaves began the unloading, their muscles corded as they carried the heavy amphorae into the cool, dark storeroom. The sound of the jars settling on straw was a solid, final sound. A completion.
+The transaction was clean. Kostas, a man with a beard like frayed rope and eyes that missed nothing, inspected the salt again. He haggled over the price per measure, but it was a dance they both knew. They settled. Kostas’s slaves began the unloading, their muscles corded as they carried the heavy amphorae into the cool, dark storeroom. The sound of the jars settling on straw was solid and final. A completion.
 
 Theron stood in the courtyard, the payment—a mix of silver denarii and heavy Syrian bronze—a satisfying weight in the leather pouch at his belt. He watched the last amphora vanish into the gloom. His hands were empty. This road was done.
 
