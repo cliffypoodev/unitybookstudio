@@ -106,7 +106,7 @@ Lyra looked at him. She looked at his winter-puddle eyes, his furious mouth. The
 
 “I don’t know,” she said.
 
-The truth sounded like a death sentence.
+One truth sounded like a death sentence.
 
 Dorus’s grip was the only solid thing in a world that had liquefied. The market sounds—the barter, the laughter, the clatter of goods—receded into a dull roar, as if she heard them from underwater. The old man stood his ground, unflinching before Dorus’s spittle-flecked fury. The dark-haired man and the others closed ranks behind him, a silent, dusty wall.
 
