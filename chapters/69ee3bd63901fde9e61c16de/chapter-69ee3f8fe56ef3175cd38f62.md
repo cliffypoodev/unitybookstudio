@@ -78,7 +78,7 @@ Marius made a mark on his tablet.
 
 They reached the armory at the end of the barrack block. The armorer, a grizzled veteran missing two fingers on his left hand, stood beside racks of pilums and gladii. His name was Festus. He had served under Cornelius’s command for fifteen years, in Gaul and Germania and now here. He didn’t stand to attention. He gave a slow nod, his eyes like chips of flint. “Centurion.”
 
-“Festus.” Cornelius ran a hand along the shaft of a pilum. The wood was smooth, free of splinters. He checked the iron shank, the pyramid point. He did this at random, pulling weapons, testing their weight. It was a dance they both knew. Festus’s work was impeccable. The inspection wasn’t for finding faults, it was for affirming a standard. It was a ritual of mutual respect between two old soldiers, one that bypassed the need for words.
+“Festus.” Cornelius ran a hand along the shaft of a pilum. The wood was smooth, free of splinters. He checked the iron shank, the pyramid point. He did this at random, pulling weapons, testing their weight. It was a dance they both knew. Festus’s work was impeccable. The inspection wasn’t for finding faults; it was for affirming a standard. It was a ritual of mutual respect between two old soldiers, one that bypassed the need for words.
 
 Cornelius selected a gladius from the rack. He drew it from its scabbard. The blade was oiled, the edge a dull gleam in the shaft of light from the high window. He sighted down its length, looking for the slightest warp. There was none. He reversed his grip, offered the hilt to Festus. “The balance on this one is forward.”
 
@@ -142,9 +142,9 @@ Cornelius met the prefect’s gaze. He let none of the cold knot show on his fac
 
 Gallus held his look for a moment longer, then waved a dismissive hand. “I never doubted it. Dismissed.”
 
-Cornelius stood, saluted, turned. He walked out of the room, his steps measured. He passed the Egyptian clerk, went out into the portico. The sunlight felt clean after the close, brazier-warmed air of the office. He drew a breath. It shook, just once, deep in his chest. He mastered it.
+Cornelius stood, saluted, and turned. He walked out of the room, his steps measured. He passed the Egyptian clerk and went out into the portico. The sunlight felt clean after the close, brazier-warmed air of the office. He drew a breath. It shook, just once, deep in his chest. He mastered it.
 
-He had an hour before the watch change. He should return to the drill yard, oversee the rotation. He found his feet carrying him along the perimeter wall of the compound, toward the eastern side. The wall here was higher, shading the path. He walked without purpose, a man on a private patrol.
+He had an hour before the watch change. He should return to the drill yard, oversee the rotation. He found his feet carrying him along the perimeter wall of the compound, toward the eastern side. One wall here was higher, shading the path. He walked without purpose, a man on a private patrol.
 
 He stopped where the wall met the corner of the granary. From here, through a notch in the battlements, he had a narrow view of the eastern gate of the city, a quarter-mile distant. It was the gate used by travelers from Joppa, from Jerusalem. From the interior. The Jewish gate.
 
@@ -195,5 +195,3 @@ This was the trouble. The wound did not echo only in grand moments of prayer or 
 He left the triclinium. He needed air that did not smell of food or shame. He moved through the house, a man fleeing a room that had become too small. Decima was in the courtyard, directing the hanging of newly washed linens. She saw his face and her hands stilled for a second, holding a damp sheet. She said nothing. Her eyes asked the question. He gave a slight shake of his head. Not now. Not here. She looked down, resumed her work, her fingers rubbing the base of her thumb.
 
 He took the stairs to the roof two at a time, his heart hammering against his ribs, not from exertion but from a sudden, rising pressure. The bright shock of the sun after the dim house made him blink. The rooftop was as he had left it—the brazier cold, the rosemary pots, the mat, the fossil in the parapet.
-
-“Trouble?” He repeated the word, tasting its insufficiency. “No. It is an instruction from God.”
