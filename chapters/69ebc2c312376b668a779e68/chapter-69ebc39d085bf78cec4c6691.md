@@ -1,10 +1,10 @@
 The dust of Rome had a particular weight to it, a fine, ochre grit that settled in the folds of a man’s tunic and the creases of his neck. It tasted of brick-kiln and donkey dung and the slow decay of empire. Silas knew this dust. He’d breathed it for sixty-three years, first as a slave hauling marble for the new porticoes on the Palatine, now as a freedman carrying a different kind of weight. He walked with the stiff-kneed gait of an old soldier, though he’d never held a sword. His burden was parchment, sealed with wax the color of dried blood.
 
-The letter sat in the leather pouch against his ribs. It wasn’t heavy. A few sheets, maybe. But it pulled at him with a gravity all its own, a lodestone for his unease. He’d taken it from the hands of the prisoner in the damp cell near the Tiber two days prior. The man’s eyes had been fever-bright, his chains clinking a soft metallic counter-rhythm to his low, urgent voice. “To Timothy, in Ephesus. No one else. You understand?” Silas had nodded. He understood delivery. He did not understand the words. The script was Greek, a language of merchants and philosophers, not of an old imperial functionary who’d learned his letters copying supply manifests.
+The letter sat in the leather pouch against his ribs. It wasn’t heavy. A few sheets maybe. But it pulled at him with a gravity all its own, a lodestone for his unease. He’d taken it from the hands of the prisoner in the damp cell near the Tiber two days prior. The man’s eyes had been fever-bright, his chains clinking a soft metallic counter-rhythm to his low, urgent voice. “To Timothy, in Ephesus. No one else. You understand?” Silas had nodded. He understood delivery. He did not understand the words. The script was Greek, a language of merchants and philosophers, not of an old imperial functionary who’d learned his letters copying supply manifests.
 
 One street climbed from the Subura toward the Forum, a river of noise and smell. A fish-seller’s cry cut through the general hum—a reedy, desperate sound. A cart axle screamed for grease. Silas moved through it all like a stone in a stream, the current of humanity parting around his deliberate, unyielding pace. He noticed a crack in the whitewashed wall of a baker’s shop, shaped like a lightning bolt. He’d passed it for thirty years. Today, it looked less like a crack and more like a fracture, a hairline split in the world itself.
 
-A group of young men in clean, knee-length tunics jostled past, arguing about a charioteer’s form. Their voices were too loud, their gestures too broad. Performance. Everything in Rome was becoming a performance. Silas kept his eyes on the worn cobbles. He remembered the dust of his youth, heavier somehow, mixed with the lime of new mortar. He’d carried blocks so large they’d bruised his shoulder through the padding. The foreman, a Gaul with a scar across his lips, would shout, “The empire is built on your back, boy!” It was the only philosophy Silas had ever needed. Build, carry, endure. The empire was a thing of weight and balance. This new thing, this Way the prisoner spoke of with such calm fire, had no weight. It was air and spirit. It threatened to lift the stones he’d spent a lifetime carrying, leaving nothing but that terrible, weightless light in the prisoner’s eyes.
+A group of young men in clean, knee-length tunics jostled past, arguing about a charioteer’s form. Their voices were too loud, their gestures too broad. Performance. Everything in Rome was becoming a performance. Silas kept his eyes on the worn cobbles. He remembered the dust of his youth, heavier somehow, mixed with the lime of new mortar. He’d carried blocks so large they’d bruised his shoulder through the padding. The foreman, a Gaul with a scar across his lips, would shout, “The empire is built on your back, boy!” It was the only philosophy Silas had ever needed. Build, carry, endure. The empire was a thing of weight and balance. This new thing, this Way the prisoner spoke of with such calm fire, had no weight. Air and spirit. It threatened to lift the stones he’d spent a lifetime carrying, leaving nothing but that terrible, weightless light in the prisoner’s eyes.
 
 He adjusted the strap of his pouch. The seal pressed through the leather, a small, hard disc.
 
@@ -16,7 +16,7 @@ Silas did not react. Grandfather. He had no children. He had a room in an insula
 
 He reached the edge of the Forum proper. The space opened up, a canyon of marble and politics. The light here was different, harsher, bouncing off polished stone and gilded statues of men who were gods. The air smelled of incense from a nearby temple, of money from the Argentarii’s tables, and of the faint, coppery tinge of blood from the morning’s sacrifices. The noise changed, too—less the chaotic song of life, more the focused drone of power. Lawyers harangued. Moneylenders whispered. Senators swept by in litters, their faces carefully blank behind curtains of fine linen.
 
-Silas stopped. Not because he was tired, though he was. He stopped because the path forked. To the right, the Via Sacra led past the Temple of Vesta, toward the better courier offices where a man could hire a swift, trusted rider for a long journey to Ephesus. It was the obvious path. The safe path. To the left, a narrower alley dipped behind the Basilica Julia, a shadowed gully that led toward the river and the warehouses of the navicularii, the ship-owners. It was cheaper there. Rougher. A place where questions were not asked if coin changed hands.
+Silas stopped. Not because he was tired, though he was. He stopped because the path forked. To the right, the Via Sacra led past the Temple of Vesta, toward the better courier offices where a man could hire a swift, trusted rider for a long journey to Ephesus. It was the obvious path. The safe path. To the left, a narrower alley dipped behind the Basilica Julia, a shadowed gully that led toward the river and the warehouses of the navicularii, the ship-owners. Cheaper there. Rougher. A place where questions were not asked if coin changed hands.
 
 The prisoner had given him coins. Enough for the safe route. “Speed is of the essence,” he’d said.
 
@@ -42,7 +42,7 @@ He had walked into a test he hadn’t known he was taking.
 
 The letter was a stone in his pouch. The empire was not built on such stones. It was built on the ones he’d carried as a boy, the ones that anchored temples and basilicas. This was a different architecture. Invisible. An architecture of whispers and sealed words and men who chewed toothpicks while they decided your fate. He felt a profound, weary anger. He was old. He had carried his share. This was not his burden.
 
-But Livia’s laugh echoed again, water on stone. She had believed in portents, in the flights of birds. She would have seen meaning in his standing here, in the shadow of an emperor’s arch, with a letter that smelled of myrrh and prison straw. She would have called it a thread in the tapestry. He called it a trap.
+But Livia’s laugh echoed again, water on stone. She had believed in portents, in the flights of birds. She would have seen meaning in his standing here, in the shadow of an emperor’s arch, with a letter that smelled of myrrh and prison straw. She would have called it a thread in the fabric. He called it a trap.
 
 He pushed off from the arch. He would not go to the couriers. Not with those men watching. He would not go to the docks. He turned instead into a side street lined with perfume shops, their cloying scents fighting the city’s deeper stench. He had no plan. Only a direction: away.
 
@@ -72,7 +72,7 @@ They fanned out. The leader took a step forward. He had a thin face, pocked from
 
 “I am a freedman,” Silas said, keeping his own voice low and flat. “My business is my own.”
 
-“Is it?” The young man smiled. It didn’t reach his eyes. “See, that’s the thing. This is our neighborhood. We keep it pure. Clean of foreign influences. Bad ideas.” He said the last two words as if they were a title. “You have the look of a man carrying something. A message, maybe.”
+“Is it?” The young man smiled. It didn’t reach his eyes. “See, that’s the thing. This is our neighborhood. We keep it pure. Clean of foreign influences. Bad ideas.” He said the last two words as if they were a title. “You have the look of a man carrying something. A message maybe.”
 
 The directness was a slap. This wasn’t random harassment. A checkpoint.
 
@@ -146,7 +146,7 @@ Silas didn’t move. He counted to one hundred, his cheek in the cold filth. Pai
 
 Slowly, he pushed himself up. Every joint protested. He spat, the saliva tinged pink. He leaned against the wall, his good hand creeping inside his torn tunic. His fingers found the leather. The seal was intact. The parchment crackled, a dry, sane sound in the reeking air.
 
-He had protected it. The realization was hollow, devoid of triumph. He had taken a beating for words he didn’t understand, for a man in a cell, for a thread in a tapestry he couldn’t see. Then something colder replaced it: a resolve that had nothing to do with faith and everything to do with possession. They had tried to take it. It was his.
+He had protected it. The realization was hollow, devoid of triumph. He had taken a beating for words he didn’t understand, for a man in a cell, for a thread in a web he couldn’t see. Then something colder replaced it: a resolve that had nothing to do with faith and everything to do with possession. They had tried to take it. It was his.
 
 He stumbled out of the alley into the cross-street. Wider, lined with shuttered workshops. A donkey brayed somewhere. He was utterly lost. The familiar mental map of Rome, etched by decades of travel, was scrambled. Every corner looked the same—peeling, sun-starved, hostile.
 
@@ -164,7 +164,7 @@ He lifted his hand, the injured arm still numb, and knocked. The sound was soft,
 
 The eye widened slightly. The peephole closed. He heard the soft thud of a bolt being drawn. The gate opened inward a crack. A young woman, no more than twenty, peered out. Her face was framed by a simple linen head covering. Her eyes held a mixture of caution and an almost fierce intelligence. She was not beautiful in the way of the courtesans or the wealthy Roman women he sometimes saw, but there was a quiet strength in her gaze.
 
-“You are Silas?” Her voice was calmer now, though tension remained in her shoulders. She stepped back, allowing him to enter. The courtyard was small, cool, and clean. A single olive tree, gnarled and ancient, stood in the center, its silvery leaves shimmering in the last light. A small, rough-hewn table and two stools sat beneath it.
+“You are Silas?” Her voice was calmer now, though tension remained in her shoulders. She stepped back, allowing him to enter. The courtyard was small, cool, and clean. A single olive tree, gnarled and ancient, stood in the center, its silvery leaves flickering in the last light. A small, rough-hewn table and two stools sat beneath it.
 
 “I am.” He stepped across the threshold. The gate closed behind him, the bolt sliding home with a heavy finality. He felt, for the first time in hours, a release of tension, a loosening in his chest. He was inside.
 
@@ -172,7 +172,7 @@ The eye widened slightly. The peephole closed. He heard the soft thud of a bolt 
 
 Silas followed her into a cool, sparsely furnished room. The air smelled of lamp oil and dried herbs. A man sat at a small desk, hunched over a parchment. He was younger than Silas expected, perhaps thirty, with intense, dark eyes and a brow furrowed with concentration. His hair was already receding at the temples. He looked up as they entered, his gaze sharp, immediately assessing Silas’s bruised face and torn tunic.
 
-“Silas.” The man’s voice was soft, almost a whisper, but it carried an undeniable authority. He rose, his movements fluid despite his long sitting. “You have it.”
+“Silas.” The man’s voice was soft, almost a whisper, but it carried a clear authority. He rose, his movements fluid despite his long sitting. “You have it.”
 
 Silas reached into his tunic, his fingers brushing against the rough parchment. He pulled the leather pouch free, the seal still intact. He held it out. Timothy took it, his fingers brushing Silas’s. The contact was brief, but Silas felt a strange current pass between them—not electricity, but the quiet weight of shared purpose.
 
@@ -184,4 +184,4 @@ Timothy did not break the seal immediately. He studied the pouch, his expression
 
 Timothy nodded slowly. “The streets are... changing. Many watch. Many listen.” He looked at the letter again, a deep sigh escaping him. “He knew the risks. He always did.”
 
-The quiet, relentless hum of Rome continued, a promise and a threat in the encroaching darkness.
+The quiet, constant hum of Rome continued, a promise and a threat in the encroaching darkness.
