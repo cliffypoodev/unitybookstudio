@@ -1,6 +1,6 @@
-The furnace roared. It was a living thing, a beast of brick and fire Elias had fed for twenty years. He felt its heat on his face like a familiar hand and saw the world through the shimmering veil of air above the crucible where the glass melted. The air wavered. It bled the color from everything at the edge of his vision. He dipped his blowpipe into the molten gather, a glowing orange honey on the iron’s end, and began to turn. The motion was in his bones, a rhythm older than the city outside his workshop walls.
+The furnace roared. It was a living thing, a beast of brick and fire Elias had fed for twenty years. He felt its heat on his face like a familiar hand and saw the world through the flickering veil of air above the crucible where the glass melted. The air wavered. It bled the color from everything at the edge of his vision. He dipped his blowpipe into the molten gather, a glowing orange honey on the iron’s end, and began to turn. The motion was in his bones, a rhythm older than the city outside his workshop walls.
 
-He worked on the Roman’s bowl. The design was intricate, a pattern of grapevines and leaves that required three separate gathers of colored glass, meticulous trailing with the pontil, reheating, inflating, shaping. His hands knew the steps. His mind was free to wander. It wandered to the price the centurion’s aide had quoted, a sum that would keep his workshop for six months. It wandered to the feel of the fine Egyptian papyrus the commission had been written on. Then it wandered, inevitably, to the ache in his lower back, a specific knot just above the hip that never really left him.
+He worked on the Roman’s bowl. The design was complex, a pattern of grapevines and leaves that required three separate gathers of colored glass, meticulous trailing with the pontil, reheating, inflating, shaping. His hands knew the steps. His mind was free to wander. It wandered to the price the centurion’s aide had quoted, a sum that would keep his workshop for six months. It wandered to the feel of the fine Egyptian papyrus the commission had been written on. Then it wandered, inevitably, to the ache in his lower back, a specific knot just above the hip that never really left him.
 
 The door to the street opened. A rectangle of harsh white light cut across the dusty floor, and the furnace’s roar swallowed the sound of footsteps. Elias didn’t look up. He rolled the gather on the marver, the polished stone slab, smoothing the skin of the glass. A customer would wait.
 
@@ -32,7 +32,7 @@ Elias stopped rotating the pipe. He pulled it from the glory hole and looked at 
 
 “For a gathering,” Jude said. His voice tightened around the word. “Of the Way.”
 
-The words meant nothing to Elias. Some new philosophical club, perhaps. Wealthy young men playing at simplicity. But these men weren’t wealthy. He could see the darned edges of their cloaks, the worn leather of their sandals. The earnestness in Jude’s face was a solid, heavy thing. It was at odds with the younger man’s sharp, watchful silence.
+The words meant nothing to Elias. Some new philosophical club, perhaps. Wealthy young men playing at simplicity. But these men weren’t wealthy. He could see the darned edges of their cloaks, the worn leather of their sandals. The earnestness in Jude’s face was a solid, heavy thing, at odds with the younger man’s sharp, watchful silence.
 
 “I have commissions,” Elias said, nodding toward the Roman bowl taking shape on his bench. “A piece for the garrison. It requires my attention. For fifty cups, you would need to speak to my nephew down by the harbor. His work is... functional.”
 
@@ -46,7 +46,7 @@ Elias felt his irritation solidify, like glass cooling too fast. Cryptic sayings
 
 Jude’s hands tightened together. The older man finally looked up, his eyes a watery blue. “We have pooled our resources. We can offer this.” He stepped forward and placed a small, grubby leather pouch on the edge of the workbench. It landed with a muted clink, not the clear ring of coin.
 
-Elias wiped his hands on his apron. He picked up the pouch. It was light. He loosened the drawstring and tipped the contents into his palm.
+Elias wiped his hands on his apron. He picked up the pouch. Light. He loosened the drawstring and tipped the contents into his palm.
 
 Not Roman denarii. Not Tyrian shekels. A jumble of Greek obols, a few worn Persian sigloi, two crude bronze coins from some backwater mint he didn’t recognize, and—he picked one out with a calloused finger—a single, small silver tetradrachm from Antioch. A beggar’s hoard. The total might, if he was generous, cover the cost of the raw silica and soda ash for twenty cups. Not his time. Not the furnace wood. Not his skill.
 
@@ -88,7 +88,7 @@ He opened the form with shears, flared the rim. Ugly. Serviceable. He snapped it
 
 He gathered another mass. Again. The rhythm was faster, brutal. Each cup was a betrayal of the thing on the other bench, the bowl that sang of color and light and money. This was mud shaped by fire. As he worked, a sentence formed in his mind, clear and cold as the glass would become.
 
-They do not want beauty. They want sameness.
+They did not want beauty. They wanted sameness.
 
 It felt like a revelation about something far larger than cups.
 
@@ -132,7 +132,7 @@ He turned and walked out, taking the cracked clay with him.
 
 Elias stood over his beautiful, silent bowl. His hands were still. For the first time in twenty years, the heat of the furnace felt cold.
 
-The marketplace of Sidon was a tapestry of need. Elias moved through it with the blind focus of a man who knew exactly what he required: a fresh block of pumice, a sack of beechwood ash for the flux. The cries of fig-sellers and fishmongers, the metallic clang of a coppersmith’s hammer, the rich, greasy smell of roasting lamb—it all washed against him and parted. He usually found a grim comfort in this commerce, the pure translation of want into coin, coin into thing. Today, it grated. The clay cup Levi had left in his mind’s eye superimposed itself over every stall. There was the potter, stacking his wares—cups, bowls, lamps, all utilitarian, all cheap. There was the silversmith, polishing a delicate libation bowl for a temple, his face a mask of holy avarice. Elias stood between them, a man who made beauty for profit, now tasked with making mediocrity for a cryptic, coinless faith.
+The marketplace of Sidon was a fabric of need. Elias moved through it with the blind focus of a man who knew exactly what he required: a fresh block of pumice, a sack of beechwood ash for the flux. The cries of fig-sellers and fishmongers, the metallic clang of a coppersmith’s hammer, the rich, greasy smell of roasting lamb—it all washed against him and parted. He usually found a grim comfort in this commerce, the pure translation of want into coin, coin into thing. Today, it grated. The clay cup Levi had left in his mind’s eye superimposed itself over every stall. There was the potter, stacking his wares—cups, bowls, lamps, all utilitarian, all cheap. There was the silversmith, polishing a delicate libation bowl for a temple, his face a mask of holy avarice. Elias stood between them, a man who made beauty for profit, now tasked with making mediocrity for a cryptic, coinless faith.
 
 He bought his ash from old Manasseh, who had supplied his father before him. The man’s fingers, gnarled as olive roots, counted the coins without looking.
 
@@ -166,7 +166,7 @@ Yet they did. They wanted to.
 
 A sudden, reckless impulse took him. He would show them. He would make one cup—just one—as it should be made. Not ornate, but... considered. A cup that acknowledged its own purpose with grace. He would give it to them. A gift. A silent argument in glass.
 
-He worked quickly, the earlier hesitation burned away by a clean, defiant focus. He gathered a smaller, finer gather of the clearest mix from his private batch. He blew the bubble with a slow, even pause, feeling the perfect symmetry expand. He marvered it to a smooth, even cylinder. He shaped it not with the crude blocks, but with the polished cherry wood paddles he used for his best work, coaxing a gentle curve from base to rim. He opened the mouth wide, flared the lip just enough to roll it into a smooth, rounded edge that would be kind to the mouth. He added no color, no trail. But in the final heating, as he spun the pipe, he let the form elongate just slightly, giving it a quiet, vertical elegance. Simple. But its simplicity was a choice, a paring away, not a poverty.
+He worked quickly, the earlier hesitation burned away by a clean, defiant focus. He gathered a smaller, finer gather of the clearest mix from his private batch. He blew the bubble with a slow, even breath, feeling the perfect symmetry expand. He marvered it to a smooth, even cylinder. He shaped it not with the crude blocks, but with the polished cherry wood paddles he used for his best work, coaxing a gentle curve from base to rim. He opened the mouth wide, flared the lip just enough to roll it into a smooth, rounded edge that would be kind to the mouth. He added no color, no trail. But in the final heating, as he spun the pipe, he let the form elongate just slightly, giving it a quiet, vertical elegance. Simple. But its simplicity was a choice, a paring away, not a poverty.
 
 He snapped it off the pipe. He held it up to the light from the high window. It glowed, a pale honey. Light itself, given a shape to hold water. Beautiful. Not loudly, but in a whisper. A worthy vessel.
 
@@ -194,9 +194,9 @@ He dropped it in.
 
 It struck the other broken pieces inside with a pure, high, ringing tone. It did not break. It lay there, intact and whole amid the rubble, glowing with a soft, captured light.
 
-Elias turned away. He selected a new pipe. He gathered a large, hot, crude mass of glass. He blew with a hard, even pause. He marvered it roughly. He shaped it with the wet blocks. He made a plain cup. Heavy. Solid. Exactly what they had paid for.
+Elias turned away. He selected a new pipe. He gathered a large, hot, crude mass of glass. He blew with a hard, even breath. He marvered it roughly. He shaped it with the wet blocks. He made a plain cup. Heavy. Solid. Exactly what they had paid for.
 
-He made another. And another. The rhythm was no longer brutal. Just a rhythm. Each cup was a perfect copy of the last. Sameness. He understood it now. It was not a poverty. A choice. A terrible, equalizing, humbling choice. And with each identical, unlovely form he placed in the oven, a small, hard part of the man who had made the Roman’s bowl broke off and fell silently away.
+He made another. And another. The rhythm was no longer brutal. Just a rhythm. Each cup was a perfect copy of the last. Sameness. He understood it now. It was not a poverty. It was a choice. A terrible, equalizing, humbling choice. And with each identical, unlovely form he placed in the oven, a small, hard part of the man who had made the Roman’s bowl broke off and fell silently away.
 
 The Roman’s bowl was finished two days later. Elias applied the final vine leaf, a tiny spear of green glass pinched into a perfect, veined shape. He fire-polished the entire surface until it shone like a still, deep pool. He held it up. It caught the morning light from the high window and fractured it into a hundred dancing coins of emerald and gold on the soot-blackened wall. Magnificent. A silence followed, not of awe, but of completion. He wrapped it in soft linen, placed it in a box of fragrant cedar shavings, and sent it with a boy to the Roman’s villa. The payment, when it came, was heavy, the coins cool and sharp-edged through the leather pouch. He did not count them. He dropped the pouch into his strongbox. The sound it made was dull, final.
 
