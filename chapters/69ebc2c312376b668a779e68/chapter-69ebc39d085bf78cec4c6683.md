@@ -44,15 +44,15 @@ She watched the group of foreigners. They paused near a seller of purple cloth. 
 
 The words meant nothing. The tone snagged her. It held no transaction, no demand. Calm, like water over stones. One of the younger men in the group, dark-haired with intense eyes, scanned the crowd. His gaze passed over the money-changers’ tables, the spice merchant’s awning, and landed on her.
 
-He stared. Not at the space above her brow, but directly at her. At her dirty feet, her frayed tunic, her face. His expression was not curiosity, not lust. A profound, unsettling pity. It felt more violent than Dorus’s grip.
+He stared. Not at the space above her brow, but directly at her. At her dirty feet, her frayed tunic, her face. His expression was not curiosity, not lust. It was a profound, unsettling pity. It felt more violent than Dorus’s grip.
 
-She looked away, heat flooding her cheeks. When she dared a glance back, the group was moving on, following the older man toward the city gate. The dark-haired man was still looking back at her over his shoulder.
+Lyra looked away, heat flooding her cheeks. When she dared a glance back, the group was moving on, following the older man toward the city gate. The dark-haired man was still looking back at her over his shoulder.
 
 Dorus returned as the first evening star pricked the sky. He upended the pouch into his palm. His lips moved. “The magistrate’s son was generous. Good.” The coins disappeared into a fold of his tunic. He handed her the usual bread. Stale today, the crust sharp enough to scratch the roof of her mouth.
 
 They walked the familiar route through the winding streets, away from the grand houses with their mosaic thresholds, into the narrower, sour-smelling lanes where Gaius’s modest home stood. The kitchen courtyard was dark, lit only by the embers of the cooking fire. The cook, a silent woman from Cappadocia, was scrubbing a pot with sand. She did not look up.
 
-Dorus unlocked the door to her room. The smell rushed out: damp stone, old straw, and the faint metallic scent of her own fear. It was so familiar she only noticed it when she returned to it.
+Dorus unlocked the door to her room. The smell rushed out: damp stone, old straw, and the faint metallic scent of her own fear. So familiar she only noticed it when she returned to it.
 
 “Tomorrow,” Dorus said, a final command tossed into the gloom. “Lucius the grain-shipper. He has lost a ring.”
 
@@ -120,7 +120,7 @@ Lyra wanted to sink into the stones. The word theft echoed. They would see it th
 
 The old man’s gaze shifted from Dorus to her. “You are troubled.”
 
-It was such a vast understatement it stole her breath. She managed a single, jerky nod.
+Such a vast understatement it stole her breath. She managed a single, jerky nod.
 
 “The peace of God will come,” he said. “It is not like the world’s peace. It is a fortress. You must enter it.”
 
