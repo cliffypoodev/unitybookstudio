@@ -20,7 +20,7 @@ The horse’s gait hitched. A stumble on a loose stone. Lucius tightened his kne
 
 A sound, then. Not the wind—the wind was a constant, low hiss here. This was sharper. A cry? Choked off. Human.
 
-Lucius reined in. The horse stamped, blowing hard. He sat perfectly still, listening. The cry didn’t repeat. But the quality of the silence had changed. The air felt thick, charged, like before a summer storm in the hills. Yet the sky was a relentless, cloudless blue.
+Lucius reined in. The horse stamped, blowing hard. He sat perfectly still, listening. The cry didn’t repeat. But the quality of the silence had changed. The air felt thick, charged, like before a summer storm in the hills. Yet the sky was a constant, cloudless blue.
 
 He squinted ahead. The shimmer over the road was stronger now, concentrated maybe three hundred paces ahead where the road dipped slightly. It wasn’t just heat. It was a distortion, a lensing of the light so intense the stones behind it melted into a wavering, silverish blob. He’d never seen a mirage like that. It didn’t ripple. It pulsed.
 
@@ -28,7 +28,7 @@ His mouth went dry. Not with thirst. A different, tighter dryness.
 
 He nudged the horse forward at a walk. His hand was back on the pugio. The pouch felt suddenly heavy, a lead weight against his thigh. Calculations fled. His mind was a blank, white slate. The horse resisted for a step, then obeyed, its ears flat back.
 
-Two hundred paces. The distortion wasn’t on the road. It was above it. A sphere of wrong light, hanging where the air should be empty. It threw no shadow. The scrub beneath it looked bleached, skeletal.
+Two hundred paces. The distortion wasn’t on the road. Above it. A sphere of wrong light, hanging where the air should be empty. It threw no shadow. The scrub beneath it looked bleached, skeletal.
 
 One hundred fifty.
 
@@ -96,7 +96,7 @@ He turned on his heel, walked back to his horse, and checked the pouch’s seal 
 
 The older man nodded, a grim acceptance. Together, they half-lifted Saul toward his patient horse. Lucius mounted, his movements precise, mechanical. He took a final look back at the spot on the road where the light had been. Empty. Just stones and dust.
 
-He turned his face toward Damascus; the afterimage still floated in his vision. A purple blotch. A void. He knew, with a cold certainty that had nothing to do with calculation, that his report would mention only a traveler overcome by heat. A medical episode. The light, the pressure, the inversion—these were not data for a military dispatch. They were a malfunction of observation. A personal error in perception.
+He turned his face toward Damascus, the afterimage still floating in his vision. A purple blotch. A void. He knew, with a cold certainty that had nothing to do with calculation, that his report would mention only a traveler overcome by heat. A medical episode. The light, the pressure, the inversion—these were not data for a military dispatch. They were a malfunction of observation. A personal error in perception.
 
 He nudged his horse forward. The little procession moved, a silent, ragged knot against the vast emptiness. Ahead, the road shimmered with ordinary, believable heat.
 
@@ -238,6 +238,6 @@ He added one more line, the stylus digging deep into the wax.
 
 Personal note: Observed unusual atmospheric refraction effects at site. Recommend no further investigation.
 
-He snapped the tablet shut. The sound was final. He set the stylus down beside it, aligning it perfectly parallel to the tablet’s edge. There. Documented. Contained. It was over.
+He snapped the tablet shut. The sound was final. He set the stylus down beside it, aligning it perfectly parallel to the tablet’s edge. There. Documented. Contained. Over.
 
 He stood and walked to the barracks window, looking out over the dusty courtyard. Somewhere in the warren of streets beyond, a blind man was being led to a house on Straight Street. Somewhere, a truth was being spoken that had no place in a report. Lucius Valerius pushed it from his mind. He had calculations to run for the return trip: the water requirements, the optimal departure time. The numbers waited, solid and silent, and he welcomed them like old friends.
