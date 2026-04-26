@@ -74,7 +74,7 @@ He left without another word, his sandals whispering on the stone floor. The cli
 
 Elara sat for a long time after the door closed. The burning scrap had become a fragile black ghost, collapsing into ash. She brushed it into a ceramic shard used for such waste. Then she stood, her joints stiff. She pocketed the coins. She needed air that didn’t smell of vinegar and failure.
 
-Jerusalem’s late afternoon was a slap of sound and heat. She moved through the market street below the Upper City, a narrow canyon of noise. Vendors shouted prices for olives, for lentils, for dyed wool. Donkeys brayed. A woman argued over the weight of a bronze scale. The sun baked the white stone, the smell of dust and spice and animal dung rising in a visible haze. It was nothing like the silent tomb of the scriptorium. It was too much. She fixed her gaze on the cracked paving stones, letting the current of the crowd carry her.
+Jerusalem’s late afternoon was a slap of sound and heat. She moved through the market street below the Upper City, a narrow canyon of noise. Vendors shouted prices for olives, for lentils, for dyed wool. Donkeys brayed. A woman argued over the weight of a bronze scale. The sun baked the white stone, the smell of dust and spice and animal dung rising in a visible haze. It was nothing like the silent tomb of the scriptorium. Too much. She fixed her gaze on the cracked paving stones, letting the current of the crowd carry her.
 
 She had no plan. A wild, half-formed idea of finding someone who knew Joseph of Arimathea, of hearing some shred of counterevidence, fluttered in her chest. It died as soon as she tried to shape it. Who would speak to her? A woman alone, scribe-pale, with the anxious look of a rabbit in a snare.
 
@@ -164,7 +164,7 @@ She reached the invented details. “...did knowingly and with seditious intent 
 
 Her stomach growled, a hollow, animal sound. She thought of the crumbled barley cake in her pocket. She did not eat.
 
-A night watchman’s call floated up from the street, a long, mournful note marking the third watch. Its sound was thin, diluted by distance and stone. The only proof time was passing. In the lamplight, the world was this rectangle of pale fiber, this cone of yellow illumination, the creeping numbness in her legs from sitting too long. The scrolls on the shelves retreated into the gloom, their edges blurred. They were no longer an audience. They were raw material, like the papyrus, like her.
+A night watchman’s call floated up from the street, a long, mournful note marking the third watch. Its sound was thin, diluted by distance and stone. It was the only proof time was passing. In the lamplight, the world was this rectangle of pale fiber, this cone of yellow illumination, the creeping numbness in her legs from sitting too long. The scrolls on the shelves retreated into the gloom, their edges blurred. They were no longer an audience. They were raw material, like the papyrus, like her.
 
 She forged the witness signatures. This was the most delicate work. She had examples, scraps of legal documents Malachi had left for reference. She practiced each name on a shard of pottery first: Eliab ben Hezekiah. Menahem bar Tobias. She captured the slight tremor in Eliab’s heh, the arrogant flourish on Menahem’s final mem. She gave them character, these ghosts. She made them real. When she committed them to the main document, they flowed effortlessly, as if the men themselves had leaned over her shoulder and signed. A strange, cold pride flickered in her chest. She was good at this.
 
