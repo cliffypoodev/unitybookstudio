@@ -64,7 +64,7 @@ But as he turned to walk back to his rented room, to his scrolls and his measure
 
 What if it were true?
 
-This question was a flaw in his tranquility, a hairline crack in the clean marble of his logic. He walked faster, as if he could outpace it. The dust of the agora, stirred by a hundred departing feet, hung in the air behind him, golden and unresolved.
+The question was a flaw in his tranquility, a hairline crack in the clean marble of his logic. He walked faster, as if he could outpace it. The dust of the agora, stirred by a hundred departing feet, hung in the air behind him, golden and unresolved.
 
 * * *
 
@@ -74,7 +74,7 @@ The circle around the dais had thickened. Students in neat himations jostled wit
 
 Today, the man spoke of love.
 
-A tactical error, Lysander decided. The first speech had been a blunt-force assault on reason. This was a bewildering feint. Paul’s voice, still rough, wove a strange tapestry. He spoke of a love that was patient, kind, that kept no record of wrongs. He described it not as a feeling, but as an action, a discipline. It did not envy, it did not boast. It was not irritable.
+A tactical error, Lysander decided. The first speech had been a blunt-force assault on reason. This was a bewildering feint. Paul’s voice, still rough, wove a strange fabric. He spoke of a love that was patient, kind, that kept no record of wrongs. He described it not as a feeling, but as an action, a discipline. It did not envy, it did not boast. It was not irritable.
 
 Lysander’s own irritation was a precise, cold knot in his stomach. This was worse than the talk of resurrection. Resurrection was a physical absurdity, easy to dismiss. This was a moral absurdity, and it stuck to the mind like burrs.
 
@@ -216,6 +216,6 @@ He walked to the window. The view was of a narrow street, a wall opposite, a sli
 
 The chapter of Paul in Athens was closed. The man was a footnote in the city’s long intellectual history, a curious anecdote. But in the quiet room of one man’s mind, the footnote had become a header.
 
-Lysander sat on the edge of his cot. He felt no great emotion. No epiphany. Only a quiet, contemplative acceptance of a permanent unsettlement. His wisdom, once a polished stone, was now a rough one. It fit less comfortably in the hand. It was more real.
+Lysander sat on the edge of his cot. He felt no great emotion. No epiphany. Only a quiet, contemplative acceptance of a permanent unsettlement. His wisdom, once a polished stone, was now a rough one. It fit less comfortably in the hand. More real.
 
 Down in the street, a cart rumbled by. A dog barked. Life, impersonal and bustling, went on. He listened to the sounds, not as noises to be filtered out, but as notes in a composition whose composer he did not know. He might never know. But the not-knowing had been transformed. It was no longer a conclusion. It was a question. And the question, he understood as the last of the morning light faded from the wall across the street, was a kind of answer. The only answer he would ever get, and it would have to be enough.
