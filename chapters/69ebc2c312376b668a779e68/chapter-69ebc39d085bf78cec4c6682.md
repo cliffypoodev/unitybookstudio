@@ -146,7 +146,7 @@ Then they were gone, around a corner, the guards’ hobnailed sandals scraping o
 
 Elara’s hand clenched around the barley cake in her pocket. It crumbled into dry meal. This was the power. Not the grand decrees, not the theological debates in the Sanhedrin. This was it: a backhand in the twilight, a quiet dragging away, a blank sheet of papyrus waiting in a silent room. Malachi’s world. A world of unassailable letters and unanswerable force. She was not its victim. Not if she picked up the pen. She could be its instrument. A clean, precise, undetectable instrument.
 
-The last of the defiance bled out of her, leaving something colder and harder in its place. It wasn’t resignation. A decision. She turned from the empty square and walked back toward the scriptorium, her steps even, her mind clear. The image of the woman’s bloody lip hung before her, brighter than any lamp flame. A warning. A blueprint.
+The last of the defiance bled out of her, leaving something colder and harder in its place. It wasn’t resignation. It was a decision. She turned from the empty square and walked back toward the scriptorium, her steps even, her mind clear. The image of the woman’s bloody lip hung before her, brighter than any lamp flame. A warning. A blueprint.
 
 She had a document to write.
 
@@ -178,7 +178,7 @@ She leaned back. The muscles in her shoulders were cords of iron. She surveyed t
 
 The cold pride solidified, then sank, leaving a sediment behind. A hollow feeling, as if she’d eaten ashes. She had done it. She had saved the farm, postponed the marriage, bought her mother’s fragile hope. She had done it by becoming the mechanism of a man’s destruction. The two facts sat side by side in her mind. They did not argue. They simply were.
 
-She cleaned her pens meticulously, wiping each nib until no trace of black remained, laying them in a neat row. She capped the ink pot. She rinsed her fingers in the water dish, watching the cloud of black swirl and dissolve. The water turned gray, then clear again as the particles settled. Her hands were clean.
+She cleaned her pens carefully, wiping each nib until no trace of black remained, laying them in a neat row. She capped the ink pot. She rinsed her fingers in the water dish, watching the cloud of black swirl and dissolve. The water turned gray, then clear again as the particles settled. Her hands were clean.
 
 She rolled the document carefully, tying it with a linen thread. She did not seal it. That was for Malachi. She placed it in the center of the table.
 
