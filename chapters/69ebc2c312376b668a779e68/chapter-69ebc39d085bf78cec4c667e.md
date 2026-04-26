@@ -66,7 +66,7 @@ A single, hard rap of knuckle on wood, directly behind her.
 
 Elara’s body moved before her mind could follow. Her left hand swept the forged document and the original into the leather sleeve. Her right hand snatched a half-copied psalter from a separate pile, innocent work, her cover, and slid it into the center of the desk. The sleeve went into her lap, under the fold of her woolen tunic. The entire motion took less than three heartbeats. Her blood thudded in her ears, a frantic, hollow rhythm.
 
-“Enter.” Her voice was a dry leaf.
+“Enter,” she said. Her voice was a dry leaf.
 
 The door opened. It was not Jorah. Shem, Jorah’s household steward. A narrow man, all tendon and silence, who moved as if his joints were oiled with dust. He stood in the doorway, a slab of hallway darkness at his back. He did not step fully inside.
 
