@@ -24,7 +24,7 @@ A memory surfaced, not as a vision, but as a dry fact, like something read in a 
 
 He’d assumed it was from one of the other channels. A piece of Damien’s world, or Lilith’s, somehow slipped through. A souvenir. But souvenirs were supposed to feel foreign. This didn’t. It felt native. It felt like his.
 
-He sat up straight, the chair creaking under him. The apartment was quiet, just the hum of the refrigerator cycling on in the kitchen. He looked from the marble in his hand to the room around him. The worn beige carpet. The water-stained ceiling. The bookshelf with its mismatched books. All of it was contestable. All of it had been replaced, overlain, contradicted by other versions of here.
+He sat up straight, the chair creaking under him. The apartment was quiet, just the hum of the refrigerator cycling on in the kitchen. He looked from the marble in his hand to the room around him. The worn beige carpet. That water-stained ceiling. The bookshelf with its mismatched books. All of it was contestable. All of it had been replaced, overlain, contradicted by other versions of here.
 
 Except this.
 
@@ -136,7 +136,7 @@ But tomorrow. When the light was different. When he’d slept, if sleep came. He
 
 The silence in the apartment changed character. It was no longer waiting. It was holding its breath.
 
-The morning light through the blinds was the color of weak tea, striping the carpet. Cassius woke in the chair, his neck stiff. The marble was in his hand. He’d fallen asleep clutching it. He uncurled his fingers. The skin of his palm was marked with a perfect shallow circle.
+Morning light through the blinds was the color of weak tea, striping the carpet. Cassius woke in the chair, his neck stiff. The marble was in his hand. He’d fallen asleep clutching it. He uncurled his fingers. The skin of his palm was marked with a perfect shallow circle.
 
 He made coffee. The routine was a series of checks. The canister was red, not blue. The spoon had the correct, slightly bent handle. The water from the tap smelled of chlorine, not iron. He held the marble in his left hand through it all, rolling it against his palm. A baseline.
 
@@ -144,7 +144,7 @@ He showered with it on the edge of the sink, watching it through the foggy glass
 
 The first test came while he was buttering toast. The smell of the butter changed, mid-swipe. It went rancid, then vanished, replaced by the greasy, savory scent of fried bacon. A phantom kitchen. A different breakfast. His stomach turned. He dropped the knife. It clattered on the plate.
 
-He grabbed the marble through the fabric of his pocket, squeezing so hard the glass dug into his skin. He focused on the pressure, the specific, cool hardness. He yanked it out held it before his eyes. The blue ribbon. The bubble. The world around the marble shimmered, the edges of the kitchen counter going soft. The bacon smell intensified, mixed with the sound of a radio playing low, a weather report. He didn’t look at the counter. He stared into the glass.
+He grabbed the marble through the fabric of his pocket, squeezing so hard the glass dug into his skin. He focused on the pressure, the specific, cool hardness. He yanked it out and held it before his eyes. The blue ribbon. The bubble. The world around the marble shimmered, the edges of the kitchen counter going soft. The bacon smell intensified, mixed with the sound of a radio playing low, a weather report. He didn’t look at the counter. He stared into the glass.
 
 “This is mine,” he said. His voice was a dry scrape.
 
