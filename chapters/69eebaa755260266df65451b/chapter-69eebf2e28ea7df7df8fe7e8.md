@@ -14,7 +14,7 @@ She didn’t know her name. Not yet. But she knew the slope of her nose, the way
 
 This knowing arrived not as a revelation, but as a stubborn, pre-existing fact. Like remembering her own birthday.
 
-Madness. She knew it was madness. She gripped the arms of her chair, the fabric rough under her palms. A real thing. She was here, in this chair, in this apartment that smelled of cleaning products and dust. Arthur Brindle died here. That was the haunting. Not some sun-drenched fantasy.
+Madness. She knew it was madness. She gripped the arms of her chair, the fabric rough under her palms. She was a real thing. She was here, in this chair, in this apartment that smelled of cleaning products and dust. Arthur Brindle died here. That was the haunting. Not some sun-drenched fantasy.
 
 But the fantasy had weight. It had texture. It had the smell of salt and sunscreen.
 
@@ -48,7 +48,7 @@ A name surfaced, not with a bang, but with the soft certainty of a bubble reachi
 
 She didn’t know where it came from. It just was. Lilith.
 
-The sound of it in her mind unlocked something. A floodgate of sense-memory, not a vision, but a barrage. The smell of her shampoo—coconut and something herbal. The feel of her calloused fingertips against her palm. The sound of her humming off-key in the kitchen, a song she didn’t know. The weight of her head on her shoulder while they watched a movie, the credits scrolling, forgotten.
+One sound of it in her mind unlocked something. A floodgate of sense-memory, not a vision, but a barrage. The smell of her shampoo—coconut and something herbal. The feel of her calloused fingertips against her palm. The sound of her humming off-key in the kitchen, a song she didn’t know. The weight of her head on her shoulder while they watched a movie, the credits scrolling, forgotten.
 
 It was a life. A dense, detailed, ordinary life. Sunday mornings. Arguments about whose turn it was to do the dishes. The shared, wordless glance across a crowded room.
 
@@ -124,7 +124,7 @@ She didn’t think. She let her fingers remember.
 
 They remembered the high, smooth arc of a forehead. The subtle dip at the philtrum above the lips. The strong line of a jaw that softened just at the chin. Her thumbs found the sockets for eyes, hollowing out two gentle, almond-shaped spaces. She used the rounded end of a pen to press a delicate line for a closed lid, to carve the subtle channel of the upper lip.
 
-She worked for hours. Time dissolved into the rhythm of push and pull, of adding a tiny bit of material here, scraping away a fraction there. The world narrowed to the gray mass taking form under her stained fingers and the precise, internal blueprint she was tracing. It wasn’t creation. Excavation. She was uncovering a shape that already existed, buried in the medium of her own muscle memory.
+She worked for hours. Time dissolved into the rhythm of push and pull, of adding a tiny bit of material here, scraping away a fraction there. Her world narrowed to the gray mass taking form under her stained fingers and the precise, internal blueprint she was tracing. It wasn’t creation. It was excavation. She was uncovering a shape that already existed, buried in the medium of her own muscle memory.
 
 Sweat beaded on her temple. Her back ached from hunching. She didn’t stop.
 
@@ -154,7 +154,7 @@ Destroying it would be a murder. A second death, for a life that had never been.
 
 So she would keep it. She would live with it. This was the compromise, the reluctant acceptance. She would share her space with these two silent tenants, these echoes of lives that pressed against her own from opposite sides of an impossible barrier.
 
-She washed her hands at the sink, the gray paste swirling down the drain. The water was hot, but she couldn’t get the feeling of the putty off her skin. In the creases of her knuckles, under her nails.
+She washed her hands at the sink, the gray paste swirling down the drain. The water was hot, but she couldn’t get the feeling of the putty off her skin. It clung in the creases of her knuckles, under her nails.
 
 She dried her hands on a towel. The silence in the apartment was absolute. No traffic outside, no hum from the refrigerator. It was the dead hour, deep in the night.
 
@@ -174,15 +174,15 @@ She didn’t move. She didn’t dare settle. She just stood at the sink, her dam
 
 The melody looped once, softly, then faded into the returning silence, leaving only the echo of its shape in her mind, and the deeper silence of the cold watching from the hall.
 
-The hum didn’t come back. She waited at the sink until her knuckles ached from gripping the counter, until the silence re-established itself as a solid thing, thicker than before. The chill from the hallway remained, a watchful presence. She turned slowly. The sculpture sat on the dish towel, a gray moon in the lamplight. The sketch by the reading lamp seemed to glow.
+That hum didn’t come back. She waited at the sink until her knuckles ached from gripping the counter, until the silence re-established itself as a solid thing, thicker than before. The chill from the hallway remained, a watchful presence. She turned slowly. The sculpture sat on the dish towel, a gray moon in the lamplight. The sketch by the reading lamp seemed to glow.
 
 She couldn’t leave her like that. Propped against a lamp base. A scrap. She deserved a frame.
 
-The thought was absurd, and she clung to its absurdity. It was a concrete task. A problem with steps. It was a dam against the ocean of grief threatening to break behind her ribs. She found a tape measure in a junk drawer. She noted the dimensions of the sketch. She wrote them on the back of an envelope. The numbers were a lifeline.
+This thought was absurd, and she clung to its absurdity. It was a concrete task. A problem with steps. It was a dam against the ocean of grief threatening to break behind her ribs. She found a tape measure in a junk drawer. She noted the dimensions of the sketch. She wrote them on the back of an envelope. The numbers were a lifeline.
 
 The next day, she went to a discount store on the outskirts of the city. The fluorescent lights were a different frequency than the art store’s, harsher, buzzing with a headache-inducing pitch. She walked past aisles of plastic bins and cheap cookware. The frame section was at the back, a wire rack of mass-produced options. Gold, black, fake wood grain. She ran her fingers over a simple black wooden frame. Cool and smooth. She checked the size. It would fit, with a little room to spare. She didn’t consider the other options. Black felt right. Solemn. Final.
 
-At home, she cleared the kitchen table once more. She laid the frame face down, pried up the little metal tabs with a butter knife. She removed the cardboard backing and the sheet of thin, cloudy plastic that came with it. She placed her sketch in the center. The drawing looked smaller now isolated in the white matting that wasn’t really a mat, just the cardboard showing around the edges. She hesitated. Should she center it? It was already centered. Her hands were shaking. She fitted the backing in, pressed the tabs back down with more force than necessary. The metal squealed in protest.
+At home, she cleared the kitchen table once more. She laid the frame face down, pried up the little metal tabs with a butter knife. She removed the cardboard backing and the sheet of thin, cloudy plastic that came with it. She placed her sketch in the center. The drawing looked smaller now isolated in the white matting that wasn’t really a mat, just the cardboard showing around the edges. She hesitated. Should she center it? It was already centered. Her hands were shaking. She fitted the backing in, pressed the tabs back down with more force than necessary. One metal tab squealed in protest.
 
 She turned the frame over.
 
@@ -206,6 +206,6 @@ She thought of the marble in her coat pocket, the blue ribbon swirl. An artifact
 
 Tears didn’t come. Her eyes were dry and hot. The grief was too large for tears. It was a geological fact. A mountain range of loss inside her range after range of lives she could remember but had never lived. She mourned for Lilith, for the feel of her skin in the sun. She mourned for the cold presence, for whatever bleak companionship it represented. She mourned for a hundred other whispers she hadn’t even identified yet, ghosts waiting in the wings of her consciousness.
 
-She would never be believed. That was the final, absolute truth. She could show them the sketch, the sculpture, she could describe the taste of the sea salt and the smell of the old books until she was blue in the face. They would see a talented, troubled woman. They would see delusion given form. The proof was only proof to her. The validation had to come from inside this sealed, silent chamber of her own skull.
+She would never be believed. That was the final, absolute truth. She could show them the sketch, the sculpture; she could describe the taste of the sea salt and the smell of the old books until she was blue in the face. They would see a talented, troubled woman. They would see delusion given form. The proof was only proof to her. The validation had to come from inside this sealed, silent chamber of her own skull.
 
 It wasn’t solid. It wasn’t immutable. It was a broadcast. And her receiver was the only one picking up the signal drift.
