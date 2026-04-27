@@ -132,7 +132,7 @@ The words struck like a slap. Elara’s mouth went dry.
 
 Tullia didn’t notice. She was already turning away, calling to another wife. “Marcella! Did you hear about the Judean tax collector?”
 
-Elara didn’t stay to listen. She walked, her sandals slapping the wet stones. The crowd blurred around her. A merchant shouted. A donkey brayed. The smells of roasting meat and dung and wet leather swirled together, thick as soup.
+Elara didn’t stay to listen. She walked, her sandals slapping the wet stones. A crowd blurred around her. A merchant shouted. A donkey brayed. The smells of roasting meat and dung and wet leather swirled together, thick as soup.
 
 Dead man walking.
 
@@ -144,7 +144,7 @@ Order. Discipline. Strength.
 
 Miriam’s words whispered in her ear: A living hope.
 
-Elara’s fingers found the hidden letter. The recruits charged, their boots churning the mud. This sound was thunder, inevitable. She imagined the dead man walking into that wall of shields, into the spears, into the empire’s unyielding might.
+Elara’s fingers found the hidden letter. The recruits charged, their boots churning the mud. The sound was thunder, inevitable. She imagined the dead man walking into that wall of shields, into the spears, into the empire’s unyielding might.
 
 What chance did hope have against that?
 
