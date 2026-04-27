@@ -8,7 +8,7 @@ Now Wound stood in the middle of the living room, a space that smelled of indust
 
 Her coping mechanism was order. She attacked the nearest box, slicing the tape with a key. Dishes. She carried them to the kitchenette, a narrow galley with linoleum the color of stale mustard. She opened a cupboard. A previous tenant had left a single can of tomato paste, its label faded to a pink blush. She left it there, a sentinel on the empty shelf. She stacked her plates, her bowls, the movements precise. Each item placed was a point of stability. A fact. This bowl is here. This is my bowl. The process was a wall against the static.
 
-But the wall had cracks. As she lifted a coffee mug, a memory surfaced, unbidden and hyper-vivid: a different kitchen, morning light the color of honey pouring over blue-checked curtains. The smell of bacon, someone humming off-key. A man's voice, warm and sleep-rough. “You burn that coffee again, Cass, and I'm divorcing you.” A laugh in response, not her own. A woman's laugh. The memory had the texture of real life, the grain of the wooden countertop under her palms, the chill of the ceramic mug. More solid than the lemon-scented emptiness around her now.
+But the wall had cracks. As she lifted a coffee mug, a memory surfaced, unbidden and hyper-vivid: a different kitchen, morning light the color of honey pouring over blue-checked curtains. The smell of bacon, someone humming off-key. A man's voice, warm and sleep-rough. “You burn that coffee again, Cass, and I'm divorcing you.” A laugh in response, not her own. A woman's laugh. That memory had the texture of real life, the grain of the wooden countertop under her palms, the chill of the ceramic mug. More solid than the lemon-scented emptiness around her now.
 
 It lasted three heartbeats. Then it dissolved into the hum of the refrigerator, a low, unhealthy rattle.
 
@@ -36,7 +36,7 @@ She needed a system. A way to categorize this. She fetched her notebook from her
 
 Under OBJECT, she wrote: Photograph, backyard, circa 1990? Under ORIGIN MEMORY, she left a blank. She stared at the empty space. The whine in her ears pulsed.
 
-She picked up the photo again. She studied the details. The birch tree had a peculiar bend about six feet up, a kink like an elbow. The grass was lush, green. In the far corner of the frame, a corner of a wooden swing set was visible, bright blue paint. She closed her eyes, trying to force a memory. The smell of cut grass. The chill of spray from the hose. One sound of the boy's laugh.
+She picked up the photo again. She studied the details. The birch tree had a peculiar bend about six feet up, a kink like an elbow. The grass was lush, green. In the far corner of the frame, a corner of a wooden swing set was visible, bright blue paint. She closed her eyes, trying to force a memory. The smell of cut grass. The chill of spray from the hose. The sound of the boy's laugh.
 
 Nothing. Just the blank wall of her own history, and this perfect, impossible window punched through it.
 
@@ -58,13 +58,13 @@ She looked down at the photo. The boy in the picture grinned his gap-toothed gri
 
 The static in her ears didn't fade. It settled into a steady, whispering hiss, the sound of a place where no signal was meant to be. She placed the photo carefully in the back of her notebook. She closed the cover. This room was almost dark now. She hadn't bought any light bulbs.
 
-She sat there in the growing gloom, the three unpacked boxes around her like tombstones, and listened to the silence. It wasn't empty anymore. It was full of the hiss.
+She sat there in the growing gloom, the three unpacked boxes around her like tombstones, and listened to the silence. Not empty anymore. Full of the hiss.
 
 *
 
 She didn't buy light bulbs. She sat in the dark until the streetlights outside the window buzzed on, casting a jaundiced glow across the carpet. The hiss in her head became the room's soundtrack. She finally moved when her knees ached from kneeling. She stood, joints protesting, and went to the window. The street below was quiet, just the occasional car hissing on wet pavement. A normal evening. A normal street.
 
-Her stomach growled. She hadn't eaten since morning. The thought of food was a distant, theoretical concern. She went to the kitchen, opened the empty refrigerator. The light inside was a shocking, clinical white. It illuminated nothing but clean shelves and that single can of tomato paste. She closed the door. The darkness returned, softer now, her eyes adjusted.
+Her stomach growled. She hadn't eaten since morning. The thought of food was a distant, theoretical concern. She went to the kitchen, opened the empty refrigerator. The light inside was a shocking, clinical white. It illuminated nothing but clean shelves and that single can of tomato paste. She closed the door. Darkness returned, softer now, her eyes adjusted.
 
 She needed to sleep. The bedroom was just an alcove off the living room, a space barely large enough for the mattress on the floor. She'd set it up that morning, the fitted sheet straining at the corners. She didn't undress. She lay down on top of the comforter, shoes still on. She stared at the ceiling. A hairline crack ran from the corner toward the center, fork-tongued.
 
