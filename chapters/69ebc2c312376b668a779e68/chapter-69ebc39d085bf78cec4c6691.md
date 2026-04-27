@@ -1,6 +1,6 @@
 The dust of Rome had a particular weight to it, a fine, ochre grit that settled in the folds of a man’s tunic and the creases of his neck. It tasted of brick-kiln and donkey dung and the slow decay of empire. Silas knew this dust. He’d breathed it for sixty-three years, first as a slave hauling marble for the new porticoes on the Palatine, now as a freedman carrying a different kind of weight. He walked with the stiff-kneed gait of an old soldier, though he’d never held a sword. His burden was parchment, sealed with wax the color of dried blood.
 
-The letter sat in the leather pouch against his ribs. It wasn’t heavy. A few sheets maybe. But it pulled at him with a gravity all its own, a lodestone for his unease. He’d taken it from the hands of the prisoner in the damp cell near the Tiber two days prior. The man’s eyes had been fever-bright, his chains clinking a soft metallic counter-rhythm to his low, urgent voice. “To Timothy, in Ephesus. No one else. You understand?” Silas had nodded. He understood delivery. He did not understand the words. The script was Greek, a language of merchants and philosophers, not of an old imperial functionary who’d learned his letters copying supply manifests.
+The letter sat in the leather pouch against his ribs. It wasn’t heavy. A few sheets, maybe. But it pulled at him with a gravity all its own, a lodestone for his unease. He’d taken it from the hands of the prisoner in the damp cell near the Tiber two days prior. The man’s eyes had been fever-bright, his chains clinking a soft metallic counter-rhythm to his low, urgent voice. “To Timothy, in Ephesus. No one else. You understand?” Silas had nodded. He understood delivery. He did not understand the words. The script was Greek, a language of merchants and philosophers, not of an old imperial functionary who’d learned his letters copying supply manifests.
 
 One street climbed from the Subura toward the Forum, a river of noise and smell. A fish-seller’s cry cut through the general hum—a reedy, desperate sound. A cart axle screamed for grease. Silas moved through it all like a stone in a stream, the current of humanity parting around his deliberate, unyielding pace. He noticed a crack in the whitewashed wall of a baker’s shop, shaped like a lightning bolt. He’d passed it for thirty years. Today, it looked less like a crack and more like a fracture, a hairline split in the world itself.
 
@@ -72,7 +72,7 @@ They fanned out. The leader took a step forward. He had a thin face, pocked from
 
 “I am a freedman,” Silas said, keeping his own voice low and flat. “My business is my own.”
 
-“Is it?” The young man smiled. It didn’t reach his eyes. “See, that’s the thing. This is our neighborhood. We keep it pure. Clean of foreign influences. Bad ideas.” He said the last two words as if they were a title. “You have the look of a man carrying something. A message maybe.”
+“Is it?” The young man smiled. It didn’t reach his eyes. “See, that’s the thing. This is our neighborhood. We keep it pure. Clean of foreign influences. Bad ideas.” He said the last two words as if they were a title. “You have the look of a man carrying something. A message, maybe.”
 
 The directness was a slap. This wasn’t random harassment. A checkpoint.
 
