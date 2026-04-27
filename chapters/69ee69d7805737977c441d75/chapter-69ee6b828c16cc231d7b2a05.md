@@ -1,0 +1,247 @@
+The rain drummed a Morse code against the van roof, each drop spelling out “you're screwed” in liquid. Dutch squinted through the windshield, where the wipers fought a losing battle. The road ahead looked like God had spilled his coffee.
+
+“Left,” Lola said.
+
+“Alligator,” Mary added.
+
+Dutch swerved. The van hydroplaned through a puddle the size of Lake Okeechobee. In the backseat, Sister Mary Margaret crossed herself with one hand and death-gripped the “oh shit” handle with the other.
+
+The radio spat static. Between bursts, a manic voice declared, “—miraculous footage from Eden World! Is this the Second Coming or a government hoax? Call now to vote!”
+
+Jesus peeled a soggy pretzel from his sleeve. “They're voting?”
+
+“America, baby.” Dutch cranked the wheel. “We turn everything into a call-in contest. Next week: Crucifixion Survivor.”
+
+Ahead, the ruins of Eden World loomed. The giant animatronic Moses out front had lost an arm. His remaining hand pointed accusingly at the storm clouds.
+
+Lola ejected a spent magazine. “Remind me why we're going back into the radioactive dinosaur cult bunker?”
+
+“Because,” Dutch said, “Rex left the oven on.”
+
+The van skidded to a stop. The parking lot had become a demolition derby of abandoned news vans and military trucks. A lone SWAT officer sat on the curb, cradling his helmet like a toddler.
+
+Mary shouldered her axe. “Mood.”
+
+They piled out into ankle-deep water. The rain had turned the fake River Jordan exhibit into an actual river. Plastic apostles bobbed past, their beatific smiles now grimacing with waterlogged disdain.
+
+Inside, the corridors hummed with wrongness. The air smelled like burnt hair and bad decisions. Emergency lights strobed, turning the disaster into a disco.
+
+Cain's voice echoed from somewhere ahead, raw and fraying. “—protocols were flawless!”
+
+Dutch rounded the corner just in time to see the Serpent Engine wake up.
+
+The machine pulsed like a dying star, its green light painting the walls the color of a gangrenous wound. Wires thrashed like startled snakes. Cain stood before it, arms spread, his shadow stretching up the wall in a parody of crucifixion.
+
+“Ah,” Jesus said. “That's not good.”
+
+The colonel turned. His eyes were two pissholes in a snowbank of rage. “You.”
+
+Mary cracked her knuckles. “Us.”
+
+A panel exploded overhead. Shrapnel peppered the ground like metallic hail. Dutch ducked behind a toppled server rack. “So. Plan?”
+
+Lola chambered a round. “Shoot the machine.”
+
+“Subtle.”
+
+“Your face is subtle.”
+
+The Engine groaned. The sound vibrated through Dutch's fillings. Cain staggered toward the control console, his fingers dancing across keys like a concert pianist on meth. “You don't understand! This was never about weapons. It was about order. Control.”
+
+Jesus stepped forward. The light bent around him, warping like a funhouse mirror. “Some things aren't meant to be controlled.”
+
+“Everything must be!” Cain's fist came down on a final key.
+
+The Engine screamed.
+
+Time stuttered. Dutch's vision doubled—he saw Cain at the console, then Cain as a child holding a broken toy, then Cain old and withered in a hospital bed, all superimposed like a bad film splice. The air tasted of copper and regret.
+
+Mary grabbed his collar. “Move your ass, Donovan!”
+
+They dove behind a reinforced column as the Engine's core ruptured. A tendril of green light lashed out, wrapping around Cain's wrist. He stared at it, fascinated. “Fascinating.”
+
+The light yanked.
+
+One second Cain was there. The next, he wasn't.
+
+The Engine shuddered. Its casing cracked like an egg.
+
+Something.
+
+A hallway that twisted the wrong way. A sky the color of a fresh bruise. A figure in the distance, waving.
+
+Then the vision snapped shut. The Engine collapsed inward with a sound like a universe sighing. The remaining lights blew out in a shower of sparks.
+
+Silence.
+
+Dutch became aware of three things:
+
+1. He was alive. 2. His pants were wet (rain, definitely rain). 3. Mary was digging her elbow into his kidney.
+
+He wheezed. “We good?”
+
+Lola peered over the rubble. “Define 'good.'”
+
+The lab was a graveyard of smoking tech. The Serpent Engine had folded itself into a neat cube the size of a toaster. It sat there, innocent as a paperweight.
+
+Jesus picked it up, turned it over, and shrugged. “Huh.”
+
+Somewhere above them, the ceiling groaned. Chunks of concrete rained down.
+
+Mary grabbed Sister Mary Margaret. “Exit. Now.”
+
+They bolted for the stairs as Eden World came down around them. Dutch's lungs burned. His knee screamed obscenities. Behind them, the ruins settled with a final, exhausted creak.
+
+Dawn greeted them with the subtlety of a sledgehammer. The storm had passed, leaving the air scrubbed clean. The parking lot was a mosaic of puddles reflecting a sky the color of a fresh bruise.
+
+Lola bent double, hands on knees. “I need a drink.”
+
+“Seconded,” Mary said.
+
+Dutch eyed the horizon. “Anyone else hear banjos?”
+
+The sound resolved into helicopter blades. Three news choppers circled overhead, their cameras hungry.
+
+Jesus shaded his eyes. “They're persistent.”
+
+“Ratings, Messiah.” Dutch patted his shoulder. “You're the ultimate sweeps week.”
+
+A flash of movement caught his eye. Down by the fake Golgotha exhibit, something massive and scaly slipped into the treeline.
+
+Mary saw it too. She grinned. “Told you he'd be back.”
+
+Jesus smiled. Then he started walking.
+
+Dutch watched him go. The man moved like he had all the time in the world, which, given recent events, might literally be true.
+
+Lola holstered her revolver. “We just letting him go?”
+
+“Lady,” Dutch said, “you try stopping him.”
+
+The choppers buzzed like angry hornets. Somewhere, a car alarm started up again, then thought better of it.
+
+Sister Mary Margaret produced a flask from somewhere in her habit, took a swig, and offered it around. “So. What now?”
+
+Dutch accepted the flask. The whiskey burned all the way down. He wiped his mouth. “Now? Breakfast.”
+
+They left Eden World behind. The rising sun painted the ruins gold, forgiving nothing.
+
+Somewhere in the wreckage, a single red eye flickered to life.
+
+But that was another story.
+
+The diner smelled like bacon grease and regret. Lola slid into the booth, her knees popping like bubble wrap. Across from her, Dutch massaged his temples like he was trying to squeeze out bad decisions. Sister Mary Margaret had already commandeered the jukebox—Johnny Cash growled about a burning ring of fire, which felt on-brand.
+
+Mary flipped a steak knife between her fingers. “So. We saved the world?”
+
+“Debatable,” Lola said.
+
+The waitress arrived with coffee so black it could've been used for industrial paint stripping. Dutch took one sip and winced. “Christ.”
+
+“Actually,” Mary said, jerking her thumb toward the window, “he's out there.”
+
+Through the smudged glass, Jesus stood ankle-deep in the surf. The rising sun turned his robe into a molten silhouette. A hundred yards down the beach, something massive broke the water—Rex's dorsal plates cutting through the waves like a submarine's fin.
+
+Lola watched them. “Think he's gonna walk on water again?”
+
+Mary snorted. “Nah. Dude's got standards.”
+
+The waitress dropped off a stack of pancakes that could've doubled as flotation devices. Dutch stabbed one with his fork. “You ever notice how the weirdest shit happens before noon?”
+
+“Like the time you tried to microwave a burrito at 7 AM and set the office on fire?” Mary said.
+
+“That was a tactical error.”
+
+“Your face is a tactical error.”
+
+Sister Mary Margaret crossed herself before digging into her omelet. “Children, please.”
+
+Outside, Rex emerged fully from the water, shaking himself like a Labrador. Salt spray glittered in the dawn light. Jesus didn't flinch when the dinosaur lowered his head—just reached up and scratched the armored plating between Rex's eyes.
+
+Lola's coffee cup paused halfway to her lips. “Huh.”
+
+Mary leaned forward. “What?”
+
+“Nothing. Just… never seen a T-Rex get scritches before.”
+
+Dutch squinted. “Is he—is Rex purring?”
+
+The sound rumbled across the beach, deeper than an idling Harley. A seagull took offense and veered away mid-squawk.
+
+Mary wiped syrup off her chin. “That's the dumbest thing I've ever seen. I love it.”
+
+The jukebox switched to Patsy Cline. Sister Mary Margaret hummed along, tapping her fork against her coffee cup in a rhythm that suggested she'd played drums in a past life.
+
+Dutch followed Lola's gaze. “You thinking what I'm thinking?”
+
+“That we should start a petting zoo?”
+
+“That we maybe just witnessed something...” He waved his fork, searching for the word. “Sacred.”
+
+Mary choked on her orange juice. “Don't get poetic on me, Donovan. I'll revoke your man card.”
+
+But Lola knew what he meant. There was something about the way Rex's tail swayed, the way Jesus' shoulders relaxed, like they'd finally found the punchline to a joke only they understood.
+
+A police scanner crackled from behind the counter. “…reports of a large reptile sighted near Haulover Inlet…”
+
+Mary sighed. “And there's our cue.”
+
+They paid the bill in crumpled bills and loose change. Outside, the air smelled like salt and exhaust. Jesus was sitting cross-legged in the sand now, Rex curled around him like a scaly parenthesis.
+
+Dutch scratched his stubble. “So do we, like, interrupt? Wave? Throw a rock?”
+
+“Subtle,” Lola said.
+
+Mary elbowed him. “Shut up and look presentable.”
+
+They approached the pair like hikers sidling up to a bear. Rex's eye swiveled toward them, but he didn't move. Jesus didn't either—just kept staring at the horizon like it owed him money.
+
+Lola cleared her throat. “So.”
+
+Jesus nodded. “So.”
+
+The waves hissed. A pelican dive-bombed the water.
+
+Mary crossed her arms. “This is riveting conversation.”
+
+Rex made a sound like a garbage disposal chewing on a bowling ball. Lola decided to interpret it as laughter.
+
+Jesus finally stood, brushing sand off his robe. “He's leaving.”
+
+Dutch blinked. “Who, Rex?”
+
+“Yes.”
+
+“But he just got here.”
+
+“And now he's going.” Jesus touched Rex's jaw. “He has things to do.”
+
+Mary squinted. “Like what? Terrorize fishing boats? Start a biker gang?”
+
+“Like live.”
+
+The word landed like a brick. Rex nosed Jesus' shoulder, then turned toward the ocean. His hydraulic joints whined as he waded back into the surf.
+
+Lola felt something tighten in her chest, not quite sadness, not quite relief. More like the feeling you get when you finish a book and realize the story keeps going without you.
+
+Dutch shoved his hands in his pockets. “Well. That's that, I guess.”
+
+Rex's plates disappeared beneath the waves. For a second, the water was just water again. Then a geyser erupted fifty yards out as Rex breached like a nuclear-powered dolphin. He hung in the air for a glorious, impossible moment—a ton of teeth and titanium suspended against the dawn, before crashing back down with a splash that soaked them all.
+
+Mary wiped saltwater off her face. “Showoff.”
+
+Jesus smiled.
+
+The walk back to the van was quiet. The choppers had moved on to fresher disasters. The only sounds were their shoes on the pavement and Sister Mary Margaret humming “Will the Circle Be Unbroken.”
+
+Dutch unlocked the van with a groan of protesting hinges. “So. Where to?”
+
+Lola looked at Jesus. “Your call, Messiah.”
+
+He considered it. Then: “Waffle House.”
+
+Mary grinned. “Now you're speaking my language.”
+
+As the van pulled onto A1A, Lola caught one last glimpse of the ocean. Something broke the surface way out past the breakers, a single dorsal fin cutting north, toward deeper water.
+
+She rolled down the window and let the wind take the rest.
