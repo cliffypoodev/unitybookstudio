@@ -2,7 +2,7 @@ The hospital released him with a steroid pack and a referral to an allergist he 
 
 That machine felt borrowed.
 
-He sat at his living room table, age fifty-one. The table was a door laid across two filing cabinets, a relic from his last office job. On it sat three notebooks, a stack of index cards, two pencils sharpened to needle points, and a mug of cold tea. The afternoon light through the blinds cut the room into bars of gold and deep shadow. Dust motes swam in the slants of light, lazy and indifferent.
+He sat at his living room table, age fifty-one. That table was a door laid across two filing cabinets, a relic from his last office job. On it sat three notebooks, a stack of index cards, two pencils sharpened to needle points, and a mug of cold tea. The afternoon light through the blinds cut the room into bars of gold and deep shadow. Dust motes swam in the slants of light, lazy and indifferent.
 
 Notebook One was labeled OBSERVATIONS. It contained dates, times, duration of episodes, and sensory details. April 12, 2:17 PM. Auditory: child’s laughter, approximate age 5-7, source: hallway. Lasted 8 seconds. Concurrent scent: cut grass, gasoline. Physical sensation: warmth on left cheek, as if facing sun. His handwriting was small, tight, economical.
 
@@ -70,7 +70,7 @@ He was staring at the brick wall. The fire escape. The pigeon, preening on a rai
 
 He stumbled back from the window, his legs connecting with the edge of his chair. He sat down hard. The wood creaked.
 
-His hands were trembling. Not with fear, but with loss. The loss was absolute, a vacuum in his chest. He had been offered a sip of water in a desert, and then the cup was dashed from his lips.
+His hands were trembling. Not with fear, but with loss. The loss was absolute, a vacuum in his chest. He’d been offered a sip of water in a desert, and then the cup was dashed from his lips.
 
 He looked at the table. At the notebooks, the index cards, the whole pathetic architecture of his understanding. It was a joke. You couldn’t map a shifting coastline. You couldn’t log a ghost that was also yourself.
 
@@ -82,7 +82,7 @@ The war was over. He had lost. But this was worse than deletion. This was being 
 
 *
 
-A bed was too large. It had always been too large, a queen-size mattress he’d bought during a brief, optimistic phase after the divorce, but now its emptiness was a physical presence. A cold expanse of sheet on the other side. He lay on his back, age fifty-three, and stared at the ceiling. A crack mapped a slow river delta from the light fixture toward the wall. He’d named its tributaries years ago: the Styx, the Lethe, the Cocytus. Tonight, the Lethe branch seemed longer.
+A bed too large. It had always been too large, a queen-size mattress he’d bought during a brief, optimistic phase after the divorce, but now its emptiness was a physical presence. A cold expanse of sheet on the other side. He lay on his back, age fifty-three, and stared at the ceiling. A crack mapped a slow river delta from the light fixture toward the wall. He’d named its tributaries years ago: the Styx, the Lethe, the Cocytus. Tonight, the Lethe branch seemed longer.
 
 The hum was back. Not the aggressive static of a spike, but the low-grade, persistent buzz of a poorly tuned station. It lived in his molars now. He ran his tongue over them, feeling the vibration. His own private frequency.
 
@@ -120,7 +120,7 @@ He turned his head, millimeters at a time, terrified the motion would shatter ev
 
 The child was a boy maybe four or five. His face was round and peaceful in sleep, lips slightly parted. One cheek was smushed against Cassius’s side. He had freckles across the bridge of his nose. Cassius knew, without knowing how he knew, that the boy’s name was Eli. Short for Elijah.
 
-One thought trailed off, belonging to another man.
+The thought trailed off, belonging to another man.
 
 He reached up, his hand moving with a foreign muscle memory, and brushed a strand of hair from the boy’s forehead. The touch was feather-light. The skin was impossibly soft, warm. Real.
 
@@ -134,7 +134,7 @@ He wanted to freeze this. To stop time here, in this dark, lavender-scented room
 
 The dog thumped its tail again. A car passed outside the window, its headlights painting a slow arc across the ceiling—a smooth, unbroken ceiling, no cracks.
 
-More real than the feel of his own, solitary mattress had ever been. This was the truth. The other life, the one with the filing cabinet desk and the dust motes and the pigeon on the fire escape, that was the phantom. That was the bad dream.
+This was more real than the feel of his own, solitary mattress had ever been. This was the truth. The other life, the one with the filing cabinet desk and the dust motes and the pigeon on the fire escape, that was the phantom. That was the bad dream.
 
 He let his head fall back into the pillow. He inhaled the scent of lavender, baby powder dog, child. He felt the solid, trusting weight against him. He listened to the twin rhythms of pause—the boy’s, the dog’s. His own heart began to slow, syncing with the peace of the room.
 
@@ -186,11 +186,11 @@ He climbed out of bed. The floorboards creaked under his weight, a familiar soun
 
 He needed coffee. The ritual of it, the solid weight of the mug, the bitter taste was one of the few constants left. He filled the kettle, placed it on the stove. The gas burner ignited with a reassuring whoosh. He waited for the water to boil, his gaze drifting to the chipped ceramic of the countertop, then to the window. The brick wall of the adjacent building stood sentinel. No palm trees. No ocean. Just brick.
 
-His left hand still trembled. He watched it, a thing separate from him, a nervous bird trapped in a cage. He tried to steady it, clenching his fist, but the tremor persisted, a persistent echo of the phantom child, the phantom dog, the phantom life. He needed to touch something real. Something undeniably his.
+His left hand still trembled. He watched it, a thing separate from him, a nervous bird trapped in a cage. He tried to steady it, clenching his fist, but the tremor persisted, an echo of the phantom child, the phantom dog, the phantom life. He needed to touch something real. Something undeniably his.
 
 He walked to the small table by the window, the one where he kept his keys, his wallet, the few trivial objects that marked his existence. He reached for the marble. The clear glass orb, with its single blue ribbon swirl was his anchor. His proof. He’d found it in a coat pocket years ago, a relic from a life he could still grasp. It was the only object he knew for sure belonged here, to this Cassius.
 
-His moment snagged. He pulled his hand back, staring at the polished wood surface. Nothing. The marble wasn’t there. A cold knot formed in his stomach, spreading quickly through his chest. He ran his hand over the table again, slowly methodically, pushing aside the old mail, the stray pen. Still nothing.
+His movement snagged. He pulled his hand back, staring at the polished wood surface. Nothing. The marble wasn’t there. A cold knot formed in his stomach, spreading quickly through his chest. He ran his hand over the table again, slowly methodically, pushing aside the old mail, the stray pen. Still nothing.
 
 Panic, cold and sharp, pricked at him. He scanned the floor around the table. Underneath it. He dropped to his knees, peering into the shadows. His heart hammered against his ribs. He checked the small drawer in the table, pulling it open with a scrape of wood on wood. Empty.
 
@@ -204,7 +204,7 @@ He was kneeling on a thick, patterned carpet. Not his worn linoleum. The air was
 
 A wave of nausea rolled over him. He squeezed his eyes shut, pressing his palms against his temples. “No,” he mumbled, the word tasting like dust. He opened his eyes. The kitchen. His kitchen. The kettle still screamed on the stove. The fluorescent light buzzed overhead. The cold knot in his stomach tightened.
 
-He stood, pushing himself up with hands that still shook. He moved to the counter and turned off the burner. The silence that followed was heavy, oppressive. He stood there, quiet shallowly, waiting for the bleed-through to recede completely. It didn’t. The scent of lilac lingered, a ghost of a smell, warring with the faint metallic tang of his apartment’s pipes. The light, though still fluorescent seemed to hold a memory of gold.
+He stood, pushing himself up with hands that still shook. He moved to the counter and turned off the burner. The silence that followed was heavy, oppressive. He stood there, silence between them shallowly, waiting for the bleed-through to recede completely. It didn’t. The scent of lilac lingered, a ghost of a smell, warring with the faint metallic tang of his apartment’s pipes. The light, though still fluorescent seemed to hold a memory of gold.
 
 He needed the marble. More than coffee. More than anything. He went back to the table. He stared at the empty spot. He closed his eyes again, trying to visualize it, to pull it into existence with sheer force of will. A clear glass sphere. A single blue ribbon swirl. Smooth, cool to the touch.
 
