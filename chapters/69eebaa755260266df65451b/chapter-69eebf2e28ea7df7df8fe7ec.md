@@ -1,0 +1,235 @@
+The thumping started on a Tuesday.
+
+It wasn’t a sound he could locate. It wasn’t in the walls or the floorboards. It lived in the air itself, a soft, rhythmic thump-thump-thump that came from the empty space beside his armchair. A sound a dog’s tail makes when it’s happy, thudding against a wooden floor.
+
+Cassius set his book down. He stared at the patch of worn rug. The sound continued, steady, content. A phantom metronome.
+
+He waited for it to stop. It didn’t. He got up went to the kitchen, filled a glass with water. The thumping followed him, a bass note underneath the tap’s rush. He stood at the sink, the cool glass in his hand, and listened. Thump-thump-thump. It was the sound of a large dog maybe a Labrador. Something solid. He knew the weight of it, the heft. He could almost feel the warmth against his leg.
+
+He drank the water. The thumping didn’t pause.
+
+This was new. The other channels—Gold’s sun, Blue’s cold, the nameless domestic one with the child—they were invasions. Violent, sensory hijackings. This was just a sound. A persistent, gentle, utterly mundane sound where no source existed. Worse, in a way. The others were a seizure. This was a low-grade fever, a constant, background wrongness he couldn’t sweat out.
+
+He went back to the chair. The thumping seemed to quicken as he sat, a welcoming tempo. He picked up his book again. He read the same paragraph four times. The words were black marks. The thumping was the text.
+
+Thump-thump-thump.
+
+He lasted an hour. Then he put the book aside got his coat, and left the apartment. The sound cut off the moment the door clicked shut behind him, leaving a silence so complete it rang in his ears. The hallway smelled of cabbage and old carpet. Real. Solid. He stood there for a full minute, breathing it in.
+
+He walked without a destination. The late afternoon was the color of dirty dishwater, the sky a flat, featureless gray. He passed a bodega, a shuttered dry cleaner, a check-cashing place with fluorescent lights that buzzed like angry insects. Normal city sounds—a bus hissing at a stop, a distant siren, the fragment of an argument from an open window—they all felt thin. Insubstantial. The real sound was back in his apartment, waiting.
+
+He found himself outside a pet store two blocks farther than he usually walked. The window display was a riot of color: bright nylon leashes, plush toys shaped like squirrels, bags of food with grinning dogs on the labels. A real dog, a terrier mix with a scruffy beard, slept on a dog bed in the center of the display, twitching in its dreams.
+
+Cassius went inside. A bell jingled. The terrier didn’t wake.
+
+A young woman with purple streaks in her hair looked up from behind the counter. “Can I help you?”
+
+“No,” Cassius said. Then he heard himself say, “A bowl. For water.”
+
+“Sure. Ceramic, stainless, plastic? We’ve got the slow-feed ones if he’s a gulper.”
+
+He hadn’t thought about material. “Stainless.”
+
+“Size?”
+
+He pictured the thumping. A large dog. “Big.”
+
+She led him to an aisle. Rows of bowls hung on pegs. She pulled down a large, simple stainless steel bowl. Heavier than he expected. The metal was cool, reflective. He saw a distorted version of his own face in its concave surface—eyes stretched long, mouth a grim line.
+
+“This do?”
+
+“Yes.”
+
+At the register, she rang it up. “That’ll be fourteen ninety-five. Need any food? Treats?”
+
+“No.”
+
+She bagged the bowl. The bell jingled again as he left. The terrier in the window had opened one eye, watching him go.
+
+Back in the apartment, the silence greeted him. He took off his coat hung it up. He stood in the middle of the living room, the bag in his hand. He felt foolish. Profoundly, achingly foolish. He was a fifty-seven-year-old man buying a dog bowl for a dog that did not exist.
+
+The thumping started again. Soft at first, then settling into its familiar rhythm. Thump-thump-thump from the spot by the chair.
+
+Cassius walked to the kitchen. He opened the bag took out the bowl. It felt alien in his hands, a prop in a play he hadn’t auditioned for. He ran the tap until the water was cold. He filled the bowl. Water sloshed over the rim, wetting his fingers. He carried it, carefully, to the living room and set it on the floor beside his armchair.
+
+He stepped back. The bowl sat on the rug, a circle of bright metal holding clear, still water. The thumping continued. It didn’t change. The dog—the phantom, the broadcast, the whatever-it-was—did not get up to drink. The water remained untouched.
+
+Of course it did.
+
+He sat in the chair, looked at the bowl. The thumping was directly beside it now. He could imagine the dog there, a shape of warmth and weight, resting its head on its paws. He could almost see the indentation in the rug.
+
+This was the madness. Not the violent swaps, the sunburns, the allergic shocks. This was the quiet madness. The one that asked you to participate. To buy the bowl. To fill it. To pretend, just for a moment, that the rules of consensus reality were flexible enough to include a ghost dog’s thirst.
+
+The sound was comforting. That was the worst part. It was a sound of companionship, of simple, uncomplicated presence. In all the other bleed-throughs, he was a tourist. A thief. Here, in this channel he hadn’t even named, he was just a man in a chair, with a dog at his feet. It was a life he’d never considered wanting. A stupid, simple life.
+
+He closed his eyes. He let the sound wash over him. Thump-thump-thump.
+
+When he opened them, the light had changed. The gray afternoon had bled into early evening. The bowl of water on the floor caught the last of the day’s light, a dull coin of reflection. The thumping was still there.
+
+He got up. He emptied the bowl in the sink, dried it with a dish towel, and placed it back on the floor. Empty. A ritual without a god.
+
+That night, in the dark, the thumping was slower. A sleepy, steady beat. He lay in bed and listened to it. More real than the traffic outside, more real than the hum of his own refrigerator. It was a heartbeat that wasn’t his.
+
+He thought of Lilith. He hadn’t felt her channel in weeks. No scent of salt, no ghost of her laugh, no sudden warmth on his skin. The beach was silent. He missed it with a physical ache, a hollow space under his ribs. He’d traded a phantom wife for a phantom dog. It felt like a demotion.
+
+Thump… thump… thump…
+
+He slept. His dreams were formless, gray.
+
+The bowl became part of the routine. Every morning, he washed it, filled it with fresh water set it by the chair. Every evening, he emptied it, dried it set it back. Its water was never drunk. The thumping never ceased. It was a dialogue with the empty air. A prayer to a silence that answered with a sound.
+
+He found himself talking to it sometimes. Not out loud. In his head. Good morning. Storm’s coming. You’re a good dog. The words felt pathetic. They also felt necessary. That or let the silence in his own skull become absolute.
+
+One afternoon, he came back from the grocery store to find the bowl moved. Not far. Just shifted six inches to the left, so it sat half on the rug, half on the bare floor. The water inside was still full, undisturbed.
+
+He stood in the doorway, plastic bags cutting into his fingers. The thumping was steady by the chair. He set the bags down walked over, crouched. No wet footprints. No marks on the floor. He righted the bowl. The water shimmered, then settled.
+
+Had he bumped it this morning? He didn’t think so. He was careful. Rituals demanded precision.
+
+He went to the window. The ledge was dusty. He wrote with a finger: Bowl moved.
+
+He stared at the words. They were just smudges in dust. Proof of nothing. He wiped them away with his palm.
+
+That night, he tried to summon Lilith. He lay in the dark and thought of the beach, the grit of sand, the taste of salt. He concentrated until his head ached. Nothing came. Just the dark, and the distant, patient thump-thump-thump from the living room.
+
+She was gone. The dog was here.
+
+He got out of bed. He walked into the living room, bare feet cold on the floorboards. The room was dark, lit only by the streetlamp glow through the blinds. The bowl was a dark circle. The thumping stopped.
+
+He stood in the stillness. He waited.
+
+A sound, then. Not a thump. A click. A single, soft click of a dog’s nail on wood. Then a sigh. A deep, contented exhalation of breath, the sound a big dog makes when it settles itself for sleep.
+
+Cassius didn’t move. He held his breath.
+
+The thumping did not resume. The silence was different now. It was a silence that had been occupied. A silence with a shape in it.
+
+He went back to bed. He did not sleep.
+
+A week later, he was in line at the pharmacy. The man in front of him was buying flea medication, a bright blue box. The cashier made small talk. “Got a dog?”
+
+“Golden retriever,” the man said, smiling. “Big baby. Sheds like it’s his job.”
+
+Cassius’s hand went to his pocket. He felt for the marble, his anchor. It was there, smooth and cool. He rolled it between his fingers.
+
+His turn. He put his things on the counter—toothpaste, a new notebook, a bottle of aspirin. The cashier, a different one, an older woman with tired eyes, scanned them.
+
+“Anything else?”
+
+The question hung in the air. He could ask. Do you have any medicine for a dog that isn’t there? For a thirst that doesn’t exist? He saw the words in his mind, clear as neon. He felt his mouth try to shape them.
+
+“No,” he said. His voice was a dry leaf. “That’s all.”
+
+He paid. He took his bag. As he pushed through the glass door, he heard the man with the golden retriever laugh at something, a bright, easy sound.
+
+The sun was out for the first time in days, a pale, watery sun that did nothing to warm the chill. Cassius walked. He didn’t head home. He walked past his block, past the pet store, past the bodega. He walked until his feet hurt, until the rhythm of his steps drowned out the phantom thumping still echoing in his skull.
+
+He stopped on a bridge over a narrow, polluted creek that cut through the city. He leaned on the railing, the iron cold even through his jacket. Below, the water was the color of weak tea, carrying a plastic bottle slowly downstream.
+
+He took the marble from his pocket. He held it up to the thin light. The blue ribbon inside seemed to swim, a trapped vein of another world. The only thing that was truly, unquestionably his. The only thing that hadn’t been given to him by a ghost.
+
+A dog barked, sharp and sudden, from the path along the creek. He flinched, his fingers closing tight around the marble. He looked down. A woman was jogging, a small, wiry dog on a leash trotting beside her. Real. Solid. Of this world.
+
+He put the marble back in his pocket. He turned from the railing. The walk home was longer. When he let himself into the apartment, the silence was total. No thumping. He stood in the entryway, listening. Nothing.
+
+He walked to the living room. The bowl was where he left it. The water inside was still, a flat metallic disk.
+
+He stood there for a long time, waiting. The apartment held its breath.
+
+Then, soft as a heartbeat felt through a pillow: thump.
+
+He didn’t feel relief. He didn’t feel dread. He felt a weary, hollow recognition. Back. Of course it was back. It lived here now. It had its bowl.
+
+He went to the kitchen. He didn’t empty the bowl. He didn’t refill it. He put the kettle on for tea, his movements slow, automatic. The click of the stove burner was a sharp, real sound. The hiss of the gas. The first bubbles forming at the bottom of the kettle.
+
+He leaned against the counter. He looked through the doorway into the living room, at the empty space by the chair, at the bowl of untouched water.
+
+He knew what he had to do next. The knowledge was a cold stone in his gut. He had to go to the one place he’d avoided for years. The one person who might, just might, remember a dog.
+
+He made the tea. The ritual of it—boiling water, the chipped mug, the tea bag steeping until the liquid turned the color of old pennies—was a line drawn between this moment and the next. He carried the mug into the living room. He did not look at the bowl. He sat in his chair, the same chair he’d bought twenty years ago when the fabric was still a deep green, now worn to a greasy gray at the armrests. The thumping resumed, not as if it had ever stopped, but as if it had been waiting for him to settle.
+
+He sipped the tea. Too hot, scalding the roof of his mouth. The pain was a pinpoint of focus. Real. He held it there.
+
+He had stopped fighting the channels. That was the thing. The Gold sun, the Blue cold, the domestic ghost-life with the child—he’d raged against those. He’d clenched his teeth and white-knuckled his way back to his own skin. This was different. This was surrender. A tactical, quiet surrender to the least painful invasion. A dog was better than a sunburn. A dog was better than the ghost of a child’s laugh in an empty hall. A dog was, perhaps, better than the aching, salt-tinged absence of Lilith.
+
+He let his head fall back against the chair. He closed his eyes. He didn’t try to summon the beach. He tried to remember the last clear signal. The smell of coconut sunscreen. The specific grit of sand in the bed sheets. The sound of her humming that tuneless little song while she shelled pistachios. The memories were his now, not the channel’s. They were stored data, not a live broadcast. They had the fuzzy, static-edged quality of old photographs, not the immersive, high-definition violence of a bleed-through.
+
+The hum was the last to go. For weeks after the other sensations faded, he could still conjure it, a faint vibration at the back of his skull, a memory of a frequency. Now, when he reached for it, he found only the thumping. A steady, four-legged rhythm had replaced the two-legged one.
+
+He opened his eyes. Evening was deepening, turning the windows into dark mirrors. His own reflection looked back at him—a man in a chair, a mug in his hands, a slice of yellow lamplight cutting across his chest. An ordinary scene. A man and his dog.
+
+Except the dog was a hole in the air. A dog-shaped silence that thumped.
+
+He finished the tea, the dregs bitter on his tongue. He set the mug on the side table, next to the marble. The two objects sat side by side: the mundane ceramic, the impossible glass. One for this world, one for all the others. He picked up the marble, rolling its cool smoothness between his thumb and forefinger. The blue ribbon swam, lazy, eternal. It was the only thing that never changed. It was the only thing that proved he hadn’t always been this man, in this chair, listening to a ghost.
+
+The thumping slowed. The dog was settling. He could picture it—the heavy head lowering onto paws, the deep sigh, the closing of eyes. He’d never had a dog. His father was allergic. His mother thought they were dirty. It was a want he’d never really articulated, buried under other, louder wants. Now it had arrived, fully formed, as a haunting. His psyche was giving him gifts from the catalogue of a life he hadn’t lived. A wife. A child. A dog. It was a cruel parody of fulfillment.
+
+He stood up. His knees popped. He walked to the bowl. He crouched, his own joints a chorus of small complaints. He put his hand out, palm down, over the space where the dog’s head should be.
+
+Nothing. No warmth. No resistance. Just cool, still air.
+
+But the thumping had stopped. The room was preternaturally quiet. He held his breath. He waited.
+
+A sound. Not a thump. A soft, wet sniff. The sound of a dog investigating an offered hand. So clear, so close, he jerked his hand back.
+
+He stayed crouched, heart hammering against his ribs. The sniff did not repeat. The thumping did not resume. The silence was a held thing, a paused pause.
+
+This was new. An auditory hallucination with nuance. A progression.
+
+He stood, his muscles tight. He took the bowl to the kitchen. He emptied the stale water down the drain. He rinsed it. He dried it with a clean towel, buffing the stainless steel until it shone under the fluorescent light. He filled it from the tap, the water so cold it made his fingers ache. He carried it back setting it precisely in the center of the faint circular impression it had left on the rug.
+
+He returned to his chair. He did not pick up a book. He did not turn on the television. He sat and watched the bowl. He watched the way the lamplight caught the rim, a thin line of gold. He watched the water, perfectly still, become a dark mirror reflecting the ceiling.
+
+He must have dozed. The jump in time was subtle—the light hadn’t changed much, but the quality of the silence in the building had. The upstairs neighbor’s television was off. The traffic outside was sparser. He’d lost twenty minutes maybe thirty.
+
+The thumping was back. Slower, deeper. A sleeping rhythm.
+
+And her hum was gone.
+
+He realized it like a missing tooth discovered by a tongue. He’d been half-listening for it, a background track to his thoughts, for years. A constant, low-grade signal from a lost shore. He’d cursed it, feared it, longed for it. Now he reached for it and found only a hollow space. A dead channel. Pure, empty static.
+
+The loss was physical. A sudden, vertiginous drop in the center of him. He gripped the arms of the chair. He focused on the thumping, trying to use it as an anchor, but it felt alien now. A replacement. A cheap substitute piping in through a new frequency now that the old one had finally gone silent.
+
+He got up too fast. The room tilted. He steadied himself on the back of the chair. He went to the window, pushing the curtain aside. The city at night. A grid of lonely lights. Somewhere out there, in a timeline that had folded in on itself and vanished, a woman who was and was not his wife was sleeping on a beach, or was dead, or had never existed. He would never know. The connection was severed. The broadcast had ended.
+
+He let the curtain fall. He turned back to the room. The bowl. The chair. The empty space.
+
+He spoke aloud. His voice was a rasp, unfamiliar in the quiet. “Are you still there?”
+
+The thumping continued. Thump… thump… thump…
+
+It wasn’t an answer. It was just a sound. A sound he was feeding, watering, making a place for in his home.
+
+He walked to the bedroom. He didn’t turn on the light. He lay on top of the covers, still dressed. The ceiling was a black expanse. He listened. No hum. Just the distant, rhythmic proof of a different haunting.
+
+He thought of the man in the pharmacy, the easy laugh, the blue box of flea medication. A real dog. A real problem with a real solution. He envied him with a clarity that was like a knife twist. He envied the simplicity of a world where a dog was just a dog.
+
+He must have slept, because the dream came. He was in a vast, dark kennel. Rows and rows of cages stretched into infinity. In each cage was a version of him. One was sunburned, peeling. One was shivering, blue-lipped. One held a child’s toy. One stared out with Lilith’s eyes. And in the cage right in front of him, in his own cage was a large, shadowy dog. It thumped its tail against the metal floor. Thump. Waiting for him to open the door.
+
+He woke with a gasp. The room was gray with pre-dawn light. He didn’t know where he was. Then the thumping started. Not from the dream. From the living room.
+
+He lay there, the dream clinging to him like cobwebs. The message was not subtle. He was in the cage with it. He had let it in.
+
+He rose. His body felt heavy, used. He shuffled to the living room doorway. The bowl was empty. The water was gone.
+
+He stared. He blinked. He walked closer, crouched down. The bowl was bone dry. Not a drop. The stainless steel was dull in the weak light. He touched the inside. Dry. He lifted it. Light. He turned it over. Nothing.
+
+He set it back down. His hands were trembling. He looked at the rug around it. No spill. No wet patch. The rug was dry.
+
+He had filled that bowl last night. He had seen the water, the light on its surface. He had not drunk it. He had not spilled it. It had not evaporated; the room wasn’t warm enough for that.
+
+Gone.
+
+A sound escaped him, something between a laugh and a sob. It was the first physical proof. The first interaction. The phantom had drunk.
+
+He reached out, his hand shaking, and patted the empty air beside the bowl. “Good dog,” he whispered, the words ash in his mouth.
+
+The thumping sped up for three beats, then settled back into its rhythm.
+
+In the kitchen, he made coffee. The routine was a lifeline. Grind the beans. Boil the water. Pour it slow. The rich smell filled the small room, a tangible, present reality. He drank it black, standing at the counter, looking at the closed door to the living room.
+
+The hum was gone. The water was gone. Something had been exchanged.
+
+He knew what came next. The knowledge was cold and certain. The ritual had been accepted. The offering had been taken. The next step was a name. You didn’t feed a ghost and give it a bowl and not give it a name. That was how you made it yours. That was how it made you its.
+
+The room grew dark. He didn’t turn on the lamp. He sat in the gathering gloom, the marble a cold knot in his hand, the silence a solid weight around him. He closed his eyes. The isolation settled over him like a second skin, a perfect, seamless fit. He was alone. He would always be alone. The marble was the only thing that knew him. The only thing that remembered. He held it until his hand ached, until the cold became a part of his own blood, until the silence was not empty but full—full of the absence of everything else.
