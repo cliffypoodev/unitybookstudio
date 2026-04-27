@@ -22,7 +22,7 @@ Why?
 
 The question was a pebble in his sandal. He couldn’t ignore it.
 
-He found himself at the door of his father’s study. Ajar. He pushed it open. The room was neat, austere. A large desk of citrus wood. Scroll racks sorted by trade route. A locked chest for contracts. On the desk, beside a stylus and a wax tablet covered in shipping figures, lay a single sheet of papyrus. Out of place. Marcus kept his correspondence filed away.
+He found himself at the door of his father’s study. It was ajar. He pushed it open. The room was neat, austere. A large desk of citrus wood. Scroll racks sorted by trade route. A locked chest for contracts. On the desk, beside a stylus and a wax tablet covered in shipping figures, lay a single sheet of papyrus. It was out of place. Marcus kept his correspondence filed away.
 
 Lysander stepped inside. The air smelled of cedar oil and papyrus. He picked up the sheet. The Greek was simple, the hand unpracticed.
 
