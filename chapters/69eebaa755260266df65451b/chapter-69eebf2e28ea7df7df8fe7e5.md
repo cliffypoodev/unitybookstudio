@@ -18,7 +18,7 @@ He picked up his pen. Under “Olfactory event – cut grass/cedar” he wrote a
 
 “April 17. 8:14 PM. Persistent low-frequency hum, apparent origin near baseboard heater in living room (NE corner). Not mechanical. Survives disconnection of all major appliances. Tactile vibration in jaw. Duration: ongoing.”
 
-He put the pen down. Stared at the words. They looked clinical. Sane. A man documenting odd acoustics in an old building. That’s all anyone would see. The problem was the familiarity. A hum didn’t feel alien. It felt like something he’d gotten used to a long time ago, in a different place, and had just forgotten until now. Its return wasn’t an invasion. It was a reminder.
+He put the pen down. Stared at the words. They looked clinical. Sane. A man documenting odd acoustics in an old building. That’s all anyone would see. The problem was the familiarity. The hum didn’t feel alien. It felt like something he’d gotten used to a long time ago, in a different place, and had just forgotten until now. Its return wasn’t an invasion. It was a reminder.
 
 He got up, mug in hand, and walked to the window. His apartment was on the third floor. The view was a collage of brick walls, fire escapes, and the neon sign of the pawn shop across the street. The sign buzzed, a different, harsher frequency. A sickly pink light pulsed against his windowpane. He’d asked the super about the building’s history last week, a casual question while handing over the rent check.
 
@@ -36,7 +36,7 @@ He didn’t turn around. He watched the reflection of his own room in the dark w
 
 Then it stopped.
 
-The silence was a physical shock. His ears rang with the absence. The pawn shop neon buzzed. A car honked. The ordinary world rushed back in, loud and garish. He turned from the window.
+Its silence was a physical shock. His ears rang with the absence. The pawn shop neon buzzed. A car honked. The ordinary world rushed back in, loud and garish. He turned from the window.
 
 The living room was just his living room. Beige walls. Boxes still stacked against one. His chair, the table. Nothing out of place. But the air had a charge to it, a stillness that felt earned, like the quiet after a held breath is finally let out.
 
@@ -80,7 +80,7 @@ He left the recorder running, its red eye watching the dark wall. He went back t
 
 It didn’t.
 
-But the silence had changed. It wasn’t empty anymore. It was listening.
+But the silence had changed. It wasn’t empty anymore. Listening.
 
 He sat in the chair until the pink neon sputtered off at two a.m. leaving the room in the thicker dark of the city night. The silence kept its attentive quality. He finally slept on the couch, a blanket pulled over his shoulders, the marble clenched in his fist.
 
@@ -126,7 +126,7 @@ She shook her head, spooning tea leaves into a pot. “That’s not me, dear. I 
 
 “Why?”
 
-“The man who lived in your place before you. The one who passed. He had a terrible cough. Emphysema, I think. Poor soul. You could hear him through the wall sometimes. An awful, wet sound. Used to keep me awake before I got my pills.”
+“The man who lived in your place before you, the one who passed. He had a terrible cough. Emphysema, I think. Poor soul. You could hear him through the wall sometimes. An awful, wet sound. Used to keep me awake before I got my pills.”
 
 The kettle whistled. Cassius’s mouth was dry. “Arthur Brindle?”
 
@@ -142,11 +142,11 @@ He updated the log. Neighbor confirms chronic cough of previous tenant. No knowl
 
 He stared at the entry. A rational thread. Arthur Brindle’s cough, imprinted on the apartment like a stain, somehow replayed by the peculiar acoustics of old building materials. The scratching was mice. It was a perfect, closed loop. He should have felt relief. The mystery was solving itself into mundane tragedy.
 
-A cold knot settled in his gut. The phenomena were conforming to a biography. Building a character. A ghost story assembles its ghost piece by piece—a sound, a smell, a favorite melody. This was assembly. And he was the foreman, logging the delivery of each component.
+A cold knot settled in his gut. The phenomena were conforming to a biography. Building a character. A ghost story assembled its ghost piece by piece—a sound, a smell, a favorite melody. This was assembly. And he was the foreman, logging the delivery of each component.
 
 He made a decision. He would not record again. He would not log. He would ignore it. Starve it of attention. That’s what you did with unwanted things.
 
-The night tested his resolve.
+That night tested his resolve.
 
 He lay in bed, rigid, staring at the ceiling. The apartment was quiet. No hum. No scratch. Just the distant city groan. He focused on his breath. In. Out. He counted backward from a thousand.
 
@@ -170,7 +170,7 @@ He lay there for an hour maybe two, until his muscles burned with stiffness. Fin
 
 He sat up. The room was normal. The cold was gone. He was alone.
 
-The failure was absolute. His willpower, his rationality—they were tissues against this. It wasn’t random. It was interactive. It responded to his attention, to his fear. Playing with him.
+The failure was absolute. His willpower, his rationality—they were tissues against this. It wasn’t random. Interactive. It responded to his attention, to his fear. Playing with him.
 
 He got out of bed, driven by a sudden, desperate need to prove he still had agency. He would leave. He would walk the streets until dawn. He marched out of the bedroom, into the short hallway leading to the living room.
 
@@ -188,7 +188,7 @@ Then the hum faded, leaving a silence that was no longer listening.
 
 The melody dissolved, leaving a chemical taste in the back of his throat, like the ghost of that root beer. He didn’t turn around. He walked straight to the front door, shoved his feet into shoes, and left the apartment. The hallway was silent. The building slept.
 
-He walked for blocks, the night air cool on his face. The city was different at three a.m. a creature of shadows and solitary lights. He found an all-night diner sat at the counter, ordered coffee he didn’t want. The clatter of dishes, the low murmur of a graveyard-shift conversation—it was all blessedly solid, weighted with grease and routine. He replayed the five notes in his head. They were a key, but to a lock he couldn’t find. A root beer jingle. A memory-nudge so specific it felt like a taunt. I can reach into your childhood. I can play your past like a radio.
+He walked for blocks, the night air cool on his face. The city was different at three a.m. a creature of shadows and solitary lights. He found an all-night diner sat at the counter, ordered coffee he didn’t want. The clatter of dishes, the low murmur of graveyard-shift conversation—it was all blessedly solid, weighted with grease and routine. He replayed the five notes in his head. They were a key, but to a lock he couldn’t find. A root beer jingle. A memory-nudge so specific it felt like a taunt. I can reach into your childhood. I can play your past like a radio.
 
 He paid left a tip, and went back out. Dawn was a smudge of gray when he returned to the apartment building. He paused in the foyer, his hand on the banister. The silence inside was watchful, expectant. He climbed the stairs.
 
