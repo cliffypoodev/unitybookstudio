@@ -1,0 +1,251 @@
+The alley smelled like hot garbage and regret. Dutch skidded around a dumpster, Jesus right behind him, sandals slapping the cracked pavement. A bottle shattered against the wall where Dutch's head had been two seconds earlier.
+
+“Mother of—” Dutch wheezed. “—why are they so fast?”
+
+Jesus didn't answer. He was busy stepping over a sleeping pit bull like it was a sacred obstacle.
+
+Three cartel guys in gold chains and bad mustaches rounded the corner. The lead guy, built like a fridge with a trigger finger, racked the slide on his Tec-9. “¡El puto hierba milagrosa, gringo!”
+
+Dutch didn't speak much Spanish, but he knew “milagrosa” meant “miraculous” and also “we will peel your fingernails off for it.” He grabbed Jesus by the robe. “Okay, messiah, time for another water-into-wine trick. Or, y'know, water-into-tear-gas. Whatever.”
+
+Jesus blinked at the approaching men. “I don't think that's how it—”
+
+“Improvisation is a virtue!” Dutch shoved him behind a stack of pallets just as gunfire chewed the wood to splinters. He yanked open a rusted service door. The hinges screamed like a cat in a blender. Inside: pitch black, stale air, and the distinct musk of something that had died in here last week.
+
+Jesus hesitated. “Is this—”
+
+“Better than perforation? Yes.” Dutch dragged him in and kicked the door shut. The cartel guys started pounding on it immediately.
+
+Darkness. Dutch's pulse thudded in his ears. Then a click, and Jesus's face glowed faintly. He was holding Dutch's Zippo, the one with the bikini-clad mermaid.
+
+“You stole my lighter?”
+
+“Borrowed.” Jesus studied the flame. “It's very... anatomical.”
+
+The banging outside got louder. Something heavy slammed into the door. The frame groaned.
+
+Dutch fumbled along the wall. “There's gotta be another way out. Warehouses always have—” His hand hit a metal panel. He shoved. Daylight. “Bingo. Fire exit.”
+
+They spilled into another alley, this one decorated with a single abandoned shopping cart and a suspiciously pristine pair of white sneakers dangling from a power line.
+
+Jesus frowned at the shoes. “Why would someone—”
+
+“Later.” Dutch grabbed his sleeve and yanked him left. “We need to lose these guys before they introduce us to their friend Lead Poisoning.”
+
+They zigzagged through Little Havana's backstreets, past domino players who didn't look up from their game, past a kid spraying graffiti that read “ELVIS WAS A TIME TRAVELER,” past a storefront where a televangelist's face flickered on a dozen stacked TVs, all screaming about the end times.
+
+Dutch risked a glance back. No cartel. He slowed, hands on knees, sucking air. “Okay. Okay. We're good.”
+
+Jesus peered around the corner. “They're splitting up. That one's checking the bodega.”
+
+“Great. Let's—” Dutch froze. A new scent cut through the alley's usual bouquet of urine and fried plantains. Coppery. Familiar.
+
+Blood.
+
+A lot of it.
+
+Fresh.
+
+It led into the open mouth of a derelict industrial park, where the chain-link fence had been peeled back like a tin can. From inside came a wet, crunching sound. Then a low, mechanical growl that made Dutch's fillings vibrate.
+
+Jesus went very still. “That's him.”
+
+Dutch's throat tightened. “Yeah. And he's eating somebody.”
+
+Another growl. A yelp. Not pain, fear. The victim was still alive.
+
+Jesus moved toward the fence.
+
+Dutch grabbed his arm. “Whoa, whoa, whoa, you see the blood trail, right? That's not a ‘let's go help’ situation. That's a ‘call the coroner and maybe an exorcist’ situation.”
+
+Jesus pulled free. “He's not what they made him.”
+
+“Yeah, well, neither was Frankenstein, and look how that turned out.”
+
+But Jesus was already stepping through the torn fence. Dutch muttered a prayer to every god he could think of, including the ones he'd made up during bad acid trips, and followed.
+
+The industrial park was a graveyard of rusted machinery and shattered concrete. The blood trail led to a loading dock where a delivery bike lay crumpled, its front wheel still spinning lazily. A kid—couldn't have been older than eighteen—was pressed against the wall, eyes wide, clutching a bleeding arm.
+
+And standing over him, blotting out the sun: REX-777.
+
+The dinosaur's red scanner eye locked onto the kid. Hydraulics hissed as he raised one claw. The kid squeezed his eyes shut.
+
+Then Jesus touched the neural crown.
+
+A spark jumped. Rex's whole body shuddered. His eye flickered, red, then gold, then red again. The claw stopped midair.
+
+For three heartbeats, nobody moved.
+
+Then Rex spoke, his vocalizer crackling with static:
+
+“Choice?”
+
+The kid fainted.
+
+Dutch's brain short-circuited. “Did he just—”
+
+Jesus exhaled. “Yes.”
+
+Rex lowered his claw. Looked at it. Looked at Jesus. The scanner eye dimmed, then brightened, almost like a question.
+
+From the street came shouts. The cartel guys had found their trail.
+
+Dutch backed toward the fence. “Okay. New problem.”
+
+Rex's head snapped toward the sound. His eye pulsed red. The kill directive flared—Dutch could see it in the sudden tension of those titanium tendons.
+
+Jesus stepped between him and the alley. “No.”
+
+Rex growled.
+
+Jesus didn't move.
+
+The growl deepened. Then a click. The scanner eye cycled back to gold. Rex exhaled through his vents, a sound like a steam engine sighing.
+
+Dutch didn't realize he'd been holding his breath until his vision spotted. “Holy shit.”
+
+Jesus turned. “We should go.”
+
+“Yeah. Yeah, we should.” Dutch grabbed the unconscious kid's collar and started dragging. “But we're taking the free appetizer.”
+
+Rex watched them. Then, with surprising delicacy, he nudged the bike aside with his snout and followed.
+
+* * *
+
+The kid weighed more than he looked. Dutch dragged him past a gutted forklift, Jesus walking backward like a damn Secret Service agent, eyes locked on Rex. The dinosaur followed at a distance, his steps eerily silent for eight tons of military-grade reptile.
+
+“Tell me,” Dutch wheezed, “this isn't the dumbest thing we've ever done.”
+
+Jesus didn't answer. His sandal caught on a length of rebar. He stumbled, and Rex's head snapped forward, nostrils flaring.
+
+Dutch froze. “Don't. Move.”
+
+Rex's eye cycled, red, gold, red again. A low whine built in his throat, the sound of servos straining against conflicting commands.
+
+The kid groaned.
+
+Rex's head whipped toward the sound. Dutch saw it happen in slow motion: the twitch of the haunches, the slight dip of the shoulders, the way the claws flexed against concrete. Hunting posture.
+
+Jesus stepped sideways, blocking Rex's line of sight. “No.”
+
+The dinosaur's growl rattled loose bolts in the warehouse walls.
+
+Dutch's bladder sent a formal request to evacuate. “Hey, messiah? Maybe don't antagonize the murder lizard.”
+
+Rex took a step. Then another. Jesus held his ground. The distance between them shrank to ten feet. Five. Close enough for Dutch to see the fine mesh of scars where flesh met cybernetics, the way Rex's breath fogged the air in short, controlled bursts, like he was counting.
+
+Jesus reached out.
+
+Dutch's pulse hit his teeth. “Oh, come on—”
+
+Rex flinched.
+
+Not attacked. Flinched. Like a dog expecting a kick.
+
+Jesus's fingers brushed the neural crown.
+
+The effect was instant. Rex's entire frame locked up. His eye stuttered—red-gold-red-gold—and a high-pitched whine leaked from his vocalizer. The warehouse lights flickered. Somewhere, a transformer blew with a sound like a gunshot.
+
+Dutch ducked. “What the hell was that?”
+
+“Feedback loop.” Jesus traced the crown's edge. “They wired his pain receptors into the obedience matrix. It hurts him when he disobeys.”
+
+Rex shuddered. A thin line of hydraulic fluid leaked from one joint.
+
+Dutch stared. “You're telling me the Pentagon built a cyborg T-Rex with a shock collar?”
+
+“Essentially.”
+
+“That's... kinda fucked up.”
+
+Jesus nodded. Rex's eye settled on gold. The whine faded to a hum.
+
+The kid chose that moment to wake up screaming.
+
+Rex's head snapped around. The kid scrambled backward, sneakers squeaking on grease-stained concrete. His arm left a fresh smear of blood.
+
+Dutch grabbed his collar again. “Hey. Hey!”
+
+Rex lunged.
+
+Not at the kid. At the blood.
+
+His snout hit the stain and stopped an inch short. Nostrils flared. Tongue flicked out. Sampled.
+
+Dutch's stomach rolled. “Oh God, he's tasting him.”
+
+Rex's eye dilated. His head jerked up. He took a step back. Then another.
+
+Jesus frowned. “That's... new.”
+
+The kid hyperventilated. “What's new? What's new?!”
+
+Dutch watched Rex retreat. “I think he just realized he's a carnivore.”
+
+Rex made a sound like a garbage disposal choking on guilt.
+
+From outside came engines. Voices. The cartel had brought friends.
+
+Dutch cursed. “We gotta move. Now.”
+
+Jesus didn't take his eyes off Rex. “Can you run?”
+
+The dinosaur's eye flicked to the door. Back to Jesus. A pause. Then a single, stiff nod.
+
+Dutch blinked. “Did he just—”
+
+“Yes.” Jesus turned. “Stay close.”
+
+They bolted for the rear exit, Rex moving with eerie precision between the machinery, his tail clearing a path through the debris. The kid stumbled, and Rex caught him by the shirt with his teeth, setting him upright without breaking stride.
+
+Dutch side-eyed Jesus. “Okay, what the actual hell is happening?”
+
+The back door was chained shut. Rex solved that problem by walking through it.
+
+Sunlight. Another alley. The kid collapsed against a dumpster, clutching his arm. “I'm gonna die. I'm definitely gonna die.”
+
+Dutch patted his pockets. Found a half-crushed pack of Marlboros. “Here. Smoke this. It'll help.”
+
+The kid took it with shaking hands. “Are you guys... like, dinosaur whisperers?”
+
+“Nah.” Dutch lit one for himself. “He's the messiah. I'm just a guy who knows where to hide bodies.”
+
+Jesus touched Rex's flank. “Easy.”
+
+The red dimmed.
+
+Dutch breathed out smoke. “So. We keeping him?”
+
+Jesus studied Rex. The dinosaur studied him back. Some silent negotiation passed between them.
+
+Finally, Jesus nodded. “For now.”
+
+The kid fainted again.
+
+Rex nudged him with his snout, then looked at Jesus, as if to say, you sure we need this one?
+
+Dutch grinned. “I like him.”
+
+Sirens wailed in the distance. Time to move.
+
+Jesus took point. Rex fell in behind him, his gait smoothing with each step, like he was remembering how to walk without orders.
+
+Dutch brought up the rear, watching the unlikely trio ahead of him: the messiah, the mutant dinosaur, and the kid who'd probably need therapy for life.
+
+Miami, he decided, had officially gotten weird.
+
+And it was only Monday.
+
+Three blocks away, Fridge Guy collapsed against a pay phone, gasping. His buddies leaned on each other, their gold chains tangled, their mustaches quivering.
+
+One of them crossed himself again. “¿Viste eso? El dinosaurio... habló.”
+
+Fridge Guy wiped his face. Then he reached for the pay phone. Dialed a number from memory.
+
+When the line picked up, he said two words:
+
+“El diablo.”
+
+A pause.
+
+“Tiene un dinosaurio.”
