@@ -1,0 +1,217 @@
+The humming started three nights after the smell of grass and cedar.
+
+It was a low, steady note, like a transformer on a power line, but deeper. It lived in the walls. Not in the pipes—Cassius shut the water off at the main valve to check. The hum persisted. It wasn’t the refrigerator, either. He unplugged the old avocado-colored unit, waited in the sudden, profound silence, and after seventeen seconds the hum returned, seeping up from the floorboards. A vibration you felt in your molars before you heard it.
+
+Cassius stood in the center of his living room, the notebook open on the kitchen table behind him. He’d drawn a crude floor plan, marked an X where he was standing. He’d written the time: 8:14 PM. The sound seemed to originate from a point near the baseboard heater, the one that hadn’t worked since he moved in. He crouched, pressed his ear to the dusty metal grille. The hum clarified became a dense metallic drone. It carried a memory of heat, not the heat itself. Like the ghost of a furnace.
+
+His left hand went to his pocket found the marble. His thumb traced the smooth, cool curve of the glass, the single ribbon of blue. The action was automatic now. A tic. A grounding point. He didn’t pull it out. Just the pressure against his thigh through the denim was enough. A real thing in a world that kept developing soft spots.
+
+He stood, knees popping. The hum followed him to the kitchen. Background radiation now, part of the apartment’s sonic profile alongside the ticking baseboard pipes and the traffic sigh from the street below. He filled the kettle and set it on the stove. The blue flame hissed to life. As he waited, he looked at the notebook. The page for today was already dense. Time, description, duration. A column for “Possible Source” he was leaving increasingly blank.
+
+The first cold spot had been in the hallway yesterday morning. A pocket of air ten degrees cooler than the rest of the apartment, roughly the shape and height of a person. He’d walked through it on his way to the bathroom, the chill raising gooseflesh on his arms. When he walked back, it was gone. The air had evened out. He’d stood there for five minutes, waiting for it to return. It didn’t.
+
+The kettle whistled. He poured water over the instant coffee granules, watching the brown foam swirl and dissolve. The smell was bitter, chemical. Nothing like the rich, dark roast from the vision of the other kitchen, the one with the yellow curtains. He pushed that thought away. It was an anchor, not a diversion. He needed to stay here.
+
+He carried the mug to the table and sat before the notebook. He took a sip. The coffee was too hot, scalding the tip of his tongue. A bright, precise pain. Good.
+
+He picked up his pen. Under “Olfactory event – cut grass/cedar” he wrote a new entry.
+
+“April 17. 8:14 PM. Persistent low-frequency hum, apparent origin near baseboard heater in living room (NE corner). Not mechanical. Survives disconnection of all major appliances. Tactile vibration in jaw. Duration: ongoing.”
+
+He put the pen down. Stared at the words. They looked clinical. Sane. A man documenting odd acoustics in an old building. That’s all anyone would see. The problem was the familiarity. A hum didn’t feel alien. It felt like something he’d gotten used to a long time ago, in a different place, and had just forgotten until now. Its return wasn’t an invasion. It was a reminder.
+
+He got up, mug in hand, and walked to the window. His apartment was on the third floor. The view was a collage of brick walls, fire escapes, and the neon sign of the pawn shop across the street. The sign buzzed, a different, harsher frequency. A sickly pink light pulsed against his windowpane. He’d asked the super about the building’s history last week, a casual question while handing over the rent check.
+
+The super, a man named Ray with a permanent cough had shrugged. “Old place. Built in the forties. Lots of people lived here. Died here too, probably.” He’d laughed, a wet sound. “Don’t worry. None of ’em ghosts. Just dust and bad wiring.”
+
+Cassius had nodded, taken his receipt. But later, at the library, he’d looked it up. Microfiche newspapers, local section. The building had no notable history. No fires, no murders splashed across the front page. But in a brief notice from November 1998, he found it. A tenant in 3B—his apartment—had died. Natural causes. An elderly man named Arthur Brindle. Found after a neighbor complained about a smell. The article was two sentences.
+
+He’d copied the name and date into the back of the notebook. It felt like due diligence. Arthur Brindle. The name meant nothing. It sparked no phantom scent, no flicker of a face. Cassius was almost disappointed. A ghost he could research. A ghost had a history, a boundary. This humming, these cold spots—they weren’t Arthur Brindle. They felt personal.
+
+A floorboard creaked behind him.
+
+Not the usual settling groan of old wood. This was a single, sharp report. Like a footstep releasing pressure.
+
+He didn’t turn around. He watched the reflection of his own room in the dark window: the table, the notebook, the empty space behind his chair. In the glass, the space stayed empty. The hum in the walls deepened for a second, harmonizing with itself.
+
+Then it stopped.
+
+The silence was a physical shock. His ears rang with the absence. The pawn shop neon buzzed. A car honked. The ordinary world rushed back in, loud and garish. He turned from the window.
+
+The living room was just his living room. Beige walls. Boxes still stacked against one. His chair, the table. Nothing out of place. But the air had a charge to it, a stillness that felt earned, like the quiet after a held breath is finally let out.
+
+He walked to the hallway, flicked on the light. The yellow bulb illuminated the narrow passage to the bedroom and bathroom. Empty. No cold spot. He moved to the bedroom door, pushed it open. The overhead light was off, but the pink neon from across the street bled through the blinds, painting stripes across his unmade bed.
+
+He heard it then. A new sound.
+
+Not a hum. A soft, rhythmic scratch-scratch-scratch. It came from the wall behind his bed, the shared wall with the adjacent apartment, 3C. An old woman lived there. He’d seen her in the hall once, shuffling with a grocery bag. She had a small, yappy dog.
+
+This didn’t sound like a dog. Too measured. Too deliberate. Scratch. Pause. Scratch-scratch.
+
+It could be anything. Pipes. A branch outside. The old woman’s pet maybe. But the rhythm was off for an animal. Patient. Persistent. Like someone slowly dragging a fingernail over plaster.
+
+Cassius stood in the doorway, his coffee gone cold in his hand. He listened. The pattern repeated. Scratch. Pause. Scratch-scratch.
+
+He forced himself into the room, his steps quiet on the worn carpet. He approached the wall. The sound seemed to originate at about head height if he were sitting up in bed. He leaned in, placed his ear against the cool, painted plaster.
+
+The scratching stopped.
+
+He held his breath. The wall was silent. From the other side, he heard the faint, tinny sound of a television, a laugh track. The old woman was awake, watching TV. Normal life.
+
+He straightened up. As he did, the scent hit him. Not grass. Not cedar. This was antiseptic. Rubbing alcohol. And underneath it, the faint, sweet-metallic smell of blood.
+
+Gone in a second, replaced by the dusty fabric smell of the apartment. A memory-echo. A flash from some other when. But it had been here, in this room, as real as the neon light on his hands.
+
+The scratching did not return. The hum stayed absent. The apartment just sat around him, old and tired. He walked back to the living room, to the notebook. His hand was steady as he picked up the pen. He turned to a fresh page. At the top, he wrote “Tenant Log.” Then he drew a line down the center. On the left, he wrote “Phenomenon.” On the right, “Possible Narrative.”
+
+Under “Phenomenon” he listed what he had: Hum. Cold spot. Footstep creak. Scratch pattern. Antiseptic/blood scent.
+
+He stared at the right column, “Possible Narrative.” The pen hovered. He could write “Arthur Brindle, natural causes.” He could write “Settling building. Drafts. Pipes.” He could write “Stress-induced synesthesia. Latent PTSD from cumulative reality dissonance.”
+
+He didn’t write any of it.
+
+He put the pen down. He went to the largest remaining box, the one marked “Misc.” He dug past old tax returns and spare cables until his fingers closed around a small, battery-powered device. A digital voice recorder he’d used for lecture notes a lifetime ago. He found a fresh AAA battery in a drawer, loaded it, pressed record. The red light glowed.
+
+He carried it to the bedroom, placed it on the nightstand, pointed it at the wall. He hit record. The tiny screen showed the elapsed time beginning to count.
+
+He didn’t expect to capture a scratch. He expected to capture silence, and in the morning have proof of his own descent into paranoid documentation. That was the narrative wasn’t it? The slow meticulous unraveling. He almost wanted that. It had a known shape.
+
+He left the recorder running, its red eye watching the dark wall. He went back to the living room, closed the notebook, and sat in the chair. He didn’t turn on the lamp. He sat in the neon-painted dark, the marble a hard circle in his pocket, and waited for the hum to come back.
+
+It didn’t.
+
+But the silence had changed. It wasn’t empty anymore. It was listening.
+
+He sat in the chair until the pink neon sputtered off at two a.m. leaving the room in the thicker dark of the city night. The silence kept its attentive quality. He finally slept on the couch, a blanket pulled over his shoulders, the marble clenched in his fist.
+
+He woke to the clatter of garbage trucks. Sunlight, weak and filtered through soot cut across the floor. The apartment was just an apartment. The digital recorder on the nightstand showed five hours and forty-two minutes of captured time. He made coffee, drank it standing at the kitchen counter. The routine was armor. Shower, dress, eat toast. He waited until the last possible moment to play the recording.
+
+He sat at the table, pressed play, and braced for the white noise of an empty room.
+
+For the first hour, it was just that: the faint, oceanic hiss of the cheap microphone. Then, at one hour seventeen minutes, a new sound layered over the hiss. A dry, rhythmic whisper. Scratch. Pause. Scratch-scratch.
+
+Exactly as he’d heard it.
+
+Cassius stopped the recording, rewound it, and played it again. There it was. Obvious. He let it play on. The pattern repeated for exactly three minutes and twelve seconds. Then it stopped. An hour of silence followed. Then, at three hours four minutes, a different sound. A low, wet cough. Not his. He hadn’t coughed. It was a deep, congested sound, followed by a sigh. A sigh of deep weariness.
+
+His skin went tight and cold.
+
+He listened to the end. The cough-and-sigh sequence occurred twice more, at regular intervals, like a body keeping time in the dark. The final instance was at five hours twenty-one minutes. Then nothing until the recording ended.
+
+He played the cough again. And again. He isolated it in the quiet room. It was a sick sound. An old sound. He saw Arthur Brindle, not from any phantom memory, but from his own imagination: a thin man in a worn cardigan, sitting on the edge of a bed, coughing into a handkerchief. The image was generic, a stock photo from dread. It felt like a concession.
+
+He opened the notebook to the “Tenant Log.” Under “Phenomenon,” he added: Audio captured: Repetitive scratching pattern (1:17 AM). Three instances of respiratory distress (3:04, 4:15, 5:21 AM).
+
+His pen moved to the right column, “Possible Narrative.” He wrote: Acoustic transmission from adjacent apartment? (3C occupant elderly, possible respiratory issue). Scratching could be pet, pipes.
+
+The words looked pathetic. Hollow. The scratching had been on his side of the wall, at head height. The cough sounded close, intimate, as if the microphone had been placed on a sick man’s chest. He knew what the next step of a sane investigation was. He had to talk to the neighbor.
+
+He found her in the late afternoon, struggling with a bag of cat litter in the downstairs foyer. Mrs. Esterhaus, according to the mailbox. She was bird-thin, with a cloud of white hair and glasses thick as bottle caps.
+
+“Let me.” He took the bag. Shockingly heavy.
+
+“Oh, you’re the young man from 3B,” she said, her voice a rasp. “Thank you. My nephew usually does this, but he’s running late.”
+
+He carried the litter up the two flights, her shuffling slowly behind him. At her door, 3C, he set it down. “There you go.”
+
+“Would you like a cup of tea? I make a good peppermint.”
+
+He almost refused. Then he saw his opening. “I’d like that. Actually, I wanted to ask... I’ve been hearing some noises through the wall. At night. Wanted to make sure everything was okay over here.”
+
+Her apartment was a museum of doilies and porcelain figurines. It smelled of cat and mentholatum. She put the kettle on. “Noises? What kind of noises?”
+
+“A scratching sound. And... well, it sounded like coughing.”
+
+She shook her head, spooning tea leaves into a pot. “That’s not me, dear. I sleep like the dead. The pills, you know. And Mr. Tibbles sleeps with me. He doesn’t scratch the walls.” She gestured to an enormous orange tabby snoring on a rocking chair. “The coughing, though. That’s funny.”
+
+“Why?”
+
+“The man who lived in your place before you. The one who passed. He had a terrible cough. Emphysema, I think. Poor soul. You could hear him through the wall sometimes. An awful, wet sound. Used to keep me awake before I got my pills.”
+
+The kettle whistled. Cassius’s mouth was dry. “Arthur Brindle?”
+
+“That’s right. You knew him?”
+
+“I read about him. In the paper.”
+
+“A quiet man. Kept to himself.” She poured the water. “The scratching, though. That’s new. Maybe it’s mice. The super should know.”
+
+He drank the tea. It tasted like hot toothpaste. He made polite conversation for five more minutes, then excused himself. Back in his own apartment, the silence felt different. It had a name now. It had a cough.
+
+He updated the log. Neighbor confirms chronic cough of previous tenant. No knowledge of scratching. Suggests mice.
+
+He stared at the entry. A rational thread. Arthur Brindle’s cough, imprinted on the apartment like a stain, somehow replayed by the peculiar acoustics of old building materials. The scratching was mice. It was a perfect, closed loop. He should have felt relief. The mystery was solving itself into mundane tragedy.
+
+A cold knot settled in his gut. The phenomena were conforming to a biography. Building a character. A ghost story assembles its ghost piece by piece—a sound, a smell, a favorite melody. This was assembly. And he was the foreman, logging the delivery of each component.
+
+He made a decision. He would not record again. He would not log. He would ignore it. Starve it of attention. That’s what you did with unwanted things.
+
+The night tested his resolve.
+
+He lay in bed, rigid, staring at the ceiling. The apartment was quiet. No hum. No scratch. Just the distant city groan. He focused on his breath. In. Out. He counted backward from a thousand.
+
+At nine hundred and seventy-four, the temperature dropped.
+
+It wasn’t a gentle coolness. It was a plunge, as if a slab of winter air had been inserted into the room. It centered on the space beside his bed. The cold was so severe it made his sinuses ache. He could see his own breath, a pale ghost in the streetlight bleeding through the blinds.
+
+He did not move. He did not open his eyes. He clenched the marble in his fist so hard the glass bit into his palm. You are not here. This is a draft. A malfunction of perception. In. Out.
+
+A new sound began. Not a scratch. A soft, rhythmic tap-tap-tap. Like a finger lightly striking wood. It came from his nightstand. From the surface of the cheap particle board, right beside his head.
+
+His heart was a frantic animal in his chest. His scientific mind, the part that was supposed to document was screaming at him to roll over, to look, to measure the exact location and tempo. The rest of him was frozen. To look was to accept. To accept was to be lost.
+
+The tapping kept its slow, patient rhythm. Tap. Pause. Tap-tap.
+
+It was the same pattern as the scratching.
+
+A whimper escaped his throat, a tiny, shameful sound. The tapping stopped instantly. The cold began to recede, not all at once, but like a tide pulling back, leaving a residual chill in the air.
+
+He lay there for an hour maybe two, until his muscles burned with stiffness. Finally, he moved. He turned his head. The nightstand was empty. The digital recorder was gone. He’d left it in the living room.
+
+He sat up. The room was normal. The cold was gone. He was alone.
+
+The failure was absolute. His willpower, his rationality—they were tissues against this. It wasn’t random. It was interactive. It responded to his attention, to his fear. Playing with him.
+
+He got out of bed, driven by a sudden, desperate need to prove he still had agency. He would leave. He would walk the streets until dawn. He marched out of the bedroom, into the short hallway leading to the living room.
+
+He was halfway down the hall when he heard it.
+
+Not a hum. Not a scratch. Not a tap.
+
+It was a tune. A clear, distinct sequence of five notes, carried on a low, resonant hum that seemed to emanate from the walls, the floor, the air itself. A simple, melancholy little melody. It came from directly behind him, from the empty space at the end of the hallway he had just passed.
+
+He knew it. He knew the song. From a commercial, a jingle for a brand of root beer from when he was a boy. He hadn’t heard it in thirty years. He couldn’t remember the product, but the tune was etched into the bedrock of his childhood summers.
+
+He stood paralyzed in the dark hallway. The five notes hung in the air, sweet and terrible. They were not a memory. They were a performance. For him.
+
+Then the hum faded, leaving a silence that was no longer listening.
+
+The melody dissolved, leaving a chemical taste in the back of his throat, like the ghost of that root beer. He didn’t turn around. He walked straight to the front door, shoved his feet into shoes, and left the apartment. The hallway was silent. The building slept.
+
+He walked for blocks, the night air cool on his face. The city was different at three a.m. a creature of shadows and solitary lights. He found an all-night diner sat at the counter, ordered coffee he didn’t want. The clatter of dishes, the low murmur of a graveyard-shift conversation—it was all blessedly solid, weighted with grease and routine. He replayed the five notes in his head. They were a key, but to a lock he couldn’t find. A root beer jingle. A memory-nudge so specific it felt like a taunt. I can reach into your childhood. I can play your past like a radio.
+
+He paid left a tip, and went back out. Dawn was a smudge of gray when he returned to the apartment building. He paused in the foyer, his hand on the banister. The silence inside was watchful, expectant. He climbed the stairs.
+
+The apartment was just as he’d left it. No cold spots. No humming. He went to the notebook, still open on the table. He looked at the “Possible Narrative” column. Arthur Brindle, natural causes. Mice. Acoustics. It was a story for someone else. He tore the page out, crumpled it, dropped it in the wastebasket. He needed a different story.
+
+The library opened at nine. He was there by eight-fifty, waiting on the granite steps, the morning sun weak on his back. When the doors clicked open, he went straight to the local history room, a basement annex that smelled of mildew and aging paper.
+
+The microfiche was where he’d left it. He’d found Arthur Brindle’s death notice there. Now he went wider. He pulled spools for the years Brindle lived in the building, according to the old city directories he cross-referenced. 1985 through 1998. He scrolled through pages of newsprint, the black-and-white world flickering on the reader’s screen. He was looking for context. For the shape of a life around that cough.
+
+He found an obituary. Arthur J. Brindle, 78, passed peacefully at home. Survived by a niece in Florida. Retired machinist. Member of the VFW. No photograph. The obit was a skeleton. It gave him nothing to feel.
+
+He almost stopped. This was the rational path, and it led to a dead end—a quiet old man who died quietly. But the melody in the hallway wouldn’t let him stop. Too pointed, too curated. He pushed the Brindle spool aside. On a hunch, a bad one, he asked the archivist for building permits, ownership records for his address. The archivist, a woman with kind eyes and a perpetual frown brought him a heavy, leather-bound ledger. “Assessment rolls,” she said. “They can be a maze.”
+
+He traced the building’s ownership back to the sixties. It changed hands several times. In 1972, it was purchased by a limited partnership called Halcyon Properties. The name rang a dull, distant bell. He’d seen it before, somewhere. He flipped forward. Halcyon sold the building in 1981. Standard stuff.
+
+He was about to close the ledger when a handwritten note in the margin for the 1976 entry caught his eye. The ink was faded blue. Fire damage, 3rd fl. West unit. Insurance claim settled. The unit number was smudged. Could be 3B. Could be 3C.
+
+A fire.
+
+He went back to the microfiche, his fingers clumsy on the advance knob. He searched local papers for 1976, his address. It took an hour. He found it in the Evening Sentinel, page seven, a three-inch column. Early Morning Blaze Contained. A faulty space heater in a third-floor apartment. One casualty. Eleanor Voss, 24, pronounced at the scene. The article said she was a student at the community college. No picture.
+
+Eleanor Voss.
+
+The name sat in his mind, inert. It meant nothing. But the date, the location—a death in his apartment, decades before Arthur Brindle. A younger death. A violent one. The ghost story was upgrading its ghost. He should have felt a chill. He felt a grim sort of validation. Here was a better reason for cold spots, for taps in the night. A tragic, energetic death. This was classic haunting fodder.
+
+He closed the book. The sound was final. He sat in the sterile quiet of the college archive, the hum of the fluorescent lights the only sound, and understood the hook was not in the mystery of her death. It was in the intimacy of her skin. The haunting had just become a love letter, addressed to him from a life they’d never shared.
