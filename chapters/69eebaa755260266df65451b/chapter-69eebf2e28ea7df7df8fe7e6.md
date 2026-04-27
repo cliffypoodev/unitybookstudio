@@ -42,11 +42,11 @@ The word landed like a stone in the sunlit room. Static. Here, it meant somethin
 
 “You need to log off for the weekend. No more digging through dusty probate records.” She took a sip, her eyes on the ocean. “We could drive up the coast. Get that fish stew you like. Walk on the cold sand.”
 
-He could feel it. The crunch of shells underfoot. The wind cutting through his jacket, her leaning into his side for warmth. The way she’d tuck her cold nose against his neck later, in the car, and laugh.
+He could feel it. The crunch of shells underfoot. A wind cutting through his jacket, her leaning into his side for warmth. The way she’d tuck her cold nose against his neck later, in the car, and laugh.
 
 A desperate hungry want choked him. It was a physical ache. This. He wanted this. Not as a vision, but as the steady, boring truth of his days.
 
-The light stuttered.
+One light stuttered.
 
 Not a flicker. A stutter. Like a film strip catching, burning a hole in the image. For a fraction of a second, the ocean outside the window was a flat gray wall. The smell of salt and gardenia thinned, replaced by the faint, stale odor of his own apartment.
 
@@ -152,7 +152,7 @@ He sat back. The words were a cage he’d built around the experience. See? It w
 
 A cramp seized his right hand. He looked down. He was still clutching an invisible hand, his fingers curled so tight the knuckles were white. He forced them open. The phantom warmth was gone, but the muscle memory of her grip remained. His palm ached.
 
-He needed a physical anchor. The marble. He swiveled in his chair, scanned the cluttered bookshelf. On the middle shelf, between a geology textbook and a broken radio. The clear glass with its single blue swirl. He’d found it in a coat pocket years ago. It belonged only here. None of the phantoms recognized it. Native to this timeline, to Cassius Prime.
+He needed a physical anchor. The marble. He swiveled in his chair, scanned the cluttered bookshelf. On the middle shelf, between a geology textbook and a broken radio sat the clear glass with its single blue swirl. He’d found it in a coat pocket years ago. It belonged only here. None of the phantoms recognized it. Native to this timeline, to Cassius Prime.
 
 He fetched it. The glass was cool. He rolled it between his palm and his fingers, feeling the solid, unchanging curve of it. This was real. This object had continuity. He’d had it at thirty-two. He had it now at forty-two. It existed in this apartment, on this shelf, in this city with no ocean.
 
@@ -232,7 +232,7 @@ A laugh cut through the air from two aisles over. A warm, rolling chuckle that e
 
 Cassius froze. His hand, outstretched toward the coffee hung in the air.
 
-The sound came again, followed by a man’s lower chuckle. A couple, sharing a joke by the frozen pizzas.
+That sound came again, followed by a man’s lower chuckle. A couple, sharing a joke by the frozen pizzas.
 
 It was her. It had to be. The hum was a fluke, but the laugh—that was a fingerprint. A vocal fingerprint his cells recognized before his mind could argue.
 
@@ -240,7 +240,7 @@ He abandoned his cart. He walked, then jogged, the bread tumbling from the child
 
 A man and a woman stood by the glass doors, examining a box of garlic bread. The woman was shorter, blonde, wearing a puffy vest. She laughed again at something the man said, covering her mouth. It wasn’t the same laugh. Not even close. Higher, tinkling.
 
-A laugh Cassius had heard had been hers. But it wasn’t coming from this woman. It had come from somewhere else, from another aisle, or maybe from the speakers, or maybe from the hollows of his own skull. He stood there, panting slightly, a man lost among the frozen peas.
+The laugh Cassius had heard had been hers. But it wasn’t coming from this woman. It had come from somewhere else, from another aisle, or maybe from the speakers, or maybe from the hollows of his own skull. He stood there, panting slightly, a man lost among the frozen peas.
 
 A store employee, a kid with acne and a red vest, eyed him cautiously. “You okay, sir?”
 
