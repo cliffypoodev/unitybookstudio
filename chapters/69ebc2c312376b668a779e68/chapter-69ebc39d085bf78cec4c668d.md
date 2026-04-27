@@ -16,7 +16,7 @@ Miriam’s gaze sharpened for a second, seeing through him. She nodded, a slow d
 
 The morning trickled on. A few regulars came. Lysias the porter, buying two loaves for his crew. The widow from the fuller’s shop. Their purchases were smaller. Their conversations were hushed, punctuated by glances over their shoulders. The word silversmiths hung in the air, a new scent among the familiar smells of dust and baking grain.
 
-Silas found himself staring at the closed door of Demetrius’s shop. Demetrius was a good customer. He liked the honey-drizzled flatbreads Silas brought them every other day for his workshop. A stout man, proud of his craft, with thick fingers that could coax a drachma’s worth of silver into the likeness of Artemis’s stag. Last week, over a cup of thin wine, Demetrius had slammed his cup down. “He says they are not gods made with hands! What is my life’s work, then? Dust? He condemns us all, this little Jew. He would turn the world’s wealth into poverty.”
+Silas found himself staring at the closed door of Demetrius’s shop. Demetrius was a good customer. He liked the honey-drizzled flatbreads Silas brought him every other day for his workshop. A stout man, proud of his craft, with thick fingers that could coax a drachma’s worth of silver into the likeness of Artemis’s stag. Last week, over a cup of thin wine, Demetrius had slammed his cup down. “He says they are not gods made with hands! What is my life’s work, then? Dust? He condemns us all, this little Jew. He would turn the world’s wealth into poverty.”
 
 Silas had offered more wine. What else was there to do?
 
