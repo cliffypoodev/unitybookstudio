@@ -2,13 +2,13 @@ Dolores gave him his change. He didn’t look at her face. He walked out into th
 
 He was not being haunted. He was being erased.
 
-A thought followed him home, a low hum under the engine noise. It sat with him in the elevator, a third passenger. It watched from the corner as he put the coffee on the counter, his keys in the bowl. The apartment was quiet. The hum was gone. The silence was a perfect, sterile vacuum.
+A thought followed him home, a low hum under the engine noise. It sat with him in the elevator, a third passenger. It watched from the corner as he put the coffee on the counter, his keys in the bowl. The apartment was quiet. That hum was gone. The silence was a perfect, sterile vacuum.
 
 He stood in the center of the living room. His reflection in the dark television screen was a smudge of gray and black. A man-shaped hole in the world.
 
 He got his phone. He googled “paranormal investigator” and the name of his city.
 
-The man’s name was Leo. He arrived on a Tuesday afternoon, a toolbox in one hand and a digital recorder in the other. He was in his fifties, wearing a fleece vest over a flannel shirt, and he had the patient, slightly weary eyes of a high school guidance counselor. He did not look like someone who chased ghosts.
+That man’s name was Leo. He arrived on a Tuesday afternoon, a toolbox in one hand and a digital recorder in the other. He was in his fifties, wearing a fleece vest over a flannel shirt, and he had the patient, slightly weary eyes of a high school guidance counselor. He did not look like someone who chased ghosts.
 
 “Most of what I do,” Leo said setting his toolbox on Cassius’s kitchen table, “is explain noises. Furnaces. Pipes. Squirrels in the attic. You’d be amazed how many squirrels sound like a child running.” He gave Cassius a practiced, disarming smile. “So. Tell me what’s going on.”
 
@@ -102,7 +102,7 @@ The kitchen. He scrubbed the sink until it gleamed, sanitized the countertops, o
 
 He documented everything. Not with Leo’s instruments, but with his phone camera. A clean, sterile bedroom. An orderly living room. A sparkling kitchen. He took pictures of the thermostat, showing the consistent temperature. Pictures of the decibel meter app on his phone, showing the ambient noise levels. He wanted proof for himself, a visual record of a reality he could trust.
 
-For two days, the apartment was quiet. The silence was not the oppressive, watchful silence from before, but a neutral one. A silence of a space that had been cleaned, aired out, and put back in order. He slept better, deeper. He woke without the immediate prickle of dread, without the quick shallow breathing. He made coffee, ate toast read the news on his tablet. The world outside his windows was a steady, predictable thing.
+For two days, the apartment was quiet. Its silence was not the oppressive, watchful silence from before, but a neutral one. A silence of a space that had been cleaned, aired out, and put back in order. He slept better, deeper. He woke without the immediate prickle of dread, without the quick shallow breathing. He made coffee, ate toast read the news on his tablet. The world outside his windows was a steady, predictable thing.
 
 He started listening to music again, soft jazz in the evenings, just loud enough to fill the space without being intrusive. He even called his mother, something he hadn’t done in weeks, and listened to her talk about her garden. His own voice, when he spoke, sounded lighter.
 
@@ -220,7 +220,7 @@ It was a cold beat, expelled from something lying inches away, turning its face 
 
 The terror was no longer a knot in his chest. It was a vast, empty plain. It was the dissolution of every boundary. This was not footsteps in another room. This was not a sound on a recording. This was a sharing of his bed, his pillow, the air he spoke. An intimacy of utter violation.
 
-He lay there, his cheek frozen where the silence had touched it. The weight on the other pillow did not move. The presence did not stir. It simply was. Occupying the space that was not his, making it its own.
+He lay there, his cheek frozen where the cold had touched it. The weight on the other pillow did not move. The presence did not stir. It simply was. Occupying the space that was not his, making it its own.
 
 The proof was on his flesh. The cold spot on his cheek was the proof. He could not deny this. He could not clean it away. He could not reason it into being old pipes.
 
