@@ -1,0 +1,305 @@
+The van smelled like wet dog and regret. Dutch took the Julia Tuttle Causeway because the bridge’s rhythmic thump of expansion joints matched the tempo of his impending panic attack. Lola stared at the dead phone in her lap as if willing it back to life. Jesus watched the pink and blue neon of South Beach bloom on the horizon.
+
+“The Electric Ark,” Lola said, not looking up. “Courier hangs there Thursday nights. Moves product between the college kids and the yacht crowd. Name’s Paco. He’s got a parrot on his helmet.”
+
+“A real parrot?” Dutch asked.
+
+“A sticker. He thinks it’s intimidating.”
+
+Jesus leaned forward between the seats. “And this Paco knows of the Serpent?”
+
+“He knows someone who knows someone who got a shipment of ‘specialty excavation gear’ diverted to Eden World six months ago. Chain of custody. We follow it up.”
+
+“Or,” Dutch said, “we acknowledge this is a terrible idea and go to Bermuda.”
+
+The van hit another pothole. Something in the back clanged.
+
+The Electric Ark wasn’t so much a building as a seizure given architectural form. Pulsing neon tubes in primary colors outlined a former warehouse. The bassline of “Funkytown” leaked out, vibrating the van’s door panels. The parking lot was a kaleidoscope of IROC-Z Camaros and bikes.
+
+Dutch killed the engine. The silence that followed was somehow louder. “We’re the only people here not on cocaine.”
+
+“Speak for yourself,” Lola muttered, checking her piece in the shoulder holster. She’d swapped her blazer for a garish silk shirt Dutch was pretty sure he’d seen in a Miami Vice blooper reel.
+
+Jesus looked at his robes, then at the crowd of flickering spandex and acid-wash denim. “I may be underdressed.”
+
+“Nah,” Dutch said. “You look like a really committed theme night. ‘Biblical Bedlam.’ Let’s go.”
+
+The wall of sound and sweat hit them at the door. The interior was a vast, dark space strobed by rotating lights. A giant disco ball spun lazily over a polished concrete floor swarming with skaters. The air was a cocktail of cheap perfume, sweat, and the sharp tang of spilled rum. A DJ in a cage high on the wall pumped his fists.
+
+Dutch’s eyes watered. “How do we find one guy in this?”
+
+“Look for the parrot,” Lola shouted over the music, already moving along the wall, eyes scanning the swirling mass.
+
+Jesus stood just inside the doorway, motionless. A girl on lavender skates nearly plowed into him, swerved at the last second, and shot him a look that blended annoyance with spiritual curiosity. “Heavy vibe, dude!” she yelled, and rolled away.
+
+Dutch grabbed Jesus’s arm and pulled him along the perimeter. The wall was lined with benches and tiny, round tables where people sucked down neon-colored drinks. He saw a lot of parrot imagery—T-shirts, patches, a truly unfortunate pair of parrot-shaped earrings. No helmet.
+
+Lola reappeared at his elbow, her mouth close to his ear. “He’s here. Near the snack bar. Red helmet, yellow parrot. Talking to a guy in a Members Only jacket.”
+
+“Which one’s the snack bar?”
+
+“Follow the smell of burned nacho cheese.”
+
+They weaved through the crowd. Dutch’s sneakers squeaked on the spilled soda film coating the floor. He felt profoundly uncoordinated. A man in tiny silver shorts and rollerblades winked at him.
+
+The snack bar was a bastion of grease and despair under a flickering fluorescent light. Sure enough, leaning against the counter was a skinny guy in a red helmet with a cartoon parrot. He was handing a small paper bag to a man whose jacket screamed 1987. The exchange was quick, practiced.
+
+Paco shoved the cash into his fanny pack and pushed off on his skates, merging back into the river of traffic.
+
+“Shit,” Lola hissed. “He’s mobile. We need to cut him off.”
+
+“In here?” Dutch gestured at the swirling chaos. “We’d have an easier time catching a specific eel in a blender.”
+
+Jesus was staring at the disco ball. His lips moved slightly.
+
+“You getting divine guidance?” Dutch asked.
+
+“I’m counting the rotations. It’s very steady.”
+
+A hand clapped down on Dutch’s shoulder. He jumped. A bouncer the size of a refrigerator stood there, his bald head gleaming under the lights. “You three. Not skating. Loitering’s a ten-dollar cover each.”
+
+“We’re looking for a friend,” Lola said, flashing a smile that didn’t reach her eyes.
+
+“Everybody’s looking for a friend. Pay or skate.”
+
+Dutch fumbled for his wallet. He had eleven dollars and a condom he’d forgotten about. The bouncer’s expression suggested he was three seconds away from demonstrating the door’s emergency exit function on their faces.
+
+Jesus stepped forward. He placed a hand on the bouncer’s massive forearm. “Peace be with you.”
+
+The bouncer blinked. His aggressive posture softened by a fraction. He looked confused, like he’d just forgotten why he came into a room. “Uh. Yeah. Okay.” He wandered off, scratching his head.
+
+Dutch stared. “Did you just Jedi mind-trick a three-hundred-pound man?”
+
+“I reminded him of his grandmother,” Jesus said. “She made excellent borscht. Now, your courier is approaching the far wall near the restrooms.”
+
+They stumbled along the edge again. Paco was indeed taking a break, helmet off, wiping his brow with a bandana. He had the gaunt, wired look of a man who substituted sleep with amphetamines.
+
+Lola moved in. “Paco. We need to talk about your recent delivery to Homestead.”
+
+Paco’s eyes went wide. He jammed his helmet back on, shoved off the wall, and disappeared into the skating rink’s fast lane.
+
+“Great,” Dutch muttered. “Now he’s a moving target.”
+
+They stood there, three land-lubbers in a sea of wheels. The music switched to “I Think We’re Alone Now.” The skaters picked up speed.
+
+Then a new figure entered the equation. She descended from the lighting rig.
+
+One moment she was a silhouette against the catwalk’s gridded steel; the next she was swinging on a braided cable, dropping gracefully to land on the railing that bordered the rink. She wore practical black pants and a tank top and had two pistols holstered low on her hips. Her hair was tied back in a severe ponytail. She tracked Paco’s progress with the calm focus of a hawk watching a mouse.
+
+“Oh, hell,” Lola whispered. “That’s Trigger Happy Mary.”
+
+“The name suggests a lack of subtlety,” Jesus observed.
+
+Mary jumped down, landing in a crouch on the skating floor. Skaters parted around her like water around a stone. She didn’t run. She just started skating, her movements efficient and powerful, quickly gaining on the frantic Paco.
+
+“Who is she?” Dutch asked.
+
+“Freelance retrieval specialist. Mostly works for insurance firms, sometimes for pissed-off wives. She’s direct.”
+
+Mary closed the gap. Paco glanced back, his face a mask of terror. He tried to cut across the center of the rink, through the slower, weaving couples.
+
+Mary didn’t yell. She didn’t wave a gun. She just drew both pistols, assumed a stance right there on eight wheels, and fired four times.
+
+The sound was swallowed by the music, but the effect was immediate. The polyurethane wheels on Paco’s left skate exploded into black fragments. His leg went out from under him. He pinwheeled, shrieked, and crashed into a group of guys dressed as pirates, sending them all wide in a heap of foam swords and neon leg warmers.
+
+The music scratched to a halt. A scream went up. Then, bizarrely, a laugh.
+
+Because Paco, now sitting dazed in the middle of the floor, had landed right at the head of the conga line that had been forming near the DJ booth. The lead, a man in a sequined leisure suit, grabbed Paco under the arms, hoisted him up, and slotted him in front. The music kicked back in—“Conga” by Miami Sound Machine. The line started moving, snaking around the fallen pirates, around the stunned Mary, picking up skaters as it went. Paco, wobbling on one good skate, was helplessly pushed along, his helmet askew, a human trophy at the front of a dancing snake.
+
+Trigger Happy Mary holstered her guns, looking profoundly disappointed by the universe’s refusal to respect a clean takedown. Her gaze swept the crowd and landed on Lola, Dutch, and Jesus, who were perhaps the only people not either laughing or joining the conga line.
+
+She skated over, stopping neatly in front of them. Up close, she had sharp green eyes and a small scar through her left eyebrow.
+
+“Vega,” she said, her voice flat. “You cost me a bonus. Client wanted him conscious and capable of speech. The concussion he’s about to get from Smiley in the sequins voids the warranty.”
+
+“He’s mine, Mary,” Lola said. “Police business.”
+
+“Your badge has the same status as a coupon for a free car wash. I checked.” Mary’s eyes flicked to Jesus, taking in the robes, the sandals, the serene expression. “Who’s the holy man? Your ride-along cleric?”
+
+“I am a carpenter,” Jesus said.
+
+“Tough union.” Mary looked back at the conga line, which was now attempting the limbo under a broomstick held by two cheerleaders. Paco face-planted. “Your move, Vega. He’s not gonna be coherent for long.”
+
+Dutch saw his chance. He stepped forward, putting on his best harmless-enthusiast face. “We just need to ask him about a delivery. To Eden World. Then you can have him back. We’ll even help you recapture him.”
+
+Mary studied him. “You’re the blogger. The one with the dinosaur.”
+
+“It’s not a—how do you know about that?”
+
+“I read. Also, the police band is hilarious.” She tilted her head. “They say it’s a cyborg. Is that true?”
+
+“Yes,” Jesus said.
+
+A spark of something—not interest, but a kind of professional reassessment—lit Mary’s eyes. “What’s its operational capacity? Independent targeting? Neural-link or remote command?”
+
+Dutch blinked. “He likes Diet Coke and gets existential about squirrels.”
+
+Mary stared at him for a long second. Then she did something extraordinary. She smiled. It was a small, sharp thing. “Cute. I like it.” She looked back at the rink. The conga line was breaking up, pirates and cheerleaders arguing. Paco was crawling toward an emergency exit. “Fine. You get five minutes with the parrot. Then he’s mine. And I’m coming with you.”
+
+“What?” Lola and Dutch said in unison.
+
+“To see the dinosaur. I want to assess its load-bearing capacity and overall aesthetics.” She shrugged one shoulder. “He sounds pretty.”
+
+Jesus nodded slowly, as if this made perfect sense.
+
+Dutch looked at Lola, who was massaging the bridge of her nose again. He looked at the fleeing Paco, at the chaotic disco, at the heavily armed roller skater who’d just invited herself into their apocalyptic road trip.
+
+The van outside seemed suddenly very quiet, and very far away.
+
+“Five minutes,” Lola gritted out.
+
+Mary nodded. “Follow me. And try to keep up.” She pushed off, skating with lethal grace toward the emergency exit, the crowd instinctively giving her a wide berth.
+
+Lola pushed off the wall, her street shoes slipping on the polished concrete. Mary was already halfway to the emergency exit, carving through the confused skaters with the effortless aggression of a shark. Paco had made it to the door and was fumbling with the push bar.
+
+“He’s gonna bolt into the lot,” Lola shouted over the renewed thump of the music. She drew her service pistol, then immediately holstered it. Discharging a firearm in a panicked crowd of coked-up roller enthusiasts was a career-ender, even for a suspended detective.
+
+Dutch was doing an awkward sprint-slide behind her. Jesus walked. He just walked, a slow, steady pace through the chaos, and people somehow flowed around him without touching him. A guy dressed as a neon zebra actually tipped his hat.
+
+Mary reached the exit just as Paco stumbled through. She didn’t follow him out. She planted a hand on the doorframe, pivoted, and shot back toward Lola. “Side lot! He’s heading for the dumpsters! Cut him off through the arcade!”
+
+Lola veered hard, shouldering through a bead curtain into a side arcade. The air smelled of ozone and sweat-soaked vinyl. She weaved between teenagers glued to Galaga and Defender, her eyes fixed on the red EXIT sign at the far end.
+
+She burst out into the humid night. The side lot was a graveyard of rusting dumpsters and broken pallets, lit by a single, buzzing sodium light that turned everything the color of old meat. Paco was limping badly, one skate ruined, heading for a chain-link fence.
+
+“Miami PD! Stop!” Lola yelled, more from habit than expectation.
+
+Paco glanced back, his face a sweaty mask of panic. He hurled his helmet at her. It clattered harmlessly to the asphalt. He reached the fence and started to climb, his fingers scrabbling at the wire.
+
+A shadow detached itself from between two dumpsters.
+
+It was low, massive, and moved with a strange, hydraulic silence. Red optical scanners cut through the gloom, painting Paco in twin beams of light.
+
+Rex took a single step forward. His head tilted. A low, mechanical whirr emanated from his chassis, followed by the synthesized baritone. “YOU APPEAR TO BE IN DISTRESS.”
+
+Paco froze halfway up the fence, a terrified gecko. He made a small, wet sound.
+
+Lola skidded to a halt, hands up. “Rex! No! He’s... he’s a person. We need to talk to him.”
+
+The dinosaur’s head swiveled toward her. “DETECTIVE VEGA. THE AUDITORY STIMULI FROM THIS VENUE ARE CAUSING MY DIAGNOSTIC SUBROUTINES TO FLAG SEVERAL ANOMALIES. ALSO, I BELIEVE I AM LEAKING TRANSMISSION FLUID.”
+
+“Later, big guy. Just... don’t eat the skinny guy on the fence.”
+
+“MY DESIGN SPECIFICATIONS DO NOT INCLUDE CONSUMPTION OF MAMMALS ABOVE FIVE KILOGRAMS. THE CYCLICAL BEAT OF THE ‘DISCO’ MUSIC IS MORE DIGESTIVELY UPSETTING.”
+
+From behind her, Dutch wheezed as he caught up. “He’s been listening from the van. Said the bassline was giving him a logic cramp.”
+
+Jesus arrived last, not even breathing hard. He looked at Rex, then at Paco, then at the leaking dark spot on the asphalt under the dinosaur’s haunch. “You are injured, my friend.”
+
+“IT IS A MINOR SEAL FAILURE. COLONEL CAIN WOULD MARK IT AS A DEMERIT.”
+
+Before anyone could formulate a plan involving a leaking cyborg, a hostage, and a fence, Trigger Happy Mary shot out of the arcade door. She’d swapped her skates for sleek black boots. In one fluid motion, she drew a pistol, aimed not at Paco but at the fence post above his head, and fired.
+
+The crack was shockingly loud in the lot. The bullet severed a cable holding the top of the fence to a concrete anchor. The chain-link folded forward like a slow wave, depositing Paco in a heap at Rex’s feet.
+
+Paco stared up at eight tons of titanium and teeth. He fainted.
+
+Mary holstered her weapon and walked over. She prodded the unconscious courier with her boot. “Five minutes. Starting now.” Then she turned her full attention to Rex.
+
+She walked a slow circle around him. Rex tracked her, his head turning with a series of soft hydraulic sighs. Mary stopped, peering at the reinforced joint of his left hind leg. “THORN-7 neural crown. Hydraulic musculature with titanium bone-lacing. Soviet alloy, but the machining looks German.” She tapped a claw with her knuckle. “Gene-spliced keratin sheath. Komodo dragon?”
+
+“AND CASSOWARY,” Rex intoned. “FOR... ATMOSPHERE.”
+
+Mary’s sharp smile returned. She looked at Dutch. “You undersold him. He’s not pretty. He’s exquisite.” She reached out, as if to stroke the dinosaur’s snout, then seemed to think better of it. “What’s his operational range?”
+
+“He’s not a drone,” Dutch said, a note of defensiveness in his voice. “He’s figuring things out.”
+
+“I AM FIGURING OUT THAT THIS PARKING LOT CONTAINS SEVENTY-EIGHT DISTINCT SOURCES OF BIOHAZARD,” Rex said. “AND A STARTLING NUMBER OF ABANDONED FOOTWEAR.”
+
+Lola knelt beside Paco, slapping his cheeks lightly. “Come on, parrot. Wake up. Eden World. The delivery. Talk.”
+
+Paco’s eyes fluttered open. He saw Lola, then the dinosaur looming behind her, then the impassive woman with the guns. He decided Lola was the safest bet. “I don’t know nothing!”
+
+“Specialty excavation gear. Six months ago. Diverted from a Homestead Air Reserve Base shipment. You signed for it.”
+
+“That was work! I just move boxes!”
+
+“Who ordered the boxes?”
+
+“I don’t ask! The money’s good!”
+
+Mary crouched down, putting her face level with Paco’s. Her voice was soft, pleasant. “The man you gave the bag to inside. The Members Only. Was he the buyer? Or another parrot?”
+
+Paco swallowed. “He’s... he’s a friend of the guy. The guy who pays for the weird stuff.”
+
+“Name,” Lola said.
+
+“I don’t know a name! He’s just a voice on a pay phone! Calls with instructions, leaves cash in a locker at the bus station.” Paco was babbling now, his eyes darting between the three human faces and the giant reptilian one. “But the Eden World drop... that was different. He met the truck himself. I saw him.”
+
+“Describe him,” Lola pressed.
+
+“Old guy. Dressed like he was going to a funeral in 1958. Suit, hat. Carried a cane with a silver eagle head. He had eyes like... like dirty ice. Tipped the driver with a solid gold coin. Who does that?”
+
+Colonel Cain. Lola felt a cold knot tighten in her gut. This wasn’t a subcontractor. This was the source.
+
+“The gear,” she said. “What was it?”
+
+“How should I know? Crates. Heavy. Stencils said ‘GEOPHYSICAL SURVEY,’ but the shipping manifest had a different code. Lazarus-something.”
+
+Rex made a sound like a steam valve releasing. “LAZARUS.”
+
+Paco flinched. “Yeah! That! You know him?”
+
+“HE IS MY CREATOR. HIS PREFERENCE FOR MID-CENTURY FORMALWEAR IS NOTED.”
+
+Jesus had moved to stand beside Rex, a hand resting lightly on the dinosaur’s armored flank. He was looking at Paco with an expression of profound sadness. “You are afraid. You have been a link in a chain you did not understand.”
+
+“Tell me about it,” Paco whined.
+
+“The chain ends tonight. You will not take their calls again. You will find different work.”
+
+“Doing what?”
+
+“You have balance. You skate. Perhaps you could teach children.”
+
+Paco blinked. “Yeah. Maybe. Can I go now?”
+
+Mary stood up. “Your five minutes are up.” She looked at Lola. “He’s all yours, Vega. The intel’s decent. My client can wait.” Her gaze slid back to Rex. “So. You’re headed to the Everglades to find this Cain and his dig site.”
+
+It wasn’t a question. Dutch sighed. “Looks that way.”
+
+“I’m coming.”
+
+“We can’t pay you,” Lola said flatly.
+
+“I don’t want money. I want observational data.” She gestured to Rex. “On him. A fully sentient cybernetic life-form navigating a moral landscape. The behavioral metrics alone are worth seven peer-reviewed papers. Plus,” she added, that sharp smile returning, “I’ve always wanted to see a dinosaur in the swamp. The aesthetic contrast will be phenomenal.”
+
+Rex’s head tilted the other way. “YOU WISH TO STUDY ME.”
+
+“Yes.”
+
+“I AM ACCUSTOMED TO BEING STUDIED. THE PARAMETERS ARE TYPICALLY MORE... PAINFUL.”
+
+“My study involves a notepad, a camera, and possibly feeding you snacks. If you consent.”
+
+Rex was silent for a long moment. The only sound was the distant thump of the disco and the drip of his transmission fluid. “DIET COKE?”
+
+“If you can manage the cans.”
+
+“THEN I CONSENT.”
+
+Dutch threw his hands up. “Great. Wonderful. The cyborg dinosaur has retained legal counsel. Can we please go before more of Cain’s parrots show up?”
+
+Lola hauled Paco to his feet. “Bus station. Tonight. If I see you again, I let the dinosaur give you a behavioral assessment. Understood?”
+
+Paco nodded so vigorously his neck popped. He limped away into the darkness, leaving one roller skate behind as a token of his haste.
+
+Mary watched him go, then swung her gaze back to the group. She assessed Jesus, his quiet calm, his hand still on Rex. “You’re the spiritual advisor?”
+
+“I am a friend,” Jesus said.
+
+“Huh.” Mary nodded, as if that explained everything. She walked over to the van, rapped her knuckles on the mural of the wizard dolphin. “This our transport? Cramped, but adequate.” She looked at Rex. “You’ll have to follow. Can you keep pace at fifty miles per hour without shedding major components?”
+
+“MY OPTIMAL CRUISING SPEED IS THIRTY-FIVE. BUT I CAN ACCELERATE IN SHORT BURSTS IF MOTIVATED.”
+
+“What motivates you?”
+
+“THE PROSPECT OF A DIET COKE. AND THE ONGOING EXISTENTIAL DREAD.”
+
+“Perfect.” Mary pulled open the van’s side door. “Let’s roll.”
+
+As Lola climbed into the passenger seat, she looked back at the Electric Ark. The music pulsed. The lights strobed. Inside, the conga line was probably still going, a mindless, joyful serpent eating its own tail. Out here, she had a van full of miracles and madness, a new teammate who liked guns and scientific method, and a trail leading straight into a swamp haunted by a man with eyes of dirty ice.
+
+Dutch started the engine. The van coughed to life. In the side mirror, Lola saw Rex fall into step behind them, his red eyes glowing in the dark, a prehistoric ghost following a wizard dolphin into the Florida night.
+
+Things were definitely much, much worse. And, against all reason, she felt a grin tugging at the corner of her mouth.
