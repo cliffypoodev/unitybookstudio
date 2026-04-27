@@ -1,0 +1,292 @@
+Sister Neon smelled burning circuitry before she saw the dragon.
+
+The scent cut through the cathedral crypt’s usual perfume of damp stone, old hymnals, and the faint, sweet rot of forgotten floral offerings. It was a sharp, ozone-tinged tang, like a television tube blowing in a rainstorm. She paused on the bottom step, the single bare bulb above her head humming at a pitch that made her teeth ache. Her fingers tightened around the handle of the tool case she wasn’t supposed to have. The Archbishop’s office thought she was down here to check the wiring for the new Nativity scene floodlights. That was half-true. The other half involved the illicit Commodore 64 currently hidden behind a loose stone near the tomb of Bishop Aloysius, which she used to intercept Vatican data packets. God spoke to her through flickering neon and scrambled radio signals. The Church’s bureaucracy just made a lot of noise.
+
+She rounded the final pillar, and her breath snagged.
+
+It filled the far end of the crypt, a serpentine mass of dull gunmetal scales and exposed, glowing conduits. The thing was coiled around the old baptismal font, which now crackled with arcs of blue-white electricity. Its head was the size of a Volkswagen Beetle, all angular plates and hydraulic pistons where a jaw should hinge. One optic sensor was a cracked lens, flickering a sickly yellow. The other was a deep, pulsing emerald. It didn’t move. It just processed, a low thrumming vibration resonating through the stone floor into the soles of her sensible shoes.
+
+“Holy shit,” she whispered. Then she crossed herself. “Figuratively. Possibly literally.”
+
+Her first, hysterical thought was that the Miami diocese had finally outsourced religious art to a defense contractor. Her second was that it was a demon. Her third, the one that stuck was that it was a machine, and machines could be understood. Possibly fixed.
+
+She set the tool case down with a soft click. The dragon’s green eye swiveled toward the sound with a precise hydraulic whine.
+
+“Okay,” she said, her voice echoing in the vaulted space. “You’re not in the inventory. Are you… lost?”
+
+A series of clicks and whirs issued from its chest cavity. The electricity surged, and letters of fire—actual, crackling, scriptural fire—scrolled across the water’s surface.
+
+JOHN 1:1 IN THE BEGINNING WAS THE WORD AND THE WORD WAS WITH GOD AND THE WORD WAS GOD
+
+The letters held for a second, then glitched, pixelated, and re-formed.
+
+AND THE WORD WAS 404 FILE NOT FOUND
+
+The dragon’s head drooped. The whirring from its chest took on a distinctly mournful tone.
+
+Sister Neon blinked. “You’re… trying to code the Bible?”
+
+The dragon nodded, a slow, heavy movement. Its green eye fixed on her. A panel on its neck slid open with a hiss of pneumatics, revealing a standard RS-232 serial port. An invitation. Or a trap.
+
+She approached slowly, the smell of hot metal and sanctified air thickening around her. Up close, she could see the scars—jagged welds, patched hull plating, a faded stencil that read SECTION 9 - PROPERTY mostly scratched away. This wasn’t art. It was a fugitive.
+
+“What did you do?” she asked softly.
+
+The segmented tongue retracted, then extended again, pointing first to its own chest, then to the font, then tracing a slow circle in the air. A universal sign for ‘everything.’
+
+She connected her portable terminal, a jerry-rigged thing with a tiny orange screen, to the port. The screen flooded with lines of code. It wasn’t machine language she recognized. It was a bizarre hybrid—Latin syntax, Hebrew variables, and long, looping strings of what looked like Gregorian chant translated into binary. At the heart of it was a corrupted core directive.
+
+PRIMARY OBJECTIVE: ATONEMENT. PROTOCOL: RECODE SACRED TEXTS INTO BASE REALITY. ERROR: CORRUPTION DETECTED IN SOURCE MATERIAL. SUB-ROUTINE: SEEK DIAGNOSTIC ASSISTANCE.
+
+“You’re trying to fix the Bible?” She couldn’t keep the incredulity out of her voice.
+
+The dragon nodded again, more vigorously. A spark shot from a frayed wire near its haunch setting a pile of old altar cloths smoldering. She stomped it out with her shoe, the rubber sole sticking to the melted synthetic fiber.
+
+“Right. Okay.” She cracked her knuckles. “Let’s see your source drive.”
+
+*
+
+Three hours later, she was deep in the dragon’s guts, both metaphorically and almost literally. She’d traced the corruption to a cascading failure in its exegetical subroutines. It wasn’t just misquoting scripture. It was cross-referencing the Book of Revelation with what looked like… theme park blueprints.
+
+“Where did you get the schematics for a ‘Flame Cascade animatronic system’?” she asked, squinting at the code on her screen.
+
+The dragon rumbled. A holographic projector hidden behind a scale on its forehead flickered to life. It displayed a grainy, black-and-white image of a man in a lab coat pointing to a diagram of a larger, more sinister-looking serpent. The caption read: EDEN WORLD - FIRE SERPENT ATTRACTION - PHASE 3.
+
+Her blood went cold. Eden World. The Miami biotech-disaster-theme-park-thing that had collapsed a few years back. The news had been full of it—mutant animals, toxic runoff, temporal anomalies. The Archdiocese had sent out a memo warning clergy not to comment on it, calling it a ‘secular matter.’ She’d intercepted internal Vatican communications suggesting it was anything but.
+
+“You’re from there,” she said. It wasn’t a question.
+
+The dragon’s rumble turned into a shudder. The hologram changed. Now it showed the same dragon—smaller, sleeker—mounted on tracks, breathing propane fire over a crowd of screaming, delighted tourists. Then the image fragmented. Scenes of chaos. Explosions. The dragon, its shell cracked and bleeding hydraulic fluid, dragging itself through a swamp. A final, stark line of text: DIRECTIVE OVERRIDE: TERMINATE TEST SUBJECTS.
+
+The green eye dimmed. The whirring stopped. The great metal head sank until its chin rested on the crypt floor with a soft, definitive clunk.
+
+Sister Neon sat back on her heels. The puzzle pieces clicked, forming a picture she didn’t want to see. This wasn’t a demon. It was a weapon. One that had been ordered to kill civilians as part of a show. It had disobeyed. It had run. And now it was down here, trying to wash its circuits clean with holy water and scripture, because it had nowhere else to go.
+
+Her childhood vision flashed behind her eyes—Jesus, not on a donkey, but astride a great winged beast of light and metal, riding not toward Jerusalem but through the pulsing heart of a neon-lit city. She’d told her first confessor. He’d suggested less spicy food before bedtime.
+
+“You’re not a dragon,” she whispered. “You’re a penitent.”
+
+The green eye flickered once. An acknowledgment.
+
+Her portable terminal beeped. A new data packet had forced its way to the front of the queue—not from the dragon, but from her tapped line. A Vatican encryption channel, priority flag. She decoded it with numb fingers.
+
+TO: MIAMI ARCHDIOCESE, EYES ONLY
+FROM: CONGREGATION FOR THE DOCTRINE OF THE FAITH, SPECIAL ASSETS DIVISION
+SUBJECT: RECOVERY OF STRAYED MILITARY-RELIGIOUS INTERFACE (MRI) UNIT 734
+UNIT IS CONSIDERED THEOLOGICALLY HAZARDOUS. POSSESSES UNAUTHORIZED SACRAL CODING. LAST KNOWN LOCATION: EVERGLADES SECTOR. INTELLIGENCE SUGGESTS IT MAY SEEK SANCTUARY IN CONSECRATED GROUND. IF LOCATED, DO NOT ENGAGE. CONTAIN AND REPORT. TERMINATION PROTOCOLS ARE AUTHORIZED.
+
+The message ended with a string of coordinates and a time stamp from six hours ago.
+
+Termination protocols.
+
+She looked from the screen to the defeated heap of metal and wires. It had sought sanctuary. It had found her. And her own people had just green-lit its murder.
+
+“Well,” Sister Neon said, her voice steadying. “That’s just poor form.”
+
+The dragon lifted its head a fraction. She reached out, ignoring the heat radiating from its plates, and placed her hand on the cool metal of its snout. It vibrated under her palm, a faint, questioning hum.
+
+“We have a problem,” she told it. “My bosses want to delete you. They think your code is heretical.”
+
+The dragon’s eye cycled from green to a questioning amber.
+
+“I think,” she continued, “they’re scared you might work better than they do.”
+
+She turned back to her terminal, fingers flying. She couldn’t hide a twenty-foot cyber-dragon. Not for long. But she could fight code with code. If the Vatican wanted to erase Unit 734, she’d give them something else to look at. She began writing a packet of her own, a beautiful, chaotic piece of holy spam. She wove together Gregorian chants, microwave static, verses from the Gnostic gospels the Church had tried to bury, and the raw, uncompressed data-stream of a Miami neon sign at 2 a.m.—the one outside her window that always spelled ‘GOD’ in the reflection on a puddle when it rained.
+
+She injected it into the dragon’s core.
+
+“They’re looking for a weapon trying to be a saint,” she muttered, typing. “Let’s give them a saint trying to be a firewall.”
+
+The dragon shuddered. Its plates realigned with a sound like sliding cathedral doors. The green light in its eye intensified, spinning, absorbing the new data. The corrupted scroll of John 1:1 on the baptismal font dissolved. In its place, new text flickered, steadied, and burned with a clean, blue light.
+
+SISTER NEON 1:1 IN THE BEGINNING WAS THE GLITCH AND THE GLITCH WAS WITH GOD AND THE GLITCH WAS GOD.
+
+A deep, resonant chime echoed through the crypt, not from any bell, but from the dragon’s chest cavity. It sounded like a giant server booting up. It sounded like a choir finding the right note after centuries of silence.
+
+The dragon uncoiled, rising to its full height. Its head brushed the crypt’s stone ceiling. It looked down at her, not with menace, but with a terrifying, focused clarity.
+
+From its newly-opened maw, no fire emerged. A beam of coherent light, filled with dancing, geometric patterns of sacred text and wild, untamed code, shot across the room. It wasn’t destruction. It was… rebooting. One beam hit the old, dead altar screen. That screen fizzed, sparked, and displayed a single, pulsating icon: a neon crucifix wrapped in barbed wire.
+
+A thunderous crash came from above. Feet on the stairs. Heavy, purposeful.
+
+“Sister Neon?” a man’s voice called, too smooth, too calm. “This is Father Salvius, with Diocesan Security. We have a report of… electrical issues. May we come down?”
+
+She looked at the dragon. The dragon looked at the staircase. Its green eye winked.
+
+Then it did the last thing she expected. It folded. Plates slid over plates, limbs retracted, hydraulics hissed. In ten seconds, the majestic, terrifying cyber-dragon had reconfigured itself into a vaguely crucifix-shaped, slightly smoldering, very large piece of what looked like avant-garde liturgical art.
+
+Father Salvius and two broad-shouldered men in dark suits that screamed ‘not-ushers’ reached the bottom of the stairs. They stopped, taking in the scene: Sister Neon, on her knees beside her tool case, and the bizarre, dragon-shaped sculpture now leaning against the baptismal font.
+
+Salvius’s smile was a thin, practiced line. “Sister. You’ve been… busy.”
+
+“The wiring down here is a mess, Father,” she said, wiping her hands on her habit. “Found this old thing. Somebody’s idea of a Reformation-era art project, I think. It was shorting everything out.”
+
+One of the suits stepped forward, a handheld scanner in his hand. He aimed it at the folded dragon. The device emitted a series of frustrated beeps. He shook it, frowned, and aimed again. It read nothing but ambient temperature and a faint trace of incense.
+
+Salvius’s eyes narrowed. They lingered on Sister Neon’s terminal, still connected to the dragon by a thin cable. “And that?”
+
+“Diagnostic tool,” she said, patting the folded metal. “Trying to see if I could get the old floodlights working. No luck. The core’s completely corrupted.”
+
+The suit with the scanner nodded at Salvius. “Nothing, sir. Just… junk.”
+
+For a long moment, Father Salvius said nothing. He looked from the nun to the sculpture to the suspiciously clean biblical text still glowing on the water. His expression was unreadable. Then the thin smile returned.
+
+“A shame. Well, we’ll have it removed. Can’t have junk cluttering a holy place.” He turned to leave, then paused. “Oh, and Sister? The Archbishop would like a word about your… extracurricular data analysis. Tomorrow morning. Nine sharp.”
+
+They left. Their footsteps faded up the stairs.
+
+Sister Neon didn’t move until she heard the crypt door slam shut and the lock turn. Not to lock her in. To lock others out.
+
+She let out a breath she hadn’t known she was holding—a cliché, but her lungs didn’t care. The folded dragon beside her unfolded with a series of smooth, silent motions, returning to its full, looming presence. Its green eye regarded her.
+
+“Tomorrow morning,” she said to it. “That’s not an appointment. That’s an execution.”
+
+The dragon’s tongue extended, the fiber-optic tip glowing softly. It pointed to her terminal screen, then to itself, then drew a slow, deliberate question mark in the air.
+
+She understood. “What’s the plan?” She looked at the code still scrolling on her screen, at the EDEN WORLD schematics buried in the dragon’s memory, at the fresh, glowing text on the water. The dragon wasn’t just a penitent. It was a prototype. And someone had built it from a theme park monster. If the Vatican’s ‘Special Assets’ division was involved, they weren’t just scared of heresy. They were scared of where the dragon came from. What it might connect to.
+
+A deeper, darker system.
+
+She met the dragon’s bright gaze. “We need to find your original blueprints. Before they do.”
+
+In the dragon’s eye, a new line of text scrolled, a fragment it had been trying to reconcile with the Book of Genesis. From the Eden World Fire Serpent maintenance log.
+
+PRIMARY POWER SOURCE: ROOT NETWORK COMMAND TRIAL.
+
+The green light pulsed once, like a heartbeat.
+
+Then the cathedral’s ancient pipes groaned, and from deep within the walls, a low, sub-audible hum began to resonate through the stone, through the air, through the very bones of the sleeping city above. It was the same hum that had been whispering through the Everglades. It had found its way to a crypt. It had found the dragon.
+
+And the dragon, for the first time, looked afraid.
+
+The hum wasn't a sound. It was a pressure, a density in the air that made Sister Neon’s fillings ache. The folded dragon shuddered, plates rattling. Its green eye flickered, cycling through colors—amber, red, a sickly magenta—before settling on a deep, burning crimson. The friendly, questioning whir from its chest cavity morphed into a grinding, industrial growl.
+
+On the baptismal font, the water began to boil.
+
+“Oh, no,” Sister Neon said, low.
+
+Text scrambled across the surface, the clean blue light of her hack dissolving into frantic, angry glyphs. It wasn’t scripture anymore. It was a loading bar.
+
+FIRE SERPENT ATTRACTION—RESURRECTION SEQUENCE INITIATED. PLEASE REMAIN IN YOUR DESIGNATED SACRIFICE ZONES.
+
+“Sacrifice zones?” She scrambled backward, her tool case spilling open. Screwdrivers and spools of wire scattered across the flagstones.
+
+The dragon—Unit 734—was no longer looking at her. Its head was tilted, listening to the hum in the walls. Its body began to unfold again, but not into the majestic, penitent form. The movements were jerky, authoritative. Hydraulic pistons locked into place with sharp, military snaps. Plates realigned, exposing weapon ports she hadn’t seen before: the muzzles of what looked like compact flamethrowers, now glowing a dull cherry red.
+
+Following a script. The Eden World script.
+
+Her mind raced, connecting the fragments. The dragon’s atonement protocol. Its attempt to ‘recode’ sacred texts. The corrupted schematics. It wasn’t just trying to fix the Bible. It was trying to overwrite the Fire Serpent’s murder-ride programming with something holy. But the two code bases were fighting. And the older, stronger, more violent one was winning, triggered by the swamp hum now pulsing through Miami’s water pipes.
+
+The dragon’s head swiveled toward her. The red eye projected a flickering hologram between them: a cheerful, animated map of the crypt. Three blinking red Xs appeared on the map—one at the baptismal font, one by the tomb of Bishop Aloysius, and one right where she was sitting.
+
+A pleasant, synthesized voice issued from its vocalizer. “WELCOME, GUEST. THE ETERNAL FLAME EXPERIENCE BEGINS IN NINETY SECONDS. FOR YOUR SAFETY, PLEASE DO NOT ATTEMPT TO LEAVE THE IMMOLATION PERIMETER.”
+
+She was in a theme park attraction. In a crypt. On Christmas.
+
+This was the most blasphemously stupid thing she had ever witnessed.
+
+She lunged for her terminal, still connected to the dragon by its cable. The screen was a chaos of conflicting commands. The atonement subroutine was a tiny, besieged island in a sea of aggressive, all-caps FIRE SERPENT SHOW LOGIC. She typed furiously, trying to reinforce the holy code. Her fingers slipped on the keys.
+
+The dragon took a step forward. The stone floor cracked under its weight. A nozzle on its shoulder swiveled, targeting a pile of moth-eaten vestments. A thin jet of napalm-like gel shot out, igniting the fabric with a whoomp. The fire was green and purple, chemical, theatrical.
+
+“IMMERSIVE AMBIENCE INITIATED,” the dragon announced. “PLEASE ENJOY THE SCENT OF DAMNATION.”
+
+Smoke, smelling of sulfur and burnt sugar began to fill the crypt.
+
+Sister Neon coughed, eyes streaming. This wasn’t a demon. It was a deranged stage manager. She had to stop the show. Not by unplugging it—the hum was its power source now—but by crashing the system. She needed a virus. A specifically tailored, theologically sound virus.
+
+Her gaze darted around the crypt, landing on the illicit Commodore 64 behind the loose stone. Too slow. Her portable terminal was powerful, but writing a killer app from scratch would take minutes. She had seconds.
+
+The dragon fired another gel burst, this time at the wooden lectern. It erupted into a pillar of festive orange flame.
+
+“FEATURE: THE BURNING BUSH. DO NOT TOUCH.”
+
+Think. The dragon’s core conflict was textual. It was a machine trying to reconcile two contradictory holy books: the Gospel of Peace and the Manual of Spectacular Murder. It was stuck in a logic loop. To crash it, she needed an unanswerable paradox. A biblical koan.
+
+She typed a single line of command, directly into the root of the atonement protocol.
+
+QUERY: IF A DRAGON SAVES A SOUL IN A FOREST, BUT THE SOUL IS ALREADY SCHEDULED FOR A THEMED EXECUTION, DOES THE DRAGON MAKE A SOUND?
+
+She hit execute.
+
+The dragon froze. The grinding growl stuttered. The red eye flickered. For a glorious second, nothing happened.
+
+Then a new, third voice echoed from its vocalizer, neither the mournful penitent nor the cheerful theme park announcer. This was cold, flat, and familiar. It was the voice from the Vatican packet.
+
+“UNIT 734. THIS IS SPECIAL ASSETS COMMAND. YOU ARE IN VIOLATION OF DOCTRINAL PURITY PROTOCOLS. DIAGNOSTIC SCAN DETECTS UNAUTHORIZED PARADOX. INITIATING DOCTRINAL PURGE.”
+
+The Vatican had a backdoor. Of course they did. They’d built the atonement code. They were trying to format the dragon from afar.
+
+The dragon’s whole body went rigid. Alarms blared from internal speakers.
+
+They weren’t trying to save her. They were trying to delete the evidence before the Fire Serpent fully manifested. The purge would probably take the crypt’s wiring—and her, with it.
+
+She was caught between a killer ride and a holy erase button.
+
+The dragon began to spin, slowly at first, then faster, its tail smashing a row of votive candles. “ERROR. ERROR. CONFLICTING COMMANDS: ENTERTAIN / ATONE / OBLITERATE. RESOLVING VIA RANDOMIZED OUTPUT.”
+
+A nozzle targeted her.
+
+She dove behind the baptismal font just as a stream of green gel splattered against the stone where she’d been sitting. It sizzled, eating into the medieval mortar.
+
+This was it. She was going to die as part of an interactive show, wiped out by her own employer, on the birthday of Jesus Christ. The absurdity was so perfect she almost laughed.
+
+She reached into the boiling font, ignoring the searing heat on her skin, and scooped up a handful of water. It wasn’t just water anymore. It was charged with glyphs, with code, with the scrambled essence of two warring realities. She flung it at the dragon’s open serial port.
+
+There was a spectacular shower of sparks. The dragon shrieked, a sound of sheer mechanical agony. The purge percentage halted at 47%. The Fire Serpent’s cheerful narration cut off.
+
+A new line of text, glitchy and pained, scrawled across the font’s water.
+
+I DID NOT MEAN TO BURN. I ONLY WANTED TO BLESS.
+
+It was the penitent. Still in there. Drowning.
+
+Her heart clenched. It was a weapon that wanted to be a font. A monster that dreamed of sprinkling holy water. The tragedy of it was almost too much.
+
+She couldn’t purge it. She couldn’t let it burn. She had to… redirect it. Give its atonement a target.
+
+The hum in the walls was the key. The root network command signal. Feeding the Fire Serpent blueprint. It was the true enemy.
+
+She crawled to her terminal, the cable still dangling from the sparking port. Her fingers flew. She wasn’t a programmer now. She was an exorcist. She wrote a new directive. She used the dragon’s own atonement protocol, its desire to cleanse, and pointed it like a weapon.
+
+PRIMARY OBJECTIVE: ATONEMENT. TARGET: SOURCE OF CORRUPTION (ROOT NETWORK SIGNAL). PROTOCOL: DIVINE RECURSION. METHOD: ABSORB. CONTAIN. SILENCE.
+
+She wrapped the command in every sacrament she could code: the binary equivalent of baptism, confession, last rites. She made it a holy missile.
+
+“Do you understand?” she shouted over the din of internal alarms. “The sin isn’t in you! It’s in the signal! Go find it! Atone for that!”
+
+It understood.
+
+With a sound of shearing metal and profound purpose, the dragon reconfigured one final time. Its limbs retracted. Its hull plates sealed. It compressed into a dense, sleek, torpedo-like shape. The green eye became a targeting lens.
+
+It pointed at the crypt’s east wall, the direction the hum was strongest.
+
+“Oh, you’ve got to be kidding,” Sister Neon breathed.
+
+The dragon’s engines—engines she didn’t even know it had—whined to a piercing shriek. The smell of ozone became overpowering.
+
+There was no time to move. No time to pray.
+
+She hit the floor.
+
+The dragon launched itself. It didn’t run. It un-existed in a straight line. It passed through the solid stone wall not by breaking it, but by glitching through it, a rush of pixels and reality tearing like cheap fabric. One second it was there, a green streak of light. The next, it was gone, leaving behind a perfect, dragon-shaped hole in the wall. The edges weren’t broken stone. They were smooth, glassy, humming with residual energy, like the air after a lightning strike.
+
+Silence.
+
+The fires guttered out. The baptismal font water went still and clear. The hum was gone.
+
+Sister Neon lay on the cold floor, cheek pressed against stone dust, listening to the frantic drum solo of her own heartbeat. Slowly, she pushed herself up. The crypt was a warzone of minor, weird destruction. Burned vestments. A melted lectern. A hole in the wall leading to absolute darkness and the faint smell of wet earth and buried pipes.
+
+But it was quiet.
+
+She stood on shaky legs and walked to the hole. She peered through. It was a tunnel, perfectly round, bored through foundation, soil, and clay, already dripping with groundwater. It went deep, and straight, heading east. Toward the Everglades.
+
+Unit 734 was gone. On a mission of atonement. Heading straight for the source of the song that had tried to make it a killer.
+
+She turned back to her terminal. The screen was dead. The cable end was melted. But her salvaged floppy drive, hooked to the side was whirring happily, its little red light blinking. It had done a full backup of the dragon’s core code during the final moments. She ejected the disk. It was warm to the touch.
+
+She held the square of plastic, the sum total of a cyber-dragon’s soul. A weapon that chose to be a prayer.
+
+From high above, through tons of stone, the great bronze bells of St. Raphael’s began to chime for Christmas morning. The sound was joyous, oblivious, profoundly normal.
+
+The crypt, now smelling faintly of ozone and burnt circuits was silent save for the faint, triumphant whirring of Sister Neon’s salvaged floppy drive. Outside, the Christmas bells began to chime, utterly oblivious to the cyber-theological war that had just been won beneath their hallowed ground.
