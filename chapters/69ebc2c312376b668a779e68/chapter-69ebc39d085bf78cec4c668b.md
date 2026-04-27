@@ -166,13 +166,13 @@ Yet they did. They wanted to.
 
 A sudden, reckless impulse took him. He would show them. He would make one cup—just one—as it should be made. Not ornate, but... considered. A cup that acknowledged its own purpose with grace. He would give it to them. A gift. A silent argument in glass.
 
-He worked quickly, the earlier hesitation burned away by a clean, defiant focus. He gathered a smaller, finer gather of the clearest mix from his private batch. He blew the bubble with a slow, even breath, feeling the perfect symmetry expand. He marvered it to a smooth, even cylinder. He shaped it not with the crude blocks, but with the polished cherry wood paddles he used for his best work, coaxing a gentle curve from base to rim. He opened the mouth wide, flared the lip just enough to roll it into a smooth, rounded edge that would be kind to the mouth. He added no color, no trail. But in the final heating, as he spun the pipe, he let the form elongate just slightly, giving it a quiet, vertical elegance. Simple. But its simplicity was a choice, a paring away, not a poverty.
+He worked quickly, the earlier hesitation burned away by a clean, defiant focus. He gathered a smaller, finer gather of the clearest mix from his private batch. He blew the bubble with a slow, even pause, feeling the perfect symmetry expand. He marvered it to a smooth, even cylinder. He shaped it not with the crude blocks, but with the polished cherry wood paddles he used for his best work, coaxing a gentle curve from base to rim. He opened the mouth wide, flared the lip just enough to roll it into a smooth, rounded edge that would be kind to the mouth. He added no color, no trail. But in the final heating, as he spun the pipe, he let the form elongate just slightly, giving it a quiet, vertical elegance. Simple. But its simplicity was a choice, a paring away, not a poverty.
 
 He snapped it off the pipe. He held it up to the light from the high window. It glowed, a pale honey. Light itself, given a shape to hold water. Beautiful. Not loudly, but in a whisper. A worthy vessel.
 
 He reached for the next blank, the next of the fifty, intending to return to the crude rhythm. But his hands, now remembering their true craft, rebelled. The gather was too hot, the marvering too hasty. He blew. The bubble wobbled. He cursed, reheated, tried to correct it. As he worked, his mind was not on the cup in his hands, but on the one beside him, the good one. He imagined it on a rough wooden table, surrounded by those plain men. Would they notice its grace? Or would its very fineness be an offense, a reminder of the world they’d turned from?
 
-The cup he was making grew misshapen. One side bulged. Annoyed, he heated it again, rolling the pipe fiercely to even it out. The glass glowed orange, then yellow-white. He brought it to his lips for a final, shaping breath.
+The cup he was making grew misshapen. One side bulged. Annoyed, he heated it again, rolling the pipe fiercely to even it out. The glass glowed orange, then yellow-white. He brought it to his lips for a final, shaping beat.
 
 It shattered.
 
