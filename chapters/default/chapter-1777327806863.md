@@ -1,0 +1,169 @@
+The stillness after his last word wasn't quiet. It was a held thing, a pressure in the air like the moment before a summer storm breaks. A fly buzzed against a shuttered window, the sound enormous. Cornelius didn’t look up from the mosaic keys. His mind was a blank slate, scraped clean by the story. A just man. A corpse. Where was the purification in that? The ritual? His wife Drusilla sat beside him, her spine a rod of iron. She watched a droplet of sweat trace a path from Peter’s temple down into his beard.
+
+One of the household slaves, a Gaul with a missing ear, shifted his weight. The scrape of his sandal on the tile was a crack in the silence.
+
+Peter opened his mouth. Closed it. The end of the story was supposed to be the resurrection. A stone rolled away. The empty shroud. The words stuck in his throat, thick as wool. He had told this story a hundred times in Jerusalem, in Samaria, in the crowded upstairs rooms of believers. It always ended in light. Here, in this room of polished Roman order and watchful Gentile eyes, the light wouldn’t come. All he could see was the dark of the tomb, the finality of the stone. Had he crossed the line, broken the law, for this? To tell a story that ended in a borrowed grave?
+
+“That’s not the end,” he said. The words came out hoarse, an accusation.
+
+Cornelius’s head lifted. His eyes were the color of wet slate.
+
+“They buried him,” Peter continued, the narrative pulling at him like a current. “The women who followed him from Galilee saw the tomb. They saw how his body was laid. Then they went home and prepared spices and ointments. On the Sabbath they rested, as the commandment required.” He was reciting facts, a dry report. The triclinium was too hot. The smell of the crowd—wool, oil, garlic—clung to the back of his tongue. He wanted water. He wanted to be back on the lake with the wind in his face, the boundaries clear: water and land, Jew and Gentile, clean and unclean.
+
+“At early dawn on the first day of the week,” he said, forcing the words out, “they went to the tomb, taking the spices they had prepared. They found the stone rolled away from the tomb. They went in. They did not find the body.”
+
+A murmur rippled through the room, low and confused. Lucius, leaning against the doorframe with folded arms, snorted softly. His expression said everything: a stolen body. A pathetic fraud.
+
+Peter’s hands were fists at his sides. He could feel the eyes of his companions—Thomas’s disapproval, Philip’s fear—burning into his back. This was the moment. This was the word of salvation he was commanded to bring. And it was dying in the air, a dead bird falling from a height.
+
+Then he looked at Cornelius. Not at the centurion’s uniform, or the military bearing, or the house that spoke of Roman power. He looked at the man’s face. He saw the same hollowed-out yearning he’d seen in the eyes of beggars outside the Temple, the same fatigue that had lined his own brother’s face the night the nets came up empty. A man waiting for a verdict he already knew.
+
+The current shifted.
+
+“While they were perplexed about this,” Peter said, and his voice changed. It lost its reediness, gained a bottom note that seemed to come from the floor itself. “Behold, two men stood by them in dazzling apparel. The women were terrified and bowed their faces to the ground.” He took a step forward, into the center of the room. The mosaic felt cool through the thin leather of his sandals. “The men said to them, ‘Why do you seek the living among the dead? He is not here. He has risen.’”
+
+He let the word hang. Risen.
+
+It didn’t land like a theological proposition. It landed like a rock through a roof.
+
+“Remember how he told you, while he was still in Galilee,” Peter went on, the words coming faster now, tumbling out in the Aramaic cadence of the women’s terror and joy. “‘The Son of Man must be delivered into the hands of sinful men and be crucified, and on the third day rise.’ And they remembered his words.”
+
+He was no longer speaking to the room. He was speaking to the memory itself—the blinding white of the angels’ clothes, the cold emptiness of the tomb, the wild, impossible hope dawning in the hearts of a handful of women. The frantic run to the tomb with John. The linen cloths lying there, collapsed.
+
+“They returned from the tomb,” he said, his gaze sweeping over the rapt, confused faces. “They told all this to the eleven and to all the rest. It was Mary Magdalene and Joanna and Mary the mother of James. The other women with them. They told the apostles. These words seemed to them an idle tale, and they did not believe them.”
+
+A rough laugh escaped Lucius. “Sensible.”
+
+Peter ignored him. His focus was on Cornelius, on the servant Ezra whose lips were moving in silent prayer, on the soldier Antonius who stood like a statue by the atrium door, his hand resting on the pommel of his dagger. “But Peter rose and ran to the tomb.” He used his own name not as a boast, but as a fact, a piece of evidence. “Stooping and looking in, he saw the linen cloths by themselves. And he went home marveling at what had happened.”
+
+The story had him now. It was a fire in his chest. The dam of law, of custom, of a lifetime of measured separation, cracked.
+
+“That same day,” he said, his voice filling the space, “two of them were going to a village named Emmaus. Jesus himself drew near and went with them. But their eyes were kept from recognizing him.” He took another step, his hand coming up, fingers splayed as if tracing the scene in the air. “He interpreted to them in all the Scriptures the things concerning himself. He broke bread with them. And their eyes were opened. They recognized him. And he vanished from their sight.”
+
+Drusilla blinked. Her rigid posture softened by a fraction. She was seeing it—the stranger on the road, the sudden emptiness at the table. Not a doctrine. A story.
+
+“As they were talking about these things,” Peter said, “Jesus himself stood among them and said, ‘Peace to you.’ They were startled and frightened and thought they saw a spirit.” He could smell the fish they’d offered him, feel the rough texture of the honeycomb. The memories were so vivid they blurred the edges of the triclinium. “He said to them, ‘Why are you troubled? See my hands and my feet, that it is I myself. Touch me, and see. For a spirit does not have flesh and bones as you see that I have.’ And when he had said this, he showed them his hands and his feet.”
+
+Cornelius’s breath hitched. A tiny, almost inaudible sound. The centurion was no longer looking at the floor. He was staring at Peter’s own hands, as if expecting to see scars.
+
+“They still disbelieved for joy,” Peter whispered, the wonder of that moment flooding back—the joy so sharp it felt like fear. “He asked them, ‘Have you anything here to eat?’ They gave him a piece of broiled fish, and he took it and ate before them.”
+
+Lucius pushed off the doorframe. “A ghost that eats fish.”
+
+“Then he said to them,” Peter continued, his voice rising over the interruption, “‘These are my words that I spoke to you while I was still with you, that everything written about me in the Law of Moses and the Prophets and the Psalms must be fulfilled.’ Then he opened their minds to understand the Scriptures.”
+
+Peter stopped. He looked around the room, at each face. The skeptical Lucius. The terrified Philip. The weary Drusilla. The hopeful Ezra. The hardened Antonius. And Cornelius, whose expression was now one of raw, unguarded hunger.
+
+He said it directly to him. “Thus it is written, that the Christ should suffer and on the third day rise from the dead, and that repentance for the forgiveness of sins should be proclaimed in his name to all nations, beginning from Jerusalem.”
+
+The words to all nations didn’t just hang in the air. They expanded, filling every corner, pressing against the painted walls, the marble columns, the very roof.
+
+“You are witnesses of these things,” Peter said, and it was no longer a historical account. It was a charge. A commissioning. “And behold, I am sending the promise of my Father upon you. But stay in the city until you are clothed with power from on high.”
+
+He was finished. The narrative was spent. He had told the story, from the Jordan to the garden to the cross to the empty tomb to the command. One silence returned, but it was a different silence now. Charged. Crackling. It was the silence of a bowstring drawn taut, waiting for the release.
+
+Cornelius opened his mouth. He meant to ask a question—about the promise, about the power, about what this meant for a Roman, for a man outside the covenant. The words never came.
+
+A sound started low in the room. It came from the corner where the household slaves stood. It was a groan, or a sigh, deep and guttural, as if pulled from the earth. Then it rose, twisting into a cascade of syllables that were not Latin, not Greek, not Aramaic. It was a language of liquid stone and rushing wind, of joy so acute it bordered on pain.
+
+The Gaulish slave was on his knees, his face upturned, streams of tears cutting through the dust on his cheeks. The sounds poured from him—beautiful, chaotic, utterly alien.
+
+Drusilla gasped, her hand flying to her mouth.
+
+Then Ezra, the devout servant, let out a sharp cry. His hands shot into the air, palms open. He began to speak, too, but his words were different—a rhythmic, exultant chant, praising the God of Israel in a tongue he had never learned. “Barukh attah Adonai! Gadol v’norah!” The Hebrew was perfect, the accent flawless.
+
+It spread like a flame across dry grass. A young maidservant began to sing, a high, clear melody woven through with sobs. A burly cook clapped his hands together, once, twice, then let out a roar that shook the dishes on a nearby shelf. He stumbled forward, babbling what sounded like fragments of Egyptian and Persian.
+
+That room erupted.
+
+Tongues of fire. That’s what it had felt like in Jerusalem on the feast day. A visible, searing presence. Here, there was no fire to see. Only the sound of it—a roaring, rushing wind confined within four walls. A sound of a dam breaking not in a river, but in the human spirit.
+
+Peter stood frozen in the center of the maelstrom. His heart hammered against his ribs, a frantic bird in a cage. This was the promise. The power from on high. But it wasn’t supposed to fall here. Not in this house. Not on them.
+
+Thomas grabbed his arm, fingers digging into the flesh. “Peter!” he shouted over the din. His face was a mask of horror. “Stop this! Make it stop!”
+
+But Peter couldn’t stop it. He couldn’t even move. He watched as Antonius, the stone-faced soldier, dropped to one knee as if struck. The man’s lips moved, forming silent words, then a torrent of guttural, military-sounding barks that might have been a Germanic tongue. His eyes were wide, unseeing, fixed on something beyond the ceiling.
+
+And Cornelius.
+
+The centurion had risen to his feet. He wasn’t speaking. Not yet. He turned in a slow circle, watching his household come unstrung. He saw his stable master weeping and embracing the kitchen boy. He saw his wife, Drusilla, her iron spine finally melted, her shoulders shaking with silent, rapturous laughter as she listened to the Gaul’s ecstatic speech. He saw Lucius backing toward the door, his face pale with superstitious dread.
+
+Then Cornelius looked back at Peter. Their eyes met across the chaotic room. In the centurion’s gaze, Peter saw the last wall crumble. Not a wall of law, but a wall of understanding. The story of the just man, the corpse, the risen Lord—it wasn’t a theory to be debated. It was a key that had just turned in a lock deep inside him, and this, this chaos of divine sound was the door swinging open.
+
+Cornelius’s mouth opened. A single, clear word emerged, not in the common Greek of the marketplace, but in the formal, rolling Latin of the Senate floor. “Gloria.”
+
+Then his voice strengthened, rising into a declaration that was both a prayer and a command. “Gloria in excelsis Deo!”
+
+The household, as one, took up the refrain. Their diverse tongues wove together, a fabric of praise in a dozen languages, unified by a single, obvious Spirit.
+
+Peter stopped breathing. The vision on the rooftop—the sheet, the animals, the command. What God has made clean do not call common.
+
+He understood now. It had never been about food.
+
+About this.
+
+*
+
+The air vibrated, thick with the sound of many voices speaking as one, yet each distinct. It was a language not heard with the ears alone, but felt in the chest, a physical thump against the ribs. Peter’s companions, Thomas and Philip, along with the others from Joppa, huddled together near the entrance, their faces pale, eyes darting from one ecstatic servant to another. Thomas clutched Peter’s arm, his grip tight enough to bruise. Philip’s eyes were wide, fixed on the Gaulish slave who now danced, a clumsy, joyful jig, his arms flung wide as he uttered words that sounded like the crashing of waves on a distant shore.
+
+“This... this cannot be,” Philip stammered, his voice thin against the roaring current of praise. He looked at Peter, a desperate plea in his gaze. “They are Gentiles.” The word was a condemnation, a boundary not meant to be crossed.
+
+Peter could only shake his head. His own mind reeled. He remembered the day of Pentecost, the fire, the wind, the sound of many nations declaring the wonders of God. But that was in Jerusalem, among devout Jews, men of Israel who had gathered to celebrate the feast. This was Caesarea. This was the house of a Roman centurion. The smell of rich spices, of foreign oils, of the very marble underfoot, all spoke of the unclean. Yet the sound that filled the room was undeniably holy. It was the same sound. The same Spirit.
+
+A young woman, a Syrian slave who usually kept to the kitchens, knelt by a pillar, her face streaked with tears and a beatific smile. She spoke in rapid, lilting phrases, her hands pressed together as if in prayer, then flung open in adoration. She spoke, and the words were like birdsong, complex and free, full of a joy that seemed too large for her small frame. Peter recognized no pattern, no root. Pure sound, pure praise.
+
+Lucius, meanwhile, had found his way to the door. His face was a mask of fear, his movements jerky as he tried to slip out unnoticed. He glanced back, his eyes catching Peter’s. There was a flicker of something in them—not just fear, but a dawning, terrible understanding. This was not a trick. This was not a performance. This was something ancient and powerful, something that shattered the neat Roman world he understood. He pushed through the door, disappearing into the relative quiet of the peristyle, leaving the pandemonium behind.
+
+Cornelius still stood amidst his household, his head tilted back, his eyes closed. He was not speaking in tongues, but his face was transfigured. A deep, abiding peace settled over him, smoothing the lines of worry and duty that usually etched his brow. He looked like a man who had finally come home. His hands, usually so ready to grasp a sword or issue a command, hung loose at his sides. The rough texture of his tunic, the way the light from the atrium fell across his face, all seemed sharper, more real.
+
+Drusilla moved toward him, her steps uncertain. She reached out, placing a hand on his arm. Her own face was wet with tears, but her eyes shone with a fierce, almost defiant joy. She spoke no foreign language, but her lips moved, forming words of adoration in Greek, a quiet counterpoint to the roaring chorus around them. She leaned her head against her husband’s shoulder, and for a moment, the rigid Roman matron vanished, replaced by a woman utterly undone by grace.
+
+The Joppan believers watched, their collective breath caught in their throats. They had seen the Spirit descend before. They had rejoiced in its power. But always, it had been a confirmation of what they already knew: God’s favor on Israel, his chosen people. This was different. This was a disruption. A challenge to the very fabric of their understanding.
+
+Peter felt a cold knot in his stomach. The words of the vision echoed: What God has made clean do not call common. He had thought it was about food, about the dietary laws that separated Jew from Gentile. He had thought it was a test of obedience, a small step across a line. But this. This was a chasm. This was not a step. This was a leap into an unknown, terrifying landscape where the old maps no longer applied.
+
+Antonius, the soldier, still knelt, his Germanic barks now softer, more rhythmic, almost a chant. His eyes were open, but he saw nothing of the room. He saw something beyond, something that filled him with both terror and wonder. A small tremor went through his body, a shiver that had nothing to do with cold, everything to do with the overwhelming presence that had claimed him. The heavy leather of his armor, the cold steel of his dagger seemed suddenly fragile, irrelevant.
+
+Ezra, the Jewish proselyte, continued his fervent Hebrew praises, his voice strong and clear. He wept openly, tears streaming down his face as he glorified the God of Abraham, Isaac, and Jacob. His devotion, once a carefully cultivated discipline, had exploded into unbridled ecstasy. He had sought God through study, through ritual, through adherence to the Law. Now, God had found him, not through his efforts, but through a sudden, unbidden outpouring.
+
+Peter looked at Thomas, whose face was a study in profound distress. Thomas had always been the one to demand proof, to see the nail prints, to touch the wounded side. Now, here was proof, clear and overwhelming, yet it brought not conviction, but fear. This was too much, too fast, too foreign. His hands shook, and he brought them up, as if to ward off the sounds, the sights, the sheer, unholy joy of the Gentiles.
+
+“They do not understand,” Thomas choked out, his voice hoarse. “They speak in... in gibberish. This is not the Spirit. This is madness.”
+
+But Peter knew. He knew the sound. He knew the power. He had felt it himself. He had seen it transform lives. And now, it was transforming these lives, lives that by every law, every tradition, every fiber of his being should have been beyond its reach. The raw, untamed force of it ripped through his carefully constructed theology, leaving it in tatters. The memory of the rooftop, the vision, the sheet descending from heaven—it was no longer a question of clean and unclean animals. It was a question of clean and unclean people. And God had answered.
+
+He took a step toward Cornelius, then another. He felt exposed, vulnerable, stripped bare of all his certainties. The mosaic under his feet, with its geometric patterns, seemed to shift, to flow, to lose its solid shape. The order of the Roman world, the order of the Jewish world, all of it was dissolving in this rush of divine wind.
+
+Cornelius opened his eyes. He saw Peter. A smile, slow and radiant, spread across his face. It was the smile of a man who had waited his entire life for something he did not know he was missing, and had finally found it. He lifted his hand, not in a salute, but in an invitation. A gesture of brotherhood, of shared revelation.
+
+Peter reached him. The centurion’s hand was warm, firm. The roar of tongues continued around them, a symphony of chaos and grace. Peter felt a tremor run through his own body, not of fear, but of recognition. This was the work of God. This was the promise. And it was here, in this house, among these people, utterly, unbelievably real.
+
+The other believers from Joppa watched, their faces carved with horror and awe. They saw Peter, the rock, the leader, standing hand in hand with a Roman centurion, surrounded by a household speaking in the languages of heaven. The walls they had built, the distinctions they had upheld, the very foundation of their faith, trembled. What had God done? And what did it mean for them? This question hung heavy in the air, a silent, terrifying thunderclap in the midst of the jubilant noise.
+
+The noise did not fade so much as it changed. The torrent of tongues ebbed, leaving behind a deep quiet that was somehow louder. It was the quiet of spent breath, of hearts hammering against ribs, of a room full of people staring at each other as strangers. A child began to cry, a thin, confused wail from a corner, and the sound was shockingly ordinary.
+
+Thomas released Peter’s arm. His fingers left pale marks that slowly flushed red. He looked at his own hands as if they belonged to someone else. “They have no right,” he whispered. The words were flat, drained of conviction. He was not arguing with Peter anymore. He was stating a fact to the universe, and the universe had just contradicted him.
+
+Philip sank onto a marble bench, the color leached from his face. He kept shaking his head, a short, sharp motion like a man trying to clear water from his ears. “The covenant is with Israel,” he muttered, the phrase a familiar prayer, a protective charm that had lost its power. “The promises are to Abraham’s children. This is... this is a violation of order.” His eyes tracked the Syrian slave girl, who now sat serenely, humming a tune that didn’t exist.
+
+The other six men from Joppa stood in a tight cluster, a knot of homespun wool and beards in the polished room. They did not speak. Their silence was a wall. They watched the Gentiles with the wary, confused eyes of shepherds who had found a lion sleeping in the sheepfold.
+
+Cornelius drew a long, shuddering breath. The sound was ragged at the edges, full of wonder. He looked at his hands, turned them over, examining the calluses and old scars as if seeing them for the first time. A slow smile touched his lips, not the controlled expression of a Roman officer, but something unguarded, almost boyish. He looked at Drusilla, who still leaned against him. He touched her cheek, a gesture so tender it seemed to belong to another man entirely. She caught his hand, pressed it to her lips. Her own composure was gone, replaced by a radiant softness that made her look ten years younger.
+
+Ezra stumbled forward, his steps unsteady. He fell to his knees before Peter, not in worship, but in a kind of desperate gratitude. He grasped the hem of Peter’s tunic. “I heard them,” he whispered, his Hebrew thick with emotion. “The seraphim. I heard the echo of their song. Kadosh, kadosh, kadosh.” His body trembled with aftershocks.
+
+Peter looked down at the man, this devout Gentile who had tried so hard to touch the edges of a God who had now crashed into the center of his life. He felt a hollow open inside his own chest. All his arguments, his careful scriptural reasoning, his attempts to reconcile the vision with the Law—they were dust. They were the chaff blown away by this sudden, holy wind.
+
+“They spoke in the tongues of angels,” Ezra said, his voice gaining strength. “And in the tongues of men. I heard Parthian. I heard Mede. I heard the language of my mother’s people from Crete.” He looked up, his eyes blazing. “They declared the wonders of God.”
+
+“They are uncircumcised,” Thomas said from behind Peter. The word was a last, feeble stone thrown at a tidal wave.
+
+Cornelius heard him. The centurion turned, his movement deliberate. He didn’t look offended. He looked curious. He understood the significance of the word, the weight of it. He had lived under that weight for years, a seeking outsider forever barred from the inner courts. He walked toward the Jewish believers, his steps measured on the mosaic floor. Drusilla stayed by the pillar, one hand resting on its cool surface, watching her husband navigate this new and impossible field.
+
+Cornelius stopped a few feet from their huddled group. He did not bow. He simply stood before them, a Roman soldier in his own home, with the scent of divine chaos still clinging to the air. “What would you have me do?” he asked. His Greek was clear, calm. The question wasn’t a challenge. It was a genuine inquiry. He spread his hands, a gesture of openness. “The God of Israel has laid hold of my household. He has given us... this.” He glanced back at the Gaulish slave, who was now weeping quietly with joy, and at Antonius, who still knelt, his head bowed in prayer. “Command me. If there is a rite, a law, a procedure we have neglected, name it. We will do it.”
+
+The silence from the Joppan men was absolute. They had no answer. Their entire framework was built on the premise that the Spirit followed the Law. The Law was the fence, the Spirit the reward within. Now the Spirit had leaped the fence and was running wild in the field beyond. To suggest baptism? It felt absurd, a belated formality after the substance had already been given. To speak of circumcision? The idea seemed suddenly petty, a surgical response to a seismic event.
+
+Philip found his voice, thin and cracking. “Did you... did you receive the Holy Spirit when you believed?”
+
+The word was simple. It was the end of one world, and the terrifying, glorious beginning of another.
