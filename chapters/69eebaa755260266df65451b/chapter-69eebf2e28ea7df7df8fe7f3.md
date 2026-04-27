@@ -74,7 +74,7 @@ It was a good smile. Pleasant. The lips curved upward, the cheeks lifted. It was
 
 It was not his father’s smile. His father’s smile had been a lopsided affair, one side of his mouth quirking higher, a crinkle at the corner of his left eye that didn’t appear on the right. This was symmetrical. Blank. The eyes above it remained the same quiet, well-lit rooms. No crinkle. No history. No recognition of the son standing in the doorway holding a coat.
 
-The air left Cassius’s lungs. It wasn’t a gasp. It was a complete evacuation.
+One breath left Cassius’s lungs. It wasn’t a gasp. It was a complete evacuation.
 
 The smile held for a three-count, then faded, smooth as a curtain falling. His father turned back to the window.
 
@@ -210,7 +210,7 @@ He would remember it all. Not as a story, but as a liturgy. A daily recitation a
 
 He was not a bridge anchored to nothing. He was the entire bridge, and both shores.
 
-A figure emerged from the back door of the nursing home, silhouetted against the interior light. Chloe, the aide. She carried a black trash bag, heaved it into the dumpster. She turned saw him on the bench. She lifted a hand in a small, uncertain wave.
+A figure emerged from the back door of the nursing home, silhouetted against the interior light. Chloe, the aide. She carried a black trash bag, heaved it into the dumpster. She turned and saw him on the bench. She lifted a hand in a small, uncertain wave.
 
 Cassius did not wave back. He held her gaze for a moment across the darkening lawn. He was not one of her charges. He was not a relative to be comforted with platitudes about peace and comfort. He was something else entirely. A monument. A keeper of a closed account.
 
@@ -220,7 +220,7 @@ The sky had deepened to a bruised purple. A single star pierced the haze over th
 
 A grim, thin smile touched his lips. It felt unfamiliar on his face. Good.
 
-He stood. His knees popped. The night air was a cold knife in his lungs. He walked back to the car, his steps deliberate on the cracked pavement. He got in started the engine. The heater was still blowing cold. He sat, one hand on the wheel, the other still curled around the marble in his pocket.
+He stood. His knees popped. The night air was a cold knife in his lungs. He walked back to the car, his steps deliberate on the cracked pavement. He got in and started the engine. The heater was still blowing cold. He sat, one hand on the wheel, the other still curled around the marble in his pocket.
 
 He did not look back at the lighted window. That room was no longer a place he needed to visit. His father wasn’t there. His father was here, in the messy, overflowing vault of his own consciousness. It was the only tomb he had, and the only shrine.
 
