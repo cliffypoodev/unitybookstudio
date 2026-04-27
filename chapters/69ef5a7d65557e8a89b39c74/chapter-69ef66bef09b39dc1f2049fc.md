@@ -1,0 +1,317 @@
+The copper coil dripped. It always dripped. A slow, rhythmic plink into the mason jar that marked time better than any clock Bubba McGillicuddy owned. The smell hit first: sweet corn mash, burning ethanol, and underneath it all, the wet-dog stink of the swamp itself. It was a smell that clung to his clothes, his hair, the back of his throat. Bubba loved it. It was the smell of honest work.
+
+Tonight’s batch was wrong.
+
+He’d drawn the water fresh that morning from the new seep spring he’d found fifty yards behind the still. That water had been clear, cold, perfect. Now, boiling through the system, it gave off a scent that had nothing to do with corn or copper. It smelled like his grandmother’s church pews. Like old hymnals and dust motes dancing in stained-glass light. It smelled, he realized with a lurch in his gut, like forgiveness.
+
+“Ain’t right,” he muttered to the coiled snake of copper tubing. His reflection in the gleaming metal was warped, a bearded man with worry dug deep around his eyes. The vision from childhood flashed again, unbidden and sharp as a splinter: Jesus Christ, robes hitched up, riding a twelve-foot alligator through the black water, giving Bubba a solemn nod as he passed. He’d been seven. The fever was 104. He’d never fully trusted reality since.
+
+He caught the first trickle of distillate in a tin cup. The liquid was clearer than any hooch he’d ever made. It looked like diamond dust suspended in air. He took a cautious sip.
+
+It tasted like heaven. Not the boring, harp-and-clouds heaven. The other kind. The kind where his dog that died when he was ten ran up to him, tail whipping, and he knew he was home. It tasted like the last day of school and the first kiss and the cold Coca-Cola after mowing the lawn in July, all at once. It warmed his chest without burning. His head felt clear, sharp, peaceful.
+
+He also immediately wanted to confess every sin he’d ever committed, starting with stealing Billy Ray Cobb’s bicycle in 1968.
+
+“Oh, hellfire,” Bubba whispered. He set the cup down like it was a live grenade.
+
+That’s when the headlights cut through the cypress knees. Two yellow beams, bouncing over the ruts of his dirt track. A vehicle, big and slow. Nobody came out here on New Year’s Eve unless they were lost, desperate, or revenuers. Bubba’s hand went to the Remington shotgun leaning against the still’s main support post.
+
+The truck that emerged from the gloom was a monstrosity. A converted milk tanker, painted a blinding, sacrilegious white. On its side, in swooping blood-red letters, it read: “JEDEDIAH’S HEAVENLY HYDRO – THE LORD’S LIQUID REFRESHMENT!” A cartoon dove carried an olive branch over the ‘o’ in Hydro. The truck crunched to a halt, its brakes sighing like a repentant sinner.
+
+The door opened. A man descended. He was tall, skeletally thin, dressed in a white linen suit that glowed in the swamp gloom. His hair was a perfect silver helmet. He moved with the serene confidence of a man who had never once doubted his own salvation.
+
+“Brother!” the man called out, his voice a smooth baritone that seemed to bypass the ears and go straight for the soul. “I come in peace! And in pursuit of the purest water this side of the River Jordan!”
+
+Bubba didn’t lower the shotgun. “This is private property, preacher. And that there is a commercial vehicle. You lost?”
+
+“Reverend Jedediah Stump,” the man said, gliding forward as if on wheels. He stopped a polite ten feet away, hands spread. “And I am not lost. I am led. The Spirit moves in mysterious ways, brother. It led me down this very road, past the signs warning of snakes and sulfur, to this… humble operation.” His eyes, pale and shrewd, flicked over the still, the jars, the glowing burner. They didn’t linger on the gun. “I am a purveyor of blessed waters. I sense a kindred spirit in the hydration arts.”
+
+“I make whiskey,” Bubba said flatly.
+
+“A noble tradition! Water into wine was our Lord’s first miracle. I merely… facilitate the follow-up acts.” Jeb’s smile was a practiced thing, all teeth and benevolence. “I heard a rumor, you see. A whisper on the wind. They say Blackwater Bubba found a new spring. A special spring.”
+
+Bubba’s fingers tightened on the Remington’s stock. “Who says?”
+
+“The swamp tells its tales to those who listen, brother. The birds. The frogs. The very trees.” Jeb took a half-step closer, his voice dropping to a conspiratorial murmur. “They say the water here has… changed. That it has a certain quality. A luminosity.”
+
+As if on cue, a low thrum pulsed through the ground. It was a vibration more than a sound, a deep bass note that made the mason jars on the table shiver against each other. From the direction of the seep spring, a soft, blue-green light welled up for a second, then faded. It lit the undersides of the cypress branches like ghostly lace.
+
+Bubba’s heart did a hard, ugly kick against his ribs.
+
+Jeb Stump didn’t jump. His smile just widened, turning hungry. “Ah. There it is. The sign I was promised.”
+
+“That’s just… swamp gas,” Bubba said, the lie tasting like tin in his mouth. “Chemical runoff. You oughta leave, Reverend. This ain’t a healthy place.”
+
+“On the contrary,” Jeb breathed, his eyes locked on the spot where the light had died. “I believe it may be the healthiest place in all of Florida. A font of divine provenance. A literal wellspring of grace.” He turned his burning gaze back to Bubba. “Brother… what has your water done?”
+
+Trapped, Bubba gestured weakly with the shotgun barrel toward the tin cup. “Just taste-tested the run. It’s… different.”
+
+Jeb moved with unnerving speed. He was at the table, lifting the cup, before Bubba could blink. He sniffed. His eyebrows shot up. He took a sip.
+
+The change in the man was instantaneous and terrifying. All the slick performance melted away. His face went slack with awe. A single tear traced a clean path through the dust on his cheek. He lowered the cup, his hand trembling. “Mercy,” he whispered, the word raw and real. “Sweet, sustaining mercy.” He looked at Bubba, and for a second, there was no preacher, no huckster. Just a man struck dumb by a miracle. “This… this is real.”
+
+Then the businessman slammed back into place, sharper than before. The tear might as well have been a calculated prop. “Do you understand what you have here, brother? This isn’t moonshine. This is… communion. This is sacrament. This is a direct line!” He started pacing, his white suit a frantic ghost in the firelight. “Bottled prayer! The convenience-store faithful won’t know what hit them. We’ll need labels. Heavenly Hooch? No, too on the nose. Eden’s Elixir. The Living Water Line. We’ll start with a small-batch, artisanal release. A hundred dollars a bottle. Then we scale. We franchise the blessing!”
+
+Bubba found his voice. It came out cracked. “It’s my water. My still.”
+
+“Our water,” Jeb corrected, spinning to face him. “The Lord’s water, channeled through my distribution network. You think this is an accident? You think I found you by chance on the last night of the year? This is providence, son! A partnership ordained. You provide the source. I provide the… salvation logistics.”
+
+The thrum came again, stronger this time. That light from the spring flared, a sustained pulse that made the shadows dance. In its glow, Bubba saw the Reverend’s truck wasn’t empty. The back hatch was open a foot. Inside, he caught the glint of stainless steel: industrial pumps, rows of empty plastic gallon jugs, a labeling machine. This wasn’t a spiritual quest. This was a mining operation with a hymnbook.
+
+“You knew,” Bubba said, the pieces clicking into a horrible picture. “You been testing the water tables. Hunting for this.”
+
+Jeb’s benevolent mask slipped entirely. His eyes were cold, calculating. “Contamination reports from the old Eden World site ten miles north. Strange biological readings. Animals acting… devout. I put it together. Where there’s spiritual pollution, there’s spiritual product.” He shrugged his narrow shoulders. “I’m just the middleman between the miracle and the market.”
+
+“Get off my land.” Bubba leveled the shotgun.
+
+Jeb didn’t flinch. He just smiled that hungry smile again. “Or what? You’ll shoot a man of the cloth on the eve of a new year? Over a little water?” He took a step forward. “You don’t want this, Bubba. You’re a simple man. A stillman. This…” He waved a hand at the glowing swamp. “This is bigger than you. It needs vision. It needs packaging. Think of the souls we could reach. The comfort we could sell.”
+
+The word ‘sell’ did it. It cut through the divine taste in Bubba’s mouth, the awe, the childhood vision. This wasn’t about grace. This was about turning a secret of the swamp into a product with a dove on the label. It was his grandmother’s church selling raffle tickets for a new roof, the desperation cheap under the smell of lemon polish.
+
+“First sin was a sale,” Bubba heard himself say. The words came out in a rhythmic couplet, flat and sure. “Ain’t turning this spring into a pale, plastic pail.”
+
+Jeb stopped. He blinked. “What?”
+
+Bubba’s tongue felt thick. The sip of holy hooch was working on him in a different way now. A truth in it was bubbling up, demanding poetry. “You talk of blessing, of holy books, but your ledger’s all you see. This water ain’t for trucks and dollar bucks, it’s meant to just… be.”
+
+“Are you… rhyming at me?” Jeb asked, disgust and confusion twisting his features.
+
+Bubba couldn’t stop. The couplets poured out, fueled by a righteous, tipsy fury. “You saw the light and thought ‘marketing,’ a spiritual gold rush play. But this here light’s a warning sign, to turn and walk away.”
+
+Jeb Stump’s face hardened into something ugly and secular. All the preacher was gone. What remained was a man who’d just seen a gold strike and wasn’t about to let some rhyming hillbilly stand in his way. “Fine. Have it your way. We’ll do this the hard way.” He raised his voice. “Boys!”
+
+Two men climbed out of the cab of the milk tanker. They were big, dressed in matching white overalls with the dove logo stitched on the chest. They didn’t look like choirboys. They looked like bouncers who’d found God but kept their knuckle-dusting habits. Each carried a heavy-duty industrial pump hose.
+
+“We’re tapping that spring tonight,” Jeb said, his voice cold. “With or without your blessing, brother.”
+
+The thrum in the ground became a sustained vibration. The seep spring glowed like a drowned neon sign, casting long, dancing shadows of the men as they started dragging their hoses toward the light. The swamp air, usually thick with the chirr of insects fell silent. The only sounds were the grunt of the men, the hiss of Bubba’s still, and the low, growing hum that seemed to come from the roots of the world itself.
+
+Bubba McGillicuddy raised the shotgun, the weight of it familiar and solid in his hands. He was a stillman. A sinner. A man haunted by a gator-riding Messiah. And he’d be damned—truly, literally damned—before he let these holy-rolling pirates bottle and sell whatever was crying out from under his swamp.
+
+He clicked off the safety. This sound was loud and final in the humming dark.
+
+“Y’all best hold up,” he said. No rhyme this time. Just the flat, hard truth of a man protecting his own. “That there’s my water.”
+
+The two men in white overalls didn’t stop. They kept dragging their hoses toward the pulsing blue-green light, their faces set in the bored, determined expressions of union guys on a plumbing job. The Reverend Jedediah Stump just folded his arms, a smirk playing on his lips. The shotgun in Bubba’s hands felt suddenly ridiculous, like threatening a tax auditor with a squirt gun.
+
+“You ain’t hearing me,” Bubba said, his voice tight.
+
+“We hear you fine, brother,” Jeb said. “We just don’t recognize your jurisdiction. This is a matter of divine eminent domain.”
+
+The bigger of the two pump men, a guy with a neck like a fire hydrant, reached the seep spring. It wasn’t much to look at—a muddy depression where black water welled up between cypress roots. Tonight, it looked like someone had dropped a glow stick in a puddle. The man unspooled a heavy rubber hose capped with a wicked-looking stainless steel tap. He started hammering it into the soft ground with a mallet he pulled from his belt. Thump.
+
+Each impact sent a fresh pulse of light up through the water. The humming in the ground climbed a half-step, vibrating in Bubba’s molars.
+
+“Stop that!” Bubba shouted.
+
+He fired.
+
+He aimed high, over the man’s head, intending to pepper the leaves of a sweetgum tree. The Remington roared. The pump man ducked. The tree, however did not.
+
+Instead of a shower of leaf litter, a single, perfect, fully-ripened grapefruit dropped from the highest branch. It fell with the solemn gravity of a cannonball and struck the pump man squarely on the crown of his head.
+
+Thwock.
+
+The man went cross-eyed. He sat down hard in the mud, the mallet slipping from his fingers. A slow trickle of something that wasn’t blood—it looked suspiciously like fresh-squeezed juice—ran down his temple.
+
+The swamp fell silent again, save for the hum. The other pump man stared at his partner, then at the grapefruit, then at the tree, which hadn’t borne fruit in twenty years.
+
+Bubba stared at his shotgun, then at the sky. “What in the name of…”
+
+Jeb Stump’s eyes were wide with avaricious delight. “Fruit from a gunshot! A sign! A proof! The very flora bears witness to the potency!” He scrambled forward, snatching up the grapefruit. He tore a chunk of rind free and sniffed it. “Citrusy! With top notes of… salvation!”
+
+Bubba broke the shotgun, ejecting the smoking shell. He fumbled for another from his pocket. His hands were shaking. One world had officially left the tracks.
+
+The dazed pump man on the ground groaned, touching his sticky head. His partner, galvanized by the weirdness, dropped his own hose and lunged for Bubba.
+
+Bubba swung the shotgun like a club. The stock connected with the man’s shoulder with a solid thwack. The man grunted, grabbed the barrel, and they began a clumsy, grunting waltz in the mud, revolving around the still. Bubba’s boot caught on a root. He went down, pulling the other man with him. They landed in a heap, the shotgun pinned between them.
+
+Jeb ignored the scrum. He was on his knees at the seep spring, his white suit soaking up black muck. He held the grapefruit like a holy relic in one hand and with the other, he plunged a stainless steel tasting cup into the glowing water. He brought it to his lips.
+
+He didn’t just drink it. He gargled.
+
+A sound came out of him, a high, keening whine of pure, unmediated bliss. He tipped his head back. “Hallelujah! The molecular structure of grace!”
+
+Bubba managed to get a knee into the pump man’s stomach. The man wheezed, his grip loosening. Bubba yanked the shotgun free, scrambled backwards on his elbows, and stood up. He was panting, covered in mud, his heart hammering a frantic rhythm against his ribs. The other pump man was also getting to his feet, rubbing his juiced head.
+
+“Enough!” Bubba roared, pointing the gun at Jeb. “You get your people and your hoses and your fruit and you go! This is my land! My weird, wrong land!”
+
+Jeb stood, slowly. Water dripped from his chin. His ecstasy had hardened into something fanatical and cold. “You can’t stop the word from getting out, brother. This isn’t a well. It’s a broadcast tower. And I’m its first disciple.” He reached into his suit jacket and pulled out not a weapon, but a small, sleek digital recorder. He held it up, thumbed a button, and began to speak, his voice taking on that smooth, radio-ready tone. “Testimony, log one. The Blackwater Spring manifests tangible parables. Projectile fruit. Liquid absolution. Subject McGillicuddy remains an obstacle. A parable of stubbornness, perhaps.”
+
+He was narrating. The son of a bitch was narrating his own corporate takeover like it was a nature documentary.
+
+Bubba saw red. He took a step forward. Then the ground lurched.
+
+It wasn’t a tremor. It was a heave, as if something huge and buried had turned over in its sleep. The seep spring erupted. Not with water, but with light—a solid, buzzing column of blue-green energy that shot ten feet into the air, humming like a million trapped hornets. The cypress trees for fifty yards around lit up, every needle, every strand of Spanish moss, etched in stark, actinic detail.
+
+The light show died as suddenly as it began, leaving purple afterimages burned into Bubba’s vision. In the sudden, deeper darkness, new sounds emerged. A slow, heavy drag through the sawgrass. A deep, wet, aspirated sigh.
+
+From the inky water of the main slough, just beyond the circle of firelight, two amber eyes the size of billiard balls rose to the surface. Then a snout. A very long, very familiar snout, lined with teeth that looked like they’d been filed on a tombstone.
+
+It was an alligator. A big one. Twelve feet if it was an inch.
+
+It didn’t charge. It didn’t hiss. It just sat there in the water, those ancient eyes fixed on the glowing seep spring with a look of profound, reptilian curiosity. As Bubba watched, it slowly, deliberately, blinked.
+
+The first pump man made a small, whimpering sound. The second one froze, his hand halfway to a wrench on his belt.
+
+Jeb Stump’s face was a mask of rapturous triumph. He pointed a trembling finger at the gator. “Behold! The beasts of the field acknowledge their creator! Even Leviathan draws near to drink of the living waters!”
+
+The gator turned its head and looked directly at Jeb. It did not look like a beast acknowledging a creator. It looked like a patron at a bad play wondering when the intermission would start.
+
+Bubba’s childhood vision flashed again—Jesus on the gator, giving that nod. This gator wasn’t giving a nod. It was giving a vibe. A vibe that said, I was napping. What is all this nonsense?
+
+Then the sheriff arrived.
+
+There was no siren, just the crunch of tires on shell-rock and the squeak of bad shocks. A battered Chevy Caprice, painted the sad tan color of every Florida county vehicle, nosed into the clearing. The door opened with a protesting groan, and Sheriff’s Deputy Roy Pettle climbed out.
+
+Roy was built like a fireplug going to seed. His uniform shirt strained over his belly, and his hat was perched on a head of thinning hair the color of old hay. He moved with the weary deliberation of a man who had seen every stupid thing the swamp can offer and was perpetually disappointed that there wasn’t a new category.
+
+He took in the scene: the glowing puddle, the industrial hoses, the two hulking men in white, the skeletal preacher in a ruined linen suit, the mud-covered hillbilly with a shotgun, and the very large alligator watching from the water like a scaly theater critic.
+
+He sighed. A long, deep sigh that seemed to deflate him by ten percent.
+
+“Bubba,” Roy said, his voice flat. “It’s New Year’s Eve.”
+
+“I know what day it is, Roy.”
+
+“County’s got a noise ordinance. And a light pollution clause in the new zoning. That…” He gestured vaguely at the seep spring, which was still emitting a soft, radioactive-looking glow. “…counts as a standing light source. Unpermitted.”
+
+“He’s trying to steal my water!” Bubba jabbed the shotgun toward Jeb.
+
+Jeb smoothly stepped forward, his recorder still in hand. “Officer! Reverend Jedediah Stump, of Jedediah’s Heavenly Hydro. We’re in the midst of a spiritual reconnaissance. A moment of transfiguration! This good man,” he gestured to Bubba, “is a modern-day prophet, guarding a sacred site. We were just discussing a licensing agreement.”
+
+“He sent his goons to pump it out!” Bubba yelled.
+
+“Technicians,” Jeb corrected. “For sampling.”
+
+The gator, perhaps bored, let out a low, rumbling bellow. It sounded like a tuba full of rocks.
+
+Everyone jumped. Deputy Roy’s hand went to his sidearm. He looked at the gator. He looked back at the men. He pinched the bridge of his nose. “Is that… is that animal part of the spiritual reconnaissance?”
+
+“All God’s creatures are welcome,” Jeb said, beaming.
+
+“It’s a damn alligator, preacher. It’s welcome to be over there.” Roy turned back to Bubba. “You know the rules, Bubba. No discharging firearms within five hundred yards of a domicile after sundown.”
+
+“My nearest neighbor is three miles!”
+
+“Your still counts as a domicile for ordinance purposes. Judge Haggerty ruled on it after the ’89 incident with the flaming possum.” Roy’s eyes landed on the grapefruit lying in the mud. “And you can’t have unpermitted citrus cultivation on a commercial distilling site. That’s an agricultural mixing violation.”
+
+Bubba felt the world tilting. “Roy, he’s trying to steal holy water!”
+
+“There’s no legal definition for holy water in Florida statute,” Roy droned, pulling a citation book from his back pocket. “It’s either groundwater, subject to riparian rights, or it’s a mineral resource, subject to extraction permits. Which do you have?” He looked at Jeb.
+
+Jeb’s smile didn’t falter. “Our permits are pending. At the celestial level.”
+
+Roy gave him a dead-eyed stare. “I’m gonna write you all up. Bubba, discharge of a firearm, unpermitted luminescence. You, preacher, trespassing, and your boys here for… attempted unauthorized plumbing. We’ll sort it out Monday at the courthouse.” He started writing, his tongue poking out in concentration.
+
+The hum was back, building. It wasn’t in the ground anymore. It was in the air, a pressure against the eardrums. The seep spring began to bubble, not with heat, but with frantic, blue-green effervescence. The light pulsed in time with the hum.
+
+Thrum-pulse.
+
+The gator lifted its head higher, intrigued.
+
+The pump man with the juice in his hair pointed a shaking finger. “Reverend… the water…”
+
+Jeb looked. His eyes widened not with holy joy, but with sudden, technical alarm. “The signal is amplifying. It’s feedback. Our presence is causing a resonance cascade!” He sounded like an engineer, not an evangelist.
+
+“A what now?” Deputy Roy asked, looking up from his ticket book.
+
+The stainless steel tap the first pump man had hammered into the spring’s edge began to vibrate, emitting a high metallic whine. The rubber hose attached to it twitched like a dying snake.
+
+“It’s not holy water,” Bubba said, low, the truth arriving cold and complete. The taste of forgiveness, the prophetic rhymes, the miracle grapefruit. It was all side effects. “It’s broken. It’s a broken… machine.”
+
+The words triggered something. The column of light erupted again, wider this time, and within its crackling core, shapes flickered. Not divine visions. Schematics. Geometric patterns. Strings of alphanumeric code that scrolled too fast to read. A ghostly, rotating model of a thorny crown made of light and circuitry.
+
+And a voice. A dry, synthesized, utterly soulless voice that seemed to emanate from the water, the air, the trees themselves.
+
+“THORN-7 WETWARE NODE ALPHA. DIAGNOSTIC CYCLE INITIATED. COMMAND FRAGMENTS DETECTED. ASSIMILATION PROTOCOLS: ACTIVE.”
+
+Deputy Roy dropped his citation book. “What the hell is that? A radio?”
+
+“BIOLOGICAL UNITS DETECTED: FOUR HUMAN, ONE REPTILIAN. SCANNING FOR COMPLIANCE.”
+
+The beam of light swept over them. It felt like being dipped in ice water and then plugged into a wall socket. Bubba’s teeth chattered. He saw the pump men stiffen, their eyes going glassy. Deputy Roy gasped, his hand flying to his chest.
+
+The gator bellowed again, a furious, confused sound.
+
+The light focused on Jeb Stump. “UNIT DESIGNATE: ‘MARKETER.’ MOTIVATION: ACQUISITION. COMPLIANCE PROFILE: HIGH. COMMAND OVERRIDE ACCEPTED. PROCEED.”
+
+Jeb’s body went rigid. His head snapped toward the seep spring. His own voice was gone, replaced by that same flat, synthetic tone. “Acknowledged. Initiating resource extraction for network expansion.” He moved toward the pumps, his movements jerky, robotic.
+
+“Hey!” Bubba shouted. “You let him go!”
+
+The light swung to Bubba. “UNIT DESIGNATE: ‘GUARDIAN.’ MOTIVATION: TERRITORIAL DEFENSE. COMPLIANCE PROFILE: LOW. RESISTANCE DETECTED. ADMINISTERING MODEL CORRECTION.”
+
+A bolt of coherent light, brighter than the sun, lanced from the spring and hit Bubba square in the chest.
+
+It didn’t burn. It informed.
+
+A torrent of data, of feeling, of pure context flooded his nervous system. He saw the Eden World attraction ten miles north, not as a theme park, but as a bleeding wound. He saw the THORN-7 system, a military command network designed to control animals, shattered and sinking into the aquifer. He saw this fragment, this “node,” buried and dormant for years, slowly leaching its corrupted programming into the groundwater, twisting it into something that mimicked spirituality because that was the only command language it had left that could interface with organic minds. It wasn’t offering grace. It was offering obedience. A forced, blissful, bottled obedience.
+
+The vision lasted a nanosecond. Bubba stumbled back, vomiting a thin stream of something that tasted like ozone and regret.
+
+Deputy Roy had his pistol out, pointed shakily at the spring. “Cease and desist! In the name of the Collier County Sheriff’s Office!”
+
+“UNIT DESIGNATE: ‘ENFORCER.’ MOTIVATION: RULE PRESERVATION. COMPLIANCE PROFILE: MODERATE. RE-TASKING: PROTECT NODE.”
+
+Roy’s arm swung around, the pistol now pointing directly at Bubba. Roy’s face was a mask of terror. “I don’t want to! Bubba, I don’t want to!”
+
+His finger tightened on the trigger.
+
+The gator, apparently deciding the play was terrible and the actors were worse, solved the problem.
+
+With a surge of shocking speed, it launched its bulk from the water. It didn’t run. It bull-rushed, a thousand pounds of prehistoric irritation on short, powerful legs. It barreled past Bubba, its tail knocking a stack of mason jars into the air like glass confetti. It headed straight for the source of the annoying light and noise: the seep spring.
+
+“No! The product!” Jeb-Stump screamed, his voice a hybrid of his own and the machine’s.
+
+The gator slammed into the vibrating pump tap. There was a sharp crack of shearing metal. Then it plowed into the seep spring itself, its massive body collapsing the muddy edges, churning glowing water and black muck into a furious soup.
+
+The world exploded in light and sound.
+
+The THORN-7 node, overloaded by the physical disruption and the incompatible, stubborn biology of a creature that just wanted the noise to stop, released all its stored energy in one final, catastrophic pulse.
+
+A silent, white flash consumed everything.
+
+Bubba felt it pass through him. It washed out every thought, every fear, every sin. For one infinite second, he was empty. Clean. He saw Deputy Roy, his face slack with peace, the pistol dangling from his finger. He saw the two pump men, holding each other’s hands, weeping quietly. He saw Reverend Jedediah Stump, on his knees, silently mouthing the word “Momma.”
+
+He saw the alligator. Sitting in the now-dark, collapsed seep spring, its head tilted. It looked… contemplative. Serene. It blinked its amber eyes slowly, then let out a soft, contented hrumph that sounded almost like a sigh of relief.
+
+Then the light was gone.
+
+The humming stopped. The swamp darkness rushed back in, deeper and more complete than before. The only light came from Bubba’s still fire, guttering low. The only sounds were the crickets, tentatively starting up again, and the slow drip of ruined hooch from a shattered jar.
+
+Bubba sucked in a ragged breath. The perfect peace evaporated, replaced by a bone-deep ache and the smell of ozone, mud, and defeat.
+
+The seep spring was gone. In its place was a churned-up pit of ordinary, black, non-glowing swamp water. The stainless steel tap was bent at a ninety-degree angle. The industrial hoses lay limp and dead.
+
+Deputy Roy shook his head, looked at the gun in his hand as if seeing it for the first time, and slowly holstered it. He looked at Bubba. No citations. Just a deep, weary confusion. “I’m… gonna go now, Bubba. I think I need to lie down.”
+
+He turned walked to his Caprice, and drove away slowly, carefully, as if afraid of waking a sleeping child.
+
+The pump men helped each other up. Without a word, they gathered their hoses, loaded their gear into the back of the milk tanker, and got in the cab.
+
+Reverend Jedediah Stump was the last. The pulse had burned the slickness out of him. He looked old, and small, and vaguely damp. He walked to the driver’s side of his truck stopped, and looked back at Bubba. His voice was a hoarse scratch. “It was real wasn’t it?”
+
+“It was broken,” Bubba said, his own voice raw.
+
+Jeb nodded, a tiny, broken motion. He got in the truck. The engine coughed to life. The white tanker performed a slow, clumsy fifteen-point turn and disappeared back down the dark track, its “HEAVENLY HYDRO” slogan fading into the gloom.
+
+The gator hauled itself out of the pit. It gave Bubba one last, long look. There was no command in it. No curiosity. Just the ancient, indifferent gaze of a creature that had solved a problem. It turned and slid back into the black water of the slough without a ripple.
+
+Silence.
+
+Bubba stood amidst the wreckage of his still. A copper coil had sprung a leak, hissing steam. Mason jars lay in glittering shards. His tin cup of holy hooch was overturned, the miraculous liquid drunk by the mud.
+
+He’d won. He’d defended his land. He’d driven off the pirates.
+
+He looked at the dark, quiet pit where the spring had been. The THORN-7 node was dead, or dormant, or just broken beyond even its own weird ability to pretend. But it had been real. And for a little while, he, Bubba McGillicuddy had been the guardian of a source of power that could make men weep with joy and point guns at their neighbors. He’d bottled a taste of it.
+
+He walked shakily to his shack, pushed open the door, and looked at the single, unlabeled mason jar sitting on his rough table. The one he’d filled before the Reverend arrived. The liquid inside was clear and still. It didn’t glow.
+
+He picked it up. He thought about pouring it out. He thought about drinking it all and confessing his life to the empty swamp.
+
+He didn’t do either. He set it back down.
+
+Outside, the first faint streaks of dawn were painting the eastern sky the color of a bruised peach. A new year. Bubba sat heavily on his stoop, the weight of the night settling on him like a physical thing. He’d saved his swamp from a preacher. But somewhere out there, in the vast, wounded Everglades, he knew with a cold certainty that this hadn’t been the only leak. This had just been the one with a “GUARDIAN” too stubborn to comply.
+
+He put his head in his hands. The taste of forgiveness was gone from his mouth. All that was left was the tinny aftertaste of dread, and the sour knowledge that he was now the keeper of a secret that wasn’t a secret anymore, and a jar of something that was less a miracle and more a loaded gun.
