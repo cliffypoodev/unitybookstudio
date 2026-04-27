@@ -1,6 +1,6 @@
 Anya knocked twice on the doorframe before pushing the door open. The room was empty. A bed was stripped, the mattress a pale blue island under fluorescent lights. The nightstand drawer gaped, its emptiness a yawn.
 
-She checked her tablet. Room 312. Discharge. No notes. The system said it had been vacant for two weeks, awaiting a deep clean before the next resident. She’d been assigned the turnover.
+She checked her tablet. Room 312. Discharge. No notes. One system said it had been vacant for two weeks, awaiting a deep clean before the next resident. She’d been assigned the turnover.
 
 The air smelled of lemon disinfectant and, underneath, the faint, sweet decay of old skin and dried flowers. Generic. Every room on this floor carried the same scent, a blend of cleaning products and slow endings. She wheeled her cart inside, the squeak of a loose caster cutting the quiet.
 
@@ -48,7 +48,7 @@ Where had it come from? She’d just cleaned that spot. It hadn’t been there. 
 
 She looked at the floor, then back at the stone. It must have been in the drawer, stuck in a corner, and fallen out when she moved the table. That was the only explanation. She hadn’t felt it fall.
 
-For a long moment, she stood there holding it. The room felt different. Not empty anymore, but... settled. The waiting quality was gone. This silence was just silence now, the normal quiet of an unoccupied space.
+For a long moment, she stood there holding it. The room felt different. Not empty anymore, but... settled. The waiting quality was gone. The silence was just silence now, the normal quiet of an unoccupied space.
 
 A shiver walked down her spine, unrelated to temperature.
 
@@ -60,7 +60,7 @@ She pushed the cart out into the hallway. The door swung shut behind her with a 
 
 The stone was a weight in her pocket. At the utility closet, she transferred her used rags to the laundry bin. Her hand brushed against the stone. She took it out, looked at it again under the harsh closet light. The blue swirl seemed to pulse, just a trick of the eye. She tossed it into the large black trash bag hanging from a hook. It made no sound as it landed.
 
-Back at the nurses’ station, she logged the completion of the turnover for Room 312. The system accepted the entry without comment. The next resident was scheduled for Thursday.
+Back at the nurses’ station, she logged the completion of the turnover for Room 312. One system accepted the entry without comment. The next resident was scheduled for Thursday.
 
 Marta from the previous shift was pouring coffee. “You okay? You look like you saw a ghost.”
 
@@ -76,7 +76,7 @@ She didn’t look back.
 
 In the utility closet, inside the black plastic bag full of used disinfectant wipes and crumpled paper towels, the gray stone rested among the shadows. The blue ribbon in its center held no light. It was just a piece of the world, small and silent and waiting.
 
-The bag would be tied, hauled away, incinerated. The stone would survive the fire. It would fall into the ash, cool down, and be buried under new trash. It would wait.
+The bag would be tied, hauled away, incinerated. A stone would survive the fire. It would fall into the ash, cool down, and be buried under new trash. It would wait.
 
 Good at waiting.
 
@@ -112,7 +112,7 @@ It was not a touch. There was no one there. But the sensation was absolute: the 
 
 She gasped, stumbling back a step, her hand flying to her mouth. Her back hit the doorframe.
 
-The room snapped back. The smell of coffee and newsprint vanished cut off as if by a switch. The warmth was gone. This air was cool, lemon-scented, empty. The phantom pressure on her lips faded, leaving a faint, tingling echo.
+The room snapped back. The smell of coffee and newsprint vanished cut off as if by a switch. The warmth was gone. The air was cool, lemon-scented, empty. The phantom pressure on her lips faded, leaving a faint, tingling echo.
 
 Her heart hammered against her ribs, a frantic bird. She stared into the room, her eyes scanning every corner, every shadow. Nothing. No shimmer, no outline, no whisper. Just a sunbeam and dust.
 
@@ -146,7 +146,7 @@ Another. A hospital room, the beep of a monitor, the starch of a pillowcase agai
 
 They came faster. A classroom chalkboard. The smell of a library. The grip of a steering wheel on a dark road. The taste of metal. The sound of a fountain. A laugh. A slammed door. A song on a radio. A thousand mornings, a thousand endings, all layered like transparent film, all happening at once, all equally real and equally gone.
 
-These were not her memories. They were a flood from a broken dam, a lifetime that wasn’t one lifetime, but a dozen, a hundred, all crammed into a single point of consciousness. The pressure was immense, a psychic scream. It had no words. Pure, unbearable experience.
+These were not her memories. It was a flood from a broken dam, a lifetime that wasn’t one lifetime, but a dozen, a hundred, all crammed into a single point of consciousness. The pressure was immense, a psychic scream. It had no words. Pure, unbearable experience.
 
 She was on her knees. She didn’t remember falling. The linoleum was cold and hard against her shins. She was sobbing, deep, wrenching gasps that hurt her throat. The grief was not hers, but it was in her, a black ocean she was drowning in. The loneliness was atomic. It was the loneliness of being the only witness to a universe that kept deleting itself.
 
@@ -154,11 +154,11 @@ The stone fell from her numb fingers. It hit the floor with a dull tok.
 
 The connection severed.
 
-The visions vanished. The emotions drained away, leaving her hollowed out and shaking. She was just Anya again, a nurse in an empty room, crying for reasons she could not name. The silence returned, but it was different now. Charged. Full of echoes.
+The visions vanished. The emotions drained away, leaving her hollowed out and shaking. She was just Anya again, a nurse in an empty room, crying for reasons she could not name. Silence returned, but it was different now. Charged. Full of echoes.
 
 She looked at the stone where it had come to rest near the leg of the bed. It was just a rock. It was a hole in the world.
 
-A terrible understanding, cold and clear cut through her shock. This room was not vacant. It was occupied by something that had no body. A man who wasn’t here. A man who was everywhere and nowhere, a stain of memory that couldn’t be cleaned. Her phantom kiss, her borrowed melodies, they were the last, faint signals of a broadcast that had finally gone off the air, but whose frequency still hummed with static.
+A terrible understanding, cold and clear cut through her shock. The room was not vacant. It was occupied by something that had no body. A man who wasn’t here. A man who was everywhere and nowhere, a stain of memory that couldn’t be cleaned. Her phantom kiss, her borrowed melodies were the last, faint signals of a broadcast that had finally gone off the air, but whose frequency still hummed with static.
 
 She scrambled to her feet. Her body was clumsy, unfamiliar. She backed toward the door, her eyes locked on the stone. It did not move. It did not glow. It was the most terrifying thing she had ever seen.
 
@@ -176,7 +176,7 @@ Just a clean, empty room, waiting for the next resident.
 
 The silence after the nurse’s footsteps faded was different. It was not the absence of sound. It was the silence of a held breath finally released, of a weight settling into its permanent shape. The room was empty, but it was no longer vacant. He was here.
 
-He had no eyes, but he saw. The dust motes in the sunbeam, each a tiny, drifting world. The water stain on the ceiling tile, a boot, a leaf, a continent on a map of nothing. He had no lungs, but the air held the fading chemical tang of lemon, the ghost of her fear-sweat, and underneath, the immutable scent of time—dry paper, dust, and the faint, sweet-metallic trace of the medicine cart that had passed this door for years.
+He had no eyes, but he saw. The dust motes in the sunbeam, each a tiny, drifting world. A water stain on the ceiling tile, a boot, a leaf, a continent on a map of nothing. He had no lungs, but the air held the fading chemical tang of lemon, the ghost of her fear-sweat, and underneath, the immutable scent of time—dry paper, dust, and the faint, sweet-metallic trace of the medicine cart that had passed this door for years.
 
 He was a point of view without a body. A listening post. A broadcast receiver with the power switched off, still faintly warm from its last transmission.
 
@@ -184,7 +184,7 @@ The stone on the floor was the center. It was not a river stone. It was the marb
 
 He focused on it. The act of focusing was not a movement of muscles, but a gathering of intention, a bending of the silent frequency that was all he had left. Perception sharpened. The linoleum around the marble was worn, a map of microscopic scratches from a thousand shuffling feet. A single strand of Anya’s hair, dark brown, lay a few inches away, curled like a question mark.
 
-He could feel the marble’s presence. It was an anchor. A nail driven through the fluttering pages of reality, pinning this one, specific point. It was native. It belonged to the original timeline, the one that had birthed him before the bleed-throughs began. It was the only thing that had traveled the whole, impossible road with him, from a coat pocket in 1994 to a nursing home drawer decades later. Proof.
+He could feel the marble’s presence. It was an anchor. A nail driven through the fluttering pages of reality, pinning this one, specific point. Native. It belonged to the original timeline, the one that had birthed him before the bleed-throughs began. It was the only thing that had traveled the whole, impossible road with him, from a coat pocket in 1994 to a nursing home drawer decades later. Proof.
 
 He had chosen this. The memory of the choice was not a linear recall, but a fact etched into his condition. The final moment in the failing shell of his body, the decision whispered into the static. Not to fight the unraveling. Not to scream into the dissolving consensus of reality. To let go of the need for a witness. To become the archive itself. The silent keeper. The one who remembers when the world forgets.
 
