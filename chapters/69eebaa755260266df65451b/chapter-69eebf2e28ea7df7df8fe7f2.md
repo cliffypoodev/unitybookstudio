@@ -236,7 +236,7 @@ Thompson.
 
 The name sat in his head, a dead weight. A label for an empty chair. A file created at 9:47 that morning.
 
-He walked down the steps to the sidewalk. He didn’t look back. The sun was high now, bleaching the color from everything. He put his hand in his pocket. His fingers closed around the marble. They were cold. The glass was warm.
+He walked down the steps to the sidewalk. He didn’t look back. The sun was high now, bleaching the color from everything. He put his hand in his pocket. His fingers closed around the marble. They were cold. Its glass was warm.
 
 He walked. He didn’t know where he was going. Home was a concept that felt thin, theoretical. A place for a man whose file might not exist. He walked past shops, past cafes. His reflection glided over dark windows, a smudged phantom keeping pace.
 
