@@ -24,7 +24,7 @@ The words were flat. Final. A pronouncement from the universe itself. He stared 
 
 The apartment was too quiet. The hiss of the radiator, the hum of the laptop fan. That silence underneath was a physical thing, a pressure in his ears. He stood up, his knees cracking. He walked to the kitchen, opened the fridge. Its light was too bright, glaring off a half-empty carton of milk, a jar of pickles, a wrapped block of cheese. Nothing appealed.
 
-He shut the door. The darkness rushed back.
+He shut the door. Darkness rushed back.
 
 He needed air that wasn’t canned by this room. He went to the closet, yanked open the door. A few jackets hung there, slumped on their hangers. He grabbed the oldest one, a canvas barn coat he hadn’t worn in years. He shoved his arms in. The fabric was stiff, smelling of dust and old rain.
 
@@ -56,7 +56,7 @@ He deleted the last line. It read like a clinical admission of insanity.
 
 He saved the document as “Log_001.rtf.” He minimized the window. The marble sat there, its blue heart catching the light from the screen. He opened the browser again. The “No results found” page still stared back.
 
-A wave of exhaustion hit him, not just tiredness but a heavy, cellular drain. The kind that came from fighting gravity in a dream. He’d been chasing phantoms in a machine that only knew facts. The machine kept saying no. The marble said yes.
+A wave of exhaustion hit him, not just tiredness but a heavy, cellular drain. The kind that came from fighting gravity in a dream. He’d been chasing phantoms in a machine that only knew facts. One machine kept saying no. The marble said yes.
 
 The contradiction was a low, constant hum in his skull, like the tone you hear in deep silence.
 
@@ -178,13 +178,13 @@ He went back to the desk. He didn’t open the drawer. He sat down and placed hi
 
 He closed his eyes.
 
-The sun was hot on the back of his neck. The sidewalk was a river of gray concrete, warm through the knees of his jeans. He had a leather pouch. It was soft, the color of old pennies. He loosened the drawstring, tipped the marbles into his hand. They clicked together, cool and smooth. A cat’s eye with a yellow center. A solid blue. A clear glass one with a blue ribbon, his favorite, his shooter. Damien was across from him, squinting. “You go first.”
+The sun was hot on the back of his neck. The sidewalk was a river of gray concrete, warm through the knees of his jeans. He had a leather pouch. Soft, the color of old pennies. He loosened the drawstring, tipped the marbles into his hand. They clicked together, cool and smooth. A cat’s eye with a yellow center. A solid blue. A clear glass one with a blue ribbon, his favorite, his shooter. Damien was across from him, squinting. “You go first.”
 
 He set the clear one down, nested it in the crook of his index finger, thumb behind. He took aim at Damien’s aggie. He flicked.
 
 The clink was sharp, perfect. A sound of victory.
 
-His eyes snapped open. His hand was still. That memory was so vivid he could feel the heat of the sun evaporate from his skin, leaving the apartment’s chill clinging to him. The taste of summer—cut grass and hot asphalt—lingered for a second on his tongue, then was gone, replaced by the flat, stale air.
+His eyes snapped open. His hand was still. The memory was so vivid he could feel the heat of the sun evaporate from his skin, leaving the apartment’s chill clinging to him. The taste of summer—cut grass and hot asphalt—lingered for a second on his tongue, then was gone, replaced by the flat, stale air.
 
 He looked at his still hand. The tremor had stopped.
 
@@ -203,8 +203,6 @@ A new thought arrived, cold and slow. If the marble was here, and the sweater, a
 His hand began to shake again. It didn’t stop.
 
 He curled his fingers around the marble, holding it so tight the glass edges pressed white moons into his skin. The tremor traveled up his arm, into his shoulder, a silent vibration connecting him to the object, to the memory, to the rupture. He sat in the dark, holding onto a piece of a world that didn’t exist, and felt the fault line within him widen, a crack in the foundation of everything he was supposed to be.
-
-The shaking wouldn't stop. It was a live wire under his skin, running from his clenched fist up to the hinge of his jaw. He forced his fingers open. The marble sat in the center of his palm, the blue swirl a frozen vortex. His thumb traced its smooth curve, a gesture that felt practiced, automatic. He’d done this before. A thousand times. In another life.
 
 He stood, his legs unsteady. The apartment felt different now—not just a space, but a container. It held things. Hidden things. The box in the closet was a pocket of wrongness. The marble was a seed of it. He walked to the window, pushed a slat of a blind aside with the back of his hand. The street was empty washed in the orange glow of sodium vapor lamps. A car passed, its tires hissing on damp asphalt. Normal. Silent. It was a picture of a world that agreed with itself.
 
