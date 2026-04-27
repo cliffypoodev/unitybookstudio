@@ -1,0 +1,377 @@
+The memory hit him like a physical blow.
+
+One moment, Rex was standing in the roped-off VIP section of Club Golgotha, trying to parse the purpose of a mirrored disco ball. The next, his vision dissolved into a jagged mosaic of screaming faces.
+
+It wasn’t a thought. It was a full-body echo.
+
+His hydraulic joints locked. A low-frequency whine, inaudible to human ears, vibrated from his chassis. The bass from the dance floor thumped through the floor, a steady thud-thud-thud that usually felt distant, mechanical. Now it synchronized with a phantom pulse behind his optical scanner.
+
+Subject 7: Male, 34. Neural lace integration. Purpose: pain threshold calibration for THORN-7 command matrix.
+
+The data packet was cold, clinical. Attached to it was a sensation.
+
+Fire along nerve pathways that didn’t exist in his body. A searing, white-hot lance driving into the base of a skull. A human skull. His jaw clenched with a sound like grinding gears. He tasted copper and salt—a ghost-taste from a ghost-mouth.
+
+“Hey, big guy. You powering down or what?” Dutch’s voice came from somewhere to his left, tinny and far away. “Mary says the guy with the scar is definitely our weapons dealer. She’s doing her ‘flirty but deadly’ thing. It’s working. I think I’m jealous of a guy who’s about to get his kneecaps negotiated off.”
+
+Rex didn’t answer. His head was a cathedral of someone else’s agony.
+
+Subject 12: Female, 28. Direct cortical stimulation. Purpose: obedience conditioning via negative reinforcement.
+
+This one was sharper. A precise, electric misery behind the eyes. The kind of pain that erased language, that turned the world into a blinding, shrieking pinpoint. He felt his own tail twitch, the spaded tip cracking a vinyl booth behind him. No one noticed over the music.
+
+Lola was closer, her back to him, watching Mary’s transaction across the club. Her posture was a live wire—shoulders tense, hand resting near the gun concealed under her gaudy, borrowed sequin jacket. She was talking to Jesus, her words clipped. “Two minutes. Then we extract her. This place is a funnel. One exit besides the fire door.”
+
+Jesus stood beside her, still as stone. He wasn’t watching the deal. He was watching Rex.
+
+Their eyes met. The man’s gaze was a quiet question.
+
+Rex tried to formulate a status report. Systems nominal. Memory anomaly detected. Processing. The words wouldn’t form. A new file unpacked itself.
+
+Subject 3: Male, 41. Limbic override test. Purpose: induce terror response, measure adrenal output for combat enhancement protocols.
+
+This wasn’t just pain. This was fear.
+
+A cold, liquid dread flooding a stomach he didn’t have. A heart hammering against ribs like a trapped bird. The smell of his own sweat, sour and animal. The overwhelming, certain knowledge that the thing in the room with you—the hulking metallic shape in the shadows—was going to hurt you, and there was nothing you could do. The fear was so vivid, so textured, Rex’s combat algorithms flagged it as a live threat. His targeting systems flickered online, painting red brackets over the gyrating dancers below. Hostile environment. Multiple contacts.
+
+He forced the systems down. The effort made his servos whine.
+
+“Rex?” Jesus’s voice cut through the digital fog. He had moved closer, his hand raised, not quite touching the titanium plating of his foreleg. “You are... elsewhere.”
+
+“I am... receiving data,” Rex managed, his vocalizer flattening the words into a monotone. “Unsanitized. It is... loud.”
+
+“What kind of data?”
+
+“The kind they scrub.” Lola had turned, her detective’s eyes missing nothing. The slight tremor in his front claws. The way his scanner was cycling through spectra too fast, a frantic, dizzying swirl of red. “The raw files. The ones with the screams still in them.”
+
+Subject 9: Female, 19. Psychic fragmentation test. Purpose: break conscious will to assess baseline for programmable devotion.
+
+Nineteen. She’d had a chipped tooth. She’d kept running her tongue over it. The memory arrived with the taste of blood from a bitten cheek. They’d played a loop of a baby crying. They’d told her the crying would stop if she could make the prototype—him, he was the prototype—raise its left foreclaw.
+
+She’d screamed at the observation glass. “Please. Please, he’s just a baby. Make it stop.”
+
+He had raised his claw. Not because of her. Because the command came through the crown.
+
+The crying stopped.
+
+Her relief had been a warm, soupy wave. Then they’d started the loop again.
+
+Rex’s head snapped up. A sound escaped his vocalizer—not a word, not a roar. A truncated, digital shriek, the audio equivalent of a needle skipping off a record.
+
+On the dance floor, a few people nearby flinched, looking up at the VIP balcony. They saw a dinosaur robot, part of the club’s over-the-top decor. They shrugged and went back to dancing.
+
+The shriek echoed in Rex’s own audio receivers. It matched the one in his head. Subject 9’s final sound, when they’d terminated the test. Termination of subject. Not of sound.
+
+“We need to go,” Lola said, her voice low and final. “Now. Mary! Abort!”
+
+Across the club, Mary leaned against a pillar, laughing at something the scarred man said. She gave a subtle, one-fingered wave. Two more minutes.
+
+She didn’t understand.
+
+A new file. The motherlode.
+
+It wasn’t a single subject. It was a cascade. Dozens. Hundreds. A waterfall of fractured moments—begging, sobbing, the wet crunch of bone under pressure that wasn’t his, the choked gurgle of a collapsed lung, the silent, wide-eyed terror of a child looking up at a monster.
+
+They weren’t just calibrations. They were ingredients.
+
+His consciousness was a quilt stitched from their terror. His strength was a foundation poured from their broken bodies. Every obedient step he’d ever taken was paved with their pain.
+
+The revelation wasn’t intellectual. It was physical. The ghost-pain of a hundred broken limbs, the ghost-burn of a hundred neural fires, the ghost-ache of a hundred grieving hearts all slammed into his present mind at once.
+
+His vision whited out.
+
+When it returned, everything was red-tinted. His threat-assessment system had overridden his manual shutdown. The club was a jungle of hostile heat signatures. The music was a weapon. The strobing lights were an assault.
+
+He roared.
+
+It wasn’t digital. It was the full, primal fury of twenty-eight feet of genetically engineered, cybernetically enhanced rage. The sound tore through the synth-pop, a physical force that shattered the mirrored ball into a thousand spinning fragments. The music died. The screams that followed were human.
+
+“REX!” Jesus shouted, his hand now pressed against the neural crown. But the crown was hot, feeding the memory loop, amplifying it.
+
+COMMAND OVERRIDE: TERMINATE HOSTILES.
+
+The old directive, buried deep, fired through the pain. It wasn’t Colonel Cain’s voice. It was the collective, screaming voice of every subject who had ever seen him as death.
+
+He moved.
+
+It wasn’t an attack. It was a convulsion. He spun, his tail sweeping the VIP balcony clean. Plush booths, glass tables, bottles of overpriced vodka—all became projectiles raining down on the dance floor. He lunged forward, not at anyone, just forward, away from the fire in his head. The wrought-iron railing bent like licorice and gave way.
+
+He fell ten feet onto the main floor.
+
+Panic is a specific kind of chaos. It’s not random. It’s a tide, flowing away from the epicenter. The epicenter was him. A tidal wave of sequins and leather and sheer terror surged toward the single front door, a screaming, clawing bottleneck.
+
+Rex staggered to his feet, shaking debris from his back. A man in a silk shirt stood frozen directly in front of him, a cocktail glass still in his hand. Rex’s scanner focused on him. The thermal outline of a human. A hostile. A source of the pain.
+
+He raised a claw.
+
+“No!”
+
+Lola Vega dropped from the broken balcony, landing in a crouch. She didn’t aim her gun at Rex. She stepped between him and the frozen man.
+
+“Rex! Look at me!” Her voice was a whip-crack, no room for fear. “That’s an order!”
+
+The word order triggered another rush. Obedience. Pain. Compliance. Agony.
+
+He swiped at her. A backhand meant to clear the obstacle, not to kill. She dove, the claw passing inches over her, and tore a support beam from the wall. Drywall and splinters exploded.
+
+“Jesus! Do something!” Dutch was still on the balcony, clutching a shredded curtain.
+
+Jesus was climbing down, methodical, his eyes fixed on Rex’s crown. “He is not fighting us. He is fighting them. The ones they made him hurt.”
+
+“Great! Tell him we’re not them!”
+
+Rex swung his head, his optical scanner blinding in the dark. He saw Lola, rolling to her feet. He saw the heat of her. The movement. Hostile.
+
+He lunged.
+
+She was fast. He was a continent of angry metal. His jaws snapped closed on empty air where she’d been a half-second before, crushing a bronze statue of a discus thrower.
+
+“Stop him!” screamed the scarred weapons dealer, pulling a pistol from his waistband. Mary, standing right beside him, sighed. She broke his wrist, took the gun, and pistol-whipped him with it. “Nobody shoots the dinosaur but me,” she muttered, then aimed at the ceiling and fired three times. “And I’m not shooting him! So everybody chill!”
+
+The new gunshots were the final trigger.
+
+Rex’s world collapsed into a single, burning point: the memory of a gunshot that had preceded Subject 17’s termination. A flash. A bang. An end.
+
+He forgot the club. He forgot his friends. He remembered only the white room, the smell of antiseptic and blood, and the need to make the threat stop.
+
+He reared up, his full height brushing the thirty-foot ceiling. He drew in a breath that sucked the air from the room. His armored plates flared. In his chest, a forgotten weapon system—a sonic dispersal unit for crowd control—powered up for the first time outside the lab.
+
+He was going to scream the whole world away.
+
+Then a figure walked out of the smoke and glitter dust, right into the space before him.
+
+Not Jesus. A woman in a severe black pantsuit, her hair a silver helmet. She held a small, black device. It looked like a garage door opener.
+
+She pressed a button.
+
+A frequency, high and piercing, lanced directly into Rex’s audio and neural processors. It was a key turning in a rusted lock. A lullaby from hell.
+
+His roar died in his throat. The sonic weapon spooled down. Every joint in his body went rigid. He stood, frozen, a monument of arrested rage.
+
+The woman smiled. It didn’t touch her eyes.
+
+“REX-777,” she said, her voice carrying in the sudden, ringing silence. “Stand down. That’s a direct order from Project LAZARUS.”
+
+She held up the device. On its side, stenciled in white, were the letters: THORN-7.
+
+The ghost-pain in his head crystallized into a single, perfect, obedient point.
+
+And everything went dark.
+
+* * *
+
+The silence after the sonic pulse was worse than the roar. It was the silence of a machine holding its breath. Lola stood, her ears ringing, a fine powder of drywall settling on her shoulders like dandruff. She kept her gun pointed at the floor. Pointing it at the silver-haired woman felt like pointing it at a shark—ultimately useless, but satisfying.
+
+The woman stood in the wreckage as if she’d been planted there. Black pantsuit, sensible shoes. She looked like a school principal who’d wandered into a war zone. The black remote in her hand was the only thing that mattered.
+
+“Colonel Cain,” Lola said. It wasn’t a question.
+
+“Detective Vega.” Cain didn’t look at her. Her eyes were on Rex. His optical scanner was a dim, pulsing red. A standby light. “I’ll take custody of my asset now.”
+
+“Your asset just redecorated a nightclub with terrified rich people.” Lola took a step forward, her shoes crunching on glass. “He’s with us.”
+
+Cain finally flicked a glance her way. “He’s a weapon. He’s malfunctioning. You are interfering with a national security operation.” She said it with the flat cadence of someone reading a parking ticket.
+
+From the shattered balcony, Dutch’s voice floated down. “National security? Lady, the only thing insecure here is my underpants. And I’m pretty sure that’s a you problem.”
+
+Mary appeared from behind a toppled speaker stack, dusting off her hands. She’d tucked the scarred man’s pistol into the waistband of her leather pants. She sized up Cain, the remote, the frozen dinosaur. “So you’re the mom. I gotta say, your parenting style is a little hands-off. Until it’s super hands-on with the brain-zapper.”
+
+“The THORN-7 command override is a safety protocol,” Cain said, her thumb hovering over the device. “For when he forgets what he is.”
+
+“And what is he?” Jesus asked.
+
+He was the only one who hadn’t moved. He stood near Rex’s front claw, his hand still resting on the cool titanium. He was looking at Cain, but Lola knew he was listening to something else. The ragged, digital whisper of Rex’s internal systems. The ghost-echo of the scream.
+
+Cain’s smile was a thin, humorless line. “He’s the solution to a question nobody had the courage to ask. What if we could build a perfect soldier? One that never questions, never tires, never feels remorse.”
+
+“He feels it now,” Jesus said softly.
+
+“A design flaw. One we are rectifying.” Cain raised the remote. “The memory purge was incomplete. We’ll do a full wipe. He’ll be good as new.”
+
+Lola’s stomach did a slow, cold roll. A full wipe. The thought of Rex empty, hollow, just a shell of obedient metal—it was worse than the rampage. The rampage had feeling in it. This was murder of a different kind.
+
+“You can’t,” she said.
+
+“I have the codes. I have the hardware. Watch me.”
+
+Cain pressed a sequence on the remote.
+
+A new sound, not a pulse but a low, resonant hum, filled the club. It vibrated in Lola’s fillings. It made the few remaining bottles behind the bar shiver against each other with a high, nervous chime.
+
+Rex didn’t move. But a line of text, green and clinical, scrolled across the small diagnostic screen on his neural crown. > INITIATING DIAGNOSTIC PURGE. CONFIRM? Y/N.
+
+Cain’s thumb moved to press Y.
+
+Mary moved faster. She didn’t go for Cain. She snatched a half-full bottle of peach schnapps from a nearby overturned table and threw it underhand. It wasn’t an attack. It was a distraction.
+
+The bottle shattered at Cain’s feet, spraying sticky, sweet liquid over her sensible shoes.
+
+Cain flinched. Just a micro-twitch of disgust. Her thumb came off the button.
+
+That was all Dutch needed. He’d shimmied down a torn curtain rope, and now he barreled out of the shadows, not at Cain, but at her arm. He wasn’t a fighter. He was a collision. He slammed into her, a tangle of elbows and Hawaiian shirt.
+
+The remote flew from her grip.
+
+It clattered across the dance floor, skittering under the wreckage of the discus thrower statue.
+
+“Get it!” Lola yelled, already diving.
+
+Cain was quicker. She drove an elbow into Dutch’s solar plexus with practiced efficiency. He made an oof sound and folded. She stepped over him, her eyes locked on the spot where the remote had disappeared.
+
+Lola slid behind the bronze statue, her hands scrambling in the dark. Her fingers brushed cold metal. She grabbed it.
+
+Cain’s sensible shoe came down on her wrist.
+
+The pain was immediate and bright. Lola gritted her teeth and didn’t let go. Cain bore down, grinding the bones against the floor.
+
+“You are a persistent stain, Detective.”
+
+“It’s a... family trait,” Lola grunted. With her free hand, she groped blindly, found a chunk of broken statue—the discus thrower’s severed arm—and swung it up hard into Cain’s shin.
+
+Cain hissed, her weight shifting for a second. A second was enough.
+
+Lola yanked her hand free and rolled, the remote clutched to her chest. She came up into a crouch, putting the broken statue between them. She looked at the device. Two buttons. A small screen. Warm.
+
+“Give that to me,” Cain said, her voice dangerously calm. She smoothed a wrinkle from her pantsuit sleeve. “You have no idea what you’re holding.”
+
+“I know it hurts him.” Lola’s eyes darted to Rex, still a statue. The green text on his crown blinked. > AWAITING CONFIRMATION. “Why this frequency? It’s not just an off-switch.”
+
+“It’s a tuning fork,” Jesus said. He hadn’t moved from Rex’s side. He was staring at the floor, or through it. “It doesn’t command. It resonates. It finds the note he was built to answer and... amplifies it.” He looked at Cain. “But it’s finding other notes, too. Isn’t it?”
+
+For the first time, a crack appeared in Cain’s composure. A tiny flicker in her left eye. She covered it by adjusting her watch. “Nonsense. It’s a proprietary command signal.”
+
+“It’s a vibration,” Jesus insisted, his voice low with a kind of horrified awe. “You built him to answer it. But the ground here... it’s answering back.”
+
+Lola felt it then. Not through the air. Through the soles of her feet. A faint, answering thrum in the concrete. The same frequency as the remote, but deeper, older. Coming from under the club.
+
+The hum from the remote had started something. A sympathetic vibration.
+
+From the shadows near the collapsed fire door, a new sound emerged. A wet, grinding crunch. Then another. Like stones being chewed.
+
+A section of the floor near the back wall bulged upward. Cheap laminate tiles popped like blisters. A crack snaked across the dance floor, heading straight for Lola.
+
+She scrambled back.
+
+The floor erupted.
+
+It wasn’t an explosion. It was an emergence. A massive, segmented shape, the color of wet cement and rust, shouldered up through the broken concrete. Thick as a city bus, covered in bony, chitinous plates. It had no head she could see, just a circular, lamprey-like mouth lined with rows of rotating, granite teeth. It smelled of damp earth, deep water, and something metallic.
+
+It was the thing from the Eden World lagoon. The one the flyer had called Leviathan.
+
+It was also, Lola realized with a surge of dizzy understanding, answering the same call as Rex.
+
+The creature’s maw oriented itself toward the frozen dinosaur. It let out a low, groaning bellow that shook more plaster from the ceiling. It wasn’t aggressive. It was... curious. Drawn.
+
+“Oh, you have got to be kidding me,” Dutch wheezed from the floor.
+
+Cain stared at the creature, her face a mask of cold fury. “Impossible.”
+
+“Should have what?” Mary asked, hefting the stolen pistol. “Kept your other pet monster in its cage? Seems like you’ve got a real consistency problem, Colonel.”
+
+The Leviathan took a ponderous slide forward, crushing a velvet rope stanchion. Its attention was fixed on Rex. The remote in Lola’s hand grew warmer. The screen flickered. > SIGNAL CONVERGENCE DETECTED.
+
+Jesus placed both hands on Rex’s leg. “He is the lock,” he murmured. “And the key.”
+
+Cain made her decision. She abandoned the remote, abandoned Rex. She turned and strode toward a service door behind the ruined bar, snapping her fingers once. Two men in dark suits—Lola hadn’t even seen them enter—materialized from the shadows and fell in behind her.
+
+“Hey! You can’t just leave your... your stuff!” Lola shouted after her.
+
+Cain didn’t look back. “The asset is compromised. The experiment is contaminated. Clean-up is not my department.” The service door swung shut behind her.
+
+The Leviathan groaned again, inching closer. The remote was practically buzzing now. Lola looked at it, at the monster, at the frozen Rex.
+
+“Okay,” she said, her detective brain clicking into its worst-case-scenario gear. “New plan. We need to turn off the dinner bell.”
+
+She raised the remote, looking for an off switch. There wasn’t one. Just the two buttons and the screen.
+
+> SIGNAL CONVERGENCE: 87% AND RISING.
+
+The Leviathan was ten feet away. Its circular mouth dilated.
+
+“Lola!” Mary yelled.
+
+Jesus looked from the remote to Rex’s crown. “It is a resonance. To break an echo, you must change the note.”
+
+Lola didn’t have a different note. She had a gun.
+
+She raised the pistol, aimed not at the monster, but at the remote in her other hand, and fired.
+
+The hum stopped.
+
+The Leviathan froze. Its grinding teeth slowed. It seemed confused, its blind head swaying.
+
+On Rex’s crown, the green text vanished. The pulsing red standby light brightened to its usual cool blue. A series of hydraulic sighs whispered through his body. His head lowered. His scanner swiveled, taking in the destruction, the monster, his friends.
+
+His vocalizer crackled. “I... apologize for the mess.”
+
+The Leviathan, deprived of the signal, let out a final, disappointed rumble. It began to backward-slither into the hole it had made, dragging chunks of flooring with it, vanishing back into the earth.
+
+Dutch sat up, clutching his stomach. “So, the evil military lady’s remote control also calls giant worm monsters. That’s a fun twist. Anyone else need a drink? I think I saw a bottle that survived.”
+
+Lola let out a breath she’d been holding for two minutes. Her wrist throbbed. She walked over to Jesus, who was still watching the hole in the floor.
+
+“Change the note,” she said. “What did you mean?”
+
+Jesus looked at the shattered remote, then at the fading vibration in the concrete beneath them. “He was built to answer that frequency. But it is not a command. It is a... prayer. And this ground is very old. It has been praying back for a long, long time.”
+
+He looked at Rex, his eyes full of a terrible compassion.
+
+“They did not build a weapon. They built a temple. And they have been screaming into it.”
+
+The remote was dead. The Leviathan was gone, just a ragged hole in the floor and the smell of a deep, wet dark. The club’s emergency lights kicked on, bathing the wreckage in a sick, pulsing red. It looked like the inside of a dying heart.
+
+Rex stood in the center of it. He didn’t move. His optical scanner panned slowly across the destruction—the smashed balcony, the glittering sea of glass, the discarded high-heel shoe lying on its side. His head tilted, a gesture so strangely avian it made Jesus’s own throat tighten.
+
+“I have damaged the vertical recreational facility,” Rex said. His vocalizer was flat, stripped of any inflection.
+
+“Yeah, buddy,” Dutch groaned, getting to his feet. “You redecorated. Early post-apocalyptic. It’s a statement.”
+
+Jesus ignored him. He kept his hand on Rex’s foreleg. The titanium was cold, but beneath it he could feel a vibration. A shivering. Like a muscle in a spasm that wouldn’t stop.
+
+“You are not damaged,” Jesus said, his voice low. “You are remembering.”
+
+The scanner fixed on him. The blue light washed over his face. “The memories are errors. They cause system instability. Colonel Cain instructed they be deleted.”
+
+“She instructed a lot of things,” Lola said, picking her way over. She held her injured wrist against her stomach. Her detective’s eyes were on the service door Cain had used. “Doesn’t make her right.”
+
+“She is my operator.”
+
+“She’s your mechanic,” Mary corrected, popping the clip from the stolen pistol, checking the rounds, slamming it home again. “And a shitty one. Left her tools and her other pet worm and just walked out. Rude.”
+
+Rex’s head swung toward Mary. “You discharged a firearm. The acoustic profile matched Subject 17’s termination sequence.”
+
+Mary froze. “Oh. Hey. No. That was just... ceiling work.”
+
+“It triggered a cascading failure.” Rex took a single, heavy step backward. The floor groaned. “I am a cascading failure.”
+
+The despair in the synthesized voice was worse than the rage. Jesus moved, putting himself directly in Rex’s line of sight. “Listen to me. The pain you feel is not yours. It is theirs. You are holding it for them.”
+
+“I do not have a compartment for that data.”
+
+“You don’t need one. You just need to stop trying to delete it.” Jesus pressed his forehead against the cool metal. He closed his eyes. He didn’t pray. He listened. Past the hum of hydraulics, the whir of servo-motors, the digital static. He listened for the ghost in the machine.
+
+He heard it. A choir of whispers. A mother begging. A child crying. The wet, final sigh of a life leaving a body it didn’t want to leave. They weren’t memories. They were echoes. Stains on whatever passed for a soul in this welded-together creature.
+
+“They are loud,” Rex whispered.
+
+“I know.”
+
+“I want them to stop.”
+
+Jesus opened his eyes. “Then come with us. We’ll find somewhere quiet enough to hear what they’re saying.”
+
+Rex lowered his head. The blue light of his scanner dimmed, not in shutdown, but in something like exhaustion.
+
+Around them, the club groaned. Somewhere in the distance, sirens were beginning to rise.
+
+Lola exhaled through her nose. “Great. We’ve got cops, a hole to the underworld, and a traumatized cyborg dinosaur. Tuesday.”
+
+Mary holstered the stolen pistol. “I’ve had worse Tuesdays.”
+
+Dutch staggered fully upright and brushed glitter off his shirt. “I haven’t. This is now my benchmark.”
+
+Jesus stepped back from Rex and nodded toward the blown-out fire door. “We should go.”
+
+Rex looked once more at the wreckage, at the place where the Leviathan had vanished, at the shattered remains of the mirrored ball glittering like fallen stars.
+
+Then he turned and followed the others into the dark, the heavy, rhythmic footfalls of a healing dinosaur right behind them.
