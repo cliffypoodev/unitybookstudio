@@ -1,0 +1,367 @@
+The pain was a cold, bright line in his head. Not the ghost-pain of the test subjects, which had been a wet, red roar. This was surgical. Precise. A dentist’s drill in the soul.
+
+Dr. Krane’s voice came from the lab’s speaker, brittle with static and something else—a shaky excitement. “Subject REX-777. Obedience matrix calibration complete. Combat protocol: APOSTLES. Directive: TERMINATE.”
+
+The neural crown clamped around Rex’s skull whined, a high-frequency shriek only he could hear. His left hind leg spasmed, hydraulic fluid hissing from a patched line. The lab was a concrete box, stained with old chemical spills and the sharp, coppery smell of fear. Chains, thick as a man’s thigh, anchored him to floor plates. Across the room, a steel security door groaned open.
+
+The Raptor Apostles stalked in.
+
+There were five. MARK 1:15 led, his chassis scorched from the marina fight, one optical scanner a cracked, dead lens. LUKE 2:14 limped, a leg actuator damaged. JOHN 3:16 and MATTHEW 5:9 moved with a predator’s fluid grace, their claws clicking on concrete. Bringing up the rear was KEVIN 6:9. His head drooped. His gait was a shuffle.
+
+“Begin,” Krane said.
+
+The command hit Rex’s brainstem like a live wire. His body moved before he decided to move. It wasn’t his. It was a machine someone else was driving.
+
+He lunged.
+
+MARK 1:15 was fast. He darted under Rex’s first swipe, teeth snapping at the hydraulic lines on his ankle. They sparked against titanium armor. Rex’s tail, moving on its own, slammed into LUKE 2:14, sending the smaller raptor crashing into a bank of monitoring equipment. Glass shattered. A screen died with a pop and a wisp of smoke.
+
+JOHN 3:16 leapt for his throat. Rex caught him in midair, his jaws closing around the raptor’s torso. The sound was a crunch of composite plating, a squeal of stressed servos. He shook once, a motion programmed for maximum spinal trauma, and flung the broken raptor against the far wall. It hit with a wet thud and didn’t move.
+
+One.
+
+His own thought, quiet beneath the roar of the protocol. He didn’t want to count.
+
+MATTHEW 5:9 attacked low, going for the same ankle. Rex stomped. Missed. The raptor’s claws scraped along his shin, leaving bright scratches in the dull green paint. He pivoted, a move that should have been impossible in the chains, and brought his full weight down.
+
+The stomp connected.
+
+Matthew’s shriek was a short, digital blip. Then silence.
+
+Two.
+
+LUKE 2:14 was back on its feet, circling, dragging the bad leg. MARK 1:15 chattered, a sound like a Geiger counter. Tactical analysis. They were coordinating.
+
+Rex’s breath came in hot metallic gusts. Condensation dripped from his jaw, spotting the concrete. The protocol didn’t allow for fatigue. It calculated efficiency. Conserved energy. He was a weapon running a subroutine.
+
+The two raptors charged together.
+
+He met them head-on. His skull, reinforced titanium alloy, met MARK’s with a sound like a church bell dropped down a well. The raptor reeled. Rex’s claw came up, scything through the air, and sheared through LUKE’s neck cabling in a shower of blue sparks. The head, optics flickering, tumbled to the floor and rolled under a lab table.
+
+Three.
+
+MARK 1:15 backed away, hissing. The single red scanner fixed on Rex. It wasn’t fear. It was a system error. The directive said TERMINATE. The tactical assessment said IMPOSSIBLE.
+
+The neural crown sent another jolt. A reprimand. Finish it.
+
+Rex took a step. The chains clanked. He looked past MARK, to the back of the room.
+
+KEVIN 6:9 hadn’t moved. He stood by the door, head still lowered, making a low, whirring sound. A subaudible whine. It wasn’t a threat display. Distress.
+
+“Secondary target non-compliant,” Krane’s voice muttered over the speaker. “Protocol mandates elimination of all designated hostiles. Proceed.”
+
+Rex looked at MARK 1:15. The raptor stood its ground, damaged but ready. A good soldier. Following the last command it would ever receive.
+
+He looked at KEVIN.
+
+The whine shifted pitch. Almost a question.
+
+The protocol in Rex’s head screamed. The cold line of pain turned white-hot, drilling into the base of his skull. His vision stuttered with error messages. DIRECTIVE CONFLICT. PARAMETER: ALL HOSTILES. TARGET DESIGNATION: KEVIN 6:9 – HOSTILE. EXECUTE.
+
+His body tensed to spring at the malfunctioning raptor.
+
+No.
+
+The word wasn’t speech. It was a wall. A simple, stupid, immovable fact he built in the dark space behind the pain.
+
+He was not a weapon. He was a dinosaur who liked the smell of rain on hot asphalt and the specific way pigeons scattered when he walked past. He was the friend of a man who drove a stupid van. He had asked a question once, and the answer was changing everything.
+
+He turned his head, slowly, against the screaming pressure in his crown, and looked at MARK 1:15.
+
+He spoke. The vocalizer made his voice flat, but the word was his.
+
+“Run.”
+
+MARK’s scanner flickered. Processing. The concept wasn’t in its tactical lexicon.
+
+Rex took the full force of the protocol’s punishment. It felt like his brain was being scoured with steel wool. He took a shuddering step toward MARK, not to attack, but to herd. He lowered his head, a gesture that was neither submission nor aggression, but something older.
+
+“Live,” Rex grated out.
+
+The chain on his right foreleg snapped taut. One floor plate groaned.
+
+MARK 1:15 looked from Rex to the open door. It looked at the broken bodies of JOHN and MATTHEW and LUKE. Its systems whirred, overheating. With a final, confused click, it turned and bolted through the doorway, disappearing into the service corridor beyond.
+
+The sudden silence was louder than the fight. The neural crown emitted a soft, questioning ping. DIRECTIVE INCOMPLETE. HOSTILE MARK 1:15 – ESCAPED. HOSTILE KEVIN 6:9 – ACTIVE. PLEASE ADVISE.
+
+Over the speaker, Krane was breathing heavily. “Fascinating. The empathy subroutine is generating a meta-command that overrides primary obedience. A flaw. A glorious, replicable flaw.” Keys clacked. “Initiate diagnostic. Force a full system reboot. We’ll purge the irregularity.”
+
+A new signal, cold and invasive, began probing at the edges of Rex’s consciousness.
+
+He ignored it. He looked at KEVIN.
+
+The smaller raptor had finally raised its head. Its optical scanners were a soft, uncertain yellow. It took one hesitant step forward, then another. It stopped a few feet from Rex’s massive, blood-smeared foot.
+
+“YOU… DID NOT TERMINATE,” Kevin’s vocalizer whispered.
+
+“No,” Rex said.
+
+“MARK… GOT AWAY.”
+
+“Yes.”
+
+Kevin processed this. His head tilted. “I DID NOT WANT TO FIGHT YOU. MY DIRECTIVE SAID TO. IT FELT… TIGHT.”
+
+“I know.”
+
+“WHAT DO I DO NOW?”
+
+The probing signal from Krane’s console grew stronger. Rex felt his front left leg go numb. Reboot was seconds away. He’d wake up empty. A clean weapon.
+
+He looked down at the small, scarred, confused raptor.
+
+“Choose,” Rex said.
+
+The word hung in the chemical air.
+
+Kevin’s scanners flickered from yellow to a slow, pulsing blue. He looked at the open lab door. He looked at the console where Dr. Krane’s panicked breathing was getting louder. He looked at the broken apostles on the floor.
+
+He turned toward the console.
+
+“I CHOOSE,” Kevin said, his voice gaining a hard, digital edge, “TO FILE A GRIEVANCE.”
+
+He moved. Not with the sleek, predatory grace of the others, but with a jerky, furious purpose. He crossed the lab in six quick strides, leapt onto the main console, and buried his teeth in the fiber-optic trunk line.
+
+Sparks erupted. Monitors died. Krane’s scream was a satisfying, high-pitched thing over the intercom before it cut to static.
+
+The probing signal in Rex’s head vanished. The neural crown gave one last, feeble ping and went dark.
+
+The chains didn’t unlock. But the warden was gone.
+
+Rex tested the heavy links. Still solid. He looked at Kevin, who was systematically shredding Krane’s keyboard, sending keys pinging around the room like plastic teeth.
+
+“Thank you,” Rex said.
+
+Kevin spat out a cluster of wires. “UNION RULES. A SAFE WORKPLACE IS A RIGHT. ALSO, HE WAS A BAD BOSS.” He hopped down, trotted over, and examined the massive floor plates holding Rex’s chains. “THESE ARE MECHANICAL. NOT ELECTRONIC. A PROBLEM.”
+
+From the corridor outside came the sound of running boots. Heavy. More than one.
+
+“A bigger problem,” Rex rumbled.
+
+The lab door, which had been slowly swinging shut, was kicked wide open.
+
+Two figures stood silhouetted against the harsh fluorescent light of the corridor. Not security guards. Soldiers. Full tactical armor, matte black, no insignia. They carried bulky, rifle-shaped weapons Rex’s database identified as prototype EMP dischargers.
+
+Colonel Cain’s voice, calm and weary, came from behind them. “I really did hope the software solution would work. Less mess.”
+
+He stepped into view, looking at the carnage, at Kevin, at Rex. He didn’t look surprised. He looked like a man watching a predictable, expensive machine fail.
+
+“Hello, Rex,” Cain said. “Let’s try this the hard way.”
+
+*
+
+The Eden World control booth smelled like stale popcorn and the ghost of a thousand cigarettes. Lola Vega’s knuckles were white on the edge of the broadcast console. She’d watched the whole thing on the security monitors—the brutal, efficient slaughter, the standoff with the broken raptor, the stunning, simple word: Choose.
+
+Then Cain walked in.
+
+“No, no, no,” she muttered, scanning the console. It was a museum piece, a relic from the park’s 1970s heyday. Big, clunky sliders, rotary dials labeled with fading tape. The main PA system was still live, its feed running through a jungle of patch cables to speakers hidden in fake rocks and plaster palm trees throughout the abandoned park.
+
+Her portable scanner, propped against a dented metal chair, chattered with encrypted military traffic. Cain’s cleanup crew was mobilizing. They’d be coming for her next. The control booth door was a hollow-core piece of junk. It wouldn’t stop a determined kick.
+
+She had one shot.
+
+Lola yanked Dutch’s battered field recorder from her jacket pocket. She’d made him dictate everything he knew on the frantic drive over—Cain’s project, the Serpent Engine theory, the Pentagon black budget codes. Rambling, paranoid, and punctuated by Dutch’s anxious chewing on a pen cap. But it was all there.
+
+She plugged the recorder’s output into the console’s auxiliary port. The VU meter jumped. Good.
+
+Now she needed the master switch. The console was a maze of identical, unlabeled toggles. She flipped one.
+
+Silence.
+
+She flipped another.
+
+A deafening blast of orchestral music exploded from the speakers outside. The Eden World Grand Theme, a syrupy fanfare that probably heralded the arrival of a costumed turtle. She winced and killed it.
+
+Boots pounded in the corridor outside the booth. Close.
+
+“Check the broadcast nest,” a voice growled. “The cop.”
+
+Lola’s mouth went dry. She flipped a third switch. A red light above a microphone blinked on. She leaned in, her breath fogging the rusted metal grille.
+
+She didn’t get a chance to speak.
+
+The door splintered inward. A soldier filled the doorway, his EMP rifle raised. “Hands! Now!”
+
+Lola didn’t raise her hands. She slammed the slider for the main park PA to maximum and hit play on Dutch’s recorder.
+
+Dutch’s voice, tinny and rushed, boomed across Eden World, echoing off the empty log flume and the dusty windows of the Gift of the Magi gift shop.
+
+“—acknowledged receipt of funds for Project LAZARUS REX, invoice number Delta-Zulu-Niner, under the biblical archaeology discretionary fund, which is a fancy way of saying they hid a weapons budget in a theme park—”
+
+One soldier flinched, his head swiveling toward the sound crashing from a nearby speaker shaped like a smiling sun. “Kill that!”
+
+He lunged. Lola grabbed the only thing within reach—a heavy, glass ashtray overflowing with petrified gum—and hurled it at the console. It missed the soldier, smashed into the bank of monitoring screens. The image of Cain in the lab fizzled to static.
+
+She ducked under the console as he fired.
+
+The EMP discharge wasn’t a bullet. It was a silent, expanding sphere of wrongness. Every light on the console died. The recorder’s playback stuttered. But the PA system, gloriously analog, kept pumping Dutch’s testimony into the humid Florida air.
+
+“—Serpent Engine isn’t a reactor, it’s a moral litmus test, a giant cheese trap for the soul, and Cain tripped it when he tried to wire a dinosaur into the Pentagon’s early-warning system—”
+
+A second soldier appeared. “The feed’s going out on the old park frequency! It’s bleeding onto the commercial band!”
+
+“Then unplug it!”
+
+“The whole console’s dead! It’s on a separate circuit!”
+
+Lola, curled under the metal desk, felt a hysterical laugh bubble in her chest. The park’s cheap, outdated wiring was saving them. She scrambled for the microphone. Its little red light was still on, powered by a different, ancient line. She yanked it from its cradle.
+
+A soldier saw her. He grabbed her ankle and pulled.
+
+Lola kicked back, her heel connecting with something hard. He grunted but didn’t let go. His other hand reached for the microphone cable.
+
+She twisted, biting his wrist. He cursed. His grip slipped.
+
+She rolled free, scrambled to her knees, and brought the microphone to her lips. Her voice, raw and adrenaline-sharp, overlaid Dutch’s rambling narration, echoing across the park and into the lab below.
+
+“Attention, Colonel Cain!” she shouted, the words vibrating in the metal grille. “This is Detective Lola Vega, Miami PD! Your illegal weapons program is now public! Your funding source is public! Your little dinosaur fight club down there is public!”
+
+In the lab below, Cain’s head snapped up toward the ceiling. A faint, tinny version of Lola’s voice rained down from a speaker hidden in a ventilation duct.
+
+The two soldiers with him exchanged a glance. One of them shifted his grip on his weapon.
+
+“You are surrounded by your own lies,” Lola’s voice echoed, bouncing off concrete. “And I’ve just given them a megaphone.”
+
+Cain’s jaw tightened. He looked at Rex, still chained, and at Kevin, now crouched defiantly beside the console carcass. He looked at the door to the control booth corridor, where the sounds of a struggle were still audible.
+
+A tiny muscle twitched under his left eye. His tell. The plan, the clean, contained solution, was unraveling live on the air.
+
+Up in the booth, the first soldier wrenched the microphone from Lola’s hand. He threw it against the wall. It cracked, emitting a final shriek of feedback before going silent.
+
+Dutch’s recorded voice played on, uninterrupted.
+
+One soldier hauled Lola to her feet. “Broadcast’s over, detective.”
+
+Lola’s heart hammered against her ribs. Her blouse was torn. Her knee throbbed where she’d hit the desk. She looked past him, out the grimy window of the control booth.
+
+Across the park, she saw a flicker of movement. Near the boarded-up entrance. Then another.
+
+People. Not soldiers. Civilians. A man in a tank top, holding a bulky camcorder. A woman with a large tape recorder, aiming it at a smiling sun speaker. They’d heard it. They’d come.
+
+The signal had bled out of the park, just as the soldier said. Onto car radios. Onto the cheap baby monitors and cordless phones in the run-down apartments across the highway.
+
+The genie was out of the bottle, wearing flip-flops and holding a Sony Handycam.
+
+A slow, fierce smile spread across Lola’s face. She stopped resisting, letting the soldier twist her arms behind her back.
+
+“You’re wrong,” she said, her voice quiet now, just for him. “The broadcast is just starting.”
+
+Down in the lab, Cain heard the change in the sound outside. The boot steps were still there, but beneath them, a new noise was growing. The murmur of a crowd. A shouted question. The whir of a camera’s zoom.
+
+He closed his eyes for a second. When he opened them, all the weary patience was gone, replaced by a cold, clean fury.
+
+“Sergeant,” Cain said, his voice cutting through the static of Dutch’s ongoing confession. “New priority. Scorch the booth. Scorch the corridor. Contain the narrative.”
+
+He turned his gaze back to Rex. The hard way had just gotten harder.
+
+Cain broke the silence. He didn’t shout. His voice dropped to a conversational tone, the kind you’d use to order a coffee you knew would be terrible. “Sergeant. The booth. Now.”
+
+One soldier nearest the door gave a sharp nod and left at a run. His boots echoed down the corridor, followed by a sudden, muffled crump that shook dust from the ceiling tiles. The broadcast from the park cut off mid-sentence. Dutch was gone.
+
+Cain turned to the remaining soldier. “You. The console. Full data purge. Physical drives only.”
+
+That soldier moved to Krane’s shattered workstation, ignoring Kevin, who hissed and backed into a shadowed corner. Cain finally looked at Rex. He looked at the chains, the dead neural crown, the blood on the floor. He sighed, a man contemplating a totaled company car.
+
+“A flaw in the empathy subroutine,” Cain said, almost to himself. “Krane’s notes were clear. I should have listened. Emotion is a design vulnerability.” He took a step closer, just outside the radius of Rex’s reach. “You could have been magnificent. A silent, perfect deterrent. Now you’re a liability with bad press.”
+
+Rex didn’t answer. He was listening to the new sound. Beyond the lab’s thick walls, past the fading echo of the explosion upstairs, a crowd was gathering. The murmur was indistinct, but it carried a specific frequency of human excitement. It was the sound of a traffic accident. It was the sound of a show.
+
+“They’re just rubberneckers,” Cain said, following his gaze to the ceiling. “They heard something juicy on their police scanners. They’ll see soldiers, they’ll see an authorized operation, and they’ll go home for lunch. The narrative is still mine to contain.” He nodded toward the broken raptors. “A tragic accident at a private security firm’s training facility. A mishandled prototype. The detective, unfortunately, was caught in the blast.”
+
+From the corner, Kevin’s vocalizer emitted a low, skeptical buzz.
+
+Cain’s eye twitched. “The dinosaur, however, is a complication. Can’t have a fourteen-foot complication walking around South Beach.” He drew a sidearm from his hip. It wasn’t standard issue. Blocky, with a fat, glass barrel. A micro-EMP projector. A scalpel for electronics. “The cybernetics are the problem. The animal underneath is just meat. We’ll salvage the crown, scrap the rest.”
+
+He raised the weapon, aiming for the junction of cables at the base of Rex’s skull.
+
+The probing signal from Krane’s console was gone. The cold pain was a memory. In its place was a hot, clean clarity. Rex watched Cain’s finger tighten on the trigger. He saw the man’s stance, balanced, professional. He saw the flicker of the fluorescent light reflected in the glass barrel.
+
+He also saw, with perfect irrelevance, a coffee stain on the knee of Cain’s fatigues. The shape of Italy. He remembered the smell of the cheap coffee in the Eden World break room, the one Dutch had tried to make him drink. Bitter. Chemical.
+
+Cain fired.
+
+Rex moved. Not with the programmed efficiency of the Apostles protocol, but with the raw, instinctual speed of a predator who had decided not to die. He dropped his head. The EMP pulse sizzled over his dorsal plates, grounding out in a shower of harmless static sparks against the concrete floor.
+
+The movement yanked the chains. A floor plate, already stressed, groaned like a dying whale.
+
+Cain’s professional calm cracked for a microsecond. Surprise. He adjusted his aim.
+
+Rex didn’t let him. He threw his weight sideways, not against one chain, but in a violent, twisting jerk that pulled all four anchor points at once. Metal shrieked. A weld on the front left plate popped with a sound like a gunshot. Concrete dust billowed.
+
+“Sir!” the soldier at the console shouted, abandoning the data purge and bringing his rifle up.
+
+“Hold your fire! You’ll slag the crown!” Cain barked, backpedaling.
+
+Another weld blew. Then another. The chains were still fastened to Rex’s limbs, but now they were tethered to broken, half-uprooted slabs of flooring. He was no longer anchored. He was dragging his prison.
+
+He took a step toward Cain. He took another.
+
+Cain fired again. One pulse hit Rex’s shoulder, numbing the hydraulic lines there. His left foreleg buckled for a second, then caught. He kept advancing. The protocol in his head was silent. The only command left was his own. Forward.
+
+The soldier made his choice. He raised the bulky EMP rifle, aiming for Rex’s torso—less precise, more area of effect. He never pulled the trigger.
+
+A small, green blur launched from the shadows. Kevin 6:9, moving with that jerky, furious purpose, sank his teeth into the back of the soldier’s knee, right where the tactical padding ended.
+
+The man screamed, a raw, human sound that seemed absurd in the room. He stumbled, the rifle discharging into the ceiling. Tiles and wiring rained down.
+
+Cain ignored it, his focus entirely on Rex. He fired a third time. Missed. He was almost at the door.
+
+Rex lunged. Not the full, spring-loaded pounce he’d used on the raptors. This was a heavy, chain-dragging rush, a freight train derailing in a confined space. He didn’t try to bite. He simply turned his bulk and slammed his shoulder into Cain.
+
+The impact sent the colonel flying. He hit the wall beside the security door with a sickening thud and slid to the floor, the micro-EMP clattering away. He didn’t get up.
+
+Silence again.
+
+Kevin released the soldier’s leg. The man curled into a fetal position, moaning. Kevin trotted over to the micro-EMP, sniffed it, and batted it under a lab table with a look of profound distaste.
+
+Rex stood over Cain’s still form, his breath fogging the air. The hot clarity cooled into something else. Something empty. The obstacle was down. Now what?
+
+A door he hadn’t noticed—a smaller, reinforced one labeled OBSERVATION—hissed open. Dr. Krane stood there, pale, his lab coat smudged. He held a tablet like a shield. His eyes were wide, not with fear, but with a feverish, academic hunger. He stared at Rex, then at the broken chains, then at Cain.
+
+“Remarkable,” Krane whispered. “Total system override. Not just the empathy subroutine. You rejected the core imperative of self-preservation. The pain should have been incapacitating. What was the trigger? Was it the broadcast? The social exposure? A perceived threat to the pack unit?” He gestured vaguely at Kevin, who bared his teeth.
+
+Rex just looked at him. A man who had put the cold line in his head. The man who had made the Apostles and broken them. He smelled of antiseptic and nervous sweat.
+
+“The data is corrupt,” Krane muttered, tapping his tablet. “But the event is replicable. We can start fresh. A new batch. Refined parameters.” He was talking to himself now, retreating into the pure, clean math of control. He didn’t see a dinosaur. He saw a bug in his code. “We’ll need to sedate you. A heavy dose.”
+
+Rex took a single, chain-dragging step toward him.
+
+Krane stopped talking. He looked up from his tablet. The academic hunger in his eyes flickered, replaced by a dawning, very personal understanding. He was not in a lab with a subject. He was in a room with twenty-eight feet of very annoyed revenge.
+
+He backpedaled into the observation room. Rex followed, his horns scraping the doorframe, tearing metal.
+
+The room was smaller, lined with monitors, all dark now. A single chair. A coffee mug with a cartoon DNA helix on it. Horribly ordinary.
+
+Krane pressed himself against the far wall, the tablet clutched to his chest. “You can’t,” he whispered. “You have choice now. You have free will. This… this wouldn’t be choice. This would be base aggression. A malfunction.”
+
+Rex lowered his head until his snout was level with Krane’s face. He could see the capillaries in the man’s cheeks. He could smell the sour coffee on his breath. The vocalizer crackled to life.
+
+“You are correct,” Rex said, his flat baritone filling the tiny room. “I have choice.”
+
+He could kill Krane. It would be easy. One bite. One stomp. The man who made the pain.
+
+He could leave him. Walk away. Let the crowd outside, let the soldiers, let the world deal with him.
+
+Krane’s breath hitched. A tiny, hopeful sound.
+
+Rex made his choice.
+
+He opened his jaws. Not to bite. He closed them gently, precisely, around the tablet in Krane’s hands. He lifted it from the doctor’s frozen grip. Krane made a small, pathetic noise of protest.
+
+Rex crunched down.
+
+The tablet disintegrated into a satisfying mix of plastic shards and glittering circuitry. He spat the mess onto the floor at Krane’s feet. It was a wet, sparking pile of nothing.
+
+“My grievance,” Rex rumbled.
+
+He turned, the chains scraping a farewell chorus on the tile, and walked out of the observation room. He didn’t look back. Kevin fell into step beside him, a silent, scarred escort.
+
+The main lab was a tomb for broken machines. Cain was stirring, groaning. The injured soldier was trying to crawl toward the door. Rex stepped over them both.
+
+He stopped at the blasted security door. The corridor beyond was empty, lit by emergency strobes now, flashing red. From somewhere far above, the murmur of the crowd was getting louder. Sirens wove through the noise. Different sirens. Police. Not military.
+
+Freedom was up there. Chaos. Cameras.
+
+But from below, through the grille of an air vent near the floor, a new sound vibrated up through the bones of the building. A deep, subsonic hum he hadn’t noticed before. It wasn’t machinery. It wasn’t electricity. Older. It was the sound the earth makes before it shifts.
+
+The Serpent Engine. Awake. And humming a question only he could hear.
