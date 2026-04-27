@@ -118,7 +118,7 @@ The living room smelled like lemon polish and the faint mustiness of old books. 
 
 “We did. I just—” He swallowed. “I needed to ask you something.”
 
-She marked her page with a finger and set the book aside. “Alright.”
+She marked her page with a finger and set the book aside. “All right.”
 
 The couch creaked under him as he sat. He could see the photo albums on the shelf behind her, their spines worn from years of handling. He'd looked through them a hundred times. A thousand. He knew every picture by heart.
 
@@ -206,7 +206,7 @@ He wasn't. His vision blurred at the edges. The marble was still in his pocket, 
 
 His mother's hand hovered between them, like she wanted to reach for him again but didn't dare. “You're scaring me.”
 
-Good, he almost said. The thought shocked him. He bit it back.
+He bit back the thought that rose in him.
 
 “I just need some time,” he managed.
 
