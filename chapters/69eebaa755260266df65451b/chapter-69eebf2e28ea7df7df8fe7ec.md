@@ -34,7 +34,7 @@ He hadn’t thought about material. “Stainless.”
 
 He pictured the thumping. A large dog. “Big.”
 
-She led him to an aisle. Rows of bowls hung on pegs. She pulled down a large, simple stainless steel bowl. Heavier than he expected. The metal was cool, reflective. He saw a distorted version of his own face in its concave surface—eyes stretched long, mouth a grim line.
+She led him to an aisle. Rows of bowls hung on pegs. She pulled down a large, simple stainless steel bowl. Heavier than he expected. Its metal was cool, reflective. He saw a distorted version of his own face in its concave surface—eyes stretched long, mouth a grim line.
 
 “This do?”
 
@@ -46,7 +46,7 @@ At the register, she rang it up. “That’ll be fourteen ninety-five. Need any 
 
 She bagged the bowl. The bell jingled again as he left. The terrier in the window had opened one eye, watching him go.
 
-Back in the apartment, the silence greeted him. He took off his coat hung it up. He stood in the middle of the living room, the bag in his hand. He felt foolish. Profoundly, achingly foolish. He was a fifty-seven-year-old man buying a dog bowl for a dog that did not exist.
+Back in the apartment, the silence greeted him. He took off his coat hung it up. He stood in the middle of the living room, the bag in his hand. He felt foolish. Profoundly, achingly foolish. A fifty-seven-year-old man buying a dog bowl for a dog that did not exist.
 
 The thumping started again. Soft at first, then settling into its familiar rhythm. Thump-thump-thump from the spot by the chair.
 
@@ -60,7 +60,7 @@ He sat in the chair, looked at the bowl. The thumping was directly beside it now
 
 This was the madness. Not the violent swaps, the sunburns, the allergic shocks. This was the quiet madness. The one that asked you to participate. To buy the bowl. To fill it. To pretend, just for a moment, that the rules of consensus reality were flexible enough to include a ghost dog’s thirst.
 
-The sound was comforting. That was the worst part. It was a sound of companionship, of simple, uncomplicated presence. In all the other bleed-throughs, he was a tourist. A thief. Here, in this channel he hadn’t even named, he was just a man in a chair, with a dog at his feet. It was a life he’d never considered wanting. A stupid, simple life.
+A sound was comforting. That was the worst part. It was a sound of companionship, of simple, uncomplicated presence. In all the other bleed-throughs, he was a tourist. A thief. Here, in this channel he hadn’t even named, he was just a man in a chair, with a dog at his feet. It was a life he’d never considered wanting. A stupid, simple life.
 
 He closed his eyes. He let the sound wash over him. Thump-thump-thump.
 
@@ -228,7 +228,7 @@ The thumping sped up for three beats, then settled back into its rhythm.
 
 In the kitchen, he made coffee. The routine was a lifeline. Grind the beans. Boil the water. Pour it slow. The rich smell filled the small room, a tangible, present reality. He drank it black, standing at the counter, looking at the closed door to the living room.
 
-The hum was gone. The water was gone. Something had been exchanged.
+Her hum was gone. The water was gone. Something had been exchanged.
 
 He knew what came next. The knowledge was cold and certain. The ritual had been accepted. The offering had been taken. The next step was a name. You didn’t feed a ghost and give it a bowl and not give it a name. That was how you made it yours. That was how it made you its.
 
