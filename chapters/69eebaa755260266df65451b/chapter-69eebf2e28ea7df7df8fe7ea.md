@@ -110,7 +110,7 @@ He was on a porch. A wraparound porch. Their porch.
 
 The certainty was absolute. It was a physical knowing in his bones, a rightness of posture—his shoulders relaxed, one ankle hooked over the opposite knee. This was his place. This was his life.
 
-He watched her turn a page. Her finger traced a line of text. She had a scar on the knuckle of her index finger, a tiny white crescent from a long-ago cut. He’d kissed it once. The memory of that kiss arrived, not as a thought, but as a ghost-sensation on his lips.
+He watched her turn a page. Her finger traced a line of text. She had a scar on the knuckle of her index finger, a tiny white crescent from a long-ago cut. He’d kissed it once. The memory of that kiss arrived not as a thought, but as a ghost-sensation on his lips.
 
 “Listen to this,” she said, her voice real enough to make his stopped heart ache. She didn’t look up. “It’s so perfectly stupid.”
 
@@ -118,7 +118,7 @@ He tried to speak. To say what? To play his part in this scene he knew by heart.
 
 The ambulance hit another bump.
 
-The porch shuddered. The image flickered, a film reel jumping its sprockets. The warm light bleached into the cold ambulance glow. The smell of lilac and gasoline twisted, becoming the odor of his own sweat and industrial cleaner. The thwack-thwack of the screen door fragmented into the siren’s pulse.
+The porch shuddered. An image flickered, a film reel jumping its sprockets. The warm light bleached into the cold ambulance glow. The smell of lilac and gasoline twisted, becoming the odor of his own sweat and industrial cleaner. The thwack-thwack of the screen door fragmented into the siren’s pulse.
 
 “—stay with me, sir. Eyes open.”
 
@@ -150,7 +150,7 @@ More vivid than the hospital room. More real than the itchy sheet under his fing
 
 The epinephrine had saved his life, but it had also, somehow, thinned the membrane. The other Cassius—the one who lived in a house with a wraparound porch, who knew the sound of Lilith’s laugh as she read—that man was allergic to eggs. And when this Cassius, the one in the apartment with the water-stain continent had eaten them, that other man’s body had screamed in protest through his own.
 
-It wasn’t possession. Overlap. A catastrophic failure of the soul’s insulation.
+It wasn’t possession. It was overlap. A catastrophic failure of the soul’s insulation.
 
 A shudder racked him, deep and cold. He pulled the thin hospital blanket up to his chin. The shaking wouldn’t stop.
 
@@ -264,4 +264,4 @@ He was not being haunted. He was being crowded.
 
 Other versions of Cassius were not just sending memories. They were broadcasting their physicality. Their allergies. Their scars. Their postures on sun-warmed porches. His body was the receiver, and it was tuning into multiple stations at once. The signal for Cassius-who-lives-with-Lilith was strong today. Its carrier wave was anaphylaxis.
 
-The war was over. He had lost. He was no longer a man with a problem. He was the problem itself. A glitch in a system, awaiting correction. The only question left was which version of him would the system finally decide to keep, and what would it delete to make room.
+The war was over. He had lost. He was no longer a man with a problem. He was the problem itself. A glitch in a system, awaiting correction. The only question left was which version of him the system would finally decide to keep, and what it would delete to make room.
