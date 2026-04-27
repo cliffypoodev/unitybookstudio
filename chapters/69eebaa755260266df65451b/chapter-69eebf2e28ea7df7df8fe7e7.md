@@ -1,0 +1,227 @@
+Dolores gave him his change. He didn’t look at her face. He walked out into the parking lot, the cold can of coffee hugged to his chest, and he did not look back at the store.
+
+He was not being haunted. He was being erased.
+
+A thought followed him home, a low hum under the engine noise. It sat with him in the elevator, a third passenger. It watched from the corner as he put the coffee on the counter, his keys in the bowl. The apartment was quiet. The hum was gone. The silence was a perfect, sterile vacuum.
+
+He stood in the center of the living room. His reflection in the dark television screen was a smudge of gray and black. A man-shaped hole in the world.
+
+He got his phone. He googled “paranormal investigator” and the name of his city.
+
+The man’s name was Leo. He arrived on a Tuesday afternoon, a toolbox in one hand and a digital recorder in the other. He was in his fifties, wearing a fleece vest over a flannel shirt, and he had the patient, slightly weary eyes of a high school guidance counselor. He did not look like someone who chased ghosts.
+
+“Most of what I do,” Leo said setting his toolbox on Cassius’s kitchen table, “is explain noises. Furnaces. Pipes. Squirrels in the attic. You’d be amazed how many squirrels sound like a child running.” He gave Cassius a practiced, disarming smile. “So. Tell me what’s going on.”
+
+Cassius told him. He kept it clipped. One hum. The cold spot by the bedroom door, right there. The footsteps—one, two, three, stop. The scratching in the wall. The cough on the recording. He played the clip from his phone, the wet, ragged sound tinny in the quiet kitchen.
+
+Leo listened, his head tilted. He didn’t take notes. When the recording finished, he nodded. “Okay. Let’s start with the basics.”
+
+The basics were a thermometer, an EMF meter that looked like a stud finder, and a digital camera. Leo moved through the apartment like a plumber on a service call. He checked the vents, tapping the grilles with a knuckle. He examined the baseboard near the bedroom door, running his finger along the seam where the floor met the wall. He held the EMF meter up to light switches, the outlet behind the couch, the old radiator.
+
+“EMF spikes can cause feelings of being watched,” he explained, his voice calm and pedagogical. “Trick the brain into producing dread. It’s a physiological response, not a spiritual one.”
+
+The meter stayed quiet. The temperature in the bedroom doorway was identical to the temperature three feet away.
+
+Leo spent ten minutes in the bedroom, most of it on his knees by the wall where the scratching had been. He produced a small flashlight and peered into the gap behind the baseboard. “No sign of rodents,” he announced. “No holes. Insulation looks intact.” He stood, brushing dust from his knees. “Walls contract and expand. Old plaster makes noise. It can sound… intentional.”
+
+He asked to see the closet. He asked about the building’s heat schedule. He asked if Cassius had carbon monoxide detectors.
+
+“I’m not dizzy,” Cassius said. His own voice sounded thin in his ears. “I’m not forgetting things.”
+
+Leo gave him that counselor look again. “It’s not about accusation, Mr. Ashbourne. It’s about process. We rule out the probable before we entertain the improbable.”
+
+They ended up back in the living room. Leo packed his thermometer away. “I’ll take the recorder with me, leave it running in here for a few hours if that’s alright. Sometimes ambient sound picks up things the human ear misses. But from what I’ve seen?” He zipped his toolbox shut. “Your building is old. It makes noise. You live alone. The mind, especially under stress is a fantastic pattern-generator. It hates randomness. It will invent a cause.”
+
+Cassius’s throat was dry. “The recording. The cough.”
+
+“Old pipes can make some truly bizarre sounds. Water hammer. Trapped air.” Leo shouldered his bag. “I’ve heard recordings that sounded like voices. Once, a client had a drain gurgle that perfectly mimicked ‘help me.’ It’s unsettling, but it’s physics.”
+
+“So that’s it.”
+
+“Unless you’re experiencing physical manipulation? Objects moving? Doors opening?”
+
+Cassius thought of the marble, warm in his drawer. He thought of the photograph that shouldn’t exist, tucked between the pages of a book. Evidence that proved nothing to anyone but him. “No.”
+
+Leo’s expression softened into something like pity. “Stress is a powerful thing, Mr. Ashbourne. Grief. Loneliness. It manifests. It really does. Sometimes… the haunting is internal. The house is just a house.”
+
+Cassius paid him in cash. Two hundred dollars for an afternoon of being told he was lonely and his pipes were loud.
+
+Leo paused at the door. “If anything escalates—if you see anything, or something actually moves—call me. We’ll do a proper overnight investigation. But my honest professional opinion? Get more sleep. Maybe see a doctor about the stress. It’s almost always the answer.”
+
+The door clicked shut behind him.
+
+Cassius stood in the silence. The apartment felt different with Leo’s absence, larger and emptier, as if the investigator had taken all the potential for meaning with him. He’d left behind a business card on the table, a cheap white rectangle with a cell number and the words “LEO’S PARANORMAL INQUIRIES” in a bland font.
+
+For three days, nothing happened. Silence held. Cassius went to work came home, ate food that tasted like paper. He slept in fits, waking often to stare at the ceiling, waiting for the three-step creak. It never came. He began to wonder if Leo had been right. The power of suggestion, reversed. The mere presence of a skeptic had fumigated the place. The ghost, if it had ever been there was embarrassed.
+
+On the fourth evening, he allowed himself a sliver of something that wasn’t relief, but was adjacent to it. A numbness that could be mistaken for peace. He made a proper dinner, scrambled eggs with cheese, and ate it at the kitchen table without reading anything into the hum of the refrigerator.
+
+He washed the plate. He put it in the drainer. He walked to the living room window and looked down at the street, the pools of orange under the sodium lamps, a car sliding past with its headlights cutting the dark.
+
+A floorboard creaked behind him.
+
+Not the bedroom. Here. In the living room. A single, sharp report from the center of the room, near the rug.
+
+He didn’t turn. He kept his eyes on the street, his hands on the windowsill. The cold from the glass seeped into his palms.
+
+Another creak. Closer. Then a third, directly behind him, so near he felt the displacement of air against the back of his neck.
+
+The steps were heavier than before. Deliberate. Adult.
+
+He could smell it now—not antiseptic, but something dry and faintly sweet. Old paper. Wool. The scent of a closet that hadn’t been opened in years.
+
+His reflection in the dark window was pale, his eyes wide holes. Behind him, the room was a void. He could see nothing in the glass but his own face and the deeper blackness of the apartment at his back.
+
+The footsteps moved away. Across the rug. Into the short hallway leading to the bedroom. A pause.
+
+Then the distinct, heavy sound of someone sitting down on his bed. The groan of springs, the sigh of compressed fabric.
+
+Cassius’s breath fogged the glass. He watched it expand, then shrink, then vanish.
+
+He didn’t move until his legs ached from standing still. When he finally turned, the living room was empty. The air was still. The scent was gone.
+
+He walked to the bedroom doorway. The light was off. The streetlamp glow painted a pale trapezoid across his rumpled blankets. The empty side of the bed, the side he never used was perfectly smooth.
+
+He stood there for a long time, listening to the sound of his own heart. It was a clock in a silent room. He waited for the weight on the mattress to shift, for a breath he wasn’t taking.
+
+Nothing moved.
+
+He went back to the living room, picked up Leo’s business card from the table, and tore it in half. The sound was small and final. He dropped the pieces into the trash.
+
+The haunting hadn’t been external. Leo was right about that. It was coming from inside the house. The house was him.
+
+He needed to assert control. He needed to make the space his again. The apartment wasn’t just a place he lived; it was an extension of him, and something was wrong with it. Something had invaded.
+
+He started with the bedroom. He stripped the bed down to the mattress, pulling off the sheets, the duvet, the pillows. He carried the laundry basket to the small, shared laundry room in the basement, the fluorescent lights humming over the growl of industrial machines. He loaded his clothes, measured the detergent. The clatter of the dryer, the hot, clean smell of fabric softener felt like a small victory.
+
+Back upstairs, he opened the windows wide, letting the cold autumn air scour the stagnant quiet. He dusted every surface, wiped down the nightstands, vacuumed the carpet in slow, deliberate passes. The whir of the vacuum cleaner filled the room, a mechanical roar against any other sound. He changed the lightbulb in the bedside lamp, twisting the new one until it clicked into place, flooding the corner with a brighter, whiter light.
+
+He worked his way through the apartment. The living room came next. He moved the couch away from the wall, vacuuming the dust bunnies that had gathered there, a pale gray fuzz. He cleaned the television screen with an anti-static cloth until his reflection stared back, clear and sharp. He rearranged the books on his shelf, not by author or genre, but by height, a precise, ordered line. He even took down the framed print of an abstract cityscape, wiped the glass, and rehung it, making sure it was perfectly level.
+
+The kitchen. He scrubbed the sink until it gleamed, sanitized the countertops, organized the spices in the cabinet, each jar facing forward, label legible. He threw out old takeout menus, expired condiments. He emptied the refrigerator, wiping down the shelves, throwing away a half-eaten container of yogurt that had long since passed its prime. The hum of the refrigerator was just a hum. Nothing more.
+
+He documented everything. Not with Leo’s instruments, but with his phone camera. A clean, sterile bedroom. An orderly living room. A sparkling kitchen. He took pictures of the thermostat, showing the consistent temperature. Pictures of the decibel meter app on his phone, showing the ambient noise levels. He wanted proof for himself, a visual record of a reality he could trust.
+
+For two days, the apartment was quiet. The silence was not the oppressive, watchful silence from before, but a neutral one. A silence of a space that had been cleaned, aired out, and put back in order. He slept better, deeper. He woke without the immediate prickle of dread, without the quick shallow breathing. He made coffee, ate toast read the news on his tablet. The world outside his windows was a steady, predictable thing.
+
+He started listening to music again, soft jazz in the evenings, just loud enough to fill the space without being intrusive. He even called his mother, something he hadn’t done in weeks, and listened to her talk about her garden. His own voice, when he spoke, sounded lighter.
+
+He allowed himself to believe it had worked. The cleaning, the order, the deliberate act of reclaiming his space. It had been enough. The strange occurrences had been, as Leo suggested, a manifestation of his own stress. A mind inventing patterns. He had simply broken the pattern.
+
+On the third evening, a Wednesday, he sat on the couch, a book open on his lap, though he wasn’t reading. He was just sitting, breathing, enjoying the quiet. The last rays of sunlight bled through the window, painting a warm orange stripe across the wall. He felt a looseness in his shoulders he hadn’t noticed was missing. His stomach felt settled.
+
+A thought drifted through his mind, unbidden. A memory of a summer afternoon, the smell of cut grass, the distant sound of an ice cream truck. He pictured a small hand, his own, holding a melting popsicle, the sticky sweetness on his fingers. It had no connection to anything, just a random, pleasant image.
+
+He closed his eyes for a moment, letting the warmth of the sun soak into his skin. He heard the faint groan of the building settling, a familiar sound. He heard the distant wail of a siren, heading somewhere far away. He heard the steady beat of his own heart.
+
+Then, a heavy thud.
+
+It came from the short hallway, the one connecting the living room to the bedroom. Not a creak. Not a scratch. A solid, clear impact. Like a heavy sack dropped onto the floorboards.
+
+His eyes snapped open. The sunlight was gone. The room was dim, the orange stripe faded to a bruised purple.
+
+He froze, every muscle tight. He listened. The apartment was utterly silent again, but it was a different silence now. A listening silence.
+
+A fear, a cold knot, slammed into his chest. His hands clenched, the book digging into his palms. He didn’t need to look. He knew what kind of silence this was. It was the silence before.
+
+He didn’t turn. He didn’t get up. He sat on the couch, his breath trapped in his throat, and waited for the sound to repeat itself. It didn’t. The silence stretched, a thin wire pulled taut.
+
+The fear was a physical lock. It pinned his shoulders to the cushions, glued his palms to the book’s cover. He couldn’t have stood if he’d wanted to. His legs were water.
+
+Five minutes passed. The purple light at the window deepened to black. He heard a car door slam on the street below, a normal sound that made him flinch.
+
+He made himself move. One hand released the book, fingers stiff. He placed it on the cushion beside him, a careful, silent action. He pushed himself up. The floor felt unsteady. He took one step toward the hallway, then stopped. The darkness there was absolute, a wall of black that swallowed the light from the living room lamp.
+
+He didn’t want to see. He needed to see.
+
+He flicked the hallway switch. The overhead bulb, a weak forty-watt, buzzed to life. The short corridor was empty. The bedroom door at the end was closed.
+
+It hadn’t been closed when he’d cleaned. He never closed it. The air needed to circulate.
+
+He walked toward it. Each step was a negotiation. The floorboards were silent under his socks. He stopped before the door, his hand hovering near the knob. The wood was cheap, hollow-core. He could hear nothing through it.
+
+He turned the knob. Pushed the door open.
+
+The room was dark. The streetlamp glow was blocked by the building next door at this hour. He reached inside, fumbling for the bedside lamp, his fingers brushing the base, finding the switch. The brighter, whiter light he’d installed flared.
+
+The bed was made, the gray duvet smooth. The books on the nightstand were neat. The carpet showed the vacuum’s parallel tracks. Nothing was out of place.
+
+Except the air. Colder here. Not by the doorway, but in the center of the room, around the bed. A pocket of chill that made the skin on his arms prickle. He stepped fully inside, his eyes scanning. The closet door was shut. The window was locked.
+
+His gaze landed on the floor beside the bed, on his side. A faint, dark smudge on the beige carpet. He knelt. It was a footprint. A partial one, the ball of a foot and two toes, in something wet and gritty. Like mud. Fresh; the carpet fibers were still damp and matted.
+
+He hadn’t been outside. He’d taken his shoes off hours ago. The laundry room floor was concrete, clean.
+
+He touched the mark. The grit was fine, like sand. It smelled of nothing. Of cold.
+
+He stood up too fast, a wave of dizziness washing over him. He backed out of the room, his eyes fixed on the footprint. He pulled the door shut with a soft click. He stood in the hallway, the buzz of the bulb loud in his ears.
+
+He went to the kitchen. He took the largest knife from the block, the one with the eight-inch blade he used for chopping vegetables. The handle was cool and solid in his grip. He didn’t feel safer. He felt ridiculous. A man with a chef’s knife in his own apartment, hunting a damp spot on the carpet.
+
+He walked back to the bedroom. He opened the door again, the knife held low at his side.
+
+The footprint was gone.
+
+The carpet was clean. The vacuum tracks were unbroken. The damp, matted fibers had straightened. As if the pressure of his own kneeling had erased it.
+
+He let out a sound, a choked exhale that was half-laugh, half-sob. The knife felt absurdly heavy. He lowered it, the tip pointing at the floor.
+
+The cold spot remained. It centered on the bed now, a chill that seeped through his socks. He looked at the empty space on the mattress, the side no one slept on. The duvet was smooth, but the pillows… his own pillow was dented from his head. The other pillow, the spare was plump, untouched. Except it wasn’t. A shallow depression had formed in its center, a gentle bowl-shaped hollow.
+
+He hadn’t done that. He never touched that pillow.
+
+He backed out again. He shut the door. He went to the living room and sat on the couch, the knife laid across his knees. He didn’t turn on the television. He didn’t pick up his book. He sat in the lamplight and watched the dark mouth of the hallway.
+
+The night wore on. The clock on the cable box changed its numbers with a soft click. Eleven. Twelve. One.
+
+His eyes grew gritty. His head nodded. The knife slid from his lap to the cushion with a soft thud. He jerked awake, his heart hammering. The hallway was still dark. The apartment was quiet.
+
+He couldn’t stay on the couch. The fatigue was a weight, pulling him down. He needed to lie down. The thought of the bedroom made his stomach clench, but the couch was too short, his back already aching. He was a man in his forties. He needed his bed.
+
+He left the knife on the cushion. He walked to the bedroom, flicked on the light, and surveyed the empty room. The cold spot seemed to have dissipated. The pillow’s hollow was still there, but maybe he had brushed it somehow while cleaning. Maybe.
+
+He performed the rituals. He checked under the bed—dust, a single lost sock. He opened the closet—his shirts hanging in a quiet row. He locked the bedroom door from the inside, a pointless gesture that made the knob feel more solid.
+
+He changed into sweatpants and a T-shirt. He turned off the overhead light, leaving only the bedside lamp on. He got into bed, pulling the duvet up to his chin. He lay on his back, staring at the ceiling. The light was too bright. He reached over and turned the switch, plunging the room into darkness so complete he could see nothing, not even the outline of the window.
+
+The darkness was a physical pressure. It filled his ears with a low hum, the sound of his own blood. He turned onto his side, facing the empty half of the bed. He could make out the vague shape of the other pillow now, a pale blob in the black.
+
+He closed his eyes. He focused on his chest rising, in and out, a slow rhythm he tried to match. The familiar scent of his own laundry detergent, the faint musk of his own body on the sheets. Normal things. Real things.
+
+He drifted. Not into sleep, but into a hazy thoughtless state where time lost its shape. The sounds of the building faded. The tension in his shoulders eased a fraction.
+
+A creak.
+
+It came from the mattress. Not the floor. The mattress itself, a sharp complaint of springs from the very center of the bed.
+
+He went rigid. His eyes opened. The darkness was the same.
+
+Another creak. Closer. The springs groaned under a weight that was not his own. The mattress tilted, ever so slightly, dipping toward the empty side.
+
+He didn’t move. He stared into the black where the other pillow lay. He could see nothing. He could feel it. A displacement, a settling. The duvet tightened across his chest, pulled by the new depression forming beside him.
+
+The scent changed. The clean laundry smell was gone, replaced by that dry, sweet odor from before. Old paper. Wool. The faint metallic tang of cold stone. It filled the space around his head.
+
+The mattress shifted again. A deliberate, slow movement. The weight was settling in, finding a comfortable position. He heard the whisper of fabric, the sound of a body turning.
+
+He was frozen. Every muscle was locked, a statue in the dark. His mind screamed at him to move, to roll off the bed, to run. His body refused. It was a primitive response, a prey animal’s last hope: if you do not move, it will not see you.
+
+The silence that followed was worse than the sounds. It was a listening silence, a shared silence. He could feel the presence, a denseness in the air, a focus. Aware of him. Lying beside him in his bed.
+
+Then, the softest of sounds. A sigh. Not a human sigh of contentment or fatigue, but a dry exhalation, like pages of a book being gently fanned. It came from the pillow next to his.
+
+A new pressure registered at the edge of his perception. The pillow beside his head compressed further. Something was resting on it. The weight of a head.
+
+His own pause hitched, a tiny, trapped gasp.
+
+The cold came next. Not a general chill in the air, but a specific, localized draft. It ghosted across his cheek, the sensitive skin just below his eye. It was the temperature of a basement in winter, of a deep well. It carried that dry, papery scent with it, directly under his nose.
+
+It was a cold beat, expelled from something lying inches away, turning its face toward his.
+
+The terror was no longer a knot in his chest. It was a vast, empty plain. It was the dissolution of every boundary. This was not footsteps in another room. This was not a sound on a recording. This was a sharing of his bed, his pillow, the air he spoke. An intimacy of utter violation.
+
+He lay there, his cheek frozen where the silence had touched it. The weight on the other pillow did not move. The presence did not stir. It simply was. Occupying the space that was not his, making it its own.
+
+The proof was on his flesh. The cold spot on his cheek was the proof. He could not deny this. He could not clean it away. He could not reason it into being old pipes.
+
+He was being haunted by himself. And it had finally gotten into bed with him.
