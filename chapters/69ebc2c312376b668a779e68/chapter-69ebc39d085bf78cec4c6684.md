@@ -158,7 +158,7 @@ Ephron’s voice dropped back to a confidential murmur. “A man who leaves his 
 
 The cruelty was so precise it stole her breath. He had not only seen Reuben; he had categorized him. A liability. A stain on the product. She saw the trap then, perfectly baited. Her defiance, her claim of not being alone, had just cost her.
 
-Jamin wandered back, wiping his hands on his tunic. “The lower terrace is blighted. Saw the signs on three trees. The press is ancient. The yield will be less than twenty amphorae, and a quarter of that will be sediment.”
+Jamin wandered back, wiping his hands on his tunic. “The lower terrace is blighted. I saw the signs on three trees. The press is ancient. The yield will be less than twenty amphorae, and a quarter of that will be sediment.”
 
 “Eighteen,” Tamar snapped.
 
@@ -228,7 +228,7 @@ She did not turn. She looked at her grove, at the silver-green burden swaying ge
 
 It was not a promise. It was the only thing left to say. She walked away from him, back toward the empty stone press, each step heavy as if wading through deep water. The harvest would not begin. The olives waited. The sun continued its arc. Somewhere, in the ruins of her pride, she had to find a lever, a trick, a miracle that was not divine, but utterly, terribly human.
 
-The brazier cast a small, defiant circle of light against the encroaching blue dusk. Tamar sat on the grinding stone, her back against the cold press. The scent of the oil was everywhere. It was not the clean, golden aroma of a good pressing. It was greener, sharper, a smell that caught in the throat—bitter fruit, hurried work, and the underlying tang of her own sweat. Four amphorae. That was all the oil from the fruit Reuben had picked before the merchants came. Four amphorae stood in a line, glazed clay reflecting the brazier’s pulse. A season’s hope, distilled into a pathetic row of jars.
+The brazier cast a small, defiant circle of light against the encroaching blue dusk. Tamar sat on the grinding stone, her back against the cold press. The scent of the oil was everywhere. It was not the clean, golden aroma of a good pressing. Greener, sharper, a smell that caught in the throat—bitter fruit, hurried work, and the underlying tang of her own sweat. Four amphorae. That was all the oil from the fruit Reuben had picked before the merchants came. Four amphorae stood in a line, glazed clay reflecting the brazier’s pulse. A season’s hope, distilled into a pathetic row of jars.
 
 Reuben was gone. Not far. He had retreated to the small, abandoned shepherd’s lean-to on the western edge of the property after her refusal. He had not offered to help with the frantic, day-long pressing. He had simply watched from a distance, a shadow at the tree line, then vanished. She preferred it. His presence was a question she could not answer, a debt presented with no ledger. His absence was a familiar hollow.
 
@@ -252,7 +252,7 @@ A sound broke the stillness. Not from the lean-to. From the grove itself. A soft
 
 She went still, listening. Thud. A pause.
 
-She took the small oil lamp she had lit from the brazier and walked into the trees, the lamp casting wild, jumping shadows. The sound grew clearer. The sound of something hitting the ground, something soft and heavy.
+She took the small oil lamp she had lit from the brazier and walked into the trees, the lamp casting wild, jumping shadows. The sound grew clearer. A sound of something hitting the ground, something soft and heavy.
 
 She found the source on the lower terrace. Reuben. He had not gone to the lean-to. He stood under one of the older trees, the one with the split trunk. In his hands was a long, stout stick. He was beating the branches.
 
