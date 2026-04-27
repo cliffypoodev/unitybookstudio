@@ -1,0 +1,291 @@
+The storm hit at 3:47 AM, rattling the rusted animatronic apostles in their crumbling dioramas. Colonel Augustus Cain didn’t flinch when the power flickered. He’d wired Eden World’s underground lab to a stolen Nicaraguan diesel generator that could’ve powered a small casino. The lights steadied. The air smelled of ozone and old popcorn.
+
+“Status,” Cain barked.
+
+The tech—PFC Driscoll, twitchy as a meth-head ferret—stabbed at his console. “Neural sync at eighty-seven percent, sir.”
+
+“I can read the goddamn screen, Driscoll.” Cain leaned over the reinforced glass observation deck. Below, in the containment pit, REX-777 stood motionless under the crimson glow of the THORN-7 neural crown. Fourteen feet at the hip. Twenty-eight from snout to tail. Eight tons of gene-spliced, cyber-enhanced Tyrannosaurus rex with the disposition of a divorce lawyer.
+
+The crown pulsed. Rex’s optics flared from standby yellow to active red.
+
+“Ninety-two percent,” Driscoll whispered.
+
+Cain allowed himself a smile. Thirty years of black budgets, disappeared scientists, and one very unfortunate incident with a Chilean geologist had led here. The ultimate weapon. Obedient. Lethal. And, most importantly, deniable.
+
+Then the alarms went off.
+
+Not the standard klaxons. These were the shrill, panicked screams of the backup system, the one they’d installed after the first three test subjects exploded.
+
+“Temporal spike!” Driscoll’s voice cracked.
+
+The rift opened six feet above the pit. No fanfare. No warning. Just a jagged tear in reality, bleeding violet light and the distinct scent of myrrh.
+
+Cain’s clipboard clattered to the floor. “Jesus Christ.”
+
+The figure that tumbled through the rift landed hard on the containment pit’s steel grating. Lean. Bearded. Wrapped in a homespun tunic that looked like it had been through a woodchipper.
+
+REX-777’s head snapped toward the intruder. The crown flared crimson.
+
+“Abort!” Cain lunged for the comms.
+
+Too late.
+
+Rex roared. The sound wasn’t biological; it was the hydraulic scream of a subway train derailing into a bass amplifier. The THORN-7 crown sparked, fizzled, and went dark.
+
+The man in the pit rolled onto his knees, coughing. He blinked up at the dinosaur. At the lab. At the storm flickering through the shattered skylight. His lips moved.
+
+Cain couldn’t hear the words over the alarms. But he saw Rex freeze. Saw the dinosaur’s massive head tilt. Saw something no behavioral model had ever predicted: hesitation.
+
+Then the man reached out.
+
+“Sir!” Driscoll grabbed his arm. “The rift’s destabilizing!”
+
+Cain shoved him off. On the monitors, the rift pulsed, vomiting chunks of what looked like first-century Jerusalem masonry into the pit. A stone block crushed a coolant line. Steam geysered across the room.
+
+The man—Jesus, Cain’s brain supplied hysterically, that’s Jesus fucking Christ—stood. He had the expression of a man who’d just missed his bus and wasn’t sure if he cared.
+
+REX-777 took a step forward. Then another. The crown sparked fitfully.
+
+Jesus didn’t run. Didn’t scream. He just sighed and said, very clearly, “Well. This is new.”
+
+The rift collapsed with a sound like a thousand stained-glass windows shattering. The lights died. The emergency systems wheezed online, bathing the lab in blood-red strobes.
+
+When Cain’s vision cleared, two things were certain:
+
+First, REX-777 was gone. The containment pit’s blast door hung twisted on its hinges.
+
+Second, Jesus of Nazareth was picking a piece of popcorn out of his hair and staring at the colonel like he was a particularly disappointing tax collector.
+
+Cain’s hand went to his sidearm.
+
+Jesus raised an eyebrow. “That won’t be necessary.”
+
+Outside, thunder rolled. Somewhere in the ruins of Eden World, a cybernetic dinosaur was loose. And, judging by the way the man was examining the THORN-7 schematics on Driscoll’s abandoned console, Cain’s problems had only just begun.
+
+The storm drowned out the screams from Sector C. Rex didn’t pause. The commands that had once hissed through the crown like static were silent now. The weight was gone.
+
+He crashed through a fake stone archway labeled “Garden of Gethsemane: Please Do Not Feed the Apostles.” The scent of the man—the one from the rift—lingered in his olfactory receptors. Not prey. Not threat. Something else.
+
+Behind him, the lab burned. Ahead, Miami’s neon glow pulsed through the rain.
+
+Rex hesitated. Then chose.
+
+The rain stung like flung pebbles. Jesus blinked water from his lashes and squinted at the glowing horizon. Towers of glass and steel clawed at the bruised sky, their peaks lit by flickering signs that screamed words he couldn’t read. One pulsed in garish pink: GIRLS GIRLS.
+
+He wiggled a finger in his ear. The ringing hadn’t stopped since the rift spat him onto that metal grating. His sandals—where were his? Ah. One still clung to his foot by a leather strap. The other was probably decorating the skull of some Roman soldier back in Jerusalem. Assuming that had been real. Assuming any of this was.
+
+A truck roared past on the black ribbon of road, spraying him with brackish water. Jesus stumbled back, arms pinwheeling. The vehicle didn’t slow. Its taillights bled red into the downpour, and for one dizzying moment, he thought they were the eyes of some hell-beast. Then they vanished around a curve.
+
+“Right,” he muttered, peeling wet hair from his forehead. “Chariots without horses.”
+
+The ditch he’d crawled from smelled of rotting vegetation and something acrid, chemical, unnatural. His toes curled in the mud. A crushed aluminum can glinted near his foot. He nudged it. The thing gave a metallic whine and rolled into a puddle.
+
+Lightning flashed. The swamp beyond the road erupted in brief, ghastly illumination. Twisted trees with spindly roots. A plastic bag caught on a branch, flapping like a surrender flag. And movement. Something massive shifting in the shadows.
+
+Jesus froze.
+
+The wind changed. The rain slackened. A new scent cut through the petrichor, musky, reptilian, laced with machine oil. His pulse hammered in his throat. He knew that smell. The pit. The crown. A creature with eyes like banked coals.
+
+Another truck approached. Jesus turned toward the road, arms raised. The driver laid on the horn and swerved around him, middle finger thrust out the window. The gust nearly knocked him over.
+
+“Love thy neighbor,” he wheezed, catching his balance.
+
+The swamp rustled.
+
+He wasn’t a stranger to being hunted. The desert had taught him the prickle between his shoulder blades that meant eyes were on him. But this was different. This wasn’t the measured stalk of a Pharisee or the drunken lurch of a Roman guard. This was primal. Intentional.
+
+A sign loomed ahead, half-obscured by vines: MIAMI 12 MI. The letters were chipped, the arrow pointing toward a bridge that arched over the swamp. Jesus eyed the murky water. Crocodiles, probably. Or whatever this century’s equivalent was.
+
+Something cracked a branch behind him.
+
+He broke into a jog. The remaining sandal slapped wetly against his heel. The road curved, and the bridge appeared, a concrete monstrosity lit by flickering lamps. A blue sedan sped past, its radio blaring a tinny chorus of “Like a Virgin.”
+
+Jesus reached the bridge railing and gripped it, lungs burning. The water below was ink-black, dotted with floating debris. A shopping cart. A traffic cone. The bloated carcass of—he looked away.
+
+A growl vibrated through the storm. Not thunder. Not mechanical. Something alive and very, very large.
+
+He risked a glance back.
+
+The trees shivered. A shadow detached itself from the gloom, hulking, angular, moving with eerie precision. Red optics winked through the rain.
+
+“Ah.” Jesus wiped his face. “That’s not good.”
+
+The creature—Rex, the soldiers had called it—took a step forward. Then another. His hide gleamed under the bridge lights, rain sluicing off armored plates. The neural crown was dark now, just a twisted metal band around his skull.
+
+Jesus held up a hand. “Peace?”
+
+Rex’s head tilted. His nostrils flared.
+
+A car horn blared. Jesus flinched. Rex didn’t. The dinosaur—because that’s what he was, wasn’t he, a dinosaur?—sniffed the air again, then made a sound like a malfunctioning church organ.
+
+Jesus exhaled. “You’re confused too.”
+
+Rex took another step. Closer now. Close enough that Jesus could see the scars where flesh met metal, the way his hydraulic joints hissed with each movement. The dinosaur’s breath smelled of copper and burnt wiring.
+
+A siren wailed in the distance. Rex’s head snapped toward the sound. His tail twitched, smashing a road sign flat. SPEED LIMIT 45 became PEED IMIT.
+
+Jesus edged along the railing. “We should probably—”
+
+Rex’s clawed hand shot out, blocking his path. The talons could’ve skewered him like a kabob. They hovered inches from his chest.
+
+The siren grew louder. Red and blue lights strobed through the trees.
+
+Rex made that noise again, the broken organ sound. Then, impossibly, his vocalizer crackled to life.
+
+“Why.”
+
+Jesus blinked. “Why what?”
+
+“Why.” Rex’s optics flickered. “Why why.”
+
+The patrol car skidded around the bend. Its spotlight pinned them—one soaked, sandal-less Middle Eastern man and one very illegal cybernetic dinosaur—against the railing.
+
+The cop’s voice boomed through a megaphone: “FREEZE RIGHT THERE, ASSHOLES.”
+
+Rex’s head swiveled. His pupils dilated. The vocalizer emitted a sound that could only be described as a sigh.
+
+“New,” he said.
+
+Then he grabbed Jesus by the back of his tunic and flung him onto his shoulders like a sack of grain.
+
+“Wait!” Jesus yelped, scrambling for purchase on the dinosaur’s plating. “I don’t think—”
+
+Rex took off at a sprint. The cop car gave chase, its siren wailing. The bridge shook under their combined weight. Jesus clung to Rex’s neck, knees digging into armored shoulders, and tried very hard not to think about the drop.
+
+Ahead, the city lights pulsed. Somewhere in the chaos, his sandal finally gave up and flew into the night.
+
+“Wonderful,” he muttered.
+
+Rex’s vocalizer crackled. “Yes.”
+
+Then they were airborne, leaping over the railing, plunging toward the black water below. The cop car’s brakes screamed. The megaphone shouted something unprintable.
+
+Jesus had just enough time to think, I really hope this isn’t baptism, before the swamp swallowed them whole.
+
+The water hit like a concrete wall. Rex’s impact cratered the swamp bed, sending up a plume of muck and startled catfish. His hydraulics whined, joints compensating for the drop. The man—the one who smelled like lightning and old wine—flailed against his back, then went still, buoyed by the brackish water.
+
+Rex’s optics adjusted. The swamp was a tangled mess of roots and rusted shopping carts. A gator, all six feet of prehistoric spite, took one look at him and noped into the reeds.
+
+Above, the cop car’s spotlight stabbed through the murk. The megaphone gargled static. “—the hell was that?”
+
+Rex didn’t wait. He surged forward, tail churning the water to froth. The man clung to his spinal plating, coughing.
+
+“Could we,” the man gasped, “perhaps not drown?”
+
+Rex ignored him. The lab’s conditioning still buzzed at the base of his skull, commands half-formed, directives with no teeth. Return to containment. Await orders. Terminate the anomaly. But the crown was dead. This voice was his own now. And his own voice, it turned out, had questions.
+
+Like: Why does the anomaly smell like myrrh?
+
+And: Why won’t he stop talking?
+
+The man patted his flank. “Listen, I appreciate the rescue, but I’m more of a ‘loaves and fishes’ messiah than a ‘hold your breath for three minutes’ messiah.”
+
+Rex exhaled through his vents, creating a bubble trail that spiraled toward the surface. The cop’s spotlight skimmed the water. Closer now.
+
+The man’s fingers dug into his plating. “Also, if we’re doing miracles, now would be an excellent time for—”
+
+Rex lunged.
+
+They breached like a torpedo, showering the mangroves in swamp juice. The cop car’s headlights flared—there—but Rex was already moving, muscles coiling, tail smashing a parked Cadillac sideways into a palm tree. The alarm whooped once before the tree crushed it.
+
+The man made a noise like a deflating goat. “Right. Dinosaur.”
+
+Rex’s optics flickered. The streets were a maze of neon and potholes. A billboard screamed JESUS SAVES… AT ED’S USED CARS! in Day-Glo letters. The man squinted at it, then at Rex, then back at the billboard.
+
+“That’s not—”
+
+Rex took off at a sprint. The man yelped, thighs clamping around his neck. The wind ripped the rest of his protest away.
+
+They blew past a 24-hour laundromat, a strip club shaped like a pirate ship, and a Dunkin’ Donuts with a line of cops at the drive-thru. Rex’s claws left divots in the asphalt. A stray dog gave chase for half a block before wisely deciding it had better things to do.
+
+The man gripped Rex’s cranial plating. “Are we fleeing, or is this a tour?”
+
+Rex’s vocalizer spat static. “Why.”
+
+“Why what?”
+
+“Why why.”
+
+The man sighed. “You’re really hung up on that.”
+
+A siren warbled behind them. Rex’s hindbrain lit up—threat, pursuit, eliminate—but the man smacked his neck.
+
+“No,” he said, sharp as a whip crack.
+
+Rex skidded, talons screeching on pavement. The cop car rounded the corner, its light bar strobing. The man twisted, sandal-less foot dangling, and pointed at an alley.
+
+“There. Go.”
+
+Rex went.
+
+The alley was tight, reeking of dumpsters and regret. Rex’s shoulders scraped brick on both sides. His tail took out a fire escape.
+
+The man patted Rex’s neck. “Well. That could’ve gone worse.”
+
+A dumpster lid clattered. A homeless man peered out, took one look at Rex, and calmly replaced the lid.
+
+Rex’s optics dimmed. The commands still squirmed in his processors, but quieter now, like radio interference. The man slid off his back, wincing as his bare foot touched pavement.
+
+“You’re not what I expected,” the man said.
+
+Rex tilted his head.
+
+“From a dinosaur. Or a machine. Or…” The man trailed off, studying Rex’s scars, the way his plating flexed with each breath. “You’re hurting.”
+
+Rex’s vocalizer clicked. “No.”
+
+“Liar.” The man reached out, fingers hovering over the neural crown’s broken edges. “They made you into a weapon.”
+
+Rex jerked back. His tail knocked over a stack of pallets. The man didn’t flinch.
+
+“I know what that’s like,” he said softly.
+
+Somewhere, a clock tower chimed four. The man’s eyes—brown, ordinary, human—held Rex’s gaze.
+
+Then the alley lit up with headlights.
+
+A black van screeched to a halt at the mouth of the alley. The side door slammed open, revealing a wiry guy in a Wizard of Oz T-shirt holding a sawed-off shotgun.
+
+“Get in,” the guy barked. “Unless you wanna explain to Miami PD why you’re joyriding with a government death lizard.”
+
+The man blinked. “Are you—”
+
+“Dutch Donovan. Conspiracy theorist, part-time smuggler, full-time pain in the CIA’s ass.” Dutch jerked his chin at Rex. “And you must be the reason my scanner’s been picking up enough black-ops chatter to fry a satellite.”
+
+Rex’s optics narrowed.
+
+Dutch rolled his eyes. “Look, either you come with me, or you wait for Cain’s boys to show up with the tranq rifles. Your call.”
+
+The man glanced at Rex. “He’s got a point.”
+
+Rex’s processors churned. The van smelled of weed and gun oil. The human—Dutch—smelled of adrenaline and cheap deodorant. The man from the rift smelled like nothing Rex had ever encountered.
+
+His vocalizer crackled. “Why.”
+
+Dutch sighed. “Christ, not this again.”
+
+The man—Christ, Rex’s database supplied—folded his arms. “You’re asking the wrong question.”
+
+Rex’s crown sparked. A single, fractured syllable escaped his vocalizer:
+
+“Who.”
+
+Christ smiled. “Now we’re getting somewhere.”
+
+Dutch racked the shotgun. “Great. Existential dinosaur. Can we do this on the move?”
+
+Rex took a step forward. The van’s suspension groaned.
+
+Christ climbed in after him, shaking swamp water from his hair. “So,” he said, settling onto a milk crate, “what’s the plan?”
+
+Dutch slammed the door. “Step one: don’t get caught. Step two: figure out why the Pentagon’s pet killing machine is having a theological crisis.” He glanced at Rex. “No offense.”
+
+Rex’s optics flickered. Outside, sirens wailed. The van peeled away, leaving the alley—and the last of Rex’s programming—behind.
+
+Christ leaned back, studying the bullet holes in the van’s ceiling. “You know,” he mused, “this isn’t how I imagined my second coming.”
+
+Dutch snorted. “Welcome to Miami, buddy.”
+
+Rex breathed out, a long metallic sigh. A hum in his processors wasn’t obedience. Wasn’t aggression.
+
+It was something new.
