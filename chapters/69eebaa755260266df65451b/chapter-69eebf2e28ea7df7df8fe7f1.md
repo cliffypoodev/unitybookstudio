@@ -208,7 +208,7 @@ He opened his eyes. The apartment was unchanged. The notebooks, the pen, the mar
 
 But the smell lingered.
 
-Cassius steadied himself shakily. His left hand wavered. He pressed it flat against the table willing it to stop.
+Cassius steadied himself. His left hand wavered. He pressed it flat against the table willing it to stop.
 
 The phone buzzed again. Another text. Cassius ignored it.
 
@@ -237,8 +237,6 @@ The radiator ticked. The city hummed. The apartment held its pause.
 Cassius wrote until his hand cramped, until the words blurred and the ink smudged against his fingers. He didn’t stop.
 
 At last, Cassius closed the notebook and stacked it with the others. The marble glinted in the lamplight.
-
-The proof was in the pages. The proof was in his hands.
 
 Cassius stood, stretching his stiff shoulders. The apartment was quiet. The city outside was bright.
 
