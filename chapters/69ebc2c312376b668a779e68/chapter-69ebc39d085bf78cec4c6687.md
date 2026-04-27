@@ -4,7 +4,7 @@ This was different. This was a greasy, rising panic, seeping up through the deck
 
 Elias leaned on the rail of the mid-deck, a scrap of salt pork forgotten in his hand. The sky to the west was the color of a fresh bruise, yellow at the edges, purple at the heart. A following wind, they’d called it this morning. A damn gale was the truth of it now. The sails were reefed tight, the deck crew moving with a tense, deliberate speed he recognized. Bad weather was coming. Soon.
 
-One hatch to the lower hold banged open. A soldier’s helmet appeared, then the rest of him, blinking in the gray light. He looked pale. Behind him, voices rose in a tangled plea—Aramaic, Greek, a bit of Latin begging for mercy. The soldier slammed the hatch shut, cutting the sound to a muffled wail. He saw Elias watching and straightened his tunic.
+One hatch to the lower hold banged open. A soldier’s helmet appeared, then the rest of him, blinking in the gray light. He looked pale. Behind him, voices rose in a tangled plea—Aramaic, Greek, a bit of Latin begging for mercy. One soldier slammed the hatch shut, cutting the sound to a muffled wail. He saw Elias watching and straightened his tunic.
 
 “They’re your problem down there, not mine,” Elias said before the man could speak.
 
@@ -46,7 +46,7 @@ Then Paul did something strange. He stood up, a little unsteady on the shifting 
 
 It wasn’t a loud song. A Hebrew psalm, Elias guessed, the melody a low, repetitive drone. He didn’t sing to the crowd. He sang to the beams, to the dark corners, his eyes closed. His face was calm, but not empty. Focused, like a man listening to a complex instruction. The words meant nothing to Elias, but the rhythm of them seeped into the creaking of the ship, found a space between the groans of timber.
 
-One by one, others joined him. A few voices at first, then more. The weeping woman’s voice was among them, thin but clear. The sound wasn’t joyful. Heavy, a collective breath held and released. It didn’t stop the ship from rolling. It didn’t dry the bilge. But the panicked hum faded, replaced by this stubborn, rhythmic noise.
+One by one, others joined him. A few voices at first, then more. The weeping woman’s voice was among them, thin but clear. The sound wasn’t joyful. It was heavy, a collective breath held and released. It didn’t stop the ship from rolling. It didn’t dry the bilge. But the panicked hum faded, replaced by this stubborn, rhythmic noise.
 
 Elias backed toward the ladder, the salt pork still clutched in his fist. He’d seen men pray before a battle, bargain with gods before a wave hit. This was neither. This was a man singing a lullaby to a beast that was about to swallow them all.
 
@@ -72,7 +72,7 @@ But Elias was already moving, shouting for axes, for men to start hacking at the
 
 One hatch burst open. Not from a command, but from the force of men scrambling up from below, terror finally overwhelming song. They spilled onto the deck, slipping on the wet planks, eyes wild with the understanding that the walls of their world were breaking.
 
-And behind them, last, came the little Pharisee, Paul. He stood in the hatchway, one hand on the frame, his hair and beard plastered to his skin by spray. He didn’t look at the chaos of men fighting the sea. He looked at the centurion. His voice, when he spoke, didn’t shout. It cut, somehow, clean through the wind.
+And behind them, last came the little Pharisee, Paul. He stood in the hatchway, one hand on the frame, his hair and beard plastered to his skin by spray. He didn’t look at the chaos of men fighting the sea. He looked at the centurion. His voice, when he spoke, didn’t shout. It cut, somehow, clean through the wind.
 
 “You should have listened to me, Julius. But now, you must listen. Everyone on this ship will live. Not a hair from the head of any of you will be lost.”
 
@@ -86,7 +86,7 @@ The axe felt like the only true thing in the world. Its haft, worn smooth by oth
 
 Around him, chaos had a pattern. Soldiers turned sailors, hacking at rigging. Passengers bailed with buckets, bowls, their own hands. Their earlier terror had hardened into a desperate, animal focus. They worked because there was nothing else to do. The song from below was gone, drowned by the roar of wind and the terrible music of a ship dying—the shriek of tormented wood, the bang of loose cargo, the hiss of green water across the deck.
 
-He waded through knee-deep water that swirled with splintered wood and lost sandals. He went to a young soldier who was retching over the side, paralyzed by the heaving horizon, and put a hand on his shoulder. The boy flinched, but Elias pointed him toward a group hauling on a rope, shouting a single word lost in the gale. The boy went. He found the weeping woman from the hold, now clutching two children to the base of the mast. He crouched, spoke close to her ear. She nodded once and began shuffling the children toward the relative shelter of the forecastle.
+He waded through knee-deep water that swirled with splintered wood and lost sandals. He went to a young soldier who was retching over the side, paralyzed by the heaving horizon, and put a hand on his shoulder. The boy flinched, but Elias pointed him toward a group hauling on a rope, shouting a single word lost in the gale. The boy went. He found the weeping woman from the hold, now clutching two children to the base of the mast. He crouched and spoke close to her ear. She nodded once and began shuffling the children toward the relative shelter of the forecastle.
 
 Paul was organizing them. Not like a centurion, with shouts and threats. Like a shepherd in a blinding rain, knowing his flock by shape alone.
 
@@ -102,7 +102,7 @@ Paul turned. Water streamed down the deep lines of his face. His too-large eyes 
 
 “Then we die!”
 
-“Do we?” Paul asked. A genuine question. He looked past Elias, at the screaming chaos. “They have stopped believing they will die. Look at them.”
+“Do we?” Paul asked. It was a genuine question. He looked past Elias, at the screaming chaos. “They have stopped believing they will die. Look at them.”
 
 Elias looked. A woman was bailing now, her children passing her a cracked jug. The young soldier was heaving on a rope, his face set in a grimace of effort, not terror. They were still afraid—he could see it in the whites of their eyes—but it was a sharp, clean fear, a tool. Not the drowning panic from the hold. The difference was the man in front of him.
 
@@ -178,7 +178,7 @@ Julius’s jaw tightened. “He did.”
 
 “And here we are.”
 
-The centurion turned to look at him. His face was carved with salt and fatigue. “A lucky guess. A hopeful man’s dream. The wind shifted. Any seasoned sailor might have predicted it.”
+The centurion turned to look at him. His face was carved with salt and fatigue. “A lucky guess. A hopeful man’s dream. That wind shifted. Any seasoned sailor might have predicted it.”
 
 “Might have,” Elias agreed. His own prediction had been a slow, choking death in the dark. “Did you?”
 
