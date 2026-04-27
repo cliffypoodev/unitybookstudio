@@ -1,6 +1,6 @@
 The world bled.
 
-It wasn’t a flicker anymore, not a spike. It was a hemorrhage. A light from the hallway through his open door wasn’t just the flat, yellow-white of the Maplewood night shift. It was also the copper of a desert sunset, the cool blue of a refrigerator in a kitchen he’d never owned, the strobing neon of a sign for a bar whose name he could taste—whiskey and sawdust. One hum of the air conditioning wasn’t a hum. It was the drone of cicadas in a summer he’d spent, the rumble of a subway car in a city where he’d worked, the low chant of monks in a mountain temple he’d visited. All at once. Layered. None of them fading.
+It wasn’t a flicker anymore, not a spike. It was a hemorrhage. The light from the hallway through his open door wasn’t just the flat, yellow-white of the Maplewood night shift. It was also the copper of a desert sunset, the cool blue of a refrigerator in a kitchen he’d never owned, the strobing neon of a sign for a bar whose name he could taste—whiskey and sawdust. One hum of the air conditioning wasn’t a hum. It was the drone of cicadas in a summer he’d spent, the rumble of a subway car in a city where he’d worked, the low chant of monks in a mountain temple he’d visited. All at once. Layered. None of them fading.
 
 Cassius lay on the bed, a map of failing geography. His hands, resting on the waffle-weave blanket weren’t just his hands. They were younger, tanned, calloused from a rope he’d never held. They were older, paler dotted with liver spots from a different sun. They were a surgeon’s hands, steady and precise. They were a gardener’s hands, dirt packed under the nails. The sensations skated across his skin like stones skipping on water, each touch real, each belonging to a separate life.
 
@@ -52,7 +52,7 @@ This was it. The threshold. Not death, but dissolution. The sticky soul finally 
 
 Amid the roar, the new hum grew. It wasn’t a sound from any of his lives. It was the sound between stations, the sound of empty space waiting for a signal. It vibrated through the collapsing collage of his reality, a deep, resonant frequency that made the air in the room thicken. The chandelier rainbows, the fan blades, the sand on the floor—they all began to pulse in time with it.
 
-That hum wasn’t asking for his attention. It was announcing a vacancy. A different kind of empty.
+The hum wasn’t asking for his attention. It was announcing a vacancy. A different kind of empty.
 
 Cassius, stretched across the fabric of his multiple existences felt a choice solidify in the chaos. Not a thought. A gravitational pull. Two opposing forces in the vibrating dark.
 
@@ -64,13 +64,13 @@ He couldn’t move. He could only listen as the world he knew, and all the world
 
 *
 
-A hum solidified into a shape that wasn’t a shape. It occupied the room not as an object, but as a negative space, a standing wave in the collapsing realities. The chandelier rainbows bent toward it. The scent of sage and sea salt spiraled into its center like water down a drain. The pressure behind Cassius’s eyes focused into a single, impossible point of observation.
+The hum solidified into a shape that wasn’t a shape. It occupied the room not as an object, but as a negative space, a standing wave in the collapsing realities. The chandelier rainbows bent toward it. The scent of sage and sea salt spiraled into its center like water down a drain. The pressure behind Cassius’s eyes focused into a single, impossible point of observation.
 
 A voice spoke. It used no words he knew. It was the grind of continental plates, the harmonic resonance of a black hole’s accretion disk, the vibration of a plucked string whose ends were tied to the beginning and end of time. His mind, in its thousand-piece shattering, translated the concept into language it could barely hold.
 
 ANOMALY. STICKY SOUL. YOU HAVE REACHED TERMINAL ENTROPY.
 
-It wasn’t hearing. It was knowing. The statement etched itself directly onto his consciousness. It carried no malice, no curiosity. It was a diagnostic report.
+It wasn’t hearing. Knowing. The statement etched itself directly onto his consciousness. It carried no malice, no curiosity. It was a diagnostic report.
 
 Cassius tried to form a protest, a question. His mouth moved, a dry click. The one sound that emerged was a collage: a child’s whimper, an old man’s cough, a shout in a language he’d spoken in a life as a fisherman off the coast of Crete. The vortex of selves swirled, each trying to answer.
 
@@ -116,7 +116,7 @@ THE CHOICE IS YOURS. THE FINAL EXPRESSION OF FREE WILL WITHIN THE SYSTEM. ERASUR
 
 The vortex of realities slowed. The overlapping sensations didn’t diminish, but they arranged themselves, like terrible, beautiful flowers laid on a funeral bier. The desert. The operating room. The porch in Georgia. The temple. The alley. The beach. The kitchen. This room. They were all here, all now, presented to him for the last time.
 
-A hum of the void between choices grew louder, the static waiting for a signal.
+The hum of the void between choices grew louder, the static waiting for a signal.
 
 Cassius closed his eyes. He saw the notebook on the bedside table, the water-warped page. I am here. A record no one would read. The futile, human impulse to say: I was.
 
