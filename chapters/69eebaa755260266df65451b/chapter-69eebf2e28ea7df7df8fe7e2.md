@@ -1,0 +1,237 @@
+The radiator hissed, a dry, rhythmic sound like a clock counting down in a language he didn’t speak. Cassius scrolled, his eyes burning. A monitor’s glow was the only light in the room. He’d searched “blue Victorian house” and his old street name so many times the letters had lost their meaning.
+
+Property records. Tax assessments. Historical society photo archives. A digital void.
+
+He tried a different angle. The local newspaper’s online morgue. He typed “bicycle accident” and the year range. The search wheel spun. His left hand twitched against the mousepad, a tiny, persistent tremor.
+
+No results.
+
+He broadened it. “Child injury.” “Stitches.” “Emergency room.”
+
+Nothing.
+
+One screen flickered, a quick pulse of darkness. His reflection vanished and reappeared, hollow-eyed, a ghost superimposed on the empty search field. He rubbed his eyes. When he looked back, the cursor blinked, patient and accusing.
+
+He opened a new tab. Social media was just starting to coil through everyone’s lives. He typed his own name. A few profiles appeared. A Cassius from Oregon. Another in Florida. He clicked on his own, the one he never used. A blank silhouette against a default blue background. No friends listed. No photos. A digital tomb.
+
+He typed “Damien Cassius.”
+
+The page loaded. A single line of text in the center of the screen.
+
+No results found.
+
+The words were flat. Final. A pronouncement from the universe itself. He stared until the letters blurred into gray smears. His throat was tight, a dry knot that made it hard to swallow. He pushed back from the desk, the chair wheels squealing on the hardwood.
+
+The apartment was too quiet. The hiss of the radiator, the hum of the laptop fan. That silence underneath was a physical thing, a pressure in his ears. He stood up, his knees cracking. He walked to the kitchen, opened the fridge. Its light was too bright, glaring off a half-empty carton of milk, a jar of pickles, a wrapped block of cheese. Nothing appealed.
+
+He shut the door. The darkness rushed back.
+
+He needed air that wasn’t canned by this room. He went to the closet, yanked open the door. A few jackets hung there, slumped on their hangers. He grabbed the oldest one, a canvas barn coat he hadn’t worn in years. He shoved his arms in. The fabric was stiff, smelling of dust and old rain.
+
+Something heavy thumped against his thigh.
+
+He froze. His hands dove into the pockets. The right one was empty, just a few bits of grit. The left—his fingers closed around a cool, hard sphere. He pulled it out.
+
+A marble. Clear glass with a single, perfect blue ribbon swirling through its center. It caught the dim light from the kitchen, the blue vein twisting like a trapped nebula.
+
+He didn’t own marbles. He hadn’t played with them as a kid. Damien had. Damien had a whole leather pouch of them, aggies and cat’s eyes and steelies. Cassius could feel the weight of that pouch in his own small hand, the leather soft and worn. He could see Damien kneeling on the sidewalk, squinting one eye, thumb poised to flick a shooter.
+
+That memory was solid. Textured. The grit of the concrete against his knees. The smell of cut grass from the neighbor’s yard. The sharp clink of glass on glass.
+
+He turned the marble over in his palm. The coolness seeped into his skin. Real. Undeniably, physically real. It had mass. It had weight. It rolled when he tilted his hand.
+
+Where did it come from?
+
+He hadn’t put it there. He hadn’t worn this coat since... he couldn’t remember. Years. It had been in a box, then in this closet. He stood in the dark hallway, the marble a hard, cool point of focus. A detail with no origin. A fact without a history.
+
+Proof. Proof of something. Not of Damien, not of the blue house, but of a rupture. An object had slipped through a crack in his timeline. It existed here, in his hand, while its story did not.
+
+He walked back to the desk and sat down heavily. He set the marble on the keyboard, next to the trackpad. It looked alien there, an ancient artifact on a spaceship console. He opened a new document. He typed “Physical Evidence” at the top. He stared at the blinking cursor.
+
+What could he write?
+
+Item: One (1) glass marble, clear with blue swirl. Location discovered: Left pocket canvas barn coat. Estimated time of placement: Unknown. Personal memory of object: None. Associated memory: Vivid recollection of younger brother Damien (non-existent) owning similar marbles.
+
+He deleted the last line. It read like a clinical admission of insanity.
+
+He saved the document as “Log_001.rtf.” He minimized the window. The marble sat there, its blue heart catching the light from the screen. He opened the browser again. The “No results found” page still stared back.
+
+A wave of exhaustion hit him, not just tiredness but a heavy, cellular drain. The kind that came from fighting gravity in a dream. He’d been chasing phantoms in a machine that only knew facts. The machine kept saying no. The marble said yes.
+
+The contradiction was a low, constant hum in his skull, like the tone you hear in deep silence.
+
+He needed to stop. His eyes felt gritty, scraped raw. He shut the laptop. The room plunged into near-darkness, the only light a streetlamp glow filtering through the blinds, painting striped shadows across the floor. He picked up the marble and held it tight in his fist. The glass bit into his palm.
+
+He looked around the apartment. Boxes still lined the far wall leftovers from his move two years ago. He’d never finished unpacking. Just the essentials: bed, desk, couch, TV. The rest sat sealed, silent proof of a life he hadn’t bothered to fully build here.
+
+One box was labeled “Misc – Storage” in his own slanted handwriting. He’d shoved it in the closet, forgotten.
+
+He walked over to it now, the marble still clenched in his hand. He nudged the box with his foot. Dust puffed into the air, motes dancing in the slatted light. He wasn’t looking for anything. He just needed to look at something that wasn’t a screen. Something that held real, tangible ghosts—old receipts maybe a broken watch, a stack of useless cables. The harmless past.
+
+He knelt, the floorboards cold through his jeans. He pulled the box into the light. The tape was brittle, yellowed. He peeled it back, the sound like ripping skin.
+
+The flaps fell open.
+
+Inside, it wasn’t cables. Clothes. Sweaters folded neat. A pair of old boots. And on top, a familiar, faded red sweater.
+
+His breath caught. A short, sharp inhale.
+
+It was his. From college. He hadn’t seen it in over a decade. He remembered it because it was the sweater he was wearing the day of the lecture, the one about the Wheel and the pulped library books. He’d spilled coffee on the cuff later that afternoon, a brown stain that never came out.
+
+He reached in, pulled the sweater out. It unfolded, soft and worn. He found the cuff. Clean. No stain.
+
+He turned it over. It was the same sweater. The same cable knit, the same shade of washed-out crimson. But it was pristine, almost unworn. It smelled of cedar.
+
+The smell hit him like a door swinging open. Not the phantom trace from his birthday, but a solid, overwhelming wave. It filled his nose, his mouth. It was the smell of the blue house’s closet. The smell of Damien’s winter coat.
+
+He dropped the sweater. It pooled on the floor like something liquid.
+
+His heart was a frantic, caged thing against his ribs. He shoved his hand back into the box, pushing past the sweaters. His fingers brushed against paper. He pulled out a sheaf of folded pages. Drawings. Done in crayon and marker. A crude house, colored a waxy, sky blue. A stick figure with yellow hair next to a smaller stick figure with brown. A sun in the corner, a circle with uneven rays.
+
+In the bottom corner, in a child’s clumsy block letters: Me and Damien. By Cassius. Age 7.
+
+The paper trembled in his hand. The lines were his. He remembered the feeling of the marker, the way it squeaked on the paper. He remembered Damien leaning over his shoulder, pointing at the smaller figure. “Make my hair more spikey.”
+
+He dropped the drawing as if it had burned him. It fluttered to the floor, landing on the red sweater.
+
+He scrambled back, his shoulders hitting the leg of the couch. He sat there on the floor, breathing hard, staring at the open box. The marble was a cold, hard lump in his clenched fist. The drawing lay face-up. The blue house. The two figures.
+
+Real objects. In his apartment. In a box he’d packed himself.
+
+They had no business being here. They had no history in this timeline. Yet they existed. They had weight. They had smell.
+
+The digital world said no. This physical, dusty box in his forgotten closet screamed yes.
+
+The hum in his skull sharpened into a whine, a high-pitched feedback scream. He squeezed his eyes shut. When he opened them, the drawing was still there. The sweater was still there.
+
+He had stopped researching. The research had come to him.
+
+He didn't touch the sweater or the drawing again. He just sat on the floor, his back against the couch leg, and stared at them. The radiator’s hiss seemed to sync with his pulse, a dry, scraping rhythm. The marble was a planet in his fist, its blue core a tiny, captive sea.
+
+After a long time, he stood up. His legs were stiff. He stepped around the open box, a careful arc as if avoiding a spill. He went to the kitchen, filled a glass with tap water, and drank it all. The water was lukewarm, tasting faintly of chlorine. He set the glass in the sink. It clinked against a lone fork.
+
+He had to put it away. The box. He couldn’t leave it open in the middle of his living room like a wound.
+
+He walked back, knelt, and without looking at the drawing, folded it once, twice, and shoved it back beneath the sweaters. He picked up the red sweater. The fabric was soft, treacherously soft. He folded it, his movements mechanical, and placed it on top. He closed the flaps. The tape was useless now, a curled-back tongue. He pressed the cardboard together, then dragged the box back into the closet, shoving it behind his hanging clothes until it disappeared into the shadows. He shut the closet door. The latch clicked, a sound of finality.
+
+The marble was still in his hand. He opened his fingers. It sat in the center of his damp palm, glistening. He carried it to the desk and set it down on the mousepad. It rolled a quarter-inch and stopped.
+
+He needed a system. A place for the impossible.
+
+The top drawer of his desk was a jumble of pens, paper clips, dead batteries. He emptied it onto the desk surface, a cascade of office debris. He lined up the pens. He put the clips in a little dish. He tossed the batteries into the trash can. The drawer was empty, just a few dust bunnies in the corners. He blew them out. He took a clean sheet of printer paper, folded it in half, and laid it in the bottom. A ceremonial gesture. He placed the marble in the very center of the paper. It looked small. Lonely.
+
+He slid the drawer shut. The rumble of wood on wood was too loud.
+
+He stood there, hand on the drawer pull. His left hand, the one that had held the marble began to shake. Not a tremor from cold or fatigue—a fine, rapid vibration, as if a tiny engine was running just beneath the skin. He watched it, detached. The shaking traveled up his wrist, a subtle quiver that made the tendons stand out. He made a fist. The shaking stopped. When he relaxed his fingers, it started again, a hummingbird’s pulse trapped in bone and flesh.
+
+He let it shake. He watched it as if it belonged to someone else.
+
+The phone rang. The landline, an old corded thing on the kitchen wall. The sound was a physical shock, a metal bell clanging in the quiet. He flinched. The shaking in his hand vanished, swallowed by the adrenaline spike.
+
+He walked to the kitchen, picked up the receiver on the fourth ring. “Hello?”
+
+“Cass? It’s your mom.” Her voice was tinny through the line, threaded with the faint hiss of long distance. “Did I wake you?”
+
+“No. No, I was up.”
+
+“You sound out of breath.”
+
+“Just... came from the other room.” He leaned against the wall. The paint was cool against his forehead. “What’s up?”
+
+“Oh, nothing. Just thinking about you. The weather’s turning here. My joints are singing an opera.” She paused. He could hear the television in the background, the muffled laugh track of a sitcom. “How’s work?”
+
+“Fine. It’s fine.”
+
+“You seeing anyone?”
+
+“Mom.”
+
+“I’m just asking. A mother can ask.” Another pause, this one heavier. “You sound down, honey. Is everything okay?”
+
+He looked down the dark hallway toward the closed closet door. The marble in the drawer. The blue house on the child’s drawing. The smell of cedar clinging to the inside of his nose. He swallowed. “Yeah. Just tired. Long week.”
+
+“You work too much. You always have. Ever since you were little, you’d get an idea in your head and just... tunnel in. Remember that rock collection phase? You cataloged every stone in the backyard.”
+
+He didn’t remember a rock collection. He remembered Damien being the collector, of marbles and baseball cards and weird-shaped bottle caps. Cassius had been the reader, the one who preferred maps to actual terrain. “I guess.”
+
+“You had a little ledger. Gave them all names.” She laughed, a soft, wistful sound. “You were such a serious little boy.”
+
+The shaking started again in his left hand. He switched the phone to his right. “Was I ever... not serious?”
+
+“What do you mean?”
+
+“I don’t know. Did I have an imaginary friend? Something like that?”
+
+The laugh track on her TV swelled and died. “An imaginary friend? No, honey. You were never much for make-believe. You liked things you could hold. Your rocks. Your puzzles.” Her tone shifted, a subtle maternal tilt into concern. “Why? Are you feeling... lonely?”
+
+The question was a trapdoor. He could fall through it, tell her everything, and her concern would solidify into worry, then into a gentle, firm suggestion to maybe talk to someone. A professional. He saw the path with perfect, depressing clarity. “No. Just... something I read about childhood development. Got me thinking.”
+
+“Oh. Well, you were a very grounded kid. Practical. Like your father.” She said it as a virtue. A defense against chaos.
+
+“Right,” he said. The word tasted like ash.
+
+They talked for a few more minutes—about her bridge game, about a cousin’s new baby, about the price of groceries. Normal things. Anchoring things. He made the right noises, the uh-huhs and that’s greats. The whole time, his left hand hung at his side, trembling with that persistent, silent energy. He watched it shake as if observing a scientific phenomenon.
+
+When he hung up, the silence rushed back in, thicker than before. The conversation had carved a hollow in him. Her version of his childhood was smooth, sealed, authoritative. It left no room for blue houses or brothers named Damien. Her certainty was a wall.
+
+He went back to the desk. He didn’t open the drawer. He sat down and placed his trembling left hand flat on the mousepad. He pressed down, trying to still it through force. The vibration traveled up his arm, a current with no source.
+
+He closed his eyes.
+
+The sun was hot on the back of his neck. The sidewalk was a river of gray concrete, warm through the knees of his jeans. He had a leather pouch. It was soft, the color of old pennies. He loosened the drawstring, tipped the marbles into his hand. They clicked together, cool and smooth. A cat’s eye with a yellow center. A solid blue. A clear glass one with a blue ribbon, his favorite, his shooter. Damien was across from him, squinting. “You go first.”
+
+He set the clear one down, nested it in the crook of his index finger, thumb behind. He took aim at Damien’s aggie. He flicked.
+
+The clink was sharp, perfect. A sound of victory.
+
+His eyes snapped open. His hand was still. That memory was so vivid he could feel the heat of the sun evaporate from his skin, leaving the apartment’s chill clinging to him. The taste of summer—cut grass and hot asphalt—lingered for a second on his tongue, then was gone, replaced by the flat, stale air.
+
+He looked at his still hand. The tremor had stopped.
+
+He pulled the desk drawer open. The marble sat on its white paper altar. He picked it up. Cool. He brought it to his eye, closed the other, and looked through it. The room distorted, bending at the edges, the streetlamp stripes through the blinds stretching into warped, glowing lines. The blue swirl became a galaxy, a nebula trapped in glass.
+
+This was his. His shooter. He knew it in his muscles, in the memory-flick of his thumb.
+
+But he had never played marbles. His mother said so. One world had no record of Damien. The house was not on any map.
+
+He lowered the marble. The room snapped back into its rigid, ordinary shapes. The contradiction was no longer a hum. It was a silence so complete it had a texture, like standing in a vacuum. On one side, the weight of the marble, the smell of cedar, the lines of his own childhood drawing. On the other, the absolute, empty no of reality.
+
+He was not haunted by a ghost. He was haunted by proof.
+
+A new thought arrived, cold and slow. If the marble was here, and the sweater, and the drawing... what else had slipped through? What other artifacts from a life that wasn’t supposed to be his were waiting in the corners of this apartment, this city, this timeline? Were they scattered everywhere, like shrapnel from an explosion no one else had witnessed?
+
+His hand began to shake again. It didn’t stop.
+
+He curled his fingers around the marble, holding it so tight the glass edges pressed white moons into his skin. The tremor traveled up his arm, into his shoulder, a silent vibration connecting him to the object, to the memory, to the rupture. He sat in the dark, holding onto a piece of a world that didn’t exist, and felt the fault line within him widen, a crack in the foundation of everything he was supposed to be.
+
+The shaking wouldn't stop. It was a live wire under his skin, running from his clenched fist up to the hinge of his jaw. He forced his fingers open. The marble sat in the center of his palm, the blue swirl a frozen vortex. His thumb traced its smooth curve, a gesture that felt practiced, automatic. He’d done this before. A thousand times. In another life.
+
+He stood, his legs unsteady. The apartment felt different now—not just a space, but a container. It held things. Hidden things. The box in the closet was a pocket of wrongness. The marble was a seed of it. He walked to the window, pushed a slat of a blind aside with the back of his hand. The street was empty washed in the orange glow of sodium vapor lamps. A car passed, its tires hissing on damp asphalt. Normal. Silent. It was a picture of a world that agreed with itself.
+
+His reflection ghosted the glass—a pale, indistinct man holding a tiny, perfect sphere of contradiction.
+
+He needed to know if he was holding a relic or a delusion. Not with a search engine. With his senses. He carried the marble to the kitchen, flipped on the overhead light. The fluorescent tube flickered once, then buzzed to life, bleaching everything in a harsh, shadowless white. He held the marble up to the light.
+
+The glass was flawless. No bubbles, no chips. The blue ribbon was suspended dead center, a lazy curl of pigment that seemed to drift when he turned it. He rolled it on the counter. It traveled in a straight, true line. A good shooter. Weighted right. He knew that, the way he knew how to breathe.
+
+He filled a glass with water, dropped the marble in. It sank with a soft plink and settled on the bottom. The blue ribbon shimmered, magnified. He fished it out, dried it on his shirt. The cotton left tiny lint fibers on the wet glass.
+
+Real. It interacted with the world. It got wet. It picked up lint.
+
+He put it in his mouth.
+
+The impulse was sudden, nonsensical. The glass was cool against his tongue, smooth. He rolled it to his cheek and held it there. A childhood test. If you could hold a marble in your mouth without choking, you were a real player. Damien had dared him. He’d done it. One memory arrived whole—the nervous thrill, the metallic taste of fear, the cool, round pressure against his inner cheek. His salivary glands ached with the phantom sensation.
+
+He spat the marble back into his hand. Wet with his spit. He was breathing hard.
+
+This wasn’t memory. This was cellular recall. His body knew this object. His mind was just catching up.
+
+He walked back to the living room and sat on the edge of the couch. The streetlamp stripes lay across the floor like bars. He placed the marble on the coffee table. It sat there, a tiny monument. He stared at it until his vision blurred, until the blue swirl seemed to pulse in time with the radiator’s sighs.
+
+The exhaustion returned, a thick syrup in his veins. It was after two. The adrenaline had burned off, leaving a hollow metallic fatigue. His eyes kept closing. He’d fight them open, find the marble, confirm it was still there. Close them again.
+
+The thought came slowly, through the fog. He couldn’t leave it out. Evidence. It needed to be on his person. A charm. An anchor.
+
+He got up and went to the bedroom. He fumbled in his dresser for a pair of pants from the day before, jeans that still held the shape of his body. He took the marble and put it in the right front pocket. He put the jeans on over his boxers. The weight was subtle, a slight, familiar drag against his thigh. He got into bed, still wearing the day’s T-shirt and the jeans. The sheets were cool. He lay on his back, the marble a hard knot against his hipbone.
+
+Darkness.
