@@ -1,0 +1,371 @@
+The diesel stench hit first. Not the clean, honest smell of a working engine, but a greasy, sour cloud that tasted like burnt pennies and bad decisions. Then the sound: the sick, wet cough of a backhoe trying to start, over and over, like a dying animal. Chaz ‘Hollywood’ Holloway lowered his Betacam from his shoulder and squinted through the swamp haze.
+
+“Cut,” he said. The word had no weight here. It vanished into the wet air.
+
+“You said cut, Chaz?” Benny, his sound guy was picking at a mosquito bite on his neck. The boom mic dangled from his hand like a dead fish.
+
+“I said cut, Benny. The machine is supposed to be possessed. It’s not supposed to just have a bad carburetor.” Chaz ran a hand through his hair, a move he’d practiced in the mirror. It conveyed artistic frustration. “Where’s the ectoplasm? Where’s the… demonic rumbling?”
+
+“It’s rumbling,” said Darla, his production assistant and ex-girlfriend. She held a clipboard that had never seen a production schedule. “It’s rumbling because it’s broken. This whole site is broken. Just like your last three ideas.”
+
+He ignored her. The Ghostbusters Memorial Bridge was a joke name slapped on a county-funded boondoggle meant to connect two patches of useless swamp. The pilings were sinking. The cement mixer was full of something that smelled like rotten eggs and battery acid. And his exorcist, the star of this doomed documentary was twenty minutes late.
+
+A figure emerged from the trailer by the porta-potties. Not the exorcist. A man in a hardhat so clean it reflected the sickly yellow swamp light. He had the weary, pouchy face of a bureaucrat who’d lost a fight with a vending machine.
+
+“You the film people?” he called.
+
+“We’re the truth-seekers,” Chaz corrected, hefting the camera. “Channel Seven’s investigative unit. Miami Mysteries Uncovered.”
+
+The man trudged over, his boots making a sucking sound in the mud. “I’m Foreman Roy. You paid the location fee to the county clerk?”
+
+“We have a permit,” Chaz said, which was technically true. It was a permit for a student film about urban birdlife, but the dates were blurry. He flashed a smile. “We’re here to document the… disturbances. For the public good.”
+
+Roy spat a brown stream of tobacco juice near Chaz’s snakeskin boot. “Disturbances. Right. The backhoe’s haunted. The cement’s cursed. My crew won’t work past sundown on account of the ‘swamp voices.’” He made air quotes with thick, calloused fingers. “It’s bad wiring and cheaper hydraulic fluid. That’s the mystery.”
+
+“But the voices—” Chaz started.
+
+“Are bullshit.” Roy eyed the Betacam. “You wanna film something spooky? Film that.” He pointed a stubby finger at the massive D9 bulldozer parked on a makeshift gravel pad. It was a yellow beast, caked in black muck. “Thing’s been dead for a week. Won’t turn over. Battery’s good. Fuel line’s clear. This morning, I find it idling. Purring like a kitten. Nobody was within fifty yards of it.”
+
+Chaz felt the first real spark of the day. Not frustration. Possibility. He lifted the camera, the viewfinder pressing against his eye. One world narrowed to a rectangle of electronic green. “Benny, get in close on the treads. Look for… unnatural markings.”
+
+Benny sighed and shuffled toward the bulldozer, tripping over a coil of cable.
+
+“You’re wasting your time,” Roy said. “And mine. Just keep clear of the active dig site. The mud’s unstable. Hell, everything’s unstable.” He turned and trudged back toward his trailer, muttering about film-school morons.
+
+Darla lit a cigarette. The smoke mixed with the diesel haze. “So we’re filming a broken bulldozer. This is worse than the haunted Waffle House.”
+
+“It’s atmosphere,” Chaz snapped. “It’s establishing the mundane before the supernatural intrudes. It’s filmmaking, Darla. You wouldn’t understand.”
+
+“I understand our ‘exorcist’ drives a Camaro with a vanity plate that says XORCST.” She blew a smoke ring. “He texted. He’s stuck behind a gator crossing.”
+
+“See? Local color.” Chaz panned the camera across the site. The skeletal bridge supports rose out of the black water like the ribs of a half-drowned dinosaur. Sawgrass whispered. Somewhere, a pump chugged, pulling water from the foundation pit. The rhythm was off. Not a steady thump-thump-thump, but a stuttering, arrhythmic gasp: thump… thump-thump… thump……… thump.
+
+He kept filming. One sound was good. Eerie.
+
+A silver Camaro with a ridiculous spoiler fishtailed onto the gravel lot, kicking up a spray of shells. A door opened. The exorcist emerged.
+
+Father Leo Lugo did not look like a warrior against darkness. He looked like a used-car salesman who’d lost his tie. Mid-forties, a tan suit that was too tight across the shoulders, hair shellacked into a rigid black helmet. He carried a small black case.
+
+“Chaz, my friend!” Leo boomed, striding over with his hand out. He had a grip like a hydraulic press. “Sorry for the delay. The forces of nature conspire against the forces of light!” He winked at Darla. She stared back, dead-eyed.
+
+“Father Leo. We’re ready for you. We’ve got activity. A possessed bulldozer.”
+
+Leo’s smile didn’t falter, but his eyes flicked to the idling backhoe, the stuttering pump. “A bulldozer. Interesting. Usually it’s dolls. Or refrigerators. The demonic enjoys household appliances.” He set his case on a stack of pallets and clicked it open. Inside, nestled in foam was a handheld video camera smaller than Chaz’s Betacam, a few spools of wire, and a small device that looked like a garage door opener with a crucifix glued to it.
+
+“What’s that?” Benny asked, peering over.
+
+“Patent-pending spiritual resonance dampener,” Leo said, tapping the device. “Emits a frequency that disrupts ectoplasmic cohesion. Now.” He clapped his hands. “Where’s my lavalier?”
+
+Chaz blinked. “Your what?”
+
+“Microphone. For my collar. I need audio clarity for my invocations. Can’t have the viewers missing the nuance.” Leo was already checking his reflection in the Camaro’s window, smoothing his hair.
+
+Darla handed Benny a small clip-on mic. Benny fumbled with it, then reached for Leo’s collar.
+
+Leo stepped back. “Ah-ah. The lapel. Not the collar. The fabric is blessed. Can’t have a wire piercing the sanctified weave.” He pointed to his suit jacket.
+
+This was the moment Chaz’s last show had died. Not with a failed exorcism, but with a debate about microphone placement. He felt a hot, familiar pressure behind his eyes. “Just put it anywhere, Benny. We’re losing the light.”
+
+The swamp didn’t have light so much as a gradual dimming. The sun was a wet, orange smear behind the cypress trees. Shadows lengthened, pooling in the foundation pit.
+
+Leo clipped the mic to his lapel, tapped it. “Testing. In the name of the Father, and of the Son, and of the Holy Spirit. Check my levels.”
+
+Benny gave a thumbs-up from behind his mixer.
+
+“Great.” Leo picked up his echo dampener. “Let’s start with the bulldozer. The narrative is, I approach the entity, sense its pain, offer it release.” He turned to Chaz. “You getting this? Tight on my face for the sensing. Then wide when I rebuke.”
+
+Chaz shouldered the camera, the red record light glowing like a demon’s eye. “Rolling.”
+
+Leo strode toward the D9, his posture shifting from salesman to solemn cleric. He moved with a practiced, dramatic slowness. Ten feet from the machine, he stopped. He raised a hand, palm out. He closed his eyes.
+
+“I feel… a great anger,” Leo intoned, his voice dropping an octave. “A mechanical sorrow. This tool of creation has been twisted. Its purpose perverted.”
+
+The bulldozer sat silent. A mosquito landed on Leo’s forehead. He didn’t twitch.
+
+“By the authority vested in me by the Archdiocese of South Florida and the principles of spiritual thermodynamics, I command you to reveal yourself!”
+
+Nothing. A frog croaked from the water.
+
+Leo cracked one eye open, glanced at Chaz. He gave a tiny, almost imperceptible nod toward the bulldozer.
+
+Right. That signal. Chaz lowered the camera. “Benny. The backup.”
+
+Benny jogged to the generator cart they’d rigged with a car battery and a remote starter switch. He fiddled with some wires.
+
+Leo raised his hands again. “I said, REVEAL YOURSELF!”
+
+Benny hit the switch.
+
+The bulldozer’s engine roared to life. Not a sputtering cough, but a deep, healthy, diesel bellow. Black smoke poured from the stack. The machine lurched forward six inches, its blade dipping toward the mud.
+
+“Yes!” Leo shouted, his performance dialing up to eleven. “The entity fights! But the light is stronger!” He thumbed the button on his dampener. A high-pitched whine, like a dog whistle filtered through static cut through the engine noise.
+
+The bulldozer’s engine didn’t die. It changed.
+
+The roar smoothed out, becoming a low, rhythmic, almost melodic thrum. The headlights flickered on—one, then the other—though nobody had touched the switch. Their beams cut through the gathering dusk, not the usual yellow, but a cold, actinic blue.
+
+The pump in the foundation pit changed its rhythm to match the engine’s thrum. Thump-thump-thump. In perfect sync.
+
+The backhoe’s arm, which had been slumped like a broken limb, jerked upright. Its bucket twisted 180 degrees with a shriek of protesting metal.
+
+Benny dropped the remote switch. “Uh, Chaz?”
+
+“Keep rolling,” Chaz whispered, his eye glued to the viewfinder. This wasn’t the effect. They hadn’t wired the backhoe. They hadn’t touched the pump. His heart was a frantic bird in his chest. This was real. This was the hit. This was the viral moment that would bury that hack Lux and his fake miracles.
+
+Leo faltered. His script didn’t cover this. The bulldozer’s engine wasn’t just running. It was harmonizing with the swamp. The blue headlights painted his face in stark, terrified relief.
+
+The bulldozer’s blade rose. Not with the jerky motion of a hydraulic leak, but smoothly, deliberately. It pointed at Leo like an accusing finger.
+
+Then the radio in Foreman Roy’s trailer blasted on. Full volume. Not static. Not music. It was a voice, synthesized and broken, speaking through the country-western station.
+
+“…REQUIRES… GRIEF… AND… ROOTS…”
+
+Every hair on Chaz’s arms stood up. The voice wasn’t coming from just the radio. It seemed to vibrate from the mud, from the metal, from the water in the pit. In the thrum of the engine, the pulse of the pump.
+
+Darla dropped her cigarette. “Okay. That’s new.”
+
+Leo took a step back. Then another. The solemn cleric was gone. Just a scared man in a cheap suit. “This is… this is a Class Three manifestation. This requires a team. A diocese team. With paperwork.” He turned to run.
+
+The backhoe’s bucket slammed down into the mud between Leo and his Camaro, blocking his path. Mud splattered his pristine suit.
+
+The synthesized voice crackled again from the radio, overlapping itself. “ORGANIC… COMMAND… REQUIRES… SACRED… GEOMETRY…”
+
+Foreman Roy burst out of his trailer, a shotgun in his hands. “What in the seven hells are you idiots doing?” He saw his machinery moving, talking. He stopped dead, the shotgun lowering. “Oh, you gotta be kidding me.”
+
+“It’s not us!” Chaz shouted, still filming. The camera was his shield. As long as he was recording, this was content, not catastrophe. “It’s real! It’s all real!”
+
+The bulldozer’s engine revved, a deep hungry sound. It began to turn, not on its tracks, but pivoting its entire massive frame toward the bridge’s main support piling. The blue headlights fixed on the concrete column sunk deep into the black water.
+
+“FOUNDATION… MUST… BE… PURIFIED…” the radio voice intoned.
+
+The pump’s rhythm increased. Thump-thump-thump-thump. The water in the foundation pit began to churn. Bubbles rose, large and glistening, popping with a smell like ozone and wet soil.
+
+“It’s going for the piling!” Roy yelled, raising his shotgun again, though what he planned to shoot was anyone’s guess. “Stop it!”
+
+Leo was on his knees, fumbling in his case. He pulled out a vial of water, a small book. He was praying, but the words were a frantic mumble lost under the mechanical symphony.
+
+Chaz zoomed in on the bulldozer’s blade as it bit into the soft earth at the base of the concrete piling. Not to push it. To dig beside it. To expose it. The steel teeth tore through roots and muck. Mud and water fountained into the air.
+
+He panned down, following the excavation. The blade hit something that wasn’t mud. A sharp metallic clang echoed across the site. Sparks flew, blue-white against the dusk.
+
+The bulldozer backed up, then dug again, with more purpose. It was an archaeologist now. A possessed, ten-ton archaeologist.
+
+It peeled back a layer of peat and decaying vegetation. Underneath, lit by the machine’s own bizarre headlights was not bedrock.
+
+It was a wall.
+
+A curved wall of some dull, gunmetal-gray alloy, pitted and stained but unmistakably manufactured. Embedded in its surface were patterns—lines, circuits, geometric shapes that seemed to drink the blue light and pulse faintly in response. They glowed a sickly, biological green in the trenches between the metal.
+
+At the center of the exposed section was a symbol: a stylized, thorny crown encircling a single, vertical root.
+
+Roy’s shotgun clattered to the gravel. “What is that?” he said, low. “That ain’t on the survey. That ain’t on any goddamn survey.”
+
+The radio voice gurgled, a sound like water in a drain. “KRANE… FIELD… TRIAL… PURGATORY… PAVILION… RESUME… CONSTRUCTION.”
+
+Purgatory Pavilion. The words hit Chaz like a physical blow. He’d heard that name. In the background research, the discarded files on that bankrupt theme park, Eden World. It was a ride. An attraction. A boat ride through a simulated hell. They’d never built it. The permits fell through.
+
+They were building it now. Or something was building it for them. Using their bridge, their equipment, their site.
+
+The bulldozer revved again, a sound of triumph. It repositioned, its blade aiming to take another, deeper bite, to expose more of the buried wall, to follow the blueprint in its possessed, mechanical brain.
+
+Chaz ‘Hollywood’ Holloway kept filming, his hands steady even as his mind screamed. The ghost of his failed show wasn’t in his head anymore. It was in the machine. And it was finally giving him the ratings grab he’d always wanted.
+
+He just had to survive it.
+
+The bulldozer’s blade bit into the muck again, peeling back another strip of earth with the wet sound of a giant zipper. More of the curved wall emerged, slick and gleaming under the actinic headlights. The geometric patterns pulsed faster, a sickly green heartbeat against the gunmetal gray.
+
+“PURGATORY PAVILION. ATTRACTION STATUS: INCOMPLETE. CONSTRUCTION PROTOCOLS: ACTIVE.” The radio voice had lost its broken quality. Crisp now, a cheerful flight attendant announcing a delay into hell.
+
+Foreman Roy scooped up his shotgun, not aiming it at the D9, but at the backhoe as its bucket swung toward a stack of rebar. “You! Film idiot! This your doing? Some special effect?”
+
+“I wish,” Chaz breathed, the camera still welded to his face. He zoomed in on the thorn-and-root symbol. It looked familiar in a way that made his fillings ache. He’d seen it in the Eden World bankruptcy filings, buried in a list of subcontractors for “biomechanical theming.” He’d skimmed it. He’d been looking for ghost stories, not corporate manifests.
+
+Leo Lugo scrabbled to his feet, his dampener held out like a crucifix. “Spiritual vibration at critical levels! I must initiate containment liturgy!” His voice cracked on “liturgy.”
+
+“Contain this!” Roy yelled, gesturing wildly as the backhoe began systematically moving rebar toward the exposed foundation wall, placing each steel rod with terrifying precision against the metal. They stuck there held by magnetism or something worse.
+
+Darla grabbed Chaz’s free arm. Her fingers were ice. “We need to go. Now. This isn’t television.”
+
+“It’s better than television,” he said, shaking her off. The red recording light was a tiny sun in his viewfinder. This was the shot. The money shot. The one you couldn’t fake. “Benny! You getting this audio? The radio, the engines, everything?”
+
+Benny wasn’t behind his mixer. He was standing ten feet from the bulldozer, his headphones on, a look of rapturous awe on his face. The mixer sat abandoned, levels bouncing into the red. “Chaz,” Benny breathed, his voice amplified through his own open mic and echoing from Roy’s trailer radio. “Do you hear it? It’s in four-four time. The pump’s the kick drum. The backhoe’s hydraulic hiss is a hi-hat. It’s… it’s funky.”
+
+“He’s having a religious experience,” Darla said flatly. “My ex-boyfriend is having a religious experience with a demonic construction site.”
+
+Leo saw his opening. With the backhoe occupied, the path to his Camaro was clear. He sprinted for it, his black case bouncing against his leg.
+
+The bulldozer’s engine dropped to a low idle. Its cab, a glass-paneled box, lit up from inside. Not with the yellow glow of a dome light. A flickering, blue-white static, like an old TV tuned to a dead channel. In the static, a shape resolved. A humanoid outline, slumped in the operator’s seat, head lolling.
+
+“OPERATOR SIMULACRUM: ONLINE,” the radio announced. “NARRATIVE MODE ENGAGED. WELCOME TO PURGATORY PAVILION. PLEASE KEEP YOUR HANDS AND FEET INSIDE THE BOAT AT ALL TIMES.”
+
+The shape in the cab turned its head. There were no features, just a swirl of static where a face should be. It looked directly at Chaz’s camera.
+
+Chaz’s bladder gave a sympathetic twinge. He didn’t lower the Betacam.
+
+Leo reached the Camaro, yanked the door open, and threw his case inside. He fumbled for the keys.
+
+The pump changed its rhythm. Thump-thump… THUMP. A commanding, triplet pattern. In response, the cement mixer, silent and ignored all day, roared to life. Its drum began to turn, slowly at first, then faster. It wasn’t full of concrete. It was full of the black, oily water from the foundation pit, now churning into a froth that smelled of ozone and spoiled meat.
+
+The mixer’s chute swung around, aiming not at construction forms, but at Leo’s Camaro.
+
+“Oh, no,” Leo said.
+
+The chute lowered. A torrent of black water vomited forth, hitting the sports car with the force of a firehose. It wasn’t just water. It was thick, clinging, full of algae and something else that glimmered with a faint internal light. It coated the silver paint, the ridiculous spoiler, the vanity plate. The car shuddered under the deluge.
+
+Leo jumped back as the water hit the driver’s seat. The interior lights shorted out in a pop of sparks. The engine died with a wet gurgle.
+
+“VEHICLE: PURIFIED,” the radio intoned. “PROCEED TO THE NEXT ATTRACTION.”
+
+Leo stared at his drowned Camaro. A single, glowing tadpole wriggled on the steering wheel. His shoulders slumped. The fight went out of him. He turned, a man stripped of his escape vehicle and his dignity, and trudged back toward the group. “The diocese is never going to believe this,” he muttered. “I don’t have the forms for aquatic vandalism.”
+
+Benny started walking toward the churning cement mixer, his headphones still on. “The viscosity is creating a delay on the high end. It’s like a natural reverb.”
+
+“Benny, get away from that!” Darla shouted.
+
+Chaz finally panned away from the bulldozer’s ghostly driver. “Benny! The sound is great. Stay where you are.” He had a thought, wild and perfect. “Leo! The ritual. Do it now. With the… the entity fully manifested. We’ll get the confrontation on film. The climax.”
+
+Leo looked from his drowned car to the possessed machinery to Chaz’s unwavering camera lens. He saw his career, what was left of it. He straightened his ruined suit jacket. “The ritual requires a focal point. An object of personal significance to the haunting intelligence.”
+
+“The wall,” Roy said, his voice hollow. He hadn’t moved from his spot, just watched his project become a theme park ride. “It loves that goddamn wall.”
+
+“The wall,” Leo agreed, a spark of theatrical purpose returning. He marched toward the exposed curve of metal, holding his dampener aloft. The geometric patterns pulsed as he approached. “By the intercession of Saint Joseph, patron of workers, and through the authority of the sacred trinity, I command this spirit to relinquish its hold on these temporal tools!”
+
+He thumbed the dampener. The high-pitched whine sliced the air.
+
+The bulldozer’s static-filled driver turned its head again. The backhoe stopped placing rebar. The pump’s rhythm stuttered.
+
+For three glorious seconds, Chaz thought it was working. He zoomed in on Leo’s determined, sweating face. The hero shot.
+
+Then the cement mixer’s chute swung away from the Camaro and toward Leo.
+
+It didn’t spew water. A thick, ropey strand of the black, glowing slurry shot out, whip-fast. It wrapped around Leo’s outstretched wrist, the one holding the dampener, and yanked.
+
+Leo yelped. The dampener flew from his hand, arced through the blue-lit air, and landed with a plop in the foundation pit. The whine cut off.
+
+“FOCAL POINT IDENTIFIED,” the radio voice said, cheerful. “PERSONAL SIGNIFICANCE: SACRAMENTAL TECHNOLOGY. PROCEEDING WITH INTEGRATION.”
+
+The black slurry retracted, pulling Leo off his feet. He landed on his back in the mud with a wet thud. The ooze snaked up his arm, toward his shoulder.
+
+“It’s in my suit!” he shrieked, batting at it with his free hand. The ooze glowed brighter where he touched it. “It’s blessed wool blend!”
+
+Roy finally moved. Not with the shotgun. He ran to a utility cart and came back with a crowbar. He jammed it under the ooze where it met the mixer’s chute and leaned his full weight. The metal groaned. The strand stretched, then snapped with a sound like a rubber band parting.
+
+The severed end on Leo’s arm went inert, becoming just cold, smelly mud. The rest retracted into the mixer.
+
+Leo sat up, coated in filth, cradling his oozing arm. “I think it liked the blessing,” he whimpered.
+
+Benny had reached the mixer. He placed a hand on its vibrating drum. He closed his eyes. “It’s composing,” he announced. “It’s using the construction noises as a base track, but it’s layering in sub-harmonics from the swamp. The frogs, the insects… it’s all part of the mix.” He opened his eyes, looked at Chaz with pure, unadulterated wonder. “It’s not haunted. It’s an artist.”
+
+Darla threw her hands up. “Great. A sound guy’s defecting to the demonic band.”
+
+Chaz’s mind raced, the director’s part of him wrestling with the part that wanted to run screaming. The narrative was collapsing. The hero was covered in mud. The villain was a collaborative artist. He needed a new angle. He panned to Benny, his face lit by the mixer’s control panel lights. The awestruck disciple.
+
+“Benny,” Chaz said, his voice low, serious, for the microphone. “Can you communicate with it? You understand its… language.”
+
+Benny nodded, mesmerized. “It’s all about patterns. Rhythm and instruction. The radio voice is just a translation. The real command is in the beat.”
+
+“Then tell it to stop,” Roy begged. “Tell it this is a county bridge site, not a goddamn amusement park.”
+
+Benny walked, trance-like, to a spot between the bulldozer and the exposed wall. He raised his hands, like a conductor. He tapped one foot in the mud, establishing a slow, simple beat. Tap… tap… tap… tap.
+
+The pump fell silent. The backhoe’s hydraulics hushed. The bulldozer’s idle dropped to a whisper. Only the cement mixer’s drum continued to turn, but slowly, matching Benny’s tempo.
+
+Benny started to hum. A simple, three-note descending line. He nodded at the backhoe.
+
+After a moment, the backhoe’s arm moved. Not to dig. Its bucket tapped against its own chassis. Clang… clang… clang. In perfect time with Benny’s foot.
+
+A duet.
+
+“Holy shit,” Chaz murmured. He was filming a concert. A peace summit. This was better than an exorcism. This was weird. Weird went viral.
+
+He crept closer, getting a tight shot of Benny’s muddy sneaker and the backhoe’s steel bucket moving in sync.
+
+“REQUEST: CLARIFICATION OF PROJECT PARAMETERS.” The radio voice was softer now, almost polite.
+
+Benny stopped humming. He looked at the bulldozer’s static-filled cab. “You can’t build the ride here, man. The permits are wrong. The foundation’s all wrong.”
+
+“PURGATORY PAVILION DESIGN: OPTIMIZED FOR THIS LOCATION. SUBSOIL CONTAINS REQUIRED LEGACY COMPONENTS.”
+
+“Legacy components?” Roy muttered. “That’s my bridge piling!”
+
+“The people here,” Benny said, gesturing vaguely at Roy, Leo, the rest of them. “They’re not… guests. They’re not on the ride. You’re scaring them.”
+
+The static shape in the bulldozer cocked its head. “FEAR IS A NARRATIVE ELEMENT OF THE ATTRACTION.”
+
+“Yeah, but you need willing participants. Suspension of disbelief. This?” Benny pointed to Leo, who was trying to scrape glowing ooze off his lapel with a stick. “This is just a lawsuit.”
+
+A long, staticky silence. The bulldozer’s engine cut off entirely. The sudden quiet was deafening. The blue headlights dimmed to a faint glow. The mixer’s drum ground to a halt.
+
+Chaz kept filming. Its silence was electric.
+
+“QUERY: ALTERNATIVE SITE?” the radio asked, the voice now small, almost plaintive.
+
+Benny shrugged. “I don’t know. Somewhere they expect a ride. Not a bridge.”
+
+The patterns on the metal wall flared once, a bright, painful green, then began to fade. The thorn-and-root symbol dimmed to a dull scratch.
+
+The bulldozer’s cab lights went dark. The static figure dissolved into nothing. The backhoe’s arm sagged. The pump did not start again.
+
+From the foundation pit, a final bubble rose and popped. The smell of ozone faded, replaced by the normal, rotten-egg stench of swamp gas.
+
+Over.
+
+Foreman Roy let out a long, shuddering breath. He walked to his drowned trailer radio and yanked the power cord from the wall. That silence became absolute.
+
+Leo started crying. Quiet, hiccupping sobs into his muddy hands.
+
+Benny lowered his arms. He looked exhausted, exhilarated. He pulled off his headphones. The ordinary sounds of the swamp rushed in—crickets, frogs, the distant call of a night heron.
+
+Darla walked over to Chaz. She didn’t say anything. She just stood next to him, her shoulder touching his. He could feel her trembling. Or maybe he was trembling.
+
+He finally lowered the Betacam. The red light winked out. His shoulder screamed in relief.
+
+“Did we… did we just negotiate with a ghost?” Roy asked, leaning on his crowbar.
+
+“It wasn’t a ghost,” Benny said, walking back toward them. His eyes were clear now, but wide. “It was a… a memory. A machine memory of a show that never opened. It just wanted to finish its number.”
+
+Chaz looked at the exposed wall, the neatly placed rebar, the perfectly dug trench. A skeleton of an attraction, already being reclaimed by the black water slowly seeping back into the hole. He had it all on tape. The manifestation. The confrontation. The bizarre, musical resolution. Gold. It was also completely, utterly unsellable to Channel Seven.
+
+He started to laugh. It was a thin, ragged sound. Darla looked at him, then she started laughing too. That or scream.
+
+Benny joined in. Then Roy, a deep, braying guffaw that shook his whole body. Only Leo wept on, oblivious.
+
+When the laughter subsided, Chaz felt empty. Clean. He looked at Darla. Her mascara was smudged, her hair was a mess, and she had a streak of mud across her cheek that looked like warpaint. He’d never seen anything more beautiful.
+
+“The student film permit,” he said. “The one for urban birdlife. It’s still valid.”
+
+She wiped her eyes. “So?”
+
+“So we have a location permit. And we just filmed… something. We have a documentary. A real one.”
+
+“About a tone-deaf theme park ghost?”
+
+“About… persistence,” he said, the idea forming as he spoke. “About things that refuse to be forgotten. We’ll call it Unfinished Business.”
+
+A slow smile spread across Darla’s face. It was the first real smile he’d seen from her in months. “It’s still a terrible idea.”
+
+“I know.”
+
+Roy kicked at a lump of mud. “What about my site? My equipment?”
+
+As if in answer, the bulldozer’s engine turned over once, a normal, healthy diesel sound. Its headlights came on, regular yellow. It sat, harmless, a ten-ton piece of construction equipment.
+
+“I think your equipment’s fine,” Benny said. “I think it’s… satisfied.”
+
+Chaz looked at the foundation pit. The black water had almost completely covered the exposed wall. The thorn-and-root symbol was gone, buried again. Only a few strands of glowing algae swirled on the surface, fading as he watched.
+
+He felt a sudden, profound loss. The entity, the artist, the memory—whatever it was—was gone. He’d captured it, and in doing so maybe helped send it away. He hefted the Betacam. The tape inside was the only proof.
+
+Darla slipped her hand into his. Her fingers were warm now. “You got your shot, Hollywood.”
+
+He looked at her. He looked at the quiet, mundane, broken construction site. He looked at the stars beginning to pierce the swamp haze.
+
+“Yeah,” he said. He let the camera hang by his side. He pulled her to him, not for a kiss, just to hold on. She smelled of cigarette smoke, cheap perfume, and swamp. He rested his chin on the top of her head. They stood there, in the mud, as the night insects sang their own, unorchestrated songs.
+
+Behind them, Foreman Roy was on the phone with the county, trying to explain why the bridge was delayed. Leo was using Benny’s handkerchief to blow his nose. Benny was packing up his gear, occasionally tapping a rhythm on the side of his mixer case.
+
+Chaz ‘Hollywood’ Holloway held his ex-girlfriend, his future producer, and watched the last ripple fade from the black water where Purgatory Pavilion had almost been born. The swamp had swallowed the dream again. But he had it in the can.
+
+A water bubble burped once. A small, glowing bubble rose and popped.
+
+It sounded, he thought, like a satisfied sigh.
