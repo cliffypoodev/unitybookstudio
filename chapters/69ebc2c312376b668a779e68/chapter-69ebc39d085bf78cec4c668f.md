@@ -116,7 +116,7 @@ The gaunt man bristled. “Miriam, he’s—”
 
 Marcus let the coil drop at her feet. “Tell them to ask next time.”
 
-She studied him. Not the way the others did—like a wolf sizing up a rival, but like a potter examining a cracked vessel, deciding if it could hold water. “You’re alone out here.”
+She studied him. Not the way the others did, like a wolf sizing up a rival, but like a potter examining a cracked vessel, deciding if it could hold water. “You’re alone out here.”
 
 “I was.”
 
@@ -202,7 +202,7 @@ Her voice followed him, quiet but clear. “The rope will be returned by morning
 
 He didn’t answer.
 
-The stone weighed nothing in his pocket. It felt like a debt.
+The stone weighed almost nothing in his pocket. It felt like a debt.
 
 The cairn stood knee-high, a rough circle of stones where the path forked. Marcus nudged the largest rock with his boot. It held.
 
