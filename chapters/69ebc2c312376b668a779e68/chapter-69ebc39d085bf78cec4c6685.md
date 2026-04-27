@@ -64,7 +64,7 @@ But as he turned to walk back to his rented room, to his scrolls and his measure
 
 What if it were true?
 
-The question was a flaw in his tranquility, a hairline crack in the clean marble of his logic. He walked faster, as if he could outpace it. The dust of the agora, stirred by a hundred departing feet, hung in the air behind him, golden and unresolved.
+A question was a flaw in his tranquility, a hairline crack in the clean marble of his logic. He walked faster, as if he could outpace it. The dust of the agora, stirred by a hundred departing feet, hung in the air behind him, golden and unresolved.
 
 * * *
 
