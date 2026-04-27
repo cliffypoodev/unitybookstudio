@@ -20,7 +20,7 @@ Her knee ached. Her own knee, the right one, arthritis from a fall she remembere
 
 The bed creaked.
 
-Not her doing. She was in the chair. The sound came from the mattress, the left side, near the pillow. A single, low groan of springs. As if a weight had just settled.
+Not her doing. She was in the chair. That sound came from the mattress, the left side, near the pillow. A single, low groan of springs. As if a weight had just settled.
 
 She didn’t look at the bed. She looked at the notebook page. She wrote: Channel: physical presence. Manifestation: bedspring compression. Location: left side. Intensity: single event. Time: 2:14 AM. She noted the time from the clock. Her hand shook. She made the numbers neat, boxy. The shaking was in the pen, not the letters.
 
@@ -70,7 +70,7 @@ The words were for her. For the Wound in that bed, in that life.
 
 Her own throat locked. She couldn’t answer. She wasn’t there. She was here, in the chair, a ghost in her own bedroom.
 
-She sighed again, a smaller sound. “Come to sleep, Cass.”
+Lilith sighed again, a smaller sound. “Come to sleep, Cass.”
 
 It was the nickname that did it. The casual, intimate shortening. No one had ever called her that. Not in this life. The sound of it was a key turning in a rusted lock. Something gave way in her chest, not an emotion, but a structural fatigue, like a beam finally sagging under a weight it was never meant to hold.
 
@@ -98,7 +98,7 @@ A flicker. A line of interference across the image. The blue moonlight stuttered
 
 Lilith’s face changed. Not her expression, but its certainty. It softened at the edges, like a station tuning out.
 
-“Cass?” she said, her voice tinged with a new concern.
+“Cass?” she said, her voice tinged with new concern.
 
 Wound was losing the signal. The static roared in the space between the wave crash and the radiator’s hiss. She clenched her will, a futile muscle. Stay.
 
@@ -126,7 +126,7 @@ The thumping slowed settled back into its slow rhythm.
 
 She had been a receiver. Now she was a contaminant. She had leaked back.
 
-The thought was quiet, cold. It sat in the center of her. She looked at the bed, at the empty space where Lilith had been. Where Wound had been, with her.
+This thought was quiet, cold. It sat in the center of her. She looked at the bed, at the empty space where Lilith had been. Where Wound had been, with her.
 
 A new detail, one she hadn’t noticed in the spike, surfaced in her mind. On the nightstand in that other bedroom, next to a glass of water had been a small, smooth stone with a white quartz vein running through it. A keepsake. A paperweight.
 
@@ -154,7 +154,7 @@ She picked up the notebook from the coffee table, where she’d tossed it earlie
 
 July 17th. Lilith. Dinner at the Anchor. Discussed remodel. She wants the bay window by next spring, before the big one. Said it would be perfect for viewing the migration. Asked if I remembered the old lighthouse. Said she’d show me sometime.
 
-She read it again. The big one. The migration. The old lighthouse. None of it meant anything to her. No dinner at the Anchor. No remodel. She had never seen a bay window in her life. Had never discussed a migration. She knew no old lighthouse.
+She read it again. The big one. The migration. The old lighthouse. None of it meant anything to her. No dinner at the Anchor. No remodel. She had never seen a bay window in her life. She had never discussed a migration. She knew no old lighthouse.
 
 Yet the words were hers. The ink was dry. The date was yesterday.
 
@@ -170,7 +170,7 @@ She flipped back through the notebook. Pages filled with her careful logging of 
 
 Her heart thumped a slow, heavy rhythm against her ribs. It wasn’t fear. It was something else. A profound sense of disorientation. Like waking up in a house she thought she knew, only to find a new room, fully furnished, with a stranger’s belongings.
 
-She thought of Lilith. The one from this life. The graphic designer with the sharp wit and the penchant for dark coffee. She remembered her laugh, a bright, clear sound. She remembered the way she’d tilt her head when she was thinking, a small furrow appearing between her brows. Wound had loved that Lilith. She had lost her, years ago, to a mundane accident. A car crash on a Tuesday morning. The one from her memory. The one that was real.
+She thought of Lilith. The one from this life. The graphic designer with the sharp wit and the penchant for dark coffee. She remembered her laugh, a bright, clear sound. She remembered the way she’d tilt her head when she was thinking, a small furrow appearing between her brows. Wound had loved that Lilith. Had lost her, years ago, to a mundane accident. A car crash on a Tuesday morning. The one from her memory. The one that was real.
 
 But the Lilith from the coast, the one who called her Cass was real too. Just not in this timeline. And she wanted a bay window. Before the big one. The migration.
 
