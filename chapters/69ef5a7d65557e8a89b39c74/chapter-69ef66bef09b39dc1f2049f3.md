@@ -1,0 +1,307 @@
+Gladys Crimp’s left eyebrow was a permanent casualty of the lightning strike. It gave her a look of perpetual skepticism, which was useful when dealing with shrimp brokers and tax men. She stood on the deck of the Salty Siren, a thirty-foot trawler that smelled of diesel, dead fish, and her late husband’s sweat, which had soaked into the wood grain and refused to leave. The morning sun was a white thumbprint smudging the sky. The air tasted like hot tin.
+
+Her nets came up heavy, spilling onto the deck with a wet slap. The catch writhed, a silver mountain. Then it stopped writhing. It just… glowed. A soft, pulsating blue light emanated from the pile, like someone had stuffed a dozen aquarium night-lights into the shrimp.
+
+“Well, hell,” Gladys said.
+
+She poked the heap with her rubber boot. The glow intensified. A single shrimp, larger than the rest, detached itself from the pile. It walked—marched—to the edge of the deck, its tiny legs clicking. It turned, its beady black eyes seeming to fix on her singed brow. It raised one front claw. It made the sign of the cross.
+
+Gladys took a long pull from her thermos. The coffee was bitter and thick as oil. It did not change what she was seeing.
+
+A dead pelican lay on the dock pilings, a victim of a six-pack ring or plain old age. The big shrimp seemed to consider it. It scuttled to the gunwale raised both claws skyward, and trembled. A single, bright drop of… something… fell from its claws onto the dead bird.
+
+The pelican twitched. It shuddered. It stood up, shook its feathers, fixed Gladys with a reproachful stare, and flew away.
+
+“Double hell,” Gladys whispered. She felt a familiar, unwelcome flutter in her chest. Not hope. The tax bill for the Salty Siren was six months overdue. The engine needed parts that cost more than her trailer. This wasn’t hope. This was a potential loophole.
+
+She spent the next hour trying to get the shrimp to repeat the trick on a bait fish. They ignored her, swimming in slow, deliberate circles in the holding tank, their blue glow casting weird shadows on the deck. She tried talking to them. She tried shouting. In a moment of pure, sleep-deprived desperation, she tried interpretive dance.
+
+It was her secret skill, born of thirty years of lonely watches. A shimmy for “school left,” a two-step for “tides changing,” a full-bodied sway for “storm coming.” She did a little jig now, a questioning series of hops and arm waves that meant, roughly, What in the Sam Hill are you and can you do that again?
+
+The big shrimp paused. It watched. It mimicked her arm wave with one claw.
+
+A voice boomed from the dock. “Sister! A moment of your time!”
+
+Gladys froze mid-shimmy. A man stood on the weathered planks, backlit by the climbing sun. He wore a white suit that looked like it had been ironed with starch and conviction. His hair was a helmet of blond waves. His smile was a financial instrument.
+
+“Reverend Billy-Bob Johnson,” he said, extending a hand she couldn’t reach. “They call me the Redeemer. I was praying over the sinful waters of your community when I witnessed a miracle. A pelican, risen!”
+
+“It wasn’t that sinful,” Gladys said. “Just dead.”
+
+“A technicality!” He beamed. “May I come aboard? I feel the Spirit moving me toward your… vessel.”
+
+Gladys’s survival instinct, honed by years of avoiding bill collectors and overly friendly manatees, screamed no. But the image of the tax bill, with its red final notice stamp, flashed behind her eyes. She nodded.
+
+Reverend Billy-Bob boarded with a practiced leap. He didn’t slip on the fish guts. His white shoes remained pristine. He peered into the holding tank. The shrimp glowed brighter, as if on cue.
+
+“Praise the Lord and pass the tartar sauce,” he breathed. His eyes, a calculated shade of earnest blue took in the shrimp, the boat, her burned-off eyebrow. She saw the calculations happening behind them, faster than a shrimp’s heartbeat. “Sister…?”
+
+“Crimp. Gladys.”
+
+“Sister Crimp. The Lord works in mysterious ways. His wonders to perform. Sometimes, Sister, those wonders require a promotional budget and a prime-time broadcast slot.” He leaned closer. The smell of his cologne, something called “Triumph,” fought a losing battle with the shrimp. “What’s your ask?”
+
+“My what?”
+
+“For the miracle shrimp. Exclusive rights. We’ll call it… The Sea of Galilee Redemption Package. We’ll need a staging area. A modest donation booth. Maybe a small tank with a tasteful cross behind it.” He was talking faster now, painting the air with his hands. “We can heal the sick. Well, not heal. We’ll offer spiritual comfort and a commemorative glow-in-the-dark shrimp keychain for a suggested donation of $19.95.”
+
+Gladys’s mouth was dry. “They only brought back a bird.”
+
+“A start! We’ll work up to kittens. Everybody loves a resurrected kitten.” He clapped a hand on her shoulder. It felt like a contract being signed. “Fifty-fifty split. After production costs, of course. And my ministry’s overhead. And the broadcast fees. Let’s say you get twenty percent of net proceeds.”
+
+“Twenty?”
+
+“Generosity is a virtue, Sister.” His smile never wavered. “Think of the souls we’ll save. And the revenue.”
+
+The big shrimp tapped on the glass of the tank. Tap-tap-ta-tap. It sounded like Morse code. Or a tiny, crustacean face-palm.
+
+Word got out. It got out because Reverend Billy-Bob called his cameraman, a nervous kid named Darryl who smoked clove cigarettes and wanted to make art films. By noon, there were thirty people on the dock. By two, there were a hundred. They’d brought lawn chairs, coolers, and a desperate hungry look Gladys recognized. It was the look of people who’d tried doctors, lottery tickets, and cable psychics, and were now down to glowing shrimp.
+
+Billy-Bob had set up a folding table with a white linen cloth. A hand-painted sign read: WITNESS THE SHRIMP OF SALVATION! DONATIONS ACCEPTED. He’d wired a microphone to a portable amp that crackled with righteous feedback.
+
+“Good people of Mangrove Key!” he thundered. “Do you suffer? Does your body fail? Does your bank account weep? Behold the Lord’s humblest servants, blessed with the power of the Resurrection!”
+
+He gestured grandly toward the tank, which Darryl had spotlighted with a construction lamp. The shrimp, crammed together, pulsed like a neon sign for a bad seafood buffet.
+
+Gladys stood off to the side, arms crossed. She wore her late husband’s rain slicker, though it wasn’t raining. It felt like armor. A woman in a wheelchair was pushed to the front by a weary-looking man. Her hands were knotted with arthritis.
+
+“Sister,” Billy-Bob said, his voice dropping to an intimate rumble. “Do you believe in the power of Christ the Redeemer?”
+
+“I believe my hands hurt,” the woman said.
+
+“Then believe this!” He nodded to Darryl, who aimed the camera. He dipped a small net into the tank, chasing the big shrimp. After a brief, undignified struggle, he scooped it out. It dangled, legs paddling air. Billy-Bob held it over the woman’s hands. “In the name of the Father, the Son, and the Holy Ghost… Shrimpus Christi!”
+
+He squeezed the shrimp.
+
+A single, glowing drop fell onto the woman’s knuckles.
+
+Nothing happened for three seconds. Then the woman gasped. Her fingers unclenched. She flexed them, slowly at first, then with growing wonder. She started to cry. “The pain… it’s gone. It’s just… gone.”
+
+The crowd erupted. A roar of awe and want. Money started flying into the donation box—bills, coins, a check.
+
+Billy-Bob beamed, placing the shrimp back in the tank. It sank to the bottom, moving sluggishly. Gladys felt a pang in her gut that wasn’t hunger.
+
+A man shoved forward, holding a gasping goldfish in a baggie. “My son’s fish! Mr. Finley! Can you save him?”
+
+“For a fifty-dollar love offering, brother, we can try!”
+
+The next shrimp, a medium-sized one was less impressive. It waved its claws over the baggie. The goldfish gave a final flip and went still. The man’s face fell.
+
+“Some fish,” Billy-Bob intoned solemnly into the microphone, “are called home to the great coral reef in the sky. The Lord’s will is mysterious. Next!”
+
+Gladys turned away. She watched the big shrimp in the tank. It was just sitting there. It looked tired. She found herself doing a small, subtle dance by the boat’s console—a side-to-side sway with a drooping head. The shrimp looked at her. It drooped its antennae in reply.
+
+The afternoon dissolved into a sweaty, chaotic blur. Shrimp were harvested for miracles with the efficiency of a factory line. Some worked—a migraine vanished, a shallow cut closed up. More failed—a set of car keys stayed lost, a bald man remained bald. The glow from the tank grew dimmer.
+
+By sunset, the crowd had thinned, drunk on spectacle and disappointment. The donation box was heavy. Billy-Bob counted the money in the Salty Siren’s tiny cabin, his fingers flying. “Not bad for a soft launch,” he said. “We need better logistics. Maybe a smaller tank, closer to the people. Fewer shrimp, more drama.”
+
+“They’re getting weak,” Gladys said, staring out the porthole at the darkening tank.
+
+“They’re renewable resources, Sister! We’ll catch more. The Lord will provide.” He stacked the bills. “Your share, after expenses is two hundred and seventeen dollars.”
+
+Gladys took the money. It felt warm and dirty. “The tax man’s coming next week.”
+
+“Then we’ll have a bigger rally Tuesday! We’ll pack this dock. I’ll get Lux’s people on the phone—Reverend Bobby Lux, you know him? Holy roller with a broadcast tower. We could go national.” His eyes had a faraway, greedy gleam. “Holy Shrimp T-shirts. Plush toys. Frozen, pre-blessed cocktail servings for the home Eucharist.”
+
+That night, after Billy-Bob retired to his rented Winnebago (“The Chapel on Wheels”), Gladys stayed on deck. The moon was a fishhook in the sky. The shrimp’s glow was faint now, a dying heartbeat of light. She brought them a scoop of clean water. The big one floated to the top, resting its claws on the edge of the tank, watching her.
+
+She didn’t mean to dance. It just happened. A slow, sad sway, a mourning shuffle for things used up and thrown away. The shrimp watched. Then, it moved. Not a miracle. Just a simple, slow crawl up the glass. It reached the top, where a strand of greasy Christmas lights left over from her husband’s idea of “festive shrimping” was tangled.
+
+The shrimp touched a frayed wire with its claw.
+
+A tiny spark jumped. The shrimp glowed, suddenly, fiercely bright for a second. The strand of lights, unplugged for years, flickered. One bulb, a red one, lit up. Then died.
+
+The shrimp sank back into the water spent.
+
+Gladys’s heart hammered against her ribs. It wasn’t divinity. Electricity. Or something like it. She thought of the lightning strike that took her eyebrow and left her with static in her fillings for a month. She thought of the weird metallic taste in the bayou water lately, the way her radio sometimes picked up garbled voices in the middle of the night.
+
+This wasn’t a miracle. Contamination.
+
+She heard a rustle in the mangroves. A figure stood there, half-hidden in shadows—a lanky man with wild hair, wearing a tie-dye shirt that hurt to look at even in the dark. He was frantically scribbling in a notebook. He looked up saw her staring, and gave a frantic, guilty wave before stumbling back into the swamp.
+
+She didn’t know him. But she knew the type. Burnout. Conspiracy nut. The kind who’d rant about government toxins and alien DNA at the bait shop.
+
+He’d dropped something. Gladys waited until he was gone, then climbed onto the dock. It was a Ziploc bag with a few seeds in it. They hummed in her hand, a tiny vibration. The label, written in smudged marker read: BUSH OG – DO NOT LOSE – PROPERTY OF DUTCH.
+
+The shrimp in the tank, sensing the seeds began to pulse in a slow, synchronized rhythm. Glow. Pause. Like a signal.
+
+The water around the Salty Siren’s hull began to churn. Not with fish. With shrimp. Hundreds of them, their eyes and bodies lit with that same unholy blue, rising from the black depths. They surrounded the boat, a silent, glowing legion. They weren’t praying. They were waiting.
+
+The door of the Winnebago slammed. Reverend Billy-Bob emerged, holding a Bible and a calculator. He strode toward the dock, his white suit glowing in the moonlight. “Sister Crimp! I’ve had a vision! A telethon! We’ll call it ‘Shrimp for Souls.’ What do you think?”
+
+He stopped at the edge of the dock, finally noticing the water. The sea of tiny blue lights, stretching out toward the horizon. His calculator slipped from his fingers and plopped into the glowing soup.
+
+“Well, I’ll be damned,” he whispered, his voice full of dollar signs and rapture.
+
+Gladys looked from his hungry face to the exhausted shrimp in her tank, to the silent army in the water. She still needed the money. The tax man was real. The engine repair was real. But the seeds hummed in her pocket, and the big shrimp looked at her with its black, knowing eyes.
+
+It raised one claw. Not in blessing. In question.
+
+Billy-Bob turned to her, his smile wide enough to cash a check. “Partner? We’re gonna need a bigger tank.”
+
+The community hall smelled of mildew, desperation, and the industrial-grade popcorn Reverend Billy-Bob had insisted on for “atmosphere.” He’d draped the cracked linoleum stage with a blue tarp meant to evoke water. A kiddie pool, filled from a garden hose sat center stage. Inside, the original dozen shrimp pulsed their faint, weary light. The big one, whom Gladys had secretly named Hank, clung to the inflatable palm tree Billy-Bob had zip-tied to the side.
+
+“We are live in five, people!” Billy-Bob adjusted his lapel mic. He’d traded his white suit for a cream-colored one with subtle nautical pinstripes. “Remember, Darryl, close-ups on the weeping. Wide shots for the offerings. Sister Crimp, you’re on tank duty. Look reverent. Or at least stop scowling.”
+
+Gladys stood behind the kiddie pool, arms crossed. She wore her one good dress, a floral print that hung on her like a surrendered flag. The seeds from the tie-dye lunatic—Dutch—hummed in her apron pocket. She’d experimented. One seed, crushed and sprinkled into the tank made the shrimp glow for a solid hour. It also made them organize their pebbles into a perfect spiral. Two seeds, and Hank had briefly levitated three inches above the water before falling back with a splash.
+
+This was not divinity. This was biohazard bingo.
+
+The hall was packed. Every folding chair held someone with a limp, a cough, or a look of profound financial regret. They clutched crumpled bills. A man in the front row held a drooping potted fern.
+
+Billy-Bob raised his arms. The portable amp whined. “Friends! Sufferers! Are you tired of the world’s empty promises? Do the doctors offer you nothing but bills and bad news? Look to the water! To the humble, the lowly, the delicious! Behold the SHRIMP OF GRACE!”
+
+A spotlight, rigged from Darryl’s construction lamp, hit the pool. The shrimp, boosted by a pinch of Dutch’s seeds, ignited like a sapphire sun. The crowd gasped as one. A woman in the second row fainted clean away. Her neighbor stole her purse.
+
+“Let the healing begin!” Billy-Bob boomed. “Sister, bring forth the first supplicant!”
+
+A teenage boy with acne that looked like a topographic map of despair shuffled forward. Billy-Bob put a heavy hand on his shoulder. “What ails you, son?”
+
+“My face,” the kid mumbled.
+
+“The Lord sees not your face, but your heart!” Billy-Bob nodded to Gladys. She grimaced, dipped a net, and after a brief chase, snagged a medium-sized shrimp. It wiggled. She held it over the kid’s head.
+
+A glowing drop landed on the kid’s forehead.
+
+Nothing. Then the red, angry bumps began to… move. They migrated across his nose, gathering into a single, large, mountainous pimple on the tip. It glowed with a faint blue light. The kid touched it, awestruck. “The pain… it’s concentrated.”
+
+“A sign!” Billy-Bob recovered, his smile tight. “The Lord has gathered your affliction for easy removal! Next!”
+
+The line snaked around the hall. A woman with a cane threw it away after a drop hit her knee—then toppled when her atrophied leg gave out. A man’s persistent hiccups transformed into a perfect, minute-long opera aria. He hiccup-sang “O Sole Mio” before collapsing, confused but hydrated.
+
+The shrimp were running out of juice. Their glow was guttering. Gladys, sweating under the lights, fumbled another pinch of seeds from her pocket and surreptitiously sprinkled them into the pool. The effect was immediate and wrong.
+
+The shrimp didn’t just brighten. They started vibrating. The water in the kiddie pool shimmered. Hank the shrimp rose up on his back legs, claws raised. From the speakers, a voice that was not Billy-Bob’s crackled through the feedback.
+
+It was a calm, weary voice. It said, “Please stop squeezing us.”
+
+The hall went dead silent.
+
+Billy-Bob’s eyes darted to the amp, then back to the crowd. He let out a booming laugh. “The Lord speaks in mysterious voices! Even through cheap audio equipment! A test of faith!”
+
+Hank’s claws made a series of clicks. The voice came again, clearer. “This is not a test. The man in the cream suit is a liar. His shoes are synthetic.”
+
+Every head swiveled to Billy-Bob’s feet. He went pale. “Demonic interference!”
+
+A shrimp in the pool, a small one began to glow with a different light—a warm, golden hue. It scuttled to the edge. The man with the dying fern rushed forward, placed the pot on the stage. The golden shrimp touched a wilting leaf.
+
+The fern perked up. It grew. Not a little. It erupted. Fronds unfurled, snaking out, wrapping around the legs of the folding chairs, sprouting tiny, perfect fiddleheads that poked the people in the second row. It flowered with tiny, glowing orchids that smelled like ozone and forgiveness.
+
+“A miracle!” someone shrieked.
+
+“That’s a Boston fern,” a skeptical voice countered from the back. “It shouldn’t do that.”
+
+Pandemonium, the holy kind, broke out. People surged toward the stage. They weren’t holding out money anymore. They were holding out houseplants, sick dogs in carriers, a toaster that didn’t toast evenly. Billy-Bob was shouting about order, about suggested donations, but his voice was lost in the green, glowing chaos.
+
+Gladys saw the big shrimp, Hank, looking at her. His antennae drooped. He pointed a claw at the bag of seeds in her apron, then at the back door.
+
+The message was clear: Get us out of here.
+
+She acted. She grabbed the kiddie pool by its inflatable rim and heaved. Tepid, shrimp-filled water sloshed over the stage, soaking Billy-Bob’s synthetic shoes. She dragged the pool, shrimp sloshing inside, toward the back exit. Fronds from the mutant fern tried to tangle her ankles. She kicked free.
+
+“Sister! The revenue!” Billy-Bob cried, reaching for her.
+
+She fixed him with her one good eyebrow and the ghost of the other. “They’re tapped out, Reverend. So are you.”
+
+She shoved through the fire door into the blinding afternoon heat. Dragging the sloshing pool across the gravel parking lot was like pulling a waterbed filled with judgment. She aimed for the Salty Siren, still tied at the dock a hundred yards away.
+
+She heard the door bang open behind her. Billy-Bob and Darryl gave chase. Darryl had the camera rolling. “We’re losing the shot!” Billy-Bob yelled.
+
+Gladys reached the dock. Her arms burned. She tipped the pool, pouring shrimp and water and one plastic palm tree into her larger holding tank on the deck. They sank, then slowly began to circle, their light fading to a faint flicker.
+
+Billy-Bob skidded to a halt at the dock’s edge. “This is mutiny! We had a covenant!”
+
+“We had a shakedown.” Gladys leaned against the tank, catching her breath. The seeds hummed in her pocket. The water in the bayou around them still held that eerie, silent glow from the night before. “They’re not miracles. They’re sick. They’re contaminated with something, and I’m feeding them something worse to keep the lights on. That’s not a ministry. That’s a poison circle.”
+
+Billy-Bob’s face went through a series of calculations—anger, pleading, menace. He settled on a wounded sincerity. “Sister. Gladys. That tax man doesn’t care about contamination. That engine doesn’t run on moral high ground. We had a good thing. A profitable thing.” He softened his voice. “What’s your plan? Release them? Watch that glow go out forever? You’ll be back to shrimping for pennies until the bank takes this tub.”
+
+He was right. The thought was a cold stone in her gut. She looked at Hank. Hank looked at the rusty screwdriver lying on the deck.
+
+“Give me the seeds,” Billy-Bob said, extending his hand. “We’ll moderate the doses. We’ll be responsible. We’ll help people and make the payments. That’s a win-win.”
+
+From the mangroves, a voice called out. “Whoa. Bad vibe alert.”
+
+The tie-dye man, Dutch, emerged, blinking in the sun. He looked even more fried up close. His eyes were the color of old honey and recent panic. He pointed a trembling finger at Gladys’s apron. “You have my seeds. My Burning Bush OG. That’s, like, proprietary prophetic vegetation, man.”
+
+“These are yours?” Gladys pulled out the bag.
+
+“I was doing field research! Studying the spiritual contamination vector in the brackish water tables! Then I dropped my stash.” He eyed the glowing shrimp in the tank, the glowing water in the bayou. “You’ve been feeding it to them. No wonder they’re doing stand-up.”
+
+“They spoke through the amp,” Gladys said.
+
+Dutch nodded solemnly. “Bush OG doesn’t just reveal truth. It amplifies it. Those shrimp aren’t holy. They’re just… really honest now. And probably really anxious.”
+
+Billy-Bob seized the new angle. “A scientist! Perfect! We can rebrand. ‘Scientifically Verified Faith Shrimp.’ The markup is enormous.”
+
+Dutch looked at the Reverend, then at Gladys. He shook his head. “You can’t franchise this. The Bush, the contamination in the water… it’s a feedback loop. You keep squeezing miracles out of them, you’re gonna get a backlash. Truth always comes due.”
+
+As if on cue, Hank the shrimp climbed out of the tank. He scuttled across the deck to where Billy-Bob’s discarded calculator had fallen the night before. It was still wet, flecked with algae. Hank tapped it with his claw.
+
+The calculator’s dead screen flickered. Numbers appeared. Not random ones. It was a figure: $217.00.
+
+Billy-Bob’s face went slack. It was the exact amount he’d given Gladys as her “share.”
+
+Hank tapped again. Another figure: $4,832.15. The total donations from the community hall.
+
+Another tap: $12.47. The cost of the popcorn.
+
+“It’s doing accounting,” Gladys said, low.
+
+Hank’s final tap was decisive. The calculator displayed a single word: HYPOCRITE.
+
+Billy-Bob stared. His jaw worked. No sound came out. The truth, amplified and calculated by a shrimp had hit him like a brick. He turned on his synthetic heel and walked off the dock, back straight, a man spiritually bankrupted by a crustacean.
+
+Dutch let out a low whistle. “See? The Bush doesn’t lie.” He looked at Gladys. “You gotta decide what you are. A warden or a midwife.”
+
+“I’m a shrimper with a bad engine.”
+
+“Same difference.” He shrugged. “They’re in your water. You can keep dosing them for shows, or you can see what they do when they’re not being squeezed for drops.”
+
+Gladys looked at the bayou. The glowing congregation still waited. She looked at the seeds. She looked at Hank, who had returned to the tank and was sorting pebbles by size and color.
+
+The tax bill was in the cabin. The engine was a collection of rusty parts. The world was hard, and miracles, even fake ones paid better than shrimp.
+
+She made a decision.
+
+She didn’t release them. She didn’t call Reverend Bobby Lux. She poured the rest of Dutch’s seeds into the tank—not a pinch, the whole bag. The shrimp erupted in a silent, psychedelic fireworks display. Colors swirled through their shells—blue, gold, deep purple. Hank grew three inches. His glow stabilized into a steady, warm light like a desk lamp.
+
+“What’s the play?” Dutch asked, fascinated.
+
+“New business model,” Gladys said, her voice tired but clear. “No more healings. No more shows.”
+
+She spent the next week working. She used the last of the money, the $217, to buy wire, glass jars, and a stack of cheap batteries. With Dutch’s haphazard help—he was better at theory than soldering—she rigged a system. Hank, and the other strongest shrimp would swim in a special tank. Their bio-luminescence, supercharged by the seeds and whatever was in the water, fed through copper wires to small cells. It generated a faint, but measurable, current.
+
+She wasn’t selling miracles. She was selling light.
+
+She placed the first jar on the dock post as dusk fell. Hank swam his circuit. The jar glowed with a soft, blue-white light that kept the mosquitoes away and didn’t flicker. It hummed gently, a sound that reminded people of rain.
+
+The next night, a fisherman from down the key saw it. He asked for one for his boat. Gladys traded it for a grouper and a promise to spread the word.
+
+Within a month, she had a waiting list. Gladys’s Glow-Shrimp Lamps. No claims of healing. No salvation. Just honest light from contaminated shrimp who wanted to be left alone to sort their pebbles. She charged enough to cover the tax bill, the engine parts, and a little extra. It wasn’t ministry money. Utility money. It felt clean.
+
+One evening, she sat on the deck of the Salty Siren, her new engine purring contentedly below. The deck was lined with glowing jars ready for delivery. The water around the boat still shimmered with the silent shrimp army, but they seemed peaceful now. A companionable glow.
+
+Dutch was gone, off to study “psychic mangroves.” Billy-Bob had left town, reportedly to sell blessed sand from Daytona Beach.
+
+Hank sat in his special tank, his light steady. He’d taken to arranging his pebbles into complex, mandala-like patterns that changed every day.
+
+A sleek, black airboat slid up to her dock. A woman in a crisp, off-white pantsuit stepped out. She had the calm, dangerous look of a real estate agent who’d foreclose on a church. “Gladys Crimp? I represent a consortium of interested investors. We understand you have a self-sustaining bioluminescent technology. We’d like to discuss scaling. Production. Patenting.”
+
+Gladys took a sip of her oil-thick coffee. She didn’t get up. “Not for sale.”
+
+“The offer is substantial. Life-changing.”
+
+“My life just changed.” Gladys nodded toward Hank. “He’s not a technology. He’s a tenant. And he doesn’t like strangers.”
+
+The woman’s smile was thin. “Everything has a price, Ms. Crimp.”
+
+Hank, in his tank turned his glowing gaze on the woman. He raised one claw. He didn’t make the sign of the cross. He made a different gesture. One claw curled in, the other pointed directly at her, then swung to point back the way she came. A shrimp version of Get lost.
+
+The woman’s smile vanished. She cleared her throat, looked at the glowing water, the glowing jars, the one-eyed woman with the unimpressed stare. She got back in her airboat and left without another word.
+
+Gladys watched the sun sink into the bayou setting the sky on fire. The first stars pricked through the violet haze. Her shrimp-lamps glowed brighter in the gathering dark, their light a soft, honest counterpoint to the twilight.
+
+It wasn’t a miracle. It was a workaround. The tax man was paid. The engine ran. The shrimp were quiet. In a world that demanded either sainthood or bankruptcy, she’d found a third option: a modest, glowing profit.
+
+Hank tapped on his glass. She looked over. He had arranged his pebbles into a new pattern. It looked, unmistakably, like a dollar sign. Then, with a flick of his claw, he scattered the pebbles and started arranging them into a question mark.
+
+Gladys Crimp allowed herself a small, dry smile. She raised her thermos in a silent toast to the complicated, dark.
