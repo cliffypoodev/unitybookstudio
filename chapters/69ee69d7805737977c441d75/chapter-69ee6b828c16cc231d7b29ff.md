@@ -1,0 +1,527 @@
+The studio lights burned hotter than the noonday sun over Golgotha. Jesus blinked against the glare, his wrists chafing under the deceptively soft silk ties Lux's people had used to bind him to the chair. The set was a grotesque parody of sacred space—fake marble columns, gold-painted plastic halos dangling above, and a neon cross that flickered like a faulty bar sign. A makeup artist dabbed powder on Lux's forehead, her fingers trembling.
+
+“Stop shaking,” Lux murmured without looking at her.
+
+The girl flinched. “Y-yes, sir.”
+
+Jesus watched her retreat, the way her shoulders hunched as she vanished into the shadows behind the cameras. Lux adjusted his cufflinks, the diamonds catching the light. “You're being very quiet.”
+
+“I was just wondering,” Jesus said, “if the woman who did your makeup gets paid enough to afford rent.”
+
+Lux's smile didn't waver. “See, that's the problem with you. Always worrying about the wrong things.” He leaned in, close enough that Jesus could smell the peppermint gum masking bourbon breath. “You could've had private jets. Adoring masses. A legacy. You're washing dishes in a homeless shelter.”
+
+“Funny. I don't remember you being there when I fed the five thousand.”
+
+A cameraman snorted, then pretended to cough. Lux's eye twitched. He straightened, smoothing his lapels. “Thirty seconds to air.”
+
+A production assistant scurried over, clipping a mic to Jesus' robe. The kid—couldn't have been older than nineteen—avoided his eyes. Jesus tilted his head. “You okay?”
+
+The kid froze. Swallowed. “Uh. Yeah. Just—” He glanced at Lux, then back. “I saw what you did at the shelter. The, uh. The burns. The way they healed.”
+
+Lux's hand clamped on the kid's shoulder. “Mic check's done, Tim. Go.”
+
+Tim fled.
+
+The countdown started. Five. Four. Three.
+
+Lux's face transformed. The smirk melted into beatific warmth. His shoulders relaxed into an open, welcoming posture. The camera light blinked red.
+
+“Friends, faithful, seekers of truth!” Lux spread his arms like a man about to hug the entire world. “What a glorious morning. For too long, false prophets have preyed upon your faith. But today—today, we expose the lies!”
+
+A screen behind him flickered to life, showing grainy footage of Jesus walking on water at the marina. The chyron read: MIRACLE OR HOAX?
+
+“Behold,” Lux intoned, “the so-called messiah.”
+
+The camera swung to Jesus. He said nothing.
+
+Lux's smile tightened. “Cat got your tongue?”
+
+“I was waiting for you to finish editing the part where you cut to commercial.”
+
+A producer made a strangled noise off-camera. Lux's eyelid twitched again. “You claim to perform miracles. Yet where's your charity? Your church?”
+
+“Your net worth?” Jesus asked.
+
+The control room erupted in muffled laughter. Lux's knuckles whitened around the microphone. “This charade ends tonight. Live, at Eden World, we will host 'The True Second Coming'—a televised event where this impostor will answer for his deceptions under the scrutiny of science, scripture, and the American people!”
+
+The audience—handpicked, coiffed, and visibly terrified—erupted in applause. Jesus studied their faces. The woman in the third row kept glancing at the exits. The man beside her clutched a Bible like a shield.
+
+Lux lowered his voice, oozing faux compassion. “Son, if you confess now, if you admit this was all a stunt, we can get you help. No one needs to get hurt.”
+
+Jesus met his eyes. “You're right.”
+
+Lux blinked. “I—what?”
+
+“No one needs to get hurt.” Jesus leaned forward, the chair creaking. “So why did you burn down the shelter?”
+
+Silence.
+
+Then the producer hissed, “We're still live!”
+
+Lux's smile went rigid. He turned back to the camera, laughing like Jesus had told a joke. “The desperation of a cornered man! Tune in tonight, folks. The truth will be revealed!”
+
+The camera light died. Lux rounded on Jesus, his whisper a razor blade. “You're dead after this.”
+
+Jesus looked past him, to the studio door where Tim stood frozen, his phone half-raised. Recording. Their eyes met. Tim paled, then gave the tiniest nod.
+
+Lux snapped his fingers. “Get him out of here. And somebody fire that intern.”
+
+As the guards hauled him up, Jesus caught one last glimpse of Tim slipping into the crowd, the phone vanishing into his pocket.
+
+Somewhere in Miami, a spark.
+
+*
+
+Dutch Donovan's safe house smelled like stale empanadas and regret. The walls were the color of old nicotine stains, the ceiling fan spun like a drunk helicopter, and the only working appliance was a Mr. Coffee machine that had survived three marriages and a SWAT raid. Dutch pressed a bag of frozen peas against his swollen eye and winced. “So. We're all alive. That's a win.”
+
+Detective Lola Vega leaned against the kitchen counter, arms crossed. Her blazer was torn at the shoulder, her knuckles were scraped raw, and her left shoe was missing its heel. “Define 'alive.'”
+
+Trigger Happy Mary sat on the couch methodically disassembling a Glock with the focus of a bomb defusal expert. Her pink hair was matted with what Dutch hoped was ketchup. “I had to stab a guy with a crucifix necklace. Pretty sure that's a sin.”
+
+Dutch tossed the peas into the sink. “Pretty sure the guy was a cartel enforcer, so we'll call it community service.” He limped to the fridge, pulled out three beers, and handed them around. “To not being dead.”
+
+Lola didn't take hers. “We need to talk about Lux.”
+
+Mary popped her beer open with the slide of her Glock. “Oh good. I was worried we'd skip straight to sensible planning.”
+
+Dutch rubbed his temples. “Lux has Jesus. Lux has a TV special. Lux has enough private mercenaries to invade a small country.” He took a swig. “Also, my van's impounded.”
+
+Lola's eyebrow twitched. “Priorities.”
+
+“Damn right. That van had a custom mural of a wizard dolphin.”
+
+Mary snorted. “Priorities.”
+
+Lola pushed off the counter. “Lux is broadcasting from Eden World tonight. He's calling it 'The True Second Coming.'”
+
+Dutch choked on his beer. “That's the worst title since Honey, I Shrunk the Kids Who Believe in Me.”
+
+Mary wiped gun oil off her hands. “He's gonna make Jesus perform miracles on demand. Like a holy game show.”
+
+“Or,” Lola said quietly, “he's going to kill him live on air.”
+
+The room got very still. The ceiling fan creaked.
+
+Dutch set his beer down. “Okay. New plan: we steal my van back, load it with explosives, and crash Lux's party.”
+
+Mary nodded. “I like it. Simple. Direct. Explosions.”
+
+Lola pinched the bridge of her nose. “Or we could not commit domestic terrorism.”
+
+Dutch spread his hands. “You got a better idea?”
+
+“Yeah. We call for backup.”
+
+“From who? The cops? The feds? The pope?”
+
+Lola hesitated. Then: “Rex.”
+
+Mary's head snapped up. “The dinosaur?”
+
+“The cybernetic dinosaur,” Dutch corrected. “Who, last I checked, was busy having an existential crisis in the Everglades.”
+
+Lola pulled a folded photo from her pocket and slapped it onto the table. Security footage, grainy but obvious—Rex standing over Colonel Cain's crumpled form, his red optical scanner flickering like a dying neon sign. “He's not in the Everglades. He's at Eden World. And he's pissed.”
+
+Dutch squinted at the photo. “So what, we just walk up to a seven-ton killing machine and ask for a favor?”
+
+Mary grinned. “I'll bring snacks.”
+
+Lola tapped the photo. “Rex listens to Jesus. If we can get to him, we can get him to help.”
+
+Dutch groaned. “Great. All we have to do is infiltrate a heavily guarded theme park, avoid Lux's mercenaries and Cain's leftover goons, locate a traumatized prehistoric killing machine, and convince him to storm a live television broadcast.” He paused. “Also, my van's still impounded.”
+
+Mary stood, holstering her Glock. “First step: get the van.”
+
+Lola frowned. “How?”
+
+Dutch grinned. “I know a guy at the impound lot. Owes me for an '86 incident involving a flamingo and a golf cart.”
+
+Lola opened her mouth. Closed it. “You know what? I don't want to know.”
+
+Mary grabbed her jacket. “I'll get the explosives.”
+
+Lola's eye twitched. “No. No explosives.”
+
+“Fine.” Mary sighed. “Less explosives.”
+
+Dutch clapped his hands. “Team meeting adjourned. Next stop: Eden World, home of biblical dioramas and the world's most emotionally unstable dinosaur.”
+
+The ceiling fan wobbled. A cockroach scuttled across the linoleum.
+
+Lola picked up her beer, finally, and took a long drink. “We're gonna die.”
+
+Dutch toasted her. “Probably. But what a way to go.”
+
+Outside, the Miami sun baked the pavement. Somewhere north, a neon cross flickered to life. Somewhere underground, a serpent waited.
+
+And in the impound lot, a wizard dolphin smiled.
+
+Lola watched Dutch fumble with the first aid kit, his swollen fingers making a mess of the bandage wrapper. The fluorescent light buzzed overhead, casting his bruises in stark relief. He looked like hell—which, given their week, was appropriate.
+
+“You're doing it wrong,” she said.
+
+Dutch blinked at her. “Excuse me?”
+
+“The bandage. You're supposed to peel the backing, not gnaw at it like a raccoon with a candy wrapper.”
+
+He grinned, wincing as the split in his lip reopened. “Says the woman missing a shoe.”
+
+Lola glanced at her ruined pump. “I could still kick your ass with one heel.”
+
+“Promises, promises.” Dutch finally got the bandage open and pressed it to his eyebrow. It stuck at a drunken angle. “Good enough for government work.”
+
+Mary breezed past them, stuffing ammo into a duffel bag. “If you two are done flirting, we've got a dinosaur to recruit.”
+
+Lola's face burned. “We're not—”
+
+“Denial is a river in Egypt,” Mary sang, shouldering the bag. “I'll be in the van. Try not to consummate anything on the good knives.” She slammed the door behind her.
+
+Dutch cleared his throat. “So. About that plan.”
+
+“Which part?” Lola grabbed a fresh bandage and stepped closer. “The part where we break into an impound lot, or the part where we convince a cyborg T-Rex to help us storm a televangelist's death cult?”
+
+Dutch didn't flinch as she peeled off the crooked bandage. “I was thinking more about the part where we probably die.”
+
+Her fingers stilled. His breath was warm against her wrist.
+
+“You don't have to come,” he said quietly.
+
+Lola scoffed. “And let you idiots get all the glory?” She smoothed the new bandage over his eyebrow, her thumb brushing the edge of a bruise. “Besides, someone's gotta keep you from blowing up the wrong theme park.”
+
+Dutch caught her hand. His palm was rough, calloused from years of steering that ridiculous van through Miami's underbelly. “Lola.”
+
+She didn't pull away. “Don't.”
+
+“Don't what?”
+
+“Don't make this a thing.”
+
+He tilted his head. “What thing?”
+
+“The thing where you get all serious and noble and—”
+
+“And what?”
+
+“And look at me like that.”
+
+Dutch's grin was slow, infuriating. “Like what?”
+
+Lola yanked her hand back. “Like you're trying to memorize my face in case you don't—” She bit the words off.
+
+The fan wobbled. A car horn blared outside.
+
+Dutch exhaled. “Okay. New rule: no more talking about dying.”
+
+“Fine.”
+
+“Second rule: when we get out of this—”
+
+“If.”
+
+“—when,” he insisted, “you let me buy you a drink.”
+
+Lola folded her arms. “I don't date conspiracy theorists.”
+
+“Good thing I'm a reformed conspiracy theorist.”
+
+She rolled her eyes. “Dutch.”
+
+“Lola.”
+
+“You're impossible.”
+
+“And yet,” he said, stepping closer, “here you are.”
+
+The space between them crackled. Lola could smell the cheap beer on his breath, the gunpowder clinging to his shirt, the faint citrus of whatever terrible shampoo he used. His nose was crooked from at least two breaks. His left eyebrow had a scar that interrupted the hairline.
+
+He kissed her.
+
+It was quick. Chaste. Over before she could decide whether to knee him in the groin or drag him closer.
+
+Dutch pulled back, eyes wide like he'd just realized he'd juggled live grenades. “Uh.”
+
+Lola stared at him. “That's your move? After everything? A peck like we're at a middle school dance?”
+
+He blinked. “I—”
+
+She grabbed his collar and yanked him down.
+
+This kiss was not chaste.
+
+Dutch made a noise halfway between a gasp and a prayer, his hands finding her waist. The first aid kit hit the floor with a clatter. Lola's back connected with the fridge, rattling the expired condiments inside. Somewhere outside, Mary laid on the horn.
+
+They broke apart, breathing hard.
+
+Dutch's grin was dazed. “So. That happened.”
+
+Lola wiped her mouth. “Don't get used to it.”
+
+“Wouldn't dream of it.”
+
+She shoved him toward the door. “Move. Before Mary burns the van down.”
+
+Dutch stumbled, catching himself on the counter. “Right. Dinosaur rescue. Near-certain death.” He touched his lips, then pointed at her. “But we're revisiting this.”
+
+“Only if you live.”
+
+“Motivation accepted.”
+
+The van was a disaster—peeling paint, a cracked windshield, and the faint odor of expired seafood. Mary leaned out the driver's window. “Took you long enough. Get in, lovebirds.”
+
+Lola climbed into the passenger seat, ignoring the way Dutch's knee brushed hers. The engine coughed to life.
+
+Mary adjusted the rearview mirror. “So. We good?”
+
+Dutch buckled his seatbelt. “Define 'good.'”
+
+“We're not dead yet,” Lola said.
+
+Mary nodded. “Solid baseline.” She cranked the radio. Gloria Estefan blared as they pulled onto the street, the van shuddering like a spooked mule.
+
+Lola watched Miami blur past—the pastel buildings, the palm trees, the tourists oblivious to the holy war brewing in their backyard. Somewhere ahead, Eden World waited. Somewhere in its ruins, Rex prowled.
+
+And somewhere behind them, the safe house faded into the distance, its ceiling fan still spinning, its fridge still dented, its floor still littered with the bandages they'd left behind.
+
+Dutch's hand found hers, rough and warm.
+
+Lola didn't let go.
+
+*
+
+She kept her grip on the wire, knuckles white. The static hum traveled up her arm, a vibration in her teeth.
+
+“You're going to burn out the regulator,” Silas said from the doorway. He didn't come in.
+
+“It's already burned.” Lola's voice was flat. She didn't look at him. Her focus was on the connection point, the frayed copper strands bleeding against the terminal.
+
+He shifted his weight. The floorboard creaked. “We need to talk about the drop.”
+
+“We don't.”
+
+“Lola.”
+
+She finally turned. Her eyes were dry, her face smudged with grease and old sweat. “You gave the order. I executed it. Conversation's over.”
+
+“It's not that simple.”
+
+“It is.” She released the wire. It sparked once, a bright, angry snap in the dim workshop light. “He's dead because you called it in. I'm the one who pulled the trigger. Simple math.”
+
+Silas took a step inside. He stopped when she didn't move or give ground. “The intel was solid. The exchange was happening. We had a window of ninety seconds.”
+
+“Your window got my brother shot.”
+
+“Our brother.”
+
+The correction hung between them, ugly and precise. Lola picked up a torque wrench. She tested its weight in her hand.
+
+“Don't,” Silas said.
+
+“Don't what?”
+
+“You're holding that like you want to hit something.”
+
+“I do.” She set the wrench down with a deliberate click on the steel worktable. “But not you. You're not worth the mess.”
+
+He exhaled, a slow release. “The drop's still active. The package is still in play. Voss expects us to complete it.”
+
+“Voss can expect whatever he wants.”
+
+“He'll cut us loose.”
+
+“Good.”
+
+“Without his protection, the Cartel finds us inside a week.” Silas rubbed the back of his neck. “They'll make what happened to Tomas look like a vacation.”
+
+Lola stared at the spark-scorched terminal. Her brother's face flashed behind her eyes—not as he died, but earlier, laughing at a bad joke over lukewarm noodles. The memory was a physical puncture. She leaned into the table.
+
+“What's the play?” she asked, the words ground out.
+
+“We finish the job. We get the package to the rendezvous. Then we disappear with the credit.”
+
+“And Tomas?”
+
+“We grieve after we're safe.”
+
+She wanted to throw the wrench then. Wanted to smash every piece of glass in the room. She nodded once, a sharp, mechanical dip of her chin. “When?”
+
+“Midnight. Dockside, warehouse seven.”
+
+“Surveillance?”
+
+“Voss provided a schematic. Old construction, mostly blind spots. But the Cartel will have lookouts.”
+
+“How many?”
+
+“Unknown.”
+
+“Fantastic.” Lola turned back to the wiring harness. Her hands moved again, stripping insulation, twisting leads. The work was automatic, a rhythm to keep her mind from splintering. “Weapons?”
+
+“Pistols. Subsonic.” Silas brought a case from the locker. “It's by the door.”
+
+She didn't ask if they were clean. They never were. “I'll need ten minutes to prep the skiff.”
+
+“I'll handle the case.”
+
+He left. The door didn't close all the way. A sliver of yellow hall light cut across the dirty floor.
+
+Lola worked. She spliced wires, tested circuits, fueled the skiff's compact engine. Her movements were efficient, devoid of flourish. Each completed task was a box checked, a step toward the next inevitable mistake.
+
+The skiff was a battered thing, all patched hull and mismatched thrusters. Tomas had found it in a salvage yard two years ago. They'd rebuilt it together, arguing over coolant lines and ignition sequences. Now it was just her.
+
+She primed the ignition. The engine coughed, then settled into a low, ragged idle. Good enough.
+
+The docks at night smelled of rust and stagnant saltwater. Fog curled off the bay, swallowing the tops of gantry cranes. Warehouse seven was a slumped silhouette against the deeper black of the water.
+
+Lola cut the skiff's engine fifty meters out, letting momentum carry them to a derelict piling. She tied off on a rusted cleat. Silas passed her a pistol. The grip was cold.
+
+“Stay on comms,” he whispered. The earpiece was a tiny, uncomfortable bud. She inserted it. A crackle of static, then his breathing, too loud in her head.
+
+“Testing.”
+
+“I hear you.” Her own voice sounded alien.
+
+They moved onto the dock, keeping to the shadows of stacked cargo containers. The metal was slick with condensation. Lola's boots made no sound. Silas's did—a faint scuff every few steps. She fought the urge to tell him to walk lighter. He knew. He just couldn't do it anymore. His knee had never healed right after the job on Mariner's Star.
+
+A light swept across the dock ahead. They froze, pressing against the corrugated steel of a container. The beam passed, slow and methodical. A guard with a handheld spot.
+
+“One patrol,” Silas whispered into the comm.
+
+“I see him.”
+
+They waited until the light vanished around a corner. Then they ran, a quick dash to the warehouse's side door. It was supposed to be unlocked, per Voss's schematic.
+
+The handle turned. Lola pushed it open, pistol raised. Darkness, thicker inside. The smell of mildew and old oil.
+
+She stepped in. Silas followed, closing the door behind them. The click of the latch was deafening.
+
+Their eyes adjusted. High ceilings lost to shadow. Racks of forgotten machinery formed canyon walls. Somewhere, water dripped.
+
+“Center of the floor,” Silas said. “Should be a crate marked with a red circle.”
+
+They moved between the racks. Lola's pulse was a steady drum in her ears. She scanned the darkness, her finger resting alongside the pistol's trigger guard.
+
+The crate was there. A standard shipping container, but someone had spray-painted a lopsided red circle on its side. It sat alone in a cleared space.
+
+“Too easy,” she muttered.
+
+“Don't jinx it.” Silas approached, pulling a crowbar from his belt. He wedged it under the lid.
+
+The wood splintered. He pried it open.
+
+Inside, nestled in foam packing, were a dozen data cylinders. Silver, unmarked. Exactly what the contract specified.
+
+Silas reached for one.
+
+“Don't.” Lola's hand closed on his wrist. “Check for trackers first.”
+
+He hesitated, then nodded. He produced a small scanner, running it over the open crate. It remained silent, no blinking lights.
+
+“Clean.”
+
+“Maybe.” She wasn't convinced. A deal this hot, for credits this high—nothing was ever clean. “Grab them. Let's go.”
+
+He started transferring the cylinders to a padded bag. Lola kept watch, her back to him, pistol aimed at the maze of racks.
+
+The drip of water continued. Then it stopped.
+
+Lola went still. “Silas.”
+
+“Almost done.”
+
+“Now.”
+
+He heard the tension in her voice. He slung the bag over his shoulder. “Move.”
+
+They retreated the way they came, faster now. Lola led, cutting a path between two tall racks of moldering engine blocks.
+
+A figure stepped into their path.
+
+Lola didn't hesitate. She fired twice. The subsonic rounds made a sound like ripping cloth. The figure crumpled.
+
+“Go left!” Silas shouted.
+
+They veered. Running footsteps echoed from multiple directions. More than one guard. More than a patrol.
+
+“It's a setup,” Lola hissed into the comm.
+
+“Keep moving!”
+
+They burst into another aisle. A light flared, blinding. Lola threw up her arm, firing blind toward the source. Glass shattered. The light died.
+
+Shots answered. Loud, unsilenced cracks that reverberated in the cavernous space. Splinters exploded from a rack next to her head.
+
+She dove behind a pallet of rusted parts. Silas took cover opposite, behind a forklift with flat tires.
+
+“How many?” he asked, his voice tight.
+
+“Three. Maybe four.” She risked a glance. Shadows moved at the end of the aisle. “They're flanking.”
+
+“We can't stay here.”
+
+“No kidding.” Lola scanned their position. The side door was thirty meters behind them, cut off. The main warehouse doors were ahead, past the shooters. “Through them.”
+
+“Are you insane?”
+
+“Got a better idea?”
+
+He didn't answer. He checked his pistol's charge. “On three.”
+
+“One.”
+
+Lola took a beat, the air tasting of dust and cordite.
+
+“Two.”
+
+She adjusted her grip.
+
+“Three.”
+
+They broke cover together, firing as they ran. Lola aimed low, for legs and feet. She saw a man drop, clutching his thigh. Another ducked behind a crate.
+
+Silas wasn't as precise. His shots went high, punching into metal. Return fire zipped past them. Something hot grazed Lola's shoulder. She ignored it.
+
+The main doors were huge, sliding panels sealed with a heavy chain. A smaller access door was set into one—their only exit.
+
+“Cover me!” Silas sprinted for the door, fumbling with the bag of cylinders.
+
+Lola planted her feet, firing controlled pairs down the aisle. She kept their heads down. The slide on her pistol locked back. Empty.
+
+She ejected the magazine, slammed in a fresh one. The action took three seconds.
+
+A shooter stood up, taking aim at Silas's back.
+
+Lola fired first. Her shot took him in the chest. He fell.
+
+“It's stuck!” Silas yelled. The access door's handle was rusted shut.
+
+Lola ran to him, holstering her pistol. She grabbed the crowbar from his belt, jammed it into the doorjamb. She threw her weight against it. Metal screamed.
+
+The door gave, swinging outward into the fog.
+
+“Go!”
+
+Silas went through. Lola followed, pulling the door shut behind them. She wedged the crowbar through the exterior handles. It wouldn't hold long.
+
+They were on a different dock, narrower. The skiff was a hundred meters to the right, around the warehouse corner.
+
+“Run!”
+
+They ran. Footsteps and shouts erupted behind them. The crowbar clattered to the dock.
+
+Lola didn't look back. She focused on the skiff, on the knot in the rope she'd tied. Her lungs burned.
+
+They reached the piling. Silas threw the bag into the skiff and scrambled after it. Lola untied the rope, shoving off with her foot. She landed in the skiff as it drifted away from the dock.
+
+“Start it!” Silas yelled.
+
+She hit the ignition. The engine sputtered.
+
+Figures appeared on the dock, silhouetted against the warehouse light. Weapons raised.
+
+The engine caught with a roar. Lola slammed the throttle. The skiff leaped forward, skimming the black water. Shots rang out, but they were already moving, swallowed by the fog.
+
+She didn't slow until the docks were a distant smear of light. Her hands shook on the controls. The graze on her shoulder stung, a sharp, insistent heat.
+
+Silas sat in the bow, clutching the bag. The silence between them was hard. “We made it.”
+
+“Did we?” Lola's voice was raw. She adjusted their course, heading for the city's underbelly, for the warren of canals where light never reached. The data cylinders were a cold weight between them. She knew, with a certainty that settled in her bones, that the real trouble was just beginning. Tomas was still dead. The Cartel was still hunting. And they were now in possession of something people were willing to kill for. The skiff cut through the fog, a solitary blade in the dark.
