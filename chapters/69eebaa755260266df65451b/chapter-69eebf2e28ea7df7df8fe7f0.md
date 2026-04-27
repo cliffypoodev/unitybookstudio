@@ -66,7 +66,7 @@ Her throat worked. “Stop.”
 
 “Stop.” Her voice was raw. She fumbled for her phone, her hands shaking.
 
-Cassius watched her. The light from the living room window caught her hair, turning the gray strands silver. For a second, just a second, he saw her younger—sunburned, smiling, reaching for him across a blanket of sand.
+Cassius watched her. A light from the living room window caught her hair, turning the gray strands silver. For a second, just a second, he saw her younger—sunburned, smiling, reaching for him across a blanket of sand.
 
 Then the moment snapped.
 
@@ -90,7 +90,7 @@ Somewhere, she knew him.
 
 Not here.
 
-The rain came harder now, slanting under the porch roof. Lilith hadn’t moved from the doorway, the phone still pressed to her ear, but the call hadn’t connected yet. Cassius watched the way her fingers curled around the device, the knuckles whitening. He knew that grip—the same one she used when she was bracing for bad news.
+Rain came harder now, slanting under the porch roof. Lilith hadn’t moved from the doorway, the phone still pressed to her ear, but the call hadn’t connected yet. Cassius watched the way her fingers curled around the device, the knuckles whitening. He knew that grip—the same one she used when she was bracing for bad news.
 
 “Wait,” he said.
 
@@ -206,7 +206,7 @@ A shudder ran through her. She took a step back, her shoulder bumping the wall. 
 
 “Get out!” The words came out raw, ragged.
 
-Cassius didn’t move. Rain lashed against the windows. The room felt smaller suddenly, the walls closing in.
+Cassius didn’t move. The room felt smaller suddenly, the walls closing in.
 
 Lilith’s chest rose and fell rapidly. “You’re not real. This isn’t real.”
 
@@ -232,11 +232,11 @@ The streetlights buzzed overhead, the sound like static. He tilted his face up, 
 
 Never here.
 
-The rain needled Cassius’s neck as he walked down the porch steps. Behind him, the deadbolt slid home with a final metallic snick. He flexed his left hand; the tremor had spread to his wrist now, a persistent buzz under the skin. The marble in his pocket pressed against his thigh with each step, its presence both comfort and indictment.
+Rain needled Cassius’s neck as he walked down the porch steps. Behind him, the deadbolt slid home with a final metallic snick. He flexed his left hand; the tremor had spread to his wrist now, a persistent buzz under the skin. The marble in his pocket pressed against his thigh with each step, its presence both comfort and indictment.
 
 A curtain twitched in the neighbor’s window. Cassius kept his gaze forward, his shoulders hunched against the downpour. The street was a blur of wet pavement and smeared porch lights. Somewhere behind him, Lilith’s voice rose, tight and urgent. He didn’t need to hear the words to know she was giving the dispatcher his description. White male, late sixties, gray jacket, dark hair. He could recite the script himself.
 
-A police siren warbled in the distance, still blocks away but closing fast. Cassius picked up his pace, his shoes slapping against the slick sidewalk. Rain had soaked through his collar, the fabric clinging to the back of his neck. He could turn himself in. Let them take him to some fluorescent-lit station, let some tired cop with coffee air ask him questions he couldn’t answer. Do you know this woman? Have you been stalking her? He’d been through it before. They’d check his ID, run his name, find nothing. No warrants. No priors. Just a man with a head full of ghosts and a pocket full of proof no one could see.
+A police siren warbled in the distance, still blocks away but closing fast. Cassius picked up his pace, his shoes slapping against the slick sidewalk. Rain had soaked through his collar, the fabric clinging to the back of his neck. He could turn himself in. Let them take him to some fluorescent-lit station, let some tired cop with coffee silence ask him questions he couldn’t answer. Do you know this woman? Have you been stalking her? He’d been through it before. They’d check his ID, run his name, find nothing. No warrants. No priors. Just a man with a head full of ghosts and a pocket full of proof no one could see.
 
 The siren grew louder. Cassius ducked into an alley between two houses, the narrow space smelling of wet garbage and mildew. He pressed his back against the brick, the rough surface scraping through his jacket. The patrol car’s lights strobed against the opposite wall, red and blue fracturing the rain into jagged shards. Tires hissed on the pavement. A car door slammed.
 
@@ -244,7 +244,7 @@ The siren grew louder. Cassius ducked into an alley between two houses, the narr
 
 Lilith’s reply was muffled, but the panic in it carried. Cassius closed his eyes. He could picture her standing there, arms crossed, fingers digging into her elbows. The way she’d tuck her chin when she was scared but trying not to show it.
 
-Footsteps crunched on gravel. A flashlight beam swept the alley entrance, then moved on. Cassius let out a whisper of pause. He waited until the voices faded, until the radio static and the murmur of procedure retreated back toward Lilith’s porch. Then he pushed off the wall and kept walking.
+Footsteps crunched on gravel. A flashlight beam swept the alley entrance, then moved on. Cassius let out a whisper of air. He waited until the voices faded, until the radio static and the murmur of procedure retreated back toward Lilith’s porch. Then he pushed off the wall and kept walking.
 
 The alley dumped him onto a side street lined with parked cars. Rainwater gurgled in the gutters, swirling around discarded cigarette butts and candy wrappers. Cassius wiped his face with his sleeve. His fingers brushed the marble again, its surface slick with condensation.
 
