@@ -78,7 +78,7 @@ He went inside. He climbed the stairs. Each step jostled his shoulders. He enter
 
 The doctor’s words hung in the air. The body doesn’t lie.
 
-But his body was telling a story of sunlight that hadn’t happened here. Wearing the evidence of a day he hadn’t lived. This wasn’t a memory, a sound, a smell. This was flesh. This was pain you could measure with a thermometer, treat with a cream. This was clear.
+But his body was telling a story of sunlight that hadn’t happened here. It was wearing the evidence of a day he hadn’t lived. This wasn’t a memory, a sound, a smell. This was flesh. This was pain you could measure with a thermometer, treat with a cream. This was clear.
 
 He walked to the bathroom again. He looked in the mirror. The red face looked back. It wasn’t his face. It was the face of a man who had spent a day on a beach, or a lawn, or a patio somewhere else. A man who had felt sun on his skin. That man had gone to bed in a different bed, in a different room, under a different sky. And he had woken up here, in this bathroom, wearing Cassius’s clothes, Cassius’s life, but carrying his own sunburn.
 
@@ -128,7 +128,7 @@ He stood beside his car, keys in hand. The frustration was a hard knot under his
 
 A gust of wind blew down the street, carrying the smell of wet pavement and exhaust. And something else.
 
-For a second, it wasn’t exhaust. Salt. Sharp, marine salt, mixed with the coppery tang of blood. Iron. The scent was so vivid it coated the back of his throat. He could taste it. He turned his face into the wind, searching for its source—a fish market, a broken hydrant, anything. The street was just a street. A bus snapped to a stop at the corner. The smell vanished, replaced by diesel.
+For a second, it wasn’t exhaust. Salt. Sharp, marine salt, mixed with the coppery tang of blood. Iron. The scent was so vivid it coated the back of his throat. He could taste it. He turned his face into the wind, searching for its source—a fish market, a broken hydrant, anything. This street was just a street. A bus snapped to a stop at the corner. The smell vanished, replaced by diesel.
 
 But it left a ghost behind. The scent was now on him. It clung to his skin, underneath the clinical smell of the antiseptic soap from the clinics. Salt and iron. In the burn itself, a memory trapped in the damaged cells.
 
@@ -138,7 +138,7 @@ Cream. Cotton. The faint, clean smell of his own sweat. Nothing else.
 
 He leaned his head back against the seat. The roof of the car was stained with old water spots. They formed a shape like a wide continent. He stared at it. His mind, unmoored, drifted.
 
-The gulls were screaming. Not the faint, distant cries of the gulls at the city dump, but a loud, ragged chorus right overhead. The sun was a physical weight, a hammer on the back of his neck and shoulders. Too bright. This world was washed in white glare. He was squinting, his eyes watering. He was holding a fishing rod. The line was taut, thrumming. Something heavy and angry fought on the other end. The wood of the rod was smooth, worn shiny in the grip. His hands were different. Tanned, leathery, with a thick white scar across the knuckle of his right thumb. Salt spray stung his lips. He could feel the rough, sun-bleached planks of a dock under his feet, the gentle, oily roll of the water beneath it. The smell was overwhelming: dead fish, gasoline, brine, and the hot metallic scent of his own sunburned skin, already beginning to tighten and pulse with heat. A voice, rough and close, yelled, “Don’t horse it! Let him run!”
+The gulls were screaming. Not the faint, distant cries of the gulls at the city dump, but a loud, ragged chorus right overhead. The sun was a physical weight, a hammer on the back of his neck and shoulders. Too bright. The world was washed in white glare. He was squinting, his eyes watering. He was holding a fishing rod. The line was taut, thrumming. Something heavy and angry fought on the other end. The wood of the rod was smooth, worn shiny in the grip. His hands were different. Tanned, leathery, with a thick white scar across the knuckle of his right thumb. Salt spray stung his lips. He could feel the rough, sun-bleached planks of a dock under his feet, the gentle, oily roll of the water beneath it. The smell was overwhelming: dead fish, gasoline, brine, and the hot metallic scent of his own sunburned skin, already beginning to tighten and pulse with heat. A voice, rough and close, yelled, “Don’t horse it! Let him run!”
 
 Cassius jerked forward, his forehead almost hitting the steering wheel. The car was silent. The continent of water stains was just stains. His hands on the wheel were his hands—pale, uncalloused, scarless. The fishing rod was gone. The phantom tension in his arms lingered for a second, a ghost ache.
 
@@ -156,7 +156,7 @@ Back in his apartment, the silence was a presence. He didn’t turn on the light
 
 The cream from the first doctor was on the bathroom counter. He picked up the tube. Real. It would soothe the symptom. It would do nothing for the cause. He unscrewed the cap and squeezed a white worm of it onto his finger. The smell was medicinal, clean. It erased nothing.
 
-He applied it to his face in the dark bathroom, guided by touch. The mirror was a black rectangle. He was glad he couldn’t see himself. He didn’t know whose face he would see looking back. The man from the dock had a face. Tanned, lined, squinted against the sun. Cassius could almost feel the shape of that other jaw under his fingertips, a phantom bone structure beneath his own.
+He applied it to his face in the dark bathroom, guided by touch. The mirror was a black rectangle. He was glad he couldn’t see himself. The man from the dock had a face. Tanned, lined, squinted against the sun. Cassius could almost feel the shape of that other jaw under his fingertips, a phantom bone structure beneath his own.
 
 When he finished, he washed his hands again. The water ran clear. He lifted his hands to his face, cupping them over his nose and mouth, and breathed in deeply.
 
@@ -164,7 +164,7 @@ There it was. Faint, almost gone, underneath the soap and cream.
 
 Salt. And iron.
 
-Proof. Not for anyone else. For him. The body doesn’t lie. His body was telling a truth that belonged to someone else, a truth that had arrived by a road he couldn’t map. He lowered his hands. The apartment waited, a shell holding a man who was becoming a chorus. The silence wasn’t silence anymore. It was the static between stations, and in it, he could almost hear the distant hungry scream of gulls.
+Proof. Not for anyone else. For him. The body doesn’t lie. His body was telling a truth that belonged to someone else, a truth that had arrived by a road he couldn’t map. He lowered his hands. The apartment waited, a shell holding a man who was becoming a chorus. Silence wasn’t silence anymore. It was the static between stations, and in it, he could almost hear the distant hungry scream of gulls.
 
 He sat at his desk. The lamp cast a yellow circle on the wood, leaving the rest of the room in deep shadow. He opened a notebook, a fresh one. The first page was blank. He wrote the date at the top. Then he wrote: Event: Sunburn. Location: Shoulders, chest, face, forearms. Degree: 1st-2nd. Pain level: 7/10. No known exposure.
 
