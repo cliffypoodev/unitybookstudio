@@ -54,7 +54,7 @@ He looked at the two pages. The first was a mess of scratches and question marks
 
 A strange sound escaped him. Not a laugh. Not a sigh. A short, dry exhalation of air. It was the sound a machine might make powering down.
 
-He wasn’t distressed. That was the most peculiar part. The cold dread, the panic, the grief for Lilith—those belonged to specific books. The man on the shelf, the shelf itself felt only a deep, tectonic fatigue. The exhaustion of a structure holding incompatible weights. It wasn’t sadness. Physics.
+He wasn’t distressed. That was the most peculiar part. The cold dread, the panic, the grief for Lilith—those belonged to specific books. A man on the shelf. The shelf itself felt only a deep, tectonic fatigue. The exhaustion of a structure holding incompatible weights. It wasn’t sadness. Physics.
 
 The sun had moved. The rectangle of light now climbed the wall, leaving his notepad in shadow. The air in the apartment cooled by a degree. He became aware of a new sensation, soft and insidious, unspooling at the edges of his awareness.
 
@@ -62,7 +62,7 @@ It wasn’t a memory of an event. It was a memory of a state.
 
 A feeling of quiet domesticity. The soft thump-thump-thump of a dog’s tail against a braided rug. The low hum of a refrigerator in a different kitchen. The scent was faint—lavender laundry detergent, yes, but underneath it, the warm, sweet smell of a sleeping child’s hair.
 
-It had no edges. It offered no faces, no names. It was just a texture of existence, a blanket of mundane peace so profound it felt alien. It was the opposite of the vibrant, sun-drenched longing for Lilith. This was gray and gentle and complete. A life where nothing was wrong because nothing was extraordinary. A life of small, quiet satisfactions that left no scars.
+It had no edges. It offered no faces, no names. It was just a texture of existence, a blanket of mundane peace so profound it felt alien. It was the opposite of the vibrant, sun-drenched longing for Lilith. This was gray and gentle and complete. A life of small, quiet satisfactions that left no scars.
 
 It terrified him more than any ghost.
 
@@ -88,7 +88,7 @@ He reached the lobby. The clerk behind the desk, a young man with headphones on 
 
 He walked. He didn’t pick a direction. He let the crowd’s current nudge him along the sidewalk. He passed a bookstore, a bail bonds office, a shuttered theater. The faces around him were a blur of preoccupation. He tried to match his breathing to his steps. In. Out. The rhythm was his own.
 
-His stomach growled. A basic, physical signal. He needed to eat. The thought was clear, uncomplicated. He would get food. He would choose it. He would eat it. It would be a thing he did.
+His stomach growled. A basic, physical signal. He needed to eat. That thought was clear, uncomplicated. He would get food. He would choose it. He would eat it. It would be a thing he did.
 
 He saw a diner ahead, light spilling from its wide windows onto the wet pavement. The sign was simple: EAT. He pushed the door open. A bell jingled. The air inside was warm, thick with the smell of grease and coffee and something sweet maybe pie. A few patrons sat in booths. A waitress leaned against the counter, writing on a pad.
 
@@ -122,7 +122,7 @@ When the plate came, the sandwich looked correct. Toasted wheat, bacon visible a
 
 He ate all of it. He chewed each bite deliberately, noting the texture, the lack of flavor. This was his choice. This was his experience. Unsatisfying. It was his.
 
-He paid at the counter, leaving cash on the Formica. The bell jingled again as he left. The evening had deepened, the sky a bruised purple. Streetlights hummed to life. He felt steadier. The walk back to the apartment was a straight line. He retraced his steps, a creature of habit. His habit.
+He paid at the counter, leaving cash on the Formica. A bell jingled again as he left. The evening had deepened, the sky a bruised purple. Streetlights hummed to life. He felt steadier. The walk back to the apartment was a straight line. He retraced his steps, a creature of habit. His habit.
 
 Back inside his apartment, the silence felt different. Not empty. Watchful. He took off his jacket and hung it up. The marble went back into the pocket. He stood in the middle of the living room. The notepad still sat on the table, a monument to failure. He ignored it.
 
@@ -190,7 +190,7 @@ The hand kept shaking.
 
 He looked at it, this thing attached to him. It had written school essays held Lilith’s hand turned the pages of a thousand books. Now it vibrated with stolen histories. A mason’s hand, calloused from trowel work. A pianist’s hand, remembering arpeggios. A surgeon’s hand, steady as a rock. All those layers of muscle memory, short-circuiting.
 
-He finished the coffee. The bitterness was a clean line drawn on his tongue. He stood, the movement stiff. His knees ached—his own ache, from a fall on ice decades ago, or maybe from years of kneeling in a garden that never existed. It didn’t matter. The pain was here.
+He finished the coffee. The bitterness was a clean line drawn on his tongue. He stood, the movement stiff. His knees ached—his own ache, from a fall on ice decades ago, or maybe from years of kneeling in a garden that never existed. It didn’t matter. That pain was here.
 
 He went to the small desk wedged in the corner of the living room. The journal was there, a simple black notebook. He’d bought it yesterday. A final attempt at a log. Not of memories, but of the static itself. He pulled out the chair sat down. The wood creaked. He opened the notebook to the first blank page. He picked up a pen. The tremor transferred to the tip, a tiny, frantic dance over the white paper.
 
