@@ -1,6 +1,6 @@
 The coffee tasted like burnt paper and regret. Cassius stared into the mug, watching the oily sheen on the surface catch the morning light. Thirty. The number sat in his head like a wrong note in a familiar song.
 
-He’d made a list. A stupid, hopeful list he’d found in a desk drawer last week, scribbled on the back of a gas station receipt when he was twenty-two. By thirty: publish something, own a dog, learn guitar, see the ocean. The receipt was faded, the ink smudged. He’d done none of it. The dog was a landlord issue, the guitar was still in its case under the bed with two broken strings, the ocean was a thousand miles away, and the only thing he’d published was a letter to the editor of the Herald about potholes on Maple Street. They’d printed it, misspelling his name as ‘Cassidy.’
+He’d made a list. A stupid, hopeful list he’d found in a desk drawer last week, scribbled on the back of a gas station receipt when he was twenty-two. By thirty: publish something, own a dog, learn guitar, see the ocean. The receipt was faded, the ink smudged. He’d done none of it. The dog was a landlord issue, the guitar was still in its case under the bed with two broken strings, the ocean was a thousand miles away, and the only thing he’d published was a letter to the editor of the Herald about potholes on Maple Street. They’d printed it, misspelling his name as “Cassidy.”
 
 The radiator ticked. A bus groaned to a stop outside his building, the hydraulic sigh familiar as his own breathing. Normal. Everything was aggressively, boringly normal.
 
@@ -44,7 +44,7 @@ The hallway carpet was a pattern of muted greens and browns, worn to a threadbar
 
 “Morning, Mrs. Gable.”
 
-A door eased shut without a sound.
+Her door eased shut without a sound.
 
 Outside, the air had a bite to it, a last gasp of winter clinging to the spring morning. His car, a sensible sedan the color of dull mud sat at the curb. He unlocked it, slid inside. The interior smelled of stale fast food and the pine tree air freshener dangling from the rearview, a scent so aggressively artificial it made his eyes water.
 
@@ -52,7 +52,7 @@ He turned the key. The engine coughed caught.
 
 He pulled away from the curb, checking his mirror. The blue house flashed again, not a full image—just a smear of color in his peripheral vision, the sensation of a driveway under tires that wasn’t asphalt but crushed white stone.
 
-He jammed the brake. The car lurched to a halt.
+He jammed the brake. A car lurched to a halt behind him.
 
 The street behind him was just a street. Brick apartments, leafless trees, a kid on a bicycle weaving down the sidewalk.
 
@@ -82,7 +82,7 @@ He parked, the engine cutting out with a final shudder. The porch light cast a w
 
 His mother, Eleanor, opened the door before he even knocked. Her smile was wide, crinkling the corners of her eyes. She wore a floral apron over a sensible sweater, her silver hair pulled back in a neat bun. “Cassius! Happy birthday, darling.”
 
-She pulled him into a hug that smelled of lavender and roast beef. He let himself be held, for a moment, the familiar warmth a balm against the day’s unease.
+She pulled him into a hug that smelled of lavender and roast beef. He let himself be held for a moment, the familiar warmth a balm against the day’s unease.
 
 “Smells good, Mom.”
 
@@ -104,9 +104,9 @@ Eleanor bustled into the kitchen, returning with a platter piled high with roast
 
 He ate, tried to focus on the conversation about local politics and the rising cost of property taxes. His father’s voice was a low rumble, Eleanor’s a cheerful counterpoint. It was a familiar rhythm, one he’d heard a thousand times.
 
-But the phantom cedar smell was back, faint but persistent, clinging to the edges of the roast beef aroma. And with it, the hollow ache in his chest, a low thrum beneath the surface of his attention. He found himself looking at the empty chair at the end of the table. The one that always stayed empty.
+But the phantom cedar smell was back, faint but persistent, clinging to the edges of the roast beef aroma. And with it, the hollow ache in his chest, a low thrum beneath the surface of his attention. He found himself looking at the empty chair at the end of the table.
 
-Not really. In his mind, a boy sat there. A boy with bright, quick eyes and a gap-toothed grin. A younger boy maybe ten. He reached for a potato, elbowing Cassius’s arm playfully. Cassius saw the faded blue of a T-shirt heard a high, clear laugh. The light from the chandelier seemed to catch the boy’s hair, turning it to spun gold. A faint scar above his left eyebrow, from falling off his bike.
+Not really empty. In his mind, a boy sat there. A boy with bright, quick eyes and a gap-toothed grin. A younger boy maybe ten. He reached for a potato, elbowing Cassius’s arm playfully. Cassius saw the faded blue of a T-shirt heard a high, clear laugh. The light from the chandelier seemed to catch the boy’s hair, turning it to spun gold. A faint scar above his left eyebrow, from falling off his bike.
 
 Cassius dropped his fork. It clattered against the plate.
 
@@ -146,7 +146,7 @@ He pulled his hand back, gently. The warmth of her touch felt like a lie. His ch
 
 “I… I need some air.” He pushed his chair back, the legs scraping against the floor. The sound was loud, jarring.
 
-His mother watched him go, her expression unreadable. His father had already raised his newspaper again, a rustle of paper, already dismissing the anomaly.
+His mother watched him go, her expression unreadable. His father had already raised his newspaper again, a rustle of paper already dismissing the anomaly.
 
 Cassius walked out of the dining room, the roast beef smell turning cloying. He walked through the living room, past the old grandfather clock ticking away the seconds, each tick a tiny hammer blow against the fragile structure of his sanity. He walked out the front door, leaving the warmth and the light behind him. The air outside was cold, sharp. He stood on the porch, staring out into the dark, familiar street. The rose bush was a dark, thorny silhouette against the neighbor’s porch light. He let the words out in the cold air, trying to clear his head, trying to make sense of the perfect, terrible blankness he had just encountered.
 
