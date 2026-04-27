@@ -151,7 +151,7 @@ His breath caught. He clicked it open.
 His own words stared back at him.
 
 Miller – 7:14 PM
-Got the wine. That Malbec you like. Should I pick up bread on the way? Lena says she’s making a salad but we all know that means a bag of pre-washed greens. I’ll get a baguette.
+Got the wine. That Malbec you like. Should I pick up bread on the way? Lena says she’s making a salad, but we all know that means a bag of pre-washed greens. I’ll get a baguette.
 
 Miller – 7:22 PM
 And don’t use that cheap cooking wine again. I’m bringing the real stuff. My taste buds still haven’t forgiven you for last time.
@@ -221,9 +221,9 @@ He had asked. Miller had wanted one. A memory surfaced, not as a full scene, but
 
 So the Dutch oven had existed as a want. A future possibility. In the memory of the dinner, it had become a reality. A detail had jumped from the realm of potential into the area of lived experience, taking an entire evening with it.
 
-Cassius put the phone down. One screen went black.
+Cassius put the phone down. The screen went black.
 
-The apartment was too quiet. The radiator had stopped hissing. The silence had a weight, a density. It pressed against his eardrums.
+The apartment was too quiet. The radiator had stopped hissing. Its silence had a weight, a density. It pressed against his eardrums.
 
 He thought about calling his mother. Asking her if she remembered him talking about a dinner party. But he already knew what she’d say. She’d ask if he was getting enough sleep. She’d tell him he worked too hard. Her concern would be another kind of erasure, softer than Lena’s but just as absolute.
 
