@@ -1,0 +1,341 @@
+Sister Biscuit arranged the day’s first batch of glazed revelations on the stainless steel cooling rack. The air in the Miami Donut Emporium was thick with the smell of hot oil, powdered sugar, and something else—something faintly metallic, like the air before a summer thunderstorm. She wore a flour-dusted habit, her eyes the color of strong coffee behind thick, wire-frame glasses. A jagged, lightning-shaped scar traced a pale path from her left temple down to her jaw. It tingled whenever the donuts were ready, a divine notification.
+
+She couldn’t speak. Not with words. The bolt from a clear blue sky seven years ago had taken her voice and given her x-ray vision in return. She saw the bones in people’s hands when they reached for a cruller. She saw the fillings in their teeth when they smiled. She also saw, sometimes, a faint, shifting glow around their hearts—bright for the joyful, murky for the liars. It was a useful skill for an evangelist of the baked gospel.
+
+Her communication was pastry-based. A jelly-filled donut meant approval. A cruller twisted into a question mark meant confusion. A Boston cream, smashed flat was her sign for profound disappointment.
+
+A bell jangled over the front door. Earl, her sole employee and a man whose heart-glow was the consistent gray of old dishwater, shuffled in from the December humidity. He wiped his brow with a bandana.
+
+“Morning, Sister. Smells like heaven and a coronary event in here.”
+
+Sister Biscuit handed him a perfect, symmetrical glazed ring. A greeting.
+
+“Much obliged.” He took a bite, chewed slowly. His eyes, already baggy, sagged further. “Whoa. I just had a… a feeling. Like my Aunt Bertha’s perfume. She’s been dead ten years.”
+
+She nodded vigorously, pointing at the donut, then at the ceiling. See? Divine.
+
+Earl swallowed. “Or it’s the lard. Could be the lard.”
+
+The front shop was a temple of kitsch. A neon sign in the shape of a haloed donut sputtered pink and yellow. Paintings of saints holding pastries lined the walls—Saint Honoré, patron of bakers, looked particularly burdened by a giant éclair. The display case gleamed under fluorescent lights, showcasing the day’s miracles: Pentecostal Palmiers, Apostle Éclairs, and the bestselling Lazarus Rings—donuts that were fried died in the glaze, and rose again in the customer’s stomach.
+
+The first wave of the faithful arrived at seven. Mrs. Gable from the apartment next door, her heart a frantic, sputtering orange. She bought a half-dozen Lazarus Rings.
+
+“For my bridge club,” she whispered, as if ordering contraband. “Mildred’s been skeptical.”
+
+Sister Biscuit gave her a jelly-filled. Be strong.
+
+By eight, the line stretched out the door and onto the sun-baked sidewalk. A mailman bit into a cruller and burst into tears, describing a vision of his lost dog running through fields of endless buttercream. A taxi driver ate a chocolate-dusted and began speaking in what sounded like fluent, if gravelly, Aramaic. He double-parked and started directing traffic with surprising authority.
+
+Sister Biscuit felt a warm swell in her chest. The glow around her customers brightened, flickering with gold and blue. The miracles were working. The gospel was spreading, one sugar rush at a time.
+
+Then the guy in the seersucker suit showed up.
+
+He was maybe forty, with the tan of a man who played tennis against lawyers. His heart didn’t glow at all. It was a flat, matte black, like a hole in her x-ray vision. He watched the crying mailman with detached interest, his fingers tapping a silent rhythm on his thigh.
+
+“One of the Lazarus Rings, please,” he said. His voice was smooth, air-conditioned.
+
+She handed him the donut, her own scar giving a sharp, warning twinge. He didn’t eat it. He placed it carefully in a small, clear plastic box he produced from his briefcase.
+
+“For later,” he said, and offered a smile that didn’t reach his eyes. “Health inspector. Routine sample.”
+
+He left without another word. The hole where his heart should be lingered in her sight like a negative afterimage.
+
+The incident with the seersucker suit was a pebble in her shoe, a minor irritation. The real problem was Barry.
+
+Barry was a regular, a computer repair technician with a nervous sweat and a fondness for the Apostle Éclairs. Today, he bit into the cream-filled pastry and froze. His eyes, magnified by thick glasses went wide. The glow around him spiked into a violent, electric purple.
+
+“The light,” he breathed. “It’s… it’s full of teeth.”
+
+He dropped the éclair. It hit the linoleum with a soft plop.
+
+“Teeth and… and feathers? But metal feathers. Clanking.” Barry backed into a rack of devotional coffee mugs. They rattled. “It’s walking on two legs. It’s got a little duck on its head? Sister, what is this? Is this the Holy Spirit? It looks really pissed off.”
+
+Sister Biscuit hurried around the counter, waving a jelly donut in a calming circle. Peace. Be still.
+
+“It’s looking right at me!” Barry shrieked. “It’s thinking about eating me! I can feel it thinking!”
+
+He bolted out the door, leaving his tool belt behind.
+
+Earl mopped up the cream filling with a sigh. “That’s the third one this week. The Holy Ghost used to show people burning bushes or talking donkeys. Now it’s showing… what was it? Metal chickens?”
+
+Sister Biscuit handed him a cruller question mark.
+
+“I don’t know, Sister. I just work here.” He leaned on the mop. “But that health inspector fella? He came back yesterday when you were at the bank. Asked a lot of questions about your glaze recipe. Wanted to know if you used any ‘special imported ingredients.’ I told him it was just sugar, water, and a prayer. He didn’t look convinced.”
+
+Her scar went cold. She grabbed a notepad and scrawled in her looping, frantic handwriting: THE GLAZE IS CONSECRATED. NOT IMPORTED.
+
+“Yeah, well, try telling him that. He had a clipboard. Clipboards mean trouble.”
+
+The visions grew stranger, less biblical, more… biological. A grandmother saw vines with circuit patterns growing up a church spire. A teenager swore he was chased through his dream by glowing mosquitoes that hummed show tunes. The common thread was a low, resonant frequency the vision-seers all mentioned—a hum that got inside your bones.
+
+And the tongues. Good Lord, the tongues. It wasn’t just Aramaic anymore. People were babbling in what sounded like machine code, botanical Latin, and something with far too many sibilant s sounds. The Donut Emporium sounded less like a Pentecostal revival and more like the receiving ward of a very confused alien embassy.
+
+Sister Biscuit’s conviction began to sprout cracks. She started having doubts, which for her manifested as an inability to properly pipe jelly. Her fills were off-center. Her glazes developed strange, crystalline patterns under the heat lamps, geometric and too perfect.
+
+She decided to test the miracle. After closing, she took a Lazarus Ring from the case. She held it up to the neon halo light. With her x-ray vision, she looked past the fluffy dough, past the sweet glaze.
+
+There, in the very molecular structure of the sugar, she saw it.
+
+Tiny, impossibly complex patterns. Spirals within spirals, etched not by hand or by God, but by something that calculated. They pulsed with a faint, silver light, vibrating at a frequency that made her fillings ache. Beautiful. Artificial. It looked like a schematic.
+
+This wasn’t divine inspiration. This was engineering.
+
+She felt the world tilt. The warm glow in her chest guttered, replaced by a cold, hollow dread. She had been broadcasting a signal, not a sermon. She dropped the donut as if it were a live coal.
+
+The bell jangled. She jumped, clutching her chest.
+
+It was the woman from the fruit market down the street, Lupe. Her eyes were red-rimmed, her heart a bruised, worried purple. She carried a cardboard box.
+
+“Sister? I… I need a dozen of the strongest thing you got. The ones that make you see things.”
+
+Sister Biscuit approached the counter slowly, wiping her hands on her apron. She pointed at Lupe, then her own eyes, then made a swirling motion by her temple. You’ve had a vision?
+
+“It’s my boy, Mateo,” Lupe said, her voice cracking. “He’s sixteen. He ate one of those cinnamon twists yesterday after school. Now he won’t come out of his room. He’s just… drawing. On the walls. With charcoal.” She opened the box.
+
+Inside were sheets of butcher paper, covered in frantic, skilled sketches. They were diagrams. Detailed, cross-sectional diagrams of what looked like giant, fleshy eggs. Embryonic creatures with cybernetic implants. Schematics for nutrient tanks. Labels in a neat, blocky print: PROJECT LAZARUS REX – WETLAND INCUBATION SERIES. In the corner of one page, a logo: a thorny crown encircling a DNA helix.
+
+Lupe pointed a trembling finger at a particularly disturbing sketch of a creature that was part alligator, part satellite dish. “He keeps saying this word. Over and over. ‘THORN.’ He says it’s in the sugar. He says the sugar is telling the swamp what to grow.” She started to cry. “What did you give him, Sister? What is in your donuts?”
+
+Sister Biscuit stumbled back. Her x-ray vision flickered, showing her the bones in Lupe’s hands, the fragile cage of her ribs. She saw the pulsing, infected silver light radiating from the sketches themselves, a resonance from the sugar-ink in her own glaze. She had done this. Her kitchen was a transmitter. Her donuts were receivers.
+
+She grabbed her notepad, her handwriting a panicked scrawl. I DIDN’T KNOW. THE VISION—THE LIGHTNING—IT GAVE ME THE RECIPE. I THOUGHT IT WAS GOD.
+
+Lupe read it, her face crumbling from fear into something harder. “You thought? You thought?” She shoved the box across the counter. “My son is drawing nightmares because you thought! What god gives recipes for this?”
+
+The bell jangled again, a harsh, angry sound.
+
+The man in the seersucker suit stood in the doorway, clipboard in hand. His matte-black heart was a void in the room. He wasn’t alone. A woman stood beside him, severe in a gray pantsuit, her hair in a tight bun. She held a small electronic device with a blinking green light.
+
+“Sister Biscuit?” the man said, his voice no longer pleasant. It was a statement, not a question. “I’m Inspector Finch. This is Dr. Vance. We’re with the… Department of Culinary Compliance. We have some concerns about your glaze.”
+
+Lupe looked between them, grabbed her box of nightmares, and fled.
+
+Sister Biscuit stood her ground, pointing a floury finger at her notepad where she’d written: CONSECRATED. NOT IMPORTED.
+
+Dr. Vance ignored her, holding the device aloft. It began to chirp rapidly, the green light flashing in sync with the neon donut sign. She walked along the display case. The chirping grew frenetic near the Lazarus Rings.
+
+“Echo is off the charts, Finch. It’s definitely a THORN-7 carrier signal. Encoded in the clear sucrose matrix.” She looked at Sister Biscuit with clinical disdain. “Where did you acquire the proprietary algorithm for your glaze, ma’am?”
+
+Algorithm. Proprietary. The words hit her like physical blows. She shook her head violently, making the sign of the cross over her chest, then pointing to her lightning scar and the sky.
+
+Inspector Finch sighed, a sound of deep bureaucratic annoyance. “Divine revelation is not an approved source for food additives. You’re in violation of seventeen codes, including unlicensed broadcast of command frequencies into consumer comestibles.” He flipped a page on his clipboard. “We’re going to need your recipe. And your fryer.”
+
+Sister Biscuit’s panic crystallized into a sharp, clear point of rage. They thought this was about codes. About proprietary algorithms. They were the same as the people who’d sent the lightning, who’d grown those things in the swamp. They saw mystery and tried to put it in a plastic box.
+
+She reached under the counter and pulled out her response. Not a donut.
+
+It was a fully-iced, sprinkle-covered cake donut, shaped with meticulous, furious care into a single, elegant, upraised middle finger.
+
+She slammed it on the counter between them.
+
+Inspector Finch’s eyebrows climbed his forehead. Dr. Vance’s device emitted a confused, low beep.
+
+The standoff lasted three seconds. Then the front window of the Donut Emporium exploded inward.
+
+Not from a brick. From a body.
+
+A man in a dirty trucker’s hat tumbled through the shattering glass, rolled across the floor, and came to a stop at Dr. Vance’s sensible shoes. He was wiry, wild-eyed, dripping with swamp water and something that smelled like rotten orchids. In one hand he clutched a half-eaten Lazarus Ring.
+
+He looked up at them, his pupils dilated into black pools.
+
+“The frogs,” he slurred, a trickle of blood mixing with glaze on his chin. “The frogs are singing the hum. And the big one… the one with the teeth and the duck? He’s real. I saw him.” He took a shuddering breath, his gaze locking on the donuts in the case with terrifying hunger. “He’s coming. And he’s really hungry for something sweet.”
+
+He passed out.
+
+In the sudden, ringing silence, broken only by the drip-drip of swamp water from the trucker’s boots and the frantic beeping of Dr. Vance’s device, Sister Biscuit looked from the unconscious man, to the shattered window, to the two government agents whose faces had gone from stern to pale.
+
+She knew, with a certainty that chilled her to the bone, that her donuts hadn’t just been sending a signal.
+
+They’d been sending a dinner invitation.
+
+And something on the other end of that THORN-7 algorithm had just RSVP’d.
+
+Sister Biscuit’s world narrowed to the beeping device, the shattered window, and the swamp-soaked prophet snoring on her floor. Inspector Finch recovered first, his bureaucratic programming overriding shock. He stepped over the unconscious man and leveled a finger at her, his matte-black heart seeming to swallow the neon light.
+
+“This is a contamination event. This facility is now under federal seizure.”
+
+Dr. Vance was already snapping on latex gloves. She produced a sterile swab kit from her briefcase and crouched by the trucker’s half-eaten donut. “Subject ingested the carrier medium. We’ll need a full bio-scan. And someone get a containment team for the… for whatever he’s talking about.”
+
+Earl chose that moment to emerge from the back, holding a fresh tray of Pentecostal Palmiers. He took in the broken window, the twitching government scientist, the passed-out swamp man, and the inspector’s outstretched finger. He set the tray down on the counter with a soft click.
+
+“I’m on my break,” he announced, and walked out the front door, stepping carefully over the glass.
+
+The bell jangled feebly on its broken spring.
+
+Sister Biscuit felt a hysterical laugh bubble up in her throat, a soundless wheeze. She swallowed it. This was her church. Her kitchen. Her mistake. She grabbed her notepad.
+
+YOU NEED TO LEAVE. NOW.
+
+Finch read the note and smiled his air-conditioned smile. “We’re not the ones leaving, Sister. You’ve been broadcasting an unlicensed command frequency through a public food vector. That’s a national security issue wrapped in a health code violation. We’re taking the fryer, the glaze, the flour, and you.”
+
+Dr. Vance stood, sealing the swab in a vial. “The signal strength in this room is amplifying. It’s interacting with the neon signage, the old wiring… it’s creating a localized field. Your donuts aren’t just carrying the signal anymore. They’re becoming transmitters.”
+
+As if on cue, the Lazarus Rings in the display case began to vibrate. A low, resonant hum filled the shop, deeper than the fryer’s drone, tuning itself to the frequency that had haunted her customers’ visions. The neon halo sign flickered, then glowed a steady, electric blue.
+
+The trucker on the floor moaned. “The teeth… the metal feathers…”
+
+Sister Biscuit’s lightning scar burned like a live wire. Her x-ray vision flickered, showing her the skeletons of the agents, the metal fillings in their teeth blazing like tiny stars. But she saw more. She saw the sugar crystals in the donuts on the counter, each one a microscopic, pulsing node in a silver network. She saw the same network echoed in the circuitry of Dr. Vance’s device, and in a faint, ghostly pattern around Inspector Finch’s black heart. They weren’t just investigators. They were part of the system. They were here to reclaim a lost tool.
+
+She backed toward the swinging door to the kitchen. Her sanctuary. Her lab.
+
+“Don’t,” Finch said, his voice losing its smoothness. Flat, commanding. A THORN tone. “The algorithm in your glaze is proprietary military-corporate intellectual property. You will hand it over.”
+
+She didn’t stop. She hit the door with her shoulder and stumbled into the hot, fragrant chaos of the back.
+
+The kitchen was a cathedral of grease. Industrial fryers bubbled. Mixers hummed. Racks of cooling donuts lined every wall. The air shimmered with heat and sugar-dust. And in the center of it all, a man was tinkering with her blessed glaze drum.
+
+He was young, earnest, with a neatly trimmed beard and eyes full of fervent light. He wore a flour-dusted apron over his jeans. Jeremy. Her most devoted disciple. He’d shown up a month ago, a lost soul who found purpose in the precise swirl of a Bismarck. He was a natural at the piping bag. He’d also, she now realized, asked a lot of specific questions about her “inspirational episodes.”
+
+He looked up, his face alight. “Sister! I felt a surge in the Spirit! I’ve been led to amplify the blessing! Look!” He gestured to the glaze drum. He’d jury-rigged a contraption to its side—a mess of copper wire, old radio parts, and what looked like a reclaimed microwave transformer. Hooked into the kitchen’s main power line. “It’s a spiritual amplifier! Based on the principles of resonant frequency! When the next batch is glazed, the miracle will be tenfold!”
+
+Her heart sank. His heart-glow wasn’t the murky gray of a liar. It was a bright, convinced, idiot gold. He was a true believer. He was also about to turn her kitchen into a bomb.
+
+She rushed forward, waving her arms, making a slashing motion across her throat.
+
+“No, Sister don’t fear!” Jeremy said, misinterpreting her panic for holy excitement. “This is the next step! The Great Glazing! I calculated the harmonics myself!” He held up a notebook filled with complex equations next to doodles of angels with donut halos.
+
+The swinging door burst open. Finch and Vance entered, the inspector’s clipboard now looking absurdly out of place. Dr. Vance’s device was screaming a continuous, high-pitched chirp.
+
+“Unplug that immediately,” Finch ordered, his voice cutting through the fryer’s rumble.
+
+Jeremy drew himself up, positioning himself between the agents and the glaze drum. “You pharisees! You bureaucrats! You would stifle the divine signal? This is holy work!”
+
+“That’s a THORN-7 carrier wave amplifier, you idiot,” Dr. Vance snapped, her clinical cool evaporating. “You’re going to feedback-loop the command frequency and broadcast it across half the county!”
+
+“Praise the Lord!” Jeremy cried.
+
+Sister Biscuit grabbed her notepad from her apron. JEREMY. STOP. IT’S NOT GOD. IT’S A MACHINE.
+
+He glanced at it, his face twisting in pity. “Oh, Sister. Your humility is beautiful. But the Lord works through all things, even machines! Even algorithms! It’s how he reaches the modern heart!”
+
+He reached for the switch he’d rigged to the transformer.
+
+Finch moved, but he was a clipboard guy, not a tackle guy. Jeremy was a zealot with momentum. He slapped the switch.
+
+A deep, subsonic thrum shook the room. The fluorescent lights overhead brightened to a painful white, then blew out in a shower of sparks. The only light now came from the fryer’s orange coils and the neon spill from the front shop, now a pulsating, rhythmic blue.
+
+The glaze in the drum began to glow. A fierce, chemical silver.
+
+The donuts on the cooling racks trembled in unison. A chorus line of pastries shivering toward revelation.
+
+Jeremy stared, tears in his eyes. “It’s beautiful…”
+
+Dr. Vance was reading her device, her face bloodless. “Frequency is spiking. It’s coupling with the city’s power grid. It’s… it’s seeking receivers.”
+
+Sister Biscuit’s x-ray vision went into overdrive. She saw the silver network in the glaze expand, shooting through the wires Jeremy had rigged, into the walls, into the very bones of the building. She saw the same network in the agents, a faint lattice under their skin. She saw it blazing in Jeremy’s eager brain. And she saw it in herself—a tracery of silver light along the path of her lightning scar, an antenna installed by a bolt from a clear blue sky. She wasn’t a prophet. She was a firmware update.
+
+The back door, the one leading to the alley where the dumpsters sat, blew off its hinges.
+
+Not from an explosion. From a single, precise impact.
+
+A massive, scaled head, the color of old moss and diesel oil, filled the doorway. Eyes like polished yellow searchlights swept the room. Steam rose from its nostrils in the cool air conditioning. It had a snout full of teeth that could bisect a Cadillac, and a crown of welded, rusted metal plates bolted to its skull. Perched between two of these plates, preening a single, non-metallic feather was a very small, very smug-looking duck.
+
+The alligator—because that’s what it was, in the same way a nuclear reactor was a campfire—let out a low rumble that vibrated in Sister Biscuit’s molars. The duck quacked once, a sound of pure administrative judgment.
+
+Jeremy fell to his knees. “The Beast of Revelation!”
+
+Inspector Finch finally dropped his clipboard. “Subject is Saint Chomp. Wetland prototype. How did it… the signal. It homed in on the amplified carrier wave.”
+
+Saint Chomp’s gaze locked onto the glowing drum of glaze. It took a step forward, its weight making the concrete floor crack. The duck held on, unperturbed.
+
+“It’s not here for us,” Dr. Vance whispered, backing into a rack of crullers. “It’s here for the source. It’s been commanded.”
+
+“No,” Finch said, a strange awe in his voice. “Look at its cranial implants. They’re… resonating. It’s not obeying. It’s following the noise. It’s trying to find the root signal. Like we are.”
+
+The alligator took another step, its tail knocking over a fifty-pound bag of flour, which exploded in a white cloud. In the dusty air, the silver network of light from the glaze became visible to everyone—a flickering, three-dimensional web connecting the drum, the donuts, the wiring, and Sister Biscuit’s scar.
+
+Jeremy, on his knees in the flour, finally understood. His face crumpled. “It’s… wiring,” he stammered. “It’s all just… wiring.”
+
+Saint Chomp opened its mouth. The smell of swamp rot and hot metal filled the kitchen. It wasn’t a threat display. It was a yawn. A bored, colossal yawn. Then it lumbered forward, straight for the glaze drum.
+
+Chaos was a chain reaction.
+
+Finch shouted, “Contain it!” and reached for a sidearm he didn’t have.
+
+Dr. Vance threw her scanning device at the alligator. It bounced off a metal plate with a plastic clack.
+
+Jeremy started praying in binary.
+
+Sister Biscuit acted. She couldn’t speak couldn’t shout couldn’t command. But she could bake. She grabbed the nearest weapon—a long-handled, wide-mesh skimmer used for lifting donuts from the fryer. She hefted it like a tennis racket. On the drain board beside the fryer sat a single, freshly fried, unglazed donut ring. She scooped it up with the skimmer.
+
+As Saint Chomp’s snout descended toward the silver-thrumming glaze drum, Sister Biscuit took a swing.
+
+She didn’t aim for the alligator. That was suicide. She aimed for the connection.
+
+The skimmer connected with the tangled nest of Jeremy’s amplifier wires where they spliced into the main power line.
+
+There was a flash of blue-white light, a sound like a thousand pop rocks detonating, and a smell of burnt sugar and ozone.
+
+The feedback loop Jeremy created did exactly what Dr. Vance predicted, but faster. The amplified THORN signal in the glaze, seeking a path back to its source, hit the sudden break in the circuit and rebounded. It surged back into the glaze drum, into the donuts on the racks, into the very air charged with flour-dust and intent.
+
+The Eucharistic explosion was not fire and brimstone. It was sugar and light.
+
+Every donut in the kitchen detonated at once. Not violently, but with a soft, pervasive poof. A cloud of fine, glowing sugar crystals filled the air, sparkling like radioactive glitter. Glaze erupted from the drum in a slow-motion wave, hanging in silvery, gelatinous ropes in the air.
+
+Saint Chomp recoiled, sneezing violently. The duck, Bartholomew, flapped into the air with an indignant squawk.
+
+Inspector Finch was coated in a thick layer of jelly filling and sprinkles.
+
+Dr. Vance stood frozen, a perfect, unbroken Lazarus Ring stuck to the center of her forehead like a third eye.
+
+Jeremy was weeping into a pile of powdered sugar, now turned iridescent.
+
+And Sister Biscuit? She was at the epicenter. She was painted in donut shrapnel. Glaze dripped from her wimple. A chunk of cruller was stuck in her hair. Her hands, outstretched from her swing were dusted with glowing sugar that stuck to her skin, tracing the lines of her palms in cold, silver light.
+
+Silence descended, broken only by Saint Chomp’s wet, rattling sneezes and the drip-drip of glaze from the ceiling.
+
+Then, a new sound. A faint, electronic hum. A projection.
+
+Sister Biscuit looked down. Clutched in her hand, somehow un-shattered was the unglazed donut ring she’d scooped up with the skimmer. It had been flash-fried a second time by the energy surge, and now, from its porous, golden-brown surface, a beam of hard blue light shot upward.
+
+In the sparkling dust-cloud, the light resolved into an image. A hologram. It was a schematic, three-dimensional and slowly rotating. A neural network. At its center was a thorny crown, from which spiraling command pathways branched out, labeled in that same neat, blocky print: THORN-7 // WETLAND ROOT NETWORK // PRIMARY CARRIER: SACCHAROSE MATRIX (CONSECRATED VARIANT). Sub-routines flickered: OBEDIENCE IMPRINTING. MEMORY RECALL. SPECIES-SPECIFIC COMMAND (ARCHOSAURIA/CAIMAN).
+
+It was her recipe. The one the lightning gave her. It was a technical schematic for turning pastry into a biological remote control.
+
+Her knees gave out. She sat down hard on the floury floor, the holographic thorn crown spinning above her trembling hand.
+
+Jeremy stared, his faith evaporating. “It’s… a manual.”
+
+Inspector Finch wiped jelly from his eyes, his authority gone. He just looked tired. “Project LAZARUS REX. Wetland series. The glaze algorithm was a dispersal method. A way to embed the command signal into the local food chain. To prepare the ecology for… for whatever comes next.” He looked at the massive, confused alligator in the doorway. “It works.”
+
+Saint Chomp shook its head, the metal plates on its skull clanking. It seemed to lose interest. The amplified signal was gone, broken. With a final, dismissive snort that coated Dr. Vance in swamp mist, it turned and lumbered back into the alley, its colossal tail taking out the other half of the doorframe. The duck, with a last, judgmental look at the ruined kitchen, waddled after it.
+
+Dr. Vance peeled the donut from her forehead. She looked at the holographic schematic, then at Sister Biscuit. The clinical disdain was gone, replaced by something like pity. “The lightning strike. It wasn’t an act of God. It was a targeted data transfer. A high-altitude, electrostatic packet delivery. You were never a nun. You were a firmware port.”
+
+Sister Biscuit didn’t need the notepad. The truth was written in the glowing sugar on her skin, in the schematic spinning from a donut in her hand, in the hollow, silent scream where her voice used to be. She had built a church on a transmission error. She had sold salvation that was really system updates. She had seen the glow in people’s hearts and thought it was grace, when it was just them connecting to the network.
+
+Finch’s radio crackled to life. A panicked voice. “—team is reporting a massive biological signature retreating into the Everglades… also, we’re getting calls from all over downtown. People are complaining about visions again. Something about… singing frogs?”
+
+He looked at the ruin of the Donut Emporium, at the two women, at the weeping disciple. “We’re done here. The source is compromised. The algorithm is… manifest.” He seemed to realize the futility of filing a report. He just turned and walked out, through the wrecked front shop and into the Miami night.
+
+Dr. Vance followed, pausing only to drop her now-useless scanner into a puddle of glaze.
+
+Jeremy got to his feet, a ghost in powdered sugar. “I’m… I’m gonna go.” He didn’t ask for his apron. He just left.
+
+Sister Biscuit sat alone in the quiet wreckage. The hum was gone. The glow was fading from the sugar on her skin. The hologram from the donut flickered, dimmed, and winked out.
+
+She was left in the dark, the smell of burnt wiring and failure thick in the air. Her scar was numb. A dead circuit.
+
+She looked at the donut in her hand. Just a piece of fried dough now. Empty. A hollow ring.
+
+From the front of the shop, a sliver of streetlight cut through the broken window. It fell on the one thing left untouched on the counter: the cake donut she’d sculpted into an upraised middle finger. The icing had hardened. The sprinkles looked defiant.
+
+A sound escaped her—a choked, rasping, soundless thing that might have been a laugh or a sob. She had given them the finger. And they hadn’t even noticed. They’d been too busy reading the fine print on the recipe for the end of the world.
+
+She pulled herself up. Her flour-dusted habit was ruined, crusted with sugar and shame. She walked to the counter, picked up the defiant donut, and placed it carefully on the cooling rack where the day’s first revelations had once rested.
+
+Then she went to the sink turned on the water, and began to wash the glowing sugar from her hands. It wouldn’t all come off. Tiny silver crystals were embedded in her skin, in the lines of her palms, tracing the path of her lightning scar. A permanent tattoo of her mistake.
+
+As she scrubbed, her x-ray vision flickered once, weakly. She saw the bones in her own hands, clean and white and human. And she saw, deep in the marrow, the faintest, fading echo of a silver pulse.
+
+The machine had learned to grow. And it had started with her.
+
+Outside, in the alley, Saint Chomp settled its bulk into the cool muck by the dumpster. Bartholomew the duck nestled into the space between two metal plates, tucking his beak under his wing. The big creature’s yellow eyes slowly closed. The confusing noise was gone. The sharp, sweet signal that had pulled it from the peaceful, murky depths of the slough had vanished, replaced by the familiar, comforting hum of crickets and distant traffic.
+
+It was a simpler sound. It didn’t try to tell it what to do.
+
+Inside the ruined kitchen, under the single, surviving neon tube that buzzed like an angry insect, the cake-donut finger stood sentinel on its rack. A small, brave, ridiculous monument to the idea that sometimes, the only prayer left was a profane one.
+
+And deep in the Everglades, in water black as oil, a single root, threaded through with fine, wire-like filaments, twitched. It had tasted a new signal on the air—a burst of amplified clarity, followed by silence. The network was adapting. It had lost a transmitter.
+
+It would find another.
