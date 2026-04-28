@@ -1,147 +1,249 @@
-TheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheTheThe
-theTheTheTheTheTheTheTheTheTheTheTheTheThe the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the
-> 2023-09-25
-I’m not sure if this is a hot take or not, but I think the 2010s were the best decade for music in the 21st century so far. I’m not saying it’s better than the 90s or 80s, but I think it’s the best decade for music in the 21st century. I think the 2020s have been pretty good so far, but I think the 2010s were better. I think the 2000s were pretty good, but I think the 2010s were better. I think the 2010s were the best decade for music in the 21st century so far. I’m not sure if this is a hot take or not, but I think the 2010s were the best decade for music in the 21st century so far.
+Peter stood just inside the gate, the Roman threshold at his back. The air in the atrium was cooler, smelling of wet stone and foreign flowers. His sandals felt wrong on the polished marble, a slick, treacherous surface after the dirt roads of Judea. He could hear Eliab breathing hard behind him, a low, angry sound like a wounded dog.
 
- *
+The centurion—Cornelius—remained a few paces away, his hands loose at his sides. His tunic was fine white linen, stained at the hem with what looked like dried blood. His face was the color of old leather, carved with lines that didn’t come from smiling. He had the stillness of a career soldier, a man who knew how to wait for an opening.
 
-The procession moved north, away from the harbor’s familiar brine and the open sky. A street under Peter’s sandals changed from worn limestone to fitted basalt, each block so precisely cut he could not find the seam with his eye. The buildings here did not lean and chatter. They stood back, aloof, behind walls of pinkish stone or behind fences of iron spears.
+“You are welcome,” Cornelius said in Greek. The words were formal, practiced.
 
-A smell of baking bread from a Jewish quarter oven—a scent of home, of Shabbat—vanished cut off as if by a knife. In its place came the dry, mineral scent of dust kicked up by Roman boots, and underneath that, the faint, sweet-rot smell of garum from some unseen kitchen. His stomach turned. He focused on the back of the soldier ahead, the rhythmic swing of the man’s segmented armor, the dull gleam of the hilt at his hip. A tool for making corpses. Peter’s hands felt empty. Had brought nothing, no knife, no staff. Was a lamb being led.
+Peter nodded once. His throat was too dry to speak. His gaze kept snagging on the empty niche in the wall beside the door, a rectangular shadow where household gods should have been. They’d been removed. The gesture was meant as respect, he knew, but the blank space felt more blasphemous than the idols themselves. It was an admission of absence, a void waiting to be filled.
 
-They passed beneath a high archway, a city gate within the city. Inscribed in the marble lintel were words Peter could not read. The language itself was a wall. One shadow of the arch lay across the street like a bar. He stepped into its cool darkness and out again, but the chill stuck to his skin.
+A slave hurried forward with a basin and a towel. The boy kept his eyes on the floor. Peter stared at the offered water. The bowl was bronze, intricately worked with scenes of a boar hunt. Washing a traveler’s feet was a common courtesy. Letting a Gentile slave touch him was not.
 
-To his right, a courtyard opened, a splash of green around a splashing fountain. A Roman in a white toga stood reading a scroll, one hand resting on the head of a stone dog. One man did not look up as the Jewish men passed. His indifference was a greater contempt than any stare. Peter’s own robe, his prayer shawl beneath it felt suddenly coarse, a peasant’s garb. A thought shamed him, and the shame burned his throat. Where was his pride? His father’s father had walked this land when these people were still sacrificing to wolves and thunder.
+“We have washed,” Peter said. His voice sounded rough, alien in the high-ceilinged room.
 
-But look at the stone dog. Look at the water leaping from a marble shell into a marble basin. Look at the straight lines of the colonnade. An order so severe it felt violent. In Joppa, a courtyard was a messy, blessed thing—chickens, a fig tree, a loom in the corner, the smell of cumin and children. Life. This was a painting of life. A beautiful, dead painting.
+The slave froze, uncertain. Cornelius flicked a finger. The boy retreated, water sloshing over the rim onto the mosaic. A three-legged hound chased a hare across the floor, the tiles so bright they hurt Peter’s eyes.
 
-One soldier leading them, the one called Antonius spoke over his shoulder. His Latin was a series of blunt, efficient sounds. The brother from Joppa, still pale, translated in a low murmur. “He says the house of the centurion Cornelius is near. In the Praetorium quarter.
+“Your journey was good?” Cornelius asked.
 
-The words meant nothing and everything. Praetorium. The governor’s seat. The heart of the occupation. Of course the centurion would live at its elbow. Peter’s pulse beat a dull rhythm in his temples. Was not walking toward a man. Was walking into the clenched fist of Rome.
+“The road was dry.”
 
-They turned onto a wider street, a proper Roman cardo. On either side, covered sidewalks offered shade, and the façades were adorned with frescoes—hunting scenes, gods and nymphs. The colors were too bright. A red like fresh blood, a blue like a deep, poisoned sea. His eyes skittered over a depiction of a half-naked Diana drawing her bow. Looked down, but the mosaic pavement underfoot was no better: geometric patterns that swirled and interlocked, designed to dizzy, to claim the very ground as Roman work.
+An awkward silence settled. From an adjoining room came the clatter of dishes, the hiss of meat on a grill. The smell of roasting lamb and cumin wrapped around the incense, a rich, heavy blanket. Peter’s stomach clenched. He’d eaten nothing since dawn. The scent was good, expertly spiced, and it made his mouth water in a way that felt like betrayal.
 
-A group of Roman boys, hair cut in severe bowls, chased a wooden hoop. They stopped to watch the strangers pass. One of them pointed at Peter’s beard and said something that made the others laugh—a sharp, brittle sound. Peter kept his gaze fixed ahead, on the narrowing distance between the soldiers’ shoulders. He felt the weight of his own body, the sweat tracing a path down his spine beneath the wool. Was a stain on the perfect street.
+The other Jews—Ezra, a couple of men from Joppa—hung back near the gate, a tight cluster of homespun wool and anxious faces. Only the Pharisee, a man named Micah, stepped forward. He held the fringes of his prayer shawl between thumb and forefinger, a tactile anchor to the Law.
 
-The lie he told himself—that he was merely visiting, observing, following a curious command—crumbled with each step. Was not an ambassador. Was a specimen. A holy man from the conquered tribe brought in for inspection. His faith, which in the upper room had been a fire was here a small, guttering flame in a vast, windy colonnade.
+“This house is unclean,” Micah said, not to Cornelius, but to the room at large. His voice was a tight wire. “The very air is defiled.”
 
-He thought of the vision. The sheet, the beasts. What God has made clean do not call common. The words had been so clear on the rooftop. Here, they frayed at the edges, muted by the hammer-strike of Roman order. God spoke in mysteries, in dreams. Rome spoke in stone and sword. Which voice was louder in this place?
+Cornelius didn’t react. His eyes stayed on Peter. He had a way of listening that felt like being measured for a coffin.
 
-They approached another wall, higher than the last, topped with red tiles. An iron gate stood open, a black mouth. Beyond it, a path led through a garden that was too orderly to be a garden—clipped hedges in perfect spheres rose bushes planted in strict lines, each flower a bloody pompom. No weeds. No wandering herbs. Green discipline.
+Peter forced himself to look around. The atrium was open to the sky, a square of brilliant blue above the central impluvium pool. Flower garlands—real flowers, wilting in the heat—draped the columns. Everything gleamed: the marble, the bronze fittings on the doors, the gold thread in the cloak of a woman standing in the shadow of a corridor. Opulence without warmth. A display of order that felt brittle, like a thin layer of ice over a deep, dark well.
 
-Antonius halted. He nodded toward the house.
+A memory surfaced, unbidden and useless: his daughter, years ago, dropping a ceramic cup on the packed earth floor of their house in Bethsaida. The way she’d stared at the pieces, her lower lip trembling, not because she was scolded, but because the cup was gone and could never be put back exactly the same.
 
-It was a domus. Not the simple courtyard home of a Joppa fisherman, not even the fine merchant’s house where he had stayed. This was a fortress of domesticity. The entrance was a deep porch supported by two columns of veined marble, creamy white with gray streaks like frozen smoke. That door itself was of dark, heavy wood, banded with iron. No mezuzah on the post. Just smooth, blank stone.
+“You have a large household,” Peter said finally, because someone had to say something.
 
-The procession bunched up behind Peter. He heard the quiet, anxious rustle of his brothers—the shift of feet, the low catch of breath. Were all waiting for him. Was the rock. The name mocked him now.
+“They are not all mine. Some are friends.” Cornelius gestured toward a stocky man with a physician’s cedar box, and a thin, sharp-faced woman clutching a carved amulet. “They wished to hear you.”
 
-He stared at the doorway. It did not look like an entrance. It looked like a threshold designed to be measured, a barrier that assessed all who sought to cross. He imagined the centurion standing there, gleaming in his uniform, a man who commanded eighty such soldiers as these. A man who knew the mathematics of death—the pressure needed to drive a pilum through a shield, the angle to slice a throat. A man who prayed to the God of Abraham?
+“Hear what?”
 
-The contradiction was a wall he could not scale. A Roman’s piety was a transaction, a contract with the gods for victory, for wealth. It was not a trembling before the Holy One of Israel. It could not be. The very air this man breathed was paid for with the temple tax, squeezed from Peter’s own people.
+“The words you have been given.”
 
-Yet the Spirit had said go.
+Peter’s palms were damp. He wiped them on his tunic. The patched fabric was coarse against his skin. He felt every eye in the room: the curious, the fearful, the hostile. A gallery of Gentiles. He was a specimen, a strange fish hauled into a clean, well-lit boat.
 
-His feet were blocks of stone on the perfect path. A sun beat on his head, but the sweat on his skin was cold. He became aware of a single, absurd detail: a bee, drunk on pollen, wobbling from one perfect rose to another. Its buzz was the only familiar sound. It moved without permission, ignoring the lines of the garden. He envied the bee its blindness.
+“I am a fisherman,” Peter said. “Not a philosopher.”
 
-Antonius glanced back, his expression unreadable. A flicker of impatience? Perhaps a touch of pity. One soldier gestured with his chin toward the house. Go on.
+“The angel did not instruct me to summon a philosopher.”
 
-Peter’s mouth was dry as dust. He tried to summon a prayer, but the words were ash. All he had was the memory of the voice: What God has made clean.
+The word angel landed in the quiet room like a stone in a still pond. Micah made a sharp, dismissive noise through his nose. One of the garland girls—a young woman with braided hair—pressed her hands together as if in prayer.
 
-He looked at the black maw of the doorway. He looked at the faces of his brothers, etched with fear and a desperate hope that he would know what to do. Had led them here, into the belly of the unclean thing.
+Peter studied Cornelius’s face. No madness glittered in the man’s eyes. No feverish zeal. Just a flat, exhausted certainty. It was the look of a man who had carried a heavy load a very long way and had finally set it down, not because he reached his destination, but because his arms gave out.
 
-There was no more street. No more garden. There was only this step, and then the next, across the line.
+“Tell me of this vision,” Peter said.
 
-He moved one foot forward. The leather sole of his sandal whispered against the gravel of the path. A small, traitorous sound. He took another step. The doorway grew larger, swallowing the light. He could see a sliver of interior now—a floor of multicolored chips set in a pattern, a dizzying kaleidoscope of stolen stones.
+Cornelius didn’t move. “Four days ago. At this hour. I was praying.” He paused, his jaw working. This memory was a physical presence between them. “A man stood before me. In bright clothing. He said my prayers and my alms had ascended as a memorial before God.”
 
-He did not stop. He walked toward the silent, imposing maw, his heart a frantic drum against his ribs. He crossed from the white sun of the garden into the shadow of the porch. He stood on the threshold. Before him, the dark wood of the door, the iron bands.
+Alms. The word pricked at Peter. Charity was a duty, a mitzvah. It wasn’t currency. You couldn’t buy a divine audience. Yet the centurion said it without pride, a simple statement of fact. A ledger entry.
 
-He could not knock. His hand would not lift.
+“He told me to send to Joppa, to the house of Simon the tanner by the sea, and ask for Simon called Peter.” Cornelius’s gaze never wavered. “He said you would speak words by which I and all my household would be saved.”
 
-Then, from within the house, through the thick wood, he heard the clear, obvious sound of a man’s voice raised not in command, but in earnest, pleading prayer. The words were Greek.
+Saved.
 
-That voice cracked on the word ‘servant.’
+The word echoed in the marble hall. Too big, too final. It belonged in synagogues, in the whispers of desperate pilgrims at the Temple, not here in this polished Roman cage. Peter felt the weight of it settle on his shoulders, an unbearable yoke.
 
-Peter stood frozen on the threshold, the Roman prayer washing over him, and the world he knew split cleanly down the middle.
+“I am a Jew,” Peter said, the words tasting like ash. “You know it is unlawful for me to associate with or visit anyone of another nation.”
 
-A voice from within the house did not stop. It rose and fell, a river of Greek flowing under the heavy door. Not the clipped Latin of commands, but a supplication, raw at the edges. Peter stood in the shadowed porch, his hand still hanging at his side. The prayer was a hook in his chest, pulling him forward against the weight of every law shouting in his blood.
+“I know.”
 
-He could not move.
+“Yet you called me here.”
 
-A fly landed on the iron band of the door, just beside the latch. It rubbed its forelegs together, a tiny, busy sound. He stared at it, this creature of filth perched on the barrier. It had flown in and out of a thousand unclean places. It did not care. His own purity, a lifetime of careful observance—the separations of dish from dish, the ritual baths, the endless calculations of proximity—felt suddenly like a vast, complex cage. And he was the bird inside, beating its wings against nothing.
+“I was commanded.”
 
-One soldier, Antonius, shifted his weight. The leather of his harness creaked. A sound was a question.
+A log shifted in a brazier somewhere, sending up a spray of sparks. The physician cleared his throat. The stocky friend—Gaius, someone had called him—folded his arms, his expression shifting from curiosity to impatience. This was taking too long. There was food waiting, business to attend to, the mundane rhythm of the day to reclaim.
 
-Peter’s breath hitched. He saw the child’s face from his dream on the rooftop—not the sheet, not the beasts, but the boy he’d imagined, the one with the Gentile eyes. One boy was here, behind this door. Waiting. Its thought was not his own. It came from a place deeper than fear.
+Peter looked past Cornelius, through the open doorway to the triclinium. He could see low couches arranged around a central table, platters heaped with flatbread, olives, dates. A servant stood by with a jug of wine. A normal meal. A deadly trap.
 
-He lifted his hand. The knuckles were rough, scarred from nets and salt. They hovered before the dark wood. He saw the ghost of his reflection in a polished iron band—a distorted man with a wild beard, eyes dark holes.
+The vision on the rooftop in Joppa flooded back—the sheet, the beasts, the voice. What God has made clean do not call common. He’d wrestled with it for days, turning it over like a strange stone found in a familiar field. He’d thought it was about food. A relaxation of the dietary laws, perhaps, for the sake of unity among believers. A difficult concession, but a practical one.
 
-He did not knock.
+Now, standing in the centurion’s house, the truth struck him with the force of a physical blow. It wasn’t about food at all.
 
-He pushed.
+It was about this.
 
-That door yielded on silent, oiled hinges. The weight of it was less than he expected. It swung inward, and the sound of the praying voice swelled, filling the porch.
+The sheet held every creeping, crawling, cloven-hoofed thing a Jew was commanded to abhor. And the voice said kill and eat. The command was to consume, to take the forbidden into himself, to make it part of his very flesh. To erase the boundary between clean and unclean, between us and them, at the most fundamental level.
 
-He stepped across the threshold.
+His heart hammered against his ribs. The room seemed to tilt. The gleaming mosaics, the watching faces, the scent of lamb—it all smeared together into a single, terrifying demand.
 
-The air changed. The dry heat of the street, the mineral dust vanished. Here, the air was still and cool and smelled of beeswax and dried lavender. And something else, faint beneath the herbs: the smell of men, of wool and leather and sweat. A lived-in smell.
+“Why did you send for me?” Cornelius asked again, his voice low. The humility was gone, replaced by a soldier’s directness. He’d obeyed. The messenger was here. Now he required an explanation.
 
-He stood in a vestibule, the vestibulum. The floor was indeed a mosaic, a complex geometric labyrinth of black, white, and red tesserae that seemed to shift under his gaze. To his right, a small alcove held a bronze statue of a household god—a lar with a silly, benign smile, holding a cornucopia. Peter’s eyes skipped away from it as if burned. Directly ahead, a second, larger doorway, curtained with a heavy hanging of deep blue wool led deeper into the house.
+Peter opened his mouth. No sound came out. He, who had preached to thousands by the lakeshore, who had argued before priests in the Temple courts was utterly empty. The doctrines were a jumble in his head. The prophecies were silent. All that remained was the memory of the sheet, and the voice, and the vast, yawning gulf between what he had always believed and what was now required of him.
 
-The praying voice came from beyond that curtain.
+Micah could bear it no longer. “Rabbi, we must go. This is a transgression.”
 
-The brothers crowded in behind him, a press of anxious breath and rustling cloth. They stopped as one, a wall of Jewish hesitation at the Roman door. Peter did not look back. His entire being was focused on the blue curtain. It was the color of the sky just before night, the color of the sea in a storm. A rich, expensive color. Another barrier.
+“Be quiet,” Peter said. The words were not loud, but they cut through the room like a blade.
 
-From beyond it, the voice rose in a final, strained petition. “…have mercy on your servant, a stranger to your covenants, who seeks only the hem of your garment…
+He looked at Cornelius, really looked at him. He saw the bloodstains on the tunic, the raw, cracked skin on the man’s hands from obsessive washing. He saw the tension in the broad shoulders, the shadow of some old grief in the lines around the eyes. This was not a Roman official playing at foreign piety. This was a man drowning on dry land.
 
-Silence.
+And God had thrown him, Peter, a rope.
 
-Then a rustle of movement. A muffled word in Latin.
+The injustice of it burned in his chest. He was supposed to be in Jerusalem, debating scripture with the brothers, praying for the expansion of the Way among his own people. Not here, in this palace of a pagan, trying to find words for a mystery he didn’t understand.
 
-The blue curtain twitched. It was drawn aside not by a slave, but by the centurion himself.
+“I see truly now,” Peter said, the words coming slowly, each one a stone he had to lift. “God shows no partiality. In every nation, anyone who fears him and does what is right is acceptable to him.”
 
-Cornelius stood in the inner doorway.
+A collective inhale swept the room. Micah’s face went ashen. Gaius uncrossed his arms, his brow furrowed. A woman with the amulet let out a small, choked sigh.
 
-He was not in armor. He wore a simple, knee-length tunic of undyed wool, belted at the waist. His feet were bare. He was a tall man, broad across the shoulders, with the weathered face of a soldier, lines carved by sun and wind. His hair, cropped short in the Roman style was more gray than brown. But it was his eyes that arrested Peter. They were not the eyes of a conqueror. They were the eyes of a man who had been waiting a very long time at a well, his jar empty.
+Cornelius did not move. But something in his eyes shifted—a minute relaxation, the barest release of a breath he’d been holding for a decade.
 
-For a heartbeat, they simply looked at each other across the mosaic floor. The Roman in his humble tunic, the Jewish fisherman in his holy robes, standing in a space that was neither street nor home, a space between worlds.
+Peter took a step forward, then another. His legs felt like wood. He crossed the atrium, the mosaics cool beneath his feet, and stopped before the centurion. The air between them crackled.
 
-Cornelius’s gaze swept over Peter, then past him to the men clustered in the vestibule. His expression was not one of curiosity, nor of official welcome. It was a look of profound, unsettling recognition. As if he had dreamed this configuration of strangers in his doorway and now saw the dream made flesh.
+“You sent for me,” Peter said. “And I came. Against custom. Against the Law as I have known it.” He spread his hands, a fisherman’s hands, scarred and strong. “So. Ask your questions. Tell your people to sit. Let us eat together, and I will tell you what has been proclaimed to Israel.”
 
-He opened his mouth. Closed it. His throat worked.
+The silence that followed was absolute. Even the kitchen noises had ceased. In the impluvium, a single yellow petal from a wilted garland floated on the water’s surface, turning in a slow, lazy circle.
 
-Then, to Peter’s utter, world-upending shock, Cornelius stepped back into the room beyond the curtain. He did not beckon them forward. He sank to his knees on the floor.
+Cornelius turned to the household. His voice, when it came was thick. “Bring the food.”
 
-He prostrated himself.
+Then he looked back at Peter, and for the first time, the centurion’s mask slipped entirely. What lay beneath was not triumph, not even relief. It was a raw, bewildered hope so fragile it seemed it might shatter if touched.
 
-His forehead touched the mosaic tiles, his arms stretched out before him in an attitude of total submission. The posture of a slave before an emperor. Of a worshipper before a god.
+He gestured toward the dining room. “Please.”
 
-The air left Peter’s lungs. The sight was more violent than a drawn sword, more confusing than the vision of the sheet. All his prepared speeches, his defensive questions, his theological boundaries, dissolved into dust. He had braced for arrogance, for condescension, for a polite Roman curiosity about Jewish superstitions. He had not braced for this abasement.
+Peter took a breath that felt like his first. He walked toward the triclinium, toward the couches and the food and the impossible table fellowship. He did not look back to see if his companions followed.
 
-One of the brothers behind him—John, perhaps—let out a sharp, inhaled hiss.
+The threshold of the dining room was a strip of darker marble. He paused for a heartbeat, his toes on the edge.
 
-Peter stood trapped in the vestibule, the geometric floor seeming to tilt under him. This was wrong. A Roman did not do this. A centurion, a man of the fasces, a symbol of Rome’s power to bind and beat did not throw himself on the ground before a provincial. It was an inversion that threatened to crack the very order of creation. The shame he had felt in the street now curdled into a different, more terrifying feeling: a dizzying, unwanted authority.
+Then he stepped across.
 
-Cornelius’s voice came from the floor, muffled against the stone. “I am not worthy that you should enter under my roof.
+*
 
-The Greek was perfect, accented but clear. The words were a centurion’s words, from a story Peter knew. A story about faith from the lips of another occupier. The echo was a lightning strike in the dim room.
+The triclinium was too quiet. The scrape of sandals on marble, the rustle of tunics as people found their places—it was the only sound. Even the children, usually a fount of whispers and squirms sat rigidly on their mothers’ laps, wide-eyed. Cornelius had ordered the couches arranged in a wide semicircle facing the door, a place of honor left empty for Peter. A mistake, perhaps. It looked like a tribunal. He considered changing it, but movement now would only amplify the tension, a captain shifting ballast in a storm.
 
-Peter’s own voice, when it finally came was a dry rasp. “Stand up.
+He took his own place on the edge of the first couch, not reclining as host but sitting upright, hands on his knees. The posture pinched the old wound in his lower back, a souvenir from a Germanic spear. He welcomed the familiar ache. It grounded him. To his right, his wife, Drusilla sat with a spine so straight it seemed she balanced a scroll on her head. Her fingers were laced in her lap, knuckles white. She had argued against this. Not the vision—she believed him, or said she did—but the public spectacle of it. A private audience, she’d urged. Discretion. But the angel had said all his household. The command was inclusive, a net cast wide. He would not could not, parse it.
 
-Cornelius did not move.
+Gaius, on his left, leaned over. The scent of garlic and wine wafted from him. “He looks like a man walking to his own execution.”
 
-“Stand up.” The command was stronger this time, pulled from a place of sheer necessity. He could not address a man who was not a man, but a shape on the floor. “I am only a man myself.
+Cornelius didn’t answer. He watched Peter.
 
-Slowly, stiffly, Cornelius pushed himself up. He rose to his knees, then to his feet. He did not brush the dust from his tunic. He kept his head slightly bowed, his eyes lowered. A flush stained his neck, creeping up to his cheeks. Not shame, Peter realized. A kind of anguished reverence.
+The fisherman stood just inside the dining room, his small band of Jews clustered behind him like a defensive wall. He was surveying the space—the frescoed walls depicting a bucolic Italian landscape that none of them had ever seen, the silver bowls heaped with olives and almonds, the amphora of wine already uncorked to breathe. His eyes lingered on the couch, the plump cushions, the symbol of Roman leisure. He would not recline. Of course he would not. To share a couch was to share identity. Too intimate.
 
-“You called for me,” Peter managed. He gestured weakly toward the curtain, toward the interior of the house. “You… prayed.
+Peter’s gaze finally met his. Cornelius gave a single, slight nod toward the simple wooden chair he’d had placed beside the honorary couch. A compromise. A seat, not a bed.
 
-Peter took one more step forward, into the full light.
+For a long moment, he thought Peter would refuse that, too. Peter’s face was pale beneath the weathered tan, a sheen of sweat on his forehead. Then he moved, stiffly, and lowered himself onto the chair’s edge. He perched there, a bird ready for flight. His companions remained standing by the door, a knot of disapproval. The Pharisee, Micah, looked as if he’d bitten into a rotten fig.
+
+A servant glided forward with the wine jug. Peter raised a hand, palm out. “Water, please.”
+
+The servant flinched, glanced at Cornelius. He gave another nod. The jug disappeared, replaced by a plain clay pitcher and a cup. Peter poured the water himself. His hands, Cornelius noted were steady. Large, with thick fingers and scars across the knuckles. Nets did that. Or fists.
+
+The ritual of serving food began. Platters of flatbread, bowls of lentil stew, the roast lamb carved and arranged on a bed of onions. The smells, usually so welcome, now felt oppressive, a sensual assault. No one reached for anything. All eyes were on the stranger in the rough-spun tunic.
+
+Cornelius’s stomach was a hard, cold knot. This was the moment. The anticipation was a physical pressure behind his eyes. For four days, since the moment the bright stranger vanished from his bedchamber, he had existed in this suspended state. Every prayer, every fast, every alms given at the synagogue gate—all of it had been leading here. He had scrubbed the house until his hands bled. He had removed the lares and penates, the little bronze gods of the hearth, and felt not piety but a terrifying emptiness. He had prepared a feast fit for a legate, but what he hungered for couldn’t be placed on a plate.
+
+And now the man was here, silent, drinking water.
+
+The silence stretched, thinning to a breaking point. Gaius shifted again, impatient. Drusilla’s breathing was a shallow, controlled whisper. In the corner, the physician’s wife patted the carved amulet at her throat.
+
+Peter set his cup down. The clay tock was obscenely loud. He looked not at Cornelius, but at the mosaic between his feet—a scene of Neptune calming the waves.
+
+“You know,” Peter began, his voice low and graveled, “that it is forbidden for a Jew to associate with a foreigner.”
+
+A ripple went through the room. It was not the opening anyone expected. Not a blessing, not a scripture, but a statement of the offense.
+
+Cornelius felt the words like a chill. “I know.”
+
+Peter’s eyes lifted, scanning the faces—the Roman friends, the Greek slaves, the Syrian merchants who were clients of the house. “To come to you. To eat with you. It is a violation of our customs. An abomination, in the eyes of many of my people.” He gestured slightly toward the men at the door. “In the eyes of some who stand with me now.”
+
+Micah’s jaw tightened. One of the other Jews, Ezra, stared fixedly at the floor.
+
+“Yet I came.” Peter leaned forward, his elbows on his knees. The posture was startlingly direct, un-scholarly. “I came because God showed me something. A vision. Three times.”
+
+Cornelius’s chest stopped rising. Three times. The number hammered at him. Completeness. Certainty.
+
+“A great sheet descended from heaven,” Peter said. He spoke, and the words were plain, unadorned. He described it like a fisherman describing a catch: the four corners, the animals, the reptiles, the birds. The unclean things, the teeming, forbidden life. “And a voice told me, ‘Rise, Peter. Kill and eat.’”
+
+A soft gasp came from one of the garland girls. Drusilla’s hand went to her mouth.
+
+“I refused.” Peter shook his head, a faint, self-mocking smile touching his lips. “Of course I refused. ‘By no means, Lord. Nothing common or unclean has ever touched my lips.’” He paused, letting the pious refusal hang in the air, a proof to a lifetime of discipline. “But the voice came again. ‘What God has made clean do not call common.’”
+
+He said it a third time, Peter told them. The insistence of it filled the room. The sheet, the beasts, the command. Then it was taken back into heaven.
+
+Cornelius could see it. The clarity of the image was shocking. Not an abstract theorem, but a tangible, bewildering object. A divine contradiction lowered on ropes of light.
+
+“I was still puzzling over it,” Peter continued, “turning it over in my mind, when your men arrived at the gate. The Spirit told me to go with them, without hesitation.” He looked directly at Cornelius then, and his eyes were no longer those of a reluctant visitor, but of a man who has been cornered by a truth too large to escape. “So I ask you. Why did you send for me?”
+
+It was the question returned to him, a spear caught and thrown back. The room waited.
+
+Cornelius’s throat worked. He had rehearsed this moment, the recounting of his own vision. He had imagined delivering it with soldierly precision, a clear report. Now the words felt clumsy, too small for the memory. He spoke to the space between them, his voice gruff.
+
+“I was praying. At the ninth hour. A man stood before me. In dazzling clothing.” He described the impossible light, the way it cast no shadow. The absolute silence that swallowed the ordinary sounds of the house. “He said, ‘Cornelius, your prayer has been heard and your alms have been remembered before God.’”
+
+He heard the pride in it, the ledger, and winced inwardly. But he pressed on. “He told me to send to Joppa. To bring you here. To hear words from you.” He finally met Peter’s gaze. The hope in his own chest was a fragile, terrified thing. “So we are all here. In the presence of God. To hear all that the Lord has commanded you.”
+
+The final phrase hung there. A transfer of authority. A surrender.
+
+Peter stared at him for a long moment. The tension in the room was a high, thin wire, singing. Even Gaius was still.
+
+Then Peter took a deep, ragged pause, as if stepping off a cliff. He stood up. The wooden chair scraped back.
+
+He did not move to the center. He simply stood beside his seat, a solid, unpretentious figure against the pastoral fresco. His hands hung at his sides.
+
+“I truly understand now,” he said, and the words were not a preacher’s proclamation, but a confession, torn from him. “God shows no partiality.”
+
+A murmur. The Pharisee, Micah made a strangled sound.
+
+Peter’s voice gained strength, riding over the disturbance. “In every nation. Anyone who fears him and does what is right is acceptable to him.” He said it slowly, letting each word land like a stone in a pond, watching the ripples disrupt the faces before him. The physician’s skeptical frown. The slave girl’s bewildered blink. His wife’s stunned, quiet awe.
+
+Cornelius felt the world tilt. The words were simple. Devastating. They dismantled the universe he’d built—a universe of clean and unclean, Roman and barbarian, worthy and unworthy. They spoke of a God who looked not at lineage or legion, but at the heart. A God who saw a centurion in a backwater province, drenched in blood and ritual, and sent an angel.
+
+Peter was speaking again, his voice settling into a rhythm now, the rhythm of a story told countless times but suddenly made new. “You know the word he sent to the people of Israel, preaching peace by Jesus Christ—he is Lord of all.”
+
+He began to speak of Judea, of a man from Nazareth. He spoke of power, of healing, of a death at the hands of Romans and Jews alike. He spoke of witnesses, of eating and drinking with a man risen from the dead. The commands of the prophets. Forgiveness of sins.
+
+Cornelius listened, but the details swam. The theological framework was foreign, a Jewish mystery. What held him, what nailed him to the spot was the premise. Lord of all. The pronoun echoed in the hollow space left by the removed household gods. All. It included the German child. It included the mother with the sorrowful eyes. It included him.
+
+He was no longer a centurion seeking purification at the edge of a covenant. He was being addressed from within the story. The boundary, the very gate he had been guarding all his life was melting away under the heat of these impossible, gracious words.
+
+Peter’s voice filled the triclinium, no longer hesitant, but urgent, compelling. He was building toward something. Cornelius could feel it, like the charge in the air before a lightning strike. He sat perfectly still, his back screaming, his hands clenched on his knees, afraid to move a muscle lest he break the spell.
+
+He was in the presence of God. And the words were for him.
+
+The words kept coming from Peter’s mouth, a river he could not dam. He spoke of the prophets, of the testimony, of the command to preach. He heard himself saying the phrases he’d used in a hundred Jerusalem courtyards, but here, in this room, they landed differently. They lost their tribal certainty. When he said “forgiveness of sins,” he saw the centurion’s hands tighten on his knees, the knuckles bleaching to the color of old bone. The man wasn’t just listening. He was drinking, a man dying of thirst finding a stream in a desert he hadn’t known was his.
+
+A fly buzzed, lazy and stupid, around the platter of lamb. It circled twice, then landed on a glistening edge of fat. No one shooed it. All eyes were fixed on Peter. The fly’s presence was an obscenity. A punctuation mark. See? It seemed to hum. Unclean.
+
+He tried to ignore it. He spoke of Jesus eating with his disciples after the resurrection, a fact meant to prove the corporeal truth. But the word eating snagged on the image of the sheet. The fried fish by the Sea of Tiberias became the crawling things. The honeycomb became the scaled flesh of reptiles. The memory of shared meals, the cornerstone of fellowship, now felt unstable, a foundation cracking beneath him.
+
+He was approaching the end of the testimony. The logical conclusion, the invitation to believe. His throat closed. The prescribed words—repent and be baptized—felt like stones too heavy to lift. They belonged to the covenant, to the children of Abraham. To offer them here was to throw a sacred relic into a public fountain.
+
+He paused, dragging a hand over his face. The silence rushed back in, filled with the smell of cooling meat and the tense held moment of fifty people. The fly lifted from the lamb made a dizzy circuit over the head of the physician’s wife, and vanished into the shadow of a wall sconce.
+
+Cornelius had not moved. His gaze was a physical weight.
+
+Peter looked at the faces. Not as a collective, a Gentile mass, but one by one. The old soldier Gaius, his skepticism now tempered by a raw, bewildered attention. The slave girl with the braids, her lips moving silently as if memorizing. The merchant from Syria, a man who dealt in textiles and tariffs, now looking as if his ledger had been set ablaze. Drusilla, the Roman matron, with a single tear tracing a clean path through the powder on her cheek. They were individuals. Hungry. Hopeful. Human.
+
+The revelation was so simple it felt like a blow to the temple.
+
+This was the sheet. Not a theological diagram. Not a parable about food laws. These specific people, in this specific room, with their specific hungers and their specific, uncircumcised hearts. The command to kill and eat was the command to annihilate the distance, to consume the otherness, to make their hope part of his own body of belief.
+
+He could not do it.
+
+The law was too deep. In the marrow of his bones, in the rhythm of his prayers, in the very language he used for holiness. To cross this line was not an act of teaching. It was an act of self-dismantling.
+
+Micah’s voice, low and strained cut from the doorway. “Rabbi. Enough.”
+
+It wasn’t a protest. It was a plea. A lifeline thrown.
+
+Peter ignored it. He looked down at his own feet, planted on Neptune’s mosaic face. The sea god’s trident was cracked, a hairline fissure in the tile. He focused on that flaw, a defect in the perfect Roman craft.
+
+“You know,” he said again, his voice now a worn-out rasp. He was repeating himself, circling. “That for a Jew to associate with a foreigner is forbidden. It defiles.”
+
+“We know,” Cornelius said. The ‘we’ was gentle, an acknowledgment, not a rebuttal.
+
+“It is not a small thing. It is not a social preference.” Peter’s head came up. He sought the words that would make them, make himself, understand the magnitude of the transgression. “It is a wall built by the hand of the Almighty. To keep his people separate, holy, clean. To protect the flame from the wind.” He gestured vaguely toward the world outside. “You are the wind.”
+
+A flush darkened Gaius’s neck. The physician frowned.
+
+“What do we do now?”
