@@ -1,197 +1,215 @@
-The bee blundered back in, bounced off the plaster wall, and vanished into the bright square of the courtyard doorway. Its buzz lingered in Peter’s ear, a mundane counterpoint to the ringing silence that had replaced the roaring wind. The air itself felt thin, scoured clean. His skin was dry now, but a deeper dampness clung to him, a spiritual sweat.
+The silence after Gaius spoke was a different kind of quiet. Not the stunned hush of the Spirit’s descent, nor the wary stillness of the shared meal. This was the quiet of a man who had said the thing aloud and found it still true, solid in the air between them. The moth gave up its tapping. Somewhere in the city, a dog barked, sharp and lonely.
 
-Cornelius still stood before him, waiting. The centurion’s eyes were clear, the desperate hunger of the man who had prostrated himself at the gate replaced by a quiet settled watchfulness. Looked like a soldier who had finally received his orders.
+Peter stood. The garden felt too small, the walls too close. He needed the others. He needed to see their faces when he said it.
 
-Ezra returned, his arms laden with folded tunics of plain linen. He moved among the dripping household, distributing them without a word. The stable boy pulled a dry tunic over his head, his movements slow, reverent. Drusilla accepted one but did not put it on; she held the bundled cloth to her chest, her chin tilted up as if listening for a fading echo.
+Gaius rose with him, a shadow detaching from the bench. He didn’t ask where Peter was going. He just followed, two paces behind, a silent escort back into the hushed house.
 
-Thomas broke the silence. His voice was a rasp, stripped of its earlier fury. “What have you done?”
+The main hall was not empty. Lamplight pooled on the mosaic floor, catching the sea-green tessera of a leaping dolphin. John sat on a stool near the impluvium, staring into the dark water. Micah paced, a slow, tight circuit between two columns. Simon was simply standing, arms crossed, his back to the room, looking out the high window at the slice of night sky. They had not gone to their beds. The event had left them restless, unmoored.
 
-Peter did not turn. He watched Cornelius’s face. “I have done nothing.”
+They turned as one when Peter entered. Their eyes went to him, then flickered to the Roman soldier looming in the doorway behind him. Gaius stopped at the threshold, a solid barrier of muscle and leather, not entering. He leaned against the doorframe, folding his arms. A guard. A witness.
 
-“That—” Thomas stabbed a finger toward the pool, toward the people now dressing with a quiet, stunned dignity. “That was not nothing. That was a… a contamination of the sign. The Spirit was given at Pentecost to those who had waited, who had prepared, who were clean.”
+Peter walked to the center of the room, the cool mosaic under his sandals. He could feel the weight of their expectation, their confusion, their fear. It pressed on his temples. He looked at each of them. John’s face was pale, open, waiting for sense to be made. Micah’s jaw was a hard line, his eyes bruised with turmoil. Simon’s posture was all resignation, the set of his shoulders saying he already knew he wouldn’t like what came next.
 
-“They spoke in tongues.” Peter’s own voice sounded foreign to him. “They praised the God of Israel.”
+“We cannot leave it here,” Peter said. His voice was rough, unused.
 
-“They are Gentiles!” The word exploded from Philip, a hoarse whisper. Had not moved from the colonnade’s shadow. “Their house is unclean. Their mouths are unclean. How can what is holy dwell in what is common?”
+“Leave what?” Simon asked, not turning from the window. “It is done. The Spirit fell. We ate with them. What is left?”
 
-Peter finally turned. The two men flinched at his expression. It wasn’t anger. It was a weary, bottomless certainty that frightened them more. “What did you see, Philip? Tell me exactly.”
+“The water.”
 
-Philip’s mouth worked. Looked at the mosaic floor, at the water still dripping from the edge of the impluvium. “I saw… a sound. A wind with no source. I saw their faces… change.”
+The two words dropped into the room. Micah stopped pacing.
 
-“Change how?”
+John blinked. “The water?”
 
-“They looked…” Philip struggled, his hands fluttering. “They looked like you did. That morning. After the feast.”
+“They have received the gift,” Peter said. He spread his hands, a gesture that felt futile. “They have received the Holy Spirit, just as we did. The same wind. The same fire. The same… tongues.” He struggled for the next phrase. It was not a theological argument waiting in his mind. It was a simple, glaring fact, absurd in its obviousness. “Can anyone withhold the water for baptizing these people?”
 
-“And you, Thomas.” Peter’s gaze was a weight. “You know the scriptures better than I. When the Spirit of God fell upon the seventy elders in the camp of Israel, and two men who had remained in the camp also prophesied, what did Moses say?”
+He hadn’t meant to phrase it as a question. It came out that way, hanging in the lamplit air. Not a declaration, but a challenge thrown at their feet.
 
-Thomas’s eyes narrowed. He knew the text. His lips moved, reciting it silently before he spoke. “He said, ‘Would that all the Lord’s people were prophets, that the Lord would put his Spirit on them.’”
+Micah made a sound, a sharp intake through his nose. He took a step forward. “Withhold it? Peter, they are uncircumcised. They have not pledged to keep the law. They have not offered sacrifice for sin. They… they speak in tongues. That is the problem! God does not work this way. He cannot. If he does, then what was Sinai for? What are the covenants for?”
 
-“And were those two men in the right place? Had they performed the correct ablutions before they prophesied?”
+He trailed off, his hands clenching and unclenching at his sides. The unspoken word hung in the air: everything.
 
-The silence stretched. A drop of water fell from the roof into the pool with a loud, singular plink.
+“I saw what you saw, Micah,” Peter said quietly. “I felt it. That was no mockery. That was… adoption.”
 
-“That was different,” Thomas muttered, but the fight had bled out of the words.
+“Or possession,” Simon muttered, finally turning from the window. His face was grim. “There are other spirits in the world, Peter. Spirits of confusion. Spirits that mimic.”
 
-“Was it?” Peter took a step toward them. His sandals were still damp; they made a soft, sucking sound on the stone. “You heard their speech. You recognized the dialect of Cyrene from the servant girl. You heard the Parthian phrases from the soldier. Did they learn those this morning? To trick us?”
+“And do those spirits cause a hardened soldier to weep like a child?” Peter’s voice rose, sharpened by a sudden, clean anger. He pointed a thumb toward the doorway, toward Gaius. “Do they bring a man peace from a decade-old blood-memory? Do they make a household of Romans put away their idols and pray to the God of Abraham? What deceiving spirit aims for that?”
 
-Cornelius spoke, his Latin-accented Greek quiet but carrying. “I do not know your sacred tongue. But the words that came from me… I knew their meaning. ‘Glory.’ ‘Power.’ ‘Mercy.’ They were in my heart before they were in my mouth.” He looked at his own hands as if they belonged to a stranger. “It was like being a vessel that is too small. The contents overflowed.”
+Simon looked away, chastened but not convinced.
 
-Drusilla stepped forward, the dry tunic still pressed to her chest. Her hair had escaped its pins, dark strands clinging to her damp neck. “I saw my father’s olive grove. The smell of the crushed leaves after the rain. And a… a lightness. As if I had been carrying a jar of water on my head for twenty years and someone finally lifted it off.” She said it not to the Jews, but to her husband, her eyes wide with the shock of a confession.
+John stood up, his stool scraping. “He’s right.” His voice was thin, young. “It was the same. The sound. The feeling in the air. Pentecost. Here. In this room.” He looked at Peter, his eyes wide with the effort of belief. “But baptism… that is for repentance. For entry into the covenant community. They have not repented. We did not call them to.”
 
-Peter felt the last resistance within him crumble. It was not a dramatic collapse, but a quiet settling, like a foundation finding its true level. The vision on the rooftop had been a diagram. This was the building, standing complete before him.
+“They have,” Peter said. The certainty surprised him as it left his lips. “They have repented of the only thing that matters. They have turned from stone and wood to the living God. Cornelius… he has spent years repenting of a sin your law does not even name. His alms, his prayers—they were a long, stumbling turn toward a mercy he did not believe could reach him.” He took a step toward John, toward all of them. “What more would you have them turn from? Their Roman-ness? Their Gentile flesh? Should they become something else before the grace that has already fallen on them can be acknowledged?”
 
-He addressed his companions, but his eyes were on Cornelius. “We are witnesses. We ate and drank with him after he rose. He commanded us to preach to the people and to testify that he is the one ordained by God to judge the living and the dead. To him all the prophets bear witness.” He paused, the next words forming like stone in his throat. “Everyone who believes in him receives forgiveness of sins through his name.”
+Micah shook his head, a slow, pained movement. “You are speaking like a Greek philosopher. Making new definitions. Repentance is specific. It has steps. It has marks.”
 
-He turned fully to Thomas and Philip. Their faces were pale, etched with conflict. Were good men. Men of the Law. They had left everything to follow the rabbi from Galilee. This was the last wall, the one they never imagined would need to be scaled.
+“It had steps,” Peter corrected him. The words felt dangerous, like stepping onto rotten ice. “Until today. Today, God rewrote the steps.”
 
-“Can anyone withhold water,” Peter asked, the question hanging in the still, salt-tinged air, “so that these should not be baptized, who have received the Holy Spirit just as we did?”
+The silence that followed was brittle. Micah looked as if he’d been struck. Simon exhaled, a long, weary sigh. John just stared, his mind visibly racing down this new, terrifying path.
 
-It was not a challenge. It was a verdict, delivered as an inquiry.
+From the doorway, Gaius shifted his weight. The leather of his harness creaked. “He asks a simple question.” He spoke—a low rumble, devoid of inflection. “Can you withhold the water?” He paused. “My centurion awaits your answer. Not as a commander. As a man who has been told he is clean, and now wonders if he may step into the pool.”
 
-Thomas stared at him. Philip looked at the floor again, his shoulders slumping. There was no scripture to cite against this. No precedent, no rabbinical argument. God had acted first. Theology could only follow, stumbling and breathless.
+It was the blunt, practical pressure of it that broke the deadlock. Theology was a room they could argue in forever. A man waiting in the next room was a fact.
 
-Cornelius let out a slow breath. Had not known he was holding it. The hope that had been a thin, brittle thread in his chest for days now thickened into a rope. Looked at Antonius. The old soldier gave a single, sharp nod. It was the same nod he’d given on the Germania frontier when a desperate plan was the only one left.
+Peter turned to the household servant lingering in the shadows of the corridor—a young man named Urban, who had been among those speaking in tongues. “Bring your master. Bring them all. And bring every basin, every jug of water you have.”
 
-“The basin is too small,” Ezra said, his practical voice cutting through the tension. He gestured to the impluvium. “And this water is… stirred up.”
+The servant’s eyes widened. He glanced at Gaius, who gave a single, slow nod. Then he was gone, his footsteps a quick patter on the stone.
 
-“There is the cistern in the kitchen court,” Drusilla said. “And buckets.”
+“Peter,” Simon said, a final, weak protest. “Jerusalem…”
 
-“Fetch them,” Cornelius said.
+“Jerusalem did not see his face,” Peter snapped. He was tired. Down to the bone. Tired of walls, of lines, of arguing with the obvious. “James did not hear that sound. They will have to trust our witness. Or not. But I will not stand here and tell a man whom God has embraced that he must wait on a committee’s vote.”
 
-The household, as if released from a spell moved. The stable boy and the cook hurried out. Antonius began directing two other soldiers to move the few remaining pieces of furniture from the center of the hall. The sound of scraping wood and hurried footsteps was ordinary domestic. It was the sound of a practical problem being solved, and the sheer normality of it seemed more shocking than the divine wind.
+The household began to gather. They came quietly, sleep-ruffled, their faces soft with wonder and residual shock. Drusilla entered, a shawl around her shoulders, her hair braided for sleep. Lydia followed, her eyes red-rimmed but clear. Justus came, fiddling with the signet ring on his finger. Silas and the other servants, the soldiers who had been off-watch—they filled the edges of the hall, a silent, expectant crowd.
 
-Peter walked to the edge of the impluvium. Looked down at the murky water, seeing his own fragmented reflection. A fisherman from Bethsaida. A man who had once denied his master three times. A man who had been given keys he did not fully understand. Had thought the keys were for a door, a gate that could be opened or shut with proper authority. He saw now they were for a floodgate. And it was already open.
+Cornelius came last.
 
-Thomas approached him. He did not speak for a long moment, watching the household prepare. “This will break everything,” he said finally, his voice low.
+He had put on a fresh, plain white tunic. His feet were bare. His hair was damp, as if he’d already washed. He looked at Peter, and there was no question in his face. Only a profound, quiet readiness. He had been a soldier for twenty-five years. He recognized an order when he heard one.
 
-“It is already broken,” Peter replied.
+The servants brought basins—a large bronze one used for washing feet, three clay jars, a deep mixing bowl from the kitchen. They lined them up near the impluvium. Urban and another slave began filling them from the household water supply, the splash and gurgle loud in the quiet room.
 
-“The brothers in Jerusalem. They will say we have eaten with Gentiles. That we have declared the Law void.”
+Peter looked at the water, then at the faces of his brothers. John had moved to stand beside him, his own resolve firming. Simon stood apart, his arms still crossed, but he didn’t leave.
 
-“We will tell them what we saw.”
+Micah had not moved. He stood by the column, his body rigid. He was looking at Cornelius, at the man’s bare feet, at the simple tunic. He was looking at the hope in the Roman’s eyes, a hope so raw it was painful to behold. Peter saw the struggle on his face—the lifelong devotion to a holy system warring against the clear evidence of a holy act.
 
-“They will not believe it.”
+“Micah,” Peter said, not unkindly.
 
-Peter turned to him. “Then let them call God a liar. I will not.”
+Micah’s gaze flicked to him. His throat worked. He said nothing.
 
-The buckets arrived, sloshing. The cistern water was clear and cold. They filled the large bronze basin that usually stood by the kitchen for washing vegetables. It was an absurd vessel for a sacrament. A chip on its rim showed a darker metal beneath.
+Peter didn’t press. He turned to Cornelius. “You believe that Jesus of Nazareth is the Christ, the Son of the living God? That God raised him from the dead, and by his name alone comes forgiveness and life?”
 
-Cornelius stood before it first. Had put on a dry white tunic. He looked, Peter thought, neither like a Roman centurion nor a supplicant. Looked like a man waiting to be born.
+Cornelius didn’t hesitate. “I believe.” The words came out steady, but a muscle jumped in his jaw. “He is the Lord of all.”
 
-“Cornelius,” Peter said, the name feeling heavy and new on his tongue. “Do you believe in the Lord Jesus Christ?”
+It was the confession. The one Peter had given on a different road, a lifetime ago. Hearing it here, in this hall, from this man was like hearing it for the first time.
 
-The centurion’s gaze was unwavering. “I believe he is the Son of the living God. I believe he died and was raised. I believe…” He hesitated, the soldier’s precision grappling with the ineffable. “I believe his mercy covers even the fields of Germania.”
+“Then there is nothing between you and the grace that has already claimed you,” Peter said. He gestured to the largest basin, now full, the water’s surface flickering in the lamplight. “Come.”
 
-Peter’s breath caught. Had not expected that. The specificity of it, the raw, private geography of guilt. This was not a doctrinal assent. It was a drowning man naming the rock he had found.
+Cornelius stepped forward. He knelt in the water, the white linen darkening instantly, clinging to his shins. The basin was not deep. He would have to bend.
 
-He cupped his hands, plunged them into the cold water. It spilled through his fingers. “Then be baptized, in the name of Jesus Christ, for the forgiveness of your sins.”
+Peter placed a hand on his shoulder. The other he raised, hovering over the man’s head. He took a breath. This was the moment. The hinge. The act that could not be taken back.
 
-He poured the water over Cornelius’s head.
+“Cornelius,” he said, the name a prayer in itself, “in the name of Jesus the Christ, for the remission of your sins, and in witness of the gift you have already received, I baptize you.”
 
-It sheeted down the man’s face, soaked into the clean linen, pooled at his feet on the stone. Cornelius did not close his eyes. He stood, dripping, and then a shudder went through him—not a chill, but a deep, physical release, as if a cord pulled taut for a decade had finally snapped. He brought his hands to his face, wiped the water from his eyes, and when he lowered them, his expression was utterly still. A peace that looked like exhaustion, and something fiercer beneath.
+He pressed down.
 
-One by one, they came. Drusilla, her head bowed, her lips moving in silent prayer. Antonius, his jaw set as if for battle, the water tracing the old scar on his temple. The stable boy, shivering with more than cold. The cook, her work-roughened hands clasped tight. Ezra the proselyte, who had followed the Law to the letter, now receiving a blessing that had bypassed the letter entirely. His eyes were closed tight, two lines of moisture trailing down his cheeks that were not from the cistern.
+The centurion bent forward, yielding completely. His head submerged, his shoulders went under. The water slopped over the rim of the basin, spreading a dark star across the mosaic floor. Peter held him there for the space of three heartbeats—not to cleanse, but to seal. To bury the old architecture.
 
-Peter performed each baptism with the same simple words, the same clumsy, pouring action. His arms began to ache. The basin had to be refilled. The splash of water, the gasps, the quiet sobs of joy—they became a rhythm. A new, strange liturgy written in a moment.
+He lifted him.
 
-Thomas and Philip did not help. They stood by the colonnade, witnesses. Thomas’s furious calculation had faded into a kind of stunned observation. Was counting, Peter realized. Marking each one. Building a new ledger in his mind, against his will.
+Cornelius came up, water streaming from his hair, his face. He did not gasp. He drew a long, slow breath, his chest expanding. He opened his eyes. They were clear. The last ghost of the Germanian boy was gone from them washed away not by water, but by the mercy that had preceded it. He looked at Peter, and a smile broke over his face—not triumphant, not relieved, but simply, utterly present. Here.
 
-When the last servant—a Gaulish man with a stiff leg—had been baptized, the silence returned. Different now. Full. Weighted with the presence of forty-some souls standing together, dripping on the floor of a Roman house in Caesarea. The afternoon light had shifted, painting a long, bright bar across the far wall cutting through the lingering steam of their breath.
+A sound escaped Drusilla—a soft sob, quickly stifled. Lydia was weeping openly, her hands pressed to her mouth.
 
-Peter’s tunic was soaked through at the front. Was exhausted, hollowed out and filled with a strange, singing lightness. Looked at the faces around him—familiar strangers, their features softened by the same impossible grace.
+Peter felt his own eyes burn. He blinked hard. “Who is next?”
 
-Cornelius met his gaze. The centurion did not smile. He simply nodded, once. An acknowledgment between soldiers after a battle whose outcome was assured, but whose cost was still unknown.
+Gaius. The big soldier pushed off the doorframe, stripped his sword belt and harness with practiced efficiency, and walked forward in his tunic. He knelt in the spilled water without a word, his head bowed. His baptism was swift, a soldier’s obedience. When he rose, he scrubbed a hand over his face, and for a fleeting moment, he looked young.
 
-Outside, the Praetorium trumpet sounded again. The second watch. The world, with its schedules and its empires went on.
+Then they came. Justus, fussing with his tunic before stepping in. Silas, trembling so badly Peter had to steady him. One after another, men and women soldiers and slaves, lining up in the lamplight. John moved to help, baptizing a young servant girl in a clay jar. Simon, after a long, frozen minute, let out a shuddering breath and stepped forward to take a basin. He did not look at Peter. He just began.
 
-But in the house of Cornelius, the water on the stone floor was already spreading, seeping into the grout, finding its way into the earth. It would leave a stain.
+Only Micah remained by the column, a statue of anguish. He watched Silas rise, spluttering and laughing through tears. He watched a legionary, a man whose job was to keep the Pax Romana with a sword, weep as the water touched his brow. He watched a Roman household become a church in the space of an hour, with no parchment, no circumcision knife, no sacrifice but the one already made.
 
-The silence that followed Peter’s question was deafening, broken only by the nervous shifting of feet and the distant metallic cry of a gull from the harbor. The weight of his words settled upon every person present, a physical pressure in the salt-thick air.
+Peter caught his eye across the room. He didn’t nod didn’t gesture. He just held the look.
 
-Thomas found he could not look at the centurion, or at the woman clutching the dry tunic to her chest. Looked instead at the water stains darkening the stone around the impluvium, the way they spread in unpredictable, feathery patterns. Had a sudden, irrelevant memory of his mother pouring a jug of water on the packed earth of their courtyard to settle the dust before a festival. The smell of damp earth, the clean scent of it, mixing with roasting lamb. A good memory. It felt like it belonged to someone else now.
+Micah’s face crumpled. Not into tears, but into a deep, weary defeat. He turned and walked slowly from the hall, his footsteps echoing down the dark corridor, away from the water, the light, the impossible joy.
 
-Philip was counting. It was a habit from his old work as a steward, a way to steady his mind when the accounts refused to balance. Forty-three people in the hall. Six soldiers, including the centurion. The wife, the child, the cook, the stable hand, the scribe, the others—servants, slaves, a few household guards. Thirty-six distinct faces he had never seen before this afternoon. All of them were looking at him. Their expressions held a kind of tremulous awe, a hope so naked it was painful to witness. Were waiting for him, for Thomas, for the men from Jerusalem, to decide if their encounter with the divine was real or a mistake.
+Peter let him go. He turned back to the line of waiting faces, to the water, to the work. The question had been answered. The door was open. The wind was blowing through it, and all they could do now was follow.
 
-He realized, with a jolt that started behind his breastbone, that he envied them. Their certainty was a physical thing in the room, a warmth radiating from their damp skin. His own faith felt like a ledger of arguments, carefully kept, that had just been set aflame.
+*
 
-“Withhold water?” Thomas’s voice was scraped thin. He didn’t address Peter; he spoke to the air between them, to the theological void that had just opened up. “It is not about the water. It is about the door. The Law is the door. The rituals, the sacrifices, the purifications—they are the frame. You do not chop a hole in the wall because a breeze is blowing through. You use the door.”
+The water on the floor seeped into the grout, a dark, spreading map of the new world. The splashes and the murmured names—Gaius, Justus, Drusilla, Urban—filled the hall with a rhythm both solemn and shockingly domestic. Peter’s arms began to ache. The water was cold. Each time he leaned forward, the smell of wet wool and lamp oil filled his nostrils, mixed with the scent of night-blooming jasmine drifting through the high window. A part of his mind, detached and weary, noted a chip on the rim of the bronze basin, a rough spot where the patina was worn away. His thumb found it every time.
 
-“A breeze.” Peter’s tone was flat. He took a step, his sandal making a soft, sticky sound as it lifted from the damp stone. He gestured to Drusilla, whose cheeks were still streaked with tears, to the young soldier from Parthia who stood staring at his own hands as if they might speak again. “You call this a breeze?”
+John worked beside him, his movements earnest, clumsy with fervor. He baptized a kitchen slave, a boy of maybe fourteen, who came up from the water and immediately sneezed, a sharp, human sound that broke the tension and made a few of the soldiers chuckle. The sound of laughter in a baptism felt wrong, then instantly, profoundly right. Simon, at the third basin was a study in grim efficiency. He performed the rite with the precision of a man building a wall, each word clipped, each motion economic. He avoided looking at the faces of those he baptized, focusing instead on the crown of their heads, the surface of the water. He was building a box around the act, containing its chaos.
 
-“What would you call it?” Thomas’s hands came up, a scholar’s frustrated gesture. “We have no precedent. No council has ruled on this.”
+Cornelius stood to the side, a towel draped over his shoulders. He did not assume a position of authority. He simply watched, his expression one of quiet absorption, as if memorizing the slope of a shoulder, the curve of a bowed neck. His own daughter, Drusilla, approached Simon’s basin. Simon saw her coming and stiffened. A girl, a Roman girl. He hesitated, his hands hovering at his sides. Cornelius made no move issued no command. Drusilla knelt, her night-shawl pooling around her in the water. She looked up at Simon, her face pale and serious.
 
-“The scripture just spoke in Parthian and Lycaonian,” Peter said. The words were not loud, but they cut through Thomas’s protest like a blade through cord. “You heard it. I heard it. We are witnesses. Is our testimony insufficient? Or is it only sufficient when it confirms what we already have written in our scrolls?”
+“Do you believe?” Simon asked, the question rougher than he intended.
 
-Cornelius took a half-step forward, then stopped. He understood this was not his debate. His role was to stand in the space between them, a living question. The military part of his mind assessed the positions: Peter, a rock in the center of the stream; the two Judeans, planted on the far bank, afraid of the current. He noticed the way Philip’s right thumb worried at the callus on his left forefinger, a rapid, circular motion. A tell. The man was grappling with something deeper than protocol.
+“I believe,” she said. Her Latin was accented, but clear.
 
-Philip’s eyes finally lifted from the floor. He looked past Peter, past the centurion, to the open courtyard door where the bee had vanished. The sunlight was a solid, golden bar on the threshold. “My grandfather,” he said, and then stopped, surprised at his own voice. He cleared his throat. “My grandfather was a proselyte. From Antioch. He studied for two years. He gave alms, he kept the feasts as best he could. He was circumcised at forty-five years old. I remember him walking slowly for a month, his face pale with the pain of it. He did it for the covenant. He said it was the price of the promise.” His gaze swung back to Peter, wounded and confused. “Was he a fool? Was all that pain… was it just a whim?”
+Simon’s jaw tightened. He placed a hand on her head, so lightly it might have been a mistake. “In the name of Jesus Christ,” he said, and pushed down. He brought her up quickly. She wiped water from her eyes, looked for her father, and when their eyes met, she gave a small, private nod. Cornelius closed his eyes for a second. When he opened them, he was looking at Peter. There were no words in the look. Simply a line drawn between them, taut and humming.
 
-The question hung there, terrible in its intimacy. It wasn’t about theology anymore. About a grandfather’s pain.
+The line of people dwindled. The last was an old house slave named Tertius, whose hands shook with a palsy. Peter took his gnarled fingers, helped him kneel in the basin. The man’s skin was papery, cool. “I saw the fire on my mistress’s hair,” he whispered, his voice reedy. “It was blue, like a cooking flame, but it did not burn.” Peter baptized him, and when the old man rose, he kissed Peter’s hand. The gesture was so instinctive, so Roman, that Peter felt a fresh wave of dislocation. He pulled his hand back gently.
 
-Peter’s shoulders sagged for a moment, the weight of the question a tangible thing. He walked to Philip, the space between them feeling vast. He did not touch him. “Your grandfather loved the God of Israel. He sought him with a true heart. God honored that. I do not doubt it.” He paused, searching for the words that were not arguments but pictures. “But what if… what if a father has two sons? One son works in the fields from dawn, follows every instruction, earns his supper coin by coin. The other son has been lost, far away. When the lost son comes home, ragged and smelling of pigs does the father make him work in the fields to earn a place at the table? Or does he run to him, and clothe him, and kill the fattened calf because the lost has been found?”
+Done.
 
-“That is a story,” Thomas whispered.
+The hall was full of dripping, shivering, smiling people. The silence returned, but it was a different quality now—spent saturated. The practicalities of the world rushed back in. People were cold. The floor was a mess. The hour was deep into the night.
 
-“It is his story,” Peter said. “Told by the one we call Lord. Who ate with tax collectors and sinners. Who touched lepers. Who praised the faith of a Roman centurion in Capernaum and said he had not found such faith in all Israel.” He turned now, including the entire silent, watching household in his gaze. “He is still telling it. Here. Now. With different characters.”
+Cornelius finally moved. He clapped his hands once, a soft, decisive sound. “Get dry clothing. Build up the braziers in the triclinium. Bring warm wine and bread.” He said it, his centurion’s voice, but the orders were for comfort, not discipline. The household scattered, a soft flurry of movement.
 
-Antonius, the scarred veteran, shifted his weight. The sound of his hobnailed sandal on the stone was like a punctuation mark. “We did not seek this,” he said, his Latin-accented Greek rough. “The centurion prayed. He gave alms. That is all. This… wind… it came to him. It found us. We were not looking for a door. We were sitting in our house.” He shrugged, a soldier’s blunt gesture. “The roof blew off.”
+The Jewish believers were left in the center of the room, standing in a loose knot amidst the puddles and abandoned basins. John was beaming, his earlier anxiety burned away in the furnace of action. Simon was examining his own hands as if he’d never seen them before. Peter felt the weight of their silence.
 
-A faint, breathy sound escaped Drusilla—a sob, or a laugh choked into silence. She pressed the linen tunic to her mouth.
+“We have done it,” John said, the words bursting from him. “We have done what he said. Made disciples of all nations.”
 
-Thomas looked from Antonius’s scarred, defiant face to Philip’s anguished one. He felt the ground of his understanding, so carefully terraced and maintained, crumbling underfoot. It was the specificity that undid him. The Parthian dialect. The Cyrenian phrases. The sheer, messy, clear humanity of it. God did not deal in abstract clean and unclean. He dealt with a centurion remembering Germania, a woman remembering an olive grove, an old soldier with a bad knee. He dealt with people, not categories.
+“This is not a nation,” Simon said quietly, still looking at his hands. “This is one household in a Roman port. A curiosity. An exception.”
 
-He had built his life on categories. They were clean. They had borders.
+“Was Pentecost a curiosity?” John shot back.
 
-“Can anyone withhold the water?” Peter asked again, softer this time. It was no longer a verdict, but an invitation to see what he saw.
+“Pentecost was in Jerusalem! Among Jews!” Simon’s head snapped up. “This… this is a breach. A crack in the wall. You think it stops here? You think we can go back to Joppa and pretend this was a singular event? They will ask. They will demand to know by what authority we ate with them taught them, poured water on them.” He gestured to the wet floor. “What do we say? That we felt a wind? That a soldier cried?”
 
-Philip’s thumb stopped its circling. He let out a long, shuddering breath. He looked at his grandfather’s pain, and then he looked at the face of the Gaulish servant with the stiff leg, who was watching him with an expression of pure, uncomplicated hope. He saw no contradiction. He saw a single thread, woven through time, connecting one man’s costly journey to another’s unexpected arrival. The thread was grace. Infuriating. It made no economic sense.
+“We say,” Peter said, his voice hollow with fatigue, “that God showed no partiality.”
 
-“No,” Philip said. The word was a surrender. It left him empty. “No one can withhold it.”
+The phrase landed among them like a stone. From the law, but twisted, repurposed. A heresy wrapped in scripture.
 
-All eyes went to Thomas.
+Simon barked a short, humorless laugh. “Partiality. You speak of God’s partiality while standing in a Roman’s house. Peter, look at this.” He swept his arm around the hall, at the marble, the mosaics, the architectural perfection of it. “This is the partiality of empire. It is built on our taxes and our dead. And now we have welcomed its officer into the kingdom as a brother. What do we tell the widow in Joppa whose son was pressed into carrying a legionary’s pack? That God shows no partiality between her and the man who ordered it?”
 
-He felt their gaze like a physical heat on his skin. He thought of the Council in Jerusalem, of James’s grave, measuring eyes. He thought of the arguments that would rage, the accusations of betrayal, the careful unity of the ekklesia splintering over this impossible fact. He saw it all, a map of coming conflict spread out before him. Then he looked at Cornelius. The man’s face was calm, but a muscle flickered in his jaw. The patience of a soldier who has delivered his dispatch and now awaits orders from a higher command.
+The question was brutal, honest. It hung in the damp air.
 
-Thomas was a man of the Law. But the Law, at its heart was a witness to truth. To deny what his own ears had heard, his own eyes had seen would be to make the Law a liar. It would be to worship the frame and deny the house was on fire.
+John’s smile had vanished. He looked at Peter, waiting for an answer.
 
-He closed his eyes. He did not pray. He simply listened to the silence in the hall. It was not empty. Layered—the slow drip from the roof, the ragged pause of the newly-awakened, the distant, rhythmic crash of waves on the breakwater. A symphony of the mundane, sanctified.
+Peter had none. He had the memory of the wind. The sight of Cornelius’s broken-open face. The feeling of the man’s shoulder under his hand, solid and real as he went under the water. It was not a theological argument. It was a stack of sensations, and they were a poor foundation against Simon’s cold, political truth.
 
-He opened his eyes. “The water is in the cistern,” he said, his voice devoid of inflection. A simple statement of fact. “The basin is by the kitchen.”
+“We tell her,” a new voice said, “that the centurion is also a man under orders.”
 
-It was not an endorsement. It was not a blessing. It was a capitulation to reality. And it was enough.
+Gaius stood in the doorway to the triclinium, holding a bundle of dry tunics. He had changed. His hair was still dark with water at the temples. He did not enter, respecting the space. “My centurion did not choose to be born Roman any more than your widow chose to be born Judean. He only chose, when the call came, to listen.” He laid the tunics on a bench. “The empire is a fact. Like a mountain. You can curse it, you can try to climb it, you can die on its slopes. But you cannot argue with its existence. Tonight… tonight felt like a different country. One not built on mountains.” He shrugged, a soldier’s pragmatic gesture. “That is what I would tell her. For what it is worth.”
 
-A collective exhale moved through the Roman household, a rustle of damp wool and a softening of shoulders. Cornelius’s eyes closed for a single, long second. When he opened them, he looked at Peter and gave a slow, almost imperceptible nod.
+He left them.
 
-Peter did not smile. He felt a profound, weary solemnity descend upon him. The keys were in his hand. This was the lock they turned. “Fetch the buckets,” he said.
+Simon stared after him. “He speaks well for a soldier.”
 
-The cistern water was clear and cold, with a faint, mineral smell of the Judean hills it had been drawn from. They filled the large bronze basin that was used for washing vegetables. A chip on its rim showed a darker metal beneath the patina.
+“He is a man,” Peter said. “That is the whole of it. Just a man.” He bent down, righted the clay jar that had held the girl’s baptism. A little water sloshed out. “We are not negotiating a treaty with Rome. We are witnessing a harvest we did not plant, in a field we were told was barren.”
 
-The Gaulish man with the stiff leg stood dripping, his hands pressed flat against his thighs. He blinked rapidly, water clinging to his pale lashes. He took a step back, testing his weight on the bad leg as if expecting the familiar stab of pain. His brow furrowed, a slow, private calculation. Then he took another step, and another, a clumsy circuit on the wet stone. He wasn’t walking smoothly, but the hitch was different—not a flinch, but a thoughtful adjustment. He stopped, looked at his own feet, and let out a soft wondering sigh that fogged the air.
+“Micah could not witness it,” John said softly.
 
-That sigh seemed to break the last dam of formality.
+They all looked toward the dark corridor where he had vanished. His absence was a hole in the room.
 
-A murmur rippled through the hall, a low hum of released beat and whispered names. Drusilla reached for her son, pulled him against her damp tunic, and buried her face in his hair. He squirmed, more concerned with the water trickling down his neck than the metaphysical shift, but she held him tight, her shoulders shaking. Antonius clapped a hand on the shoulder of the young Parthian soldier, who was still grinning like a fool. The older man’s face remained grave, but his grip was firm, a communion of warriors who had survived a different kind of siege.
+“His faith is in the fence,” Simon said, but the anger had bled out of his voice, replaced by a deep sorrow. “Without the fence, the garden is just a field. Anyone can trample it.”
 
-Ezra the proselyte stood apart. He had not moved from the spot where the water had touched him. His eyes were open now, fixed on the far wall where the afternoon light burned. He was reciting something under his moment, the Hebrew words a familiar river in this strange new landscape. The Shema. “Hear, O Israel…” But his voice caught on the next phrase. The Lord is our God. The Lord is One. The words, worn smooth by a lifetime of prayer felt suddenly, terrifyingly expansive. Who was “Israel” now? The question was a crack in the foundation of his world. He pressed the heels of his hands against his closed eyelids, not to shut out the light, but to hold the paradox inside his skull.
+“Perhaps,” Peter said, straightening up, a dull pain in his lower back, “the garden was always bigger than the fence. We just never had to look past it before.”
 
-He became aware of Thomas and Philip, still rooted by the colonnade. They were islands of dry wool in a sea of damp linen. Thomas had his arms crossed, his fingers digging into his own biceps. His gaze swept the hall, not with joy, but with the frantic assessment of a quartermaster after a surprise inventory. Forty-three. Forty-three entries in a ledger that had, until today, contained only a handful of names, all of them circumcised. Philip was staring at the bronze basin. The water inside was clouded now, swirling with bits of dust and lint from tunics, the faint sheen of olive oil from skin. It was no longer ritually pure. People-water.
+A servant appeared, bowing. “The master invites you to share warmth and food. The triclinium is ready.”
 
-Peter walked toward them, his sandals leaving dark prints on the stone. He stopped a few feet away, said nothing. The space between them hummed with everything unspoken.
+The thought of more food, more conversation made Peter’s stomach clench. But to refuse would be a rebuff, a withdrawal. They had crossed the threshold. There was no going back to formality.
 
-“They will ask,” Thomas said finally. He didn’t look at Peter. He watched the cook, a large woman from Cappadocia, weeping quietly into her own hands as two other servants embraced her. “They will ask by what authority. They will ask for scripture. They will ask for a ruling from James.”
+They followed the servant.
 
-“I know,” Peter said.
+The triclinium was warm, the braziers glowing. The household was there, dressed in dry clothes, sitting on couches or standing in small groups. They spoke in low tones. The frantic joy had settled into something quieter, more heavy. A deep, collective breath.
 
-“You have given them no law,” Thomas continued, his voice a tight wire. “No instruction on feast days. No guidance on purity. You have poured water and called it a birth. What is born without a law? A beast.”
+Cornelius was on a couch, Drusilla beside him. He motioned for Peter and the others to recline. They did, stiffly, the habits of a lifetime screaming that this was not their place. Wine was poured—not the fine Falernian from before, but a simpler, hotter drink, mixed with honey and spices. It burned going down, spreading warmth.
 
-Peter felt a spike of old anger, hot and familiar. He quashed it. The man’s fear was real, a towering wall Peter himself had helped to build. “The Law is a tutor, Thomas. It leads to Christ. These,” he gestured behind him, “have met Christ without the tutor. Shall we now force the tutor upon the one who has already arrived at the house?”
+No one knew what to say. The theological debates were exhausted. The political ramifications were too vast to touch. They were left with the mundane.
 
-“It is not a house. It is chaos.” Thomas finally turned his head. His eyes were red-rimmed. “What binds them to us now? A feeling? A splash of water? We are not philosophers. We are a people. A people have boundaries.”
+“Your daughter speaks with great faith,” John said to Cornelius, grasping for safe ground.
 
-“Our boundary,” Peter said softly, “was just shown to be a line drawn in sand before the tide. Did you not see? Did you not hear?”
+Cornelius placed a hand on Drusilla’s head. “She asked me this morning, before the vision, why the God of the Jews had no statue. She said it must be lonely, a god with no face to wash.” He took a sip of wine. “I did not have an answer for her then.”
 
-Thomas flinched. The memory of the tongues was a brand in his mind. He could not argue with the fire. He could only fear what it would consume. “I saw. I am trying to see what comes after the fire. Ash, or a field for planting?”
+“And now?” Peter asked.
 
-Philip spoke, his voice rough. “My grandfather’s pain. You did not answer me.”
+“Now I think perhaps a god without a face can see more.” He looked around the room, at his people, at these strange Jewish fishermen in their midst. “He saw this.”
 
-Outside, the sound of the harbor grew louder—the shouts of stevedores, the creak of ropes, the distant, rhythmic thud of a mallet caulking a hull. The world was going on, busy and blind. But in the house of Cornelius, a group of people, Jew and Gentile alike were drying off and starting to pack for a journey to a city that did not yet know it was waiting for them. The water on the floor had reached the far wall, a dark, creeping line against the stone. It would leave a stain.
+Lydia, from her place near the brazier began to sing. It was not a psalm, not a hymn they knew. It was a lullaby, a simple, repeating melody in Greek. She sang, the sound thin, slightly off-key, but it filled the silence with a fragile thread of peace. One by one, the others stopped talking. Justus leaned his head back against the wall, his eyes closed. Gaius stood by the door, his face in shadow, perfectly still.
+
+Peter listened. The tune was unfamiliar, but the human need in it was not. It was the same need that had made David sing on a hillside, the same that had made him weep in the desert. It transcended tribe, law, custom. It simply was.
+
+He caught Simon watching Lydia, his expression unreadable. Then Simon’s eyes met his. There was no acceptance there, not yet. But the rigid resistance had melted into a kind of stunned exhaustion. He gave the faintest, almost imperceptible shrug. It is done. We will deal with the consequences.
+
+That was all the unity they would get tonight.
+
+Peter leaned back. The spicy wine sat heavily in his gut. He looked at Cornelius, who was watching his daughter listen to the song. The centurion’s profile was sharp in the brazier light, the stern lines softened by the shadows. He was, Peter thought, simply a man who had been thirsty and had, against all hope found water. That was the core of it. Everything else—the laws, the empires, the fences—was commentary.
+
+The lullaby ended. The fire crackled. In the quiet that followed, the immensity of what had happened settled over the room, not as a crushing weight, but as a blanket, a covering. They were all in the same strange country now. There was no map. There was only the next step, and the next, taken in the dark, guided by a wind that blew where it wished.
+
+Outside, in the street, a night watchman passed, his sandals scraping on the paving stones. His call echoed, marking the hour. All was well. All was secure. He had no idea that the world had just quietly, irreversibly, cracked open inside the unremarkable house of the centurion.
+
+The last of the water dripped from the hem of Tertius’s tunic. The old man stood trembling, not from cold but from a vibration that seemed to come up through the floor. Cornelius watched it all from his place by the wall, the towel a rough comfort on his shoulders. He had thought the vision, the speaking in tongues was the summit. This was different. This was descent. A kneeling. A bowing of the head under a human hand. He had given orders for twenty-five years. He had taken them for longer. This was neither. Submission to a fact that had already been written in the air, in the fire, in the wind. The water was just the signature.
+
+His feet were numb on the cool mosaic. The chip of missing tile near the impluvium, the one he’d meant to have repaired for months, pressed into his arch. A mundane ache. He focused on it, an anchor in the flood of the impossible. His gaze tracked Peter. The big fisherman moved with a slow, bone-deep fatigue now, his shoulders rounded as he helped an elderly serving woman from the kitchen basin. His hands were gentle. They were the hands of a man who had hauled nets, mended them, pulled living things from the deep. Now he pulled souls from the air and sealed them with river water and a name. Jesus the Christ. The name was a key. It had turned in the lock of Cornelius’s chest, and something had swung open. Not a door. A gate, wide and letting in a terrible, beautiful draft.
+
+Cornelius smiled. He looked at the stars, then at the dark, water-stained hall behind him. The crack had opened. The wind was inside now. It would sweep through Jerusalem, through Joppa, through the whole ordered world, and nothing would ever be secure again.
