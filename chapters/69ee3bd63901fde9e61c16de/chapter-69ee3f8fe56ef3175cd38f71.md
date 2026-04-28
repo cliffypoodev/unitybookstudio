@@ -68,7 +68,7 @@ Justus nodded, the merchant appreciating the clarity of roles. “The divine sig
 
 Micah made that sound again, the strangled exhale. He walked away from the wall, pacing a short, tight path on the dry tiles. “This means… this means the covenant is not bound to blood. Not to ancestry. Not to ritual observance.” He stopped, facing Peter. “This means a Roman can be… can be as much a son of Abraham as you are. Without the marks. Without the law.”
 
-Peter did not answer. The truth of it was too large. It was a door swung open onto a landscape he had never imagined, a country without fences.
+Peter did not answer. That truth of it was too large. It was a door swung open onto a landscape he had never imagined, a country without fences.
 
 Cornelius spoke then. He spoke quietly, but it carried the authority of a man used to giving reports. “For ten years,” he said, “I have prayed to your God. I have given alms. I have tried to keep your moral code. I have washed my hands until they bled, trying to scrub away a memory that would not fade.” He looked at the wet impluvium, then at Peter. “I thought cleanliness was a condition to be met. A wall to be scaled before I could approach. Today, the wall… was not there. The approach was made for me. The cleanliness was declared. Not earned. Granted.” He paused. The furnace in his chest glowed in his words. “This is a different kind of peace. It is not the peace of a truce. It is the peace of a pardon.”
 
@@ -100,7 +100,7 @@ Peter felt the eyes of his companions lock onto him. They had crossed the thresh
 
 Micah closed his eyes.
 
-Peter looked at Cornelius. The man was waiting, his face open. He was not demanding. He was offering. The host offering the guest the final courtesy.
+Peter looked at Cornelius. This man was waiting, his face open. He was not demanding. He was offering. The host offering the guest the final courtesy.
 
 The triclinium had been rearranged. The low tables were pushed together into one long board. Couches were placed around it, not in the strict Roman order of precedence, but in a rough circle. The food was brought out—simple fare, bread, olives, cheese, a fish stew kept warm in the kitchen. No pork. No shellfish. Drusilla had ordered the menu with a nervous precision, avoiding anything explicitly forbidden in Jewish texts.
 
