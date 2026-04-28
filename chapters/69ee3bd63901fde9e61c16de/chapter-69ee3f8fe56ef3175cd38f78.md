@@ -1,191 +1,305 @@
-The silence after his last word did not stretch. It collapsed. It became a thing with edges and mass, pressing against the oiled leather of the water skin beside James’s foot, against the rough plaster of the wall, against the drum-tight skin of Peter’s own throat.
+The fly circled the cup’s rim once more before lifting into the heavy air. Peter watched it go, then set the cup down with deliberate care. The clay made a soft click against the tile.
 
-Eleazar broke it. Not with a shout, but with a scrape. He shifted his weight on the low stool, the wood groaning against the packed-earth floor. “A congregation,” he repeated, the word dry as old parchment. “You assign them a holy term. They were a military household. A centurion’s familia. Slaves, soldiers, kin bound by law and patronage, not by covenant.”
+“I told them about Jesus,” he said. “Not the miracles first. Not the signs. I started with the man. How he walked. How he listened.” His fingers twitched at his sides, restless. “A woman touched the fringe of his cloak once, just to touch it. He felt the power go out of him. He stopped. He asked who touched him.” Peter’s voice roughened. “She was terrified. She’d been bleeding twelve years. Unclean. She shouldn’t have been in that crowd. But he called her ‘daughter.’”
 
-“They were bound by hope,” Peter said. He lowered the words, strange to him, hollowed out. “You parse the word like a Pharisee. I saw their faces.”
+Judas shifted, his sandal scraping against stone. That sound was oddly loud.
 
-“And we have only your word for what you saw in them.” Malchus this time, his fingers laced over his belly. “A man can see many things in a foreign face when he is far from home, when he has had a vision he does not understand.”
+Peter didn’t look at him. “I told them how he ate with tax collectors. How he let a prostitute wash his feet. How he touched lepers.” He paused. “I told them he was killed by men who knew the Law better than any of us.”
 
-Peter felt the heat rise in his cheeks, a prickling flush that had nothing to do with the close room. It was the old anger, the Galilean temper he’d carried like a stone in his pocket for decades. He breathed in—the smell of lamp smoke and unwashed wool and the faint, sweet decay of the fig leaves in the corner—and let the breath out through his nose. The anger cooled, but it left a residue, a metallic taste on his tongue.
+A muscle jumped in James’s jaw.
 
-“You want the sequence,” he said. Not a question. “You want the witness, step by step. Not the feeling of it. The proof.”
+“They were listening.” Peter’s hands came up, shaping the air between them. “Not like students. Not like men being polite to a guest. They leaned forward. Their mouths were open. One of the slaves—the older one, had tears running into his beard. He didn’t wipe them away.”
 
-James’s eyes met his across the circle, dark, unreadable pools in the lamplight. He gave a single, almost imperceptible nod. Give them the stones. Let them build their own wall.
+Mary stood in the doorway, her arms crossed tight over her chest. A shadow of the lintel cut across her face hiding her expression.
 
-So Peter began again. He did not start with the hunger in their faces. He started with the roof in Joppa.
+“I was nearly done.” Peter’s voice dropped. “I was telling them how the tomb was empty. How we saw him. How he ate fish with us.” He swallowed. “Then the wind came.”
 
-“The tanner’s house. The heat of the day was leaving the tiles. I was hungry. I told you this.” He spoke flatly, a commander reporting a patrol. “I fell into a trance. I saw the sky open. A thing like a great sheet descended, held by four corners.”
+Silence.
 
-He described it without poetry. The animals, the reptiles, the birds. The voice. Get up, Peter. Kill and eat. His own refusal, rote, instinctive. Nothing common or unclean has ever entered my mouth. The voice a second time. What God has made clean do not call common.
+“Not through the door. Not through the windows. From nowhere. From everywhere.” His palms tingled with the memory of it. “The lamps flared blue. The hair on my arms stood up. And they—” He broke off, shaking his head. “They started speaking in tongues. Praising God. That soldier—Gaius—was laughing. Not mocking. Like a man who’d just understood a joke years too late.”
 
-“This happened three times,” Peter said. “Then the thing was taken back into heaven. I was awake. I was on the roof. The tiles were cool under my hands. I was… perplexed.”
+Simeon made a noise low in his throat.
 
-“Perplexed.” Eleazar allowed himself a thin smile. “A natural reaction to a dream about food when one is hungry.”
+Peter rounded on him. “You think I wanted this? You think I walked into that house hoping to upend everything we know?” He lowered his voice. “I argued with the sheet! Three times! I told God no!”
 
-“It was not a dream.” Peter kept his eyes on James. “The command was clear. It upended the Law. It shook the world. I sat there, trying to fit it back into a shape I knew. A parable, perhaps. A test. While I was perplexed”—he let the word hang—“the men sent by Cornelius found the house. The Spirit spoke to me. Not in a vision. A knowing. ‘Three men are looking for you. Go down. Accompany them without hesitation, for I have sent them.’”
+The scribe’s stylus hovered over the wax.
 
-He paused. A fly, trapped earlier, beat a final, frantic rhythm against the shuttered window and fell still.
+James held up a hand. “Describe the tongues.”
 
-“Without hesitation,” Matthias echoed softly. He had been silent so long his voice was a surprise, a rasp of disuse.
+Peter blinked. “What?”
 
-“Without hesitation,” Peter confirmed. “The distinction was already made. In the vision. God declared the unclean clean. The Spirit commanded no hesitation. So I went down. I saw them. A Roman soldier, a scar here.” He drew a line from his temple to his jaw. “Two others. They told me of their master, Cornelius. A centurion. A devout man. One who feared God, they said. Who had a vision of an angel who told him to send for me, to hear words from me.” He spread his hands, a gesture of helplessness that was not theatrical. “I lodged them. The next day, I went with them. Some of the brothers from Joppa came. Six of them. You know their names. They are here.”
+“The tongues.” James’s tone was clinical. “What languages?”
 
-He looked at John, then at Thomas and Philip, who sat like carved stones against the wall. They did not meet his gaze.
+“Aramaic. Greek. Latin. Some I didn’t know.”
 
-“We arrived in Caesarea today—yesterday. Cornelius was waiting. He had called together his relatives and close friends. As I entered, he fell at my feet. I told him to stand. I am a man. We went inside. I saw all of them gathered. And I said to them, ‘You yourselves know how unlawful it is for a Jew to associate with or to visit anyone of another nation.’” He let the legal formula sit in the room, an anchor. “I said it. Out loud. To all of them. ‘But God has shown me that I should not call any person common or unclean.’ So when I was sent for, I came. Without objection.”
+“You’re certain?”
 
-He was nearing the dangerous part. The part that could not be reported, only witnessed. The air in the room seemed to thin. Barnabas leaned forward, his elbows on his knees. Silas had stopped tracing the grain of the wood on his stool.
+“I served in the court of Herod Antipas for two years. I know Aramaic when I hear it.”
 
-“I asked why he sent for me. Cornelius told me. Four days ago, at the ninth hour, he was praying in his house. A man stood before him in bright clothing. ‘Cornelius.’ The man said his prayers and alms had ascended as a memorial before God. He was to send to Joppa for Simon called Peter, who would speak words by which he and his household would be saved.” Peter’s mouth was dry. He swallowed. “So I began to speak. I told them of the word that God sent to Israel, preaching peace by Jesus Christ. I told them what happened in Judea, beginning from Galilee after the baptism John proclaimed. How God anointed Jesus with the Holy Spirit and power. How he went about doing good and healing. How they put him to death by hanging him on a tree. How God raised him on the third day and made him manifest. Not to all people, but to us who were chosen by God as witnesses. We ate and drank with him after he rose. He commanded us to preach and to testify that he is the one appointed by God to judge the living and the dead. To him all the prophets bear witness that everyone who believes in him receives forgiveness of sins through his name.”
+Judas leaned forward. “And the content? What did they say?”
 
-He had recited it like a creed, the words worn smooth from use. In this room, they felt new again, dangerous.
+Peter exhaled through his nose. “Praise. Prophecy. Fragments of scripture. The same as at Pentecost.”
 
-“While I was still speaking these words,” Peter said, and now he spoke quieter, not to a whisper but to something harder, denser, “the Holy Spirit fell on all who heard the word.”
+“No,” Judas said softly. “Not the same.”
 
-*
+Peter stilled.
 
-The statement landed, not with a crash, but with a profound, ringing quiet. Too large for the room. It pressed against the ceiling, swelled in the corners.
+“At Pentecost,” Judas continued, “the crowd heard the wonders of God in their own tongues. A sign for unbelievers.” His fingers tapped a restless rhythm against his knee. “This was private. In a house. For Gentiles.”
 
-Eleazar opened his mouth, closed it. His eyes flickered to James, then to the others.
+“So?” The word came out sharper than Peter intended.
 
-“Fell,” Malchus said finally. “Define this. What do you mean, ‘fell’?”
+Judas’s eyes gleamed. “So why would God give them a sign meant for Jews?”
 
-Peter looked at John. “Tell them.”
+The question hung in the air like smoke.
 
-John’s head came up. He had been studying a crack in the floor, a meandering line like a dry riverbed. His eyes were red-rimmed. “It was as it was with us,” he said, his voice quiet but clear. “At the beginning. In this city. The sound. Like a wind. But there was no wind. The air was still. And they… they spoke in other tongues. They extolled God.”
+Peter opened his mouth. Closed it. The answer was there, lodged in his chest, but the shape of it was too big for words. He looked at James.
 
-“They were Romans,” Philip blurted out, the words bursting from him as if he could no longer hold them. “Italian. Syrian. One of the servant girls was from Cappadocia. They were speaking… I heard Aramaic. I heard praises I knew.”
+James’s face was unreadable. “Continue.”
 
-“You allowed this?” Eleazar’s question was aimed at Peter, sharp as a blade.
+The rooftop in Joppa had been hotter than Hades. Peter remembered that much. The tiles burned through the soles of his sandals. The air smelled of tar and fish and the tannery’s reek, a stink so familiar he usually didn’t notice it.
 
-“Allowed?” A short, harsh sound escaped Peter—not quite a laugh. “Who was I that I could stand in God’s way? When God gives the Spirit as he wills, who am I to build a dam against it?”
+That day, he noticed.
 
-James had not moved. His hands were still pressed to his knees, but the knuckles were no longer white. The tension had left them. He looked, suddenly, immensely tired. “The circumcised believers who came with you,” he said, his gaze including John, Thomas, Philip. “They were astonished.”
+He described the hunger first. Not the holy kind. The plain, gnawing kind that made a man lightheaded. Simon’s wife had promised lentils. He could hear her singing downstairs, her voice rising and falling with the grind of the quern.
 
-It wasn’t a question. Thomas found his voice, a low, strained thing. “We were. We are. It was… it was obvious.” He seemed to regret the word as soon as it left his mouth, his lips pressing into a thin line.
+“The trance took me sideways.” He mimed the motion with one hand. “One moment I was staring at the sky, the next—” His fingers spread wide. “The sheet. Enormous. Lowering.”
 
-“What then?” James asked Peter. “After the Spirit fell.”
+He made them see it. The coarse weave. The way the light passed through it, diffuse and golden. The four corners, each as distant as a mountain peak. And the animals. Not symbols. Not metaphors. Living, twitching, breathing things.
 
-Peter met his brother’s weary eyes. “I remembered the word of the Lord. How he said, ‘John baptized with water, but you will be baptized with the Holy Spirit.’ If then God gave the same gift to them as he gave to us when we believed in the Lord Jesus Christ…” He let the logic hang, a chain completed. “Who was I that I could stand in God’s way?”
+“A sow with teats dragging in the dirt. A vulture tearing at something I couldn’t see. Hares with their weird, twitching noses.” His stomach turned at the memory. “The command was clear. ‘Kill and eat.’”
 
-“You baptized them,” James said. He made it real.
+Judas’s stylus scratched against the wax.
 
-“I commanded them to be baptized in the name of Jesus Christ,” Peter corrected softly. The distinction mattered. He did not act as a free agent. He acted as a witness to a verdict already delivered from heaven. “Then they asked me to remain for some days.”
+“I refused.” Peter’s chin lifted. “I told God I’d never eaten anything unclean.”
 
-Another silence, but this one was different. The first had been brittle, accusatory. This one was dense, saturated with implication. Peter could see the calculations happening behind Eleazar’s eyes, the rapid reassessment. A private error was one thing. A public, demonstrable act of God was another. Malchus looked baffled, his certainties undone. Matthias stared into the middle distance, his mind elsewhere.
+A murmur of approval from the assembly.
 
-Barnabas broke the stillness with a slow, deliberate exhale. He looked at Peter, and for the first time, there was no shadow of doubt in his face, only a kind of awed apprehension. “Then God has granted repentance that leads to life to the Gentiles also.”
+Peter ignored it. “The voice said, ‘What God has made clean do not call common.’” He paused. “It happened three times. The third time, I understood.”
 
-He did not phrase it as a question. He said it as a man laying down a cornerstone, testing the ground to see if it would hold.
+James’s brows drew together. “Understood what?”
 
-No one answered him. The fly by the window did not stir. The lamplight guttered, casting long, leaping shadows that made the faces around the circle look ancient and strange. Peter waited. He had thrown the last stone. The pond was still. He had no more words.
+“It wasn’t about food.” Peter’s voice dropped. “It was about the lines we draw. The walls we build.” He looked at each of them in turn. “God was pointing at the walls.”
 
-The longer shadow from the single window cut across Malchus’s lap, a blade of failing light dividing him in two. He stared at it as if the answer might be written in the dust motes swirling there. “Tongues.” He tested the word, its strangeness. “The sign given to us, at Pentecost. To proclaim the wonders of God to every nation under heaven. You are saying God gave this same sign… to them. In a Roman house. For what audience? For whose ears?”
+Then Simeon laughed, a short, ugly sound. “So now you’re saying the Law is a wall God wants torn down?”
 
-“For ours,” John said. He hadn’t meant to speak. The words just came, low and frayed. “We were the audience. We needed to hear it.”
+“I’m saying God decides what’s clean!” Peter’s fist came down on his thigh with a smack. “Not you. Not me. Not even Moses.”
 
-Eleazar shook his head, a slow, mechanical denial. “The logic is flawed. The sign followed the hearing of the word and belief. You said you were still speaking when this… event occurred. They had not yet confessed. They had not been called to repentance.”
+The gasp this time was collective.
 
-“They were called,” Peter said. The weariness was a stone in his chest, but beneath it, something else was settling, a cold and solid certainty. “They were called by a vision of an angel. By a summons across two days’ journey. By the preached word of Christ. Their hearts were laid open before the word was finished. God does not wait for the period at the end of our sentences.”
+James’s face went pale. “Careful, Peter.”
 
-He remembered the exact moment. Not the sound, which came first, but the change in the air. The quality of the light in Cornelius’s atrium had seemed to thicken, to hum. He’d been speaking of the tree, of the nails, his own voice ringing in his ears. He’d seen the centurion’s face—not the disciplined mask of an officer, but the raw, unguarded hunger of a man watching a door being unlocked. Then the sound began. Not from above, but from within them. A rushing, not of wind but of breath, a collective inhalation that became song. A servant girl, maybe sixteen, with ink-stained fingers from the household accounts, had lifted her hands. The Aramaic that came from her mouth was the dialect of the Galilee, thick with the cadence of the fishing villages. Blessed are you, Adonai, King of the universe. She had never been north of Ptolemais.
+Peter leaned forward. “You asked what happened. I’m telling you.” He spread his hands. “The sheet vanished. I was back on the roof. Dizzy. Sick. Then the men arrived.”
 
-“They had not yet been baptized with water,” Peter continued, his eyes fixed on a knot in the wooden beam above Eleazar’s head. It looked like a closed fist. “But they were drowned in the Spirit. It poured out. You could see it hit them. A big man, one of the household guards, went to his knees as if struck by a mallet. Not in prayer. In shock. The sound… it was coming out of him.”
+He told them about the knock at the gate. The three strangers—two slaves and a soldier, standing awkwardly in the courtyard, their faces streaked with dust. The younger slave’s sandal had a broken strap. He’d tied it up with a bit of twine.
 
-Silas, the scribe, had stopped breathing. His stylus hovered over his wax tablet, forgotten.
+“The Spirit said, ‘Go with them. Do not hesitate.’” Peter’s mouth twisted. “I hesitated.”
 
-“And you did nothing?” Matthias asked, his voice thin.
+Mary made a small noise in her throat.
 
-“I stopped talking.” Peter gave a small, helpless shrug. “What else was there to say? The sermon was over. God had taken the podium. We stood there—we six from Joppa, we who had come with me—and we listened. We listened to Romans singing the Psalms of David. We listened to a Greek cook from Antioch recite the Song of the Sea. He’d never read it. He couldn’t have. The words were in his mouth, perfect. He was weeping. They were all weeping, but not from sorrow. From a joy so fierce it looked like pain.”
+Peter didn’t look at her. “I asked where they were from. They said Caesarea. They said their master was a centurion, a God-fearer, who’d seen an angel.” He shrugged. “So I went.”
 
-He could smell it again, the mix of sweat and incense and the salt air coming through the colonnade, overlaid with this new, electric scent of ozone and shattered boundaries. He had felt his own legs trembling, not with fear but with a kind of raw recognition. This was the same force that had pinned him to the floor in the upper room, that had filled his lungs with fire and his tongue with languages he did not know. The same. There was no difference in the quality, the weight, the terrifying intimacy of it. A direct line from the throne room to this unclean atrium, bypassing every gate he had been taught to guard.
+The journey took the rest of the day. He described the road, straight as a spear, flanked by fields gone gold with summer. The sea to their left, glittering. The younger slave’s donkey-bray laugh when a partridge startled from the brush.
 
-Barnabas was nodding, a slow, deep rhythm as if to music only he could hear. “The blanket,” he murmured. “The sheet in the vision. It held them all.”
+“We reached Caesarea at dusk.” He spoke, quieter now. “The house was… orderly. Not what I expected.”
 
-“It was a net,” Peter corrected quietly. “And we are the fish.”
+No idols. No lewd frescoes. Just clean lines and quiet dignity. The atrium’s mosaic was geometric, black and white tiles in interlocking patterns. The impluvium’s water was so still it mirrored the sky.
 
-James finally moved. He unlaced his fingers, laid his palms flat on his thighs. The gesture was one of surrender, or of final assessment. “The brothers from Joppa. The circumcised believers. Their testimony is unanimous?”
+“Cornelius was waiting.” Peter’s throat tightened. “He fell at my feet.”
 
-Thomas answered. He stood up, not abruptly, but as if the weight of the memory required him to be on his feet. “We compared notes on the road back. In the dark. Whispering, like children who’d seen a ghost. Philip heard the Cappadocian girl speak perfect Hebrew—the liturgical phrases from the Temple service. I heard the soldier, the one with the scar, speak in the tongue of the Parthians. I traded with a Parthian once. I know the rhythm. He was praising the God of Israel for the gift of his Son. He called him Yeshua. He used the name.” Thomas’s throat worked. “They had no knowledge. It was given in the moment. As it was given to us.”
+Judas’s stylus stilled.
 
-“A sign,” Eleazar insisted, but the fight was bleeding out of his voice, replaced by a confused desperation. “A sign requires interpretation. Perhaps it was a sign of judgment. A portent. Babel in reverse, to show the confusion of the nations.”
+“I pulled him up.” Peter mimed the motion. “‘Stand up,’ I said. ‘I’m just a man.’”
 
-“No.” John’s word was a rock. “You were not there. You did not see their faces. There was no confusion. There was… clarity. A terrible, beautiful clarity. Like a fever breaking.”
+James exhaled slowly.
 
-Peter watched the old man deflate. Eleazar’s shoulders slumped. His entire life had been a careful architecture of separation—clean dishes from unclean, holy days from profane, Israel from the nations. Peter’s story was not an addition to that house; it was a demolition. The dust was settling around him, and he could not see the shape of what was left.
+“He told me about the angel.” Peter’s fingers traced the rim of the cup absently. “How his prayers and alms had risen like incense. How the angel told him to send for me.” He looked up. “He asked me to speak. So I did.”
 
-Malchus turned to James. “The precedent…”
+The words came back to him now, sharp and clear. The story of Jesus. The offer of peace. The promise that all who believed would receive forgiveness.
 
-“There is no precedent,” James said. His voice was final. “That is the point. God has made a new thing. We are not judging a matter of law. We are witnessing a matter of fact.” He looked at Peter, and his eyes held a grief, and a relief, so deep it was almost unbearable. “My brother. You have crossed a line we drew with God’s own Law. You have eaten with them. You have slept under their roof. You have laid hands on them in baptism. By every measure we hold, you are defiled.”
+No one spoke.
 
-Peter did not flinch. “I am.”
+Outside, a donkey brayed. The sound was oddly plaintive.
 
-“Yet you stand before us clean.”
+Peter lifted his head. “You asked if this was from God.” He held James’s gaze. “When God speaks, who are we to say no?”
 
-The lamp flame dipped, recovered. The silence now was porous, filled with the unspoken thoughts crashing against each other. Matthias was tracing the lines on his own palm, over and over. Silas had set his stylus down with a quiet click.
+The silence this time was different. Charged.
 
-“So what is required?” Malchus asked the room, the question of a practical man faced with an impractical God. “Do they come under the covenant? Do they keep the Law? Do the men need to be circumcised? At once?”
+James looked down at his hands. When he spoke, his voice was barely audible. “We will need to pray on this.”
 
-Peter felt the question like a hook in his gut. This was the next wall, and they were ready to build it already. He took a breath, caught the scent of the fig leaves again—sweet, cloying, like a memory of a garden he could never enter. “I stayed in that house for four days,” he said. “I ate what was set before me. I slept on a Roman bed. I talked with Cornelius late into the nights. He is a soldier. He understands orders. He showed me the altar in his courtyard where he prays to the God of Israel. It is a simple thing, local stone. He has never sacrificed there. He said he did not know the proper way. He asked me…” Peter’s voice caught. “He asked me how to atone for the blood on his hands. Not the blood of sacrifice. The blood of men. Of a child, in a village in Germania.”
+Peter nodded. The sun was high now, the heat pressing down like a hand. He could smell the city beyond the courtyard walls, bread baking, dung smoking, the metallic tang of the stonecutter’s yard. Ordinary things.
 
-He let that sit. The specificity of it, the foreign, brutal reality of it cut through the theological debate like a shard of glass. This was not an abstract Gentile. This was a man with a particular, ugly wound.
+One world hadn’t ended.
 
-“I told him of Jesus,” Peter said simply. “Of the blood that atones for all. He listened. He understood duty, and cost, and a debt paid. When the Spirit fell on him, he did not speak in tongues first. He wept. For an hour. The sound of it was worse than the weeping of the women at the foot of the cross. It was… dry. As if he were being turned inside out and all the dust of a decade was coming out of him.”
+It had just gotten larger.
 
-He looked around the circle, meeting each pair of eyes. “You ask what is required of them? I asked the Lord the same, lying awake in that strange house. The answer that came was not a list. It was the echo of the centurion’s weeping. And then the memory of the Lord’s own voice, from a different time, a different Roman: Truly, I tell you, with no one in Israel have I found such faith.”
+The silence stretched, thick with unasked questions. Peter wiped his palms against his thighs. The heat in the room had nothing to do with the sun.
 
-James closed his eyes. When he opened them, they were bright with unshed tears. “The wall is gone.”
+Peter’s fingers found the cup again, tracing the rim where the fly had walked. The clay was warm from his grip. “I took six brothers with me. Witnesses.”
 
-“Then we must learn how to live in an open field,” James said. He stood, his joints protesting. The movement seemed to break a spell. The others stirred, the rustle of wool and the scrape of stool legs loud in the quiet. “We will need to pray. To search the scriptures. This is not a decision for this room, tonight.” He looked at Peter, and his gaze was steady, heavy with responsibility. “You will remain in Jerusalem. You will tell this account again, to the whole assembly. They must hear it from your mouth.”
+A murmur rippled through the assembly. Six was deliberate, more than the Law required for testimony. Peter had counted them twice before leaving, checking faces like a man settling accounts.
 
-Peter bowed his head. The defiance was gone, replaced by a hollow exhaustion. And beneath that, a fragile, stubborn shoot of peace.
+James’s knuckles whitened around the edge of his bench. “You spent the night there.”
 
-Barnabas stood and came to him. He did not embrace him. He put a hand on his shoulder, the grip firm, anchoring. “You brought the catch ashore,” he said, his voice thick. “Now we must clean it.”
+“In the house,” Peter confirmed.
 
-Outside, the call for afternoon prayer began to sound from the Temple mount, a distant, plaintive horn. It was a sound that had ordered the days of this city, of this people, for centuries. In the room, it felt like an echo from a world that was already passing away. The men listened to it, their faces tilted toward the sound, and for a moment, they were all just Jews again, bound by a law and a rhythm that had just been shattered from heaven.
+Simeon made a strangled noise.
 
-Peter was the first to look away. He watched the last of the daylight bleed from the window’s edge. The question he had spoken already hung in the air, heavier than the horn’s note, shaping the silence that followed.
+The scribe’s stylus snapped against the wax with a sound like a twig breaking.
 
-No one had an answer. The question itself was the only answer they had.
+Peter ignored them. “We reached the house near dusk. The courtyard was full—Cornelius had called his relatives, close friends. Even some of his men from the cohort.” He paused. “They were waiting.”
 
-The horn’s last note frayed into the city’s murmur. It left a deeper quiet in its wake. Matthias finally broke it, his voice sandpaper-rough.
+Mary shifted in the doorway. The movement made the shadow across her face ripple. “Waiting for what?”
 
-“Four days.” He wasn’t looking at anyone. “You ate with them. For four days.”
+Peter met her gaze. “For me to tell them about Jesus.”
 
-“I broke bread with them,” Peter said. The distinction felt important, scriptural. “At their table.”
+The words fell into the quiet like stones into still water.
 
-“And the food?” Eleazar’s question was a whisper.
+He described the scene, the hush as he entered, the way the lamplight caught on spear tips propped against the wall. The centurion’s household stood motionless, their faces turned toward him like flowers to the sun. The soldier, Gaius had a fresh scar across his brow. It gleamed pink in the low light.
 
-“What food?” Peter’s gaze was level. “I don’t remember. There was a dish with lentils. Some fish from the harbor, grilled with rosemary. The bread was coarse, darker than ours. I tasted the rosemary for two days afterward. It clung to the teeth.”
+Judas’s stylus moved again, scratching shorthand into the wax. “And you spoke.”
 
-He wasn’t evading. He was describing a meal, not a transgression. The mundane detail was more disorienting than a confession of blasphemy. It made it real. He had sat, chewed, swallowed. He had passed a platter to a man whose hands were ritually unclean. He had probably used the same knife to cut his meat.
+“I spoke.” Peter’s voice roughened. “I told them about John’s baptism. About how God anointed Jesus with the Spirit and power. How he went about doing good—healing the oppressed, casting out demons.” His fingers twitched at the memory. “I told them how they killed him. Hung him on a tree.”
 
-Malchus rubbed a hand over his face, the sound of his palm on his stubble loud in the stillness. “The baptism. You performed it yourself?”
+Peter pressed on. “I told them God raised him on the third day. That those who believe in him receive forgiveness of sins.” He spread his hands. “That’s when it happened.”
 
-“I commanded it to be done,” Peter said again, the patient repetition a form of pressure. “In the name of Jesus Christ. In the courtyard, using the household cistern. The water was cold. The centurion went first. He did not flinch.”
+The room seemed to hold its breath.
 
-James had not sat back down. He stood by the window, a dark silhouette against the fading blue. “And their reception of the Spirit. Identical to Pentecost. In every particular.”
+“Wind.” Peter’s palms tingled again. “Not from the sea. Not from the desert. It came from everywhere at once. The lamps flared. The tiles underfoot vibrated.” His throat worked. “Then they were speaking in tongues, just like we did at Pentecost. Praising God.”
 
-“In every particular that matters,” Peter said. “The sound. The tongues. The… the overwhelming of them. The joy. The terror. Yes.”
+James’s breath hissed through his teeth.
 
-“But not in location,” Eleazar pressed, a last, feeble grip on the cliff’s edge. “Not in the company of the apostles, not in the holy city—”
+Simeon surged to his feet. “You expect us to believe—”
 
-“In a Roman house,” Peter finished for him, his tone leaving no room for the objection to settle. “In Caesarea. Before six witnesses from Joppa who had never set foot in an upper room in Jerusalem. God is not constrained by our geography, Eleazar. He never has been.”
+“I expect nothing!” Peter’s voice cracked like a whip. “I’m telling you what happened. Whether you believe it is between you and God.”
 
-Barnabas made a small sound, a sigh that held a laugh and a sob inside it. “He has outrun us.”
+The silence that followed was brittle.
 
-The words seemed to loosen something in the room. The high, tense pressure of judgment seeped away, replaced by a heavier, more confusing weight: the burden of a new reality. Silas, the young scribe, picked up his stylus again, not to write, but to turn it over and over in his fingers. The wax on his tablet was blank. Some testimonies could not be recorded; they could only be absorbed.
+Outside, a child’s laugh floated over the courtyard wall, bright, oblivious.
 
-Thomas walked to the water jug in the corner, poured a cup. He didn’t drink it. He held it, feeling the coolness of the clay seep into his palm. He was remembering the chill of the cistern water in Caesarea, the way it had dripped from Cornelius’s short-cropped hair onto the paving stones, each drop a dark, spreading star.
+Peter closed his eyes. The memory rose, vivid as the day it happened. The way the centurion’s face had transformed when the Spirit took him. The way his wife clutched her daughter to her chest, tears streaming down her cheeks. The slave who’d fallen to his knees, hands raised toward heaven, babbling in flawless Aramaic.
 
-“They will want a ruling,” Malchus said to James’s back. “The brothers in Antioch have already heard. The questions will come like sparrows to seed. Do they keep the Sabbath? The dietary codes? Do their men bear the mark?”
+Judas broke the quiet. “And then?”
 
-James turned from the window. The last of the daylight caught the silver in his beard and made him look older than he was. “We have no ruling for what God has done. We can only bear witness to it. As Peter has.”
+Peter opened his eyes. “Then I baptized them.”
 
-“But we must give guidance!” Eleazar’s protest was weaker now, plaintive. “We cannot have a chaos of practice. It will fracture us.”
+The collective intake of breath was sharp enough to cut.
 
-“Perhaps we are meant to be fractured,” John said. He had spoken so little. He spoke hoarsely. “Like a loaf broken for a multitude.”
+Simeon’s face purpled. “You—”
 
-Peter looked at his friend. John’s eyes were fixed on the floor again, but his jaw was set. He had seen. He had heard. He was already living in the broken, open field.
+“With what authority?” James’s voice cut through the outrage like a knife.
 
-In the silence of the room, with only the dying lamp for company, James, the brother of the Lord, finally bowed his head. He had no answer. Only the echo of the question, and the terrifying, widening space where an answer should be.
+Peter met his gaze without flinching. “With the same authority that baptized three thousand at Pentecost. If God gave them the same gift he gave us, who was I to stand in the way?”
+
+James’s fingers tightened around the edge of his bench. “The Law—”
+
+“Is fulfilled in Christ.” Peter’s voice dropped. “James, I didn’t understand at first either. But the sheet—the voice—the Spirit’s command—it all fits.” He leaned forward. “God has shown me that I should call no person common or unclean.”
+
+Peter didn’t look at her. He was watching James, watching the play of doubt and conviction across his face. The way his fingers worried at a loose thread in his robe. The way his breath came just a little too fast.
+
+Outside, the donkey brayed again, long and plaintive.
+
+James whispered out slowly. When he spoke, his voice was barely above a whisper. “We will need to pray on this.”
+
+Peter nodded. The words were familiar, the same ones he’d said to Cornelius when the centurion asked what he must do to be saved. The same ones he’d whispered to himself on the road back from Caesarea, his mind reeling.
+
+The scribe set down his stylus with a soft click.
+
+Judas leaned forward, his elbows on his knees. “And the others? The six witnesses?”
+
+A beat. Then another.
+
+Mary pushed off from the doorway. “I will.”
+
+The men turned as one.
+
+She met their stares without flinching. “If this is of God, we cannot oppose it. If it is not…” Her voice trailed off.
+
+Peter knew the unspoken end. If it was not, they’d have to disavow him. The thought sat like a stone in his gut.
+
+James rubbed his temples. “We will reconvene after evening prayers.”
+
+The dismissal was clear.
+
+Peter stood, his knees protesting. The sun had moved while they talked, slanting through the lattice in long, golden bars. Dust motes swirled in the light, aimless as his thoughts.
+
+Mary fell into step beside him as he moved toward the courtyard. “Peter.”
+
+He stopped.
+
+She studied his face, the lines around his eyes, the set of his jaw. “Was it really like Pentecost?”
+
+Peter thought of the centurion’s daughter, a girl of no more than twelve, her hands raised, her voice lifted in perfect Hebrew. He thought of the way the Spirit had moved through that Roman house like wildfire, consuming every boundary in its path.
+
+He met Mary’s gaze. “It was better.”
+
+Her pause caught.
+
+Beyond the courtyard wall, Jerusalem stirred, the clatter of carts, the cry of vendors, the ever-present hum of a city that didn’t yet know its walls had been breached.
+
+Peter turned his face toward the sound. The world hadn’t ended.
+
+He’d gone up to pray after the noon meal, seeking solitude. The city sprawled below him, whitewashed walls, flat roofs, the glittering ribbon of the sea beyond.
+
+Then the trance took him sideways.
+
+He refused.
+
+“Never, Lord.” The words tasted like bile. “Nothing unclean has ever entered my mouth.”
+
+The voice came again, patient as the tide. “What God has made clean do not call common.”
+
+Three times. Three refusals. Three declarations.
+
+Then the understanding, slow as sunrise, terrible as a sword.
+
+It wasn’t about food.
+
+It was about the lines they drew. The walls they built.
+
+Peter’s hands trembled now as they had then. He looked at his companions, at James’s furrowed brow, at Judas’s tapping stylus, at Simeon’s clenched fists.
+
+He spread his hands. “Who was I to argue with God?”
+
+Outside, the city murmured on, oblivious.
+
+The world hadn’t ended.
+
+Peter’s throat burned. He hadn’t realized how long he’d been speaking. The cup was empty now, the dregs of wine clinging to the clay in a thin, bitter film. He set it down carefully, the click of it against the tile louder than he intended.
+
+James hadn’t moved. His fingers still gripped the edge of the bench, the knuckles pale. The loose thread in his robe had unraveled further, a tiny rebellion against his usual precision.
+
+Judas broke the silence. “You baptized them.” Not a question. A reckoning.
+
+Peter didn’t flinch. “I did.”
+
+Simeon made a sound like a man choking on a bone.
+
+Peter ignored him. He focused on James, on the way his friend’s beat hitched, just once, before he schooled his face back into stillness. “You asked for an account. I’ve given it.” He spread his hands. “The Spirit fell on them before I could finish speaking. Exactly as it did with us.”
+
+Mary’s sandal scuffed against the threshold. “What did they say?”
+
+Peter turned. Her face was half in shadow still, but the set of her shoulders was rigid. “Praise. Prophecy. Fragments of scripture.” He hesitated. “One of the slaves—the old one with the crooked back, he was quoting Isaiah. In Hebrew. Flawless.”
+
+James’s voice cut through it. “You’re certain?”
+
+Peter met his gaze. “I served in Antipas’s court. I know Hebrew when I hear it.”
+
+“Gaius?” Peter’s mouth twisted. “He was laughing.”
+
+Simeon’s lip curled. “Mocking—”
+
+Outside, a cart rattled past, the donkey’s bray slicing through the thick air.
+
+James steadied slowly. “And then?”
+
+Peter’s fingers twitched. “Then I asked if anyone could withhold water for baptizing these people who had received the Holy Spirit just as we had.” He paused. “No one answered.”
+
+Peter pressed on. “So I baptized them. In the name of Jesus Christ.”
+
+Simeon surged to his feet. “You had no right!”
+
+Peter didn’t move. “God gave me the right.”
+
+James held up a hand. His fingers trembled—just slightly, before he fisted them in his robe.
+
+Peter thought of the centurion’s face when the Spirit took him, the way his stern Roman discipline had shattered into something raw and trembling. The way his wife had clutched their daughter to her chest, tears streaming down her cheeks. The slave who’d fallen to his knees, babbling in flawless Aramaic.
