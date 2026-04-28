@@ -96,11 +96,11 @@ Lysias considered. “He is… thorough. He believes in order. In justice. The m
 
 “A weight. Some men carry the weight of command. He carries a specific thing. He prays to be rid of it.” Lysias mounted his horse again, the conversation clearly finished.
 
-Peter climbed back onto the mare, his body protesting. The memory of the Germanian boy and his mother, unknown to him, brushed against the memory of the sheet. Two different kinds of weight. Two different kinds of uncleanness. One of blood, one of law. Could a voice from heaven wipe away either?
+Peter climbed back onto the mare, his body protesting. A memory of the Germanian boy and his mother, unknown to him, brushed against the memory of the sheet. Two different kinds of weight. Two different kinds of uncleanness. One of blood, one of law. Could a voice from heaven wipe away either?
 
 The landscape changed as they neared Caesarea. The wild dunes gave way to cultivated fields, then to the ordered plots of suburban villas. The road improved, paved here and there with stone. They passed a milestone, the inscription worn but legible: Caesarea. II M.P. Two miles.
 
-The sun was a red semicircle on the horizon when the city walls came into view, white and massive, the famous harbor beyond a crescent of perfect engineering. The air smelled of cooking fires, sewage, and the sea. The gate was still open, but the guards stood alert. Lysias rode ahead spoke a few words. The guards waved them through.
+The sun was a red semicircle on the horizon when the city walls came into view, white and massive, the famous harbor beyond a crescent of perfect engineering. The air smelled of cooking fires, sewage, and the sea. The gate was still open, but the guards stood alert. Lysias rode ahead and spoke a few words. The guards waved them through.
 
 Inside, the city was a different world from Joppa. Wide, colonnaded streets. Marble facades gleaming in the twilight. The orderly grid of Roman planning. The people here walked with a different pace, a straighter back. Peter saw legionaries in pairs, their armor clinking. He saw Greek merchants, Egyptian priests, Jewish traders with sidelocks visible beneath their caps. A city of layers, of boundaries enforced by sight and custom.
 
@@ -140,7 +140,7 @@ Kind. The word was absurd. Peter had been hauled by a divine hook. He looked at 
 
 “Now,” Cornelius said, and his voice changed, softened by a confusion that mirrored Peter’s own. “We are all here. Before God. To hear.”
 
-Silence flooded the room. It pooled around the furniture rose to the ceiling. The flicker of the lamp wicks was loud. Peter felt the centurion’s memory that Lysias had mentioned—it was in the room, a fifth presence, a cold spot. He felt the ghost of his own vision, the sheet, the beasts, the voice. The two visions were threads, and they were now tied together in this quiet room. The knot was in his throat.
+Silence flooded the room. It pooled around the furniture and rose to the ceiling. The flicker of the lamp wicks was loud. Peter felt the centurion’s memory that Lysias had mentioned—it was in the room, a fifth presence, a cold spot. He felt the ghost of his own vision, the sheet, the beasts, the voice. The two visions were threads, and they were now tied together in this quiet room. The knot was in his throat.
 
 He opened his mouth. No sound came. He, who had preached to thousands on the Temple mount, who had argued before priests was wordless. What was the protocol for this? A blessing? A prophecy? A declaration of the Messiah’s death and resurrection? Those were for Israel. These people were outside the gate.
 
@@ -156,7 +156,7 @@ Cornelius did not move. His wife’s hand crept to her throat.
 
 “In every nation,” Peter continued, the sentences forming as if dictated, slow and heavy, “anyone who fears him and does what is right is acceptable to him.” The theology was there, in the scriptures, in the psalms—but he had never tasted the meaning until now. It tasted like dust, like liberation, like fear.
 
-He spoke. He told them of Jesus. Of Nazareth. Of the anointing, the works, the crucifixion. The resurrection. The witnesses. He told it plainly, without the flourishes he used in Jerusalem synagogues. This was not a persuasive argument. It was a report. This happened. The words were for them, but the dawning awe was for himself. As he spoke of the forgiveness of sins through his name, he saw Cornelius’s eyes close. The centurion’s jaw worked, a muscle fluttering under the skin. The weight behind his eyes was being measured, judged found perhaps not immovable.
+He spoke. He told them of Jesus. Of Nazareth. Of the anointing, the works, the crucifixion. The resurrection. The witnesses. He told it plainly, without the flourishes he used in Jerusalem synagogues. This was not a persuasive argument. It was a report. This happened. The words were for them, but the dawning awe was for himself. As he spoke of the forgiveness of sins through his name, he saw Cornelius’s eyes close. The centurion’s jaw worked, a muscle fluttering under the skin. The weight behind his eyes was being measured, judged, and found perhaps not immovable.
 
 Peter was still talking, the message flowing now, when it happened.
 
@@ -184,7 +184,7 @@ We. The word included Peter now. It included Jerusalem. It included every believ
 
 Peter looked at the faces, shining with a wet, newborn light. He thought of the argument waiting for him at home, the incredulous faces of the brothers, the accusations of betrayal. That was tomorrow’s storm. “Bring water,” he said.
 
-They brought a large ewer and a basin. There, in the triclinium of a Roman centurion, by the light of ordinary lamps, Peter baptized them. He poured water over Cornelius’s short-cropped hair spoke the name of Jesus. The centurion’s eyes were closed tight, his face a field of surrender. He baptized the wife, Drusilla. The son, Marcus. The servants. The soldier. The water splashed on the tiled floor, a puddle spreading, soaking into the grout.
+They brought a large ewer and a basin. There, in the triclinium of a Roman centurion, by the light of ordinary lamps, Peter baptized them. He poured water over Cornelius’s short-cropped hair and spoke the name of Jesus. The centurion’s eyes were closed tight, his face a field of surrender. He baptized the wife, Drusilla. The son, Marcus. The servants. The soldier. The water splashed on the tiled floor, a puddle spreading, soaking into the grout.
 
 When it was done, they asked him to stay for some days. The word stay meant eat. It meant sleep under this roof. It meant fellowship. The test was no longer theoretical.
 
@@ -196,7 +196,7 @@ Peter stood by the basin, the water darkening the tiles at his feet. The sound o
 
 Cornelius stood. Water dripped from his hair onto his shoulders. He looked at Peter, and the awe was still there, but something else had settled beneath it—a practical calm. The centurion was back in his fortress, assessing the new terrain. “You will eat with us.”
 
-It was not a question. The servants were already moving, their faces dazed but their bodies remembering routine. They cleared the basin brought towels. The smell of roasting meat wafted in from the kitchen quarters—lamb, Peter guessed from the scent, not pork. A deliberate choice. The consideration should have comforted him. It felt like another layer of the test.
+It was not a question. The servants were already moving, their faces dazed but their bodies remembering routine. They cleared the basin and brought towels. The smell of roasting meat wafted in from the kitchen quarters—lamb, Peter guessed from the scent, not pork. A deliberate choice. The consideration should have comforted him. It felt like another layer of the test.
 
 They moved to the couches. Peter’s legs were unsteady. He lowered himself onto the padded edge, the leather creaking. Cornelius reclined opposite him, a posture of ease that did not match his eyes. Drusilla sat upright beside her husband, her fingers pleating the fabric of her stola. The son, Marcus, hovered near the doorway, as if unsure he was permitted to stay.
 
