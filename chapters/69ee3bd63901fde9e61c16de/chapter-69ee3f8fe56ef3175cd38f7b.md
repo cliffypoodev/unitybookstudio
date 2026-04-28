@@ -1,163 +1,219 @@
-The smell of wet stone and damp wool lingered in the atrium long after the basin had been emptied and stored. A servant—a boy of maybe fourteen with a patchy attempt at a beard—pushed a rag mop over the mosaic floor. The geometric patterns of fish and anchors swam beneath the gray water in the bucket, their colors muted. He worked with the methodical boredom of a daily chore, though this task was anything but. Each pass of the mop shrank the dark, irregular stain left by the baptisms, squeezing the water toward the central drain of the impluvium with a soft, sucking sound.
+The courtyard tiles were still damp where the baptismal water had pooled. Tertius knelt beside the stain, scrubbing with a stiff-bristled brush. His knuckles were raw from the work, but the mark refused to fade entirely. He sat back on his heels, wiping sweat from his brow with the back of his hand. A morning sun caught the lingering moisture, turning the stone momentarily gold before it dulled again.
 
-Cornelius stood in the shaded colonnade, watching. He held a stylus and a wax tablet, the morning’s household accounts half-finished. The figures for grain and oil and lamp fuel blurred before his eyes. He was supposed to be auditing the list. He tracked the boy’s progress, the way the clean, dry tiles emerged behind the mop like land after a tide recedes.
+Drusilla paused in the colonnade, her sandals whispering against the mosaic. She carried a basket of dried figs, their sweet dust clinging to her fingers. Tertius didn't notice her at first, his shoulders hunched in concentration as he worked at the stubborn patch.
 
-The boy glanced up, saw his master watching, and redoubled his effort, his shoulders tightening.
+“Leave it,” she said.
 
-“Slowly,” Cornelius said. His voice was rough, unused since the previous night’s prayers. “There’s no hurry.”
+Tertius startled, nearly dropping the brush. He scrambled to his feet, wiping his hands on his tunic.
 
-The boy slowed, confused. A household task was done quickly or it earned a cuff. He looked at the floor, then back at Cornelius, his knuckles white on the mop handle.
+“The water will dry on its own.” She set the basket on a low table. A wasp circled the figs, its wings a faint hum in the still air. “Go help Marcellus with the oil jars.”
 
-“It’s just water,” Cornelius added, though the words felt inadequate. A lie by omission. It wasn’t just water. People-water, clouded with dust from feet and lint from tunics made holy by declaration. He’d seen it happen. He’d been inside it.
+Tertius hesitated, glancing back at the spot. “But the dominus said—”
 
-From the kitchen corridor, the clatter of a copper pot hitting the floor rang out, followed by Drusilla’s sharp, exasperated sigh. The ordinary violence of a morning reasserting itself. That sound broke his fixation. He looked down at the tablet. He’d written the same figure for olive amphorae twice. He scraped the wax smooth with the flat end of the stylus, the action precise, military. The groove left behind was a pale, empty channel.
+“I know what he said.” Her voice wasn't unkind, just tired. The skin beneath her eyes was bruised from lack of sleep. “Go.”
 
-Ezra appeared in the archway to the private quarters. He carried a small basket of prayer shawls, his movements stiff. His eyes went to the shrinking stain on the floor, then to Cornelius. He didn’t speak. He didn’t need to. His presence was a question, a quiet marvel that had nowhere to go in the face of breakfast and mopping.
+Tertius ducked his head and scurried off, the brush still clutched in one hand. Drusilla watched him go, then turned her gaze to the damp stone. The shape of it was uneven, the edges blurred where bare feet had tracked through it yesterday. She could still see the imprint of Cornelius's knees, the darker patches where drops had fallen from his hair as Peter lifted him from the water.
 
-“The others?” Cornelius asked, finally looking up.
+A gust of wind rattled the olive branches overhead. Shadows danced across the courtyard, liquid and restless. Somewhere in the house, a door creaked shut.
 
-“Gone to the market. John wished to purchase ink. Thomas and Philip accompanied him.” Ezra’s voice was low. “They did not ask for an escort.”
+Gaius emerged from the barracks wing, his armor strapped tight across his chest. He stopped when he saw her, his hand going to the dagger at his belt out of habit. “You're up early.”
 
-A significant detail. The night before, they would never have ventured into the Gentile market quarter without a Roman soldier or servant as a buffer. Now they went alone. This city was still the same city, the lines still etched in its stone, but something had shifted in them. Or perhaps the lines had simply become visible as chalk, not iron.
+“So are you.” She didn't look at him, her fingers tracing the rim of the fig basket. “The prefect's summons?”
 
-“Peter?”
+“First watch.” He shifted his weight, the leather of his harness creaking. “You heard about Lydia's sister?”
 
-“On the rooftop. He has been there since first light.”
+Drusilla's mouth tightened. “Cornelius told me.”
 
-Cornelius nodded. He set the tablet and stylus on a small marble table beside a potted rosemary bush. The herb’s scent was clean, medicinal, overwhelming the damp smell for a moment. He walked past the boy with the mop, his sandals whispering on the damp tiles. He didn’t go to the rooftop stairs. He moved to the impluvium and crouched by its edge.
+Gaius studied the damp tiles, his expression unreadable. “The men are talking.”
 
-The basin was shallow, lined with blue-green tile. A thin trickle from the aqueduct inlet kept the water moving. Tiny, translucent shrimp darted in the shadows near the bottom, living their entire lives in this square yard of curated nature. He dipped his fingers in. The water was sun-warmed on the surface, cooler beneath.
+“Let them talk.”
 
-He remembered the shock of the basin water last night—not the vegetable-washing bronze one, but this impluvium, where some of the overflow had run. It had been cold. A slap. Then the hands on his shoulders, Peter’s strong fisherman’s grip, the world tilting, the sky of the atrium ceiling flooding his vision, the roar of water in his ears that wasn’t water at all but the sound of his own blood. And then the breaking of the surface, air like a knife in his lungs, and a lightness so profound he’d stumbled, laughing, water streaming from his nose.
+“It's not just the men.” He stepped closer, lowering his voice. “The prefect's wife asked after you yesterday. Wondered why you missed the sacrifices to Juno.”
 
-Now his fingertips wrinkled in the placid domestic pool. A shrimp investigated his nail, then darted away.
+A fig tumbled from the basket, landing with a soft thud near the wet patch. The wasp abandoned its circling to investigate. Drusilla made no move to retrieve the fruit. “What did you tell her?”
 
-The mop swished behind him. The stain was almost gone, just a darker tone to the grout between the tiles, a ghost of dampness. By noon, even that would vanish. The physical evidence would be erased. The event would exist only in memory, in the changed posture of the men who had gone to the market, in the strange quiet of his own house.
+“That you were ill.” He glanced toward the street, where the sound of marching boots was growing louder. “She didn't believe me.”
 
-Drusilla entered the atrium, wiping her hands on her apron. She saw him crouched by the water. Her step faltered. She was a woman who understood the economics of a household, the politics of a garrison town. The spiritual arithmetic of the last day was a foreign ledger. She watched the servant boy finish his work, wring the mop out over the bucket. The last of the baptism water swirled down the drain.
+A wind shifted, carrying the briny scent of the harbor. Drusilla exhaled slowly, her shoulders settling. “Go to your post, Gaius. We'll handle the rest.”
 
-“The bread is burned,” she said. It wasn’t an accusation. It was a report from the front lines of the mundane, which had been neglected. “Marta is weeping over the oven. She says the fire was too hot. She says the distraction...” Drusilla trailed off, her gaze lifting to the rooftop where the source of the distraction sat.
+He hesitated, his jaw working. It seemed he might say more. Then he nodded once and turned on his heel, his sandals scraping against the stone as he strode toward the gate.
 
-“We’ll eat it anyway,” Cornelius said. He stood, his knees cracking. A small, irrelevant pain. A pain of a man nearing fifty who had slept poorly on a thin pallet, choosing to give his bed to a guest.
+The wasp crawled over the fallen fig, its antennae twitching. Drusilla watched it for a long moment before crushing it beneath her sandal. The sound was small and wet. She left the fruit where it lay.
 
-“It’s bitter.”
+Cornelius stood at the edge of the rooftop, his palms flat against the parapet. The sea stretched before him, endless and indifferent. Below, the city stirred to life—merchants calling their wares donkeys braying, the distant clang of a blacksmith's hammer. Ordinary sounds. Unchanged.
 
-“Then we’ll taste the bitterness.”
+He closed his eyes, letting the sun warm his face. The skin around his hairline still tingled from where the water had dripped into his eyes yesterday. Peter's rough hands had been steady as he lowered him beneath the surface, the words ringing clear even through the muffled rush in his ears.
 
-She gave him a look he couldn’t fully decipher—part exhaustion, part a new, wary respect. The centurion’s wife who had married a man of clear lines and predictable rituals now looked at a man who crouched by the fish pond and spoke of eating burned bread. She touched the amulet at her throat, a tiny bronze figure of Fortuna she had never removed, not even during the speaking in tongues. Her thumb rubbed the metal, back and forth. A tiny, private friction.
+“Buried with him in baptism.”
 
-“He will leave today,” she said.
+That memory should have brought peace. His chest ached with something he couldn't name. Not fear, not regret—something sharper, lodged between his ribs like a splinter.
 
-“I know.”
+A footstep sounded behind him. He didn't turn.
 
-“And then?”
+“You should eat.” Lydia's voice was hoarse, as though she'd been crying. She set a tray on the low bench near the stairs—bread, olives, a cup of watered wine. “It's been hours.”
 
-He had no answer. The and then was a vast, empty plain. They would pray. They would break bread, burned or not. They would meet in this atrium. People would talk. Lucius might make trouble with the quaestor. The legate might hear. His career, already stagnant, might curdle into something worse. These were all possibilities, stones on one side of a scale. On the other side was a single, weightless, impossible fact: he had been called clean. Not by a man, but by God. The balance made no sense. The scale was broken.
+He glanced at the food, then at her. Her eyes were red-rimmed, the skin around them puffy. “Your sister?”
 
-“We will see,” he said, which was what he said to his troops when he had no orders from command.
+“Gone.” The word was barely a whisper. She straightened, her hands clasped tight in front of her. “I gave her the rites.”
 
-The mop boy shouldered his bucket, the water sloshing. He hesitated, waiting for dismissal. Cornelius looked at him. All he saw was the young face, the downy cheeks, the eyes that flicked nervously between the master and the mistress.
+Cornelius studied her face. There was no accusation there, only exhaustion. “Was there trouble?”
 
-“The floor is good,” Cornelius said. “Thank you.”
+“A neighbor saw me. Called the prefect's guards.” Her throat worked. “They came too late.”
 
-The boy blinked. He ducked his head and scurried toward the service entrance, the bucket handle creaking.
+He reached for the cup, the clay rough against his fingers. The wine was sour on his tongue. “You shouldn't have gone alone.”
 
-The atrium was quiet then. Just the trickle of water, the distant cry of a gull from the harbor, the smell of charred wheat settling around them like dust. The stain was gone. The floor was just a floor again, its mosaics clear, its fish and anchors forever swimming and holding in their silent, stone world.
+“I had Tertius.” She touched the edge of the tray, her fingers tracing the worn wood. “He stood watch while I prayed.”
 
-Drusilla turned and went back to the kitchen, to Marta and the burnt bread. Her shoulders were set, accepting the day’s first defeat.
+The sea wind tugged at their clothes, carrying the scent of salt and fish. Below, a child laughed, the sound bright and unburdened. Cornelius set the cup down. “What will you do now?”
 
-Cornelius remained. He picked up a fallen rosemary needle from the flagstones, rolled it between his finger and thumb. The oil released, a pungent, clear scent. It smelled like the hills outside Rome, a place he hadn’t seen in twenty years. A memory with no purpose, irrelevant. It just arrived. His mind was that porous now, letting in useless things.
+Lydia looked at him, really looked at him, for the first time since she'd climbed the stairs. “What will any of us do?”
 
-He looked up at the rectangle of blue sky above the impluvium. A wisp of cloud drifted across, shaped like nothing at all. He thought of Peter up there, a silhouette against the morning, a man who had crossed a sea he didn’t want to cross to deliver a message that had already been delivered by the wind itself. He thought of the water drying, vanishing into the air. It wasn’t gone. It was just elsewhere, part of the cloud, part of the next rain that would fall on the hills of Judea or the sea beyond. The boundary between here and there, between water in a tile basin and water in the sky, was an illusion.
+A question hung between them, weighty and unanswerable. A gull cried overhead, its wings flashing white against the blue. Cornelius turned back to the parapet, his fingers curling against the stone. “We keep the watch.”
 
-Cornelius, a man of boundaries, of walls and gates and lines in the sand, stood on his clean, dry floor and understood this one thing. The line had been crossed. This water had been spilled. And the only thing left to do was to live in the damp, unfinished world it left behind.
+She nodded once, then turned to go. Her footsteps were quiet on the stairs, fading into the murmur of the household below.
 
-The rosemary needle crumbled between his fingers, leaving a green stain on his thumb. Cornelius watched the color darken on his skin. He stood for a long moment, the scent of the herb and the faint char of bread mingling in the cool air. The house was settling back into its rhythms, a hum of ordinary activity that felt profoundly altered. He had duties to attend to, reports to file, men to inspect. The cohort did not pause for spiritual revelations.
+The bread sat untouched on the tray, the olives glistening in the sun. Cornelius left them there and descended to the courtyard, where the damp patch had shrunk to a faint shadow on the stones. Tertius and Marcellus were hauling water from the cistern, their voices low and serious. Drusilla stood in the colonnade, her arms crossed over her chest as she watched the street.
 
-He walked toward his study, the familiar path feeling strange beneath his sandals. The polished marble gleamed, reflecting the light from the atrium. He passed the busts of ancestors, their stern, unseeing eyes fixed on some distant, glorious past. His own face, reflected dimly in the bronze shield hanging on the wall, looked different to him. Older, perhaps. Or simply uncluttered. The mask he presented to the world, that of the unflappable centurion, felt thinner, more brittle.
+He allowed himself to imagine it—the prefect's men at the gate, the accusations, the inevitable choice. The taste of the Germanian's cup rose in his memory, bitter with ash and regret. Then he shook his head, the image dissolving like mist.
 
-Inside the study, scrolls lay stacked on a small table. A map of the Judean province, carefully rendered, was half-unrolled, held down by a bronze paperweight shaped like a legionary helmet. The air here was dry, smelling of papyrus and lamp oil. He sat at the heavy oak desk, its surface scarred by years of use. He picked up a stylus, its tip worn smooth. His hand hovered over a fresh scroll, the blank parchment waiting. He needed to draft a report on the readiness of his century, the supply levels, the recent patrols along the coast road. The words would not come.
+The courtyard was warm beneath his feet. The water would dry by midday, leaving no trace behind. But the mark it had made on them—that would remain.
 
-His mind replayed Peter’s words, not the ones from the night before, but from the days leading up to it. The fisherman’s voice, rough with the Galilean accent, speaking of a God who saw no distinction between Jew and Gentile, slave and free, male and female. A God who simply gave. It defied every principle Cornelius understood about order, about merit, about the careful accounting of debts and favors that governed Roman life. You earned your place. You fought for your honor. You paid the price. But last night, there had been no price. Only a gift.
+Cornelius stepped into the sunlight, letting it wash over his face. Somewhere beyond the walls, the sea rolled on, endless and uncharted. The boundary had been crossed. There was no going back.
 
-He closed his eyes. The memory of the water, not cold but warm, like a mother’s embrace, filled his senses. The roaring in his ears, then the sudden, deep quiet. The feeling of being hollowed out, then filled with something light, buoyant, like breath itself. He remembered the faces of his household, his servants, his soldiers, all of them speaking in languages they did not know, their eyes wide with a joy that bordered on terror. They had paid nothing. They had simply received.
+The kitchen smelled of charred bread and crushed coriander. Lydia scraped the burnt crust from the loaf with more force than necessary, the knife biting into the soft center. The other servants gave her space, their chatter subdued. Only old Marcia dared approach, her gnarled fingers testing the heat of the griddle.
 
-A faint clatter came from the barracks beyond the garden wall. The sound of training, of spears hitting shields. His men. He was responsible for them. Their training, their discipline, their loyalty. He was a centurion. It was his entire identity, forged over decades of service. He had always believed in the strength of boundaries, the clarity of command. Now, the boundaries felt arbitrary, the commands almost meaningless in the face of what he had witnessed.
+“You'll ruin the blade,” she muttered, nodding at the knife.
 
-He stood and walked to the window. The garden was green, lush, oblivious to the upheavals within the house. He saw Private Marcus, a young recruit barely out of his teens, polishing his helmet. Marcus was a good soldier, earnest, eager to impress. He would follow orders without question. Cornelius had always valued that. Now he wondered what Marcus would do if he were told to open himself to something that had no clear order, no discernible chain of command.
+Lydia didn't answer. The rhythm of scraping—metal on bread, bread on stone—filled the silence between them. A drop of sweat slid down her temple. She wiped it away with the back of her wrist, leaving a smudge of flour on her skin.
 
-The sun climbed higher, warming the stone of the sill. He watched a bee bumble lazily among the lavender blossoms, its flight erratic, yet purposeful. He felt a strange sort of peace, an unfamiliar stillness beneath the surface agitation of his thoughts. It was not the rigid peace of a mind that had solved a complex problem, but the fluid calm of a man who had finally stopped trying to solve it. The knot in his stomach, a constant companion for years, had loosened. Not gone, but softer, less demanding.
+Marcia sighed and reached for the honey jar. “The child's with her ancestors now. No knife-work will change that.”
 
-The door to the study creaked open. Silas, his oldest slave, stood there, a small, worried frown on his face. Silas had been with him since before Germania and had seen him at his worst. He knew the centurion better than anyone, perhaps even better than Drusilla.
+The blade stilled. Lydia stared at the ruined loaf, the crumbs scattered like offerings. “She died unclean.”
 
-“The reports, master,” Silas said, his voice soft. “They are due by third hour.”
+“All death is unclean.” Marcia drizzled honey over a wedge of cheese, her hands steady despite their tremor. “Even the high priest's.”
 
-Cornelius looked at the blank scroll. “They will wait.”
+Lydia set the knife down. The kitchen suddenly felt too close, the heat pressing against her ribs. She stepped into the courtyard, where the sun had nearly erased the last shadow of the baptismal water. The stain was almost gone—just a faint darkening at the edges, like a memory half-remembered.
 
-Silas’s eyebrows rose, a barely perceptible flicker of surprise. Cornelius never delayed reports. Duty was duty.
+Drusilla's spindle whirred in the women's quarters, the wool twisting between her fingers. The rhythm usually soothed her, but today the thread kept snapping. She cursed under her breath, reaching for the distaff.
 
-“Is all well?” Silas asked, his eyes searching Cornelius’s face. He was not asking about the reports. He was asking about the water, about the voices, about the strange light in the atrium.
+Salome knelt by the brazier, grinding cumin with a mortar and pestle. The scent was sharp, medicinal. She glanced up as Drusilla tossed the broken thread aside. “Your hands are shaking.”
 
-“All is well,” Cornelius replied. He found he meant it. A different kind of well, perhaps, but well still. He walked to the map on the table. His finger traced the coast of Judea, from Caesarea south to Joppa. A journey of a day, maybe two. Peter would return there.
+“Your eyes are too keen.” Drusilla selected a fresh strand of wool, her fingers stiff.
 
-“The men are unsettled,” Silas offered, his gaze still on his master. “They saw what happened. They spoke in tongues. Now they ask what it means for their service.”
+Salome's pestle stilled. “They're saying the Spirit came upon them like fire. That it was… unclean.”
 
-Cornelius turned from the map. “It means they are still soldiers. And still men.” He paused. “And they are still free. More free than they were yesterday.”
+The wool slipped from Drusilla's grasp. She watched it unravel at her feet, a pale coil against the mosaic. “Who's saying that?”
 
-Silas considered this, his head tilted slightly. He had been a slave his entire life, bought as a child. Freedom was a concept, not a reality. Yet he had felt the same strange current last night, the same unbidden joy. He had spoken words he did not know, words that felt like wind rushing through an empty space inside him.
+“The women at the well. The baker's wife.” Salome's voice dropped. “They say the Roman's god has no rites, no purifications. That it's dangerous.”
 
-“The mess hall needs a new roster for duty,” Silas said, steering back to the familiar. His coping mechanism was order, routine. He sought to impose it on a world that had just been upended.
+Drusilla's throat tightened. She thought of Cornelius's face when he emerged from the water—not triumph, not relief, but something raw and unguarded. Like a man who'd been flayed alive and found the air less cruel than he'd feared.
 
-“I will see to it,” Cornelius said. He picked up the bronze helmet paperweight. Its weight was solid, reassuring. The symbol of his office, his life. But it felt different now, less like a burden, more like an instrument.
+“Fetch me the blue thread,” she said at last.
 
-He walked past Silas, out of the study and into the bright atrium. The boy, Caius, was gone. The floor was dry, the mosaics vibrant. The fish swam in stone, the anchors held fast. No trace remained of the night’s events, save for the subtle shift in the air, a quiet resonance.
+Salome hesitated, then set the mortar aside. The cumin clung to her fingers as she rummaged through the basket. “You're not afraid?”
 
-He moved to the open archway that led to the barracks. The sound of clashing metal grew louder. He stepped outside, into the hot sun. The parade ground stretched before him, a rectangle of packed earth. His men drilled, their movements precise, synchronized. Short swords flashed in the light. Shields locked into formation. They were good soldiers, well-trained, loyal. He felt a surge of pride, a familiar, comforting emotion.
+Drusilla took the proffered thread, her fingers brushing Salome's. The other woman's skin was warm, slightly sticky from the spices. “Of what?”
 
-But it was different now. The pride was not in their blind obedience, but in their potential. In the possibility that these men, who had faced death without flinching, could now face the unknown with the same courage. They had received a gift they did not earn, a grace that transcended the rigid structure of their lives. What would they do with it?
+“That this god will demand more than we can give.”
 
-He watched them for a long time, an observer rather than a commander. He saw the sweat on their brows, the dust on their greaves. He heard their grunts of effort. He noticed the way one man, barely more than a boy, stumbled during a drill, recovering quickly, his cheeks flushed with embarrassment. A soldier. A man. A vessel for something new, something boundless.
+The spindle whirred to life again, the blue thread twisting into existence. Drusilla watched it take shape, the color deep as the evening sky. “All gods do.”
 
-He turned his gaze beyond the barracks wall, past the rooftops of Caesarea, to the flickering expanse of the sea. It stretched to the horizon, an unbroken sheet of blue, meeting the sky in a seamless line. The sea was an ancient thing, vast and unknowable, constantly moving, yet always itself. It held no boundaries, only a ceaseless, restless motion. He had always seen it as a barrier, a defense, the edge of the known world. Now, he saw it as a path. A way to everywhere.
+The triclinium was too quiet without the usual clatter of dishes. Tertius hovered near the doorway, shifting his weight from foot to foot. Cornelius sat at the head of the couch, staring at the untouched plate before him. The fish had gone cold, its skin glistening with congealed oil.
 
-The sea was not blue. Not up close. Up close it was a hundred colors, a thousand. Green like tarnished bronze where the water deepened beyond the breakers, a murky, milky brown where it churned the sand, flecked with white foam that dissolved into a hissing lace on the wet shore. Cornelius stood at the tide line, the damp sand cool beneath his bare feet. He had left his sandals and his belt, his dagger and his centurion’s insignia, on a dry rock further up the beach. He was just a man in a worn tunic, the hem darkened by the sea’s touch.
+“Dominus?” Tertius ventured.
 
-He had walked from his house, through the city gates, past the bustling harbor quays where Phoenician traders haggled over bolts of Egyptian linen and amphorae of Syrian wine. The sounds had been a solid wall—shouts, the creak of ropes, the thud of crates. He had moved through it like a ghost, unseen. The boundary of the city wall, then the boundary of the harbor’s engineered stone, and finally the yielding, mutable boundary of the shore.
+Cornelius blinked, as if surfacing from deep thought. He pushed the plate away. “Take it to the kitchen.”
 
-Peter was gone. He had departed at noon, taking John and the others, embracing Cornelius with a fierce, wordless grip that said everything about the impossibility and the necessity of their parting. The house felt larger, emptier, ringing with a silence that was not an absence but a presence. Drusilla had ordered the triclinium scrubbed, the cushions beaten. She was rebuilding the domestic walls, stone by stone. Cornelius had needed air that didn’t smell of rosemary and regret.
+Tertius darted forward, his arms straining under the weight of the tray. At the threshold, he paused. “Will the apostle return?”
 
-So he came here, to the edge.
+Cornelius's fingers traced the edge of the table, following the grain of the wood. “No.”
 
-The waves came in, not in majestic, curling lines, but in a messy, overlapping succession. One would rush up, hissing, almost reaching his toes. Then it would sink back, pulling a thousand grains of sand with a sound like a long, slow breath. Then another would come, a little further, a little less. The rhythm was constant, but never exactly the same. It was a rhythm without a pattern, and he found his breath slowing to match its unpredictability.
+“But the Spirit—”
 
-A child’s wooden boat, crude and painted a fading red, lay overturned in the wet sand a few yards away. It had a single mast, broken off. A toy lost, or abandoned. He watched a wave nudge it, turn it slightly. The next wave lifted it, carried it an inch up the slope, then dropped it. It was a patient reclamation. The sea would take it, piece by piece, splinter by splinter, until it was just fibers mixed with the sand.
+“Go, Tertius.”
 
-That was the work of boundaries. They didn’t just separate. They were worn down, grain by grain, by the constant press of what lay on the other side. A wall between Jew and Gentile had not been stormed. It had been dissolved, from the inside, by a tide no one had seen coming. Not even Peter. Especially not Peter.
+Tertius fled. Cornelius remained at the table, his shoulders rigid. The afternoon light slanted through the lattice, painting his hands with gold. He flexed them slowly, studying the scars that crisscrossed his knuckles, old wounds from battles fought under different banners.
 
-He waded in. The water was shockingly cold, wrapping around his ankles, his calves. It tugged at him, the backrush pulling the sand from under his heels, making him shift his balance. He went deeper, to his knees. The linen of his tunic clung, heavy and cold. He had swum in this sea before, of course. For exercise, for cleanliness. This was different. He was not entering the water. He was letting it surround him. He was standing inside the boundary.
+A shadow crossed the threshold. Drusilla stood there, her arms folded across her chest. “You haven't eaten.”
 
-A memory surfaced, unbidden and sharp. Not of Germania, but of his daughter, Livia, when she was maybe five. They had been at a lake in the Alban Hills. She had been afraid of the water, of the way the minnows nibbled at her toes. He had picked her up, carried her out until she was shrieking with a mixture of terror and delight. “I’m floating, Papa!” she had cried, though he was holding her entire weight. “I’m floating!” Her trust had been absolute. He had been the boundary between her and the deep water. He had been the wall.
+“Neither have you.”
 
-The salt stung his eyes, or perhaps it was the memory. He blinked, looked out. The harbor mole was to his left, a long, dark arm embracing the ships. Beyond it, the open sea stretched to the edge of the world. The afternoon sun caught the waves, turning them into a shifting, fractured plain of light. Dizzying. There was no end to it.
+She stepped into the room, her sandals whispering against the tiles. The scent of cumin and wool followed her. “The women are talking.”
 
-That was the new arithmetic. Not a ledger of debts, but an expanse of possibility. An uncharted ocean. Where did it go? To the Pillars of Hercules? To the misty, cold shores of Britannia? To places whose names were only rumors, whispered by drunken sailors in port-side taverns? The faith—this fragile, impossible thing born in a Jerusalem upper room and now swaddled in his Caesarean atrium—would go there. It would travel in the mouths of men like Peter, in the hearts of slaves like Silas, carried like a seed in the pocket of a traveler. It would find other houses, other hearts, other shores. It would be spoken in languages that had no word for “centurion” or “proselyte” or “clean.”
+Cornelius exhaled through his nose. “Let them talk.”
 
-That thought should have been terrifying. It was a logistical nightmare, a recipe for chaos. How could order be maintained? How could doctrine be preserved across such distances, such differences? The Roman in him scrambled for a map, for a chain of command, for a standard to plant in the sand and declare this far, no further.
+“It's not just the women.” She stopped beside him, close enough that he could see the pulse fluttering at her throat. “Gaius says the prefect's asking questions.”
 
-The water around his thighs seemed to grow warmer, or his skin grew numb to the cold. A wave, larger than the others, rose and broke against his chest, soaking him to the skin. He staggered, laughed aloud, a short, sharp bark that was carried away by the wind. There was no standard. The wind did not carry edicts. It carried seeds.
+He reached for her hand, his thumb brushing the calluses on her palm. The familiar gesture felt different now, not a husband's reassurance, but something more fragile. “We knew this would come.”
 
-He turned and looked back at the shore. From here, Caesarea was a picture of ordered power. The white marble of Herod’s palace gleamed on its promontory. The tiered seats of the amphitheater were empty, waiting for the next spectacle. The grid of streets, the lines of the fortifications. It was all so solid, so permanent. A monument to the human will to impose lines on the world.
+Drusilla's fingers tightened around his. “Did we?”
 
-But from here, he could also see the stains of rust on the harbor cranes, the patch of scrub grass growing from a crack in the seawall, the way the beach curved and shifted from last season’s storms. The impermanence of it. The sea’s patient work.
+A question hung between them, heavier than the silence. Somewhere in the house, a child laughed—Marcellus's youngest, perhaps, too young to understand the currents shifting beneath the surface of their world.
 
-He waded back to shore, his body heavy with water. He dripped onto the dry sand, making dark stars. He did not retrieve his sandals immediately. He sat on the rock, feeling the sun warm his back, the salt stiffening on his skin. He watched the broken red boat. Another wave lifted it, carried it a few more inches. The next one would take it.
+Cornelius stood abruptly, his grip on her hand unyielding. “Walk with me.”
 
-A fisherman was mending his nets further down the beach, his fingers moving with a blind, practiced speed. He was a Judean, his beard and tassels marking him. He did not look at the Roman centurion sitting alone on a rock. Their worlds had been separate, divided by law and custom and centuries of blood. They were still separate. But the division was no longer a law of the universe. It was a habit. And habits, like coastlines, could be changed by a persistent tide.
+Lydia found Drusilla in the garden, where the first evening stars pricked the sky. The mistress of the house sat on a low bench, her hands folded in her lap. The blue thread from earlier was wound around her wrist like a bracelet.
 
-Cornelius pulled on his sandals, fastened his belt, settled the weight of his dagger and his rank. The metal was cool. The wool of his tunic chafed against his salt-raw skin. He was a centurion again. He had reports to file, a century to command, a city to help keep peaceful for Rome.
+Lydia hesitated at the edge of the herb bed, her feet bare against the cool earth. “Domina?”
 
-He stood. He cast one last look at the sea. The sun was lower now, painting a path of molten gold across the water straight to the horizon. It looked like a road.
+Drusilla didn't turn. “You should rest.”
 
-He turned his back on it and began the walk up to the city gates. His steps left firm impressions in the sand, but at his heels, the very edge of each print crumbled, sifting back into the beach. By the time he reached the road, the first of his footprints were already gone, smoothed away by a wave that slid further up the shore than any before it. The sea did not stop. It continued its work, whispering against the land, eroding, embracing, changing the shape of everything, one grain at a time.
+“I can't.” Lydia's voice cracked. She pressed her palms together, as if in prayer.
 
-High above, beyond the roof, beyond the city, the sea continued its endless sighing against the shore. It was a sound too vast to be heard from here, but Cornelius felt it in the soles of his feet, a low, perpetual tremor in the bones of the world. It was the sound of the line, once drawn so deep in the sand, being washed away, not with a crash, but with a whisper, wave after wave after wave, into the unmarked and waiting future.
+“She was loved.” Drusilla finally looked at her, her eyes dark in the gathering twilight. “That's not nothing.”
+
+Lydia's breath hitched. The words she'd practiced all afternoon—defenses, justifications, pleas—dissolved on her tongue. She asked the question that had gnawed at her since dawn: “Do you think the Spirit knew her?”
+
+Drusilla's fingers found the thread at her wrist, twisting it absently. The blue was almost black in the fading light. “I think,” she said slowly, “we're only beginning to understand what this Spirit is.”
+
+A breeze stirred the rosemary bushes, their scent sharp and clean. Somewhere beyond the garden wall, a dog barked, the sound lonely in the dusk. Lydia wiped her cheeks with the heel of her hand. The salt of her tears tasted like the sea, like the water that had pooled in the courtyard that morning, already vanished, already changing everything.
+
+Drusilla rose, her shadow long across the path. “Come inside,” she said, not unkindly. “The night will be cold.”
+
+Lydia followed, her feet leaving faint prints in the damp earth. Behind them, the first stars burned bright and uncharted, their light indifferent to the borders men drew below.
+
+Cornelius climbed the stairs to the rooftop alone. The stone steps were warm from the day’s sun, the edges worn smooth by generations of feet. Below, the house murmured with the rhythms of evening—Marcellus calling to the kitchen boy, the scrape of a bench being dragged across the tiles, the low hum of a hymn Lydia had taught the others. He paused at the top step, his hand on the parapet. The sea stretched before him, vast and unbroken.
+
+A wind carried the scent of salt and fish, of tar from the ships in the harbor. A gull wheeled overhead, its cry sharp against the softer sounds of the city. Caesarea sprawled beneath him, its white walls and red roofs catching the last of the sunlight. The theater’s curve was a dark crescent against the shore, the hippodrome’s length a scar in the earth. He could trace the path Peter had taken when he left, the road to Joppa, the dust still settling behind him.
+
+Cornelius breathed out, his fingers tightening on the stone. The baptismal water had dried from the courtyard, but his skin still remembered the shock of it, the way it had closed over his head like a second sky. Peter’s hands had been rough, his voice steady. The words had meant something different to each of them. To Peter: a command. To Cornelius: an absolution. To the others—Lydia, Tertius, Drusilla, something they had no name for yet.
+
+Drusilla came to stand at his side, her shoulder brushing his. She held a cup of wine, the surface trembling slightly with her breath. “You missed the meal.”
+
+“I wasn’t hungry.”
+
+She sipped the wine, her throat working as she swallowed. The light caught the fine lines at the corners of her eyes, the freckles dusted across her nose. “Marcellus says the prefect’s men were at the market. Asking about us.”
+
+Cornelius watched a ship inch its way across the horizon, its sails pale against the darkening water. “What did they say?”
+
+“That we keep strange hours. That we sing at night.” She traced the rim of the cup with her thumb. “That we no longer burn incense to the emperor.”
+
+A ship disappeared behind a headland. The sea was empty again, endless. “And?”
+
+“And nothing.” She set the cup on the parapet, the wine catching the last of the sun like liquid amber. “Yet.”
+
+He reached for her hand. Her fingers were cool, the calluses familiar against his palm. They stood in silence as the shadows lengthened across the rooftop, the city below settling into twilight. Somewhere in the house, a child laughed, high and bright, untouched by the weight of the day.
+
+Drusilla’s grip tightened. “What happens now?”
+
+Cornelius looked at her, really looked at her, the set of her jaw, the way her hair escaped its pins, the blue thread still looped around her wrist. He thought of the Germanian village, of the child’s mother staring at him with neither hatred nor fear. He thought of Peter’s hands, the water closing over his head. The Spirit, like fire, like breath.
+
+“I don’t know,” he said.
+
+The admission hung between them, lighter than he’d expected. Drusilla’s mouth curved, just slightly. Not a smile, but the shadow of one.
+
+Below, the household lamps flickered to life, their glow warm against the gathering dark. Lydia’s voice rose in song, the melody weaving through the courtyard. The words were Aramaic, learned from Peter in the days before he left. They sounded different now, not foreign, but unmoored, like something that had crossed a boundary and could never go back.
+
+Cornelius turned his face to the sea. The last of the sunlight gilded the waves, the water shifting endlessly, tirelessly. Somewhere beyond the horizon, other cities waited. Other houses, other rooftops. Other men and women staring at the same vastness, the same sky.
+
+A wind lifted Drusilla’s hair, the strands catching the light like threads of copper. She didn’t try to tuck them back.
+
+The stars emerged one by one, their light cold and distant. The city’s noises faded, the merchants packing their stalls, the soldiers changing watch, the last stragglers heading home. The house below was quiet now, the lamps burning low.
+
+On the rooftop, the cup of wine sat untouched, its surface still. The sea swallowed the sun, the horizon bleeding from gold to violet to black. Somewhere out there, the ship continued its journey, its course set for ports unknown.
+
+Cornelius stood at the parapet, his hands loose at his sides. The night air was cool against his skin, the salt sharp on his lips. He whispered in, deep, and let it out slowly.
+
+The water had dried. The mark remained.
+
+The sea stretched before him, vast and uncharted. The wind carried the scent of something new.
