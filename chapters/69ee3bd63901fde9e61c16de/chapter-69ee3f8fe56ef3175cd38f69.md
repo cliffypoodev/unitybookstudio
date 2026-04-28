@@ -2,7 +2,7 @@ The heat in the tannery yard was a solid thing, pressing down on the vats of soa
 
 A gate rattled.
 
-Not the loose rattle of wind. Three distinct, measured impacts. The sound of a fist in a leather glove.
+Not the loose rattle of wind. Three distinct, measured impacts. A sound of a fist in a leather glove.
 
 Simon froze, the scraping knife in his hand hovering over a goat hide stretched on its frame. No one used the front gate. Deliveries came to the side yard, where the alley met the back lane. Friends called out from the street. This was formal. Official. His eyes met those of his apprentice, a boy of fifteen crouched by the water jug. The boy’s face went slack.
 
@@ -65,8 +65,6 @@ The servant spoke for the first time. His voice was soft, weathered. “He is. F
 A weight. Peter understood weights. He carried one now, the vision sitting in his gut like a stone. He thought of the clean and unclean together on that sheet, a divine jumble that broke every category he’d ever lived by. He had argued with the voice. He had refused. Now three men from the world of the ‘unclean’ stood in a tanner’s yard, speaking of angels and weights and salvation, and the connection was a hook in his spirit, pulling taut.
 
 John grabbed his arm. “Brother, think. This is a snare. Romans do not send for Jewish preachers unless it ends at a cross.”
-
-“If we wished to arrest him,” Decimus said, his hearing evidently sharp, “we would not be three, and we would not announce the reason with a story of angels.” He didn’t smile. It was a simple statement of tactical fact.
 
 Peter looked down at John’s hand, the knuckles white. He gently pulled his arm free. The action was absent, his attention turned inward. The Spirit’s nudge was not a thunderclap. It was the quiet, inexorable alignment of impossible pieces: the vision, the hunger in Silas’s description, the specific, humiliating detail of the tanner’s house. God was in the details. Especially the embarrassing ones.
 
@@ -182,9 +180,9 @@ Dawn came gray and cool. They ate in silence, mounted in the inn yard as the fir
 
 Decimus leaned over his saddle, checking the girth. “We ride with purpose. No stops unless the horses need water. Stay close.”
 
-They moved out through the city gate, onto the coastal road. The sea was a sheet of hammered lead to their left. The road was good Roman engineering, straight and well-drained. The clop of hooves settled into a monotonous rhythm. Joppa fell behind, its white walls shrinking into the haze.
+They moved out through the city gate, onto the coastal road. The sea was a sheet of hammered lead to their left. This road was good Roman engineering, straight and well-drained. The clop of hooves settled into a monotonous rhythm. Joppa fell behind, its white walls shrinking into the haze.
 
-Peter rode between Rufus and Silas, with Decimus in the lead. They did not speak. The silence was not companionable. It was the silence of a military detail. Peter was a package, a sacred object to be transported. He felt the separation keenly. He was not one of them. He was not, anymore, fully one of his own. He was in transit, a man between.
+Peter rode between Rufus and Silas, with Decimus in the lead. They did not speak. That silence was not companionable. It was the silence of a military detail. Peter was a package, a sacred object to be transported. He felt the separation keenly. He was not one of them. He was not, anymore, fully one of his own. He was in transit, a man between.
 
 The sun climbed, burning off the haze. The heat rose from the road in visible shimmers. Peter’s mind emptied into the monotony of the ride, the ache in his thighs, the dry scratch in his throat. He watched the landscape change—olive groves giving way to sandy scrub, then to cultivated fields belonging to imperial estates. He saw a legionary milestone, a stone finger pointing the distance to Caesarea. The number of miles felt like a sentence.
 
