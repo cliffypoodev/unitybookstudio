@@ -110,7 +110,7 @@ All eyes turned to him. He shrugged his heavy shoulders. “We tell the visions.
 
 “Is it? Or is it wisdom? You give a newborn lamb solid meat, it chokes. You give it milk. This…” He gestured around the room, at the Roman furniture, the geometric mosaic. “This is solid meat. They are not ready.”
 
-Peter watched a fly buzz against the high window, a frantic, trapped sound. He thought of Ananias and Sapphira, holding back a portion of the truth. The memory was a cold touch on his neck. “We cannot shape the truth to make it easier to swallow. If we start trimming the story to please men, where does it end? Do we leave out Cornelius’s title? Do we say he was a merchant, not a centurion? Do we forget the Italian cohort? The Roman uniform?”
+Peter watched a fly buzz against the high window, a frantic, trapped sound. He thought of Ananias and Sapphira, holding back a portion of the truth. Its memory was a cold touch on his neck. “We cannot shape the truth to make it easier to swallow. If we start trimming the story to please men, where does it end? Do we leave out Cornelius’s title? Do we say he was a merchant, not a centurion? Do we forget the Italian cohort? The Roman uniform?”
 
 “It would help,” Simon muttered.
 
@@ -270,7 +270,7 @@ Simon hefted his pouch, a grim appreciation on his face. “He knows we’re wal
 
 “He’s a soldier,” John said, tucking his into his girdle. “He’s provisioning us.”
 
-Peter stood. The report was a shaped thing now, a weapon forged and cooled. It lay between them, unfamiliar and heavy. To speak it aloud here felt like a betrayal of its new, clinical form. The memory of the actual event—the roaring in the room, the stunned silence after, the taste of wine mixed with salt from a soldier’s tears—that was a different substance altogether. The report was a map. This memory was the territory, still alive with strange weather.
+Peter stood. The report was a shaped thing now, a weapon forged and cooled. It lay between them, unfamiliar and heavy. To speak it aloud here felt like a betrayal of its new, clinical form. One memory of the actual event—the roaring in the room, the stunned silence after, the taste of wine mixed with salt from a soldier’s tears—that was a different substance altogether. The report was a map. This memory was the territory, still alive with strange weather.
 
 They filed out of the study into the colonnaded portico that skirted the courtyard. The afternoon sun cut sharp angles across the patterned floor, baking the limestone to a pale gold. The smell of the sea was stronger here cutting through the herbal scent of boxwood planted in terracotta pots. It was a clean, wealthy, ordered space. In Jerusalem, the air smelled of crowded humanity, charcoal fires, and the distant, ever-present tang of the Temple sacrifices. Peter found himself noting the difference, storing it away. A useless detail. His mind was doing that—noticing things that had no bearing on the task ahead. The way a crack in one column trailed like a river on a map. The precise metallic tink of a loose harness ring from the courtyard.
 
