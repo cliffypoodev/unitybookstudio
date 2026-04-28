@@ -1,173 +1,481 @@
-The first whisper arrived with the market porter, a lean man named Seth who smelled of dust and donkey. He set his basket of late-season figs on the stone bench and leaned close to Miriam, who was stirring the communal pot of lentil stew. “Heard a thing from a cousin in Caesarea. About Peter.”
+The first whisper came from a spice merchant who'd overheard two Roman couriers arguing near the Antonia Fortress. He relayed it to his sister, who sold woven baskets near the Temple's southern steps. By the time the story reached the fishmonger's stall where the believers gathered, it had sprouted new details like mold on bread.
 
-Miriam didn’t look up. “What about him?”
+“Did you hear?” The basket-seller leaned in, her fingers tight around the handle of her wares. “They say Peter ate pork in a Roman's house. Laid right down on their couches like a Greek.”
 
-“That he went into a centurion’s house.” Seth wiped his brow with his sleeve. “Ate at his table.”
+The fishmonger—a broad-shouldered man with salt-cracked knuckles—wiped his hands on his apron and frowned. “Who says?”
 
-Her hand paused for a single rotation of the wooden spoon. The stew bubbled, a thick, earthy smell. “Ridiculous.”
+“Everyone. The whole city's talking.”
 
-“That’s what I said.” Seth shrugged, already turning to leave, his message delivered like a parcel. “The cousin swears by it.”
+A woman buying mackerel dropped her coin. It rolled into the gutter. “That can't be.”
 
-That was mid-morning, under a sky the pale, washed-out blue of a faded tunic. The news didn’t land with a crash. It seeped. In the way two women drawing water from the cistern stopped talking when Joanna walked past, their silence a sudden, dense pocket in the humid air. In the sidelong glance Matthias gave Thaddeus as they broke bread together, a glance that held a question neither man voiced.
+“Wouldn't he?” The basket-seller adjusted her headscarf. “They say he baptized them too. Full immersion, right there in the centurion's courtyard.”
 
-The courtyard where the believers gathered was a borrowed space, the home of Mary, mother of John Mark. A vine struggled over a trellis, leaves curled and brittle at the edges. The scent of baking barley loaves warred with the sharper odor of the dye-works next door. People sat in clusters on woven mats, the murmur of prayer and casual talk a familiar hum. Today, the hum had a different pitch. A restless undercurrent, like the buzz of a trapped fly against a window.
+The believers exchanged glances. The fishmonger's son, a boy of twelve, piped up: “Maybe it was a vision. Like the sheet.”
 
-James, the brother of the Lord, sat near the low wall, mending a sandal strap. His fingers worked the leather needle with methodical precision. He heard the fragments. They came to him in pieces offered with hesitant voices.
+His father cuffed him lightly. “Go fetch water.”
 
-“They say he baptized them.” This from Barnabas, who settled heavily beside him. Barnabas’s face was usually open, a map of ready emotion. Now it was closed, his brow furrowed. “Not just entered. Baptized. A whole household of Romans.”
+The boy ducked away, but the damage was done. The word “vision” hung in the air, sour and unconvincing.
 
-James pulled the sinew thread tight. The leather was dry, cracked from miles of Judean stone. “Who says?”
+Down the street, a potter paused in shaping a jug. His hands stilled at the sound of Peter's name. He'd been there when the Spirit fell at Pentecost had seen the fire and heard the rush of wind. This new story—if it was true—didn't sound like fire. It sounded like ashes.
 
-“People arriving from the coast. A wool merchant. A potter.” Barnabas picked at a loose thread on his own tunic. “The stories don’t match. Some say it was a vision. Some say tongues of fire, like at Pentecost. But they all say… Gentiles.”
+A Levite purchasing incense nearby caught the thread of conversation. His nostrils flared. “If a Jew enters a Gentile's house, the very air is unclean.”
 
-A child ran past, chasing a clay wheel, her laughter too bright for the weighted atmosphere. James watched her skid on the tiles. He remembered the weight of his brother’s body being taken from the cross. The finality of it. The clear, brutal lines. This felt different. A slow, creeping blur.
+“They say the Spirit came upon them,” the basket-seller interrupted. “Like at Pentecost.”
 
-“Peter would not break the law without cause,” James said, but the statement hung in the air, requiring defense. He provided none.
+The Levite's lip curled. “The Spirit does not dwell in impurity.”
 
-Across the courtyard, the discussion was less measured.
+The fishmonger rubbed his thumb over a scale stuck to his wrist. “Peter wouldn't lie.”
 
-“It’s a misunderstanding,” argued a young Pharisee named Eliezer, who had joined the believers only a month prior. His hands cut the air, illustrating his points. “Perhaps he taught them at the threshold. Perhaps they shared water, not a meal. To say he entered—it makes us all unclean. It makes a mockery of everything.”
+“Then he's deceived.” The Levite dropped a handful of coins onto the counter. “Or deceiving.”
 
-An older woman, Deborah, hunched over her spindle, snorted. “You think wind from Caesarea blows only lies? Where there’s smoke, Eliezer.”
+The believers shifted uncomfortably. One—a tanner from the lower city—cleared his throat. “I knew Simon the tanner in Joppa. Solid man.”
 
-“Where there’s smoke, there’s often a fool with a torch,” he shot back.
+“Simon the tanner?” The Levite recoiled. “You keep company with men who handle dead flesh all day?”
 
-The real tension wasn’t in the debate. It was in the spaces between. In the way Mary, serving cups of watered wine, avoided meeting anyone’s eyes. In the way the usual easy passing of the bread platter now had a slight hesitation, fingers brushing, then quickly withdrawing. A man from Cyprus, new to the city, reached for the olives at the same moment as a local Judean. Their hands didn’t touch, but both pulled back as if burned. The Cypriot stared at his own fingers, then tucked his hand against his side.
+The tanner's face darkened, but he didn't reply.
 
-Contamination anxiety, but not the ritual kind. Social. Political. The delicate, hard-won standing of this strange new sect within the broader Jewish community of Jerusalem was a fragile vessel. One crack, and the contents—their legitimacy, their ability to preach in the Temple precincts, their safety from the suspicious eyes of the Sadducees—would spill into the dust.
+At the edge of the market, a group of Greek-speaking widows huddled closer. One clutched her shawl tight. “What if it's true?”
 
-Nathaniel, who had a bad knee that ached before rain, limped over to the fig tree for shade. He lowered himself with a grunt. “They’ll demand an accounting,” he said to no one in particular. “The elders. They’ll ask if we’ve become like the Hellenists, dissolving the law into a bowl of soup.”
+“Blasphemy.” The Levite turned on his heel and strode toward the Temple, his robes snapping like a banner in the wind.
 
-A sparrow landed on the wall, cocked its head, and flew off.
+The basket-seller watched him go, then lowered her voice. “They say the centurion's whole household spoke in tongues. Even the slaves.”
 
-“Maybe the law is bigger than a bowl of soup.” The voice was quiet. It belonged to Rhoda, the servant girl from Mary’s household. She was grinding cumin with a mortar and pestle, the rhythmic scrape-scrape-scrape a counterpoint to her words.
+A ripple of unease passed through the crowd. The fishmonger's wife, silent until now, wiped her hands on her skirts. “If the Spirit came to Gentiles, why wouldn't he tell us first? Why Peter?”
 
-Eliezer turned on her. “What would you know of it?”
+Her husband grunted. “Maybe because we wouldn't have listened.”
 
-She didn’t stop grinding. “I know a table is just a table. Until you’re not allowed to sit at it.” Her knuckles were white on the pestle. She had been born in Syria and sold south. Her accent still clung to certain syllables.
+The tanner barked a laugh. “Or maybe it's all horse dung. Roman lies to make us look like fools.”
 
-The courtyard went still for a beat. The comment, from a servant, from a Gentile-born girl, was a spark on dry tinder. Eliezer’s face flushed. He opened his mouth, but no sound came out. The social order of the room had just been subtly, dangerously, realigned.
+The believers fell silent, each nursing their own doubts. The fishmonger's son returned with the water jug, sloshing it onto the stones. His father took it without a word.
 
-James set his mended sandal down. He looked at his hands, at the calluses worn by years of carpentry. He saw not wood grain, but the imagined face of a Roman centurion. Not a monster. A man. A man praying. That image was disorienting. He had built his life, his understanding of his brother’s mission, on a foundation of Israel’s restoration. The lines were sacred. The uncircumcised were outside the covenant. Simple. Geometrically clear.
+Near the olive press, a scribe dipped his pen and carefully noted the rumors in a ledger. Not facts—not yet. But patterns had a way of becoming truth if left unchallenged.
 
-Yet the rumors described a circle, not a line. A circle drawn around a Roman house.
+By midday, the story had reached the bakers' quarter. A woman selling flatbread crossed herself when she heard. “First the Samaritans, now this? How far will it go?”
 
-He stood up. The movement drew every eye. The chatter died, leaving only the sputtering of the cook-fire and the distant cry of a street vendor selling melons.
+Her customer—a Pharisee who secretly believed—frowned. “If Peter has transgressed, he'll answer for it.”
 
-“This whispering solves nothing,” James said. His voice was calm, but it carried the weariness of a man who saw a long, difficult road appearing where the ground was once firm. “We will wait for Peter and the others to return. We will hear their testimony. From their own mouths.”
+“Before whom?” The baker dusted flour from her hands. “James? The council? Or the Romans who'll use this to say our God is no different from theirs?”
 
-He paused. A breeze stirred the dry vine leaves, making a sound like pages turning.
+The Pharisee's mouth tightened. He left without his bread.
 
-“But when they come,” he continued, and now his gaze swept the courtyard, meeting the worried, the angry, the confused, “we will ask. And the asking will not be gentle. The peace of this community, our witness before God and Israel, depends on the answer.”
+In the upper city, a servant girl scrubbing a doorstep hummed a hymn under her breath. Her mistress yanked her inside. “No singing. Not today.”
 
-He didn’t call for a formal council. Not yet. But the implication hung in the air, thicker than the smell of cumin and smoke. The shared meal continued, but the taste of the bread was different now. It carried the bitter metallic flavor of suspicion, and the sour fear of a boundary crossed that might never be mended.
+The girl blinked. “Why not?”
 
-Road dust had worked its way into everything—the folds of their cloaks, the grain of the bread in their packs, the corners of their eyes. Peter’s small company crested the final hill as the sun bled into the western ridges, casting long, skeletal shadows of cypress trees across the path. The walls of Jerusalem rose before them, golden in the failing light, the Temple a brilliant white crown.
+“Because today,” the woman hissed, “we don't know who's listening.”
 
-John stopped walking. He simply stood, looking at the city. His face was blank.
+By the time the sun reached its zenith, the whispers had reached the outer courts of the Temple itself. A priest washing his hands at the laver paused as the murmurs reached him. He dried his fingers slowly methodically, then turned to his colleague.
 
-“What is it?” Philip asked, his voice raspy from the dry air.
+“Fetch the others,” he said. “We need to talk.”
 
-John shook his head. He couldn’t articulate it. It was the sight of home, but it felt like approaching a tribunal. The beautiful, looming city had become a set of scales. They were about to be weighed.
+His colleague hesitated. “About Peter?”
 
-Thomas kicked a stone. It skittered ahead down the path. “They’ll have heard.”
+“About heresy.”
 
-“Yes,” Peter said. He didn’t elaborate. He adjusted the strap of his pack, the one with the linen bag of Cornelius’s provisions. The honey had crystallized at the bottom. The river stone was a cold lump against his thigh.
+The word hung in the air, heavy as the incense smoke curling toward the ceiling. Somewhere in the city, a donkey brayed. One sound was ordinary, unremarkable.
 
-They passed through the Garden Gate as the watchmen lit the first torches along the wall. The familiar streets, narrow and steep, smelled of cooking oil and sewage and incense. Normal life. Peter felt like a ghost moving through it. He saw a group of believers he recognized emerging from a lane. They saw him. Their steps faltered. There was a moment of frozen recognition, then a hurried, collective diversion down a side alley. No wave. No call of greeting. Just a silent, swift retreat.
+But nothing else was.
 
-The message was clearer than any shout.
+The courtyard tiles burned underfoot, the midday sun turning the geometric patterns into a kiln. James the Just paced along the edge of the colonnade where the shade clung like a beggar to a rich man’s robe. His sandals scuffed against a loose stone—three steps, pivot, three steps back. A rhythm like prayer.
 
-Peter kept walking, his face set. The spine of the story, so carefully crafted on the road from Caesarea, felt insubstantial now, a reed against the stone reality of the city. He led them toward the Upper City, toward Mary’s house. The last of the daylight caught the edge of a rooftop water jar, gleaming like a single, cold eye watching them approach.
+John sat on a low bench, elbows on knees. He kept picking at a splinter in the wood. Every few minutes, he’d glance toward the gate as if expecting Peter to stride through, laughing off the rumors with some impossible story that turned out to be true.
 
-A room in James’s house was small, used for storing olive oil and spare loom weights. It smelled of clay and old wood. Light from a single high window cut a slanted rectangle across the packed-earth floor, illuminating motes of dust that moved like agitated spirits. James, Barnabas, and a few others sat on low stools. The air was close, thick with unsaid things.
+“Stop that.” James didn’t look at him.
 
-Barnabas ran a thumb along a crack in the stool’s leg. The grain of the wood snagged at his skin. He remembered the feel of Cypriot pine, how it smelled after rain. An irrelevant memory. It came anyway. “We can’t let this fester. It’s a boil. It needs lancing.”
+John stilled his fingers. “You think he’d really eat with them?”
 
-“With what knife?” asked James. He wasn’t looking at them. He was watching the dust motes, his eyes tracking their frantic, pointless dance. “We lance it with accusation, we risk poisoning the whole body. Peter is a pillar. Not just a man.”
+A lizard darted across the tiles, its shadow flickering between their feet. James exhaled through his nose. “You saw the sheet.”
 
-“Pillars can crack,” said Matthias. He had come, though he’d wanted to stay away. His voice was a low rumble, the voice of a man who worked stone. “If the foundation shifts.”
+“That was a vision. This—” John gestured vaguely toward the city, where the murmur of the crowd seeped over the walls, “—this is a Roman’s house. Couches. Wine. Gentiles.”
 
-“What foundation?” James’s gaze snapped to him. “The foundation is the Lord. The foundation is the resurrection. Is that shifting?”
+James’ thumb found the callus on his index finger, the mark of a craftsman. He rubbed it absently. “He baptized them too, they say.”
 
-Matthias didn’t flinch. “You know that’s not the foundation they mean. The Pharisees who tolerate us, the people who listen in the Temple portico—their foundation is the Law. Their fence around the Torah. Peter walked through the fence.”
+“Baptized?” A new voice cut in. Andrew stood in the archway, his tunic damp with sweat. He’d run from the lower city. “Not just sprinkled. Full immersion. Like he did for us.”
 
-“Allegedly.” The word came from a younger man, Silas, who leaned against the wall. He had a scribe’s careful mind, a discomfort with ambiguity. “We have rumors from Caesarea. We have whispers in the courtyard. We do not have Peter’s testimony. Due process. Even the Sanhedrin hears a man before condemning him.”
+The splinter snapped off in John’s grip. A bead of blood welled up. He didn’t seem to notice.
 
-James gave a short, dry laugh. It was a sound without humor. “This is not a court. It is the court of opinion. And the verdict is already being written in every street and synagogue. ‘The Nazarenes eat with Romans. They make the unclean, clean by proclamation.’” He spread his hands, pale in the dim light. The calluses were stark. “That is the charge. Not whether he did it, but what it means if he did.”
+James stopped pacing. A silence stretched, taut as a bowstring. Somewhere beyond the walls, a vendor shouted prices for figs. Too loud. Too ordinary.
 
-Barnabas watched a spider traverse the corner of the ceiling. It moved with certainty, its path a straight line toward a shadow. He envied it. “He had a reason. Peter doesn’t act on impulse. Not anymore.”
+Andrew wiped his forehead with his sleeve. “The centurion’s household spoke in tongues.”
 
-“He acted on impulse at the high priest’s fire,” Matthias muttered.
+John’s head jerked up. “That’s not possible.”
 
-“That was before.” Barnabas’s voice carried a rare edge. “We all were ‘before’ something.”
+“Pentecost wasn’t possible either.” James’ voice was quiet, but it carried the weight of a judge’s verdict.
 
-The room lapsed into silence. From the street outside came the rhythm of a hammer on bronze, a craftsman finishing his day’s work. A normal sound. It felt like a taunt. James pressed the heels of his hands against his eyes. A pressure built behind them, a dull ache that had nothing to do with lack of sleep. He saw his brother’s face again, not in agony, but in discussion. Arguing with a Pharisee about grain on the Sabbath. Drawing lines in the dust. The Sabbath was made for man, not man for the Sabbath. A principle that bent the fence. Did it break it?
+Andrew shifted from foot to foot. “There’s more. The Spirit fell on them.”
 
-“We must separate the man from the act,” James said, dropping his hands. He spoke, tired, the voice of a steward tallying a disastrous harvest. “If the act cannot be defended, we defend the man. We affirm his apostleship, his witness. We express… profound concern for the error. We pray for his correction.”
+“Don’t say it.” John stood abruptly, the bench scraping against stone.
 
-Barnabas stared at him. “You would throw him to the wolves to save the flock.”
+“To us?” James’ eyebrow arched. “Who are we to say where the Spirit rests?”
 
-“I would save the flock so there is a flock when he returns!” James’s calm fractured. The words were sharp, immediate. He took a breath, a slow, deliberate inhalation that did nothing to ease the tight band around his ribs. “Do you understand what is at stake? Not our fellowship here, in this room. Our ability to preach the Messiah to Israel. If we are seen as lawless, as another Gadarene cult dissolving all distinction, we are finished. The Temple authorities will move from tolerance to suppression. The people will turn away. My brother’s message dies, not on a Roman cross, but in a cloud of scandal because one man ate lamb with an Italian.”
+John’s jaw worked. He turned away shoulders rigid. The blood from his finger smeared across the back of the bench.
 
-His use of the cohort’s name—the Italian—was deliberate. It made the abstraction a soldier. An occupier.
+A servant girl slipped into the courtyard with a pitcher of water. She froze when she saw their faces. The pitcher trembled in her hands.
 
-Silas shifted on his stool. It creaked. “So we preempt. We gather the community before Peter arrives. We frame the narrative. We say he was deceived, or that the story is exaggerated. We reaffirm our commitment to the customs. We offer a sacrifice for purification, as a public demonstration.”
+Andrew took it from her gently. “Wait outside.”
 
-“A lie,” Barnabas said flatly.
+She fled.
 
-“A strategic truth,” Silas countered. “We protect the greater work.”
+James watched her go, then poured water over his own hands. The droplets hit the tiles with a sound like distant applause. “We need to hear it from him.”
 
-Barnabas looked at James. “You would sanction this?”
+John snorted. “You think Peter’s just going to waltz back here and explain?”
 
-James didn’t answer. He was looking at the rectangle of light on the floor. It had shrunk, climbed the far wall. The sun was going. The shadows in the room deepened, pooling in the corners, swallowing the spider. He felt a deep and simple longing for his workshop. For the smell of cedar shavings, for the clear, solvable problem of a joint that wouldn’t fit. This was a joint that didn’t fit. The pieces were from different boxes, different worlds. You could force them, but the table would always wobble.
+“No.” James dried his hands on his robe. “I think we need to send someone to bring him back. Before the Sanhedrin gets to him first.”
 
-“I don’t know,” he said finally. The admission cost him. He was a leader. He was supposed to know. “I need to pray. We all need to pray. But prayer cannot be our only action. The world moves while we kneel.”
+Andrew paled. “They wouldn’t—”
 
-Matthias grunted. “So we act. But which action? Bar the door when he comes? Welcome him with a feast? Something in between feels like cowardice.”
+“Wouldn’t they?” John’s laugh was sharp as a blade. “After what he’s done? After what they’ll say he’s done?”
 
-“Something in between is often wisdom,” Silas said.
+James studied the sky, where a lone hawk circled. “Who do we send?”
 
-“Wisdom or fear?” Barnabas stood up. The stool scraped backward. He paced the short length of the room, two steps, turn, two steps back. His shadow, huge and wavering, mimicked him on the wall. “I stood with him before the Sanhedrin. I heard him speak. The Spirit was in that room. It was real. You felt it in the air. That same Spirit led him to Caesarea. Are we now judges of the Spirit’s movements? Do we have a measuring rod for divine appointments?”
+This question hung in the air. Andrew exhaled slowly. “Not me. I—I can’t.”
 
-“The Spirit does not contradict the Law,” Silas insisted, but his tone lacked conviction. It was a theological assertion, smooth from repetition. It sounded hollow in the face of Barnabas’s raw memory.
+John crossed his arms. “Someone he trusts. Someone who won’t…” He trailed off, but the unspoken words lingered. Someone who won’t take his side if it’s true.
 
-“Doesn’t it?” James’s question was quiet, almost to himself. “The Law says a man with a withered hand must wait another day. The Spirit said, ‘Stretch out your hand.’ Which one was obeyed?” He shook his head, not in negation, but in confusion. “We are in uncharted water. The maps we have don’t show these coasts.”
+James nodded once. “Barnabas.”
 
-The hammering outside stopped. The sudden silence was a presence in the room. In the quiet, they could hear the murmur of the city, the distant bleat of a sheep, a mother calling a child. Ordinary life, moving on its track. Their track had just derailed, and they were clinging to the swaying carriage, trying to guess where it would fall.
+Andrew’s shoulders slumped in relief. John’s expression darkened, but he didn’t object.
 
-Barnabas stopped pacing. He looked at James, really looked at him. He saw the tension in the set of his jaw, the exhaustion in the slope of his shoulders. This was the brother of the Lord, a man of unwavering righteousness, and he was adrift. The sight was more frightening than any rumor.
+A breeze stirred the olive trees in the corner of the courtyard, their leaves whispering secrets. James turned toward the sound, his profile sharp against the whitewashed wall. “Tell him to hurry.”
 
-“We wait for Peter,” Barnabas said, his voice firm. “We hear him. Not the rumors, not the fears, not our strategies. We hear him. And then we decide. Together. As brothers. Not as a tribunal.”
+The servant girl pressed her back against the outer wall, the pitcher clutched to her chest. Her breath came too fast. Inside, the voices rose and fell like waves.
 
-James met his gaze. He gave a slow, almost imperceptible nod. It wasn’t agreement, not fully. It was a truce. A postponement.
+A shadow fell across her. She looked up into the face of a Temple guard.
 
-The decision, such as it was, settled over them. It wasn’t peace. It was the tense, watchful quiet of a field after the first thunderclap, waiting for the storm to break. James opened his mouth to suggest they share a cup of wine, a gesture of unity, however fragile.
+“Problem?” he asked, too casually.
 
-The door to the storage room burst open.
+She shook her head, but her fingers tightened around the pitcher’s handle.
 
-A young man stood in the doorway, chest heaving. His tunic was dark with sweat at the neck. He’d run. His eyes were wide, white-rimmed in the gloom. He looked from face to face, settling on James.
+The guard leaned closer. His breath smelled of onions. “You work for them? The Nazarenes?”
 
-“They’re saying it at the Fish Gate,” he gasped, struggling for breath. “They’re saying it in the Street of the Bakers. Not just entering. Not just eating. He preached to them. He laid hands on them. The Holy Spirit fell on them. Like Pentecost. On Romans.” He swallowed, his throat working. “They’re saying he called them brethren.”
+She swallowed. “I—I just bring water.”
 
-The young man’s words hung in the small, dusty room. “Brethren.” The single word, flung into the air, carried the weight of a stone dropped into a still pond, sending ripples outward, fracturing the fragile surface of their deliberations. James closed his eyes again, the headache returning with a vengeance. He saw the face of Peter, not the brash fisherman, but the man who stumbled, who denied, who then rose to preach with fire. This Peter, the one who called Romans “brethren,” was a stranger.
+He smiled, showing a gap where a tooth should be. “Good girl. Keep bringing it. And keep listening.”
 
-Back in the small room at James’s house, the young man who had brought the news was still gasping for breath, clutching his side. Silas helped him to a stool. Barnabas poured him a cup of water. The tension in the room was a physical thing, pressing down on them.
+When he walked away, his sandals crunched over a scattering of olive pits. The sound made her flinch.
 
-“They’re forming a mob,” the young man finally managed, his voice hoarse. “At the Temple steps. People are shouting for Peter. They want him to recant. They want… justice.”
+Inside the courtyard, James was praying aloud now, the words rolling like thunder. The girl closed her eyes.
 
-James felt a sickening lurch in his gut. Justice. In Jerusalem, that could mean many things. He remembered the swift, brutal justice meted out to his brother. He remembered the stones that had claimed Stephen.
+Something was coming.
 
-Matthias slammed his fist against the wall. A small shower of dust fell. “Then we must meet them. We must explain. We must stand with Peter.”
+And when it arrived, nothing would be the same.
 
-“Stand with him in what?” Silas asked, his voice sharp with logic. “In his transgression? If the Spirit truly fell on Romans, then the Law has been broken. One way or another. And the consequences will be severe.”
+The smell of roasted lentils and charred bread crusts clung to the low ceiling of the house. Miriam wiped her hands on her apron, the rough fabric catching on the cracked skin between her fingers. She'd scrubbed the cooking vessels three times since hearing the rumors at the well. Three times—as if boiling water could scour away the words themselves.
 
-Barnabas looked at James. “What will you do?”
+Her husband, Eleazar sat cross-legged on the floor mat, tearing a loaf with methodical precision. The children watched him, their eyes darting between their parents. The youngest, Leah, traced a finger through the spilled salt on the table.
 
-James was silent for a long moment. He looked at the dust motes dancing in the last sliver of light, at the spider’s web in the corner, now almost invisible in the gloom. He thought of his brother, always pushing, always challenging the boundaries, always seeking the heart of the Law rather than its rigid letter. The Sabbath was made for man. That phrase echoed in his mind. But this was not the Sabbath. This was the very definition of Israel.
+“You're quiet tonight,” Eleazar said.
 
-He stood up. The weariness was still there, a deep ache in his bones, but a new resolve had begun to form, hard and cold, like a lump of iron. “We will go to the Temple. Not to hide. Not to recant. But to listen. To face the storm.” He looked at each man in turn, his gaze steady. “And we will pray that Peter has an answer. An answer that can stand before God and man. For the sake of the flock. For the sake of Israel.”
+Miriam set down the serving spoon. Its clatter against the clay dish was louder than she'd intended. “You heard what they're saying about Peter.”
 
-Just then, a hurried knock sounded at the door. Too urgent for a casual visitor. Barnabas opened it. A breathless runner sent from the Garden Gate stood silhouetted against the fading light. “They are here,” he panted, bending at the waist, hands on his knees. “Peter and his companions. They passed through the gate a short while ago. They are making their way to Mary’s house.”
+A muscle in Eleazar's jaw twitched. He didn't look up from dividing the bread. “Gossip is the devil's fig cake. Sweet to the tongue, bitter to the gut.”
 
-The news was a thunderclap, silencing the room. The moment of reckoning had arrived.
+“This isn't gossip.” Their eldest, Reuben, leaned forward, his voice cracking on the last word. “They say he baptized an entire Roman household.”
+
+“Enough.” Eleazar's fist came down on the table. The salt cellar toppled, scattering white grains across the wood like tiny bones. Leah gasped and swept them into a pile with the edge of her hand.
+
+Miriam watched her daughter save what could be saved. “We need to talk about this.”
+
+Eleazar breathed out through his nose, his nostrils flaring. “Talk about what? Whether the apostle we followed into the wilderness, the one who walked on water with the Lord has suddenly forgotten the Law? The Torah?”
+
+Reuben shoved his plate away. “Maybe the Lord showed him something new.”
+
+The oil lamp guttered, casting long shadows across the walls. Outside, a dog barked twice and fell silent.
+
+Miriam touched the faded blue thread knotted into her shawl—the reminder of commandments that never faded. “Peter wouldn't act without reason.”
+
+“Reason?” Eleazar's laugh was short and sharp. “He broke bread with them. Sat at their table. Let their women serve him.”
+
+Leah looked up, her dark eyes wide. “Did he really eat pork?”
+
+“No one knows what he ate,” Miriam snapped, then immediately regretted her tone. She reached for her daughter's hand, but Leah pulled away, her fingers sticky with fig jam.
+
+Reuben stood abruptly, knocking over his stool. “What if it's true? What if God wants the Gentiles too?”
+
+Eleazar rose more slowly, his joints protesting. The scar on his forearm—the one from the riot during Passover two years back—stood out white against his skin. “The covenant is with Israel. Always has been. Always will be.”
+
+“But the Lord healed the centurion's servant,” Reuben shot back. “He spoke with the Samaritan woman—”
+
+“Exceptions. Not invitations.” Eleazar's voice dropped low.
+
+“The Spirit fell on them!” Reuben's fists clenched at his sides. “Just like Pentecost! How can that be an exception?”
+
+A moth circled the oil lamp, its wings brushing the flame. No one moved to shoo it away.
+
+Miriam watched the creature dance with death. “Maybe…maybe purity isn't about what goes into the body.”
+
+Eleazar turned on her, his face suddenly old in the flickering light. “Don't.”
+
+The word hung between them, weighted with things unsaid. Miriam had been there when the Spirit came at Pentecost had felt the fire lick her bones without burning. She'd tasted the words of God in languages she'd never learned. But she'd also spent twenty years keeping a kosher home, separating milk from meat, counting days washing hands until they bled in winter.
+
+The moth hit the flame. A tiny hiss, a wisp of smoke. It fell onto the table, a blackened curl.
+
+Leah poked it with her finger, then recoiled. “It's dead.”
+
+Eleazar sank back onto the mat, his shoulders slumped. “We wait for Peter to return. Then we'll know.”
+
+Reuben kicked the fallen stool. “And if he says it's true? If he says God wants us to eat with them? To—to treat them like brothers?”
+
+No one answered. That silence stretched, thick as the olive oil congealing on their plates.
+
+Down the street, laughter spilled from a neighbor's window, a sound so normal it felt obscene. Miriam stared at the dead moth. Its wings had been beautiful once, dusted with gold.
+
+Leah began to cry, softly at first, then in great heaving sobs no one could comfort. Reuben stormed out, the door banging behind him. Eleazar poured more wine than usual, his hand unsteady.
+
+Miriam gathered the dishes, stacking them with exaggerated care. A chip on the rim of Eleazar's cup caught her thumb. She pressed down until pain bloomed, bright and clean.
+
+Through the open window, the sound of the shofar echoed from the Temple, the call to evening prayer. Eleazar didn't move. Neither did Miriam.
+
+The horn's last note trembled in the air, then faded into the gathering dark.
+
+In the alley behind the house, Reuben pressed his forehead against the cool stone wall. His breath came in ragged gasps. The words from Scripture rattled in his skull like dice in a cup: There is neither Jew nor Greek, slave nor free…
+
+He'd always thought Paul meant something else. Something easier.
+
+A scraping sound made him turn. His neighbor's son, a boy of ten, crouched in the dirt, drawing circles with a stick.
+
+“You okay?” the boy asked.
+
+Reuben wiped his face with his sleeve. “Fine.”
+
+The boy nodded wisely. “My dad's mad too. Says Peter's gone meshuggeh.” He drew a final circle, then stabbed the stick upright in the center. “But my mom says maybe the Messiah came for everyone. Even Romans.”
+
+Reuben stared at the stick, a crude cross standing in the dust. Somewhere in the city, a baby wailed. A donkey brayed. One world went on, indifferent.
+
+The boy stood, brushing dirt from his knees. “You think it's true?”
+
+Reuben opened his mouth, then closed it. One truth felt like a fishbone caught in his throat.
+
+Above them, the first stars pricked through the deepening blue. They'd be there tomorrow night too, Reuben realized, no matter what Peter said. No matter what anyone decided.
+
+That should have been a comfort.
+
+It wasn't.
+
+It wasn't the silence that bothered her, but the precision of it. Each footfall echoed through the corridor with mathematical clarity, a perfect rhythm of polished boots on composite flooring. No scuff, no hesitation. Just the measured cadence of a machine that knew exactly where it was going.
+
+She counted the steps. Twelve between the first set of blast doors. Fifteen to the maintenance hatch. Twenty-three to the intersection where the lighting changed from sterile white to emergency amber.
+
+The escort didn't speak. Four armored figures, identical in their black carapace plating moved around her without looking. Their weapons remained lowered but unlocked; she heard the faint hum of capacitors charged to maximum. They expected resistance. They expected her to run.
+
+She kept walking.
+
+The corridor opened into a hexagonal chamber she remembered from the schematics. Observation deck three. One wall was transparent alloy, showing the curve of the station's outer ring and the stars beyond. Two figures waited by the viewport. One she recognized from the briefing files: Administrator Vost, his gray uniform pressed into knife-edge creases. The other stood with his back to her, studying the stars.
+
+Vost turned. “Lena.”
+
+She stopped at the exact center of the hexagon. The escorts fanned out behind her, forming a loose perimeter. “Administrator.”
+
+“You look tired.”
+
+“It's been a long shift.”
+
+“Seventy-three hours, according to your neural log. That's against regulation.”
+
+“The coolant leak didn't care about regulations.”
+
+Vost's smile didn't reach his eyes. “Always practical. That's what your evaluations say. 'Practical to a fault.'”
+
+The other figure turned. He was older than she expected, with silver at his temples and scars along his jaw that the med-bots hadn't bothered to smooth. His uniform was different, darker, without insignia. He looked at her the way engineers looked at failing systems: assessing, calculating, already planning the salvage.
+
+“This is Colonel Aris,” Vost said. “He has some questions.”
+
+Aris didn't offer a hand. “You bypassed three security protocols to access the core during the leak. Why?”
+
+“The automatic seals were malfunctioning. Someone had to manually vent the secondary chamber before the pressure blew the entire sector.”
+
+“The logs show you entered your override code at 04:17. The system registered the leak at 04:23.”
+
+Lena kept her chest rising even. “I was running a diagnostic. The pressure sensors in sector seven have been giving false readings all week.”
+
+“You predicted the rupture.”
+
+“I suspected a weak point.”
+
+“Based on?”
+
+“The vibration patterns didn't match the standard profile. Too regular. Like something was tapping on the pipes from the inside.”
+
+Aris glanced at Vost. “She's good.”
+
+“I told you.”
+
+“Good enough to fake a coolant leak?”
+
+The question hung in the air. Lena felt the escorts shift behind her, their armor plates clicking as they adjusted their stance.
+
+“That would require access to the environmental controls,” she said. “And the pressure monitors. And the security cameras in sector seven, which would have shown me tampering with the pipes.”
+
+“Convenient.”
+
+“Very.” Aris took a step closer. “What did you find in the core?”
+
+“I didn't reach the core. The venting procedure sealed the chamber before I got within twenty meters.”
+
+“But you tried.”
+
+“The procedure required manual confirmation at the secondary terminal. That's in the access corridor, not the core.”
+
+“You're lying.”
+
+Lena met his gaze. “Check the door seals. The core hasn't been opened in forty-eight hours. The biometric log will confirm it.”
+
+“We did. The logs are clean.”
+
+“Then we're done here.”
+
+“Not quite.” Aris produced a data-slate. The screen showed a thermal scan of the access corridor, a blurred figure moving toward the core doors, then retreating. The timestamp read 04:19. “The security cameras malfunctioned. The thermal sensors didn't.”
+
+She studied the image. “That's not me.”
+
+“The height matches. The gait matches. The heat signature shows a human female, approximately your mass.”
+
+“There are eight hundred female personnel on this station.”
+
+“Only three with level-nine engineering clearance. You're the only one who was in sector seven last night.”
+
+Vost cleared his throat. “Lena, if you tell us what you were looking for, we can—”
+
+“I wasn't looking for anything.”
+
+“Then explain the thermal signature.”
+
+“I can't.”
+
+Aris nodded to the escorts. Two of them moved forward, their gauntleted hands reaching for her arms.
+
+She didn't resist. “You're making a mistake.”
+
+“We'll see.”
+
+The holding cell was smaller than her quarters. Three meters by three, with a bench fused to the wall and a waste reclamator in the corner. The door sealed with a hiss of pressurized air. No window. No intercom. Just the faint hum of the life support system and the steady blink of a red light above the door.
+
+She sat on the bench and closed her eyes.
+
+The vibration started in her teeth, a low-frequency thrum that traveled up her jawbone. She'd felt it before, in the pipes. The same regular pattern. Tap-tap-tap. Pause. Tap-tap.
+
+She stood and pressed her palm against the wall. The composite was cold, but the vibration traveled through it like a heartbeat. Something was moving in the station's infrastructure. Something that shouldn't be there.
+
+The red light above the door blinked twice, then went dark.
+
+The door hissed open.
+
+No one stood in the corridor. The emergency lights cast long shadows, painting the walls in stripes of amber and black. The escort who should have been stationed outside was gone.
+
+Lena waited. Counted to thirty. Stepped into the corridor.
+
+The tap-tap-tap grew louder. It came from the left, toward the maintenance shafts. She moved without running, her boots silent on the flooring. At the intersection, she peered around the corner.
+
+The escort lay slumped against the wall, his helmet removed. His eyes were open, staring at nothing. A thin trickle of blood ran from his ear.
+
+She checked his pulse. Nothing.
+
+The tapping stopped.
+
+She took his sidearm, a standard-issue plasma pistol, still charged. The weight felt familiar in her hand. Wrong, but familiar.
+
+The maintenance shaft access panel stood open a few meters down the corridor. The darkness beyond swallowed the emergency lights. She could hear the station's systems now: the thrum of circulation pumps, the whisper of air recyclers, the distant groan of metal under stress.
+
+And beneath it all, the tapping resumed.
+
+Tap-tap-tap. Pause. Tap-tap.
+
+She climbed into the shaft.
+
+The space was tight, barely wide enough for her shoulders. Service lights embedded in the ceiling cast pools of blue-white illumination every five meters, leaving long stretches of darkness between them. She moved crouched, the pistol held low.
+
+The shaft branched twice. Each time, she followed the tapping.
+
+After the third junction, the shaft opened into a wider chamber, a junction box for the station's data conduits. Racks of processing units lined the walls, their status lights blinking in chaotic patterns. In the center of the room, a figure knelt before an open access panel.
+
+He wore engineering coveralls, stained with coolant and grease. His hands moved inside the panel, adjusting connections with quick, precise movements. The tapping came from a tool he held, a magnetic spanner rapping against the conduit housing.
+
+Lena leveled the pistol. “Don't move.”
+
+The figure went still. Slowly, he raised his hands and turned.
+
+He was young maybe twenty-five, with close-cropped hair and sharp features. A fresh scar cut across his forehead, still pink at the edges. He looked at the pistol, then at her face. His expression shifted from surprise to recognition to something else she couldn't name.
+
+“Lena.”
+
+She kept the pistol steady. “Who are you?”
+
+“Kiran. From hydraulics.”
+
+“I don't know you.”
+
+“You wouldn't. We worked different shifts.” He nodded toward the access panel. “I'm trying to fix the pressure sensors. They've been giving false readings all week.”
+
+“That's my job.”
+
+“Not anymore. They arrested you didn't they?”
+
+“How do you know that?”
+
+“The station gossip network works faster than the official channels.” He lowered his hands slightly. “You can put the gun down. I'm not your problem.”
+
+“The escort outside my cell is dead.”
+
+Kiran's expression tightened. “Dead?”
+
+“Ear bleed. Neural shock maybe.”
+
+“That's not possible. The security systems don't have that capability.”
+
+“Something does.” She gestured with the pistol. “Step away from the panel.”
+
+He complied, moving slowly until his back touched the conduit rack. “What do you think I'm doing?”
+
+“Sabotage. Espionage. Take your pick.”
+
+“I'm fixing a sensor array.”
+
+“In a data junction?”
+
+“The sensors route through here. The whole network's been compromised.” He pointed to a screen mounted on the rack. It showed a schematic of the station's pressure monitoring system dozens of lines representing sensor feeds, most of them flickering between green and red. “See? The feedback loops are corrupted. Someone's feeding false data to the main system.”
+
+Lena glanced at the screen without lowering the pistol. “Why?”
+
+“To hide the real pressure fluctuations. Something's moving through the pipes. Something big.”
+
+“The coolant leak.”
+
+“Wasn't a leak. Was a bite.”
+
+She stared at him. “Explain.”
+
+“Something's in the system. In the fluid lines, the data conduits, the ventilation shafts. It's growing. Spreading. The pressure spikes last night? That was it testing the integrity of the pipes. Seeing how much stress they could take before rupturing.”
+
+“That's insane.”
+
+“Is it?” He tapped the screen. A new window opened, showing a thermal scan of the access corridor. The same blurred figure moving toward the core doors. “That's not you. Look at the gait analysis.”
+
+She leaned closer. The figure moved with a slight hitch in its right step, a limp she didn't have. The height was off by three centimeters. The thermal signature showed a colder core temperature than a living human.
+
+“It's a drone,” Kiran said. “Remote-controlled, probably. Meant to frame you.”
+
+“Why?”
+
+“Because you noticed the patterns. Because you were getting close.” He closed the schematic. “They arrested you to keep you quiet while they finish whatever they're doing.”
+
+“They who?”
+
+“Don't know. But they killed a security officer to get you out of that cell. That means they need you for something.”
+
+The lights in the junction box flickered. Once, twice. Then died.
+
+The emergency backups clicked on a second later, bathing the room in crimson. Alarms began screaming in the distance, not the station-wide alert, but localized breaches. Sector by sector, sealing themselves off.
+
+Kiran was already moving, grabbing tools from the floor. “We have to go. Now.”
+
+“Where?”
+
+“The core. If they're sealing sectors, they're herding us. Cutting off escape routes.” He shoved a data-rod into his pocket. “This has everything I've collected. Sensor logs, thermal scans, access records. It proves you didn't bypass those protocols.”
+
+“Why should I trust you?”
+
+“You shouldn't. But the alternative is staying here until whatever killed that escort finds us.” He pushed past her toward the shaft. “Your choice.”
+
+The alarms grew louder. She could hear the heavy thud of bulkheads sealing, the sound of the station slicing itself into pieces.
+
+She followed him into the dark.
