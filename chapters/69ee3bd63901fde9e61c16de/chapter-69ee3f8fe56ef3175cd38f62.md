@@ -1,197 +1,341 @@
-The chill off the sea had teeth. It gnawed through the wool of his tunic, found the old ache in his left shoulder—a souvenir from a Germanic spear—and settled there. Cornelius stood on the rooftop, hands flat on the sun-warmed limestone parapet, and watched the night bleed into the east. The harbor below was a bowl of ink, the breakwaters just darker lines against the nothing. Soon the fishing boats would be silhouettes, then shapes, then things with men on them. He always watched this part. The nothing becoming something. It felt like a promise he hadn’t earned.
+The rooftop tiles held the night's chill as Cornelius knelt, his breath a pale ghost in the predawn dark. His knees ached against the packed clay, but he didn't shift. The discomfort was part of it—a small offering to the God of Israel, who demanded more than he'd yet been able to give. Below him, the city slept. Above, the last stubborn stars clung to the sky.
 
-His breath plumed, vanished. He had been up here for an hour, maybe more. Time on the roof was different. It stretched. Down in the streets, time was a thing measured in boot-falls and watch changes. Up here, it was just the sky getting lighter, degree by imperceptible degree.
+He unrolled the parchment with care, the Hebrew letters black and angular against the cream-colored skin. His lips formed the words without sound. Hear, O Israel: the Lord our God, the Lord is One. The prayer was rote by now, but he shaped each syllable deliberately, as if precision alone could bridge the gap between a Roman soldier and the Holy One of Jacob.
 
-He turned from the parapet. The rooftop solarium was bare—a few clay pots holding rosemary that smelled of dust and salt, a low bench worn smooth by his own weight. In the center, a small tripod held a bronze brazier. The coals from last night were dead grey, but he’d brought a new lump of charcoal wrapped in linen. He knelt, the grit of the rooftop pressing into his knees through the thin wool of his trousers. His fingers, thick and scarred across the knuckles, fumbled with the flint and steel. The first spark died on the charcoal. The second caught, a tiny orange eye winking in the black. He bent and blew, a soft, steady stream. The eye brightened, spread. A thread of smoke, then a proper flame. He sat back on his heels.
+A gust off the sea brought salt and the distant tang of fish from the harbor. His thumb found the worn edge of his military belt, tracing the impression of the eagle buckle from the back. The leather was smooth where he'd worried it over the years.
 
-This was the ritual. Fire for light. Then the words.
+The child's face surfaced again. Not the face he wanted to remember—his daughter's round cheeks, her laughter like sunlight on water—but the other one. The Germania boy, no older than six, his mouth open in a soundless cry as the flames took the thatch overhead. The mother had looked at him with neither hatred nor fear, only a sorrow so deep it seemed to have no bottom. That look had followed him for ten years.
 
-He didn’t pray to Jupiter Optimus Maximus. That felt like addressing a magistrate in a forgotten province—a formality with no heart behind it. He prayed to the God of the Jews, the God who demanded something. Holiness. Separation. A line between clean and unclean. Cornelius needed lines. His world had too many blurry edges.
+Cornelius exhaled through his nose. The rooftop was his one concession to disorder—here, the strict lines of his life blurred. No centurion's precision, no householder's authority. Just a man alone with a God who might or might not be listening.
 
-He closed his eyes. The words were in Greek, learned from a synagogue attendant in exchange for a favor involving a disputed water right. He didn’t understand all of them. He understood the posture. Hear, O Israel. The Lord is our God, the Lord is One.
+A cock crowed in the distance. He rolled the scroll tight and secured it with a leather thong. Dawn painted the eastern sky in streaks of ochre and violet. The city would wake soon, and with it, his duties.
 
-His own voice was a low rumble in his throat, lost in the vast morning. He prayed for his household. For the men of his century. For the city, a strange peace. He prayed for purity. That word always came last, and it always stuck in his mind like a burr. Katharotēta. Cleanliness.
+His sandals scuffed against the parapet as he stood. The muscles in his thighs protested, stiff from kneeling. Below, the courtyard lay in shadow, the impluvium a dark mirror. He could make out the shapes of the kitchen slaves moving about their work, the soft clatter of pots.
 
-A memory surfaced, unbidden. Not of prayer, but of mud. Thick, cold Germanic mud, the kind that sucked at your boots. The smell of wet wool and smoke. A child’s face, pale and smudged, looking up at him from behind the legs of a woman whose eyes were empty. He hadn’t given the order for that one. But he’d given the order that made it inevitable. The arithmetic of command was simple: you moved pieces, and sometimes pieces broke. He’d made his peace with broken pieces. Men. Weapons. Supply carts.
+“Sir?” A voice from the stairwell—Decimus, his optio, always punctual.
 
-He hadn’t made peace with the woman’s eyes. They hadn’t held hate. Just a sorrow so deep it seemed to have no bottom. He’d seen that same look years later in the eyes of a slave whose child had died of fever. A universal language.
+Cornelius straightened his tunic. “I'm coming.”
 
-His knees ached. He opened his eyes. The sky was pearl now, streaks of pink like flesh under a shallow wound. One fire in the brazier danced, casting long, leaping shadows that made the rosemary pots look like crouching beasts. He rubbed his left shoulder, pressing his thumb into the knot of scar tissue beneath the tunic. The coping was physical, a pressure against a deeper ache. He did it without thinking, a dozen times a day.
+The dream had been worse than usual. Not the usual faceless terror, but the boy again, standing in the middle of a perfectly ordered camp, his small hands holding out something Cornelius couldn't quite see. He'd wrenched himself awake before dawn, his throat tight.
 
-From the house below came the first sounds of life: the scrape of a broom on a mosaic floor, the clatter of a copper pot in the kitchen courtyard. His wife, Decima, was awake. She would be directing the girls with a quiet efficiency that masked her own morning stiffness. He pictured her rubbing the base of her thumb, a habit she’d had since their first child was born. His household was orderly. It was a small empire, and he ruled it justly. It was the one place where his commands didn’t end in mud and smoke.
+The stairs creaked under his weight. Decimus waited at the bottom, his armor already strapped tight. “The men are assembled.”
 
-He stood, his joints protesting. The peace of the rooftop was receding, the world of duty rushing back in. He poured a libation of water from a small jug onto the coals. They hissed, sent up a plume of steam that smelled like wet stone and extinction. The ritual was complete. He had asked for cleanliness. The day would tell him if it had been granted.
-
-As he turned to go down, his eye caught a flaw in the parapet stone—a fossil, a small, spiral shell embedded in the limestone. A creature that had lived in a different sea, a million years ago. He touched it with a fingertip. Smooth. Cold. Utterly irrelevant. He noticed it every morning. He didn’t know why.
-
-The stairs from the roof were steep, narrow. He descended into the smell of baking bread and the sharper tang of fish sauce. The atrium was cool, shadowed. The impluvium in the center held a shallow pool of rainwater, perfectly still. For a second, he saw his own reflection—a broad face, close-cropped hair going grey at the temples, the lines around his eyes deeper than they’d been last year. A Roman face. He broke the image with a swipe of his hand through the water, then dried his fingers on his tunic.
-
-“Master.”
-
-Linus, his body-servant, a Gaul with a permanently worried expression, stood just inside the tablinum, holding a freshly brushed military cloak.
-
-“The optio sends his respects. The men are assembled in the forum square.”
-
-Cornelius took the cloak. The wool was heavy, dyed the deep red of old wine. The color of authority. The color of blood. He swung it over his shoulders, fastened the clasp at his right shoulder. The weight was familiar, a second skin.
-
-“Any issues?”
-
-Linus’s eyes flickered. “The usual grumbling about the night watch roster. Centurion Drusus’s men were... loud... returning to barracks.”
-
-A flicker of irritation, hot and quick. Drusus was lax. He let his men think they were still in some frontier garrison. Cornelius pushed the heat down. It settled as a tightness behind his sternum. “Noted.”
-
-He adjusted the dagger at his belt, checked the alignment of his sword scabbard. Every item in its place. He walked through the atrium, his boots echoing on the geometric patterns of the floor—squares within squares. Decima appeared in the doorway to the kitchen, her hands dusted with flour. She gave him a small nod, her version of a goodbye. He nodded back. Their conversations were often like this. An economy of words, a language of gestures. He had married her for her family’s connections, but he had come to rely on her quiet solidity. She was a fixed point.
-
-The street outside was coming alive. A slave hurried past with a basket of leeks. A merchant was unshuttering his shop front, the wooden slats rattling. The air smelled of baking bread, dung, and the ever-present salt. Cornelius walked with a measured pace, his gaze straight ahead. Civilians moved out of his path. He saw the glances—respect, wariness, the complicated look the locals gave to all Romans, but especially to the soldiers who policed their streets.
-
-He was a centurion of the Italian Cohort. He was a God-fearer who gave alms and prayed to a foreign deity. He was a man who had ordered a village burned.
-
-The pieces didn’t fit together. He held them together with discipline, the way a cracked cup might hold water if you were careful not to move it.
-
-The forum square opened before him, a broad expanse of flagstones still damp with dew. His century stood in six neat ranks, eighty men, a blend of Italian faces and local auxiliaries. Their armor caught the first true rays of the sun, a ripple of dull bronze. The optio, a solid man named Marius, snapped a salute. “Century present and accounted for, sir.”
-
-Cornelius stopped before them. He let his eyes travel down the ranks, slow. He looked for unpolished buckles, for the slump of a tired man, for the flicker of an insolent gaze. This was another ritual. His presence was a pressure. He wanted them to feel it.
-
-“At ease.”
-
-A collective shift, the sound of eighty men relaxing a fraction. He began to walk along the front rank. His own breath was steady. His heart, for now, was quiet. The rooftop was far away. The only god here was order, and he was its priest. He stopped before a young legionary, a boy from Campania with a rash on his neck.
-
-“Your helmet crest is frayed, soldier.”
-
-The boy’s eyes widened. “Sir, I—”
-
-“Replace it before first watch.” He moved on, not waiting for the reply. The correction was the point. The fraying, the flaw, the thing out of place. He found them. He fixed them. It was the only cleanliness he could guarantee.
+Cornelius nodded. A day had begun.
 
 *
 
-The barracks of the Italian Cohort were a world of straight lines and right angles. A long, low building of ochre stone, its roof tiles the color of dried blood. The morning sun cut sharp shadows across the drill yard, painting the ground in stripes of light and dark. Cornelius passed through the arched gate, the sentries stiffening as he approached. Their salutes were crisp, automatic. He acknowledged them with a slight tilt of his chin, his footsteps never breaking rhythm on the packed earth.
+The barracks stank of sweat and oiled metal. His century stood at attention, their faces carefully blank. He walked the line, inspecting each man—straps fastened, blades clean, shields free of rust. A missing buckle here, a dull gladius there. Minor infractions, but he noted each one. Discipline was the thread that kept the fabric of the legion from unraveling.
 
-Inside, the air changed. It held the smell of men—sweat, leather oil, the faint, sour tang of yesterday’s wine. And beneath it, the scent of stone and straw from the bedding. He moved down the central corridor, the rooms opening to either side like cells. Each contubernium held eight men, their gear stacked neat at the foot of their bunks. He didn’t need to stop and inspect each one. His presence in the hallway was enough. The low murmur of voices ahead died instantly, replaced by the shuffling of feet and the clink of gear as men stood to attention.
+“Tiberius.” He stopped before a broad-shouldered legionary. “Your pilum.”
 
-The optio, Marius, fell into step beside him, a tablet of waxed wood in his hand. “All sections report ready for inspection, Centurion.”
+The man blanched. The throwing spear's iron tip showed flecks of orange. Neglect.
 
-Cornelius said nothing. He stopped at the doorway of the third room. He let his eyes do the work. Eight bunks. Eight sets of armor on stands. Eight shields propped against the wall. His gaze was a broom, sweeping for dust. It landed on the second bunk from the left. The mattress was a finger’s width out of alignment with the bunk frame. He stepped into the room. The eight legionaries there might have been carved from salt.
+“Three days' latrine duty.”
 
-He didn’t look at the men. He looked at the mistake. He nudged the mattress with the toe of his boot. It slid back into place with a soft scrape of straw. He turned and left the room. The correction, silent and physical, was more potent than any shouted rebuke. He heard the collective, nearly inaudible release of breath behind him as he moved on.
+A murmur ran through the ranks. Harsh for a first offense, but Cornelius didn't explain himself. Let them think him merciless. Better than the alternative—that their commander's severity was the only thing holding his own chaos at bay.
 
-Marius made a mark on his tablet.
+The drill began. The familiar rhythm of orders and response, the thud of hobnailed boots on packed earth. He could do this in his sleep. Had done, on more than one campaign.
 
-They reached the armory at the end of the barrack block. The armorer, a grizzled veteran missing two fingers on his left hand, stood beside racks of pilums and gladii. His name was Festus. He had served under Cornelius’s command for fifteen years, in Gaul and Germania and now here. He didn’t stand to attention. He gave a slow nod, his eyes like chips of flint. “Centurion.”
+A slave approached from the villa, breathless. “Domina requests you, sir. The Judean delegation has arrived early.”
 
-“Festus.” Cornelius ran a hand along the shaft of a pilum. The wood was smooth, free of splinters. He checked the iron shank, the pyramid point. He did this at random, pulling weapons, testing their weight. It was a dance they both knew. Festus’s work was impeccable. The inspection wasn’t for finding faults; it was for affirming a standard. It was a ritual of mutual respect between two old soldiers, one that bypassed the need for words.
+Cornelius suppressed a flicker of irritation. His wife knew better than to interrupt drills, which meant the matter couldn't wait.
 
-Cornelius selected a gladius from the rack. He drew it from its scabbard. The blade was oiled, the edge a dull gleam in the shaft of light from the high window. He sighted down its length, looking for the slightest warp. There was none. He reversed his grip, offered the hilt to Festus. “The balance on this one is forward.”
+“Decimus, take over.”
 
-Festus took the sword, hefted it. He gave a grunt that might have been concession. “I’ll adjust the tang.”
+The optio saluted. The men didn't slacken—they knew better—but something in their posture eased as he walked away.
 
-Cornelius moved to the window. Below, in the yard, the first section was already drilling. The crunch-crunch of their synchronized steps was a familiar percussion. The decurion’s voice barked a cadence. Sin. Dex. Left. Right. It was a kind of prayer, too. A prayer to uniformity. He found it soothing, this mechanical repetition. It asked no moral questions. It simply was.
+The delegation stood in the atrium, their robes a splash of white against the muted frescoes. Three men, their beards carefully trimmed in the Jerusalem fashion. They inclined their heads when he entered, but their eyes darted to the household shrine in the corner, the little bronze Mars gathering dust.
 
-His shoulder gave a twinge, a cold needle digging deep. The Germanic spear. He didn’t rub it. Not here. He kept his hands at his sides, fingers slightly curled.
+“Centurion.” The eldest spoke Greek with a thick Aramaic lilt. “We bring greetings from the High Priest.”
 
-“The prefect wishes to see you after the watch change.” Marius’s voice was neutral, carefully devoid of implication.
+Cornelius forced his hands to relax at his sides. “You're welcome in my home.”
 
-Cornelius didn’t turn from the window. “Did he state the subject?”
+His wife stood nearby, her face composed, but her fingers pleated the edge of her stola. A nervous habit she thought he didn't notice.
 
-“He did not, sir.”
+The Judean's gaze lingered on the scroll case by the impluvium—his Hebrew texts left out from this morning's reading. “We understand you are a man of… particular piety.”
 
-It could be anything. A complaint from a city magistrate about market-day patrols. A report on the readiness of the century. A personal matter—the prefect enjoyed pulling his senior centurions into his office to discuss trivialities, a display of power masquerading as camaraderie. Cornelius felt the tightness return behind his sternum. He breathed in, slow. The air tasted of metal and dust.
+The words hung in the air. A Roman centurion who kept Jewish hours, who fasted on their Day of Atonement, who prayed to a God not his own. It was one thing for the locals to whisper. Another for Jerusalem to take notice.
 
-“Very well.”
+Cornelius met the man's eyes. “I seek the truth where I find it.”
 
-He completed the inspection. He found a rust spot on a buckle, a loose stitch on a harness. He pointed, received a “Yes, Centurion.” The flaws were minor, routine. They were the scuff marks on the surface of his control. He polished them away with a word, a gesture.
+His answer seemed to satisfy. The delegation relaxed, the tension bleeding from their shoulders. They spoke of trade routes, of bandits near Jericho, of the usual grievances between Roman authority and Temple privilege.
 
-As he left the barracks, the sun was fully up, warming the stone. The city’s noise was a rising tide—the calls of vendors, the bray of a donkey, the distant thwack of a carpenter’s hammer. He crossed the drill yard, his shadow a compact, dark shape at his feet. The men drilling saw him and their movements grew sharper, their backs straighter. His passage had an effect, like a stone dropped in water. Ripples of discipline.
+But beneath the polite exchange, something prickled at the back of his neck. This wasn't a routine visit. The High Priest didn't send envoys to chat about road taxes.
 
-He reached the officer’s quarters, a separate, smaller building with a red-tiled portico. He paused at the bottom of the two steps. A lizard, sunning itself on the warm stone, darted into a crack. He watched the empty space where it had been. A pointless detail. His mind held it for a second, then let it go.
+He escorted them to the gate himself, a courtesy. As the eldest turned to leave, the man hesitated. “You should know—there are rumors from the north. A preacher in Galilee, gathering followers. They say he speaks of a kingdom not of this world.”
 
-The prefect’s clerk, a thin Egyptian with ink-stained fingers, ushered him in. The room was stifling. A brazier glowed in the corner, though the day was mild. Prefect Lucius Sejanus Gallus was a man who felt the cold, a man of soft edges and hard eyes. He sat behind a desk of citrus wood, scrolls weighted down with a chunk of amethyst the size of a fist.
+Cornelius kept his expression neutral. “I'll keep watch.”
 
-“Cornelius.” Gallus did not look up from the document he was reading. “Sit.”
+The Judean nodded satisfied. The gates closed behind them with a solid thud.
 
-Cornelius sat on the stool before the desk. He kept his spine straight, his hands resting on his thighs. He studied the amethyst paperweight. A vein of white quartz ran through its purple heart, like a flaw.
+Back in the atrium, his wife was waiting. “Well?”
 
-Gallus finished reading, set the scroll aside. He laced his fingers over his stomach. “How is your century?”
+He rubbed his thumb along his belt again. The leather was wearing thin. “Send for the scribe. I want a report on this Galilean.”
 
-“Ready, Prefect.”
+The dream lingered at the edges of his vision—the boy, the fire, the thing he couldn't see in those small hands. A kingdom not of this world. The words settled in his chest like a stone.
 
-“No discipline problems? That business with the Syrian auxiliary?”
+The household bustled around him, slaves and servants attending to the day's business. He stood very still in the center of it all, a man balanced on the edge of something he couldn't name.
 
-“Resolved.” It had been a fight over a dice game. Broken noses, bruised pride. Cornelius had settled it with extra guard duties and a warning that the next offense would be answered with the lash. The message had been understood.
+The sun climbed higher, baking the parade ground to a hard, dusty glare. Cornelius moved down the line of recruits, each boy standing rigid as he inspected their gear. Seventeen maybe eighteen years old, farmers’ sons and city boys with more enthusiasm than sense. Their faces shone with sweat, but none dared wipe it away under his gaze.
 
-“Good. Good.” Gallus picked up a stylus, tapped it lightly on the desk. Tap. “The procurator is hosting games next month. For the emperor’s birthday. We will need to provide a security detail. A full century. I want yours.”
+“Lift your shield.”
 
-It was not a request. “Understood.”
+The nearest recruit obeyed, arms trembling under the weight. The shield’s edge was rough, unfinished. A splinter had worked its way into the boy’s palm, leaving a dark smudge of blood on the wood. Cornelius said nothing. Let the pain teach him what words couldn’t.
 
-“The Jews will be... sensitive. Their superstitions about graven images. The procurator plans a procession of the imperial standards. There will be statues.” Gallus’s eyes were on him now, watching. “Your men must be firm. No hesitation. But no provocation, either. A delicate balance.”
+He moved on. The next boy’s sandal strap had frayed. “Replace it by dusk.” A nod, too quick. The boy’s throat bobbed.
 
-“They will be firm. They will not provoke.”
+At the end of the line, a recruit with close-cropped hair held his pilum at the wrong angle. Cornelius adjusted the boy’s grip, his own fingers calloused against the smooth, untested skin of the recruit’s hand. The boy flinched.
 
-Gallus leaned forward slightly. “I am told you are familiar with their... customs. That you give alms to their poor. That you even pray to their god.” He said it casually, the way one might remark on a man’s taste for Egyptian dates.
+Not much. A twitch, really. The barest recoil at the contact.
 
-The tightness behind Cornelius’s sternum hardened into a cold, dense knot. He had known this would come. His piety was not a secret, but it was a private matter. In the mouth of the prefect, it became a curiosity, a potential weakness. He chose his words as if crossing a narrow bridge. “I respect the customs of the province. It fosters stability.”
+Cornelius froze.
 
-“Does it?” Gallus set the stylus down. “Or does it foster confusion? A Roman officer, a worshiper of a tribal god of the desert? The men talk.”
+The Germania boy had done the same. Not from pain—there’d been no time for that, but from the shock of the spearpoint pressing into his small back. A reflex. Innocent. Unthinking.
 
-“The men follow orders. My orders.”
+The parade ground blurred. The heat, the dust, the metallic tang of sweat and oiled leather, all of it narrowed to that single point of contact, the recruit’s warm skin under his fingers.
 
-“Of course.” Gallus smiled, a thin stretching of lips. “I imply no criticism. A stable Caesarea is a prosperous Caesarea. Your methods are your own. Just ensure that during the games, your methods do not look like... divided loyalties.”
+He stepped back. “Again.”
 
-The words hung in the overheated air. Divided loyalties. The ultimate military crime. The crack in the cup.
+The boy hefted the pilum, his stance all wrong, his knuckles white. Cornelius didn’t correct him.
 
-Cornelius met the prefect’s gaze. He let none of the cold knot show on his face. His face was stone. “My loyalty is to Rome, Prefect. The century will perform its duty.”
+“Decimus.”
 
-Gallus held his look for a moment longer, then waved a dismissive hand. “I never doubted it. Dismissed.”
+His optio materialized at his shoulder. “Sir.”
 
-Cornelius stood, saluted, and turned. He walked out of the room, his steps measured. He passed the Egyptian clerk and went out into the portico. The sunlight felt clean after the close, brazier-warmed air of the office. He drew a breath. It shook, just once, deep in his chest. He mastered it.
+“Run them through the basic drills. No weapons. Footwork only.”
 
-He had an hour before the watch change. He should return to the drill yard, oversee the rotation. He found his feet carrying him along the perimeter wall of the compound, toward the eastern side. One wall here was higher, shading the path. He walked without purpose, a man on a private patrol.
+A flicker of surprise crossed Decimus’s face—they’d scheduled spear practice, but he saluted. “Yes, sir.”
 
-He stopped where the wall met the corner of the granary. From here, through a notch in the battlements, he had a narrow view of the eastern gate of the city, a quarter-mile distant. It was the gate used by travelers from Joppa, from Jerusalem. From the interior. The Jewish gate.
+Cornelius turned on his heel and walked away.
 
-Even from this distance, he could pick out the figures. The distinctive fringes on the garments. The slow, deliberate pace that seemed so foreign to the Roman stride. A small group was entering now, leading a donkey laden with baskets. They paused, spoke to the tax collector at his table. A negotiation. He watched the shapes of their argument—hands raised, heads shaking.
+The shade of the barrack’s portico offered little relief. He braced his hands against the cool stone ledge, his breath coming slow and measured. The dream clung to him, its fingers hooked deep. That look on the mother’s face. That boy’s flinch.
 
-He felt nothing he could name. Not longing. Not envy. More like watching a complex piece of machinery whose purpose he admired but could not fully comprehend. A world of complex laws, of clean and unclean, of a single, invisible God who demanded everything. It was a system with no blurry edges. The opposite of mud and smoke and a woman’s empty eyes.
+A servant approached with a cup of watered wine. Cornelius waved him off.
 
-A shout from the drill yard yanked him back. The decurion’s voice, angry. A recruit had dropped his shield.
+The recruits’ shouts carried across the yard, Decimus barking orders in his steady, unhurried way. Good man, Decimus. Didn’t ask questions. Didn’t need to.
 
-Cornelius turned from the wall. The view vanished, replaced by stone. He smoothed the front of his tunic, a quick, unnecessary gesture. He walked back toward the sound of the men, his boots clicking on the flagstones. The sun was high. The day’s work was waiting. The ordered world demanded his return, and he went to it, the image of the distant gate sealed away behind his eyes like the fossil in the parapet—a small, hard thing, from another world entirely.
+Cornelius pushed off the ledge. His quarters waited, a small, spare room at the end of the barracks. No frescoes, no mosaics, just a cot, a chest, and a stand for his armor. The only luxury was the narrow window overlooking the sea.
 
-The midday sun baked the streets, but the triclinium of Cornelius’s house was cool. The room faced north, its high window catching a breeze off the sea. The three dining couches, arranged in a U, were of plain but well-made cedar. The low table between them held the remains of the meal: bread crumbs, olive pits, a smear of fish paste on a terracotta plate. Cornelius reclined on the central couch, a cup of watered wine in his hand. He was not alone.
+He unbuckled his belt, the leather creaking in protest. The eagle’s outline was nearly worn away where his thumb had worried it over the years. He set it aside with more care than it warranted.
 
-A man named Elazar sat across from him, his back straight, refusing the comfort of the couch. He perched on its edge, his hands resting on his knees. He was a scribe from the Jewish quarter, his beard grey and neatly trimmed, his tassels precise. A widower with a lame son. Cornelius had heard of his need through the synagogue almoner. This was the third such visitor this month.
+The chest yielded a plain wooden box. Inside, nestled in a fold of linen, lay a child’s toy, a carved wooden horse, its paint faded from handling. His daughter had clutched it the last time he saw her, six years old and bewildered by his departure. She’d be nearly grown now. A stranger.
 
-“The roof,” Elazar was saying, his Latin careful, each word placed like a stone in a wall. “It is the weight of the winter rains.”
+He didn’t take the horse out. Just touched it, once, then closed the box.
 
-Cornelius listened. He watched the man’s hands. They were the hands of a scholar, ink-stained and slender, but the knuckles were swollen, the skin cracked from labor it was not accustomed to. The scribe was ashamed to be here. The shame sat in the room like a fourth person.
+The recruits’ drills continued outside, their footfalls a steady, rhythmic thump. Order. Discipline. Control.
 
-“You have an estimate from a builder?” Cornelius asked.
+He reached for the scroll case beside his bed. The Hebrew text unfurled in his hands, the letters stark and unyielding. You shall be holy, for I the Lord your God am holy.
 
-Elazar produced a small scrap of parchment from his girdle. He unfolded it with great care, as if it might tear from a harsh pause. He handed it across the table.
+The words mocked him.
 
-Cornelius took it. He did not look at the figure written in Aramaic. He already knew he would pay it. He set the parchment on the table, placed the amethyst paperweight from his own desk upon it—a useless, beautiful thing Gallus had given him years ago. The scribe’s eyes flicked to it, then away. A graven image. Another layer of shame.
+A knock at the door. “Sir?” Decimus.
 
-“The sum is acceptable. Send the builder to my steward tomorrow. He will arrange payment.”
+Cornelius rolled the scroll. “Enter.”
 
-Elazar’s shoulders dropped a fraction. He had been braced for negotiation, for the condescension of Roman charity. He found none. He nodded once, a sharp dip of his chin. “You are generous.”
+Decimus stepped inside, his helmet tucked under one arm. “Drills are finished. The men are asking about the afternoon schedule.”
 
-“It is what is right.” The words felt wooden in his own mouth. A line from a script. He took a sip of wine. Sour on his tongue.
+“Palisade duty. All of them.”
 
-From the atrium came the sound of laughter—bright, girlish. His daughters, Helena and Julia, chasing a chicken the cook had let escape. The sound was a spike of pure life, piercing the solemn air of the triclinium. Elazar flinched at the noise. Cornelius did not. He held the sound inside him, a tiny, warm counterweight to the cold transaction of the room.
+A beat. “Even the recruits?”
 
-The scribe stood, offering formal thanks. Cornelius rose too, a courtesy. He walked the man to the atrium door. Linus was there, ready to see him out. As Elazar passed the impluvium, he averted his eyes from the small bronze statue of a lar, a household god, that stood in a niche. A pagan idol in the house of a God-fearer. Another crack. Another thing that did not fit.
+“Especially the recruits.”
 
-Cornelius returned to the triclinium. He stood by the table, looking at the empty couches, the dirty plates. The generosity was real. The need was real. So why did it feel like another form of accounting? A column in a ledger, good deeds entered to balance the older, darker entries. Alms for a roof. One village, burned.
+Decimus hesitated. “There’s… another matter. The prefect’s summoned you. An hour from now.”
 
-He picked up his cup. The dregs of the wine were murky. He set it down again. The smell of the meal still hung in the air—garlic, leeks, the pungent fish sauce. It was a good smell, a prosperous smell. It suddenly turned in his stomach.
+Cornelius stilled. The prefect didn’t summon centurions for routine matters. “Did he say why?”
 
-A memory, not an image but a scent, sliced through the present. Not Germanic mud. Something sharper. Roasting pork.
+“No, sir. But the messenger mentioned Galileans.”
 
-It had been after the village. The men had taken livestock. They’d built a fire in the clearing, the flames reflecting off the wet, blackened timbers of the huts. The smell of pork fat dripping onto coals, rich and greasy and celebratory. He had stood apart, watching them eat. He had not been hungry. The smell had coated the back of his throat, a cloying, oily film. He had tasted it for days.
+The delegation’s words echoed in his skull. A kingdom not of this world.
 
-Now, in his own dining room, the ghost of that feast mingled with the scent of his own food. His mouth flooded with saliva, a prelude to nausea. He gripped the edge of the couch. The cedar grain was smooth under his thumb.
+“Tell the men to ready their gear. Full armor.”
 
-This was the trouble. The wound did not echo only in grand moments of prayer or solitude. It leaked. It seeped up through the cracks of an ordinary afternoon, triggered by a smell, a slant of light, the way a scribe held his hands. It contaminated the clean things, the good deeds. It made the alms feel like a bribe offered to his own conscience, and the bribe was never enough.
+Decimus saluted and left.
 
-He left the triclinium. He needed air that did not smell of food or shame. He moved through the house, a man fleeing a room that had become too small. Decima was in the courtyard, directing the hanging of newly washed linens. She saw his face and her hands stilled for a second, holding a damp sheet. She said nothing. Her eyes asked the question. He gave a slight shake of his head. Not now. Not here. She looked down, resumed her work, her fingers rubbing the base of her thumb.
+Cornelius strapped his belt back on, the weight of it familiar against his hips. The dream lingered, but he pushed it down, layer by layer, until only the centurion remained.
 
-He took the stairs to the roof two at a time, his heart hammering against his ribs, not from exertion but from a sudden, rising pressure. The bright shock of the sun after the dim house made him blink. The rooftop was as he had left it—the brazier cold, the rosemary pots, the mat, the fossil in the parapet.
+The prefect’s office stank of ink and lamp oil. Maps covered the walls, their edges curled with age. The man himself sat behind a desk piled high with scrolls, his fingers stained black from writing.
+
+“Cornelius.” He didn’t look up. “Sit.”
+
+Cornelius remained standing. “Sir.”
+
+The prefect sighed and set down his pen. “There’s trouble in Jerusalem. Nothing official yet, but the Sanhedrin’s riled up about some new sect. Jews preaching about a crucified rabbi.”
+
+“Galileans.”
+
+A sharp glance. “You’ve heard.”
+
+“Rumors.”
+
+The prefect leaned back. “They’re saying this rabbi rose from the dead. Walking around, eating, talking, the whole damn thing.” He snorted. “Probably some peasant who fainted in the heat and woke up three days later thinking he’d conquered death.”
+
+Cornelius said nothing.
+
+The prefect tapped the desk. “I want you to keep an ear out. If these Galileans start causing trouble in Caesarea, I need to know before the priests start screaming to Rome.”
+
+“Yes, sir.”
+
+“And Cornelius?” The prefect’s gaze sharpened. “Don’t get involved. You’ve got a reputation with the locals. I don’t need you playing philosopher while there’s work to do.”
+
+Cornelius met his eyes. “Understood.”
+
+The walk back to the barracks stretched longer than it should have. The sun hung low now, painting the whitewashed walls in shades of gold. From the training yard came the steady thwack of wooden swords—Decimus putting the men through their paces.
+
+Cornelius bypassed them. His feet carried him to the small shrine at the edge of the compound, a nondescript alcove housing a statue of Mars. The god’s face was worn smooth by years of offerings, his expression blank.
+
+He’d never prayed here. Not once.
+
+The shrine’s shadow offered a moment’s respite. He closed his eyes. The dream surged back, the boy, the fire, the thing in his hands.
+
+A kingdom not of this world.
+
+The recruits’ laughter carried on the wind, bright and unburdened.
+
+Cornelius opened his eyes. The statue stared back, indifferent.
+
+He turned away.
+
+The rooftop waited. The scrolls. The prayers that never quite reached high enough.
+
+Night would come soon.
+
+He walked toward it.
+
+The courtyard tiles burned underfoot as Cornelius crossed to the household shrine. A slave had already laid out the offerings—wine, bread, a handful of figs, but the gesture felt hollow. The little bronze Mars stood untouched, his face blurred by years of neglect. Cornelius tipped the wine onto the stones, watching it seep into the cracks. A formality. The god had never answered.
+
+Inside, the house hummed with activity. Slaves scrubbed the mosaic floors with vinegar and water, their backs bent in the afternoon heat. The cook shouted orders in the kitchen, the scent of garlic and fish sauce thick in the air. His wife directed the weaving girls with quiet efficiency, her fingers flicking at a loose thread in the wool.
+
+Cornelius paused at the threshold. This was the order he’d built, the disciplined rhythm of a Roman household. It should have settled him.
+
+It didn’t.
+
+He turned left instead of right, bypassing his study for the servants’ quarters. The corridor narrowed here, the plaster walls unadorned. A child’s laughter spilled from an open doorway. He stopped.
+
+A girl sat on a pallet, her legs tucked under her, a wooden doll in her lap. One of the kitchen slaves’ daughters. She looked up, her smile vanishing when she saw him.
+
+He knelt, the movement stiff. “Your name?”
+
+“L-Lydia, sir.”
+
+The doll’s arm was broken, hanging by a splintered peg. He reached into his purse and pressed a denarius into her palm. “For a new one.”
+
+Her fingers closed around the coin. She didn’t thank him.
+
+He stood. The girl’s mother hovered in the doorway, her hands knotted in her apron.
+
+“It’s nothing.” He walked away before she could finish.
+
+Charity was part of it. Alms for the poor, kindness to servants, the Jews called it tzedakah, righteous giving. He’d adopted the practice years ago, though it never quite took root in his chest the way the scrolls said it should. The coins left his hand, but the weight in his gut remained.
+
+The atrium was cooler, the impluvium casting rippling reflections on the columns. His scribe waited by the fountain, stylus poised.
+
+“Any word on the Galilean preacher?”
+
+The man shook his head. “Only what the delegation said. A rabbi from Nazareth, crucified under Pilate. Some claim he lives.”
+
+Cornelius rubbed his thumb along his belt. “And the followers?”
+
+“Scattered. A few in Jerusalem, more in Galilee. They call him the Christ.”
+
+Christos. The anointed one. A title for kings and prophets, not crucified peasants.
+
+“Keep listening.”
+
+The scribe bowed and retreated.
+
+Cornelius moved to the impluvium, staring at his reflection in the water. The face that looked back was a stranger’s, hard lines, close-cropped hair going gray at the temples. A centurion’s face. A killer’s face.
+
+A boy’s flinch rose in his memory again. That small, instinctive recoil.
+
+He splashed water on his face and went to find his wife.
+
+She was in the triclinium, sorting through household accounts. Her stylus moved steadily across the wax tablet, tallying grain stores and oil jars. She didn’t look up when he entered.
+
+“The Judean delegation,” he said.
+
+Her stylus paused. “Yes?”
+
+“What did they want?”
+
+She set the tablet aside. “They asked about your habits. Your prayers. The alms you give.”
+
+“Why?”
+
+Her fingers pleated the edge of her stola again. “They think you’re different.”
+
+Different. Not Roman enough for his own people, not Jewish enough for theirs. A man caught between worlds, belonging to neither.
+
+He exhaled. “And you?”
+
+Her gaze flicked to the household shrine, the untouched offerings. “I think you’re trying to outrun something.”
+
+The words hung between them. She didn’t say what they both knew, that no amount of prayer or charity could scrub the blood from his hands.
+
+He left without answering.
+
+Twilight crept across the courtyard, painting the columns in long shadows. The slaves lit the oil lamps, their flames wavering in the evening breeze. Cornelius climbed the stairs to the rooftop, the steps groaning under his weight.
+
+The sky was a deep, bruised purple, the first stars pricking through. The sea wind carried the scent of salt and distant rain. He unrolled the scroll with practiced hands, the Hebrew letters black and unyielding. Create in me a clean heart, O God.
+
+The words were ash on his tongue.
+
+Below, the city murmured, voices, laughter, the occasional shout. A normal evening in Caesarea. A normal life.
+
+He closed his eyes. The dream pressed in again, the boy, the fire, the thing in his hands. What was it? A stone? A toy?
+
+The air changed.
+
+It wasn’t a sound. Wasn’t a scent. Just a sudden, electric shift, like the moment before a storm breaks. His skin prickled.
+
+Cornelius opened his eyes.
+
+The rooftop was empty. The scroll lay at his feet, the sea wind ruffling its edges. But the air, the air was alive. Heavy. Charged.
+
+A breath he hadn’t known he was holding escaped his lungs.
+
+Then the light came.
+
+Not lamplight. Not starlight. Something else, golden, radiant, pulsing at the edges like a living thing. It gathered in the corner of the rooftop, swirling like mist over water.
+
+Cornelius didn’t move. Didn’t breathe.
+
+The light coalesced. Took shape.
+
+A man stood before him.
+
+Not a man. Something else. Tall, radiant, his face too terrible to look at directly. His robes burned with a light that had no source.
+
+Cornelius’s knees hit the tiles.
+
+The figure spoke. A voice like thunder, like honey, like the crash of waves on rock.
+
+“Cornelius.”
+
+His name. The thing knew his name.
+
+The rooftop tilted. The scroll skittered away caught by the wind.
+
+“Your prayers and alms have ascended as a memorial before God.”
+
+The words struck him like a blow. His prayers? His pitiful, stumbling attempts at righteousness?
+
+The figure raised a hand. The light intensified, searing his vision.
+
+“Send men to Joppa and bring one Simon who is called Peter.”
+
+Then, as suddenly as it had come, the light vanished.
+
+Cornelius knelt alone on the rooftop, his heart hammering against his ribs. The scroll lay against the parapet, untouched by the wind. The city sounds rushed back, the cry of gulls, the distant clatter of carts.
+
+Normal. Ordinary.
+
+But nothing would ever be ordinary again.
+
+He stood on unsteady legs. The tiles were cold under his bare feet.
+
+“Send men to Joppa.”
+
+He turned toward the stairs. The household slept below, unaware. His wife. His slaves. His men.
+
+Cornelius paused and went to wake them.
