@@ -40,7 +40,7 @@ He walked to the western parapet, his shadow long and thin before him. The tanne
 
 Peter turned his back on the sea, facing toward Jerusalem. He assumed the posture of prayer, standing, his hands open at his sides. The words of the Shema formed in his mind.
 
-They died there. The familiar cadence, the anchor of a lifetime, refused to come. His mind was a jumble of faces instead. The hopeful, anxious face of the Greek-speaking widow they’d provisioned last week. The hardened, closed face of a Pharisee who had challenged him in the synagogue. The joyful, disbelieving face of John when he’d brought the news from Samaria. And beneath them all, like a dark watercolor bleeding through parchment, the face of the Roman centurion from his dream.
+The familiar cadence, the anchor of a lifetime, refused to come. His mind was a jumble of faces instead. The hopeful, anxious face of the Greek-speaking widow they’d provisioned last week. The hardened, closed face of a Pharisee who had challenged him in the synagogue. The joyful, disbelieving face of John when he’d brought the news from Samaria. And beneath them all, like a dark watercolor bleeding through parchment, the face of the Roman centurion from his dream.
 
 It had been the same dream, three nights running. Not a vision, not a clear message. Just a man in the polished armor of a Roman officer, standing at a distance on a clean, ordered street. The man said nothing. He only watched, his expression unreadable—not hostile, not pleading. Waiting. And in the dream, Peter knew he was expected to cross the street, to approach this man who was the very embodiment of the occupation, of the pagan world. His feet would not move. A street between them seemed to widen, becoming a chasm.
 
@@ -60,19 +60,19 @@ His stomach clenched, a hollow, insistent fist. He had eaten little at breakfast
 
 He lowered himself to sit, his back against the warm parapet. The rough plaster snagged his tunic. He closed his eyes, seeking the inner dark, the quiet place where God’s voice sometimes settled. But the faces returned. Not just the Roman’s from the dream. The faces of the Gentiles who lingered at the back of the synagogue in Caesarea, their expressions a mix of yearning and profound confusion as they listened to the Torah readings they could never fully own. He had seen them. He had pitied them. Their devotion was impressive, but it was a devotion from the outside, noses pressed against the glass of a banquet to which they had no invitation.
 
-What did they eat? One question surfaced, absurd and specific. What did a Roman centurion, a man like the one in his dream, eat for his noon meal? Pork, probably. Sausage seasoned with garlic and herbs forbidden by the Law. He would eat it without a thought, without a blessing, the juice of it on his chin. Its image was vivid, repellent. Peter’s own saliva grew thick. His empty stomach lurched.
+“What did they eat?” One question surfaced, absurd and specific. What did a Roman centurion, a man like the one in his dream, eat for his noon meal? Pork, probably. Sausage seasoned with garlic and herbs forbidden by the Law. He would eat it without a thought, without a blessing, the juice of it on his chin. Its image was vivid, repellent. Peter’s own saliva grew thick. His empty stomach lurched.
 
 This was the wall. Not stone or legionary armor, but this deep, raw recoil. Holiness was separation. Clean from unclean. Sacred from profane. Israel from the nations. You could not simply wish that away. You could not theologize a pig clean.
 
 A gust of wind came off the sea, cooler, carrying the damp, briny smell of low tide. It flapped the edge of his head-covering. He opened his eyes. The sea was changing color, the green deepening to a bruised purple where a cloud shadow passed. He watched the shadow move, a stain spreading on the water.
 
-Other sheep. The Teacher’s words spoken in the last confusing days before the end. I have other sheep that are not of this fold. I must bring them also.
+Other sheep. The Teacher’s words spoken in the last confusing days before the end. *I have other sheep that are not of this fold. I must bring them also.*
 
 Peter had nodded then, thinking he understood. The scattered tribes, perhaps. Or the righteous among the nations in some distant, final reckoning. He had not thought of a living, breathing Roman soldier, his hands calloused from a sword grip, his soul somehow hungry for a God whose laws he could never keep.
 
 “They cannot be brought in unless they become one of us,” Peter said aloud, his voice a dry rasp against the wind. “They must take on the yoke. The circumcision, the law. It is the door.”
 
-But the voice in his head, which sometimes sounded like his own and sometimes like the ghost of a question the Teacher had asked, replied: Who made you the doorkeeper?
+But the voice in his head, which sometimes sounded like his own and sometimes like the ghost of a question the Teacher had asked, replied: *Who made you the doorkeeper?*
 
 He had no answer. Only the tightening in his gut, the ache behind his eyes from squinting at a too-bright sky. The hunger was no longer just an absence. It was a presence, a dull animal pacing inside the cage of his ribs. He felt faint, untethered. The solid rooftop beneath him seemed to sway, just slightly, as if the house itself floated on the tide.
 
@@ -120,7 +120,7 @@ There were sheep in the sheet. And there were pigs, their pink, hairy flanks obv
 
 A voice spoke. It was not in his ear. It was in the center of his skull, clear, and as vast as the sky from which the sheet hung.
 
-Get up, Peter. Kill and eat.
+“Get up, Peter. Kill and eat.”
 
 The command was an earthquake in his soul. Every fiber of him, every year of law and custom and identity, recoiled. His body went rigid with refusal. This was not a test of hunger. This was an assault on the core of who he was.
 
@@ -128,7 +128,7 @@ The command was an earthquake in his soul. Every fiber of him, every year of law
 
 The echo in the air deepened, vibrating in the pit of his teeth. The sheet hung, flickering with its impossible cargo. A voice came again, not angry, not pleading. Final. Like stone being set.
 
-Do not call anything impure that God has made clean.
+“Do not call anything impure that God has made clean.”
 
 The words struck him with physical force. He swayed back, as if pushed.
 
@@ -150,7 +150,7 @@ This wall was not just damaged. It was not to be mended.
 
 It was to be dismantled, stone by sacred stone, and he was being handed the first crowbar.
 
-Peter stayed there, his knees grinding into the plaster, until the trembling subsided into a deep, cellular exhaustion. The heat of the day had reached its peak. The sun was a white brand on the back of his neck. The vision was gone, but its afterimage pulsed behind his eyes—the boar’s coarse hair, the vulture’s naked head, the terrible togetherness of it all. His mind scrabbled for purchase, for a way to file this event into a category he understood. A test of loyalty, perhaps. A warning against presumption. God would not could not, overturn the Law. It was eternal, the very pattern of holiness. The voice must have meant something else. A metaphor. The animals were… sins. Yes. Sins of the flesh, bundled together, and he was being told to purge them. Or they were the Gentile nations, and he was being shown their spiritual state—a confused mingling. The command to kill and eat was symbolic. It had to be.
+Peter stayed there, his knees grinding into the plaster, until the trembling subsided into a deep, cellular exhaustion. The heat of the day had reached its peak. The sun was a white brand on the back of his neck. The vision was gone, but its afterimage pulsed behind his eyes—the boar’s coarse hair, the vulture’s naked head, the terrible togetherness of it all. His mind scrabbled for purchase, for a way to file this event into a category he understood. A test of loyalty, perhaps. A warning against presumption. God would not could not, overturn the Law. Eternal, the very pattern of holiness. That voice must have meant something else. A metaphor. The animals were… sins. Yes. Sins of the flesh, bundled together, and he was being told to purge them. Or they were the Gentile nations, and he was being shown their spiritual state—a confused mingling. The command to kill and eat was symbolic. It had to be.
 
 He pushed himself up, his joints stiff. His mouth was a desert. He needed water. He needed to talk to John, to James, to someone who could help him unravel this. He turned toward the stairwell, his shadow a puddle at his feet.
 
