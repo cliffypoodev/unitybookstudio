@@ -66,8 +66,6 @@ She thought he might refuse. Then he nodded, once, and let her lead him away.
 
 Behind them, the slave’s whispered prayers filled the space they left behind.
 
-*
-
 The triclinium’s couches were arranged with geometric precision, their cushions plumped to military standards. Cornelius ran a finger along the edge of the nearest one, checking for dust. None. The slaves knew better. He should have found comfort in that—the household functioning as it always did, a well-oiled machine—but the order felt brittle today, like a thin sheet of ice over dark water.
 
 A servant entered with a tray of figs and cheese setting it on the low table with practiced silence. His movements were efficient, his gaze lowered. Jewish, like the one in the courtyard. Did he pray too? Did his god listen?
@@ -150,7 +148,7 @@ Alone again, he stared at the wine stain on the table. The slave’s shadow reap
 
 “Out,” Cornelius said, without looking up.
 
-The shadow lingered a moment too long before retreating.
+That shadow lingered a moment too long before retreating.
 
 Somewhere in the house, a child laughed—bright, unburdened. That sound cut through him like a blade. He reached for the wine pitcher again, his hand steady.
 
@@ -214,7 +212,7 @@ He knew what she meant. He hadn’t described the vision, not really. Hadn’t t
 
 She studied him, her eyes tracing the line of his jaw, the set of his shoulders. Searching for cracks. “And when they bring him here? What then?”
 
-The question hung between them, weightier than the sealed message now riding toward Joppa.
+That question hung between them, weightier than the sealed message now riding toward Joppa.
 
 Somewhere in the house, a child laughed again, the same bright, careless sound from earlier. It should have been comforting. It felt like an accusation.
 
@@ -236,7 +234,7 @@ The hatch stopped. It hung open, a sliver of light.
 
 Kaelen hauled herself through. Her knees hit the deck. She scrambled up, turning.
 
-Voss was already moving. He kicked a storage crate into her path. She sidestepped, but the delay cost her. He had the door open. He was through it.
+Voss was already moving. He kicked a storage crate into her path. She sidestepped, but the delay cost her. He had the door open. Was through it.
 
 She followed.
 
