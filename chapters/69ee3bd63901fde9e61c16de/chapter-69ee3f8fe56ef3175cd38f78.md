@@ -50,9 +50,9 @@ Peter stilled.
 
 Judas’s eyes gleamed. “So why would God give them a sign meant for Jews?”
 
-The question hung in the air like smoke.
+That question hung in the air like smoke.
 
-Peter opened his mouth. Closed it. The answer was there, lodged in his chest, but the shape of it was too big for words. He looked at James.
+Peter opened his mouth. Closed it. An answer was there, lodged in his chest, but the shape of it was too big for words. He looked at James.
 
 James’s face was unreadable. “Continue.”
 
@@ -90,7 +90,7 @@ James’s face went pale. “Careful, Peter.”
 
 Peter leaned forward. “You asked what happened. I’m telling you.” He spread his hands. “The sheet vanished. I was back on the roof. Dizzy. Sick. Then the men arrived.”
 
-He told them about the knock at the gate. The three strangers—two slaves and a soldier, standing awkwardly in the courtyard, their faces streaked with dust. The younger slave’s sandal had a broken strap. He’d tied it up with a bit of twine.
+He told them about the knock at the gate. The three strangers, two slaves and a soldier, standing awkwardly in the courtyard, their faces streaked with dust. The younger slave’s sandal had a broken strap. He’d tied it up with a bit of twine.
 
 “The Spirit said, ‘Go with them. Do not hesitate.’” Peter’s mouth twisted. “I hesitated.”
 
@@ -118,11 +118,11 @@ The words came back to him now, sharp and clear. The story of Jesus. The offer o
 
 No one spoke.
 
-Outside, a donkey brayed. The sound was oddly plaintive.
+Outside, a donkey brayed. This sound was oddly plaintive.
 
 Peter lifted his head. “You asked if this was from God.” He held James’s gaze. “When God speaks, who are we to say no?”
 
-The silence this time was different. Charged.
+That silence this time was different. Charged.
 
 James looked down at his hands. When he spoke, his voice was barely audible. “We will need to pray on this.”
 
@@ -132,7 +132,7 @@ One world hadn’t ended.
 
 It had just gotten larger.
 
-The silence stretched, thick with unasked questions. Peter wiped his palms against his thighs. The heat in the room had nothing to do with the sun.
+One silence stretched, thick with unasked questions. Peter wiped his palms against his thighs. The heat in the room had nothing to do with the sun.
 
 Peter’s fingers found the cup again, tracing the rim where the fly had walked. The clay was warm from his grip. “I took six brothers with me. Witnesses.”
 
@@ -194,7 +194,7 @@ James’s fingers tightened around the edge of his bench. “The Law—”
 
 “Is fulfilled in Christ.” Peter’s voice dropped. “James, I didn’t understand at first either. But the sheet—the voice—the Spirit’s command—it all fits.” He leaned forward. “God has shown me that I should call no person common or unclean.”
 
-Peter didn’t look at her. He was watching James, watching the play of doubt and conviction across his face. The way his fingers worried at a loose thread in his robe. The way his breath came just a little too fast.
+Peter didn’t look at Mary. He was watching James, watching the play of doubt and conviction across his face. The way his fingers worried at a loose thread in his robe. The way his breath came just a little too fast.
 
 Outside, the donkey brayed again, long and plaintive.
 
@@ -274,7 +274,7 @@ Peter didn’t flinch. “I did.”
 
 Simeon made a sound like a man choking on a bone.
 
-Peter ignored him. He focused on James, on the way his friend’s beat hitched, just once, before he schooled his face back into stillness. “You asked for an account. I’ve given it.” He spread his hands. “The Spirit fell on them before I could finish speaking. Exactly as it did with us.”
+Peter ignored him. He focused on James, on the way his friend’s heart beat hitched, just once, before he schooled his face back into stillness. “You asked for an account. I’ve given it.” He spread his hands. “The Spirit fell on them before I could finish speaking. Exactly as it did with us.”
 
 Mary’s sandal scuffed against the threshold. “What did they say?”
 
@@ -300,6 +300,6 @@ Simeon surged to his feet. “You had no right!”
 
 Peter didn’t move. “God gave me the right.”
 
-James held up a hand. His fingers trembled—just slightly, before he fisted them in his robe.
+James held up a hand. His fingers trembled, just slightly, before he fisted them in his robe.
 
 Peter thought of the centurion’s face when the Spirit took him, the way his stern Roman discipline had shattered into something raw and trembling. The way his wife had clutched their daughter to her chest, tears streaming down her cheeks. The slave who’d fallen to his knees, babbling in flawless Aramaic.
