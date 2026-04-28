@@ -52,7 +52,7 @@ Peter walked forward. His sandals whispered on the polished floor. He felt the w
 
 He crossed the threshold into the triclinium.
 
-The room was cooler, shaded from the direct sun. The frescoes of pastoral scenes seemed to mock the tension. A shepherd piped to oblivious sheep. The air smelled of roasted meat rosemary, and the underlying, sour tang of a wine spill already soaked into a rug. Someone had tried to clean it, but the smell remained. A human detail. Peter fixed on it.
+That room was cooler, shaded from the direct sun. The frescoes of pastoral scenes seemed to mock the tension. A shepherd piped to oblivious sheep. The air smelled of roasted meat rosemary, and the underlying, sour tang of a wine spill already soaked into a rug. Someone had tried to clean it, but the smell remained. A human detail. Peter fixed on it.
 
 He stopped near the center couch. He did not recline. He remained standing, turning to face the room as the household filed in after him, finding their places with a quiet, shuffling disarray. His own companions hovered just inside the doorway, a knot of Jewish resistance. Micah’s arms were folded, his jaw set. He looked like a man watching a ship sink.
 
@@ -108,7 +108,7 @@ The words would not come.
 
 They lodged in his throat, a spiritual obstruction. Repent. Be baptized. The formula was right was pure was the doorway. But to speak it here felt like throwing a lamb into a pack of wolves—not because these people were wolves, but because the words belonged to the flock, to the fold, to the guarded pasture. They were in Aramaic. They tasted of Jerusalem dust and Temple incense.
 
-He stood there, mute. The silence stretched, thin and brittle.
+He stood there, mute. A silence stretched, thin and brittle.
 
 Cornelius opened his eyes. The hope in them was beginning to cloud with confusion. Doubt seeped into the room, cold and familiar.
 
@@ -216,6 +216,6 @@ Cornelius was the last. He had risen, his body taut as a bowstring. He looked at
 
 The triclinium was no longer a Roman dining room. It was a vessel overflowing with a sound that had no earthly source. The air shimmered with it. The untouched food, the pastoral frescoes, the cracked mosaic—all of it was rendered irrelevant, a painted backdrop against a sudden, blazing reality.
 
-Peter stood in the center of it, buffeted by the holy chaos. His own heart felt too large for his chest. He understood now. The “what” was not a command to be given. It was a fire that had already been lit. The wind had blown. It had not blown him here to bring a gift. It had blown him here to witness the gift being given.
+Peter stood in the center of it, buffeted by the holy chaos. His own heart felt too large for his chest. He understood now. The “what” was not a command to be given. It was a fire that had already been lit. This wind had blown. It had not blown him here to bring a gift. It had blown him here to witness the gift being given.
 
 The chapter ends with Peter drawing a pause, the story of Jesus poised on his lips, and the still water of the impluvium between them holding the reflection of a sky that had just opened.
