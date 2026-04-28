@@ -108,7 +108,7 @@ Cornelius appeared at his side. The centurion had dismissed the servants. He sim
 
 “What happens now?”
 
-Peter looked up. The question was not about logistics, about their travel plans or preaching schedule. It was the question of a man who had stepped off a cliff and found himself suspended in mid-air, unsure of the ground beneath him.
+Peter looked up. That question was not about logistics, about their travel plans or preaching schedule. It was the question of a man who had stepped off a cliff and found himself suspended in mid-air, unsure of the ground beneath him.
 
 “I do not know,” Peter said. The truth of it was a vast, empty plain inside him.
 
@@ -206,7 +206,7 @@ But beneath that fear ran a deeper, colder current. If God accepted these people
 
 He leaned on the parapet, the sun-warmed stone rough against his palms. He looked down into the courtyard. He saw John, standing alone now, staring at his own hands. He saw Cornelius emerge from his study, his head tilted as he listened to a report from one of his men. He saw the Germanian boy, awake now, chasing a chicken into the kitchen garden, his mother watching from the doorway.
 
-They were just people. Hungry, frightened, hopeful, stubborn people. The spirit had fallen on them, not on an idea. A truth was in their wet faces, not in his scrolls.
+They were just people. Hungry, frightened, hopeful, stubborn people. The spirit had fallen on them, not on an idea. The truth was in their wet faces, not in his scrolls.
 
 The implications began to crystallize, not as a doctrine, but as a journey. He could not stay here, a permanent guest in this Roman house, a living paradox. The story of what happened here could not remain within these walls. It had to be told. And there was only one place where that telling mattered.
 
