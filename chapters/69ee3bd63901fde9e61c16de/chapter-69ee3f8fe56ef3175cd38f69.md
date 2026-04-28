@@ -1,321 +1,249 @@
-The door creaked open on hinges that hadn't seen oil in months. Simon's hand lingered on the latch, fingers streaked with tannin stains. The two men standing outside wore cloaks too fine for Joppa's backstreets—one Roman military issue, the other Judean wool dyed deep blue. The soldier stood with his weight subtly shifted to his left leg, favoring an old injury. The servant held a sealed vellum scroll like it might burst into flames.
+The heat in the tannery yard was a solid thing, pressing down on the vats of soaking hides. Simon wiped his forehead with the back of a stained wrist, watching a fly circle the rim of a lime pit. The stink never left, but after thirty years, he noticed it only when a breeze from the sea tried, and failed, to push through. Inside the house, Martha’s spindle whirred, a regular, patient sound. Normal.
 
-"We seek Simon called Peter." The Roman spoke Greek with a Latin bite under it, vowels clipped sharp as hobnails.
+A gate rattled.
 
-Simon wiped his palms on his tunic. The smell of the tannery clung to him, a bitter counterpoint to the citrus oil and iron scent rolling off the newcomers. He glanced over his shoulder toward the rooftop where Peter had been praying.
+Not the loose rattle of wind. Three distinct, measured impacts. The sound of a fist in a leather glove.
 
-Thomas shouldered past Simon, bristling. "This is a Jewish home."
+Simon froze, the scraping knife in his hand hovering over a goat hide stretched on its frame. No one used the front gate. Deliveries came to the side yard, where the alley met the back lane. Friends called out from the street. This was formal. Official. His eyes met those of his apprentice, a boy of fifteen crouched by the water jug. The boy’s face went slack.
 
-The Judean servant dipped his head but didn't step back. His forearms bore thin white scars—ritual markings, not battle wounds. "My master Cornelius, a centurion of the Italian Cohort, sends greetings."
+The knock came again, harder.
 
-"An angel?" Philip's voice cracked from the shadows behind Thomas. He edged forward, fingers worrying the fringe of his prayer shawl. "Since when do angels speak to Romans?"
+Simon set the knife down. He moved toward the gate, his sandals scuffing through wood shavings. He could feel the rhythm of the house change behind him. The spindle stopped. A chair leg scraped the floor.
 
-The soldier's hand twitched toward his belt where a gladius should hang. Empty. A peace offering or a calculated risk. "The message is for Peter alone."
+He lifted the wooden bar, its weight familiar. He pulled the gate inward.
 
-Up on the roof, a tile shifted. Peter's sandals scuffed against baked clay as he descended the ladder, his face still slack from the vision. He moved like a man walking through deep water, each step deliberate. The others turned to him, their postures shifting—Thomas rigid with disapproval, Philip chewing his lip, Simon blocking the threshold with his stained bulk.
+Three men filled the opening. Two were soldiers. Roman infantry, in worn but serviceable tunics and military belts, their caligae dusty from the road. They stood with the easy imbalance of men who’d spent hours in the saddle, one hand resting near the hilts of their short swords. The third man was older, dressed in a simple traveler’s cloak, his face lined and calm. A civilian, but he held himself with a stillness that felt just as disciplined.
 
-Peter stopped halfway down. His knuckles were bloodless around the ladder rungs.
+The lead soldier, a broad-shouldered man with a nose that had been broken and poorly set gave a curt nod. “Peace to this house.” His Greek was clear, accentless, the words a rehearsed formula. “We seek a man named Simon, also called Peter. We were told he lodges here.”
 
-The Judean servant met his gaze and offered the scroll. "My lord saw an angel standing in his house. The angel said, 'Send to Joppa for Simon who is called Peter. He will declare to you words by which you and all your household will be saved.'"
+Simon’s throat tightened. He heard the shuffle of feet behind him. James and John had come out from the inner room, their faces tight with a question. He could feel their gaze on his back.
 
-The word "saved" landed like a stone in still water. Thomas made a low noise in his throat. Philip's fingers dug into his own arms.
+“Who seeks him?” Simon’s own voice sounded thin, swallowed by the yard.
 
-Peter exhaled through his nose. The rooftop stench of blood and feathers still clung to his robes. He reached for the scroll, then hesitated, hand hovering. The servant didn't flinch. The wax seal glinted—an eagle with wings spread.
+The soldier’s eyes flickered past him, taking in the other men, the vats, the drying racks. A tanner’s yard. A place of perpetual ritual impurity. His expression didn’t change, but something in the set of his shoulders acknowledged the boundary he’d crossed. “I am Decimus, of the Italian Cohort, stationed at Caesarea. My companion is Rufus. This is Silas, of the household of the centurion Cornelius. Our lord Cornelius, a righteous man who fears your God was instructed by a holy angel to send for this Peter, to hear words from him.”
 
-Simon cleared his throat. "You don't have to—"
+The silence that followed was a physical weight. The fly buzzed, landing on the edge of the lime pit. Simon heard John suck in a sharp breath.
 
-"I know." Peter took the scroll. The parchment crackled as he unrolled it, his eyes scanning the neat Greek script. The soldier watched him with the detached focus of a man assessing a potential threat. The servant watched his hands.
+An angel. A Roman centurion. The words made no sense together. They were like hearing ‘dry water’ or ‘quiet thunder.’ Simon’s mind scrabbled for a proper response, a ritual formula of refusal, but all that came was the memory of Peter’s face at breakfast that morning—haunted, distant, picking at his bread as if it were ashes.
 
-Thomas edged closer, voice dropping. "You can't seriously be considering—"
+“He is here,” Simon said finally. The admission felt like a betrayal of something, though he couldn’t name what.
 
-"Three days ago," Peter said without looking up, "Cornelius fasted and prayed at the ninth hour. An angel appeared, called him by name, and told him his prayers had been heard." He folded the scroll carefully. The wax seal snapped clean in half. "They're to lodge with us tonight. We leave for Caesarea at first light."
+He stepped back, a reluctant invitation. The men entered. They moved with a military economy, their eyes cataloging the space without seeming to. Their presence altered the air. The yard, a place of mundane, smelly work, suddenly felt like a contested frontier. The two soldiers took positions just inside the gate, not quite at attention, but not at ease. Silas, the older servant stood between them, his hands folded. He looked at the vats, at the hides, with an expression of quiet curiosity, not disgust.
 
-Philip made the sign against evil. Simon exhaled sharply through his nose. Outside, a donkey brayed in the alley—a raw, ugly sound.
+James moved first. He stepped forward, his fisherman’s build squaring against Decimus’s military one. “By what right does a Roman summon a man of Israel?” The challenge was there, blunt, the Galilean roughness in his Greek.
 
-The soldier shifted his weight again. "The centurion has arranged fresh mounts."
+Decimus met his gaze, unflinching. “By no right of mine. By command of a messenger from God. The centurion is a worshipper of the Most High. He gives alms. He prays continually. The angel said his prayers were heard.” He recited it like a report, but the words were too strange for any ordinary dispatch. “He was told to send to Joppa, to the house of Simon the tanner by the sea, for one Simon Peter. He will speak words by which our lord and his whole household will be saved.”
 
-"You'll sleep in the courtyard," Simon interrupted. "Not under my roof."
+Saved. The word hung in the tannery stink.
 
-The servant's mouth tightened, but he nodded. "Understood."
+John edged closer to James, his voice lower, a hissed aside. “A trick. To get him to the praetorium. They’ll arrest him.”
 
-Thomas grabbed Peter's elbow as he stepped off the ladder. His whisper carried. "You know what they are. You know what entering his house means."
+“If we wished to arrest him,” Decimus said, his hearing evidently sharp, “we would not be three, and we would not announce the reason with a story of angels.” He didn’t smile. It was a simple statement of tactical fact.
 
-Peter's fingers traced the broken seal. The wax edges were sharp.
+From the shadow of the doorway, Peter emerged.
 
-Upstairs, the rooftop door swung on its hinges, tapping out a slow rhythm against the frame. A hot wind carried the smell of salt and fish guts from the harbor. Somewhere below, the servant was murmuring in Aramaic—a prayer or a curse, the words too soft to catch.
+He looked pale, his beard untrimmed, his tunic rumpled as if he’d slept in it. He had the look of a man roused from a deep and troubling sleep. His eyes went to the Romans, then to Silas, then back to Decimus. He didn’t speak.
 
-The soldier stood very still, watching the street. His right hand kept flexing, grasping for a sword that wasn't there.
+“Peter,” Simon said, the name a warning and a plea.
 
-Peter rubbed his thumb along the inside of his wrist. The ghost of the vision's command prickled there, like static before a storm. Go with them. Not a request. Not an invitation.
+Peter walked into the yard. He stopped a few paces from the soldiers, ignoring his brothers. He studied the men, his gaze lingering on Silas. The servant inclined his head, a gesture of respect that held no subservience.
 
-Simon slammed the door shut. The sound made Philip jump.
+“You saw this angel?” Peter’s voice was rough from disuse.
 
-"Fine." Thomas jerked his chin at the courtyard. "But they wash first. Full purification rites."
+“My lord Cornelius saw him,” Decimus corrected. “In a vision, at the ninth hour of prayer. He described a being of light. The instructions were precise. We have ridden since dawn to find this place.” His eyes swept the humble yard again, the confirmation of the unlikely detail—the tanner’s house by the sea. “We are to bring you back.”
 
-The servant opened his mouth, then closed it. The soldier's jaw worked.
+“To a Gentile’s home,” James said, the objection bursting out of him. “You cannot. It is unlawful.”
 
-Peter stared at the splintered wood grain of the door. His reflection in the polished bronze hanging beside it wavered, stretched thin.
+Peter flinched, just a tiny tightening around his eyes. His hand came up, not in a gesture, but as if to rub his chest. He let it fall. He was staring past the soldiers, at the gate, but seeing something else entirely. The sheet. The beasts. That voice.
 
-The donkey brayed again. Closer this time.
+What God has made clean.
 
-*
+“He is a God-fearer?” Peter asked, his focus returning to Silas.
 
-They lit the lamps early. The courtyard well had gone brackish—Simon cursed, hauling up the bucket again—but the messengers washed as commanded, stripping to their undertunics while Thomas watched with folded arms. The servant's scars glistened wet in the lamplight.
+The servant spoke for the first time. His voice was soft, weathered. “He is. For many years. He keeps the hours of prayer. He abstains from idolatry. He seeks… cleanliness.” Silas paused, choosing the word with care. “But he carries a weight. The angel said you would bring a message that would remove it.”
 
-Philip set out bread and olives, avoiding eye contact. "You eat kosher?"
+A weight. Peter understood weights. He carried one now, the vision sitting in his gut like a stone. He thought of the clean and unclean together on that sheet, a divine jumble that broke every category he’d ever lived by. He had argued with the voice. He had refused. Now three men from the world of the ‘unclean’ stood in a tanner’s yard, speaking of angels and weights and salvation, and the connection was a hook in his spirit, pulling taut.
 
-The soldier wiped his face with the edge of his cloak. "We eat what's given."
+John grabbed his arm. “Brother, think. This is a snare. Romans do not send for Jewish preachers unless it ends at a cross.”
 
-Thomas muttered something under his breath.
+“If we wished to arrest him,” Decimus said, his hearing evidently sharp, “we would not be three, and we would not announce the reason with a story of angels.” He didn’t smile. It was a simple statement of tactical fact.
 
-Peter sat on the edge of the rooftop, legs dangling over the side. The scroll lay next to him, edges fluttering in the breeze. Below, the soldier was cleaning his nails with a small knife. Methodical strokes. The servant knelt by the well, wringing out his tunic.
+Peter looked down at John’s hand, the knuckles white. He gently pulled his arm free. The action was absent, his attention turned inward. The Spirit’s nudge was not a thunderclap. It was the quiet, inexorable alignment of impossible pieces: the vision, the hunger in Silas’s description, the specific, humiliating detail of the tanner’s house. God was in the details. Especially the embarrassing ones.
 
-The sky bruised toward evening. Somewhere beyond the city walls, the road to Caesarea wound north through Samaritan hills.
+“I must go with them,” Peter said.
 
-Simon climbed up beside him, smelling of vinegar and wet leather. "You don't have to go."
+The words were quiet, but they cut through the yard like a shout.
 
-Peter touched the scroll. The broken seal left red flecks on his fingertips.
+James’s face darkened. “Have you lost your mind? After the vision?”
 
-Down in the courtyard, the servant began praying again—Hebrew this time, the Shema. Thomas froze mid-step.
+“It is the thing,” Peter interrupted, the sudden force in his voice surprising even himself. He looked at James, then at Simon, at their horrified, confused faces. How could he explain? The sheet wasn’t a theory. It was a destination. “The Spirit told me not to call common what God has made clean. These men are sent. They are here.”
 
-The soldier looked up sharply. "Ezra—"
+“They are Romans!”
 
-The servant ignored him, voice steady. Hear, O Israel…
+“They are sent,” Peter repeated, the certainty hardening into a kind of terrified resolve. He turned to Decimus. “I will come. But I go as a guest, not a prisoner. Your centurion must understand that.”
 
-Peter closed his eyes. The wind carried the words away.
+Decimus nodded. “You have his word. You will be treated as an honored guest. We have horses.”
 
-Thomas's sandals scraped the ladder rungs as he climbed up. He carried a clay cup of wine, the surface oily in the fading light. "They're trying to provoke us."
+Peter’s stomach turned over. A day’s ride. To Caesarea. To the home of a Roman officer. He would eat there, sleep there. The law screamed, a fading echo in a canyon he was already descending. He felt the breach opening, a crack in the world he knew, and a strange, cold freedom whistled through it.
 
-Peter took the cup. The wine was thin, more vinegar than fruit. He swirled it, watching the sediment swirl. "Or worshiping."
+“I need a moment,” Peter said. He walked past his speechless brothers, back into the house.
 
-"With Roman tongues?" Thomas's laugh was sharp as the knife below. "Next you'll say their centurion keeps Sabbath."
+In the dim main room, Martha stood by the table, her spindle abandoned. She looked at him, her eyes wide with fear. He went to the corner where his few things lay—a cloak, a leather bag. He picked up the cloak. The wool was coarse, familiar. He stood there, holding it, listening to the low, urgent argument erupting in the yard. James’s angry rumble. Simon’s placating tones, fraying at the edges.
 
-The servant finished the prayer. Silence pooled in the courtyard, thick as the humidity clinging to Peter's skin. Then the soldier said something low in Latin, and the servant answered in kind. The words slithered past, meaningless but for their tone—something between chastisement and reassurance.
+He looked at the wall. A crack in the plaster ran from ceiling to floor, shaped like a crooked river on a map. He’d never noticed it before. He stared at it, this irrelevant fissure, and the absurdity of it, the perfect, pointless detail of a crumbling wall, finally made the situation real. He was about to ride into the heart of the Gentile world because God had shown him a sheet full of animals and told him to eat.
 
-Simon breathed out through his nose. "You really saw something up here."
+He almost laughed. A sound caught in his throat, a dry choke.
 
-Peter touched his wrist again. The ghost-command pulsed. Go with them. Not a suggestion. Not a possibility. A hand between his shoulder blades, pushing.
+When he walked back out, his bag slung over his shoulder, the argument died. James looked at him with something like grief. John’s face was set in stubborn anger.
 
-Thomas leaned in. "Tell me it wasn't about them."
+“I will send word,” Peter said. It was a weak promise.
 
-Wind ruffled the scroll. Peter unrolled it again, though he'd memorized the words. Cornelius, a righteous man who fears God… A Gentile. A soldier. An occupier. The ink blurred.
+He walked to the gate where the soldiers waited. Silas held the reins of a fourth horse, a calm-looking bay. Peter took the reins. The leather was smooth, worn by other hands. He put a foot in the stirrup and hauled himself up. The horse shifted beneath him, a living, powerful thing. From this height, the yard looked small. The vats were just pots. The horrified faces of his friends were just faces.
 
-Down in the courtyard, Philip was whispering to the servant now, his voice rising in disbelief. "You studied under Gamaliel?"
+Decimus mounted. Rufus swung up onto his own horse. Silas led the way, turning his horse’s head toward the street.
 
-The soldier stood abruptly. His knife clattered to the stones.
+Peter did not look back. He nudged his horse forward, through the gate, out of the yard, onto the dust of the Joppa street. The afternoon sun hit him, a physical blow. Behind him, he left the smell of hides and lime, the sound of a spindle that would not whir again for a long time, and the old world, cracking along its seams like plaster.
 
-Peter closed his eyes. The vision surged behind his lids—the sheet descending, teeming with creatures that twitched and crawled. Rise, kill, eat. The revulsion curdled fresh in his gut. He'd protested. He'd argued. And the voice had answered, What God has made clean do not call common.
+The horses’ hooves clattered on the cobbles of the street, a foreign military rhythm against the familiar sounds of Joppa. Peter focused on the sway of the bay’s shoulders, the bunch and release of muscle. He could feel the stares from doorways and market stalls. A Jew, mounted between two Roman soldiers. The sight would fuel gossip for a week. His knuckles were white on the reins.
 
-Thomas gripped his shoulder. "Peter."
+Silas led them not toward the praetorium or the main garrison, but to a modest inn near the western gate, where the road to Caesarea began. It was a place used by imperial couriers, clean and functional. A stable boy darted out to take the horses. Decimus dismounted with a grunt, his hand going to the small of his back. “We rest here tonight. Leave at first light. The journey is six hours with a fresh mount.”
 
-The rooftop door creaked. Philip's face appeared, flushed. "He's a proselyte. Full conversion. Studied in Jerusalem for seven years."
+Peter slid from the saddle, his legs stiff and unsteady. The solid ground felt like a betrayal. Rufus, the quieter soldier began unbuckling saddlebags, his movements efficient. Silas approached Peter. “My lord Cornelius has paid for your room and board. You will want to wash off the dust before the evening meal.”
 
-Simon frowned. "Then why serve a Roman?"
+The offer was practical, not lavish, but it was still a transaction. Peter’s lodging was now a line in a Roman ledger. He nodded, a tight jerk of his chin.
 
-The servant's voice floated up, calm. "The same reason you tan hides, friend."
+His room was small, a cell with a narrow bed, a washbasin, and a single high window. Peter dropped his bag on the floor. The argument in the yard echoed in his head—James’s outrage, John’s fear, Simon’s bewildered silence. He could still see the crack in the plaster, that meaningless river running down the wall. He splashed water on his face. The coolness did nothing.
 
-Thomas made a noise like a choked cough. Peter opened his eyes. The first stars pricked through the violet haze over the sea.
+A knock at the door. Silas, holding a simple clay lamp. “May I?”
 
-Philip hovered by the door. "He says Cornelius gives alms. Prays daily. Even the Jews in Caesarea speak well of him."
+Peter gestured him in. The servant set the lamp on the small table. He didn’t sit. He stood with his hands clasped, observing Peter with that same quiet curiosity he’d shown the tannery vats. “They think you are mad. Or a traitor.”
 
-"A righteous centurion." Thomas's mouth twisted. "Next you'll tell me Pilate washes his hands."
+“They are my friends,” Peter said, the defensiveness rising hot in his throat.
 
-The servant had moved to the well again. He drew up the bucket, drank straight from it, then offered it to the soldier. A deliberate gesture, no cup between them, no barrier. The soldier hesitated, then took the bucket. Their fingers didn't touch.
+“I know. My master has friends among the Jews in Caesarea. The ones who attend the synagogue. They respect him. They accept his alms. But they would never cross his threshold.” Silas tilted his head. “You are not like them.”
 
-Peter stood abruptly. The scroll rolled shut with a snap. "I need air."
+“How would you know what I am like?”
 
-"You're on a roof," Thomas said.
+“The tanner’s house. You were staying there. A man scrupulous about the Law would not lodge with a tanner. The smells… the stains. It is a place of constant impurity.” Silas’s voice held no judgment, only observation. “You were already in a borderland.”
 
-He crossed to the eastern parapet. The harbor stretched below, lamps flickering on the fishing boats. Somewhere out there, the road to Caesarea wound north. Forty miles. Two days' hard ride.
+The insight was a needle, precise and sharp. Peter had never articulated it that way, even to himself. Simon was a good man, a believer. The smell was just a smell. But Silas was right. By choosing that house, he had already stepped an inch outside the fence. The vision had just pushed him the rest of the way.
 
-The servant's words echoed. He will declare to you words by which you and all your household will be saved. Salvation for a Roman's house. For his slaves. His soldiers. His children. That thought should have been blasphemy.
+“Your master,” Peter said, changing the subject. “This weight he carries. What is its nature?”
 
-The sheet in his vision had been vast, corners straining against the sky. Not just a few clean creatures hidden among the unclean. Everything mixed. Everything offered.
+Silas was silent for a long moment. The lamplight carved deep grooves beside his mouth. “He is a soldier. A good one. He believes in order. In justice. But the things a man must do to keep order… they leave a residue. He scrubs his hands until the skin cracks. He prays the hours without fail. He gives more than the required tithe. The residue remains.” He looked down at his own hands, rough and capable. “He seeks a cleansing the Law cannot provide, for the Law was not given to him. He stands outside the system, looking in. The angel said you had the key.”
 
-Simon appeared at his elbow. "You're sweating."
+The words were there, in his mouth, waiting to be spoken. They would make no sense to this man. They still made no sense to him. A key that unlocked a door he couldn’t see.
 
-Peter wiped his brow. His hand came away damp. "It's hot."
+“I have no key,” Peter said, the truth of it a weary ache. “Only a riddle.”
 
-"Not that hot." Simon studied him. "What did you see?"
+“Riddles are for children and sages.” Silas almost smiled. “My master is neither. He is a man waiting for a verdict.”
 
-A donkey brayed in the alley. The same one as before, or another, the sound was identical, that same raw complaint. Peter gripped the parapet. The clay bit into his palms.
+He left then, taking the lamp, plunging the room into the gray twilight from the high window. Peter sat on the edge of the bed. The residual scent of the tannery clung to his clothes—a faint, acid smell beneath the dust and horse. He should be revolted. He should feel contaminated. He felt a dull numbness. The Law’s prohibitions were like shouts in a language he was forgetting.
 
-"Something's coming," he said quietly.
+That evening meal was taken in a corner of the inn’s common room. Decimus and Rufus ate with focused speed, speaking in low Latin about saddle sores and the state of the road. Peter picked at bread and boiled lentils. Silas ate little, his eyes on the other patrons—a few traveling merchants, a local shopkeeper.
 
-Simon followed his gaze toward the darkening road. "Storm?"
+“Your friends,” Decimus said suddenly, his Greek pulling Peter from his thoughts. “They will send word to Jerusalem. To your James, the brother of your leader.”
 
-"Change."
+It wasn’t a question. Peter met his gaze. “Yes.”
 
-Below, the soldier picked up his knife. He tested the edge against his thumb, then slid it back into his belt. The servant was watching the rooftop, though the angle should have hidden them. His face was a pale smudge in the gloom.
+“Will they send men to intercept us? To take you back?”
 
-Thomas joined them at the parapet, wine cup dangling from his fingers. "You can't go."
+The possibility hadn’t occurred to him. Now it did, cold and immediate. James, the brother of the Lord was a man of fierce tradition, a pillar of the Jerusalem community. He would hear of this from John and James bar-Zebedee. He would see it as a catastrophic breach. He might very well send word to believers along the road.
 
-Peter said nothing.
+“I do not know,” Peter answered honestly.
 
-"You know what they'll say in Jerusalem. You know what it means to enter a Gentile's house." Thomas's voice dropped. "First the tanner. Now the Roman. How far does this end?"
+Decimus chewed, considering. “It does not matter. We have our orders.”
 
-The harbor bells clanged. Night watch calling the hour. Peter steadied slowly. The weight pressing between his shoulder blades hadn't eased. If anything, it had grown heavier, insistent as the tide.
+“What are your orders if they try?”
 
-Philip called up from below. "Food's ready."
+“To deliver you to Cornelius, unharmed.” Decimus’s tone was flat. “The method is left to my judgment.”
 
-Thomas turned away first. Simon lingered a moment longer, then clapped Peter's shoulder and followed.
+The implication hung in the air between them. Rufus stopped eating, his hand resting near his belt where a knife would be. The inn’s chatter, the clatter of dishes, all of it receded. Here was the friction, the reality beneath the talk of angels. Roman authority, a blunt instrument was his escort. His protection. The irony was a bitter taste in the lentils.
 
-Peter raised a hand, not quite a greeting, not quite a benediction. The servant inclined his head. Somewhere beyond the city walls, a jackal yipped. The sound skittered down Peter's spine.
+Peter pushed his bowl away. His appetite was gone.
 
-He looked at the scroll in his hand. The broken seal. The Roman's words. The servant's prayer. The soldier's empty sword belt.
+Later, in the dark of his room, he lay on the hard bed, listening to the sounds of the inn settling. A door closed. Muffled laughter from the street. The scuttle of something in the rafters. He thought of Jerusalem, of the upstairs room where they had gathered after the ascension. The certainty they had felt. The clear, bright lines. Israel’s restoration. The Twelve judging the tribes.
 
-Go with them.
+Those lines were blurring, smudged by a vision of a common sheet.
 
-The rooftop door groaned on its hinges. Laughter floated up—Thomas's sharp bark, Simon's rumbling reply. Normal sounds. Familiar sounds. A world as it had always been.
+He thought of Cornelius, a man scrubbing his hands raw. A Gentile seeking a Jewish purity that would always be out of reach. A centurion, a symbol of the very power that had crucified the Lord, now praying to that Lord’s God. The pieces did not fit. They were a contradiction. And the Spirit, like a current under still water was pulling him toward that contradiction.
 
-Peter rolled the scroll tight and tucked it into his belt. His sandals scuffed the tiles as he crossed to the ladder. The first stars burned clear now, cold points in a vast and hungry dark.
+He remembered the face of the servant, Silas. This man had not flinched at the tannery. Had not recited Cornelius’s virtues with empty piety. Had spoken of a weight. Peter understood weights. He carried the memory of a charcoal fire, of a rooster’s crow, of three denials that sat in his bones like lead. Forgiveness had come, yes. But the weight of the failure remained, a familiar companion. Was that what this Roman felt? Not just guilt for specific acts, but the heavy residue of being what he was?
 
-Below, the soldier stood as he descended. Their eyes met, a flicker of assessment, the same look Peter had seen in the marketplace when two armed men gauged each other's reach.
+Maybe it wasn’t just about food. Maybe it wasn’t even just about people. Maybe it was about the past. About the stains that wouldn’t scrub out. About the things you carried that marked you as unclean, forever outside.
 
-The servant stepped forward. "Will you break bread with us?"
+That thought was too large. It frightened him.
 
-Philip hovered near the table, hands twisting in his tunic. Thomas had gone very still by the wine jug. Simon stood arms crossed, his shadow huge against the wall.
+He turned on his side, facing the wall. A sliver of moonlight through the high window caught a long, jagged crack in the plaster. Not a river this time. A lightning bolt. He stared at it until his eyes lost focus, until the crack seemed to pulse with a faint, silver light. A sign. Or just a crack.
 
-Peter studied the two strangers, the soldier's weathered face, the servant's scarred arms. The platter between them held olives, flatbread, a few crumbling rounds of goat cheese. Simple fare. Shared fare.
+He slept fitfully, dreaming of riding a horse that kept turning into a giant, unclean bird, while a voice from the sky told him to eat its feathers.
 
-He reached for the bread. "We'll leave at dawn."
+Dawn came gray and cool. They ate in silence, mounted in the inn yard as the first vendors were setting up their stalls. Peter’s body ached from the previous day’s ride and the hard bed. He took the reins Silas offered.
 
-The soldier's shoulders relaxed a fraction. The servant closed his eyes briefly, thanks or relief, Peter couldn't tell.
+Decimus leaned over his saddle, checking the girth. “We ride with purpose. No stops unless the horses need water. Stay close.”
 
-Thomas slammed his cup down. Wine sloshed over the rim. "This is a mistake."
+They moved out through the city gate, onto the coastal road. The sea was a sheet of hammered lead to their left. The road was good Roman engineering, straight and well-drained. The clop of hooves settled into a monotonous rhythm. Joppa fell behind, its white walls shrinking into the haze.
 
-Peter tore the bread in two. The sound was louder than it should have been. He offered half to the servant.
+Peter rode between Rufus and Silas, with Decimus in the lead. They did not speak. The silence was not companionable. It was the silence of a military detail. Peter was a package, a sacred object to be transported. He felt the separation keenly. He was not one of them. He was not, anymore, fully one of his own. He was in transit, a man between.
 
-Ezra took it carefully, their fingers brushing. No recoil. No hesitation. Just warm skin and coarse bread and the weight of something immense hovering at the edges of the lamplight.
+The sun climbed, burning off the haze. The heat rose from the road in visible shimmers. Peter’s mind emptied into the monotony of the ride, the ache in his thighs, the dry scratch in his throat. He watched the landscape change—olive groves giving way to sandy scrub, then to cultivated fields belonging to imperial estates. He saw a legionary milestone, a stone finger pointing the distance to Caesarea. The number of miles felt like a sentence.
 
-Simon let out a long breath. Philip chewed his lip. Thomas stared at the wine dripping between his fingers.
+Around midday, Decimus raised a fist. They slowed, then turned off the road toward a small grove of pines near a rocky stream. The horses needed water. The men dismounted stiffly, leading the animals to the bank.
 
-Outside, the jackal called again. Closer this time.
+Peter knelt upstream, cupping water to his face, drinking from his hands. The water was cold, tasting of stone and pine roots. He sat back on his heels, wiping his mouth.
 
-Peter took his place at the table. The bread stuck in his throat, but he swallowed it anyway.
+Silas came and sat on a rock nearby, unwrapping a piece of hard cheese and bread. He offered a portion to Peter. Peter took it with a nod of thanks.
 
-The soldier accepted his portion of bread with a nod, his fingers careful not to touch Peter's. A Roman gesture, respectful distance, not the easy contact of shared meals among Jews. Ezra tore his bread into smaller pieces, murmuring a blessing under his breath. The words were perfect, but the rhythm was just slightly wrong, like a man reciting from memory rather than habit.
+“You are quiet,” Silas said.
 
-Thomas watched them eat, his own bread untouched. "You expect us to believe a Roman centurion keeps kosher?"
+“What is there to say?”
 
-Ezra wiped crumbs from his beard. "He employs a Jewish cook."
+“You could ask about Caesarea. About my master’s household.”
 
-"And you?" Thomas pressed. "You study Torah but serve an occupier?"
+Peter broke off a piece of cheese. “Tell me.”
 
-The knife at the soldier's belt shifted as he tensed. Ezra laid a hand on his wrist, a fleeting touch, gone before it could be remarked upon. "I serve a man who fears God."
+“He lives in the administrative quarter. The house is Roman in style, an atrium, a courtyard. But he has set aside a room on the upper floor as a place for prayer. It faces Jerusalem. He had a mosaicist put a menorah in the floor, though he was advised it was… unusual.” Silas took a careful bite. “He has two slaves he freed, but they stayed on as paid servants. He treats them with fairness. It causes talk among the other officers. They think he is eccentric. Soft.”
 
-Peter studied the Roman. His hands were soldier's hands, scarred, blunt-fingered, one knuckle misshapen from an old break. But his nails were clean, his tunic neatly mended. A man who took care with his appearance, even on the road.
+“But he is not soft.”
 
-Simon refilled the wine cups, his bulk casting a wavering shadow across the table. "Why you?"
+“No.” Silas’s eyes were on the stream. “He commands the respect of his men. He has seen battle. The hardness is there. It is just… directed differently now. Inward, mostly.”
 
-The soldier blinked.
+A centurion’s hardness turned inward. A man at war with his own residue. Peter understood that, too. The zeal with which he had preached at Pentecost, the fervor of those early days—it had been a channel, a way to direct the volatile energy of his own shame into something pure and powerful.
 
-"Out of all his household," Simon clarified, "why send a Roman soldier and a Jewish convert?"
+“Who else will be there?” Peter asked.
 
-Ezra's thumb traced the rim of his cup. "Cornelius thought you'd refuse a full military escort."
+“His family. A few trusted friends from the cohort who also lean toward the God of Israel. Some of the servants. He has gathered them. He is waiting.” Silas looked at Peter directly. “He is a man who is used to giving orders. To being certain. He has not been certain for a long time. He is waiting for you to tell him what is true.”
 
-"And you?" Peter asked quietly.
+The weight of the expectation was a physical pressure on Peter’s chest. He was supposed to have answers. He was supposed to bring a message of salvation. All he had was a riddle from a dream and a dread that he was walking into a profanation that would fracture the community he loved.
 
-The servant met his gaze. "He thought you might trust a man who knew the Shema."
+In the distance, back down the road toward Joppa, a plume of dust appeared. Small, moving fast.
 
-A moth fluttered into the lamplight, casting frantic shadows. Philip startled when it brushed his arm, then flushed at his own reaction. The soldier didn't react, but his eyes tracked the insect's path, a sniper's focus, noting every variable.
+Decimus saw it too. He stood, hand shading his eyes. Rufus moved to the edge of the grove, watching.
 
-Thomas leaned forward. "What exactly did this angel say?"
+“Riders,” Decimus said. “Two. Maybe three.”
 
-Ezra's fingers stilled. "That Peter would bring words by which we'd be saved."
+Peter’s heart thudded against his ribs. James. John. They had come after him.
 
-"Saved from what?"
+Decimus glanced at Peter, then back at the dust. He made a quick, sharp gesture to Rufus. “Get the horses. Now.”
 
-The servant hesitated. For the first time, his certainty faltered. "He didn't say."
+The rest period was over.
 
-Silence pooled around the table. Somewhere in the alley, a cat yowled. The soldier's hand drifted toward his absent sword again, a reflex as ingrained as breathing.
+The dust plume resolved into two riders, not three. They rode hard, their cloaks snapping behind them like angry flags. Not James or John. These were strangers, but their dress was Judean, their beards full. Believers, then. Sent from Jerusalem or from a village along the road. They reined in at the edge of the grove, their horses blowing and lathered.
 
-Peter tore another piece of bread. The coarse texture grounded him. "How long have you served Cornelius?"
+Decimus stepped forward, his body a barrier between the newcomers and Peter. Rufus moved to his side, his hand resting openly on the pommel of his sword. The silence was brittle, broken only by the panting of the horses and the chuckle of the stream.
 
-"Eight years," Ezra said.
+The older of the two riders dismounted. He was a Pharisee, his phylactery straps visible on his forehead beneath the dust. His companion remained mounted, his eyes scanning the soldiers with a mix of fear and defiance.
 
-"And you?" Peter asked the soldier.
+“Shalom, brother Peter,” the Pharisee said, ignoring the Romans. His voice was strained from the ride.
 
-"A lifetime, in military terms."
+Peter stood. “Shalom. You know me?”
 
-Long enough to know a man's character. Peter glanced at Simon, who gave an almost imperceptible shrug.
+“Your description travels faster than you do. I am Eliab, from Lydda. We heard from the brothers in Joppa what you intend. We came to remind you of the covenant.” Eliab’s gaze was a net, trying to pull Peter back. “You cannot do this. To enter a Gentile’s house is to defile yourself. To eat with them is to partake in their idolatry. You will make the name of our Lord a mockery among the nations.”
 
-Thomas wasn't satisfied. "What's he like, this pious centurion?"
+The arguments were the same, but hearing them here, on the open road with the sea wind carrying the scent of salt and pine, they sounded thin. Theoretical. Peter looked at the man’s face and saw the sincere outrage, the protective fury. He felt a sudden, startling pity for him.
 
-The soldier's nostrils flared. Ezra answered for him. "He prays at the third, sixth, and ninth hours. Gives a tenth of his income to the poor. His household hasn't flogged a servant in five years."
+“The Spirit instructed me,” Peter said, the words simple.
 
-Thomas snorted. "How very merciful."
+“The Spirit would not contradict the Law!” Eliab took a step forward. Decimus shifted his weight, a subtle warning. The Pharisee stopped, his eyes flicking to the centurion with contempt. “You are deceived. Or you are a coward, bending to Roman pressure.”
 
-The soldier's cup hit the table with a sharp crack. "You have no idea what you're talking about."
-
-Ezra touched his wrist again. The soldier shook him off.
-
-Peter watched the exchange. The Roman's anger was a live thing, barely leashed. Not at the insult to himself, at the insult to his commander. Loyalty ran deep in soldiers. Deeper, sometimes, than faith.
-
-Philip fidgeted with his fringe. "You really saw an angel?"
-
-Ezra nodded. "Standing by the altar in the courtyard. His cloak was..." He trailed off, searching for a word that didn't exist.
-
-"Bright," the soldier supplied. His voice was rough. "Not like fire. Like polished bronze in sunlight."
-
-Thomas opened his mouth, but Peter cut him off. "Describe his face."
-
-Ezra and the soldier exchanged a glance. The servant spoke first. "I didn't see one."
-
-"Neither did I." The Roman's fingers flexed. "Just the light. And the voice."
-
-Peter's pulse quickened. The same as his vision, no face, just radiance and a voice that brooked no argument. He reached for his wine, but his hand shook, sloshing liquid over the rim. The stain spread across the wood like blood.
-
-Simon cleared his throat. "You'll want to leave before the heat sets in."
-
-Ezra inclined his head. "We have mounts waiting at the north gate."
-
-Thomas shoved back from the table. "You're actually doing this."
-
-Peter didn't answer. The moth had landed near his cup, wings trembling. He could crush it with a thumb. He nudged it gently toward safety.
-
-The soldier watched the motion, something unreadable in his eyes.
-
-Philip twisted his hands. "What will you tell the brothers in Jerusalem?"
-
-"The truth." Peter stood, the decision settling into his bones. "God spoke to a Gentile. He sent for me. I went."
-
-Thomas's face darkened. "They'll call you apostate."
-
-"Maybe."
-
-Ezra rose, formal now. "We should rest. Dawn comes early."
-
-The soldier followed, his posture straightening into something approximating parade rest. An old habit, ingrained by years of discipline.
-
-Simon showed them to the pallets laid out in the courtyard, simple but clean, well away from the house proper. Thomas muttered something about contamination and stalked inside. Philip lingered, his expression torn between curiosity and fear, before vanishing up the ladder to the roof.
-
-Only Simon remained, his bulk blocking the lamplight. "You sure about this?"
-
-Peter stared at the empty cups, the crumbs, the moth now clinging to the edge of the oil lamp. "No."
-
-Simon grunted. "Good. Means you're not a fool."
-
-Outside, the jackal called again, closer now, almost at the city walls. The soldier's head snapped toward the sound, his body coiled for a threat that wouldn't come. Ezra murmured something in Latin, too low to catch.
-
-Peter turned toward the house. His sandals scuffed the packed earth, kicking up little puffs of dust that glowed briefly in the lamplight before vanishing.
-
-Simon caught his arm. "You know this changes everything."
-
-Peter looked back at the two strangers preparing their bedrolls, the Roman methodically checking his boots for scorpions, the Jew folding his cloak into a pillow. Both men out of place. Both men waiting.
-
-"Yes," he said.
-
-The jackal howled again, a sound that raised the hairs on Peter's neck. Somewhere beyond the walls, the road to Caesarea stretched into the dark.
-
-Simon released him. "Try to sleep."
-
-Peter climbed the ladder to the rooftop. The night air was cooler up here, laced with salt and the faint metallic tang of the tannery vats. Philip was already asleep in the corner, curled like a child. Thomas sat against the parapet, his silhouette rigid with disapproval.
-
-Peter lay down on his pallet, the scroll digging into his hip. The stars were mercilessly bright, indifferent to the small dramas of men.
-
-Down in the courtyard, the soldier's breathing slowed into the rhythm of sleep. Ezra's voice murmured again, the Shema, or maybe just a lullaby for himself.
-
-Peter closed his eyes. The jackal's cry echoed in his skull, blending with the memory of the angel's voice. Go with them.
-
-Dawn would come too soon.
+He had crossed over. A road was gone. There was only this house, this man, this impossible, waiting silence.
