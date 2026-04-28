@@ -1,243 +1,383 @@
-The jackal’s cry still echoed in Peter’s ears when a hand shook his shoulder. He sat up, disoriented, the rooftop tiles cold beneath him. The sky was the color of a bruise—deep purple bleeding to gray at the edges. Simon stood over him, a waterskin in one hand, a cloth-wrapped bundle in the other.
+The Pharisee's words hung in the air like smoke from a doused fire. Peter exhaled through his nose, the scent of horse sweat and pine resin sharp in his nostrils. The mounted Judean shifted, his sandal scraping against his stirrup. Decimus did not move, but his fingers flexed near his sword belt.
 
-“They’re already saddled.”
+“Mount up,” Decimus said, not looking at Eliab.
 
-Down in the courtyard, the Roman soldier was tightening a girth strap, his movements economical and sure. Ezra stood apart, facing east, his lips moving in silent prayer. Thomas and Philip were there too, packs at their feet. Philip’s face was pale, his eyes avoiding the soldiers. Thomas stared straight at them, his jaw set.
+Peter touched the Pharisee's sleeve. “The Spirit doesn't contradict the Law. But sometimes it…” He trailed off, the right words refusing to come.
 
-No one spoke. The only sounds were the jingle of harness rings, the scuff of a sandal on stone, the first tentative chirp of a sparrow from a fig tree. The air smelled of damp earth and the lingering, greasy smoke from last night’s lamp.
+“Expands it?” Eliab's voice was brittle. “Like a wineskin?”
 
-Peter accepted the bundle from Simon—bread, cheese, a handful of olives. The weight felt wrong in his hands. He tucked it into his own worn pack, his fingers brushing the scroll from Cornelius. The vellum was smooth, alien.
+“Like light.” The image came unbidden. Peter remembered standing on the Mount of Olives at dawn, watching the sun spill gold across the Kidron Valley. How it revealed what the dark had hidden.
 
-“We’ll be back in three days,” Peter said. The words sounded hollow, a promise he couldn’t guarantee.
+Eliab's mouth twisted. He turned to his companion, muttering in Aramaic too rapid for Peter to catch. The younger man nodded, his knuckles white on his reins.
 
-Simon grunted, his gaze on the Roman. “See that you are.”
+Rufus brought the horses. Peter swung onto his mount, the leather creaking under his weight. His thighs protested—yesterday's ride had left them stiff.
 
-They filed out of the courtyard gate into the narrow street. Joppa was just waking. A shutter banged open overhead. A woman emptied a basin of water into the gutter, the splash loud in the quiet. She froze when she saw the soldier, her eyes darting from his red tunic to Peter, her expression closing like a fist. She withdrew without a word, pulling the shutter closed.
+Decimus took the lead without waiting for agreement. The Romans fell into formation around Peter like an honor guard, or prisoners escorting a condemned man. Eliab and his companion rode behind, close enough to watch, far enough to avoid the dust kicked up by the soldiers' horses.
 
-The road out of the city was a rutted track climbing through limestone hills. The sea spread out behind them, a vast sheet of hammered lead under the lightening sky. Peter walked ahead, Thomas and Philip flanking him like an honor guard. The Roman and the servant followed a dozen paces back. The space between the two groups was a thick thing, a stretch of dust nobody crossed.
+A road unspooled north, a pale ribbon between the sea and the hills. Gulls wheeled overhead, their cries thin and mocking. Peter focused on the rhythm of the hooves, the sway of the saddle. It was easier than thinking about the men at his back, or the house waiting ahead.
 
-For an hour, the only conversation was the crunch of gravel underfoot and the dry rattle of cicadas in the scrub. Peter’s mind was a stubborn knot. The vision of the sheet, the clean and unclean beasts tumbling together—it felt less like a revelation and more like a sickness in his gut. A theological vertigo. He focused on the physical: the strap of his pack chafing his shoulder, a pebble working its way into his sandal. He stopped to shake it out.
+After an hour, the Judean rider spurred his horse forward until he drew level with Peter. Up close, he was younger than Peter had thought—barely twenty, with a sparse beard and anxious eyes.
 
-The Roman soldier halted as well, maintaining his distance. He took a drink from his canteen, his eyes scanning the scrub-covered slopes. Always scanning. Ezra wiped his forehead with the edge of his sleeve.
+“My uncle speaks harshly,” the young man said in halting Greek, glancing at Decimus. “But he fears for you. We all do.”
 
-Thomas broke the silence. “He doesn’t look like a prophet.”
+Peter kept his gaze on the road. “What's your name?”
 
-Peter kept walking. “Who?”
+“Ezra. From Lydda.” A pause. “You healed Tabitha in Joppa. My cousin saw it.”
 
-“The Roman. His servant said an angel spoke. Men who see angels should look… marked. He looks like any other legionary. A bit older. That scar.”
+One memory surfaced—Tabitha's cool fingers grasping his, her breath returning in a gasp. The way the widows had wept, pressing her hands to their cheeks.
 
-The soldier did have a scar—a thick, white seam that ran from his temple into his hairline, pulling the corner of his left eye into a permanent, slight squint.
+Ezra chewed his lip. “They say you walk in the power of the Prophet from Galilee.”
 
-“Maybe angels don’t care how we look,” Philip offered, his voice timid.
+“Enough.” Decimus did not raise his voice, but the word cut like a whip. “No preaching on the road.”
 
-“They care about the Law,” Thomas shot back. “They are ministers of the Law. So why send a minister to a man who lives outside it? It makes no sense. Unless the message was misinterpreted.”
+Ezra flinched, his horse sidestepping. Peter caught the flash of humiliation in the boy's face before he reined back, falling behind again.
 
-“The servant seemed certain,” Peter said. His own doubt made the words taste like ash.
+The sun climbed. Heat shimmered above the road, distorting the distant palms. Peter's tunic stuck to his back. At a bend in the road, a stone marker stood crooked in the dirt: Samaritan territory began a mile ahead.
 
-“The servant is a proselyte. He wants it to be true. He wants his Roman master to be counted among the righteous. It simplifies his life.” Thomas kicked a stone, sending it skittering into the brush. “Wishful thinking is not divine instruction.”
+Decimus signaled a halt. He dismounted, motioning Rufus to join him. The two centurions spoke in low tones, their helmets close together. Peter watched Decimus point northeast, then west toward the sea. It was a debate about routes.
 
-From behind them, Ezra’s voice carried, clear and calm. “The road forks ahead, sir. The left track follows the coast. Longer, but more used. The right cuts inland through the hills. Shorter by half a day.”
+Silas came to stand beside Peter. “They'll avoid Samaria if they can. Old habits.”
 
-Peter turned. The servant stood with his hands clasped, his expression neutral. The soldier waited, his gaze on Peter. The choice was being offered to him. A test, or a courtesy?
+Peter rubbed his mount's sweaty neck. “How much longer if we go west?”
 
-“Which would your master expect you to take?” Peter asked.
+“Two hours. Maybe three.”
 
-“The shorter route, sir. He is a practical man.”
+Eliab had dismounted too, stretching his legs. He caught Peter's eye and approached, his steps deliberate.
 
-“And the shorter route passes through Samaritan land,” Thomas stated, not asking.
+“You know what they did to pilgrims from Galilee last Passover,” Eliab said quietly. “Cut their throats and left them in a ravine.”
 
-Ezra nodded once. “It does.”
+Peter touched the scar on his forearm—a childhood injury from a fishing knife, but the gesture was unconscious. “We're not pilgrims.”
 
-The tension tightened another notch. The history between Judea and Samaria was an old, festering wound. Pilgrims from Galilee took the longer coastal road to Jerusalem for a reason. To travel the hill road was to invite trouble, or at the very least, a profound, mutual contempt.
+“We're Jews traveling with Romans. That's worse.”
 
-Peter looked at the two men. A soldier’s face revealed nothing. Ezra’s was carefully open, awaiting direction. They were waiting for the Jewish fisherman to choose their path. The absurdity of it—a centurion’s men deferring to him—was almost dizzying.
+Decimus returned, wiping dust from his brow. “We're skirting the border. Staying on the road until Antipatris, then cutting west to the coast.” He glanced at Eliab. “Unless your friends prefer the direct route.”
 
-“We take the short road,” Peter said.
+Ezra made a small noise in his throat. Eliab's jaw tightened.
 
-Thomas exhaled sharply through his nose but said nothing. Philip’s shoulders hunched.
+Peter looked north, where the road vanished into the haze. Somewhere ahead, a centurion waited in a house with a mosaic menorah, his hands raw from scrubbing. A man who had seen an angel.
 
-The soldier gave a curt nod and moved ahead, taking point on the new path as it curved away from the sea. The land rose, the scrub giving way to terraced olive groves and rocky outcroppings. The air grew hotter, drier, carrying the scent of thyme and sun-baked stone.
+“The coast road,” Peter said.
 
-They fell into the same separated pattern. After another hour of silent walking, the Roman dropped back unexpectedly, falling into step beside Ezra. He spoke, his Latin a low rumble. Ezra listened, then translated for Peter.
+Decimus nodded satisfied. Eliab exhaled through his nose but did not argue. They remounted.
 
-“Antonius notes that the hill to the east is a good vantage. He suggests we are being watched.”
+As they rode, the sea appeared to their left—a flat metallic blue under the noon sun. The road grew sandier, the hoofbeats muffled. Ezra rode closer now, his earlier boldness gone. Once, he reached into his pouch and offered Peter a handful of raisins without speaking.
 
-Peter followed the soldier’s slight gesture. The hill was a jumble of boulders and stunted trees. He saw nothing. But the soldier’s posture had changed—a slight looseness in his shoulders, his right hand resting near the pommel of his gladius. It was not a gesture of alarm, but of readiness. A man moving through country he knew was hostile.
+Peter ate them one by one, the sweetness sticking in his teeth. He thought of the sheet from his vision, the impossible command. What God has made clean.
 
-“By who?” Philip asked, his voice dropping to a whisper.
+A shout broke his reverie. Rufus had drawn ahead, waving an arm. Beyond him, the road dipped into a shallow valley where a cluster of figures waited—five maybe six. Not soldiers. Not farmers.
 
-“Shepherds. Bandits. Samaritans.” Ezra shrugged. “They are all the same from a distance.”
+Decimus cursed, reaching for his sword. “Bandits.”
 
-A flash of movement on the hill—a goat, perhaps, or a man crouching. Peter’s heart thudded once, hard, against his ribs. He was not afraid of bandits. He was afraid of the choice he had already made, of the invisible lines he was walking across. The Law was a map he could no longer read. The land itself felt different underfoot, older and more indifferent.
+The figures moved into the road, blocking the way.
 
-Antonius unclipped his canteen and took a long drink. He did not offer it to anyone. He scanned the hill again, his scarred face tilted to the light. Then he did something strange. He began to hum. It was a tuneless, low sound, barely audible. A marching cadence, maybe. Something to fill the silence.
+The bandits stood loose-limbed in the road, their postures more weary than threatening. One leaned on a staff, another scratched at his ribs through a torn tunic. The oldest—a man with gray streaking his beard—stepped forward, palms up.
 
-Ezra glanced at Peter, a flicker of something like apology in his eyes. “He does that on long patrols. He says it keeps the rhythm.”
+“Peace,” he called in Aramaic.
 
-The sound was profoundly human. Not a soldier, not a Roman, just a man walking a dusty road, humming to stave off the quiet. Peter looked away, his throat tight. The simplicity of it felt like an accusation.
+Decimus kept his hand on his sword. “Move aside.”
 
-The sun climbed to its zenith, a white coin in a bleached sky. They stopped at a thin trickle of a stream cutting across the path. The water was warm and tasted of minerals. They drank in shifts—Peter, Thomas, and Philip first, then the two others. The division was automatic, unspoken.
+The man did not flinch. “We ask only for bread. Or coin enough to buy it.” His gaze flicked to Eliab, then away. A deliberate omission—no Samaritan would beg from a Jew if he had other options.
 
-Peter sat on a sun-warmed rock, chewing a piece of Simon’s bread. It was dry and stuck in his throat. Antonius knelt upstream, refilling the canteens. He splashed water on his face and neck, the droplets catching the light as they fell. He had removed his helmet. His hair was cropped short, gray at the temples.
+Peter dismounted. The dust puffed warm around his sandals.
 
-Thomas sat down beside Peter. “You’re quiet.”
+Decimus hissed, “Get back on the horse.”
 
-“I’m thinking.”
+Ezra made a strangled noise. Eliab's lips thinned, but he said nothing.
 
-“About what comes next?”
+Peter approached the Samaritans. The oldest man smelled of sour wine and unwashed wool. His left eye was milky with cataracts. Up close, Peter saw the tremor in his hands—not age, but hunger.
 
-“About what just happened.” Peter nodded toward the stream. “We drank from the same water. We are breathing the same air. But we might as well be on different sides of a canyon.”
+“Where are your families?” Peter asked.
 
-Thomas followed his gaze. “The canyon is real, Peter. You didn’t dig it.”
+The man spat. “Gone to Sychar. The tax collector took our seed grain. We stayed to…” He trailed off, glancing at the Romans.
 
-“What if the vision meant the canyon isn’t supposed to be there anymore?”
+To scavenge. To steal if they had to. Peter did not need the rest of the sentence. He reached into his pouch and pressed two denarii into the man's palm. The coin was warm from his body heat.
 
-The question hung between them. Thomas picked at a thread on his tunic. “Then God would have made it plain. He would have given you a law, a new commandment. Not a… a puzzle of animals.”
+The Samaritan stared at it. His throat worked.
 
-But it had felt plain. The voice had been obvious. The confusion lay in Peter’s own bones, in a lifetime of learning what was separate and what was holy. Were they the same thing? Weren’t they?
+Eliab made a sharp sound. “You know what they do with our money.”
 
-Antonius stood, shaking water from his hands. He looked toward the north, his squinting eye narrowed almost shut. He said a single word in Latin.
+Peter turned. “What would you have me do?”
 
-Ezra stood quickly. “Riders.”
+“Pass by.” Eliab's voice was low, furious. “Like our fathers did.”
 
-They came from the direction of the hills, three of them on small, shaggy horses. They moved at a trot, kicking up a plume of pale dust. They were not soldiers. They wore rough, homespun tunics, and their heads were wrapped in cloth. Samaritans.
+The old Samaritan's fingers closed around the coins. He stepped back, muttering to his companions. They melted off the road, vanishing into the scrub.
 
-Antonius did not reach for his weapon. He simply stood, planted squarely in the middle of the path, his hands at his sides. A statement. Peter and the others rose to their feet.
+Peter remounted. His knees ached.
 
-The riders slowed as they approached, fanning out. Their leader was a lean man with a sharp, bearded face. His eyes swept over the group, lingering on Antonius’s military tunic, then on Peter and his companions. His expression was not angry, but deeply, coldly assessing.
+Decimus breathed out through his nose. “Next time, stay on the damn horse.”
 
-He spoke in Aramaic, his accent thick and guttural. “You are a long way from your roads, Roman.”
+They rode in silence. The sun climbed higher, bleaching the sky. Peter's shadow pooled beneath him, a dark puddle on the pale earth.
 
-Antonius said nothing. He looked at Peter.
+Ezra edged his mount closer. “Rabbi—”
 
-The Samaritan’s gaze shifted. He recognized the style of their dress, their prayer knots. His mouth tightened. “And you. You choose to walk with them? Into our lands?”
+“Don't.” Eliab did not look at him.
 
-Peter felt every eye upon him—Thomas’s disapproval, Philip’s fear, the Samaritans’ contempt, the Roman’s blank waiting. The canyon was not just behind him now. It was right here, at his feet, and he was being asked to bridge it with a word.
+The boy subsided, his shoulders hunched.
 
-He took a step forward, his mouth dry. “We are traveling to Caesarea. We mean no trouble. We only ask passage.”
+A vulture circled overhead. Peter watched it tilt on the wind, wings outstretched. The image from his vision surged back—the sheet descending, teeming with creatures. Kill and eat. A memory twisted in his gut like something alive.
 
-The Samaritan leader studied him for a long moment. He spat into the dust, the gesture casual and full of meaning. “Your kind always brings trouble. You carry it with you.” His eyes flicked back to Antonius. “But the Roman’s trouble is older. We will not hinder you. The hills have eyes. Keep to the road. Drink from no well until you are past Shechem.”
+At midday, they passed a village. The huts were squat and windowless, their roofs patched with reeds. A group of women drawing water from a well fell silent as the party approached. One clutched her jar to her chest, her knuckles whitening.
 
-He tugged his horse’s head around without another word. The other riders followed. In minutes, they were specks of dust again, disappearing back into the flickering heat.
+Decimus shifted in his saddle. “Keep moving.”
 
-No one moved. The confrontation was over, but the air felt charged, thin. They had been assessed and found wanting, tolerated only because the Roman presence made them a single, complicated problem.
+A child darted into the road, a boy of maybe six, barefoot and grinning. He held up a clay whistle, his cheeks round with breath. The sound that emerged was shrill, mocking.
 
-Antonius let out a slow breath, a sound Peter hadn’t realized the man was holding. He picked up his helmet and settled it on his head, the bronze gleaming dully. He looked at Peter and gave a single, slow nod. It wasn’t gratitude. Acknowledgment. A shared moment in a hostile land.
+One of the women screamed. She dropped her jar and ran for the child, yanking him back by the arm. The boy wailed, the whistle falling into the dust.
 
-Peter turned back to the road, his heart a heavy, confused drum in his chest. The path ahead wound up into the barren hills, toward a territory that despised both halves of his party equally. He had crossed one border only to walk straight into the teeth of another. The voice from the vision whispered in his memory, but here, in the dust and the silence, it offered no comfort, only a deepening, terrifying unknown.
+Peter's horse sidestepped, ears flattening. He gentled it with a hand on its neck. The taste of copper filled his mouth; he had bitten his cheek.
 
-The land flattened into a wide, sun-scorched plain. The air lost the dry, herbal scent of the hills and took on the smell of turned earth and distant manure. The Plain of Sharon. Fields of barley stretched away to the west, a pale gold sea rippling under a hot wind. To the east, the dark hump of the Samaritan highlands brooded, a constant, watchful presence.
+Eliab stared straight ahead, his spine rigid. “They teach their children young.”
 
-They kept to the road, a pale ribbon of packed dirt between the green of irrigated plots and the brown of fallow ground. Silence returned, thicker now. The encounter with the riders had sanded down the edges of their separate groups, leaving a raw, shared vigilance. Antonius walked at the front, his pace steady, his eyes cataloging everything—a distant plume of smoke from a farmstead, a flock of crows wheeling over a field, the way the light caught on a piece of broken pottery by the roadside. He was reading the land like a tactical report.
+The village receded behind them. The road curved west, the sea breeze cutting through the heat. Peter's tunic flapped against his thighs.
 
-Peter tried to do the same, but he saw only scripture. This was the plain where the Philistines had mustered. Where kings had clashed. Every stone felt consecrated by blood and prophecy, and now he was walking across it with a soldier of the latest empire to claim it. The dissonance was a physical ache behind his eyes.
+Silas rode up beside him. “You're thinking about the sheet.”
 
-They passed a small settlement—a cluster of mud-brick houses with roofs of woven reed. A group of children playing with a hoop in the dust fell silent as they approached. A woman in a doorway, grinding grain, stopped her work and watched them pass, her face shadowed. No one called out a greeting. No one offered water. Their gaze lingered on Antonius’s red tunic, then slid over Peter and his companions with a flicker of confusion before turning away. They belonged to neither side here, a party of contradictions.
+Peter did not answer.
 
-“They think we’re your captives,” Thomas muttered, his voice low.
+“It wasn't just about food.” Silas picked at a loose thread on his reins. “Was it?”
 
-“Or your guides,” Philip said. He had been walking with his head down, studying his own feet. “Leading the wolf to the fold.”
+A lizard skittered across the road, its tail flicking. Peter watched it vanish into the rocks. “No.”
 
-“He is not a wolf,” Peter said, the defense automatic and thin.
+They crested a rise. Below, the land sloped toward the coast, the road threading through olive groves and fallow fields. In the distance, the Mediterranean glittered, a sheet of hammered metal under the sun.
 
-“What is he, then?” Thomas asked. Not challenging, just weary. “A sheep? He serves the power that crucifies our people. He polishes the sword that enforces the tax. His boots are on this soil because his emperor wills it. You can’t hum a few notes and wash that away.”
+Decimus called a halt near a stand of cypresses. The men dismounted, stretching stiff limbs. Rufus passed around a waterskin. The liquid was warm, faintly leathery.
 
-Peter had no answer. He watched Antonius’s back, the sweat darkening the wool between his shoulder blades. One man’s humility in the vision’s summons warred with the sheer, physical fact of him—the military haircut, the hobnailed sandals chewing the earth of Israel to dust, the sword at his hip. God could send an angel to anyone. That was theology. But flesh and memory revolted.
+Peter crouched in the shade, rolling his shoulders. A blister had formed on his heel; he could feel it rubbing against his sandal.
 
-Around midday, they came upon a wider stream, diverted by a crude stone dam to water a vegetable plot. Antonius raised a hand, halting them. He pointed to the far side of the dam, where the water pooled clear and deep before spilling over. “There. Upstream of the diversion.”
+Eliab stood apart, his back to the group. Ezra hovered near him, shifting from foot to foot.
 
-Ezra translated the instruction. They understood. The water for the fields came first. They could drink from the overflow.
+Decimus tossed the waterskin to Silas. “We'll reach Caesarea by evening.” He studied Peter. “Your centurion. What's he like?”
 
-They crouched at the water’s edge. Peter cupped the cold water in his hands, drinking deeply. The chill was a shock in the heat. He splashed his face, the droplets running into his beard. Thomas and Philip did the same, a few paces apart. Antonius knelt downstream, drinking from his hand with the same efficiency he did everything. He then filled the canteens, submerging each one fully to avoid bubbles.
+Peter pressed his thumb into the blister. Its pain was sharp, clarifying. “Devout.”
 
-Philip watched him, his brow furrowed. “He’s careful not to defile it.”
+Decimus snorted. “They're all devout when they want something.”
 
-“He’s careful not to stir up silt,” Thomas corrected, but his tone lacked its earlier certainty.
+A gust of wind rattled the cypress needles. Peter thought of Cornelius's house, the mosaic floor, the scent of beeswax and incense. A man who washed his hands until they cracked.
 
-Ezra sat on the bank, removing his sandals to soak his feet in the shallows. He let out a soft sigh. He looked up at the sky, squinting. “My mother’s people are from these plains. She used to say the wind here carried the voices of all the arguments that ever happened on it. She said that’s why it always sounds so restless.”
+Ezra approached, holding out a strip of dried fig. “For your strength, Rabbi.”
 
-Peter looked at him. The servant’s face was turned upward, his eyes closed against the sun. He was not much older than Philip. “You are a proselyte,” Peter said. It wasn’t a question.
+Peter took it. The fruit was sticky, cloyingly sweet.
 
-Ezra opened his eyes. “I am.”
+Eliab turned. His face was shadowed under the trees. “You'll enter his house.”
 
-“You keep the Law.”
+It was not a question. Peter wiped his fingers on his tunic.
 
-“I try.”
+“You'll eat with him.” Eliab's voice was flat. “With Romans.”
 
-“And you serve in a Roman household.” Peter heard the edge in his own voice, the rabbinical tone he used with wayward students. “You prepare his food. You handle his belongings. How do you reconcile the two?”
+The fig turned to paste in Peter's mouth. He remembered the sheet again, the voice: What God has made clean.
 
-Ezra was quiet for a moment, wiggling his toes in the water. A small, brown fish darted over them. “I clean what can be cleaned. I set boundaries where I can. I pray for forgiveness where I cannot. The centurion… he pays for sacrifices at the Temple. He observes the hours of prayer. He gives alms. He seeks the God of Israel with more discipline than many born to him.” He looked directly at Peter. “Is the gate so narrow that a man who seeks truth from outside is barred, while a man who inherits it and disregards it is welcomed?”
+Ezra's breath hitched. “Uncle—”
 
-Thomas stood up, brushing dirt from his knees. “He seeks a trophy. Another conquest for his collection. A spiritual one.”
+Eliab ignored him. “Tell me this vision of yours permits it.”
 
-“You have not met him,” Ezra said, his voice still calm, but a firmness entered it. “You do not know his mind.”
+The cypress needles whispered. Somewhere, a dove called, its cry mournful.
 
-“I know his flag.”
+Peter stood. His knees popped. “I don't know.”
 
-Antonius had finished with the canteens. He stood, listening to the exchange though he could not understand the words. He looked from Ezra’s set face to Thomas’s rigid posture. He said something in Latin, short and guttural.
+Eliab's eyes burned. He opened his mouth, then shut it. He turned on his heel and walked away.
 
-Ezra translated, his gaze on Thomas. “He says the sun is past its peak. The miles do not walk themselves.”
+Ezra lingered. “He's afraid for you,” he murmured. “We all are.”
 
-It was a rebuke. A practical soldier’s rebuke that dismissed theological debate as a luxury for stationary men. Peter felt a sudden, hot flush of shame, though the words weren’t aimed at him. They were arguing over the man’s soul like merchants haggling over a bolt of cloth, while the man himself waited to continue the journey he had been commanded to make.
+Peter watched Eliab's retreating back. The Pharisee's cloak billowed, dark against the pale road.
 
-They moved on. The afternoon sun was a weight. The road began a long, gentle rise toward a line of low, wooded hills—the beginning of the Carmel range, Ezra said. The quality of the silence changed again. The shared vigilance from the morning faded, replaced by the reassertion of their separateness. The space between Peter’s group and the two Romans stretched back to its original, careful distance. The camaraderie forced by the Samaritan riders had been temporary, an alliance of convenience in hostile territory. This land was less overtly threatening, so the old walls settled back into place.
+Decimus slapped dust from his thighs. “Mount up.”
 
-Peter’s thoughts churned in the heat. Ezra’s question echoed. Is the gate so narrow? It was supposed to be. Purity required separation. Holiness demanded distinction. The entire Law was a fence, a set of definitions: clean and unclean, holy and profane, Israel and the nations. Peter’s whole life had been lived within those definitions. They were the architecture of the world. The vision on the roof threatened not just a rule, but the foundation of the building.
+The afternoon stretched, the sun sliding west. The road widened, the ruts deeper, with more traffic here, closer to the city. They passed a merchant's caravan, the donkeys laden with amphorae. The driver eyed the soldiers warily but nodded to Peter.
 
-He found himself studying Antonius again, not as a symbol, but as a man. The way he adjusted the strap of his helmet without breaking stride. The white line of the scar. The permanent squint. What had the angel looked like to him? Had it worn a Roman lorica? Had it spoken in Latin? The absurdity of the thought was somehow blasphemous. Angels were creatures of the Temple, of the holy mountain. They did not descend to Caesarean villas.
+A milestone loomed ahead, its inscription weathered but legible: CAESAREA M. III. Three miles.
 
-“What do you think his house is like?” Philip’s voice was small, tired.
+Peter's stomach clenched. The sea breeze carried salt and the faint stench of fish from the harbor.
 
-Thomas snorted. “Marble. Pillars. Idols in niches. A mosaic of some naked goddess on the floor.”
+Decimus slowed his horse, falling into step beside Peter. “That Pharisee.” He jerked his chin toward Eliab. “He'll make trouble for you.”
 
-“He is a God-fearer,” Peter said. “He would have no idols.”
+Peter adjusted his grip on the reins. The leather was warm, slick with sweat.
 
-“How would you know? You’ve never been in a Gentile house.” Thomas shot him a look. “Have you?”
+Decimus lowered his voice. “You could send him away. Say you need only the boy.”
 
-Peter did not answer. He hadn’t. The very idea had been unthinkable a week ago. Now he was walking toward one as an invited guest. The prohibition was not just custom; it was law. To enter a Gentile dwelling was to contract ritual impurity, a state that required days and sacrifices to cleanse. He would be unfit for the Temple, for fellowship, until he underwent purification. Was this the cost of obedience? Temporary exile from his own people?
+The suggestion hung between them. Peter studied Decimus's profile, the scar above his eyebrow, the tight set of his mouth. A practical man, this Roman. A man who solved problems with dismissal or steel.
 
-He thought of the sheet, the animals declared clean. Did it apply to houses? To men?
+Peter shook his head.
 
-“Ezra.” Peter’s voice sounded strange to his own ears.
+Decimus shrugged. “Your funeral.”
 
-The servant looked back.
+The road dipped. The land flattened, the scrub giving way to cultivated fields. In the distance, the city walls rose, pale stone against the blue sky. Beyond them, the gilded roof of Herod's temple caught the sun, a flash of fire.
 
-“This centurion. Cornelius. When he prays… where does he face?”
+Ezra gasped. “Is that—”
 
-Ezra slowed his pace, letting Antonius move a few steps ahead. “He has a room on the eastern side of the house. The window looks toward Jerusalem. He stands there for the hours of prayer. Sometimes…” He hesitated. “Sometimes I hear him. He stumbles over the Hebrew. He mispronounces the words. But he says them all.”
+“Caesarea,” Silas finished.
 
-The image was devastating in its specificity. A Roman soldier, alone in a sunlit room, struggling through the prayers in a language not his own, facing a city that would never accept him. It was a portrait of longing so acute it felt like a wound. Peter looked away, his throat constricting. This was not a theoretical Gentile. This was a man.
+Peter steadied himself. The city sprawled along the coast, its harbor bristling with masts. Even from here, he could see the aqueduct marching across the plain, its arches like the ribs of some enormous beast.
 
-The road curved around the base of the first wooded hill. The shade was a sudden, blessed relief, cooler, smelling of pine resin and damp leaf litter. For a few hundred paces, the world felt almost peaceful.
+A Roman city. A Gentile city.
 
-Antonius stopped. He held up a closed fist. Everyone froze.
+The sheet fluttered in his memory, its corners straining in an unseen wind.
 
-He pointed into the trees. A crude figurine, carved from a pale stump, stood just off the path. Featureless, a rough column with a suggestion of a head. A faded ribbon of blue cloth was tied around its middle. A household god. A country shrine.
+Decimus kicked his horse into a trot. “Let's get this over with.”
 
-Philip made a soft sound of dismay and took an involuntary step back, as if from a venomous snake.
+The group followed, their shadows stretching long behind them. Peter's mount tossed its head, sensing the end of the journey. He gentled it absently, his eyes on the gleaming marble ahead.
 
-Antonius looked at the figurine, then at Philip’s reaction. His scarred face showed no expression, but he gave a small, almost imperceptible shrug. A thing of no consequence. He moved on, his boots crushing the pine needles.
+Peter touched the scar on his forearm again. The old wound ached in the heat.
 
-Peter stared at the idol. It was just wood and cloth, powerless. A fragment of ignorant devotion. But its presence here, on the road to a praying centurion’s house, felt like a taunt. A reminder of the ocean of paganism that surrounded the tiny island of truth. Could one man’s sincere prayers in an eastern room hold back that tide? Or was he, Peter, being led into the ocean itself?
+What God has made clean.
 
-Thomas had not moved. He was staring at the idol, his face pale with a quiet, ferocious anger. “See,” he whispered, the word sharp as a blade. “This is the air they breathe. This is the soil. It infects everything.”
+The words settled in his bones, heavy as stone.
 
-Peter forced his legs to move, stepping past the carved stump. He did not look back. But he felt its presence at his back long after the trees hid it from view, a silent witness to the deepening rift within him. The plain was behind them now. The hills of Carmel lay ahead, and beyond them, the sea, and the city, and the house. The voice from the vision had told him not to call unclean what God had made clean. But God had not made that wooden idol. Man had. And Peter did not know anymore how to tell the difference between the man and the creation, between the seeking heart and the polluted world it lived in. The unknown weight of the summons settled onto his shoulders, heavier with every step away from home.
+The road widened into a proper Roman thoroughfare, the packed earth giving way to paving stones that clicked under the horses' hooves. Peter's mount flicked its ears at the unfamiliar sound. To their left, the aqueduct's shadow stretched long and skeletal across the fields, its arches framing slices of the darkening sky. The scent of salt grew stronger, undercut with the tang of fish guts and the metallic bite of harbor mud.
 
-The road changed. The packed earth gave way to gravel, then to a surface of crushed stone that rang under Antonius’s hobnails. The work of Roman engineers. It ran straight as a spear-shaft toward the low coastal hills, ignoring the gentle contours of the land. Order imposed upon wilderness. On either side, the fields grew more regimented, divided by neat irrigation ditches that gleamed with slow-moving water. They passed a milestone, a column of weathered limestone. Antonius brushed a hand over the carved Latin numerals as he passed, a tactile confirmation of location. Five miles to Caesarea.
+Ezra reined in his horse, staring at the city walls. His lips moved, a prayer or a curse, Peter could not tell. Eliab did not slow, but his shoulders hunched as if against a blow. The Pharisee's fingers worried the fringe of his prayer shawl, twisting the threads until they frayed.
 
-Peter’s feet, sore and swollen in their sandals, felt the difference in the ground. Each step was firmer, more deliberate. He could not wander off this path. It led to a single destination.
+Decimus glanced back. “Keep up.”
 
-The smell reached them next. A complex, layered odor carried on the sea breeze that began to flow down from the hills. Salt and rotting fish. Baking bread and animal dung. The sweet, cloying scent of flowering oleander planted along the roadside, and beneath it, the faint, ever-present tang of wet mortar and marble dust. The smell of a city being perpetually built.
+A cart rumbled past, laden with amphorae. The driver—a sun-browned Greek by the look of him—spat in the dust when he saw Eliab's robes. Ezra stiffened. One of the Roman soldiers chuckled.
 
-Ezra breathed in deeply, his shoulders relaxing. “Home,” he said, to no one in particular.
+Peter's palms hitched. He rubbed them against his thighs, the fabric rough with road dust. The sheet from his vision pressed against his thoughts again, its impossible menagerie writhing. What God has made clean. The words had weight now, a physical presence in his gut.
 
-Thomas said nothing. He walked with his arms crossed, his fingers digging into his own biceps. His eyes were fixed on the road ahead, but he saw none of it. He was back in the upper room, Peter was certain, hearing the report from Joppa, watching his leader walk out the door with a dazed look on his face. The betrayal was a live thing between them now, unspoken but breathing.
+Silas edged his mount closer. “You're grinding your teeth.”
 
-Philip kept glancing at the horizon, his Adam’s apple bobbing. “It’s so big,” he murmured once, seeing the first distant glint of a white rooftop.
+Peter forced his jaw to unclench. The city gates loomed ahead, flanked by statues of Augustus and Herod. The marble faces were pitted by wind and salt, their smiles worn into grimaces.
 
-It was not just big. It was alien. As they crested a final rise in the late afternoon light, Caesarea Maritima unveiled itself in the distance, a brilliant white and ochrous patchwork sprawled along the dark blue curve of the Mediterranean. The sun, lowering to the west, set the city ablaze. It gleamed. Marble colonnades, the vast, pale bowl of the theater, the tiered arches of the aqueduct marching down from the mountains like a giant’s staircase—all of it shimmered in the heat-haze. It was not a city that had grown. It had been willed into existence, poured from a cup of Roman ambition and Herodian vanity onto the sand.
+A line of travelers waited at the gates, merchants with their seals, farmers driving scrawny goats, a pair of Syrian women with bangles chiming at their wrists. The guards waved the Romans through with barely a glance. One yawned, scratching his belly beneath his lorica.
 
-Jerusalem was stones piled upon stones, history weighing down every alley. This place shouted its newness, its power, its indifference to the land it occupied.
+Eliab hesitated at the threshold. His throat worked. Ezra hovered beside him, his face pale under its coating of dust.
 
-Peter stopped. The air left his lungs.
+Decimus turned in his saddle. “Problem?”
+
+Peter dismounted. The stones were warm through his sandals. He stepped close to Eliab, lowering his voice. “You don't have to enter.”
+
+The Pharisee's eyes were black in the shadow of the gate. “And let you walk into defilement alone?”
+
+A gust of wind carried the stench of the tanneries, urine and rotting flesh. Ezra gagged, covering his nose. Eliab did not flinch, but his fingers tightened on his reins until the leather creaked.
+
+Peter touched the man's arm. “Go home.”
+
+Eliab shook him off. He kicked his horse forward, passing under the arch with his head high. A shadow swallowed him whole.
+
+Ezra made a small, wounded noise. He looked at Peter, his eyes too bright. “He won't forgive you for this.”
+
+Peter's stomach twisted. He had heard that tone before, on the lips of a rich young ruler walking away from the Kingdom. “I know.”
+
+The boy swallowed hard. He nudged his mount after his uncle, his back rigid.
+
+Peter remounted. The city unfolded before them, broad streets lined with colonnades, the distant flash of the harbor, the hum of a thousand voices in a dozen tongues. A legionary marched past, his hobnailed boots striking sparks from the stones. Somewhere, a lyre played a Greek drinking song, the notes slurred and merry.
+
+Silas whistled low. “Like Jerusalem with its skin peeled off.”
+
+Peter did not answer. The weight of the place pressed against his ribs. No Temple Mount, no courts of study, no mikvaot for ritual cleansing. Just the raw pulse of empire, beating under the Mediterranean sun.
+
+Decimus led them down a side street, narrower but still paved. The houses here were tall, their plastered walls stained with soot and salt. Shutters banged in the breeze. A slave girl emptying a chamber pot into the gutter ducked inside at the sight of the soldiers.
+
+Ezra rode with his head down, his fingers knotted in his horse's mane. Eliab's back was a straight line ahead, his prayer shawl a defiant splash of white in the sea of dun and ochre.
+
+Peter's mouth was dry. He licked his lips, tasting salt and dust. The sheet fluttered in his memory again, its corners snapping. Kill and eat.
+
+A shout rang out. A knot of young men spilled from a wineshop, their faces flushed. One staggered into the road, his chiton stained purple at the hem. He squinted at the party, his gaze catching on Eliab's robes. His lips curled.
+
+“Fucking Jews,” he slurred in thick Latin.
+
+Decimus did not break stride. “Move along, citizen.”
+
+The drunk spat. The glob landed at Eliab's horse's feet. The Pharisee did not react, but his knuckles whitened on the reins.
+
+Peter's pulse thudded in his ears. The drunk's friends pulled him back, laughing. One made an obscene gesture. Ezra hunched lower, his cheeks flaming.
+
+The street opened onto a small square. A fountain burbled in the center, its basin green with algae. Decimus signaled a halt. He dismounted, stretching his legs.
+
+“Centurion's house is three streets over.” He jerked his chin at Eliab. “You sure you want him there?”
+
+Peter slid from his saddle. His knees protested. “He's not your concern.”
+
+Decimus snorted. He dipped a hand in the fountain, scrubbing dust from his face. The water ran brown down his wrists.
+
+Eliab remained mounted. His eyes were fixed on something past Peter's shoulder. Peter turned.
+
+A group of women clustered around a market stall, their voices rising in argument. One held a squalling infant on her hip. Another—tall, with hennaed hair—gestured wildly at the vendor. Her Greek was rapid, peppered with Latin curses.
+
+Ezra made a choked sound. “They're—”
+
+“Samaritans,” Eliab finished. His voice was flat.
+
+The women's robes were obvious, the distinctive stitching at the hem, the way they draped their shawls. One laughed, throwing her head back. The sound was bright, unselfconscious.
+
+Eliab's jaw tightened. He turned his horse sharply, the animal's hooves clattering on the stones. “We shouldn't be here.”
+
+Peter watched the Samaritans. The hennaed woman haggled with relish, her bracelets flashing. The infant wailed, its face red with outrage. Ordinary women. Ordinary lives.
+
+Decimus wiped his hands on his tunic. “Your people have a problem with Samaritans too?”
+
+Peter did not answer. The sheet loomed again, its impossible command echoing. What God has made clean. He had thought it was about food. About the Law. But here, in this Gentile city, with Samaritans laughing and Jews trembling and Romans watching it all with weary amusement maybe it was about something else entirely.
+
+Eliab's horse sidestepped, restless. “We're attracting attention.”
+
+He was right. Curious glances flicked their way; a mixed party of Jews and Romans was clearly an oddity. A pair of house slaves whispered behind their hands. A merchant paused in rolling up his awning, his eyebrows climbing.
+
+Decimus sighed. He remounted. “Let's go.”
+
+They rode in silence. The streets grew wider, the houses larger. Here, the air smelled of citrus trees and crushed herbs. A slave swept a portico with meticulous strokes. Somewhere, water trickled in a private garden.
+
+Ezra edged his horse alongside Peter's. “Rabbi,” he said, low. “That centurion—will he make you unclean?”
+
+Peter studied the boy's face, the downy beard, the sweat beading on his upper lip. So young. So certain of the lines between things. “I don't know.”
+
+Ezra hesitated. His fingers plucked at his reins.
+
+“Enough.” Eliab did not turn around. His voice was a whip crack.
+
+Decimus turned down a shaded lane. The houses here were set back behind high walls, their gates wrought with iron. Cypresses stood sentinel in courtyard gardens. The clop of their horses' hooves echoed off the plaster.
+
+At the third gate, Decimus halted. The ironwork was complex, a pattern of vines and pomegranates. A mosaic menorah adorned the lintel, its tiles glinting in the late sun.
+
+Eliab made a sound like a man punched in the gut. “He mocks us.”
+
+Peter dismounted. His legs trembled. The menorah was beautifully rendered, each branch perfectly proportioned. Not mockery. Longing.
+
+Decimus rapped on the gate. The sound was too loud in the quiet street.
+
+Somewhere beyond the wall, sandals slapped on stone. A bolt screeched. The gate swung inward.
+
+A servant stood there, an older man with a close-cropped gray beard and a tunic of good Egyptian linen. His eyes widened at the sight of Eliab's robes. He recovered quickly, bowing.
+
+“The centurion awaits you,” he said in careful Aramaic.
+
+Peter's breath caught. The servant's accent was Galilean.
+
+Eliab hissed through his teeth. “A Jew in service to a Roman.”
+
+The servant's face did not change, but his fingers tightened on the gate. “This way, please.”
+
+Decimus dismounted, handing his reins to Rufus. “We're done here. Deliver the Jew safely, collect our pay, and return to barracks.” He nodded at Peter. “Good luck.”
+
+Peter did not answer. The gate yawned before him, the courtyard beyond dappled with cypress shadows. Somewhere in that house, a Roman centurion waited. A man who had seen an angel.
+
+Ezra clutched at Peter's sleeve. “Don't go in.”
+
+Peter pried the boy's fingers loose. His own hands were steady. “Wait here.”
+
+Eliab's voice was a razor. “If you cross that threshold—”
+
+Peter stepped through the gate. It shut behind him with a final click. The sound echoed in his bones.
+
+The servant led him down a colonnaded walkway. The air was cool here, scented with rosemary and wet stone. A fountain murmured in the atrium. Peter's sandals slid on the mosaic floor, a geometric pattern of interlocking circles. No images, no idols. A Jew's compromise.
+
+At the far end of the atrium, a door stood ajar. Lamplight spilled through the crack, painting a golden stripe on the tiles.
+
+The servant stopped. “He's been praying since dawn.”
+
+Peter's throat tightened. He touched the scar on his forearm, the old wound throbbing.
+
+The servant bowed and withdrew. The colonnade was silent but for the drip of the fountain and the distant cry of gulls.
+
+Peter crossed the atrium. His shadow stretched long ahead of him, merging with the lamplight. At the door, he paused. The wood was smooth under his fingertips, polished by years of hands seeking entry.
+
+He pushed it open.
+
+The room beyond was small, lit by a single oil lamp. A man knelt on the floor, his back to the door. His tunic was plain, his hair cropped short in the Roman style. His shoulders moved slightly with each pause.
+
+Peter's pulse hammered in his wrists. The sheet from his vision billowed in his mind's eye, vast and impossible.
+
+The centurion turned. His face was lined, his eyes dark with exhaustion. A soldier's face, hardened by wind and war. But his hands, his hands were raw, the knuckles cracked and pink from scrubbing.
+
+Cornelius stared at Peter. His lips parted. No sound came out.
+
+The air between them thickened. The lamp flickered.
+
+Peter stepped into the room. The door swung shut behind him.
