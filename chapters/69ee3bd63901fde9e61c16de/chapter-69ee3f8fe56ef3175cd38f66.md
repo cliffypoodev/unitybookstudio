@@ -1,309 +1,181 @@
-The rooftop tiles burned under Cornelius's sandals, the morning sun turning the solarium into a kiln. He gripped the parapet, fingers pressing into the fossilized whorl of some ancient sea creature embedded in the stone. The angel's voice still rang in his skull—not a sound, but the aftertaste of one, like the metallic tang left by a sword strike.
+Drusilla’s eyes, the color of wet slate read the tension in his jaw, the faint tremor in his hand as he ran it over the impluvium’s cold rim. He felt her gaze, a familiar weight, but did not meet it. The crack she examined, a thin hairline fracture seemed to mock his sudden, fragile certainty.
 
-"Linus." His voice came out too sharp. A soldier flinched, his polished greaves clicking as he snapped to attention. "Fetch me Antonius. And the Judean—the one who prays at the third hour."
+He knew she would ask. He knew she would see through the rigid military bearing he now assumed. Her quiet observation was a weapon he had never learned to parry. He turned from the impluvium, the cool air of the atrium doing little to settle the buzzing beneath his skin.
 
-Linus hesitated. "The slave?"
+“A matter of urgency,” he said, his voice clipped. He walked past her, towards the triclinium where a lamp still burned low, casting long shadows. “I need Decimus and Rufus. And the Judean. Have them report to me at once.”
 
-Cornelius's thumb found the worn edge of his military belt, tracing the absent eagle buckle. "He's not a slave."
+She straightened, her tunic rustling softly. “The Judean? Silas?” He heard the slight hesitation, the question unspoken. Silas, the servant who spent more time in the household shrine than in the stables was an odd choice for any military dispatch. “Is this about the rumors?”
 
-The lie sat between them, thick as the salt-heavy air. The Judean had been part of the Germania spoils, a boy then, now a man who kept his head down and his prayers quiet. But slaves didn't pray at set hours. Slaves didn't refuse pork.
+Cornelius paused at the threshold of the triclinium. The scent of stale lamp oil and yesterday’s meal clung to the air. “The rumors are precisely that, Drusilla. Rumors.” He did not turn. The lie felt thick in his mouth, a bitter paste. He hated lying to her. He hated the necessity of it. But the angel’s command was not for public consumption. Not yet. “It is a matter for the cohort. A sensitive inquiry.”
 
-Antonius arrived first, smelling of garlic and saddle leather, his tunic damp under the arms. He'd been drilling recruits in the courtyard. "You sent for me, sir?"
+He heard her sigh, a soft expulsion of air that carried a world of understanding and resignation. She knew. She always knew. But she would obey. His word was law in this house, even when she saw the flaws in its foundation. The sound of her sandals on the polished floor faded as she went to rouse the men.
 
-Cornelius studied the man's face—broad, sun-cracked, the nose broken twice and healed crooked. A career soldier, steady as a mule. Not devout, but obedient. "You're to ride to Joppa. Take two horses from the stables, the bay and the gray. And him." He jerked his chin toward the stairwell, where the Judean stood silhouetted against the dim interior, his hands folded in front of him like a scribe's.
+He stepped into the triclinium. The low table, still littered with the remnants of last night’s hurried meal felt wrong. He cleared a space with his hand, pushing aside a half-eaten fig and a clay cup. The wood beneath his fingers was smooth, cool. He needed parchment. Ink. His signet ring.
 
-Antonius's eyebrows climbed. "The kitchen man?"
+The room was still, the city outside beginning to stir with the first hints of dawn. He stood there, the silence pressing in. A familiar ache settled behind his eyes, a dull throb that had been his constant companion since the vision. Saved. The word echoed, a hollow boom in the empty chambers of his mind. What did it mean, truly? He was a centurion. He saved men from death on the battlefield. He saved them from starvation with careful rationing. He saved them from their own folly with strict discipline. But this. This felt different. It felt like an unraveling.
 
-"His name is Ezra." The words tasted strange. He'd never used the man's name aloud. "He speaks Aramaic. You don't."
+The first clang of the distant blacksmith’s hammer cut through the quiet. Then the cries of the street vendors, thin and reedy at this hour. That world, stubbornly ordinary, asserted itself. He found himself tracing the grain of the wooden table, a knot in the dark wood shaped vaguely like a closed eye. He thought of the Germanian boy, not saved. Not by him. An image, sharp and sudden made his stomach clench. He forced it down. This was not the time for weakness. An order had been given.
 
-Ezra's sandals whispered against the stone as he approached. He kept his gaze lowered, but not before Cornelius caught the flicker of calculation in his eyes. This was a man who measured risks.
+Decimus arrived first, a burly man with a perpetually furrowed brow and a soldier’s economy of movement. He stood at attention, his gaze steady, awaiting orders. Rufus followed, younger, leaner, his eyes quick and darting, missing nothing. Then Silas, the Judean, thin as a reed, his tunic simple, his expression calm, almost serene. He carried a small leather-bound scroll in his hand, as if he had just risen from morning prayers.
 
-Antonius shifted his weight. "Joppa's a Jewish port."
+“At ease,” Cornelius said. His voice was firm, resonant. The scent of Decimus’s sweat, faint but present cut through the triclinium’s stale air. Rufus shifted his weight, his sandal scraping lightly on the tile. Silas merely lowered his head, a gesture of respect.
 
-"You're to ask for Simon Peter. A fisherman." Cornelius unrolled the scrap of vellum he'd been clutching, the ink smudged from his sweat. "These are the words you'll say: 'Cornelius, a centurion of the Italian Cohort, a God-fearer respected by all the Jewish people, was directed by a holy angel to summon you to his house, that you might speak words by which he and his household will be saved.'"
+“Decimus, Rufus, you will ride south to Joppa. Silas will accompany you.” Cornelius paused, letting the weight of the command settle. “You will seek out a man named Simon Peter. He is lodging at the house of a tanner, also named Simon, by the sea.”
 
-Ezra went very still. Antonius scratched his neck. "Sir. With respect—an angel?"
+Decimus nodded, his brow still furrowed, but without question. Rufus’s eyes flickered, a faint curiosity replacing the usual alertness. Silas simply listened, his face unreadable.
 
-The fossil under Cornelius's fingers felt suddenly alive, a coiled thing waiting to strike. He'd spent a decade building a life of measured piety, of alms given quietly, of prayers offered at the correct hours. Now the divine had torn through that order like a pilum through rotten wood.
+“This is a delicate matter,” Cornelius continued. He picked up a stylus, turning it in his fingers. “You will present this letter.” He laid a blank piece of parchment on the table. “It will bear my seal. It states that I, Cornelius, centurion of the Italian Cohort, a God-fearer, request the presence of Simon Peter on a matter of extreme urgency.”
 
-"You'll leave within the hour." He pressed the vellum into Antonius's calloused palm. "Ride hard. Don't stop at the waystations."
+He looked at each man in turn. “You will be respectful. You will offer no threats. You will offer no bribes. You will state the request, and you will await his answer. If he agrees, you will escort him back to Caesarea with all due haste and honor.”
 
-Ezra cleared his throat. "And if this Peter refuses?"
+“A tanner’s house, Centurion?” Rufus asked, the words out before he could stop them. He winced, a brief flash of apology crossing his face. The smell of a tanner’s yard, the constant handling of dead animals, rendered a Jew ritually unclean. Common knowledge.
 
-Cornelius's belt leather creaked under his grip. "He won't."
+Cornelius met his gaze. “That is what I said, Rufus. A tanner’s house. By the sea.” He kept his voice even, devoid of inflection. He would not explain the angel. He would not justify the divine command. He would only give the order. “You will treat him as if he were a legate of the Emperor.”
 
-*
+Decimus cleared his throat. “Centurion, with respect, a tanner’s house… it may prove difficult to gain entry.” He spoke with the quiet authority of a man who had seen too many doors slammed in the face of Roman authority, particularly in Judea.
 
-The courtyard below was a hive of uneasy motion. Servants darted with waterskins and travel bread. A stable boy tightened the bay's girth while Antonius checked his gladius, the blade catching the sun in brief, vicious flashes. Ezra stood apart, rolling a small scroll between his fingers—some prayer, no doubt.
+“Silas will explain the custom,” Cornelius said, gesturing to the Judean. Silas raised his head, a faint, knowing smile touching his lips. “He will make the introductions.”
 
-Drusilla appeared at the base of the stairs, her stola cinched tight at the waist, her hair bound in a severe knot. She didn't look at the preparations. Her gaze pinned Cornelius like a spear. "You're sending our cook to Joppa."
+Silas bowed slightly. “I will effort to do so, Centurion.” His voice was soft, laced with a quiet confidence that surprised Cornelius. He had chosen Silas not for his military bearing, but for his piety, for the strange, unshakeable faith he possessed. The angel had said God-fearer. Silas was that, and more.
 
-"He's the only one who can translate."
+“You will take the fastest horses,” Cornelius instructed. “Provisions for two days. Travel light. Do not draw undue attention. This is not a military exercise. This is a summons.” He dipped the stylus in ink, the black liquid gleaming against the parchment. He would write the letter himself. The precision of the task was a comfort, a familiar anchor in the swirling uncertainty of the divine.
 
-"And the soldier?"
+He wrote quickly, his hand steady. The words flowed, concise and clear. He sealed the parchment with his signet ring, pressing it into the soft wax. The eagle of the legion, stark and proud, emerged from the seal. A Roman command, for a Jewish apostle, summoned by an angel, from a tanner’s house. The contradictions piled upon one another, a tower of impossible things.
 
-"Antonius knows the roads."
+He handed the sealed letter to Decimus. “You depart at once. Do not fail.”
 
-She stepped closer, her voice dropping. "The household is whispering of visions. The slaves think you're ill. The kitchen women are burning incense to Juno."
+Decimus nodded, tucking the letter carefully into his tunic. “We will bring him, Centurion.”
 
-Drusilla's hand brushed his wrist, a rare public touch. "If this goes badly—"
+Rufus, meanwhile was already checking the straps on his sword, a nervous energy thrumming just beneath his calm exterior. He looked at Silas, then back at Cornelius, a flicker of something unasked in his eyes.
 
-"It won't."
+Silas, however remained still, his gaze fixed on some point beyond the walls of the triclinium, perhaps beyond Caesarea itself. He seemed to see a different horizon, one that stretched further than Joppa. The quiet confidence in his posture was almost unnerving. It was as if he understood more than he should, as if he carried a secret knowledge that made Roman authority seem trivial.
 
-Her fingers tightened, just for a heartbeat. Then she was moving toward the storeroom, calling for more oil to be packed.
-
-Ezra mounted the gray mare awkwardly, unused to riding. As Antonius swung onto the bay, he shot Cornelius a look that hovered between salute and supplication. Then they were through the gate, hooves striking the packed earth of the street, the sound fading too quickly.
-
-The courtyard felt hollow without them. A servant dropped a clay cup; the shatter made Cornelius's shoulders jerk. Upstairs, Livia's laughter floated down from her window, bright and oblivious.
-
-He climbed back to the solarium. The sea stretched to the horizon, flat and pitiless. Somewhere on that road, his message was riding toward a man who had every reason to despise him.
-
-Cornelius knelt on the sun-baked tiles. He pressed his forehead to the stone and waited for the silence to break.
+Cornelius watched them leave, their footsteps echoing in the atrium as they moved towards the stables. He heard the murmur of their voices, the jingle of harness, the soft thud of saddlebags being secured. The preparations were efficient, practiced. A familiar rhythm. But the destination, the purpose felt utterly alien. He stood by the impluvium, his hand still on the cold stone. The crack remained, a thin, dark line. He had sent them into the unknown. And now, he had only to wait. The waiting was the hard part. The waiting was the soldier’s true burden.
 
 *
 
-The bay mare tossed her head as they passed beneath the arch of Caesarea's southern gate, her ears flicking at the sudden absence of echoing hooves on stone. Antonius tightened his grip on the reins, the leather creaking. The road ahead unfurled like a frayed rope—pale dust, rutted by cart wheels, flanked by scrub and the occasional twisted olive tree. Beyond it, the sea glinted, indifferent.
+The morning sun climbed, a hard white coin in a sky bleached of color. Cornelius watched from the gate as Decimus tightened the girth on his mount, the leather creaking in protest. The horse, a tall bay, stamped once, sending up a small puff of dust from the packed earth of the street. A fly, persistent and stupid, buzzed around the animal’s eye. Decimus swatted it away with a practiced flick of his wrist, his movements economical, devoid of wasted energy. He was a good soldier. Reliable. He would follow the order to the letter and ask no questions beyond those necessary for its execution.
 
-Ezra's gray mare sidestepped, her nostrils flaring at the unfamiliar scents. He clutched the reins too high, his knuckles white. A kitchen knife hung at his belt, absurdly small against the soldier's gladius.
+Rufus was already mounted, his gaze scanning the street in both directions, his hand resting lightly on the pommel of his sword. His posture was perfect, textbook, but Cornelius saw the slight tension in his shoulders, the way his eyes lingered a fraction too long on a group of Jewish merchants setting up their stalls across the way. He was thinking about the tanner’s house, about the stench, about the awkwardness of the request. He was thinking about everything except the simple fact of the order.
 
-Antonius spat into the dust. "Keep up. We're not stopping till nightfall."
+Silas stood beside a smaller, quieter mare, one hand on her neck, murmuring something too low to hear. He carried no weapon. Only a worn leather satchel and the scroll he had brought with him. He looked, Cornelius thought, like a scholar off to visit a library, not a man embarking on a tense diplomatic mission into potentially hostile territory. The serenity was a stark contrast to the martial readiness of the other two. It felt like a rebuke.
 
-The Judean didn't answer. His gaze lingered on the receding city walls, the marble facades catching the sun like broken teeth.
+“The Via Maris is clear to the tower,” Decimus said, not looking up from his final check. “After that, we take the coastal track. Should make Joppa by nightfall tomorrow if the weather holds.”
 
-They rode in silence. The bay's gait settled into a steady rhythm, the kind Antonius could sleep to if he needed to. He'd done it before—nights on patrol in Germania, half-dozing in the saddle while the horse followed the man ahead. But this was different. No cohort at his back. No standard to follow. Just a scrap of vellum and a command that tasted like madness.
+Cornelius nodded. The logistics were sound. The route was the safest, the most direct. His mind, trained for decades on supply lines and marching times, approved. It was a small, cold comfort. “See that you do.”
 
-An angel.
+He stepped forward, the rough stone of the gatepost scraping against his tunic. The city was fully awake now. The smell of baking bread drifted from a nearby insula, mixing with the sharper tang of urine from an alley and the ever-present saline breath of the sea. A cart laden with amphorae rumbled past, the driver cursing at a stray dog. Life, ordinary and indifferent, flowed around their little island of purpose.
 
-He glanced at Ezra. The man's lips moved soundlessly, his beard twitching with the motion. Praying, probably. Or counting. Antonius had seen it before—men who clung to rituals when the world stopped making sense.
+“Centurion.” It was Silas. He had turned, his dark eyes meeting Cornelius’s. There was no subservience in that look, only a quiet, unsettling directness. “We will find him.”
 
-The road dipped toward the coast, the sea breeze cutting through the dust. A fishing village huddled in the distance, nets spread like giant spiderwebs on the sand. Goats bleated from a rocky outcrop.
+It was not a question. It was a statement of fact, delivered with a calm assurance that bypassed all military hierarchy. Cornelius felt a sudden, irrational spike of anger. Who was this servant to speak with such certainty? He mastered it, his face a mask of stone. “See that you do.”
 
-Ezra cleared his throat. "We should avoid the villages."
+He wanted to say more. To warn them of… of what? He had no specific threat to name. Only a formless dread, a cold knot in his gut that had nothing to do with bandits or bad roads. It was the dread of exposure. He had sent a piece of his secret, sealed with his own eagle, out into the world. It was no longer a private vision, a silent weight in his own skull. Three men, three horses, and a parchment. Tangible. It could be intercepted, mocked, ignored. It could fail.
 
-Antonius frowned. "Why?"
+Decimus swung up into the saddle with a grunt. The leather of his harness groaned. He gathered the reins, his face set in its usual grim lines. “We return with the man, sir.”
 
-"Not for rest. For safety." Ezra's voice was low, measured. "Roman armor draws attention. Not all of it friendly."
+Rufus gave a sharp, final nod.
 
-Antonius touched the hilt of his gladius.
+Silas mounted his mare with an easy grace, the scroll tucked securely inside his tunic. He looked once more at Cornelius, and for a fleeting moment, the centurion saw not a servant, but a man who pitied him. The expression was gone so quickly he might have imagined it, replaced by that placid, infuriating calm.
 
-A lizard darted across the road, its tail whipping. The bay mare ignored it. Ezra's gray shied, nearly unseating him. He cursed under his breath—Aramaic, sharp and guttural.
+“Ride,” Cornelius said. The word was a dismissal, a release.
 
-Antonius smirked. "You ride like a sack of grain."
+Decimus nudged his horse forward. Rufus fell in beside him. Silas took the rear, his mare’s hooves making a softer, quicker sound on the stones. They moved from the shadow of the house into the full glare of the street. The sunlight caught the metal of Decimus’s helmet, a brief, blinding flash that made Cornelius blink.
 
-Ezra adjusted his grip. "I cook. I don't patrol."
+He stood at the gate, watching them diminish. They passed the bread-seller’s stall, then the public fountain where two women were filling jars, their laughter carrying on the dry air. The soldiers’ forms became silhouettes against the bright dust of the street. He could still pick out Decimus’s broad back, the precise angle of Rufus’s shoulders. Silas was harder to see, a slighter shape, blending into the flow of traffic.
 
-"Today, you do."
+A donkey, overloaded with baskets, crossed between him and the retreating party. For a few heartbeats, they vanished. When the donkey plodded past, they were smaller, more distant. They reached the bend where the street curved towards the city’s southern gate. Decimus did not look back. Rufus glanced over his shoulder once, a quick, automatic sweep of the rear. Silas never turned.
 
-The sun climbed. Heat shimmered above the road. Antonius loosened the straps of his helmet, the metal already too hot against his scalp. Sweat trickled down his back, tracing the old scar from a German axe. He should've brought more water.
+Then they rounded the corner.
 
-Ezra shifted in the saddle, his robes dark with sweat at the armpits. "There's a stream ahead."
+They were gone.
 
-"We keep moving."
+The noise of the street rushed in to fill the space they had occupied. The cart driver’s curses, the women’s laughter, the rhythmic clang from the blacksmith’s forge—it all swelled, loud and meaningless. Cornelius realized he was holding his breath. He let it out, a slow, controlled exhalation that did nothing to ease the tightness in his chest.
 
-"The centurion said ride hard, not kill the horses."
+He remained at the gate. Its stone was warm now under his palm. He stared at the empty bend in the road, as if willpower alone could pull them back into view. A fragment of a prayer he’d learned from Silas drifted through his mind, half-remembered, in Aramaic. He didn’t know the full meaning. He pushed it away.
 
-Antonius shot him a look. Since when did kitchen men argue?
+A child ran past, chasing a wooden hoop, his shrieks of joy piercing the air. Cornelius flinched. This sound was too sharp, too alive. He looked down at his hand. A line of grey mortar dust was embedded in the creases of his palm. He brushed it against his tunic, a useless, fussy gesture.
 
-The gray mare's head drooped. Her gait slowed, her hooves dragging. Antonius cursed. If the horse foundered, they'd lose a day. Maybe more.
+He should go inside. There were reports to review. The cohort’s monthly inventory was due. The legate expected a dispatch on the local morale. A hundred practical tasks demanded his attention, each one a solid brick in the wall of his daily life. He could not move.
 
-He reined in. "Five minutes. No more."
+The vision replayed behind his eyes, not as a coherent memory, but in sensory shards. The light that was not light. The voice that was not a voice. The word. Saved. It meant nothing here, in this sun-baked street smelling of bread and dung. It was a word for darkness and private terror, not for the pragmatic world of men and orders.
 
-Ezra dismounted stiffly, his legs trembling as he led the gray to the water. The bay followed, her muzzle sinking into the stream with a grateful snort.
+He had sent them. The action was irrevocable. This was the thing about orders—once given, they took on a life of their own. They moved beyond your control. They succeeded or they failed based on a thousand variables you could never account for. A loose horseshoe. A sudden fever. A misunderstanding at a tanner’s door.
 
-Antonius remained mounted, scanning the road. Empty. Good. He pulled the vellum from his belt, the ink smudged where his sweat had touched it. The words were simple. Too simple. No orders. No coordinates. Just a name and a promise.
+His pragmatism, the core of him, screamed caution. It listed the risks in a rapid, internal ledger. Political backlash from the Sanhedrin. Mockery from his fellow officers. The potential for a Jewish holy man to refuse a Roman summons, creating an incident. The sheer, naked vulnerability of having asked for something. A Roman centurion did not ask. He commanded. He took. To send a request was to admit a need, and need was weakness.
 
-Saved.
+Yet the angel had not commanded him to seize Peter. It had told him to send for him. To ask. The distinction was critical, and it chafed like a hair shirt.
 
-From what?
+A shadow fell across him. Drusilla. He hadn’t heard her approach. She stood just inside the gate, a clay water jug balanced on her hip. She said nothing. She simply waited, her presence a quiet question.
 
-Ezra crouched by the stream, cupping water in his hands. His sleeves were rolled back, revealing thin scars along his forearms—old, precise. Not battle wounds. Ritual marks.
+“They are gone,” he said, his voice rough.
 
-Antonius had seen them before, on Judean prisoners. Men who wouldn't eat pork. Men who'd rather die than swear by Caesar's genius.
+“I saw.”
 
-He rolled the vellum tight again. "You ever been to Joppa?"
+He finally turned from the empty street. The courtyard behind her was a rectangle of stark light and deep shadow. The impluvium glittered, the water in its basin reflecting the hard sky. The crack was invisible from here. The house looked perfect, orderly, a proof of Roman discipline.
 
-Ezra wiped his mouth. "No."
+“Will he come?” Drusilla asked. She did not specify who. She didn’t need to.
 
-"But you know it's Jewish."
+Cornelius looked at his hands. The dust was gone, but a faint grey smudge remained. “I do not know.”
 
-"I know they won't welcome a Roman soldier asking for a holy man."
+It was the truest thing he had said all morning. The admission cost him. He felt something give way in his chest, a small, internal collapse. Not relief. Just a hollowed-out space where certainty had been.
 
-Antonius snorted. "Then it's good you're coming. You look the part."
+Drusilla shifted the jug on her hip. The movement was ordinary domestic. “The household will pray,” she said simply. Then she turned and walked back towards the kitchen, her sandals whispering on the tiles.
 
-Ezra's gaze flicked to him, then away. A muscle jumped in his jaw.
+He was alone again. More alone than before. The messengers’ departure had not brought peace. It had amplified the silence, a silence now filled with the echo of hoofbeats fading down the Joppa road. He had set a thing in motion. A thing he could not stop could not guide could only await.
 
-The bay mare lifted her head, water dripping from her muzzle. Antonius nudged her forward. "Mount up."
+The weight of the waiting settled on him, physical, immense. It was the weight of the unknown, of a future that was no longer his to shape. He was a man who had spent a lifetime building walls—of discipline, of ritual, of command. Now he had opened a gate in every single one of them and sent his hope, thin and vulnerable, out into a world that had no reason to treat it kindly.
 
-The road curved inland, skirting a rocky promontory. The sea vanished behind them, replaced by fields of parched barley. A shepherd watched from a distance, his staff planted in the dirt.
+He took one last look at the bend in the road. Nothing. Just dust and light.
 
-Antonius's neck prickled. Too exposed. No cover.
+He turned and walked into his house, into the silence. A door closed behind him with a solid, final sound. The lock, a heavy iron bolt, slid home with a thud he felt in his teeth. It was a Roman door. It kept everything out.
 
-Ezra stiffened. "Do you hear that?"
+For the first time, he wondered if it also kept him in.
 
-A low rumble, growing louder. Hooves.
+The study was a sanctuary of ledgers and lists. Cornelius closed the door, the solid oak a barrier against the household sounds. He ran a finger along the edge of his desk, a precise line of dark cedar shipped from Lebanon. No dust. Drusilla saw to that. He sat, the chair groaning a familiar protest. The monthly inventory for the cohort lay before him, a scroll of papyrus filled with neat columns: wheat, olive oil, vinegar, nails, hobnails, leather straps for sandals. Each number represented order. Each tally was a victory against entropy.
 
-Antonius wheeled the bay, his hand on his gladius. Three riders crested the hill behind them, dust swirling in their wake. No armor. No uniforms. But the way they rode—too disciplined for merchants.
+His stylus hovered over the entry for pilum, shafts, oak. The number was forty-two. He knew it should be forty-two. He had counted them himself three days prior. Yet the numeral on the page seemed to swim, the ink blurring. He blinked. The sound of the blacksmith’s hammer from down the street seemed to sync with the dull throb behind his eyes. Clang. A pause. It was not a rhythm for counting. It was the beat of a prisoner pounding shackles.
 
-Ezra's voice was tight. "Samaritans."
+He put the stylus down. He picked up a whetstone instead, and his pugio, the soldier’s dagger. The motion was ritual. The scrape of stone on iron was a prayer he understood. He focused on the angle of his wrist, the even pressure, the whisper of metal being honed to a lethal edge. This was control. This was a fact: a sharp blade cuts.
 
-Antonius bared his teeth. "Let them pass."
+But his mind would not stay on the task. It kept returning to the gate, to the moment Silas had looked at him. That pity. Had it been pity? Or was it just the strange light of the Judean’s faith, a thing Cornelius admired and distrusted in equal measure? The dagger’s edge caught the light from the high window, a thin, bright line. He thought of the Germanian boy’s tunic, the way the wool had been a cheap, muddy brown, not the vibrant red of the boy in his memory. That was the problem with the memory; it insisted on improving itself, adding details that couldn’t possibly be true, making the horror aesthetic. The actual tunic had been patched at the elbow with a piece of darker cloth. He remembered that now, a sudden, vicious clarity. The patch had been shaped like a crude star.
 
-The riders slowed as they approached, their horses flanking the road. The leader—a gaunt man with a scarred lip—eyed Antonius's armor, then Ezra's robes. His hand rested on a curved knife at his belt.
+He set the dagger down with a click that was too loud.
 
-"Roman," he said, the word thick with contempt.
+The ledger demanded his attention. He forced his eyes to the next column: vinum, amphorae. Four. They had consumed one at the last officers’ feast. The accountant had noted the breakage of another during a training exercise. Four was correct. He dipped the stylus to make a checkmark. The ink blobbed, a dark spider on the papyrus. He cursed under his breath, a crude Latin oath he’d learned in the ranks. He blotted it with the edge of his palm, smearing the number.
 
-Antonius kept his tone flat. "The road's open."
+A fly buzzed against the window, a tiny, frantic drumming. He watched it struggle, beating itself against the cloudy glass. The impulse to rise and crush it was strong, almost overwhelming. He stayed seated. The fly found a gap and vanished.
 
-The Samaritan spat. "Not to your kind."
+The silence in the room was different now. It had a texture, a thickness. It was the silence of a man waiting for an answer to a question he should never have asked. He could hear the sea, a distant, rhythmic sigh beyond the city walls. Always there, that sound, the backdrop to everything in Caesarea. Usually, he found it soothing. Today it sounded like the breath of something vast and indifferent.
 
-Ezra murmured something in Aramaic. The man's eyes narrowed.
+He gave up on the ledger. He stood, his knees cracking. The floor tiles were cool beneath his bare feet. He paced the perimeter of the room, three steps to the wall, turn, five steps to the shelf, turn. A military pace. He counted the steps. On the third circuit, his toe stubbed against a slight unevenness in the tile, a flaw he had never noticed. He stumbled caught himself on the edge of the desk. The stumble infuriated him. It was a failure of awareness, a tiny rebellion of his own domain.
 
-Antonius didn't need a translation. He'd heard that tone before. The bay mare sensed it too, her ears flattening.
+He needed air. The rooftop.
 
-The Samaritan leaned forward. "What business does a Roman and his pet Jew have on this road?"
+The stairs were narrow, winding, the stone edges worn smooth by generations of feet. He emerged into a blinding wall of midday heat. The whitewashed parapet burned his eyes. Caesarea sprawled below him, a geometric dream of Herod’s ambition: the grid of streets, the stark white of the theater’s half-circle, the long, straight scar of the hippodrome. Beyond it all, the Mediterranean stretched to the edge of the world, a sheet of hammered blue steel.
 
-Antonius smiled. The kind that didn't reach his eyes. "Official dispatch. Interfere, and the next patrol burns your village."
+He walked to the western edge, placing his hands on the sun-warmed stone. The view was a map of his life. The administrative quarter where he lived, a mix of Roman villas and official residences. The bustling lower city, a tangled, noisy hive of markets and tenements. The harbor, with its great mole and the statues of the gods, where ships from Alexandria and Rome nosed against the quays. Order, chaos, commerce. All of it under the eagle.
 
-A bluff. But the man hesitated. His companions exchanged glances.
+His gaze tracked the southern road, the ribbon of dust that wound past the tower and vanished into the hazy hills. They were out there somewhere. Decimus, Rufus, Silas. Had they made the tower yet? Would they stop for water? A thousand mundane possibilities, none of them knowable. The not-knowing was an open wound.
 
-Ezra added something else, low and urgent. The Samaritan's grip on his knife tightened. Then, with a jerk of his chin, he kicked his horse forward. The others followed, close enough that Antonius caught the stink of rancid oil in their hair.
+A memory surfaced, unbidden. Not of Germania, but of his first command, a minor outpost on the Danube. A sentry had fallen asleep at his post. The punishment was flogging. The boy—he was just a boy, from some dusty Italian village—had wept silently as the lash fell. Cornelius had watched, his face impassive, because discipline was the mortar of the empire. Afterward, as the surgeon applied vinegar to the stripes, the boy had looked at him, his eyes red-rimmed. He hadn’t looked angry. He’d looked bewildered, as if he couldn’t quite understand how the rules he’d learned had led him to this specific, searing pain. Cornelius had dismissed the look. Now, decades later, standing on his roof in Judea, he wondered what had become of that boy. Had the discipline saved him? Or had it simply broken something in him that never mended?
 
-The last rider turned in his saddle. "Joppa's a long way, Roman. Sleep lightly."
+The sun began its long, slow fall toward the sea. Shadows pooled in the streets below, deepening from grey to purple. The city’s sounds changed, the commercial bustle fading into the quieter hum of evening: a mother calling a child, the clatter of a shutter being closed, the first, tentative notes of a lyre from a nearby courtyard.
 
-Then they were gone, their dust hanging in the air.
+He did not go down for the midday meal. Drusilla brought him a plate of bread, cheese, and olives setting it on a low bench near the stairs. She said nothing. He ate without tasting, his eyes never leaving the southern road. The bread was dry. It stuck in his throat.
 
-Ezra exhaled. "That could have gone worse."
+The afternoon stretched, a thin, hot wire. He tried to pray, the way Silas had taught him, facing Jerusalem. The words felt like stones in his mouth. Hear, O Israel. But he was not Israel. He was a man standing on a roof, a centurion watching a road, his mind a riot of useless details—the patch on the boy’s tunic, the fly at the window, the smeared ink on the ledger. This was not piety. This was a sickness.
 
-Antonius adjusted his helmet. "Next time, keep quiet."
+As the light softened, gilding the city, a detachment of his own men marched along the street below, returning from harbor patrol. He heard the crunch of their nailed sandals on the stone, the low murmur of their conversation, a burst of laughter quickly stifled. They moved as one organism, confident, contained. They belonged to a system that made sense. He watched them pass, and for a moment, he hated them. He hated their simple certainty. He was above them now, literally and utterly, separated by this decision, this waiting.
 
-They rode on. The sun dipped toward the horizon, staining the sky the color of old blood. The road began its descent toward the coastal plain, the first lights of Joppa flickering in the distance like distant stars.
+The sun touched the water, a molten spill that transformed the sea into a river of fire. The long shadows of the city’s buildings reached out like fingers, trying to grasp the horizon. The road to Joppa was swallowed by the gathering dusk, first the distant hills, then the tower, then the nearer stretches, until all that was left was a vague, grey path fading into night.
 
-Antonius glanced back once. Caesarea was a smudge on the horizon now, its walls swallowed by the gathering dark.
+Cornelius did not move. An evening breeze picked up, carrying the smell of salt and cooking fires. He was cold now. He shivered, his tunic inadequate. He waited, as if by sheer will he could pierce the darkness and see the moment of their return, or their failure.
 
-Somewhere in that city, the centurion waited.
+A light flickered to life in a window below him. Then another. The city began to pinprick with tiny domestic stars. His own house remained dark. He was a silhouette against the fading sky.
 
-Ezra murmured a prayer, the words lost to the wind.
+He had opened the gate. He had sent the word out. The system of his life—the ledgers, the drills, the rituals, the walls—had been engineered to keep the chaos at bay, to keep the memory of the Germanian boy locked in a room where it could not touch him. But the angel’s command had bypassed all of it. It had spoken directly to the wound. Now the chaos wasn’t outside. It was in his study, in the smeared ink. On his roof, in the cold wind. In the empty road.
 
-*
+The last sliver of sun vanished. The world was not plunged into darkness, but into a deep, blue twilight. The sea was a sighing blackness.
 
-Cornelius stood at the edge of the rooftop long after the dust of the riders had vanished. The sun climbed higher, bleaching the sky white. Below, the courtyard buzzed with the usual rhythms, slaves scrubbing the mosaic floors, the cook banging pots near the hearth, the steady scrape of a whetstone as one of the household guards sharpened his blade. Normalcy. Routine. He clung to it like a drowning man to driftwood.
-
-He descended the stairs, his sandals scuffing against the worn stone. The house smelled of baking bread and the faint, lingering tang of fish sauce. Drusilla moved through the atrium, directing two slaves carrying baskets of laundry. She didn't look at him. Her silence was a blade between his ribs.
-
-The triclinium was empty, the couches neatly arranged, the low table polished to a dull sheen. He ran his thumb along the edge of his belt, tracing the absent buckle. The leather was smooth from years of this same motion, this same ache.
-
-A servant entered with a cup of watered wine. Cornelius took it without a word. The liquid was lukewarm, the taste faintly sour. He set it down untouched.
-
-"Sir." The steward hovered in the doorway, his hands clasped. "The quartermaster sent word about the grain shipment. He requests your seal."
-
-Cornelius stared at him. Grain shipments. Seals. The mundane machinery of his duties, grinding on as if nothing had changed. As if the divine had not pressed its thumb into the fabric of his life and left it crumpled.
-
-"Later."
-
-The steward hesitated. "He said it was urgent."
-
-The man bowed and retreated.
-
-Cornelius moved to the courtyard, where the fountain murmured softly. The water was clear, catching the sunlight in fleeting glimmers. He had chosen this house for the fountain, a luxury, yes, but also a necessity. The sound of flowing water soothed him, a constant beneath the noise of the household. Today, it grated.
-
-He knelt beside the basin, cupping his hands in the cool water. The shock of it against his skin was sharp, bracing. He splashed his face, the droplets tracing paths down his neck, soaking into the linen of his tunic.
-
-"Father?"
-
-Livia stood in the colonnade, her doll clutched to her chest. She was too old for dolls, really, but she clung to them still, their painted faces worn smooth from her fingers.
-
-Cornelius wiped his face with his sleeve. "You should be with your tutor."
-
-"He dismissed me early. Said I recited my verses well." She took a hesitant step forward. "Are you ill?"
-
-"No."
-
-"You look ill."
-
-He exhaled, a sound too sharp to be a laugh. "Go find your mother."
-
-She didn't move. "Was it true? What the slaves are saying? That an angel spoke to you?"
-
-His throat tightened. "Who told you that?"
-
-"Everyone's whispering it." Her eyes were wide, unblinking. "They say you're going to be punished. Or rewarded. They can't decide which."
-
-He reached for her, then stopped. His hands were still damp. "There's nothing to fear."
-
-She studied him, her head tilted. "You're afraid."
-
-A child's bluntness cut through pretense like a knife through figs.
-
-He straightened. "To your mother. Now."
-
-She went, but not before casting one last glance over her shoulder, her doll's head lolling against her arm.
-
-The household shrine stood in its alcove, the small bronze statues of the household gods gleaming dully. Cornelius had never paid them much mind, though Drusilla made the proper offerings. Now, their blank eyes seemed to accuse him. He turned away.
-
-The kitchen was a hive of activity, the air thick with the scent of garlic and roasting meat. Ezra's absence left a gap. The other cooks moved around it without comment, their hands busy with knives and dough. A kitchen boy knelt by the hearth, feeding olive branches into the fire. The flames hissed, spitting sparks.
-
-Cornelius lingered in the doorway. The rhythm of the kitchen was its own kind of order, chopping, stirring, the clatter of spoons against clay. He had always found comfort in it before. Today, it felt alien.
-
-He retreated to the barracks. The soldiers snapped to attention as he entered, their postures rigid. He waved them back to their tasks, mending harnesses, polishing armor, dicing bread and salt pork for their midday meal. Their voices were subdued, their glances fleeting. Word had spread, then.
-
-Antonius's bunk stood empty, his gear stowed neatly beneath it. Antonius was a reliable soldier, steady if unimaginative. He would follow orders. He would deliver the message.
-
-If the fisherman refused—Cornelius clenched his jaw. The fisherman wouldn't refuse. The angel had said so.
-
-Hadn't it?
-
-A memory of the vision was already fraying at the edges, the way dreams did upon waking.
-
-He left the barracks, the heat of the day pressing down like a hand. The solarium beckoned, its height offering the illusion of control. He climbed the stairs slowly, each step a deliberate act.
-
-The rooftop was empty now, the tiles baking under the sun. The sea stretched to the horizon, flat and endless. Somewhere out there, Antonius and Ezra rode toward Joppa. Toward Peter.
-
-Cornelius knelt by the parapet, his knees protesting against the hard stone. He pressed his palms flat against the tiles, the heat searing his skin. The prayer that rose to his lips was rote, the words worn smooth from repetition.
-
-Hear, O Israel—No. Wrong prayer. Wrong covenant.
-
-He swallowed, his throat dry. What did one say to a god who had broken his silence after a decade?
-
-The sun crawled across the sky. Shadows lengthened. The household moved through its routines below, meals served, floors swept, lamps lit as evening approached. Cornelius remained on the rooftop, his body stiff from stillness.
-
-Drusilla found him there as dusk settled over the city. She carried a lamp, its flame guttering in the breeze.
-
-"You haven't eaten."
-
-He didn't turn. "I'm not hungry."
-
-She set the lamp on the parapet. The light painted her face in gold and shadow, deepening the lines around her mouth. "The slaves are frightened."
-
-"Let them be."
-
-"And I?"
-
-That brought him around. Drusilla was not given to vulnerability. Her hands were clasped tightly, the knuckles pale.
-
-He reached for her, then hesitated. "You have nothing to fear."
-
-"Don't lie to me." Her voice was low, fierce. "Not about this."
-
-The words lodged in his throat. He had lied to her for years, about Germania, about the blood on his hands, about the hollow space inside him that no amount of prayer could fill.
-
-She turned away before he could speak, her stola whispering against the tiles. The lamp remained, its flame flickering.
-
-Night settled over Caesarea. The city's noises faded, the calls of vendors, the clatter of carts, the distant shouts from the docks. The sea breeze carried the scent of salt and rotting fish.
-
-Cornelius paced the rooftop, his sandals scuffing against the stone. The stars emerged, cold and distant. Somewhere to the south, two men rode through the dark, carrying his fate with them.
-
-The house below was silent. Even the slaves had retreated, their whispers stifled. Only the fountain murmured, its endless cycle of pouring and replenishing.
-
-He stopped at the parapet, his fingers gripping the stone. Joppa was invisible in the darkness, but he stared south anyway, as if he could will the riders forward, could summon Peter with the sheer force of his need.
-
-The lamp guttered out. The darkness was complete.
-
-Somewhere in the night, a dog barked, the sound sharp and sudden. Cornelius flinched.
-
-He was a soldier. He knew how to wait. How to endure.
-
-But this was something else entirely.
-
-The silence stretched, vast and unyielding.
-
-Somewhere, a door creaked open. Or maybe it was the wind.
+He knew then, with a certainty that was colder than the stone beneath his hands, that the boundaries were not just crossed. They were gone. The man from Joppa would come, or he would not. Either way, the ordered world was over. The waiting was just the silence before the storm finally broke over his well-kept house.
