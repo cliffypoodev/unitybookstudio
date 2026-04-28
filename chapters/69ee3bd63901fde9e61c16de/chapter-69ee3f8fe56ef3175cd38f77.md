@@ -78,7 +78,7 @@ Barnabas helped Peter to his feet. “You’ll stay here tonight. Mary has a roo
 
 “And lead a delegation there at first light? Better here. Let it be on neutral ground.”
 
-Neutral. The word felt like a joke. There was no neutral ground anymore. The floor itself felt tilted.
+Neutral. The word felt like a joke. There was no neutral ground anymore. That floor itself felt tilted.
 
 The room emptied. The circumcision party left last, a silent bloc moving into the night. James paused at the doorway, looked back at Peter. He didn’t speak. He didn’t need to. The summons was in the air.
 
@@ -98,7 +98,7 @@ Peter had no answer. He saw the boy’s face in his mind—eager, confused. He s
 
 Mary nodded, not satisfied, but accepting. She turned away to finish with the lamps.
 
-The room was indeed simple: a sleeping mat, a low stool, a jug of water. The window looked out onto a dark alley. Peter sat on the mat. The sounds of the city at night filtered in—a distant shout, a dog barking, the sigh of the wind moving through the narrow streets. He pulled off his sandals. His feet were raw, dust ingrained in the cracks.
+This room was indeed simple: a sleeping mat, a low stool, a jug of water. The window looked out onto a dark alley. Peter sat on the mat. The sounds of the city at night filtered in—a distant shout, a dog barking, the sigh of the wind moving through the narrow streets. He pulled off his sandals. His feet were raw, dust ingrained in the cracks.
 
 He thought about the sheet from the vision, the great canvas descending. He’d been so fixated on the animals, the command to eat. He’d missed the sheer size of the thing. It blotted out the sky. It covered everything.
 
@@ -214,7 +214,7 @@ James raised his head. The confusion was gone, replaced by a grim resolve. “We
 
 It was not an acceptance. It was a subpoena.
 
-Peter felt a profound weariness. The story was his, but it was no longer his. It was about to become evidence. He nodded, the motion costing him. The sun had climbed higher, a harsh bar of light cutting across the courtyard, illuminating the dust motes dancing in the air between him and his judges. The leaf in the corner was now half in light, half in shadow. He would have to start again. With the hunger on the roof. With the sky. With the sheet blotted with impossible life, descending, descending, until it covered everything in sight.
+Peter felt a profound weariness. The story was his, but it was no longer his. About to become evidence. He nodded, the motion costing him. The sun had climbed higher, a harsh bar of light cutting across the courtyard, illuminating the dust motes dancing in the air between him and his judges. The leaf in the corner was now half in light, half in shadow. He would have to start again. With the hunger on the roof. With the sky. With the sheet blotted with impossible life, descending, descending, until it covered everything in sight.
 
 He began with the hunger. Not the theological kind, but the real, hollow ache in his belly that afternoon in Joppa. The smell of lentils and garlic from downstairs, Simon’s wife singing as she worked. He described the angle of the sun on the rooftop tiles, the way the heat rose in visible shimmers, how a single white cloud had hung motionless in the otherwise empty sky. He mentioned a loose tile near the parapet that clicked when he stepped on it. It had nothing to do with anything. He told them anyway.
 
