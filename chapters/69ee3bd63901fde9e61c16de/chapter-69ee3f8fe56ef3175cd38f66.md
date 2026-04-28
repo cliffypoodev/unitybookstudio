@@ -54,7 +54,7 @@ Cornelius watched them leave, their footsteps echoing in the atrium as they move
 
 *
 
-The morning sun climbed, a hard white coin in a sky bleached of color. Cornelius watched from the gate as Decimus tightened the girth on his mount, the leather creaking in protest. The horse, a tall bay, stamped once, sending up a small puff of dust from the packed earth of the street. A fly, persistent and stupid, buzzed around the animal’s eye. Decimus swatted it away with a practiced flick of his wrist, his movements economical, devoid of wasted energy. He was a good soldier. Reliable. He would follow the order to the letter and ask no questions beyond those necessary for its execution.
+That morning, the sun climbed, a hard white coin in a sky bleached of color. Cornelius watched from the gate as Decimus tightened the girth on his mount, the leather creaking in protest. The horse, a tall bay, stamped once, sending up a small puff of dust from the packed earth of the street. A fly, persistent and stupid, buzzed around the animal’s eye. Decimus swatted it away with a practiced flick of his wrist, his movements economical, devoid of wasted energy. He was a good soldier. Reliable. He would follow the order to the letter and ask no questions beyond those necessary for its execution.
 
 Rufus was already mounted, his gaze scanning the street in both directions, his hand resting lightly on the pommel of his sword. His posture was perfect, textbook, but Cornelius saw the slight tension in his shoulders, the way his eyes lingered a fraction too long on a group of Jewish merchants setting up their stalls across the way. He was thinking about the tanner’s house, about the stench, about the awkwardness of the request. He was thinking about everything except the simple fact of the order.
 
@@ -92,13 +92,13 @@ They were gone.
 
 The noise of the street rushed in to fill the space they had occupied. The cart driver’s curses, the women’s laughter, the rhythmic clang from the blacksmith’s forge—it all swelled, loud and meaningless. Cornelius realized he was holding his breath. He let it out, a slow, controlled exhalation that did nothing to ease the tightness in his chest.
 
-He remained at the gate. Its stone was warm now under his palm. He stared at the empty bend in the road, as if willpower alone could pull them back into view. A fragment of a prayer he’d learned from Silas drifted through his mind, half-remembered, in Aramaic. He didn’t know the full meaning. He pushed it away.
+He remained at the gate. The stone was warm now under his palm. He stared at the empty bend in the road, as if willpower alone could pull them back into view. A fragment of a prayer he’d learned from Silas drifted through his mind, half-remembered, in Aramaic. He didn’t know the full meaning. He pushed it away.
 
 A child ran past, chasing a wooden hoop, his shrieks of joy piercing the air. Cornelius flinched. This sound was too sharp, too alive. He looked down at his hand. A line of grey mortar dust was embedded in the creases of his palm. He brushed it against his tunic, a useless, fussy gesture.
 
 He should go inside. There were reports to review. The cohort’s monthly inventory was due. The legate expected a dispatch on the local morale. A hundred practical tasks demanded his attention, each one a solid brick in the wall of his daily life. He could not move.
 
-The vision replayed behind his eyes, not as a coherent memory, but in sensory shards. The light that was not light. The voice that was not a voice. The word. Saved. It meant nothing here, in this sun-baked street smelling of bread and dung. It was a word for darkness and private terror, not for the pragmatic world of men and orders.
+The vision replayed behind his eyes, not as a coherent memory, but in sensory shards. A light that was not light. A voice that was not a voice. The word. Saved. It meant nothing here, in this sun-baked street smelling of bread and dung. It was a word for darkness and private terror, not for the pragmatic world of men and orders.
 
 He had sent them. The action was irrevocable. This was the thing about orders—once given, they took on a life of their own. They moved beyond your control. They succeeded or they failed based on a thousand variables you could never account for. A loose horseshoe. A sudden fever. A misunderstanding at a tanner’s door.
 
@@ -158,7 +158,7 @@ He walked to the western edge, placing his hands on the sun-warmed stone. The vi
 
 His gaze tracked the southern road, the ribbon of dust that wound past the tower and vanished into the hazy hills. They were out there somewhere. Decimus, Rufus, Silas. Had they made the tower yet? Would they stop for water? A thousand mundane possibilities, none of them knowable. The not-knowing was an open wound.
 
-A memory surfaced, unbidden. Not of Germania, but of his first command, a minor outpost on the Danube. A sentry had fallen asleep at his post. The punishment was flogging. The boy—he was just a boy, from some dusty Italian village—had wept silently as the lash fell. Cornelius had watched, his face impassive, because discipline was the mortar of the empire. Afterward, as the surgeon applied vinegar to the stripes, the boy had looked at him, his eyes red-rimmed. He hadn’t looked angry. He’d looked bewildered, as if he couldn’t quite understand how the rules he’d learned had led him to this specific, searing pain. Cornelius had dismissed the look. Now, decades later, standing on his roof in Judea, he wondered what had become of that boy. Had the discipline saved him? Or had it simply broken something in him that never mended?
+A memory surfaced, unbidden. Not of Germania, but of his first command, a minor outpost on the Danube. A sentry had fallen asleep at his post. The punishment was flogging. That boy—he was just a boy, from some dusty Italian village—had wept silently as the lash fell. Cornelius had watched, his face impassive, because discipline was the mortar of the empire. Afterward, as the surgeon applied vinegar to the stripes, the boy had looked at him, his eyes red-rimmed. He hadn’t looked angry. He’d looked bewildered, as if he couldn’t quite understand how the rules he’d learned had led him to this specific, searing pain. Cornelius had dismissed the look. Now, decades later, standing on his roof in Judea, he wondered what had become of that boy. Had the discipline saved him? Or had it simply broken something in him that never mended?
 
 The sun began its long, slow fall toward the sea. Shadows pooled in the streets below, deepening from grey to purple. The city’s sounds changed, the commercial bustle fading into the quieter hum of evening: a mother calling a child, the clatter of a shutter being closed, the first, tentative notes of a lyre from a nearby courtyard.
 
@@ -178,4 +178,4 @@ He had opened the gate. He had sent the word out. The system of his life—the l
 
 The last sliver of sun vanished. The world was not plunged into darkness, but into a deep, blue twilight. The sea was a sighing blackness.
 
-He knew then, with a certainty that was colder than the stone beneath his hands, that the boundaries were not just crossed. They were gone. The man from Joppa would come, or he would not. Either way, the ordered world was over. The waiting was just the silence before the storm finally broke over his well-kept house.
+He knew then, with a certainty that was colder than the stone beneath his hands, that the boundaries were not just crossed. They were gone. A man from Joppa would come, or he would not. Either way, the ordered world was over. The waiting was just the silence before the storm finally broke over his well-kept house.
