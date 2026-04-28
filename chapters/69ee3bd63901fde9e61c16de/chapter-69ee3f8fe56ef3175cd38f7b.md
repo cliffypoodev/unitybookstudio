@@ -38,7 +38,7 @@ A wind shifted, carrying the briny scent of the harbor. Drusilla exhaled slowly,
 
 He hesitated, his jaw working. It seemed he might say more. Then he nodded once and turned on his heel, his sandals scraping against the stone as he strode toward the gate.
 
-The wasp crawled over the fallen fig, its antennae twitching. Drusilla watched it for a long moment before crushing it beneath her sandal. The sound was small and wet. She left the fruit where it lay.
+The wasp crawled over the fallen fig, its antennae twitching. Drusilla watched it for a long moment before crushing it beneath her sandal. That sound was small and wet. She left the fruit where it lay.
 
 Cornelius stood at the edge of the rooftop, his palms flat against the parapet. The sea stretched before him, endless and indifferent. Below, the city stirred to life—merchants calling their wares donkeys braying, the distant clang of a blacksmith's hammer. Ordinary sounds. Unchanged.
 
@@ -88,7 +88,7 @@ Lydia didn't answer. The rhythm of scraping—metal on bread, bread on stone—f
 
 Marcia sighed and reached for the honey jar. “The child's with her ancestors now. No knife-work will change that.”
 
-The blade stilled. Lydia stared at the ruined loaf, the crumbs scattered like offerings. “She died unclean.”
+Lydia's blade stilled. She stared at the ruined loaf, the crumbs scattered like offerings. “She died unclean.”
 
 “All death is unclean.” Marcia drizzled honey over a wedge of cheese, her hands steady despite their tremor. “Even the high priest's.”
 
