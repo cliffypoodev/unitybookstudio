@@ -1,247 +1,669 @@
-The footsteps on the staircase resolved into sandals scuffing against stone—bare feet would have been silent. Peter turned from the coastline to see Thomas's shadow fill the doorway, his shoulders framed by the lintel like a prophet in a too-small cave.
+The atrium smelled of damp earth and rosemary. Drusilla stood over the household shrine, the lararium’s small flame casting flickering light across the wax masks of ancestors. Her fingers brushed the offering bowl—olive oil, a pinch of salt, nothing extravagant. The gods preferred simplicity, her mother had taught her. Or at least, they accepted it without complaint.
 
-"Simon sent word," Thomas said. The words came out too fast, clipped at the ends. "Two men from Caesarea. Asking for you."
+Across the courtyard, the slave from Judea knelt in the corner where the morning sun struck the mosaics just so, his lips moving silently beneath his beard. He did this every day at the same hour, facing a wall as if it were a window to some distant place. Strange, but harmless. Cornelius allowed it, and the house was his. She dipped her fingers in the oil again, tracing a line along the edge of the bowl. The slave’s prayers were not to her gods, but she supposed all deities appreciated order.
 
-Peter wiped his hands on his tunic, though they weren't dirty. The motion was habit, something to do with the tremor in his fingers. "What kind of men?"
+A shuffling at the colonnade. The new cook—Gaulish, with a livid scar across his forearm—hovered just outside the acceptable boundary for unsummoned servants. His eyes flicked to the slave, then away.
 
-"Not ours." Thomas's jaw worked. "One of them—the way he stood. Like he was used to giving orders."
+“Speak,” she said, without turning.
 
-A centurion's man. The realization settled like a stone in Peter's gut. He crossed to the water basin, dunked his hands, shook them dry. The droplets hit the tiles like tiny accusations.
+“The grain merchant domina. He insists the price has risen again.”
 
-Downstairs, Simon the tanner was already pouring wine for the visitors, his practiced hospitality a veneer over the tightness in his shoulders. The taller of the two men—broad through the chest, hair cropped military-short—accepted the cup but didn't drink. His gaze swept the room, lingering on the unfinished hides stretched over frames near the back door. The other man, softer around the middle, kept his hands clasped behind his back like a schoolboy reciting lines.
+Of course he did. She pressed her tongue against the back of her teeth. The merchants near the harbor had a particular way of standing when they lied—weight shifted to one hip, hand resting too casually on the belt. As if the body itself knew the falsehood and sought balance.
 
-Peter stopped at the threshold. The air smelled of salt and the tannery's acrid undertone, the mingled scents of this liminal place.
+“Pay him. But make it clear we’ll remember when the season turns.”
 
-The broad man turned. "You're the one they call Peter?"
+The cook hesitated. “He says he wants coin today. Not credit.”
 
-"I am."
+She turned then, slowly. The cook flinched. Good. Let him. “Does he?”
 
-"Centurion Cornelius sent us." He reached into his belt and produced a folded square of parchment, its edges crisp. "He requests your presence."
+The slave’s murmuring stopped. A silence stretched, taut as a bowstring.
 
-Peter didn't take it. "Why?"
+“Tell him,” she said, “that my husband’s men patrol the grain docks. And that I have a very long memory.”
 
-The man blinked, as if the question hadn't occurred to him. "He had a vision. An angel told him to send for you."
+The cook swallowed. Nodded. Backed away.
 
-A laugh snagged in Peter's throat. "Your centurion has visions often?"
+A breeze stirred the rosemary sprigs in the offering bowl. The slave resumed his whispering. She exhaled through her nose, rolling the tension from her shoulders. The household was a living thing, and like all living things, it tested its boundaries.
 
-The soldier's mouth flattened. "He's a God-fearer. Gives alms. Prays constantly."
+Cornelius’s footsteps echoed from the tablinum. Too slow. Too measured. He had walked like that in Germania, after the raid that still haunted his sleep.
 
-The words landed like stones in still water. Peter had heard of such men—Gentiles who revered the God of Israel but stopped short of circumcision, clinging to the edges of the covenant like beggars at a feast. This one had the gall to summon an apostle.
+She turned to greet him, the words ready—some quip about merchants and their greed, something to make him exhale through his nose the way he did when amused. But the sight of him stopped her.
 
-Simon shifted, the wine jug sweating in his grip. "Perhaps we should—"
+He stood in the doorway, one hand braced against the frame. His eyes were fixed on the slave, but not with his usual detached tolerance. Something raw flickered there, something that made her own breath catch.
 
-"You can tell your centurion," Peter said, "that I don't enter the houses of Romans."
+The slave, oblivious, rocked slightly on his knees lost in his foreign prayers.
 
-The soldier didn't move. His companion exhaled sharply through his nose.
+Cornelius’s fingers flexed against the wood. Then he pushed off, crossing the atrium in strides that were just a fraction too quick. He stopped before the lararium, staring at the flame as if it might speak.
 
-"The angel said you'd come," the soldier said.
+She stepped closer. “The merchant from Puteoli is raising prices again.”
 
-Peter's pulse kicked. The arrogance of it—the certainty—scraped against the raw place inside him where the Law had always been enough.
+No response.
 
-Thomas cleared his throat. "Maybe we should hear them out."
+“I told the cook to pay, but to make it clear we won’t forget.”
 
-Peter rounded on him. "You want to sit at a Roman's table? Eat meat sacrificed to their gods?"
+He reached out, adjusting the position of an ancestor’s mask by a hair’s breadth. His thumb traced the edge of his military belt—the old habit, the one that meant his thoughts were elsewhere.
 
-Thomas flinched, but held his ground. "I want to know why an angel would send for you."
+“Cornelius.”
 
-The silence stretched. Somewhere outside, a gull cried. The broad soldier still held out the parchment, his arm unwavering.
+He blinked, as if surfacing from deep water. “Do you think the gods listen?”
 
-Peter took it. The wax seal bore the impression of an eagle.
+A question hung between them, absurd. The household gods were like the household itself—present, predictable, demanding only the proper forms.
+
+She touched his arm. The muscle beneath was rigid. “They hear,” she said carefully. “If the offerings are correct.”
+
+His gaze drifted back to the slave. “And his god?”
+
+She followed his look. The slave had lifted his hands slightly, palms up, as if weighing something invisible.
+
+“I don’t know,” she admitted.
+
+Cornelius’s jaw worked. He said nothing.
+
+A clatter from the kitchen—a dropped pot, a hissed curse. The slave did not stir. The morning sun climbed higher, warming the mosaics at his knees.
+
+Her husband’s silence was a stone in her chest. She squeezed his arm. “Come. The steward needs your seal on the barracks orders.”
+
+She thought he might refuse. Then he nodded, once, and let her lead him away.
+
+Behind them, the slave’s whispered prayers filled the space they left behind.
 
 *
 
-Drusilla counted the amphorae a second time, her fingers brushing the cool clay as she tallied. Olive oil: twelve. Garum: seven. Wine: twenty-three, though two were down to dregs. The storeroom smelled of fermentation and the faint metallic tang of the harbor air creeping through the high window.
+The triclinium’s couches were arranged with geometric precision, their cushions plumped to military standards. Cornelius ran a finger along the edge of the nearest one, checking for dust. None. The slaves knew better. He should have found comfort in that—the household functioning as it always did, a well-oiled machine—but the order felt brittle today, like a thin sheet of ice over dark water.
 
-Behind her, one of the kitchen girls hesitated in the doorway. "Domina? The new flour's arrived."
+A servant entered with a tray of figs and cheese setting it on the low table with practiced silence. His movements were efficient, his gaze lowered. Jewish, like the one in the courtyard. Did he pray too? Did his god listen?
 
-"Put it with the rest," Drusilla said without turning. The numbers had to balance. If they didn't, Cornelius would notice. He noticed everything.
+Cornelius dismissed the thought. He wasn’t paying for their prayers.
 
-She pressed her thumb against the rim of an amphora, feeling the ridge where the clay had been imperfectly smoothed. A flaw. Not enough to weaken the vessel, but there. Like the quiet in the house these past few days—something just shy of right.
+The centurion arrived precisely on time, as expected. Lucius Varinius, a junior officer from the third century stood at the threshold, his helmet tucked under one arm. His hair was damp at the temples—had he run here? His eyes darted to the tray of figs, then away. A muscle in his jaw twitched.
 
-The kitchen girl lingered. "The miller says there's talk in the market. About a prophet from Joppa."
+“Come,” Cornelius said, gesturing to the couch opposite.
 
-Drusilla stilled. "What kind of prophet?"
+Varinius hesitated half a breath too long before crossing the room. He sat stiffly, his back not quite touching the cushions. The posture of a man braced for bad news.
 
-"One who heals people." The girl twisted her apron. "They say he raised a woman from the dead."
+Cornelius reached for the wine pitcher. The metal was cool under his fingers, the surface polished to a mirror shine. He poured, watching the liquid darken the clay cup. “You’ve been with the cohort five years.”
 
-A chill traced Drusilla's spine. She turned slowly. "Who's saying this?"
+“Five years and four months, sir.”
 
-"Everyone. The baker. The fishmonger. Even"—the girl glanced toward the courtyard—"even some of the soldiers."
+“Your century handled the riot near the theater well.”
 
-Cornelius's men. Drusilla exhaled through her nose. Her husband's piety was one thing, his private prayers, his donations to the synagogue. But this?
+Varinius’s fingers tightened around his cup. “We had orders.”
 
-"Enough gossip," she said, sharper than she meant to. "The flour won't stack itself."
+A drop of wine splashed onto the table. Cornelius stared at it. Red, like the stripe on a senior officer’s cloak. Like the mud in Germania after the rain.
 
-The girl fled.
+“Sir?”
 
-Drusilla stared at the amphorae, their shadows long in the slanted morning light. She should tell Cornelius. She would tell him.
+He blinked. The stain was still there. He should call for a cloth. He didn’t. “You’re due for promotion.”
 
-But not yet.
+Varinius inhaled sharply. The hope in his eyes was naked, almost painful to look at. “I—thank you, sir.”
 
-The Jewish servant, Samuel, knelt in the corner of the courtyard, his lips moving silently. Cornelius paused at the colonnade, watching the man's shoulders hunch, his forehead nearly touching the tiles. The posture of a man who believed his God could hear a whisper.
+Cornelius turned his cup slowly, watching the light catch the rim. He should say more. Outline the next steps. Reassure. That was how this worked. A patron’s duty. But the words wouldn’t come.
 
-Cornelius's throat tightened. He knew that prayer. The plea for forgiveness, the desperate hope that the scales might somehow balance.
+A silence stretched.
 
-He turned away before Samuel could notice him. The household accounts waited in his study, neat columns of numbers that would add up correctly if he checked them twice.
+Varinius cleared his throat. “The men are saying—” He stopped, reconsidered. “There was talk of a messenger last night. At your house.”
 
-Behind him, the prayer continued, a murmur just below hearing.
+Ah. So that’s why he’d run here. Not for the promotion. For the rumor.
 
-The peristyle garden smelled of rosemary and the faint metallic tang of the aqueduct water splashing into the fountain. Cornelius ran his thumb along the edge of his military belt, counting the ridges in the worn leather. Eleven. Always eleven. He could have traced them blindfolded.
+Cornelius set his cup down. The clay made a soft thud against the wood. “You’re not here to discuss messengers.”
 
-A cough from the colonnade. Optio Decimus stood at attention, his polished greaves gleaming. Too polished. The man had spent half the morning buffing them, then.
+The younger man flinched. “No, sir.”
 
-"Sir." Decimus saluted. "A word?"
+A fly buzzed near the figs. Cornelius watched it land, crawl across the fruit’s split skin. He should swat it. He didn’t.
 
-Cornelius didn't turn. "You're off duty."
+Varinius shifted, the leather of his belt creaking. “My wife—she’s with child again. A boy, the midwife thinks.”
 
-"Yes, sir." A pause. Decimus had the decency not to step onto the garden path; he knew better than to track mud across the precise geometric tiles. "It's about the Judean patrol rotation."
+“Congratulations.” The response was automatic. Hollow.
 
-Ah. The new tribune had announced the postings yesterday. Decimus wanted the Antipatris route, easy duty, a paved road, inns with decent wine. And, more to the point, far from the Syrian governor's inspection next month.
+Another pause. The fly took off, circling the wine pitcher.
 
-Cornelius plucked a leaf from the rosemary bush. He crushed it between his fingers. The scent spiked, sharp and medicinal. "You think you deserve it."
+Varinius’s voice dropped, almost tentative. “They say the messenger was… not of this world.”
 
-Decimus shifted his weight. The motion would have been invisible to anyone who hadn't drilled recruits for twenty years. "I've served under you for three campaigns, sir. My record's clean."
+Cornelius’s thumb found the edge of his belt, tracing the worn leather. The motion usually grounded him. Today, it felt like picking at a scab.
 
-Clean. The word pricked. Cornelius let it hang between them, watching a honeybee navigate the lavender.
+The slave from the courtyard appeared in the doorway, his shadow long against the mosaic floor. He didn’t enter didn’t speak. Just waited.
 
-"Petronius has family in Antipatris," Decimus added, too quickly.
+Varinius followed Cornelius’s gaze. His breath hitched.
 
-Cornelius turned then, just enough to see the man's face. Decimus had the good grace to flush.
+“Leave us.”
 
-"Petronius." Cornelius kept his voice flat. "The same Petronius who lost two pack mules to bandits last winter?"
+The slave bowed and vanished.
 
-Decimus opened his mouth. Closed it. The bee buzzed past his ear, and he flinched.
+Cornelius exhaled through his nose. The fly was back, this time on the cheese. He flicked it away.
 
-Cornelius dropped the crushed rosemary. "You'll take the Samaritan border route. Full complement. Dismissed."
+Varinius leaned forward, his voice urgent now. “Sir, if there’s news from the gods—if you’ve had a sign—the men need to know. The omens have been bad for months.”
 
-For a heartbeat, Decimus didn't move. His jaw worked, not quite defiance, but close. Then the mask snapped back into place. "Sir." He saluted, spun on his heel, and left.
+“Enough.”
 
-The bee settled on a blossom. Cornelius breathed out. He could have explained. Could have said that Petronius's sister was dying, that the fool had been half-mad with grief when he'd let the picket line slacken. Could have mentioned that the Samaritan route needed a steady hand, not a sycophant looking to dodge inspections.
+The word came out sharper than intended. Varinius recoiled.
 
-But explanations were for men who needed to justify themselves.
+Cornelius forced his fingers to unclench. “Your promotion will be processed by the end of the week. Tell your wife… tell her the child will be healthy.”
 
-He crossed to the fountain, dipped his hands in the basin. The water was cold, drawn straight from the aqueduct's lead pipes. He scrubbed his palms, though they weren't dirty.
+It was a lie. He had no way of knowing. But it was the kind of lie patrons told. The kind that kept the machine running.
 
-Inside, the study waited. Scrolls stacked with their edges aligned. Wax tablets arranged by date. A ledger open to yesterday's entries, the ink dark and precise.
+Varinius opened his mouth, then closed it. Nodded. “Thank you, sir.”
 
-Cornelius sat. The chair creaked under his weight. He pulled the ledger closer and ran a finger down the column of numbers. The household expenses balanced to the last sesterce. Wine, oil, grain, all accounted for. The donations to the synagogue, too.
+The dismissal hung unspoken between them. The younger man stood, hesitated, then bowed slightly too deep for their relative ranks. A gesture meant for someone holier. Or haunted.
 
-His stylus hovered over the next line. The servant Samuel had asked for an advance on his wages. His daughter was ill, something about a fever that wouldn't break.
+Cornelius didn’t correct him.
 
-Cornelius set the stylus down. He reached instead for the small cedar box on the corner of the desk. Inside, a single silver denarius gleamed, the face of Tiberius worn smooth by years of handling. His first military pay. He'd meant to spend it on a whore. Hadn't.
+Alone again, he stared at the wine stain on the table. The slave’s shadow reappeared in the doorway.
 
-The coin was warm from the sun slanting through the window. He turned it over. Once. Twice.
+“Out,” Cornelius said, without looking up.
 
-A knock at the door.
+The shadow lingered a moment too long before retreating.
 
-"Enter."
+Somewhere in the house, a child laughed—bright, unburdened. That sound cut through him like a blade. He reached for the wine pitcher again, his hand steady.
 
-Samuel stood on the threshold, his gaze fixed on the floor. "Domine. The couriers have returned from Joppa."
+It wasn’t.
 
-Cornelius stilled. "Alone?"
+The wine missed the cup entirely, splashing across the table, mixing with the older stain. A dark, spreading pool.
 
-"No, domine." Samuel's voice barely rose above a whisper. "They bring the Jew."
+He set the pitcher down carefully. Stood. Walked out.
 
-The coin bit into Cornelius's palm. He hadn't expected—hadn't truly believed—"Prepare the guest chamber," he said.
+Behind him, the fly returned to the figs.
 
-Samuel hesitated. "The upper room, domine?"
+The stableyard smelled of horse sweat and leather, the usual comforting musk of oiled tack and warm animals. Today, though, something sharper threaded through it—the metallic tang of fear, the sour edge of anticipation. It clung to the men checking girth straps and to the slaves filling waterskins. The scent of a battlefield before the first charge, when men pretended not to count their breaths.
 
-"The best one."
+Cornelius stood at the edge of the courtyard, watching two of his most reliable soldiers—Decimus and Rufus—inspect the saddles one last time. They moved with deliberate slowness, fingers checking every buckle and strap twice. A centurion’s habit. Or a stalling tactic.
 
-A flicker of something crossed Samuel's face—surprise? Disapproval?—but he bowed and retreated.
+“The road to Joppa is clear,” Decimus said too loudly, adjusting a stirrup leather that didn’t need adjusting. “Bandits haven’t been reported near Antipatris since—”
 
-Cornelius opened his hand. The denarius had left a red crescent in his skin. He dropped it back into the box, shut the lid with a click.
+“We’re not discussing bandits,” Rufus muttered. He shot a glance toward the house, where the slave—the one who prayed at dawn—stood waiting with a sealed message. His hands were perfectly still at his sides, but his knuckles were white.
 
-Outside, a gust of wind stirred the garden. The rosemary bush shivered, shedding a few leaves onto the path. Uncounted. Unbalanced.
+A stable boy scurried past with an armful of bridles, his sandals kicking up little puffs of dust. One of the horses, a tall bay with a stripe of white down its nose, snorted and stamped. The sound echoed off the courtyard walls, too sharp in the thick air.
 
-He reached for the ledger. The numbers would steady him. They always did.
+Cornelius flexed his fingers. He should give final orders. Remind them of the route, the expected pace, the protocols for entering a Jewish town without causing alarm. The words sat on his tongue, dry and useless. They all knew the mission. Fetch the man called Simon Peter from the house of a tanner by the sea. A simple task, if not for the way the slave had described the vision, an angel, clear as daylight, naming Peter by name.
 
-But when he dipped the stylus, his hand trembled just once before he forced it still.
+The bay horse tossed its head, jingling the bit. Decimus caught the reins, murmuring something low and steady. His hands, usually sure on the battlefield, trembled just enough to make the leather creak.
 
-The rooftop tiles radiated the day's heat through the soles of Cornelius's sandals as he climbed the last steps to the solarium. The space was spare, a low parapet, a bench of sun-bleached cedar, a small table with a basin of water for ritual purification. No statues. No offerings to the household gods. Just the open sky and the sea beyond the city walls, its surface gilded by the sinking sun.
+Across the yard, Drusilla emerged from the shadow of the colonnade, her stola whispering against the stone. She carried a small bundle, provisions, probably. Dried fruit, hard cheese, the kind of rations a wife pressed into her husband’s hands before a campaign. Except this wasn’t a campaign. It was something none of them had a name for.
 
-He set the basin on the bench. The water trembled as he dipped his hands, the motion practiced, precise. Three pours over the right, three over the left. The droplets caught the light as they fell, tiny mirrors scattering across the tiles.
+She stopped beside Cornelius, close enough that the edge of her sleeve brushed his arm. “The steward added extra coin,” she said quietly. “In case they need to pay for lodging.”
 
-A breeze lifted the edge of his tunic. He should have changed into fresh linen before ascending, something untainted by the dust of the street, the sweat of the day. But the couriers would return soon, and there hadn't been time. A thought needled him. Half-measures. Always half-measures.
+He nodded. A practical concern. Normal. Something to anchor the moment in the mundane.
 
-Cornelius knelt. The tiles bit into his knees, a discomfort he welcomed. He pressed his forehead to the warm stone, inhaling the scent of salt and sun-baked clay. The posture was foreign to his body—Roman officers stood to pray, chin high, eyes forward—but he'd learned it from Samuel, from watching the man's quiet devotion in the courtyard.
+The slave stepped forward then, holding out the sealed message. His beard was neatly trimmed, his tunic clean, but his eyes—dark and too knowing—fixed on Cornelius with an intensity that made the back of his neck prickle. “The directions are precise domine. The house is by the sea. He will be expecting you.”
 
-Hear, O Israel. The words were Hebrew, clumsy on his tongue. He'd practiced them in private, whispering like a child learning his letters. The Lord our God, the Lord is one.
+A lie. Or at least, an assumption. The angel hadn’t said Peter would be expecting them. Only that he must come.
 
-A gull cried overhead. Somewhere below, a servant laughed, the sound quickly smothered. The household knew better than to disturb him at prayer.
+Cornelius took the message. The wax seal was cool under his thumb, the imprint of his ring perfectly formed. “You’re certain of the name? Simon called Peter?”
 
-He lifted his head. The sun hung low over the sea, a molten coin balanced on the horizon. The light painted the rooftops of Caesarea in shades of amber and rust, glinting off the bronze eagle atop the praetorium. The sight should have stirred pride. He'd served under that standard for twenty years, had earned his rank through blood and discipline.
+The slave’s mouth twitched, not quite a smile. “Certain.”
 
-A hollow ache spread behind his ribs.
+Decimus cleared his throat. “Sir, if we’re to make Joppa by nightfall—”
 
-Cornelius reached for the scroll beside the basin. The parchment was worn at the edges, the ink faded in places where his fingers had traced the lines too often. A gift from the synagogue's scribe, selected psalms, copied for a generous donor. He unrolled it carefully, the Hebrew characters marching in precise rows. He couldn't read them, not truly, but he knew the verses by heart.
+“Go.”
 
-Create in me a clean heart, O God.
+The soldiers mounted quickly, their movements crisp with relief. Rufus tucked the message inside his breastplate, where it wouldn’t sweat through. The slave murmured something in Aramaic—a blessing or a warning, Cornelius couldn’t tell—and stepped back.
 
-His thumb found the scar on his palm, a souvenir from Germania, where the frost had bitten deeper than the steel. That winter, he'd ordered the village burned. The children had run first, their small forms dark against the snow. One had stumbled. The arrow caught her in the back.
+Drusilla’s fingers brushed his elbow. “They’ll be back in three days.”
 
-Cornelius closed his eyes. The memory was always there, a shadow at the edge of his vision. No amount of alms could erase it. No number of prayers could scour it clean.
+He didn’t answer. Three days was nothing. A routine patrol. The courtyard felt too large suddenly, the walls too thin, as if the house itself were holding its breath.
 
-He forced his breath steady. Recited the next line. Renew a right spirit within me.
+The horses clattered through the gate, their hoofbeats fading into the noise of the city. The stable boy let out a long breath he’d apparently been holding. A kitchen slave dropped a wooden bowl, the clatter making everyone jump.
 
-The words rang hollow. What spirit was left in him? He'd spent a lifetime building walls: discipline, order, the unyielding structure of the legion. But here, alone on the roof with the sky stretching endless above him, he felt the cracks.
+Normal sounds. A normal morning.
 
-A sound from below, footsteps on the stairs. Too heavy for a servant.
+Cornelius turned toward the house. The slave was gone vanished back into the shadows of the colonnade. Only Drusilla remained, her profile sharp against the bright sky.
 
-Cornelius stiffened. He hadn't heard the couriers return. Had the Jew refused to come? The thought sent a sharp spike through his gut. He rolled the scroll and set it aside.
+“You didn’t tell them,” she said.
 
-"Decimus." He didn't turn.
+He knew what she meant. He hadn’t described the vision, not really. Hadn’t told them how the light had poured through his bedroom like liquid, how the voice had bypassed his ears entirely settling directly into his bones. They thought they were fetching a holy man for a private audience. Not upending the order of the world.
 
-The optio halted at the top step. "Sir."
+“They didn’t need to know.”
 
-"Report."
+She studied him, her eyes tracing the line of his jaw, the set of his shoulders. Searching for cracks. “And when they bring him here? What then?”
 
-"The men are back from Joppa." A pause. Decimus had the decency to sound uneasy. "They brought him."
+The question hung between them, weightier than the sealed message now riding toward Joppa.
 
-Cornelius's fingers twitched toward his belt, the familiar ridges of leather. Eleven. Always eleven. "Where is he now?"
+Somewhere in the house, a child laughed again, the same bright, careless sound from earlier. It should have been comforting. It felt like an accusation.
 
-"The guest chamber, sir."
+Cornelius touched the edge of his belt, the leather worn smooth from years of this same nervous habit. “Then we’ll see if the gods listen.”
 
-The best room. The one reserved for visiting dignitaries, with its own courtyard and a view of the sea. Let the Jew see that a Roman could offer hospitality. That he understood honor.
+The courtyard, usually alive with the clatter of daily life had gone preternaturally still. Even the birds in the fig tree were silent.
 
-Cornelius stood. The sun had dipped lower, the light gone thick and honeyed. "Tell the kitchen to prepare a meal. Nothing from the markets—slaughter our own lamb. And send word to the synagogue."
+Drusilla whispered out, long and slow. “Not the gods,” she murmured. “His god.”
 
-He stopped. The rabbi wouldn't come, not to break bread with a Gentile. Not even for Cornelius's gold.
+Above them, the sky was a perfect, untroubled blue.
 
-Decimus shifted. "Sir?"
+Voss’s hand came down on the console. A hatch began to seal.
 
-"Never mind." Cornelius turned toward the sea. The horizon was a razor's edge cutting the sky from the water. "Dismissed."
+Kaelen lunged. Her fingers caught the lip of the hatch, slick with condensation. The metal groaned, grinding against her grip. She didn’t pull herself up. She shoved the pistol through the narrowing gap and fired.
 
-Decimus hesitated. "The men said the Jew was... reluctant."
+The shot echoed in the cramped space below. Voss stumbled back, a dark bloom spreading across his shoulder. He didn’t cry out. His face tightened, a mask of pure focus. He slammed the console again.
 
-Cornelius's jaw tightened. Of course he was. A pious Jew entering a Gentile's house? It was a wonder he'd come at all.
+The hatch stopped. It hung open, a sliver of light.
 
-"He'll stay," Cornelius said, more to himself than to Decimus. The angel had promised.
+Kaelen hauled herself through. Her knees hit the deck. She scrambled up, turning.
 
-The optio saluted and retreated down the stairs, his footsteps fading into the murmur of the household below.
+Voss was already moving. He kicked a storage crate into her path. She sidestepped, but the delay cost her. He had the door open. He was through it.
 
-Cornelius remained at the parapet. The first stars pricked the darkening sky. He should go down, greet his guest, play the part of the gracious host. But his limbs felt leaden, his thoughts tangled.
+She followed.
 
-What if the Jew took one look at him and saw the blood on his hands?
+The corridor outside was a different kind of cold. Dry. Sterile. The air smelled of ozone and recycled oxygen. Voss ran, his stride uneven now, one arm clamped to his wound.
 
-The breeze shifted, carrying the scent of charcoal from the kitchen fires. The lamb would be roasting by now, the fat dripping onto the coals. A clean sacrifice, if not a proper one.
+Kaelen sprinted after him. Her boots slapped the polished floor. The sound echoed, a lonely percussion in the empty passage.
 
-Cornelius steadied himself. He should wash again before the meal. Should change his tunic.
+He rounded a corner. She heard a door hiss open ahead.
 
-He turned.
+When she reached the turn, she saw it. An observation lounge, wide windows looking out on the blue sky and the green curve of the world below. Voss stood at the far window, his back to her. His reflection in the glass was pale, blurred.
 
-The western sky was alight. Not with sunset—the sun had sunk below the horizon—but with a strange, pulsing glow, like a furnace glimpsed through a crack in a door. It danced above the sea, a ribbon of gold unraveling across the dark.
+She entered. The door sealed behind her.
 
-Cornelius's breath caught.
+“It won’t open for you,” Voss said, still facing the view. “I keyed it to my biosign. You’re trapped here with me.”
 
-The light intensified, shaping itself into something almost, almost like a figure. Tall. Radiant. Impossible.
+Kaelen kept the pistol aimed. “Then we talk.”
 
-His knees buckled. He caught himself on the parapet, the rough stone scraping his palms. The scroll of psalms lay forgotten on the bench, the words he'd recited moments ago now burning in his chest.
+“We don’t have anything to talk about.”
 
-Create in me a clean heart.
+“The fall. The real one. Not the story you sold.”
 
-The light moved. Not with the wind, not with the rhythm of the waves, but with purpose. With intent.
+Voss turned. The bloom on his shoulder had spread. His shirt was dark with it. “What do you think you know?”
 
-Cornelius tried to speak. His throat locked around the words.
+“I know it wasn’t an accident.”
 
-Then the light was upon him, and the world fell away.
+He laughed, a short, dry sound. “Of course it wasn’t. Accidents are for fools. The fall was a correction. A necessary pruning.”
+
+“Pruning.”
+
+“The colony was flawed. The genetic drift was too pronounced. The social models… brittle. We built a perfect system. They corrupted it. They introduced variance. Disorder.”
+
+Kaelen’s grip on the pistol tightened. “You killed them.”
+
+“I corrected the experiment.”
+
+“They were people.”
+
+“They were data.” Voss leaned against the window frame. “And the data pointed to failure. So I terminated the run. Clean. Efficient. The only regret was the loss of the habitat itself. A beautiful structure. But the sacrifice was necessary.”
+
+She took a step forward. “You’re going to tell that to the review board?”
+
+“There is no review board. The corporation dissolved the oversight committee six months ago. I report to a single director. He understands the value of decisive action.”
+
+“So you get a commendation.”
+
+“I get a continuation. A new colony. A fresh start. No drift. No variance. We control every variable from inception.”
+
+“And me?”
+
+“You’re a variable.” Voss looked at her, his eyes flat. “You were supposed to die in the shuttle malfunction. A tragic accident, during a routine inspection. It would have been tidy.”
+
+“The shuttle was sabotaged.”
+
+“Obviously.”
+
+“By you.”
+
+“By my assistant. A loyal man. He’s waiting for my signal now. If I don’t send it, he’ll assume complication and proceed to phase two.”
+
+Kaelen felt the cold of the room seep into her skin. “Phase two.”
+
+“The orbital platform has a self-destruct protocol. A failsafe, in case of catastrophic containment breach. It can be triggered remotely.”
+
+“You’d blow up the station.”
+
+“I’d eliminate the evidence. And you.” Voss smiled. It was a thin, technical expression. “But I’d prefer not to. The platform is expensive. You’re… manageable. If you put the pistol down, we can discuss your future.”
+
+“My future.”
+
+“A transfer. A new assignment. Somewhere far from here. You have skills. They could be applied elsewhere. Quietly.”
+
+Kaelen didn’t move. “And the fall stays buried.”
+
+“It stays classified. A necessary correction, as I said.”
+
+“No.”
+
+Voss’s smile vanished. “Then you die here. And the platform dies with you. And the truth dies with both.”
+
+“The truth is in the data cores. I copied them.”
+
+“The cores you copied are blank. I wiped them before you ever touched the console. You have nothing.”
+
+She had expected that. “I have the original logs. From the secondary cache. You missed it.”
+
+He blinked. Once. “There is no secondary cache.”
+
+“You designed the system. But you didn’t build it. The engineers added a backup. A hidden partition. It’s not in the schematics.”
+
+Voss straightened. The movement was slow, deliberate. “You’re lying.”
+
+“Check your terminal.”
+
+He didn’t look at his terminal. He looked at her face. “If you had them, you’d have transmitted them already.”
+
+“The comms array is down. You shut it down.”
+
+“So you’re stranded with evidence you can’t send.”
+
+He considered this. The silence between them was absolute, pressed thin by the vast view outside.
+
+“Then we have a problem,” he said finally.
+
+“We do.”
+
+“You can’t win. Even if you kill me, my assistant will trigger the destruct. You’ll die. The evidence will die.”
+
+“Then I’ll kill your assistant too.”
+
+“He’s on a separate module. The blast doors are sealed. You can’t reach him.”
+
+Kaelen took another step. “So I need you to call him. Tell him to stand down.”
+
+“I won’t.”
+
+“You will.”
+
+“Why?”
+
+“Because you want to live. And you want your new colony. The destruct protocol kills both. If I die, you lose your future. If the platform dies, you lose your project.”
+
+Voss watched her. He didn’t speak.
+
+She kept the pistol aimed at his chest. “Call him.”
+
+She fired.
+
+The shot took him in the leg. He crumpled, hitting the floor with a hard gasp. He clutched his thigh, his face blanched.
+
+Kaelen walked to him. She stood over him. “Call him.”
+
+Voss let the words out through clenched teeth. “You… you’re not a soldier. You’re an inspector.”
+
+“I’m whatever I need to be.” She lowered the pistol to his forehead. “Make the call.”
+
+He stared up at her. The flatness in his eyes had shattered. Something raw looked out now. Fear. Calculation. A desperate arithmetic.
+
+He reached for his wristcomm. His fingers fumbled over the interface.
+
+Kaelen watched. She didn’t blink.
+
+He opened a channel. “Elias. Stand down. The situation is… contained.”
+
+A voice crackled from the tiny speaker. “Contained? Your biosign shows injury.”
+
+“Minor. The inspector is cooperative. Do not trigger phase two.”
+
+“I need confirmation.”
+
+“I am giving you confirmation.”
+
+“I need a code.”
+
+Voss hesitated. His eyes flicked to Kaelen’s pistol.
+
+She pressed the barrel against his skin.
+
+He spoke a string of numbers.
+
+A voice on the comm replied. “Code accepted. Standing down.”
+
+The channel closed.
+
+Voss let his arm drop. “He’s off the trigger.”
+
+“Now the comms array.”
+
+“I can’t reactivate it from here. The control is in the operations hub.”
+
+“Then we go to the operations hub.”
+
+“I can’t walk.”
+
+“You’ll crawl if you have to.”
+
+She stepped back, giving him space to rise. He tried. His leg buckled. He caught himself on the window frame, the silence between them hard.
+
+“Help me,” he said.
+
+He managed to stand, leaning heavily on the frame. “You’ll have to slow down. I can’t keep pace.”
+
+“You’ll keep pace.”
+
+They moved toward the door. Voss hobbled, each step a controlled collapse. Kaelen walked beside him, her pistol never lowering.
+
+The door hissed open. The corridor stretched ahead, empty and bright.
+
+They began the long, slow walk to the hub.
+
+The operations hub was a circle of light and noise. Consoles hummed. Screens displayed scrolling data. The air here was warmer, charged with energy.
+
+Voss collapsed into a chair at the central station. He sweated. His injuries stained his clothes dark.
+
+Kaelen stood beside him. “Reactivate the array.”
+
+He worked the console. His movements were sluggish, but precise. “It’ll take a minute. The system needs to reboot.”
+
+She watched the screens. One displayed external feeds. The blue sky. The green world. Another showed internal diagnostics. Life support. Power levels. All stable.
+
+“Where’s your assistant?” she asked.
+
+“Module seven. He’s locked in. He won’t come out unless I call him.”
+
+“Call him.”
+
+“I want him here.”
+
+“He’s armed.”
+
+“So am I.”
+
+Voss didn’t argue. He opened another channel. “Elias. Come to the hub. I need assistance.”
+
+No reply.
+
+“Elias.”
+
+Silence.
+
+Voss looked at the comm status. “He’s not responding.”
+
+“Did he believe your stand-down order?”
+
+“He accepted the code.”
+
+“Maybe he didn’t.”
+
+Kaelen turned from the console. She scanned the hub. There were two other doors. One led to the maintenance shafts. One to the module connectors.
+
+She chose the connectors.
+
+“Stay here,” she told Voss.
+
+“I can’t move.”
+
+“Then don’t.”
+
+She went to the door. It opened onto a narrow tunnel, a tube of brushed metal lit by pale strips of LED. The air was colder here. It smelled of lubricant and static.
+
+She walked. The tunnel curved. It ended at a heavy blast door, marked with a seven.
+
+The door was sealed.
+
+She examined the control panel. It required a biometric key or an override code. She had neither.
+
+She returned to the hub.
+
+Voss was still in the chair. His eyes were closed. “He won’t open it for you.”
+
+“Then you open it.”
+
+“I can’t. The blast doors are independent. He controls his own module.”
+
+“So he’s trapped.”
+
+“Or waiting.”
+
+Kaelen looked at the main screen. The comms array status flickered from offline to rebooting. “How long?”
+
+“Two minutes.”
+
+She waited.
+
+The screens cycled. Data flowed. The hum of the consoles was a constant, low thrum in her bones.
+
+Voss spoke, his voice thin. “What will you do with the logs?”
+
+“Send them.”
+
+“To whom?”
+
+“To everyone.”
+
+“They’ll bury them. The corporation has layers. The truth will get lost in the bureaucracy.”
+
+“Maybe.”
+
+“It’s guaranteed. You’re wasting your life.”
+
+“I’m not wasting it. I’m using it.”
+
+He opened his eyes. They were dull now. “You think this is noble.”
+
+“I think it’s necessary.”
+
+“Necessary for what? For a colony that’s already dead? For people who are already ash?”
+
+“For the next colony. For the people who might live there.”
+
+“They’ll live under the same rules. The same controls. My work continues. Your interruption is a temporary anomaly.”
+
+The array status changed. Online.
+
+Kaelen moved to the comm console. She entered her credentials. She accessed the transmission queue. She uploaded the files from the hidden partition.
+
+The system asked for a destination.
+
+She listed every oversight address she knew. Every public archive. Every news feed with a secure channel.
+
+She set the priority to maximum.
+
+She initiated the send.
+
+A progress bar appeared. It began to fill.
+
+Voss watched from his chair. “You’ve just killed your career.”
+
+“I never had a career. I had a job.”
+
+“They’ll blacklist you. You’ll never work again.”
+
+“I’ll work somewhere else.”
+
+“No one will hire you.”
+
+“Someone will.”
+
+The progress bar reached halfway.
+
+A new alert flashed on the screen. Module seven. The blast door was opening.
+
+Kaelen turned.
+
+Voss saw it too. “Elias.”
+
+She moved to the hub entrance, pistol ready.
+
+The door to the connector tunnel snapped open.
+
+A man stepped into the hub. He was tall, lean, dressed in a grey technician’s suit. He held a compact rifle, aimed low.
+
+He saw Voss in the chair. He saw Kaelen by the door.
+
+His rifle came up.
+
+Kaelen fired first.
+
+Her shot hit his arm. The rifle jerked. He didn’t drop it. He fired back.
+
+The round tore into the console beside her. Sparks fountained. Screens died.
+
+She fired again. Again.
+
+He staggered, but he kept moving. He was trained. He was disciplined.
+
+He reached Voss’s chair. He grabbed Voss’s shoulder. “Can you walk?”
+
+“Then we stay.”
+
+He turned his rifle toward Kaelen. “Stand down.”
+
+“The array is online. Your transmission is going out. You’ve won. Stand down.”
+
+“You tried to kill me.”
+
+“I executed an order.”
+
+“Now you’re executing another one.”
+
+“This one is to preserve. Voss is valuable. His work is valuable. Let him live.”
+
+Kaelen kept her pistol aimed. “He doesn’t deserve to live.”
+
+“Deserve isn’t a metric we use.”
+
+Elias looked at the screen. “It’s done. The data is gone. You can’t retrieve it. Let this end.”
+
+“It ends when he’s in a cell.”
+
+“He won’t see a cell. The corporation will protect him. They’ll rebrand the project. They’ll spin the story. You’ve only made more work for the public relations team.”
+
+The progress bar filled.
+
+Transmission complete.
+
+The logs were gone. Sent.
+
+She lowered her pistol.
+
+Elias lowered his rifle.
+
+Silence, thick and sudden fell over the hub.
+
+Then the sirens started.
+
+A new alert screamed across the dead screens. A containment breach. Module seven. Radiation levels spiking.
+
+Elias looked at Voss. “What did you do?”
+
+Voss smiled. His thin, technical smile. “A final correction.”
+
+“You triggered the destruct.”
+
+“I triggered a partial breach. The module will flood with radiation. The hub will seal. You and the inspector will die here. I will be evacuated by the corporation’s emergency response. They’re already en route. They knew this might happen.”
+
+Elias stared at him. “You lied to me.”
+
+“I utilized you.”
+
+The blast doors to the hub began to close.
+
+Kaelen ran for the entrance. Elias ran with her.
+
+The doors moved slowly, but they moved.
+
+They reached the gap. Narrowing.
+
+Kaelen shoved through. Elias followed.
+
+The doors sealed behind them with a final, heavy thud.
+
+They were in the connector tunnel again. The sirens were muffled here, but the radiation alert flashed on every panel.
+
+Elias turned to her. “We need to get to a shuttle.”
+
+“The shuttle bay is on the other side of the station.”
+
+“Then we run.”
+
+They ran.
+
+The tunnel seemed longer now. The lights seemed dimmer. The air seemed thicker.
+
+They reached the main corridor. The sirens were louder here. Klaxons blared. Lights strobed red.
+
+They sprinted toward the shuttle bay.
+
+Behind them, in the sealed hub, Voss waited for his rescue.
+
+Above them, the perfect blue sky began to darken with the first streaks of incoming ships.
