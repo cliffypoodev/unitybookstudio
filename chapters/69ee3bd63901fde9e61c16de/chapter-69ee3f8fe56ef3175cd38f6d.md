@@ -1,213 +1,221 @@
-Cornelius’s forehead pressed against the cool mosaic tile. The pattern was geometric, a repeating border of black and white squares. His eyes were closed. The grit on the floor was a specific grit, the kind that collected in corners no broom reached. He could smell the wool of his own tunic, the oil he’d used to polish his belt that morning, a faint trace of rosemary from the garden beyond the curtain. These were the things his mind fixed on, because the larger thing—the prostrate shape of his own body in the entry hall of his own house, the six Jewish men staring at him from the vestibule, the Galilean fisherman standing frozen in the doorway—was too large to hold. It would crack him open.
+Cornelius dropped to his knees.
 
-He had not planned this. The angel’s command had been clear: send, summon, receive. He had prepared the house, the food, the guests. He had rehearsed a speech of welcome in his head, a centurion’s measured courtesy. Then the curtain parted and the man stepped through. He was older than Cornelius expected. His beard was untrimmed, salt-and-pepper. His robe was plain, the hem frayed. His hands were broad, the knuckles pronounced. A fisherman’s hands. But his eyes—they held a flat, weary light, like a man who had stared at too many horizons and found nothing but more water. In that flat light, Cornelius saw the reflection of his own failure. The arithmetic of command, the ledger of raids, the child in Germania whose face had been smeared with mud and terror. The arithmetic broke. The ledger burned. This was not a centurion meeting a provincial holy man. It was a debtor meeting the judge. His knees gave before his mind consented.
+The movement was not a soldier’s disciplined kneel. It was a collapse, a total surrender of the body. The marble of the vestibule floor struck his kneecaps, a cold, hard shock. He pitched forward, pressing his forehead to the mosaic tile before Peter’s sandaled feet. The tiny colored stones bit into his skin. He did not feel it. A sound escaped him—not a word, but a raw exhalation, the last air leaving a punctured wineskin.
 
-Peter’s voice, when it came, was not the voice from the stories. Coarse, strained. “Stand up.”
+The atrium fell silent. The murmur of the gathered household, the rustle of fine linen, the click of a servant’s tray—all of it stopped. The only noise was the distant, indifferent cry of a gull from the harbor. Fifty people held their breath.
 
-Cornelius did not move. The tile was cool. The grit was real. His position was the only true thing in the room.
+Peter froze. He looked down at the crown of the centurion’s head, the short-cropped grey hair, the vulnerable curve of his neck where the military tunic gaped. This was wrong. Profoundly, dangerously wrong. A Roman centurion did not prostrate himself before a Jewish fisherman from Galilee. It inverted the known world. It was the kind of gesture reserved for emperors, for gods. Peter’s own heart hammered against his ribs, a trapped bird. He could feel the eyes of his companions—Micah, John, the others from Joppa—boring into his back. He could imagine Micah’s horror, a rigid, silent scream. This was the very idolatry, the contamination, they feared.
 
-“Stand up.”
+He saw the centurion’s shoulders tremble. Not from fear, but from a pressure too great for the frame to hold. This was the man who had seen the angel. This was the weight of that encounter, now poured out at his feet. Peter’s own vision of the sheet flashed behind his eyes—the clean and the unclean, tangled together. This man was not an abstract Gentile. He was a specific, broken vessel, overflowing.
 
-The command was sharper. A fisherman used that tone when a net snagged and a man’s attention drifted. Cornelius pushed himself up. His knees protested, a dull ache in the joints. He rose to his feet but kept his head bowed, his eyes on the man’s sandals. They were worn, the leather cracked at the toes. One strap had been repaired with a crude knot.
+Peter bent. He did not think about it. His hands, calloused and stained from years of nets and salt, closed around the centurion’s upper arms. The muscle beneath the wool was iron-hard, tensed. “Stand up.”
 
-“I am only a man myself.”
+The words were too quiet. Cornelius did not move.
 
-Cornelius looked up then. Peter’s face was tight, the skin around his eyes pinched. He was not angry. He was appalled. This was worse. A Roman could parse anger. This was a violation of some deeper order.
+Peter tightened his grip. He hauled upward, putting the strength of his back into it. “Stand up!” The command echoed in the hushed atrium, sharper than he intended.
 
-Behind Peter, the other men stood clustered in the shadowed vestibule. Their faces were a blur of shock and suspicion. One of them, a younger man with a sharp chin, had his hand half-raised, as if to stop something that had already happened.
+Cornelius resisted for a fraction of a second, a final instinct of submission, then let himself be raised. He came up awkwardly, off-balance. Peter kept hold of his arms, steadying him. Their faces were close now. Peter saw the man’s eyes were sheened with moisture, red-rimmed. He saw the deep lines carved from nose to mouth, the pale scar along the jawline. He saw the utter, unguarded hope there, and it terrified him.
 
-“You called for me,” Peter said. He gestured toward the interior, a vague, helpless motion. “You… prayed.”
+“I too am a man,” Peter said, his voice low, urgent, for the centurion alone. “Just a man.”
 
-The word hung between them. Prayed. It was a thing Cornelius did alone, on the roof, in the silence he carved out from the noise of command. It was not a thing discussed in a foyer with a stranger’s sweat drying on the floor.
+Cornelius blinked. The words seemed to take a long time to travel the short distance between them. His gaze focused, sharpened on Peter’s face—the weathered skin, the beard streaked with grey, the ordinary, tired human eyes. The divine emissary he had built in his mind for days shattered. What remained was a middle-aged Jew, smelling of road dust and sweat, his fingers digging into his arms with a fisherman’s rough strength.
 
-“Yes.” Cornelius’s own voice sounded foreign, a dry rustle. He cleared his throat. “Four days ago. An angel. In the light.” He stopped. The explanation was too small, a child’s drawing of a mountain.
+A shudder passed through Cornelius. The flush of shame climbed his neck, hot and prickling. He had made a spectacle. He had misunderstood the entire nature of the encounter. He tried to step back, to pull his arms free, but Peter held fast.
 
-Peter nodded once. A short, jerky motion. He was still blocking the threshold, his body a barrier between the vestibule and the house. He had not been invited in. The protocol was broken. Cornelius had broken it by falling on the floor. Now they were stranded in the space between, the curtain hanging limp beside them, the household waiting in the triclinium beyond, silent.
+“You sent for me,” Peter said, not letting him retreat. “Why?”
 
-Cornelius remembered his wife’s face an hour earlier, the set of her mouth as she watched him rearrange the couches. “You are preparing for a sacrament,” she had said. He had denied it. Now he stood in the sacrament, and it was made of awkwardness and cracked sandals.
+Cornelius’s mouth opened. The rehearsed speech, the careful report of the angel’s words vanished. All that remained was the core of it, stripped bare. “I was told… to hear words from you.” His voice was gravel, unused. “Words by which… I and my household might be saved.”
 
-“My household is gathered,” Cornelius said. He gestured again, more firmly this time, toward the inner room. “They are… waiting.”
+He felt the absurdity of it as he said it. Salvation. From this tired man in a patched tunic. The hope in his chest, so vast a moment ago, now felt like a foolish, gaping wound.
 
-Peter’s gaze shifted past Cornelius, into the dimness of the triclinium. He saw the shapes of people seated on the floor, the glint of a water basin, the low table with its untouched platters. He saw the absence of couches. He understood the gesture. His shoulders dropped a fraction. A sigh that didn’t escape his lips.
+Peter released him. The sudden absence of support made Cornelius sway. Peter took a half-step back, his own breath uneven. He scanned the room—the stunned faces of the Roman household, the rigid disapproval of his own companions in the doorway. The power dynamic had been broken, but nothing clean had taken its place. Only an awkward, painful vacuum.
 
-“Then we should not keep them waiting,” Peter said.
+Gaius, the old legionary, coughed into his fist. That sound was like a rock dropping into a well. A slave girl near the impluvium clutched a water jug to her chest, her knuckles white. Drusilla stood by the entrance to the triclinium, one hand pressed to the base of her throat. Her expression was unreadable—a Roman matron’s mask, but her eyes were dark pools of anxiety.
 
-He stepped forward, finally crossing the threshold into the house proper. The tile under his feet was the same tile Cornelius’s forehead had touched. Peter’s step avoided the spot, as if it were hot.
+Peter wiped his palms on his thighs. He needed to regain control of the scene, but every precedent had just been shattered. He could not treat this as a teaching moment in a Jerusalem synagogue. He could not retreat to the safety of the doorway. He was in the center of the Roman’s house, and the Roman was staring at him as if he’d just pulled him from drowning.
 
-Cornelius moved aside, yielding the path. He fell into the role of host again, the instinct of years reasserting itself. He led the way, his stride measured, his back straight. The humiliation was a coat he could put on and take off. He wore it now. He would hang it later in some dark corner of his mind and pretend it wasn’t there.
+“You gathered them all,” Peter said, gesturing vaguely at the crowd.
 
-The triclinium was cooler than the foyer. The shutters were drawn against the morning heat, leaving the room in a muted, grayish light. The assembled household—his wife Drusilla, his kinsmen, his close friends, the soldier clients—sat on reed mats arranged around the perimeter. The couches were pushed against the walls, a silent apology for Jewish custom. The air smelled of baked bread and mint.
+“As the messenger instructed,” Cornelius managed. He straightened his tunic, a futile, automatic gesture of restoring order. “My kinsmen. Close friends.” He did not say they are all waiting for you to fix us. The words hung in the air anyway.
 
-Every face was turned toward the doorway. Every expression was a variation on stunned silence. Lucius, seated near the back, had one eyebrow arched so high it seemed to be trying to escape his face. Drusilla’s hands were folded in her lap, her knuckles white.
+Peter nodded. He looked past Cornelius, into the triclinium. He saw the couches arranged, the low tables laden with food he could not touch. He saw the empty niche in the wall where the household gods should have been. The void was more accusing than any idol. They had prepared a feast for a phantom, a holy man who did not exist. They had prepared a theological symposium. What they had gotten was him—Peter, son of Jonah, who was hungry and afraid and had no idea what to say.
 
-Cornelius stopped at the center of the room. Peter stopped beside him, his six companions filtering in behind, forming a loose half-circle. They did not sit. They stood, a knot of outsiders in the ordered space.
+A memory intruded, unwelcome and specific. The smell of frying fish on the shore of the Sea of Tiberias. Jesus, crouched by a charcoal fire, his robe damp with morning dew. Come and have breakfast. The ordinary invitation. The sheer, unceremonious grace of it. No prostration. No atrium full of tense spectators. Just a meal, for hungry friends who had failed him.
 
-“This is Simon Peter,” Cornelius said. His voice found its centurion timbre again, flat and declarative. “From Joppa.”
+This was not that.
 
-No one spoke. The mint smell grew stronger, a thin, green scent in the stillness.
+“We should go in,” Peter said. The decision was made in the saying of it.
 
-Peter looked at the faces, then at the floor, then at Cornelius. His mouth worked for a moment before words came out. “Why have you summoned me?”
+Cornelius moved aside, gesturing toward the dining room with a stiff, military sweep of his arm. It was the gesture of a centurion granting entry to a superior officer. The old habit reasserting itself, but the context was all wrong.
 
-The question was direct, stripped of ceremony. It hung in the air, a challenge.
+Peter walked forward. His sandals whispered on the polished floor. He felt the weight of every stare. He passed Drusilla. He caught the scent of her—lily oil and the faint metallic smell of the powder on her cheeks. She did not meet his eye.
 
-Cornelius felt the answer rise in him, the words the angel had given. They felt too grand for this room, for this moment of grit and cracked sandals. He spoke them anyway. “Four days ago, at this hour, I was praying in my house. A man in bright clothing stood before me and said, ‘Cornelius, your prayer has been heard and your acts of charity remembered before God. Send therefore to Joppa and summon Simon, who is called Peter. He is lodging in the house of Simon the tanner by the sea. He will speak to you.’”
+He crossed the threshold into the triclinium.
 
-He recited it like a report. The angel became a man in bright clothing. The command became a logistical instruction. Even the salvation part—he will speak words by which you and your household will be saved—he left unspoken. Too much. It would crack the room.
+The room was cooler, shaded from the direct sun. The frescoes of pastoral scenes seemed to mock the tension. A shepherd piped to oblivious sheep. The air smelled of roasted meat rosemary, and the underlying, sour tang of a wine spill already soaked into a rug. Someone had tried to clean it, but the smell remained. A human detail. Peter fixed on it.
 
-Peter listened. His eyes didn’t leave Cornelius’s face. He was weighing the words, not as a holy man weighing a revelation, but as a fisherman weighing a catch. Was it genuine? Was it spoiled? Was it worth the net?
+He stopped near the center couch. He did not recline. He remained standing, turning to face the room as the household filed in after him, finding their places with a quiet, shuffling disarray. His own companions hovered just inside the doorway, a knot of Jewish resistance. Micah’s arms were folded, his jaw set. He looked like a man watching a ship sink.
 
-“And you believed this?” Peter asked.
+Cornelius took his place on the central couch. He sat upright, not reclining in the Roman manner. A posture of attention. Of waiting. His wife settled beside him, arranging her stola with precise, nervous movements.
 
-“I sent two of my household and a trusted soldier. They found you.”
+A silence congealed. It was the silence of a theater after the curtain rises, but the actors have forgotten their lines. The physician picked at a thread on his sleeve. The Syrian merchant examined the pattern on a cup as if it contained a cryptic message. The slave girl with the braids had set down her jug and now stood perfectly still, her eyes darting from Peter to her master and back.
 
-“They did.”
+Peter cleared his throat. This sound was too loud.
 
-The silence pooled again. One of Peter’s companions, the older one with a beard like faded wool, shifted his weight. The reed mat beneath him creaked.
+“You know,” he began, and stopped. It was a terrible opening. He tried again. “It is unlawful for a Jew to associate with or visit a foreigner.” He stated it flatly, not as an accusation, but as a fact of the world, a stone wall they all could see. “But God has shown me I should not call any person common or unclean.”
 
-Peter’s gaze swept the room. He took in the mats, the pushed-back couches, the platters of food that held no meat, the water basin for washing. He saw the preparation, the deference. He saw the cost of it. His face softened, not into warmth, but into a kind of weary recognition. “You have done all this.”
+He saw Cornelius flinch, just a tiny contraction around the eyes. Unclean. The word had teeth here.
 
-“I wished to show respect,” Cornelius said.
+“So when I was sent for,” Peter continued, “I came without objection.” He paused, searching for the thread. He was narrating, not preaching. It felt inadequate. “I ask, then, why you sent for me.”
 
-“Respect.” Peter repeated the word as if tasting it. He looked at Cornelius again. “You showed more than respect at your door.”
+He turned the question back on Cornelius, a desperate gambit. Let the centurion speak. Let him fill this terrible, holy silence.
 
-Cornelius’s neck warmed. The flush returned. “I saw you,” he said, the words coming low and rushed. “And I saw… what I am.”
+Cornelius looked at his own hands, resting on his knees. He drew a breath that seemed to catch on something in his chest. When he spoke, his voice was clearer now, a commander reporting to a strange new authority.
 
-Drusilla’s breath caught, a tiny audible hitch in the quiet. Lucius’s arched eyebrow dropped, his face settling into a mask of pure contempt.
+“Four days ago,” he said, “at this very hour, I was praying in my house. A man stood before me, in bright clothing.”
 
-Peter studied Cornelius for a long moment. Then he turned to his companions. “You heard this. An angel appeared to him. A Roman. A man who lives among you here in Caesarea, but who is not of your people.” He paused, letting the words settle. “God shows no partiality. In every nation, anyone who fears him and does what is right is acceptable to him.”
+He told it simply. The angel’s appearance. The message. Your prayers and your alms have ascended as a memorial before God. He did not embellish. The starkness of the recounting made it more credible, and more terrifying. He finished, his eyes lifting to Peter’s. “So I sent to you at once, and you have been kind enough to come. Now therefore we are all here, in the presence of God, to hear all that you have been commanded by the Lord.”
 
-The sentence landed in the room like a dropped stone. It didn’t roll. It sat where it fell.
+The transfer was complete. The burden was back in Peter’s hands, heavier than before.
 
-One of the younger companions, the one with the sharp chin, spoke up. His voice was tight, a wire stretched too thin. “Acceptable? What does that mean? Acceptable to eat with? Acceptable to listen to? Acceptable to… what?”
+Peter stared at him. That man’s face was a landscape of need. This was no theological debate. This was a drowning man handing him the only rope. The sheet from his vision seemed to unfurl again in his mind’s eye, not over Joppa, but here in this room settling over the couches, the food, the people. What God has made clean do not call common.
 
-Peter didn’t answer him directly. He looked back at Cornelius. “You gathered your household to hear a word. So I will speak it.”
+He understood, then. The understanding was a cold, clear wave that washed the last of his resistance away. It was not about food. It was not about ritual. It was about this. This moment. This man.
 
-He took a step toward the center of the room, his worn sandals scuffing against the tile. He didn’t sit. He stood, his feet planted, his hands loose at his sides. He began to speak, not in the cadence of a teacher, but in the rhythm of a man telling a story he knew by heart, a story that had worn grooves in his memory.
+He took a deep, ragged breath. It felt like his first true breath since entering Caesarea.
 
-He spoke of Judea, of the prophet John, of baptism. He spoke of the one who came after, the one who ate and drank with them, who was handed over and killed, who was raised on the third day. He spoke of eating with him, of seeing him, of being commanded to preach. The words were simple, unadorned. They were facts, not arguments.
+“I truly understand now,” Peter said, and the words were a confession, torn from a place deeper than doctrine. “God shows no partiality.”
 
-Cornelius listened. He heard the story, but he also heard the space between the words. The man speaking was not a philosopher. He was a witness. He was pointing to a thing that had happened, a thing that had broken his life open and left him here, in a Roman’s triclinium, explaining it to soldiers and household slaves and a wife who folded her hands too tightly.
+In the doorway, Micah made a choked sound.
 
-Lucius leaned forward, his voice a dry crack in the narrative. “And this… raised one. What does he require? Sacrifices? Observances? A change of name?”
+Peter ignored him. His voice found a strength he did not know he possessed. “In every nation, anyone who fears him and does what is right is acceptable to him.” He spoke the words slowly, letting them drop into the silence, watching them ripple across the faces of the Gentiles. The physician’s skepticism faltered. The slave girl’s lips parted. Drusilla’s hand crept to her throat again.
 
-Peter stopped. He looked at Lucius as if seeing him for the first time. “He requires belief.”
+Cornelius did not move. He sat as if carved from salt.
 
-“Belief.” Lucius let the word sit, then shrugged. “A cheap requirement. Even a Roman can believe.”
+Peter began to speak of the word sent to Israel, of Jesus of Nazareth. He spoke of anointing, of works, of a death on a tree. He spoke of witnesses, of resurrection. The story was the one he knew, the bones of his testimony, but as he told it here, the bones took on new flesh. The proclamation of peace was not just for the children of the covenant. It was for the man with the scar on his jaw, for the woman with the lily oil scent, for the old soldier, for the girl with the braids. Lord of all, he said. The pronoun expanded, filling the empty niche, pushing against the walls of the house.
 
-Drusilla’s knuckles went whiter. She didn’t look at her husband.
+He spoke of forgiveness of sins through his name.
 
-Peter’s eyes narrowed. “It is not cheap. It costs everything you have built.” He turned back to Cornelius. “It costs the wall you think keeps you safe.”
+When he said that, Cornelius closed his eyes. A single, slow tear escaped, tracking through the dust of the road still on Peter’s cheeks from his journey. It cut a clean line through the grime.
 
-Cornelius felt the words like a touch on a bruise. The wall. The discipline. The arithmetic. The ledger. The child’s face. He didn’t nod. He didn’t move. He just stood, listening, while the story wound on, and the light through the shutters shifted, and the smell of mint began to fade into the smell of sweat and waiting.
+Peter was reaching the end. The inevitable, impossible conclusion. The air in the room crackled, thick and hard to settle. The food on the tables sat untouched, congealing. The fly returned, buzzing a lazy orbit around the lamb.
 
-Peter’s story ended not with a conclusion, but with a suspended breath. The final words—he is the one appointed by God as judge of the living and the dead—echoed in the tiled room and then dissolved into silence. No one moved. The story was a foreign object in the room, a smooth stone no one knew whether to pocket or throw away.
+He looked at their faces hungry and hopeful and human. The command was in him, a pressure he could not contain.
 
-Cornelius watched the faces of his household. His kinsman Marcus wore the blank expression of a soldier listening to a briefing on terrain he would never cross. The slave girl near the water basin stared at Peter’s hands, fascinated by their roughness. Drusilla’s gaze was fixed on a point just above Peter’s left shoulder, where a hairline crack in the plaster wall branched like a tiny, dead river. She was holding herself so still she seemed not to breathe.
+He opened his mouth to give it. To offer the unofferable.
 
-Peter himself looked drained. Speaking had cost him. A faint sheen of sweat glistened at his temples. He wiped his palms on the coarse fabric of his robe, a quick, unconscious motion. Then he looked at his own hands, as if surprised by the gesture. He was in a Gentile house. He had touched nothing, but the air itself was a contaminant. His own sweat was proof.
+The words would not come.
 
-One of his companions, the sharp-chinned one named John, finally broke the stillness. He spoke in Aramaic, a low, urgent stream. “You have told them the kerygma. Now what? Do we eat from their plates? Do we drink from their cup?”
+They lodged in his throat, a spiritual obstruction. Repent. Be baptized. The formula was right was pure was the doorway. But to speak it here felt like throwing a lamb into a pack of wolves—not because these people were wolves, but because the words belonged to the flock, to the fold, to the guarded pasture. They were in Aramaic. They tasted of Jerusalem dust and Temple incense.
 
-Peter didn’t turn. He answered in Greek, his voice flat. “We have done what we were asked to do.”
+He stood there, mute. The silence stretched, thin and brittle.
 
-“We were asked to come. We were not asked to… to settle.” John’s Greek was halting, his accent thickening with distress. He gestured vaguely at the platters of bread, the bowls of olives, the water jug. “Their vessels are not ours. Their table is not ours.”
+Cornelius opened his eyes. The hope in them was beginning to cloud with confusion. Doubt seeped into the room, cold and familiar.
 
-The words were not whispered. They carried. Lucius understood Greek perfectly. A slow, cold smile spread across his face. He leaned back on his mat, the picture of relaxed contempt. He didn’t need to speak. His expression said everything: You see? Even their holy men find you unclean.
+From the doorway, Micah spoke. He spoke low, strained. Not a shout. A rasp of pure exhaustion. “Rabbi. Enough.”
 
-Cornelius felt the heat climb his neck again, but this time it was a different kind of shame. It was the shame of the host whose hospitality is a burden. He had moved the couches. He had ordered the meatless meal. He had scrubbed the floors himself. Every preparation was a line drawn in sand, and Peter’s companions were staring at it like it was a trench they could not cross.
+It wasn’t a challenge. It was a plea. A last attempt to pull him back from the cliff.
 
-“The food is prepared according to your custom,” Cornelius said, addressing Peter but speaking to the room. “The bread is unleavened. The olives are in their own brine. The water is from the spring, not the aqueduct.” He heard the pleading in his own voice, the centurion gone, replaced by a merchant listing the purity of his wares.
+Peter looked down. His feet were planted on the mosaic floor, on the image of Neptune. The sea god’s trident had a hairline crack in one tine, a flaw in the perfect Roman craft. He focused on that.
 
-Peter turned. His eyes met Cornelius’s, and for a flicker, Cornelius saw not a holy man’s judgment, but a profound, weary embarrassment. Peter was ashamed of his companion’s rudeness. He was ashamed of his own discomfort. The double shame sat on him like a weight.
+“You know,” he said, his own voice a worn-out thing, “that for a Jew to associate with a foreigner is forbidden. It defiles.”
 
-“Your care is noted,” Peter said, the formal words awkward in his mouth. He took a small step toward the low table, then stopped. It was a dance with an invisible partner. “The story is the necessary thing. The eating… is not.”
+“We know.” Cornelius’s reply was immediate, soft. An acknowledgment. Not an argument.
 
-“But we are hungry,” said the older companion with the woolly beard. His voice was a gentle rumble. He had kind eyes, and they held a quiet apology as he looked at Cornelius. “And they have been kind. Must we insult kindness to honor the Law?”
+“It is not a small thing,” Peter insisted, his head coming up. He needed them to understand the cost, the sheer scale of the transgression. He needed himself to understand. “It is a wall built by the hand of the Almighty. To keep his people separate. Holy. Clean. To protect the flame from the wind.” He gestured toward the window, the sea air, the world. “You are the wind.”
 
-John shot him a furious look. “Honor is not the question, Andrew. Obedience is the question. You know the rulings. The dwelling of a Gentile is unclean. Its contents are unclean. To partake is to make ourselves unclean for the Temple. It is a simple line.”
+A flush darkened Gaius’s neck. The physician shifted on his couch, the leather creaking. He leaned forward, his clinical gaze fixed on Peter. His question cut through the theological tension, practical and blunt.
 
-“We are far from the Temple,” Andrew murmured.
+“What do we do now?”
 
-“The line does not move with geography!”
+The physician’s question hung in the air, a practical spike driven into the cloud of sacred tension. What do we do now? It was the question of a man who dealt in poultices and bone-settings, who believed every malady had a procedure.
 
-Their debate, conducted in full view of the silent, watching Gentiles, was the real sermon. It laid bare the machinery of the wall Peter had mentioned. Cornelius understood machinery. He understood regulations, the way a rule could be both right and cruel. He saw Peter caught between them—the rule, and the weary kindness in his brother’s eyes. He saw the crack in the apostle’s mask.
+Peter looked at him. He saw the intelligence there, and the profound, professional impatience with mystery. He saw the same impatience in the set of Gaius’s shoulders, in the way Drusilla’s fingers now pleated a fold of her stola, over and over. They had expected a prescription. A ritual. A list. They had gotten a story, and a cliff’s edge.
 
-Peter raised a hand. The debate ceased. He looked from John to Andrew, his face a landscape of internal strain. The muscle in his jaw worked. He was silent for so long that a fly, buzzing near the shuttered window, became the loudest thing in the room. Cornelius found himself tracking its jagged path, the way it bounced off the light, the pointless energy of it. His wife hated flies. She would clap her hands quietly to kill them, never while guests were present. He wondered if she was thinking of that now.
+“You do nothing,” Peter said. The words were ash in his mouth.
 
-“We will break bread,” Peter said finally. He spoke hollowly, as if the decision had cost him something tangible. “We will share what is set before us. As guests.”
+A collective stillness tightened around the room. The slave girl’s stillness hitched. Cornelius’s hands, resting on his knees, curled slowly into fists, the knuckles bleaching white.
 
-John made a small, choked sound but said nothing. His posture screamed protest.
+“Nothing?” the merchant repeated, his voice thin with disbelief. He had paid for spices, for the lamb, for the best wine from the harbor warehouses. Investment demanded return.
 
-Peter moved to the table. He did not sit. He stood over it, looking down at the round, flat loaves. He reached out, his hand hovering for a moment above the nearest platter. Cornelius saw the hesitation—not a holy hesitation, but a human one. The man was crossing his own boundary. He was touching the thing he feared.
+Peter felt the absurdity of it all crash down. The couches, the frescoes, the smell of rosemary and sour wine. The sheer Roman order of it, waiting for a Jewish chaos to make sense of it. He wanted to laugh, a jagged, hopeless sound. He swallowed it.
 
-Peter’s fingers closed on a loaf. It made a soft, dense sound as he lifted it. He held it up, not like a priest with an offering, but like a man checking the weight of a tool. He broke it. The crack was sharp in the quiet.
+“You cannot do what is required,” he said, forcing the words out. “It is not yours to do. The gift is God’s. The command was to listen. So listen.” He turned his gaze back to Cornelius, pinning him with it. “You heard the story. The word of peace. The forgiveness of sins. That is the message. That is the ‘what’.”
 
-He did not eat. He handed one half to Andrew, who accepted it with a solemn nod. The other half he held, turning to face the room. His eyes swept over the diverse faces—the Roman soldiers with their close-cropped hair, the Greek household members, the Syrian slave, Drusilla with her patrician stillness, Lucius with his sneer. He saw the wall, not as a theological concept, but as a line drawn through this very room, separating him from them. His tradition pressed down on his shoulders, a physical weight.
+“But the angel said—” Cornelius began, his voice frayed.
 
-“How can I justify this?” he said, so softly it was almost to himself. But the room was silent, and the words reached everyone.
+“The angel said to send for me. To hear words. You have heard them.” Peter spread his hands, empty. “The hearing is the thing. The believing. It is not a transaction. It is not a sacrifice you make on a new altar.” He gestured at the empty niche. “It is a wind you cannot control, blowing where it wills.”
 
-He wasn’t asking them. He was asking the empty air, the God who had sent him here. The question hung, raw and unanswered.
+Micah, from the doorway, let out a sound that was almost a groan. This was worse. This was mystical evasion. This was leaving the door wide open for misunderstanding, for pagan interpretation. A religion without law was a ship without a hull.
 
-Then, deliberately, Peter brought the broken bread to his mouth and took a bite. He chewed slowly. He did not close his eyes in prayer. He stared at the crack in the wall across the room as he chewed, his gaze fixed on that branching, river-like flaw in the plaster. It was not a sacrament. It was an act of will. A crossing.
+Cornelius unclenched his fists. He laid his palms flat on his thighs, a gesture of forced calm. Peter could see the conflict warring in him—the Roman need for a clear directive, a result, and the terrifying, open-ended reality of the grace he had just been offered. It was like being handed water instead of a map in the desert. You could drink it, but it wouldn’t show you the path.
 
-He swallowed. Nothing happened. The roof did not open. The floor did not shake. The fly continued its buzzing dance. The only change was in Peter’s own face. The tightness around his eyes eased, just a fraction, replaced by a kind of baffled surprise. As if he had braced for a shock that never came.
+“I believed the vision sanctioned this,” Cornelius said, each word measured. “That it… cleared the ground. Made a space where the unlawful could become lawful.”
 
-He gestured with the remains of the loaf. “Eat.”
+“It did,” Peter said. “For me. It showed me I could come. It did not show me what to make of you once I arrived.” He paused, the old fisherman’s bluntness surfacing through the prophet’s turmoil. “Your house is still a Gentile house. Your food is still Gentile food. Your god—your lack of a god—is still a problem. My presence here is a stain on my obedience. A necessary one, perhaps. But a stain.”
 
-It was not an invitation. It was an order.
+The word stain landed in the room like a drop of blood on linen.
 
-No one obeyed. The household looked to Cornelius. He was their centurion. He was the one who had prostrated himself on the floor. He nodded, once. A ripple of movement followed. Hands reached toward platters. The silence broke into the soft sounds of eating: the crunch of bread crust, the clink of a bowl, a suppressed cough.
+Drusilla made a small, involuntary sound. Her eyes flew to her husband, a flash of protective fury. This man, this dusty, impoverished preacher, dared to call her home, her ordered world, a contaminant? After they had opened their doors? After Cornelius had groveled at his feet?
 
-Peter remained standing. He watched them eat. He watched the Roman soldier next to Lucius take an olive and pop it into his mouth without a second thought. He watched the Syrian slave girl sneak a glance at him, then quickly look down. He watched Drusilla finally unfold her hands and select the smallest piece of bread, which she held without eating.
+Cornelius did not look at her. He stared at the mosaic between his feet, at Neptune’s flawed trident. The cold knot he had carried for a decade, the one he thought prayer and alms had slowly been wearing away, tightened anew. It was not guilt this time. It was a more deep desolation. He had been wrong. The vision was not an invitation to purity. It was a spotlight on an uncrossable chasm. The angel had shown him the far side, then sent a man to stand there and explain why he could never cross.
 
-Cornelius took no food. His stomach was a hard knot. He watched Peter watch them, and he understood the man was not seeing a grateful congregation. He was seeing a problem. A living, breathing, eating problem. How could his presence here be justified? The law said it could not. The vision had said it must. Peter stood in the grinding space between, a man whose certainty had been his staff and now found it was a splintering reed.
+“Then why are you here?” Gaius growled. The old soldier had had enough theology. “To mock us? To tell us we are seen but not seen? Heard but not heard?”
 
-John stood apart, his arms crossed, eating nothing. His gaze was a brand on Peter’s back.
+Peter’s shoulders slumped. His anger was justified. He was doing this badly. He was splitting hairs on the edge of a blade, and everyone was getting cut. He remembered Jesus facing the Greek woman, the Syrophoenician, her daughter sick. It is not right to take the children’s bread and throw it to the dogs. The brutal, exclusionary truth of the covenant. And her reply, the stunning, humble riposte that had changed everything. Even the dogs under the table eat the children’s crumbs.
 
-Andrew ate, his movements gentle, his eyes closed as if in simple thanks for the food. The other companions ate with varying degrees of reluctance, their eyes darting around the room as they chewed.
+Was that what this was? Were these people dogs, begging for crumbs from Israel’s table? The thought sickened him. They were not dogs. They were people. The physician with his clever hands, the merchant with his ledgers, the old legionary with his loyalty, the girl with her braids and her jug. They were just… outside.
 
-The meal was not a fellowship. It was a tense, chewing silence punctuated by the sounds of consumption. It was an act of obedience to their leader, not a sharing with their hosts. The wall remained. They were just now, nervously, touching its stones.
+“I am here,” Peter said quietly, “because God told me to come. He did not tell me why. He only told me not to call unclean what he has made clean.” He looked at Cornelius. “I am still learning what that means.”
 
-Peter’s gaze finally returned to Cornelius. He still held the remnant of his bread. “You have heard the word,” he said. The bafflement was still there, beneath the surface. “What do you ask of me now?”
+The confession disarmed them. The rigid anger in Gaius’s face softened into bewilderment. Drusilla’s hand fell from her throat. A teacher who admitted he was still learning was a new and unsettling creature.
 
-Cornelius had prepared for this question. He had planned to ask for instruction, for a prayer, for a sign. Now, seeing the cost in the apostle’s face, the words seemed trivial. He asked the only thing that felt true. “Stay.”
+Cornelius lifted his head. The desolation in his eyes had receded, replaced by a fierce, desperate calculation. He was a centurion. He was used to operating with incomplete orders, with intelligence that made no tactical sense. You pieced it together. You looked for the strategic objective.
 
-Peter flinched, almost imperceptibly. “Stay?”
+“The messenger said my prayers and alms had ascended as a memorial before God,” he said, slowly, thinking aloud. “Not that they had purchased anything. Not that they had made me clean. A memorial. A… reminder.” He was speaking to himself as much as to Peter. “Then you came. With a story of a man who was killed and raised. A story of forgiveness offered. Not earned. Offered.” His eyes found Peter’s, sharpening. “The memorial was not for me. It was for God. To remind him to send you.”
 
-“Until tomorrow. The day is half gone. Your men are tired. The road to Joppa is not safe after dark.” It was all true, and it was all an excuse. Cornelius could not bear for the cracked-sandal prophet to walk out that door, leaving only the memory of his discomfort and a room full of crumbs. The sacrament, if that was what this was, felt horrifically unfinished.
+The logic was unorthodox, almost childish in its simplicity. It bypassed all the layers of law and covenant. Micah in the doorway looked physically pained, as if the sentence were a knife twisting in the rules of the universe.
 
-Peter looked at his companions. He saw their fatigue, the dust of the journey still on their hems. He looked at the shuttered window, judging the light. He was trapped, not by divine command, but by simple hospitality and the practical dangers of the road. The law said go. Wisdom said stay.
+Peter felt a strange, light-headed sensation. It was not agreement. It was the dizzying sense of a door swinging open on a hinge he hadn’t seen. This Roman was thinking about God’s mind. He was imagining God needing a reminder. Terrifying. It was also, in a way he could not articulate, profoundly true to the character of the God he knew—the God of the misplaced sheep, the lost coin, the waiting father.
 
-He gave a single, slow nod. “We will stay until first light.”
+“Perhaps,” was all Peter could manage.
 
-The decision sent a new current through the room. Lucius’s smirk vanished, replaced by a look of cold calculation. A night under this roof? Drusilla’s eyes met her husband’s for the first time since Peter had entered. They held a silent, frantic question: Where will they sleep? What will they touch?
+“So the ‘what’,” Cornelius pressed, leaning forward now, the commander re-emerging, “is not a thing we do. It is a thing we receive. This forgiveness. This peace.”
 
-Peter lowered himself to the floor, not on a mat, but on the bare tiles, a hand’s breadth from where the household sat on their reeds. The distance was a canyon. He set the remainder of his bread beside him, uneaten. His companions, taking their cue, settled around him in a tight, separate cluster. They did not recline. They sat upright, backs rigid islands in the ordered sea of the triclinium.
+“Yes.”
 
-The eating sounds died away. No one knew what to do next. A shared meal was supposed to end a negotiation, seal a pact. This had sealed nothing. It had only made the invisible fence visible.
+“And to receive it?”
 
-Lucius cleared his throat. The sound was like gravel shifting. “A story, then a bite of bread. Is this the salvation the angel promised?” He didn’t look at Peter. He addressed the air between Cornelius and the wall. “We have heard many stories in Caesarea. The gods are always dying and rising here. It’s the sea air.”
+Peter was cornered. One man’s logic was leading them right back to the precipice, to the words that stuck in his throat. Repent. Be baptized. The gateway. But the gateway led into a house that did not exist yet, a household of faith with no walls, no roof, no definition. To offer it was to build the house around them as they stood there. It was an act of sheer, reckless creation.
 
-Drusilla’s head turned toward her husband, a slow, deliberate motion. Her eyes held a warning. “Stop this.”
+He opened his mouth again. The silence stretched. A bead of sweat traced a path down his spine, itchy and cold.
 
-Cornelius did not stop it. He wanted to hear the answer.
+Then a sound filtered in from the atrium, a sound that had no place in the suspended moment. A low hum, deep and resonant, like a giant bow drawn across the string of the world. It was not heard with the ears, but felt in the teeth, in the hollow of the chest.
 
-Peter’s hands rested on his knees. The knuckles were scarred, the nails rimmed with what looked like old fish-scale. He studied Lucius as if he were a strange fish himself, pulled into the wrong net. “You want a sign,” Peter said. His Greek was serviceable, blunt. “A trick of light. A voice from the ceiling.”
+The water in the impluvium shivered. The still surface puckered, then shattered into a frantic dance of ripples, though no breeze stirred the air.
 
-“I want to understand the commodity,” Lucius said, spreading his hands. “You have been brought a long way. My cousin has humbled himself. For what? A tale? We have philosophers in the agora who tell better ones for a few sesterces.”
+Peter’s silence stopped. He knew this feeling. It was the feeling of the mountain before the thunder. The feeling of the locked room in Jerusalem, the air suddenly thick and sweet and unbearable.
 
-One of the soldiers, a grizzled man named Falco who had served with Cornelius in Germania, grunted in agreement. It was a soft, animal sound.
+Cornelius’s head snapped up, his military instinct recognizing an unseen threat. Gaius was on his feet, hand going to a belt where no sword hung. Drusilla clutched at the couch. The physician stared at his trembling hands as if they belonged to someone else.
 
-The heat in Cornelius’s neck was a constant now, a low-grade fever. He kept his face still, the centurion’s mask. Inside, he was mapping the room as a battlefield. Lucius on the left flank, probing. Falco and the others as a hesitant reserve. Peter’s men a fortified hill across the open floor. Drusilla was a neutral city, besieged. And he, Cornelius, was the ground they all fought over, ground that was nothing but sand and old blood.
+The hum swelled, vibrating the very stones of the house. It filled the space, pressing against eardrums, against thought.
 
-Peter didn’t rise to Lucius’s bait. He looked tired. The kind of tired that comes not from a journey, but from carrying a heavy thing too far. “You heard the story. It is not a philosopher’s tale. It is testimony. I saw him die. I saw the tomb empty. I ate grilled fish with him on the shore after. My hands touched the scars.” He held them up, those rough tools, as if the proof were still there, stuck under the nails.
+And then it broke.
 
-“A ghost,” Lucius said with a shrug. “The dead are restless. Everyone knows this.”
+It broke into language.
 
-“He was not a ghost. He broke bread. Ghosts do not break bread.”
+The slave girl with the braids gasped. A torrent of sound poured from her lips—exultant, chaotic, beautiful. Aramaic. Flawless, Galilean Aramaic. She was a Syrian by birth, a kitchen slave who knew only marketplace Greek and a few phrases of Latin. She had never heard the language of Judea. And now she was singing in it, a psalm of David that Peter hadn’t heard since his childhood, the words tumbling over each other in a cascade of pure, astonished praise.
 
-“Then a clever fraud. A twin brother. A drugged illusion. The priests in the Serapeum in Alexandria can make a statue weep. Is your wonder greater?”
+Across the room, Gaius was weeping. Great, shuddering sobs shook his frame. From between the sobs, words emerged—not Latin, not Greek, but the guttural, poetic tongue of the Hebrews, prophecies of Isaiah about streams in the desert spoken with the accent of a retired legionary from Campania.
 
-The fly left the basin, buzzing toward the shuttered window. It hit the wood with a tiny tap, fell, buzzed again.
+The merchant was on his knees, hands raised, speaking in rapid, fluent Aramaic, blessing the God of Jacob, describing visions of a temple made not of stone but of living people.
 
-Peter knew the true test was not merely entering this house, but speaking within it. The next words would have to be the axe laid to the root. He drew a slow breath, the air of the Gentile house filling his lungs, and he began to speak.
+Drusilla sat rigid, her face pale. Her lips moved silently, then formed a single word, over and over, in the tongue of the Jews: “Adonai. Adonai.”
+
+Cornelius was the last. He had risen, his body taut as a bowstring. He looked at Peter, his eyes wide with a terror that was also ecstasy. His mouth opened. What came out was not the voice of a Roman centurion. It was a voice of broken wonder, speaking the mysteries of God in the language of the apostles. He spoke of mercy reaching to the heavens. He spoke of a fountain opened for sin and uncleanness.
+
+The triclinium was no longer a Roman dining room. It was a vessel overflowing with a sound that had no earthly source. The air shimmered with it. The untouched food, the pastoral frescoes, the cracked mosaic—all of it was rendered irrelevant, a painted backdrop against a sudden, blazing reality.
+
+Peter stood in the center of it, buffeted by the holy chaos. His own heart felt too large for his chest. He understood now. The “what” was not a command to be given. It was a fire that had already been lit. The wind had blown. It had not blown him here to bring a gift. It had blown him here to witness the gift being given.
+
+The chapter ends with Peter drawing a pause, the story of Jesus poised on his lips, and the still water of the impluvium between them holding the reflection of a sky that had just opened.
