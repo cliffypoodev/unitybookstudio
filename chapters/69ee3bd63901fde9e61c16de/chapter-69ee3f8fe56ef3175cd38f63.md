@@ -1,10 +1,10 @@
 The nets smelled of salt and rot. Peter worked the needle through the frayed hemp, his fingers moving without thought. The rhythm of it—punch, pull, tighten—was a kind of prayer. Beside him, John’s younger brother James muttered under his breath as a knot refused to yield. A morning sun lay flat and gold on the harbor, glinting off the wet stones where the fishermen washed their catch.
 
-“He said the kingdom is like a net thrown into the sea.” Peter spoke without looking up. “Gathers every kind.”
+“He said the kingdom is like a net thrown into the sea,” Peter spoke without looking up. “Gathers every kind.”
 
 James grunted. “This net gathers nothing but my thumb.” He sucked the bleeding digit. “And the sea gives back what it wants, not what we ask.”
 
-A gull cried overhead, a harsh, lonely sound. Peter’s needle paused. He watched the bird wheel against the hard blue sky. For a moment he was back on the water, the deck rolling under his feet, the smell of fish and lakeweed thick in his nostrils. The Teacher’s voice cut through the wind. Follow me. The memory was so sharp it made his knuckles ache.
+A gull cried overhead, a harsh, lonely sound. Peter’s needle paused. He watched the bird wheel against the hard blue sky. For a moment he was back on the water, the deck rolling under his feet, the smell of fish and lakeweed thick in his nostrils. The Teacher’s voice cut through the wind. Follow me. That memory was so sharp it made his knuckles ache.
 
 “You’re tearing it,” James said.
 
@@ -126,7 +126,7 @@ He turned down a narrower lane where the tanners and potters clustered. The air 
 
 One of them, a man with a thin, gray-streaked beard, looked directly at Peter. Recognition flickered, followed by a frown of disapproval. Peter knew the man’s thoughts as clearly as if he’d spoken them. The fisherman who claims the mantle of rabbi. Lodging with a tanner. Keeping questionable company. The Pharisee’s gaze swept over him, a quick, dismissive inventory, then moved on. The dismissal should have rankled. It felt like an old coat, worn thin but familiar.
 
-His own thoughts drifted, messy and uninvited. He remembered the smell of baking fish over a charcoal fire on the shore. The Teacher’s quiet question. Do you love me? He’d asked it three times. The third time, it had hurt, a prod at a wound still raw from denial. You know everything. You know I love you. One answer had been truth, but it had come out rough, almost angry. Love wasn’t a theory. It was a weight.
+His own thoughts drifted, messy and uninvited. He remembered the smell of baking fish over a charcoal fire on the shore. The Teacher’s quiet question. Do you love me? He’d asked it three times. The third time, it had hurt, a prod at a wound still raw from denial. You know everything. You know I love you. The answer had been truth, but it had come out rough, almost angry. Love wasn’t a theory. It was a weight.
 
 A Roman patrol clattered into the far end of the lane. Four soldiers, their armor gleaming dully under the woven canopy. Their presence shifted the atmosphere, tightening it. Conversations hushed. The Pharisees turned their backs in a unified, silent statement. The potter bent lower over his wheel.
 
@@ -158,7 +158,7 @@ The main room was empty. The hearth held only grey ashes. The loom in the corner
 
 No answer.
 
-He walked through to the small kitchen area. A clay bowl sat on the table, a spoon beside it. A fly buzzed against the shutter. The house was orderly, clean, but it felt vacant. Not just empty of people, but empty of presence. The comforting order he’d sought felt sterile, suspended. The air wasn’t waiting for prayer. Waiting, period.
+He walked through to the small kitchen area. A clay bowl sat on the table, a spoon beside it. A fly buzzed against the shutter. The house was orderly, clean, but it felt vacant. Not just empty of people, but empty of presence. The comforting order he’d sought felt sterile, suspended. The air wasn’t waiting for prayer. It was waiting, period.
 
 He returned to the main room. A scroll lay open on a bench—a portion of Isaiah. He looked down at the words. I will also give you for a light to the Gentiles, that you may be my salvation to the end of the earth.
 
@@ -204,7 +204,7 @@ He stopped praying altogether. He sat back on his heels, his hands resting on hi
 
 The verse from Isaiah echoed, not as a distant promise, but as a question. What did light do? It did not respect boundaries. It fell on the clean and the unclean alike. It revealed what was there. Was that the nature of this new Spirit? Was it, too, a kind of light, spilling over the carefully drawn lines of the Law?
 
-The thought was heresy. It felt like vertigo. He gripped the edge of the mat, the reeds biting into his fingers. His carefully ordered world, the world of baskets and boundaries, of nets that sorted seemed to tremble. If the Spirit moved beyond the fence, then the fence itself was called into question. And if the fence was not from God, then what was he, Peter, protecting?
+This thought was heresy. It felt like vertigo. He gripped the edge of the mat, the reeds biting into his fingers. His carefully ordered world, the world of baskets and boundaries, of nets that sorted seemed to tremble. If the Spirit moved beyond the fence, then the fence itself was called into question. And if the fence was not from God, then what was he, Peter, protecting?
 
 A profound disturbance rose in him, a cold wave that had nothing to do with the sun. It was the feeling of the solid deck falling away beneath his feet. It was the moment in the storm when the net pulls you toward the abyss.
 
