@@ -1,213 +1,183 @@
-The smell hit him first. Not the clean salt of the sea, but a thick, organic reek, like wet hides and boiled bark. It clung to the back of the throat settled in the folds of his robe. Simon the tanner’s house crouched near the Joppa seawall, a stone’s throw from the vats where the work was done. That place was a compromise. Peter knew it. A space cheap enough for an extended stay, far enough from the main streets to avoid too many questions about the gatherings. And always, the smell. A constant reminder of the margin.
+The smell was the first thing, always. It lived in the wood of the stairs, in the plaster of the walls, a sour, organic tang that no amount of lime or vinegar could scour away. Not rot, exactly. A transformation. The smell of hides becoming leather, of life being cured into utility. Peter breathed it in as he descended from the rooftop at first light. It was the smell of his host’s living, and it marked the house as a place apart.
 
-He sat on a low stool in the main room, a cup of lukewarm water untouched beside him. A fly traced lazy circles near the ceiling. Sunlight cut through the single high window, illuminating motes of dust and something else—a fine, leathery powder that drifted down from the rafters where skins were stored. He watched a particle land on the surface of his water, darken, and dissolve.
+Simon’s courtyard was a shallow rectangle of packed earth, shaded by a single, gnarled fig tree. Along the far wall stood the stone vats, stained a permanent, dark ochre. One was filled with a murky liquid, the soaked hide within barely visible beneath the surface like some drowned creature. A slave, a young man with a shaved head and a leather apron moved between the vats with a long pole, his movements slow with early morning torpor. He didn’t look at Peter. The tanner’s trade, necessary as it was, rendered a man ritually unclean. Touching dead flesh, handling the byproducts of death. Simon navigated this with a pragmatic piety washing and praying with a diligence that spoke of constant negotiation. Peter, as a guest, managed it too. He kept his distance from the workspaces, a habit so ingrained it felt like breathing.
 
-Footsteps scuffed in the courtyard. Simon entered, wiping his hands on a stained apron. His forearms were corded muscle, stained a permanent brown up to the elbows. “More came asking for you. After dawn. I told them you were at prayer.”
+The main room was cool and dim. Simon was already at the low table, tearing a round of flatbread with blunt, stained fingers. His wife, Martha, placed a bowl of olives between them. Morning light, slicing through the high window caught the dust motes dancing above the table like tiny, restless spirits.
 
-“Who?”
+“Sleep well, brother?” Simon’s voice was a gravelly rumble, worn down by years of shouting over the scrape of fleshing knives and the chatter of the market.
 
-“A woman. Her son has a fever that won’t break. She heard about the man in Lydda.” Simon’s gaze was direct, unapologetic. He didn’t flinch from the work that made him perpetually unclean, and he didn’t flinch from delivering news either. “I sent her to the synagogue. Let the rabbi pray over him.”
+“Well enough.” Peter took a seat on the woven mat, accepting a piece of bread. It was a lie. He had slept in fits, his dreams a muddle of nets with holes too large to mend, of faces he did not recognize pressing in from the edges of a crowd, their mouths moving in silent appeal.
 
-Peter’s thumb rubbed a groove in the clay cup. One man in Lydda—Aeneas, bedridden eight years—had gotten up and walked after Peter spoke the name. Word traveled faster than a man could walk. It brought the sick, the desperate. It also brought scrutiny. “You did right.”
+Martha poured watered wine into clay cups. “Another day the Lord has made,” she said it without looking up, a ritual utterance. A thin scar, pale against her olive skin, traced the line of her jaw. Peter found himself staring at it wondering at its origin—a cooking accident, a childhood fall. The kind of detail a man notices when his own thoughts are a place he doesn’t want to be.
 
-“Did I?” Simon untied the apron, balled it up, tossed it into a corner. The gesture was tired, final. “She was crying. The boy’s skin was the color of ash. The rabbi will give her psalms and a bill for the oil. You could have given her hope.”
+He ate. The bread was good, coarse and nutty. The olives were bitter. He chewed slowly, listening to the sounds of the house waking: the slave’s sandals scuffing in the yard, the distant cry of a fishmonger from the direction of the harbor, the rhythmic creak of the rope from the well next door. Joppa was stirring. His own community, the believers scattered through the city’s Jewish quarter would be gathering soon for morning prayers, debating, sharing, caring for the widows. The practical, tangible work of the fledgling assembly. He should be among them. Yet here he sat, in this liminal house by the sea held by a restless inertia he couldn’t name.
 
-“I am not a physician.”
+“The shipment from Ashkelon arrives today,” Simon said, wiping his mouth with the back of his hand. “Good quality, they say. Fewer parasite holes.” He spoke of hides the way another man might speak of grain or pottery. It was his world. “I’ll need to be at the quay by the third hour.”
 
-“You’re something else. They don’t line up at the gate for a fisherman.”
+Peter nodded. “I will pray for your business.”
 
-The words hung in the smelly air. Peter set the cup down. The fly landed on its rim, rubbed its forelegs together. He had no answer that didn’t sound like an evasion. Was a fisherman. He still dreamed of nets sometimes, the specific heft of them wet and full, the way the scales glittered in the morning light like a thousand tiny coins. That work made sense. You mended, you cast, you hauled. You sorted the clean from the unclean by the shape of the fin, the scale. The Law was clear on fish.
+Simon grunted, a sound that could have meant thanks or acknowledgment or nothing at all. He pushed back from the table. “The roof is yours. Quiet up there, once the gulls move off.”
 
-This new work had no such clarity. It was all blurred lines. Aeneas was a Jew, at least. But the rumors from Antioch, the questions about table fellowship with Gentiles who believed—where was the law for that? And now this Roman. A centurion. A man whose very shadow was a contaminant.
+They finished the meal in a silence that was not uncomfortable, just occupied. Martha cleared the plates with efficient clatters. Simon disappeared into the yard, his voice rising in curt instruction to the slave. Peter remained seated, his fingers tracing a deep gouge in the table’s wood. It ran against the grain, a violent, careless mark. Someone had slammed something down, a long time ago. A pot, a tool, a fist. The house was full of such scars, the accumulated history of a difficult craft practiced in a confined space.
 
-“I need the roof,” Peter said, standing. The stool legs screeched against the stone floor.
+He thought of the home in Capernaum, of the clean smell of lake wind and baking fish. He thought of the upstairs room in Jerusalem, the charged silence after the Teacher had gone. Each place had its own texture, its own spiritual scent. This house smelled of process, of a boundary-line occupation. Fitting, perhaps. Where else would he be, when his own thoughts were fixated on boundaries?
 
-Simon nodded, a short dip of his chin. He understood the need for space. His house offered little of it. “The ladder’s steady. Mind the corner by the cistern—the plaster’s soft.”
+The news from Samaria had settled in him like a stone in his gut. It was a joy, of course. A miraculous confirmation. The Spirit moving, the baptism, the breaking down of an ancient, bitter wall between Jew and Samaritan. He had rejoiced with John had felt the surge of holy astonishment. But in the quiet hours since, a colder, more granular unease had taken root. If the wall to Samaria could fall, what other walls were merely waiting for the divine push? The God-fearers in the synagogues, the Gentiles like Cornelius who prayed to the God of Israel gave alms kept the moral law—but who remained uncircumcised, outside the covenant, eternally other. Where did they fit in the new kingdom? Were they a problem to be solved later, or were they, somehow, the point?
 
-The ladder was rough pine, lashed with leather thongs. Peter climbed, the rungs biting into his bare soles. He pushed open the trapdoor, and the world opened up.
+A question felt like a betrayal. It tasted like ash in his mouth. He was a son of Israel, a keeper of the Law. The covenant was with Abraham’s children, not with the nations who bowed to stone and empire. The Teacher had come for the lost sheep of the house of Israel. He had said so.
 
-Up here, the tannery stench was muted, pushed back by the wind off the water. Joppa spread below him like a child’s blocks tumbled down a slope: whitewashed walls, flat roofs, the darker green of cypress trees in the wealthier quarters. The harbor was a crescent of chaos, tiny figures loading and unloading ships no bigger than wood shavings. The Mediterranean stretched to the horizon, a vast, impersonal blue.
+But he had also spoken of other sheep. Of a vineyard where the late-coming workers received the same wage. Of a faith greater than any bloodline.
 
-He walked to the parapet, his shadow a compact blotch on the sun-bleached plaster. A line of laundry flapped on a neighboring roof—a woman’s tunic, patched at the elbow. The patch was a different shade of blue, almost cheerful in its mismatch. He stared at it, his mind empty of prayer, full of the blue.
+Peter’s head ached with the contradiction. It was not a theological puzzle to be solved. It was a fault line running beneath the foundation of everything he knew. To even entertain the question felt like standing at the edge of one of Simon’s vats, peering into the murk wondering what it would be like to let go and sink in.
 
-That question wasn’t about the Roman’s vision. Visions happened. The prophets were full of them. Its question was the summons. Why him? Was a man of edges, of clear boundaries. The sea and the land. The clean and the unclean. The covenant and the nations. He understood walls. This new thing—this ‘Way’—felt like a slow erosion of every wall he knew. First the Samaritans received the Spirit. A shock, but they were cousins, however wayward. Then an Ethiopian eunuch reading Isaiah. A man cut off from the assembly, by the very letter. And now a Roman soldier?
+He stood abruptly, the mat rustling under his knees. He needed air that didn’t smell of tannin and salt. He needed the roof.
 
-It made no tactical sense. You didn’t build a movement on compromised ground. You secured the center. You reinforced the walls. Antioch was a risk—a city of Greeks, of loose living. They needed firm guidance, a unified practice, not this… organic sprawl.
+The stairs were narrow, steep, the wooden treads worn concave in the middle. He climbed them as he had every morning since coming to Joppa, a daily retreat. The rooftop was flat, covered in cracked plaster, bounded by a low parapet. To the east, the jagged silhouette of the city climbed the hill, white walls glowing in the early sun. To the west, nothing but the sea, a vast, breathing plain of green and silver, stretching to the curve of the world.
 
-His hands gripped the parapet. This stone was warm, gritty with wind-blown sand. A memory surfaced, unbidden: his daughter maybe five years old, building a wall of pebbles on this very beach. She’d been so careful, selecting each stone for fit. A wave came, not even a big one, a lazy swell. It didn’t smash the wall. It just washed around it, undercut it, and the whole structure slid into a formless heap. She’d cried not from anger, but from confusion. That wall was right. The sea was wrong.
+The gulls were there, as Simon predicted. They wheeled and screamed over the harbor, their cries the sound of the sea given voice. He watched them for a moment, their effortless pivots on the wind. They knew nothing of covenants or cleanliness. They lived on fish and garbage, creatures of the air and the water’s edge, belonging to neither land nor deep.
 
-A shout echoed from the street below. Two boys chasing a dog. A sound was sharp, swallowed quickly by the larger noise of the city.
+He walked to the western parapet, his shadow long and thin before him. The tanner’s house was built on the very margin of the city, where the urban noise gave way to the slap of waves against stone. Below, the rock-cut pools used for washing the hides were already flooded with the rising tide, the water sloshing in and out with a weary, rhythmic sound. A stray dog, ribs visible beneath its mangy coat, sniffed along the base of the wall, then lifted its leg against a corner post.
 
-Was tired. The kind of tired that sat in the bones. Tired of the questions with no scripture to answer them. Tired of the hope in people’s eyes that felt like a weight. Tired of the smell of hides that followed him even into his sleep.
+Peter turned his back on the sea, facing toward Jerusalem. He assumed the posture of prayer, standing, his hands open at his sides. The words of the Shema formed in his mind.
 
-He lowered himself to his knees. The posture was familiar, the words less so. Hear, O Israel. That was the start. But the rest—the pleas for guidance, for a sign—stuck in his throat like dry bread. What was he asking for? Permission to stay behind his wall? Or strength to let it be washed away?
+They died there. The familiar cadence, the anchor of a lifetime, refused to come. His mind was a jumble of faces instead. The hopeful, anxious face of the Greek-speaking widow they’d provisioned last week. The hardened, closed face of a Pharisee who had challenged him in the synagogue. The joyful, disbelieving face of John when he’d brought the news from Samaria. And beneath them all, like a dark watercolor bleeding through parchment, the face of the Roman centurion from his dream.
 
-He closed his eyes. One sun pressed on his eyelids, a red darkness. The sounds of Joppa receded: the hawkers, the carts, the distant rasp of a saw from the shipyards. There was only the wind, the faint taste of salt, the heat.
+It had been the same dream, three nights running. Not a vision, not a clear message. Just a man in the polished armor of a Roman officer, standing at a distance on a clean, ordered street. The man said nothing. He only watched, his expression unreadable—not hostile, not pleading. Waiting. And in the dream, Peter knew he was expected to cross the street, to approach this man who was the very embodiment of the occupation, of the pagan world. His feet would not move. A street between them seemed to widen, becoming a chasm.
 
-And then, a different smell.
+He opened his eyes. The sun was higher now, warming the plaster beneath his feet. The gull-cries had faded somewhat, replaced by the distant clang of a harbor bell. He tried again, forcing his thoughts upward. “Lord. Guide us. The way is… unclear.”
 
-Not salt. Not hides. Something sweet and smoky. Like incense, but wilder. Like a field of herbs after a lightning strike.
+The prayer felt small, swallowed by the immensity of the sky. He was a fisherman on a roof, grappling with a net that seemed to grow larger, its mesh finer, designed to catch things he had spent a lifetime learning to throw back. The peace he sought, the clear directive did not come. Only the restless churn of the sea, and the persistent, sour smell rising from the yard below, reminding him where he stood—in a house of impurity, on the edge of the known world, waiting for a wind to fill his sails when he no longer knew the course.
 
-His eyes flew open.
+He would stay on the roof. He would wait. It was all he knew to do.
 
-The rooftop was the same. The laundry flapped. The sea glinted. But the light had changed. Thicker, golden, pouring over the city like honey. And the air… it hummed. A low, sub-aural vibration he felt in his teeth.
+The sun climbed, a white coin hammered into the dome of the sky. Its heat pressed down on the rooftop plaster, pulling up the scent of dried lime and old rain from the cracks. Peter remained standing, but his posture had slackened. His hands, which had been open, now hung at his sides, fingers curling slightly as if around the handles of an invisible oar. The prayer had not come. A memory had, sharp and unbidden.
 
-He knew this feeling. It had fallen on them in the upper room, a sound like a hurricane that filled the house without stirring a curtain. It had settled on the Samaritans under the laying on of hands. It was not a feeling of peace. It was a presence that took up all the space in the room, in the chest.
+A fishing net, years ago, torn on a submerged rock off Bethsaida. Not a clean rent, but a ragged constellation of small holes, the cords frayed and weeping. Mending it was tedious, finicky work. You had to tie each break individually, a tiny knot of repair, and the pattern of the damage never made sense. One hole here, another a hand’s breadth away, no logic to it. You’d fix one and see three more you’d missed. His father had worked beside him in silence, his own gnarled fingers moving with a slow, constant patience that felt like a rebuke to Peter’s frustration. “The sea takes what it wants,” his father had said, not looking up. “Our job is to put it back together. Not to ask why it tore.”
 
-He held his breath. Waiting for the voice, the command, the reassurance.
+The memory faded, leaving the taste of salt on his tongue. This was the same. The net of the covenant was torn. Samaria was a hole, now mended by the Spirit’s own hand. But the fraying continued at the edges, among the God-fearers. Were they another hole to be tied off, or were they a different kind of damage altogether?
 
-It didn’t come.
+His stomach clenched, a hollow, insistent fist. He had eaten little at breakfast, and the bread was gone now, burned away by the churn of his thoughts. Fasting had always cleared his mind, sharpened his focus for prayer. Today it felt like a slow draining, leaving him light-headed and strangely porous. The sounds of Joppa amplified—the metallic shout of a coppersmith from three streets over, the rhythmic thud of a loom, the shrill bargaining of women at the well. Each noise was a needle prick on his skin.
 
-The thickened light began to coil, to gather at the edge of the roof. It formed no angel, no face. It became a sheer, vertical shimmer, like heat haze over a desert road. And within it, something descended.
+He lowered himself to sit, his back against the warm parapet. The rough plaster snagged his tunic. He closed his eyes, seeking the inner dark, the quiet place where God’s voice sometimes settled. But the faces returned. Not just the Roman’s from the dream. The faces of the Gentiles who lingered at the back of the synagogue in Caesarea, their expressions a mix of yearning and profound confusion as they listened to the Torah readings they could never fully own. He had seen them. He had pitied them. Their devotion was impressive, but it was a devotion from the outside, noses pressed against the glass of a banquet to which they had no invitation.
 
-A great sheet. Four corners held by no hand he could see. It lowered from the sky, right down to where he knelt.
+What did they eat? One question surfaced, absurd and specific. What did a Roman centurion, a man like the one in his dream, eat for his noon meal? Pork, probably. Sausage seasoned with garlic and herbs forbidden by the Law. He would eat it without a thought, without a blessing, the juice of it on his chin. Its image was vivid, repellent. Peter’s own saliva grew thick. His empty stomach lurched.
 
-Inside the sheet were animals. Every kind. Beasts of the field, birds of the air, things that crawled. He saw the clean—the split-hoofed, cud-chewing goats. And he saw the unclean: swine rooting, eagles with hooked beaks, a scaled thing with too many legs. All together, pressed against the bright fabric, silent and staring.
+This was the wall. Not stone or legionary armor, but this deep, raw recoil. Holiness was separation. Clean from unclean. Sacred from profane. Israel from the nations. You could not simply wish that away. You could not theologize a pig clean.
 
-A voice. Not from the sky. From inside him, the same place the vibration lived.
+A gust of wind came off the sea, cooler, carrying the damp, briny smell of low tide. It flapped the edge of his head-covering. He opened his eyes. The sea was changing color, the green deepening to a bruised purple where a cloud shadow passed. He watched the shadow move, a stain spreading on the water.
 
-Kill, and eat.
+Other sheep. The Teacher’s words spoken in the last confusing days before the end. I have other sheep that are not of this fold. I must bring them also.
 
-The command was clear. Obvious.
+Peter had nodded then, thinking he understood. The scattered tribes, perhaps. Or the righteous among the nations in some distant, final reckoning. He had not thought of a living, breathing Roman soldier, his hands calloused from a sword grip, his soul somehow hungry for a God whose laws he could never keep.
 
-Revulsion tightened his stomach. The Law screamed in his blood. “By no means, Lord! Nothing common or unclean has ever entered my mouth.”
+“They cannot be brought in unless they become one of us,” Peter said aloud, his voice a dry rasp against the wind. “They must take on the yoke. The circumcision, the law. It is the door.”
 
-That voice came again, patient, implacable. What God has made clean do not call common.
+But the voice in his head, which sometimes sounded like his own and sometimes like the ghost of a question the Teacher had asked, replied: Who made you the doorkeeper?
 
-The sheet rippled. The animals shifted, a living, breathing fabric of flesh and feather and scale. The pig’s snout nudged the cloth. The eagle turned its fierce eye.
+He had no answer. Only the tightening in his gut, the ache behind his eyes from squinting at a too-bright sky. The hunger was no longer just an absence. It was a presence, a dull animal pacing inside the cage of his ribs. He felt faint, untethered. The solid rooftop beneath him seemed to sway, just slightly, as if the house itself floated on the tide.
 
-Three times. The command, his refusal, the correction. Three times, the sheet filled his vision, the boundary between clean and unclean rendered meaningless, a divine paradox suspended over a tanner’s roof.
+He looked down at his hands. They were broad, scarred across the knuckles from nets and weather. Good hands for hauling, for mending, for holding the familiar weight of a fishing knife. They were not the hands of a philosopher. He was not built for this—for parsing the infinite mind of God, for stretching the covenant like a hide over a frame it was never meant to fit. He was built for doing. Go here. Preach this. Heal that. The clarity of a command.
 
-Then it was gone.
+The lack of one now was a form of torture.
 
-A light snapped back to ordinary noon. One hum vanished, leaving a ringing silence in its wake. The smell of ozone and scorched honey lingered for one heartbeat, two, then fled on the sea breeze.
+A lizard, its body the color of dust, darted from a crack in the parapet and froze, its throat pulsing. Peter watched it, mesmerized by its perfect stillness. Its tiny black eye seemed to hold a complete and untroubled universe. It knew its place. Insect. Sun. Stone. It did not anguish over the purity of its prey.
 
-Peter remained on his knees, his hands now flat and sweating on the plaster. The vision was over, but its afterimage burned behind his eyes. The theological shock was a cold knot in his gut. But underneath it, a more practical, immediate thought surfaced, clear and hard as the stone beneath him.
+A shadow on the water reached the shore, plunging the rock pools below into a sudden, gloomy chill. The wind picked up, whistling through a gap in the rooftop railing. It carried a new smell cutting through the tannin—the smell of rain, still far out at sea. A storm coming.
 
-The Roman’s messengers were coming. Perhaps they were already at the gate.
+Peter’s vision blurred at the edges. The white city walls to the east shimmered, losing their definition. He blinked, hard. The prayer he had been unable to form now condensed into a single, desperate word spoken inward, too dry for his throat to give it sound.
 
-And God had just declared the menu null and void.
+Help.
 
-He looked down at his hands. Were trembling. Not with fear, exactly. With the sheer, disorienting force of a model shattered. That wall of pebbles was gone. Only the sea remained, vast and untamable, and he was standing in the wash.
+As if in answer, the wind shifted. It came from the south now, from the direction of the desert. It was a different wind, hotter, drier, carrying not the promise of rain but the grit of distant sands. It swirled across the rooftop, lifting a spray of dust and dried fig leaves.
 
-Voices rose from the street below. Not the casual shouts of the market. Purposeful voices. Men’s voices, asking for direction.
+And with it came a sound.
 
-He pushed himself to his feet, his joints stiff. He walked to the trapdoor, the vision still echoing in the space between thought and belief. A answer to his prayer for clarity had arrived. It was not the answer he wanted. It was an instruction written in a language he did not yet know how to speak.
+Not a voice. Not yet. A resonance, deep in his bones, like the lowest note from a temple trumpet felt more than heard. The air tightened, pressed in on his eardrums. The mundane sounds of Joppa—the smith, the loom, the gulls—did not cease, but they receded, as if someone had stepped behind a thick curtain.
 
-He took a last breath of the clean, high air, and descended into the smell of leather and waiting.
+Peter went very still. The lizard vanished.
 
-*
+His skin prickled, every hair on his arms standing upright. This was not the feeling of prayerful closeness, that warm, assured presence. This was something older, wilder. It was the feeling that came before the thunder on the Lake of Galilee, when the water went flat and leaden and the air tasted of iron. It was the charged silence before the tearing of the temple veil.
 
-The rooftop held the day’s heat like a clay oven. Peter’s knees ached against the plaster, a dull complaint his mind noted and filed away. His shadow had shrunk to a dark puddle beneath him, the sun pinned directly overhead. Noon. The hour when the world seemed to hold its breath, when shadows vanished and everything stood exposed.
+He tried to rise, but his limbs were heavy, weighted by the strange, thickening air. His hunger was gone, replaced by a buzzing fullness, as if his very blood hummed.
 
-His stomach clenched, a hollow, insistent knot. He had broken his fast at dawn with a piece of barley bread, hard as a roof tile. One thought of the meal Simon would have prepared—lentil stew, likely, with onions that carried the tannery smell into the broth—turned his hunger into a specific nausea. He pushed the thought down. Hunger was a tool. It scraped the mind clean of clutter left only the essentials. At least, that was the theory. His essentials felt like a pile of broken pottery.
+Before him, the sky over the sea did not darken with storm clouds. The clear blue seemed to bleach, to pale into a terrible, sterile whiteness. It was not a vision of something. It was an unraveling of the ordinary. The green of the sea leached away into a sheet of dull metal. The white walls of the city became bones under a sun.
 
-That wind shifted, coming off the land now, carrying the scent of crushed thyme from the hills beyond the city walls. Underneath it, always, the base note of the vats: the acrid tang of lime, the sweet-rot smell of soaking flesh. He focused on the thyme. He tried to pray.
+And then, descending from that white nothingness, he saw it.
 
-The words of the Amidah formed in his mind, the eighteen blessings as familiar as the creases in his own hands. Blessed are you, Lord our God, King of the universe… His lips moved, but the prayer felt like reciting a shipping manifest. It described a world of order, of chosenness, of clear distinctions. A world at his feet was a mess of contradictions.
+A great sheet.
 
-A lizard skittered along the parapet, froze, its tiny sides pulsing. Perfectly, carefully unclean. He watched it, mesmerized by its quick, mechanical life. His daughter had once kept a lizard in a jar for three days, feeding it crumbs, before his wife found it. A memory was a small, sharp pain, unrelated to anything. He let it sit there.
+It was not cloth. It had the semblance of cloth, a vast, four-cornered expanse, but it was made of substance that held light and shadow differently. It seemed to be woven from air and intention. It was being let down from the heavens, not falling but lowering with a deliberate, terrifying gentility. It descended toward him, toward this rooftop on the edge of the world, and as it drew nearer, he saw what it contained.
 
-The hunger in his gut deepened, sharpening into a bright, specific point. It was no longer just an absence of food. It felt like a space being carved out inside him, a cavity waiting to be filled. He thought of the Roman’s invitation. Not an invitation—a summons. A centurion did not invite. That man’s house would be a model of Roman order: the atrium, the impluvium catching rainwater, the lararium shrine to household gods. A space structured by a different law, a different purity. To cross that threshold was to become profane. His own people would see it as a betrayal. The ones who followed the Way would be confused, fractured. James in Jerusalem would hear of it and that quiet, disappointed silence would travel back, heavier than any rebuke.
+All kinds of four-footed animals, creatures of the earth, wild beasts, reptiles.
 
-And yet.
+And birds of the air.
 
-Its man was devout. A God-fearer. He gave alms. He prayed. The messengers had said that. Were these not the fruits? But fruit could grow on a poisoned vine. Piety could be a form of arrogance, a ledger of virtues tallied against the divine. He knew that temptation. He’d felt it himself, standing in the temple courts, the Pharisee in him whispering thank you I am not like other men.
+A chaos of life, a moving, breathing, rustling tumult. He saw the curved horns of a gazelle, the sinuous coil of a snake, the bristled back of a boar. He saw the bright, beady eye of a raven, the strut of a stork. They were not crammed; they existed together in the impossible space of the sheet, a tableau of creation that defied the first chapter of Genesis, where God had separated them all according to their kinds.
 
-A cloud, thin and frayed at the edges, passed over the sun. One light softened turned the white walls of Joppa a muted grey. The sudden shift made him blink. That world looked different in this diluted light—flatter, less sure of itself.
+His pulse stopped. His mind screamed the categories, the ancient, sacred divisions. Clean. Unclean.
 
-His mouth was dry. He swallowed, but there was no moisture. The taste in his mouth was the memory of the dusty road from Lydda, the grit between his teeth. He needed water. A thought was a physical pull, an animal need. He ignored it. The hunger, the thirst—they were gates. If he could hold onto the discomfort, press into it, perhaps the clarity would come. Moses fasted forty days. Elijah. The prophets walked into the desert to hear God’s voice because the noise of living was too loud.
+There were sheep in the sheet. And there were pigs, their pink, hairy flanks obvious. There were eagles and vultures alongside doves. A hyena sat, tongue lolling, beside a sleeping lamb.
 
-One noise here was a constant: the distant bleat of a goat, the rhythmic thump-thump-thump from a fuller’s workshop, a woman’s voice calling a child’s name two streets over. He tried to listen through it, past it. He focused on the vibration in his own chest, the beat of his heart. It seemed too slow, a sluggish drum.
+A voice spoke. It was not in his ear. It was in the center of his skull, clear, and as vast as the sky from which the sheet hung.
 
-Then, a mistake. He thought of food. Not abstractly. Specifically. A roasted fish, its skin crisp and salted, pulled fresh from the coals at the lake’s edge. The flaky white flesh, the heat of it in his hands, the way the juice would run down his wrist. Its memory was so vivid his salivary glands clenched, a painful spasm. The hollow in his gut yawned wider, a chasm.
+Get up, Peter. Kill and eat.
 
-Shame followed, hot and immediate. Was this his spirituality? A bargaining with his belly? Was supposed to be seeking the will of God, not fantasizing about supper. The contradiction exhausted him. He was a man of earth, of calluses and appetite. The spirit was willing, but the flesh was hungry. And tired. So profoundly tired.
+The command was an earthquake in his soul. Every fiber of him, every year of law and custom and identity, recoiled. His body went rigid with refusal. This was not a test of hunger. This was an assault on the core of who he was.
 
-He let his head drop forward. A sun warmed the back of his neck. The prayer was gone now, scattered by the image of the fish. In its place was a simple, wordless ache. A longing not for an answer, but for a presence. For the certainty that had filled the upper room, that wind of pure conviction. He didn’t need to understand the Roman. He needed to know he was not alone in this.
+“Surely not, Lord!” The words tore from him, a raw shout into the heavy air. “I have never eaten anything impure or unclean!”
 
-One light changed again.
+The echo in the air deepened, vibrating in the pit of his teeth. The sheet hung, flickering with its impossible cargo. A voice came again, not angry, not pleading. Final. Like stone being set.
 
-It wasn’t the cloud passing. The frayed cloud was gone, and the sun was back, but the quality was wrong. A light had weight. It poured over the rooftop not as illumination, but as substance, a slow, golden syrup. A air grew thick, resistant. When he turned his head, it felt like moving through water.
+Do not call anything impure that God has made clean.
 
-One hum began. Not a sound he heard with his ears. It started in his jawbone, a vibration that traveled up into the roots of his teeth. It spread to his sternum, a deep, resonant thrumming that synchronized with his heartbeat, then hesitated it. That noise of Joppa didn’t fade this time—it was pushed out, erased by this new, interior pressure.
+The words struck him with physical force. He swayed back, as if pushed.
 
-Fear flickered, a cold spark in his chest. This was not the gentle guidance of a quiet mind. This was an arrival.
+The sheet did not vanish. It remained, a suspended impossibility. The boar rooted at the corner. The vulture preened a feather. The clean and the unclean, together, declared clean by a fiat that rewrote the world.
 
-The sweet, smoky smell returned, stronger now. Not thyme. Not incense. It was the scent of a lightning-scorched pine, of myrrh and something metallic, like blood on hot stone. It flooded his sinuses, filled his lungs. Every breath was saturated with it.
+It happened again. A second time, the command. The same animals, the same terrible, beautiful mingling. Kill and eat. His refusal was weaker now, a whisper of instinct overcome by the drowning tide of divine contradiction.
 
-He tried to lift his hands, to cover his face in the ancient posture of awe. His arms were leaden. The muscles obeyed, but slowly, as if he were dreaming. He got his palms up, his fingers spread. A light pooled in the cup of his hands, liquid and warm.
+And a third time. The sheet filled his vision, the whole of creation bundled and offered. Then, as suddenly as it had come, it was drawn back up into the white heaven, vanishing as if through a seam in the sky.
 
-The rooftop around him seemed to recede, its edges blurring. The parapet, the laundry, the sea—they were still there, but they were scenery now, painted on a curtain. The real world was this thickening atmosphere, this humming pressure, this smell that bypassed memory and went straight to the primal brain.
+The ordinary sounds of Joppa crashed back in—a donkey braying, a child crying, the harbor bell. The sea was green again. The city walls were solid stone. The hot, gritty wind was just wind.
 
-This was the trance. He recognized the border crossing. The body’s demands—the hunger, the thirst, the aching knees—fell away. Were distant reports from another country. His consciousness, unmoored, floated in the golden haze. Thought became image. Need became symbol.
+Peter was on his knees. He did not remember falling. He pressed his forehead against the sun-warmed plaster of the rooftop. His body trembled, a fine, uncontrollable shaking that started in his hands and ran up through his shoulders. The vision had lasted only moments, but it had carved a channel through him, emptying him of every certainty he possessed.
 
-He was hungry.
+The command echoed in the new, hollow space. Kill and eat.
 
-The need was no longer in his stomach. It was the central fact of his being, the shape of the hollow space inside him. It was a vast, empty vessel waiting to be filled.
+He understood nothing. And yet, in the devastation of his old understanding, a terrifying, electric clarity began to flicker. This was not about food. The animals were just the sign, the first broken symbol.
 
-And the heavens responded.
+This wall was not just damaged. It was not to be mended.
 
-Above him, the solid blue of the sky shimmered, wavered like heat over a flame. It didn’t crack. It softened, parting like a curtain drawn aside by an unseen hand. Not to reveal a throne, or a face, or the chariot of Ezekiel. It revealed a sheer, boundless openness. A promise of filling.
+It was to be dismantled, stone by sacred stone, and he was being handed the first crowbar.
 
-From that openness, it descended.
+Peter stayed there, his knees grinding into the plaster, until the trembling subsided into a deep, cellular exhaustion. The heat of the day had reached its peak. The sun was a white brand on the back of his neck. The vision was gone, but its afterimage pulsed behind his eyes—the boar’s coarse hair, the vulture’s naked head, the terrible togetherness of it all. His mind scrabbled for purchase, for a way to file this event into a category he understood. A test of loyalty, perhaps. A warning against presumption. God would not could not, overturn the Law. It was eternal, the very pattern of holiness. The voice must have meant something else. A metaphor. The animals were… sins. Yes. Sins of the flesh, bundled together, and he was being told to purge them. Or they were the Gentile nations, and he was being shown their spiritual state—a confused mingling. The command to kill and eat was symbolic. It had to be.
 
-First, the corners. Four of them, points of a greater geometry dipping into his limited world. Then the fabric, vast and seamless, a sheet of light so pure it hurt to look at, yet he could not look away. Held taut by no hand he could see, but it moved with a gentle, billowing purpose, lowering itself directly toward him, toward the empty vessel of his hunger.
+He pushed himself up, his joints stiff. His mouth was a desert. He needed water. He needed to talk to John, to James, to someone who could help him unravel this. He turned toward the stairwell, his shadow a puddle at his feet.
 
-His mind, in its last moment of ordinary comprehension, grasped the scene. A great sheet, let down from heaven. And within it, every living thing.
+A knock sounded from below.
 
-Then the details rushed in.
+It was a firm, official rap of knuckles on wood, not the casual slap of a neighbor. It came from the street gate, not the house door. Peter froze, one foot toward the stairs. Simon had few visitors of that sort. Tanners did business at the yard, not the residence.
 
-Beasts of the field. Goats, their split hooves clear, chewing imaginary cud. A horned ram. And beside them, snout twitching, small eyes bright with animal intelligence, a pig. Birds of the air. Doves, cooing silently. And with them, an eagle, its talons curled, its hooked beak a promise of rending. Creatures that swarmed. Locusts in a clicking cloud. And things that crawled on many legs, things with segmented bodies and hard, shiny carapaces.
+The knock came again, three measured beats.
 
-Clean and unclean. Kosher and tamei. The curated creation of Leviticus and the chaotic, teeming life of the earth beyond the covenant. All together. Pressed against the membrane of the sheet, their forms distinct yet unified in this impossible tableau. They did not move. They were presented.
+His heart, which had slowed to a weary thud gave a single, hard contraction. A cold thread of understanding, too awful to acknowledge, spun through the numbness. No. It was a coincidence. A tax collector. A message from the brethren in Jerusalem.
 
-A voice did not come from the sky. It came from the hollow place, the place of his hunger, now resonating with the divine hum.
+He heard the shuffle of Simon’s sandals in the courtyard below, the creak of the gate hinge. A man’s voice, deep, speaking Greek with the clipped, confident accent of a soldier or an imperial servant. He could not make out the words. Then Simon’s voice, higher, surprised. “Of course. Please. He is at prayer. On the roof.”
 
-The command was not a sound. It was the implantation of a concept, pure and absolute, into the fabric of his soul. It carried the weight of celestial authority, the simplicity of a solved equation.
+Footsteps, more than one set, entered the courtyard. They were heavy, disciplined. Not the soft, scuffing steps of fishermen or farmers.
 
-Revulsion was instinct, deeper than law, written in the marrow. His body recoiled before his mind could form words. The very idea was a violation, a tearing of the sacred order that held his world together. To eat the unclean was to ingest chaos, to become what you consumed.
+Peter could not move. He was a statue of a man on a roof caught between a vanished vision and an approaching reality. The wind had died completely. The air was a solid, hot weight. From below, he heard the distinct metallic chime of a piece of equipment—a sword pommel knocking against a buckle, or the edge of a shield. Roman military issue.
 
-His protest erupted from that deep place, a cry of identity. “By no means, Lord!” The words felt thin, pitiful against the monumental pressure. “Nothing common or unclean has ever entered my mouth.”
+The top of a head appeared in the dark square of the stairwell, then broad shoulders blocking the light. A man emerged onto the rooftop. He was not a legionary. He wore the fine linen tunic and cloak of a household steward, but his bearing was upright, his hair cut short in the Roman style. His eyes scanned the roof and found Peter. They held no hostility, only a focused curiosity. Another man, similarly dressed, followed him.
 
-The correction was immediate, patient, absolute. It filled the hollow, not with food, but with a new and terrifying logic.
+They were not soldiers. They were servants. But they moved with a military bearing, and their gaze was the assessing look of men who represented power.
 
-The sheet rippled. The animals within it seemed to stir, not with menace, but with a quiet, inherent legitimacy. The pig’s snout nudged the glowing fabric. The eagle turned its fierce, unblinking eye toward him. The locusts shifted, a rustle like dry parchment.
+The first man approached, stopping a respectful distance away. He gave a slight, polite nod of the head. Not a bow. A courtesy between equals, or near-equals. His Greek was flawless, formal.
 
-The vision did not end. It repeated. The sheet withdrew into the openness vanished, then descended again. The same command. The same revulsion, raw and reflexive. The same refusal, weakening this time, his words a whisper against the tide. The same correction, ringing in the bones.
+“I am seeking a man named Simon, also called Peter. He is lodging here with Simon the tanner.”
 
-What God has made clean…
+Peter found his voice. It came out rough, scraped raw. “I am he.”
 
-A third time. The hollow within him was no longer empty. Filled with this new, shattering principle. His refusal was a formality now, the last twitch of a dying instinct. The words barely left his lips.
+The man’s expression did not change, but his shoulders relaxed a fraction, as if a minor logistical hurdle had been cleared. “My name is Claudius Lysias. I serve the centurion Cornelius, of the Italian Cohort, stationed in Caesarea.” He paused, letting the name and title hang in the hot air. “Cornelius is a righteous man, one who fears God and is well spoken of by the entire Jewish nation. He was instructed by a holy angel to send for you, to bring you to his house, so that he may hear what you have to say.”
 
-The correction was final. It did not just refute him. It rewrote the taxonomy of his soul. Clean and unclean were not categories of creation, but of perception. And God had just changed the lens.
-
-The sheet lifted. The open heaven drew it up, the corners retreating into the boundless blue. That light began to drain from the air, the golden syrup thinning to ordinary noon. A hum receded from his teeth, his chest, leaving a deafening silence in its wake. The smell of ozone and scorched honey lingered for three heartbeats, then was snatched away by a sudden, cool gust off the sea.
-
-Peter knelt, emptied.
-
-The hunger was gone. The thirst was gone. In their place was a cold, clear shock, a theological vertigo. The vision was over, but its afterimage was burned onto the back of his eyes—the eagle beside the dove, the pig beside the goat. A merged reality. A world without the walls.
-
-A shout floated up from the street. Men’s voices, asking for the tanner’s house. The Roman’s messengers.
-
-He lowered his hands. The joints cracked, loud in the quiet. He pushed himself up, his body feeling strange, new, as if he had to relearn its balance. He walked to the trapdoor, the vision’s echo a physical resonance in the space around him. The prayer was answered. The hunger was sated with a truth that felt, at first, like starvation.
-
-He took one last pause of the high, clear air, now scented only with salt and sun-bleached stone, and descended into the world he no longer knew how to navigate.
-
-The sheet vanished. One sky sealed itself, a seamless blue bowl once more. The weight lifted from the air, the hum retreated from his bones, leaving a silence so complete it pressed against his eardrums. Peter remained on his knees, a statue of plaster and flesh. That sun beat down on the back of his neck, the same indifferent sun as before. The laundry on the line flapped in a sudden breeze. A gull cried over the harbor. A world had reassembled itself, piece by ordinary piece.
-
-But it was a broken world, reassembled wrong.
-
-He looked at his hands, flat on the warm plaster. They were just hands. The lines of the palms, the calluses from nets and tools, the dark hairs on the knuckles. Ordinary. They had been raised in protest against heaven. Now they just looked empty. He turned them over, studied the palms as if reading a map to a country that no longer existed. The Law was written on the heart, the prophets said. He felt the writing now, not as scripture, but as a physical scar, a ridge of old keloid tissue that had just been torn open.
-
-The smell was the last to go. Not the wild, smoky scent of the vision, but the tannery stink, rising through the trapdoor with a new and startling intimacy. It was the smell of dead things, of skins stripped and soaked and transformed. It was the smell of his host’s livelihood, of his own temporary refuge. For the first time, he wondered about the hides in Simon’s vats. Goat, sheep, cow—clean animals, ritually slaughtered. Their flesh eaten, their skins made useful. Was the smell unclean, or just the byproduct of a clean thing? His mind, trained to categorize, spun uselessly, a gear stripped of its teeth.
-
-A fly landed on his wrist. It was a fat, green-bodied thing, its wings a blur of iridescence. It crept across his skin, its proboscis testing the salt. An abomination. Six-legged, swarming. Among the winged insects that go on all fours you may eat those that have jointed legs above their feet. He knew the verse. This one did not. He should flick it away, shake off the contamination. He watched it instead. The complex machinery of its life. The way the light caught its faceted eyes. It was a masterpiece of tiny, busy creation.
-
-He did not flick it away. It lifted of its own accord and buzzed toward the parapet.
-
-His stomach, forgotten during the trance, announced itself with a low, liquid groan. Not hunger. Something more primal, a raw revolt. His mouth flooded with saliva, a prelude to sickness. He stopped hard, the taste of bile and dust at the back of his throat. One image of the pig’s snout, moist and questing against the sheet, flashed behind his eyes. The eagle’s talon, curved like a Syrian dagger. His gut clenched, a hard, painful spasm. This was the body’s wisdom, older than the Law. This was the flesh saying no.
-
-But the voice had been clearer.
-
-He lowered himself through the opening, his feet finding the rungs of the ladder in the dimness below. The last thing he saw was the rectangle of brilliant sky, framed by the trapdoor. Then he pulled the door shut behind him, plunging himself into the shadow of the new, ungovernable world.
+Peter turned from the sea. He went down the stairs to meet them.
