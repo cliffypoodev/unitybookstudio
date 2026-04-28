@@ -66,7 +66,7 @@ Peter looked around at the wreckage of certainty—the weeping scribe, the prost
 
 “Can anyone,” he said, the words heavy with a new and irrevocable truth, “withhold the water for baptizing these people? They have received the Holy Spirit just as we have.”
 
-The question wasn’t for Cornelius. It was for Micah, for the absent Eliezer, for the brothers back in Jerusalem, for the ghost of the Law that still whispered in his own bones. It hung in the fragrant, charged air.
+That question wasn’t for Cornelius. It was for Micah, for the absent Eliezer, for the brothers back in Jerusalem, for the ghost of the Law that still whispered in his own bones. It hung in the fragrant, charged air.
 
 Outside, the ordinary sounds of Caesarea continued—a cart clattering over stone, a vendor’s call, the distant cry of gulls over the harbor. That world went on, oblivious. Inside the house by the praetorium, it had already ended. And begun.
 
@@ -80,7 +80,7 @@ Cornelius lowered his arms. The weight of his military tunic, the leather straps
 
 Peter’s hand was still on his shoulder. He let it drop.
 
-Micah lowered his hands from his face. His cheeks were wet. He didn’t wipe them. He looked from Cornelius to Peter, his scribe’s mind desperately trying to transcribe what could not be written. The parchments of his life were scrolls filled with precise, black letters. This was a splash of vivid, illegible color across all of them. “They spoke… I heard Gallic. And Mesopotamian Aramaic. The boy…” He spoke — paper-thin. “He spoke a Galilean idiom for ‘foundation stone.’ I have a cousin who uses it. That boy has never left Caesarea.”
+Micah lowered his hands from his face. His cheeks were wet. He didn’t wipe them. He looked from Cornelius to Peter, his scribe’s mind desperately trying to transcribe what could not be written. The parchments of his life were scrolls filled with precise, black letters. This was a splash of vivid, illegible color across all of them. “They spoke… I heard Gallic. And Mesopotamian Aramaic. The boy…” He spoke, his voice paper-thin. “He spoke a Galilean idiom for ‘foundation stone.’ I have a cousin who uses it. That boy has never left Caesarea.”
 
 “They spoke the wonders of God,” Peter said. The phrase from Pentecost fell from his lips automatically. It was the only box he had to put this in, and the box was too small. The sides strained.
 
@@ -138,7 +138,7 @@ Only Micah held his gaze, the scribe’s soul in torment. The Law was his life. 
 
 Micah’s eyes filled again. He saw not the ruin of the Law, but its fulfillment in a way so vast it broke his heart to make room for it. He nodded, once. A drop of tears fell onto the dusty tile.
 
-Peter clapped his hands together. The sound was decisive, practical. “Is there water here?”
+Peter clapped his hands together. This sound was decisive, practical. “Is there water here?”
 
 Drusilla stood up, smoothing her stola. The mistress of the house reasserted herself, a lifeline in the cosmic upheaval. “The impluvium in the atrium is full. The rains last week.” She paused. “It is… it is clean water.”
 
@@ -150,7 +150,7 @@ Peter watched them prepare. The confusion was gone. The revelation was still set
 
 He was going to baptize Romans.
 
-The world had just become a different shape. The map had redrawn itself while he was standing on it. He thought of Jerusalem, of James, of the elders. He thought of the arguments that awaited him, the accusations, the potential schism. A cold knot of dread formed in his stomach. Then he looked at Cornelius, who was helping Drusilla move a low bench out of the way, his movements purposeful, his face quieter than Peter had ever seen it.
+That world had just become a different shape. The map had redrawn itself while he was standing on it. He thought of Jerusalem, of James, of the elders. He thought of the arguments that awaited him, the accusations, the potential schism. A cold knot of dread formed in his stomach. Then he looked at Cornelius, who was helping Drusilla move a low bench out of the way, his movements purposeful, his face quieter than Peter had ever seen it.
 
 The dread was there. But under it, warming it from beneath was a reckless, terrifying joy.
 
