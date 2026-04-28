@@ -56,7 +56,7 @@ A pause. Then, softly, Lydia began. It was not a song Cornelius recognized. The 
 
 Drusilla’s hands tightened in her lap.
 
-Cornelius reached for the jug. The water was cool against his fingers. He poured a cup, the sound loud in the half-song.
+Cornelius reached for the jug. Its water was cool against his fingers. He poured a cup, the sound loud in the half-song.
 
 Gaius watched him. “What do we do when the prefect calls you to muster?”
 
@@ -88,7 +88,7 @@ Cornelius stood. “We keep the watch. We break bread. We tell what we saw.” H
 
 Gaius held his gaze a moment, then nodded.
 
-The kitchen boy reached for another olive. The soldiers resumed eating. Lydia wiped her hands on her tunic, her face turned toward the window, where the light was growing stronger.
+The kitchen boy reached for another olive. A soldier resumed eating. Lydia wiped her hands on her tunic, her face turned toward the window, where the light was growing stronger.
 
 Cornelius left the triclinium. He found Drusilla in the courtyard, her arms wrapped around herself, though the morning was warm.
 
@@ -292,7 +292,7 @@ The fountain burbled, the sound too loud in the silence. A lizard darted across 
 
 Drusilla’s shoulders slumped. “I miss the certainty.”
 
-He touched her elbow felt the tension there. “So do I.”
+He touched her elbow. He felt the tension there. “So do I.”
 
 She didn’t pull away.
 
@@ -310,11 +310,11 @@ Cornelius folded the parchment. “Who spoke of it?”
 
 “A legionary from the Syrian cohort. He frequents the wine shop near her sister’s house.”
 
-Drusilla’s pause caught. “Then they know.”
+Drusilla’s beat caught. “Then they know.”
 
 Gaius hesitated. “They know she visited. Not why.”
 
-Cornelius touched the eagle buckle at his belt. The metal was cool beneath his fingers. “Ready the men.”
+Cornelius touched the eagle buckle at his belt. Its metal was cool beneath his fingers. “Ready the men.”
 
 Gaius nodded and left, his footsteps echoing in the colonnade.
 
