@@ -42,7 +42,7 @@ Cornelius hadn’t moved. His stillness was absolute.
 
 Peter stepped forward. The tiles were cool under his bare feet. “All the prophets bear witness, everyone who believes in him receives forgiveness of sins through his name.”
 
-A chair scraped. One of Cornelius’s friends—a thick-set man with a merchant’s rings, leaned forward. “This Jesus. He was a Jew?”
+A chair scraped. One of Cornelius’s friends, a thick-set man with a merchant’s rings, leaned forward. “This Jesus. He was a Jew?”
 
 Peter didn’t blink. “He was the Messiah.”
 
@@ -194,7 +194,7 @@ The resurrection.
 
 And nothing would ever be the same.
 
-Cornelius’s air caught in his throat like a hook. The darkness Peter described—that unnatural eclipse at midday, it wasn't just weather. It was the world holding its pause.
+Cornelius’s air caught in his throat like a hook. The darkness Peter described, that unnatural eclipse at midday, it wasn't just weather. It was the world holding its pause.
 
 Justus leaned forward, rings forgotten in his lap. “Finished what?”
 
@@ -248,9 +248,9 @@ Gaius staggered back, his heel catching on a tile.
 
 Justus’s rings slipped from his fingers, clattering across the floor.
 
-Cornelius’s skin prickled. The air itself was charged, thick as before a lightning strike. His military belt—the one he'd worn through a dozen battles, suddenly felt absurd. A child's toy.
+Cornelius’s skin prickled. The air itself was charged, thick as before a lightning strike. His military belt, the one he'd worn through a dozen battles, suddenly felt absurd. A child's toy.
 
-Peter’s face went slack with recognition. Then joy—raw and unguarded, split his beard. “He's here.”
+Peter’s face went slack with recognition. Then joy, raw and unguarded, split his beard. “He's here.”
 
 The hum started low. Not in the air. In the bones. It climbed Cornelius’s spine, filled his teeth, rattled his ribs like a drumskin. His vision blurred. The room tilted.
 
