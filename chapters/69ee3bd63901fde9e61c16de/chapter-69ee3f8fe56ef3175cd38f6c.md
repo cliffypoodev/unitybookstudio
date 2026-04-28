@@ -88,7 +88,7 @@ Micah could bear it no longer. “Rabbi, we must go. This is a transgression.”
 
 “Be quiet,” Peter said. The words were not loud, but they cut through the room like a blade.
 
-He looked at Cornelius, really looked at him. He saw the bloodstains on the tunic, the raw, cracked skin on the man’s hands from obsessive washing. He saw the tension in the broad shoulders, the shadow of some old grief in the lines around the eyes. This was not a Roman official playing at foreign piety. This was a man drowning on dry land.
+Peter looked at Cornelius, really looked at him. He saw the bloodstains on the tunic, the raw, cracked skin on the man’s hands from obsessive washing. He saw the tension in the broad shoulders, the shadow of some old grief in the lines around the eyes. This was not a Roman official playing at foreign piety. This was a man drowning on dry land.
 
 And God had thrown him, Peter, a rope.
 
@@ -118,8 +118,6 @@ The threshold of the dining room was a strip of darker marble. He paused for a h
 
 Then he stepped across.
 
-*
-
 The triclinium was too quiet. The scrape of sandals on marble, the rustle of tunics as people found their places—it was the only sound. Even the children, usually a fount of whispers and squirms sat rigidly on their mothers’ laps, wide-eyed. Cornelius had ordered the couches arranged in a wide semicircle facing the door, a place of honor left empty for Peter. A mistake, perhaps. It looked like a tribunal. He considered changing it, but movement now would only amplify the tension, a captain shifting ballast in a storm.
 
 He took his own place on the edge of the first couch, not reclining as host but sitting upright, hands on his knees. The posture pinched the old wound in his lower back, a souvenir from a Germanic spear. He welcomed the familiar ache. It grounded him. To his right, his wife, Drusilla sat with a spine so straight it seemed she balanced a scroll on her head. Her fingers were laced in her lap, knuckles white. She had argued against this. Not the vision—she believed him, or said she did—but the public spectacle of it. A private audience, she’d urged. Discretion. But the angel had said all his household. The command was inclusive, a net cast wide. He would not could not, parse it.
@@ -144,7 +142,7 @@ Cornelius’s stomach was a hard, cold knot. This was the moment. The anticipati
 
 And now the man was here, silent, drinking water.
 
-The silence stretched, thinning to a breaking point. Gaius shifted again, impatient. Drusilla’s breathing was a shallow, controlled whisper. In the corner, the physician’s wife patted the carved amulet at her throat.
+A silence stretched, thinning to a breaking point. Gaius shifted again, impatient. Drusilla’s breathing was a shallow, controlled whisper. In the corner, the physician’s wife patted the carved amulet at her throat.
 
 Peter set his cup down. The clay tock was obscenely loud. He looked not at Cornelius, but at the mosaic between his feet—a scene of Neptune calming the waves.
 
@@ -210,11 +208,11 @@ Peter’s voice filled the triclinium, no longer hesitant, but urgent, compellin
 
 He was in the presence of God. And the words were for him.
 
-The words kept coming from Peter’s mouth, a river he could not dam. He spoke of the prophets, of the testimony, of the command to preach. He heard himself saying the phrases he’d used in a hundred Jerusalem courtyards, but here, in this room, they landed differently. They lost their tribal certainty. When he said “forgiveness of sins,” he saw the centurion’s hands tighten on his knees, the knuckles bleaching to the color of old bone. The man wasn’t just listening. He was drinking, a man dying of thirst finding a stream in a desert he hadn’t known was his.
+The words kept coming from Peter’s mouth, a river he could not dam. He spoke of the prophets, of the testimony, of the command to preach. He heard himself saying the phrases he’d used in a hundred Jerusalem courtyards, but here, in this room, they landed differently. They lost their tribal certainty. When he said “forgiveness of sins,” he saw the centurion’s hands tighten on his knees, the knuckles bleaching to the color of old bone. That man wasn’t just listening. He was drinking, a man dying of thirst finding a stream in a desert he hadn’t known was his.
 
 A fly buzzed, lazy and stupid, around the platter of lamb. It circled twice, then landed on a glistening edge of fat. No one shooed it. All eyes were fixed on Peter. The fly’s presence was an obscenity. A punctuation mark. See? It seemed to hum. Unclean.
 
-He tried to ignore it. He spoke of Jesus eating with his disciples after the resurrection, a fact meant to prove the corporeal truth. But the word eating snagged on the image of the sheet. The fried fish by the Sea of Tiberias became the crawling things. The honeycomb became the scaled flesh of reptiles. The memory of shared meals, the cornerstone of fellowship, now felt unstable, a foundation cracking beneath him.
+He tried to ignore it. He spoke of Jesus eating with his disciples after the resurrection, a fact meant to prove the corporeal truth. But the word eating snagged on the image of the sheet. The fried fish by the Sea of Tiberias became the crawling things. The honeycomb became the scaled flesh of reptiles. A memory of shared meals, the cornerstone of fellowship, now felt unstable, a foundation cracking beneath him.
 
 He was approaching the end of the testimony. The logical conclusion, the invitation to believe. His throat closed. The prescribed words—repent and be baptized—felt like stones too heavy to lift. They belonged to the covenant, to the children of Abraham. To offer them here was to throw a sacred relic into a public fountain.
 
