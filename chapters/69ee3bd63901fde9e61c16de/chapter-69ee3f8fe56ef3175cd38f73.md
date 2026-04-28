@@ -2,7 +2,7 @@ The first pale light of dawn found the atrium floor still dark with water. It po
 
 Peter was already there, sleeves rolled past his elbows, forearms corded and pale. He moved a large clay storage jar from the kitchen, grunting with the weight. Water slopped over the rim as he set it down beside the shallow rainwater basin. The impluvium was for catching rain, for ornament. It was not deep enough. This was a practical problem, and Cornelius’s mind seized on it with relief. Depth. Volume. Logistics.
 
-“It will do,” Peter said, as if reading the calculation on his face. His voice was gravel, worn from the night’s speaking. “We are not drowning them. We are burying them.”
+“It will do,” Peter said, as if reading the calculation on Cornelius’s face. His voice was gravel, worn from the night’s speaking. “We are not drowning them. We are burying them.”
 
 The words made Cornelius’s scalp tighten. He gave a curt nod, the kind he gave a junior officer before a maneuver. His body knew the ritual of command. It did not know this.
 
@@ -36,7 +36,7 @@ The cold swallowed his ears, his chin, his eyes. One world vanished into a roari
 
 Then he was rising, water sheeting from his hair, gasping a breath that tore into his chest like a first breath. He broke the surface.
 
-Sound rushed back—the drip of water, a stifled gasp from the colonnade, the distant cry of a gull. He blinked, kneeling in the basin. Peter’s hands were still on him, steadying. The fisherman’s face was close, his beard dripping. He searched Cornelius’s eyes, not for faith, but for consciousness. “Brother,” he said, and the word was a rope thrown across a chasm.
+Sound rushed back—the drip of water, a stifled gasp from the colonnade, the distant cry of a gull. He blinked, kneeling in the basin. Peter’s hands were still on him, steadying. The fisherman’s face was close, his beard dripping. He searched Cornelius’s eyes, not for faith, but for consciousness. “Brother,” Peter said, and the word was a rope thrown across a chasm.
 
 Cornelius reached out, gripped the edge of the impluvium. The marble was solid, real. He hauled himself up, water cascading from his tunic to puddle around his feet. He stood, dripping. He looked at his hands. They were the same hands. The scar from a Germanian spear-tip still whitened the back of his left thumb. Yet the air felt different against his skin. Sharper. As if a layer of wool had been stripped from the world.
 
@@ -88,7 +88,7 @@ He lowered her, not under, but into the water of the jar, pouring handfuls over 
 
 A final drip echoed in the quiet. The jar was empty. The impluvium’s water was murky, stirred up by many feet. The atrium floor was a wreck of puddles and wet footprints. The household stood together, dripping, shivering in the growing morning light. They looked at each other, strangers and family, bound now by a shared chill, a shared gasp for air.
 
-No one spoke. The theological words were spent. The wind did not come again. There was only the aftermath: the practical mess of water, the smell of wet wool, the slow seep of cold into bones.
+No one spoke. The theological words were spent. A wind did not come again. There was only the aftermath: the practical mess of water, the smell of wet wool, the slow seep of cold into bones.
 
 Simon broke the silence. He had been watching from the driest corner, his arms folded. Now he walked to the edge of the largest puddle, looked at the ruined mosaic, then at Peter. “Jerusalem,” he said, the single word a world of trouble.
 
@@ -114,13 +114,13 @@ Then the servants, the slaves, the household staff who had lingered at the edges
 
 Her mistress gave a small, almost imperceptible wave of her hand. Go.
 
-The woman stepped in. The water was now a broth of tracked-in dirt, lint from woolens, a stray basil leaf from the kitchen. It did not matter. Peter asked her. She believed, she whispered, in the God who saw Hagar in the desert. He baptized her. She emerged weeping, her floury hands leaving pale prints on Peter’s dark, wet tunic as she clung to him.
+The woman stepped in. This water was now a broth of tracked-in dirt, lint from woolens, a stray basil leaf from the kitchen. It did not matter. Peter asked her. She believed, she whispered, in the God who saw Hagar in the desert. He baptized her. She emerged weeping, her floury hands leaving pale prints on Peter’s dark, wet tunic as she clung to him.
 
 The dam broke. The stable hand. The scullery maid with a burn scar lacing her forearm. The Syrian scribe who kept the household accounts, his stylus calluses rough against Peter’s palm. The Nubian doorkeeper, a giant of a man who had to fold himself nearly in half to fit into the shallow impluvium. He laughed when he came up, a deep, rolling sound that seemed to shake water from the roof tiles.
 
 Cornelius watched the hierarchy of his home invert itself. The mosaic floor, a symbol of Roman order and shape was now a chaos of dark, overlapping stains. A centurion’s footprint overlay a cook’s. A legionary’s puddle merged with that of a house slave. The water erased distinction. It was a scandal. It was, he felt in a part of his mind that was still calculating logistics, a profound disorder. Yet the other part of him, the part that had risen from that water gasping for a new kind of air saw a different pattern. A body. One made of many dripping, disparate parts.
 
-Peter worked like a man in a trance. His movements were automatic now. Question, hands, push, lift. The formula was a raft in a sea of bewildering faces. But his eyes betrayed a growing turmoil. He was a Jew, a keeper of the Law, standing in the home of an uncircumcised Roman. He was touching the unclean, the Gentile, not with the hem of his garment but with his whole, guiding hands. He was speaking the sacred name over them, pouring it out like the water from the jar. Each time he did it, a small, ingrained part of him winched tighter. He saw not faces, but a cascade of transgressions. One soldier’s hands that had handled pork. The servant woman who had bled just last week. The cook who prepared food for idols on market days. The Law screamed its silent categories at him: unclean, unclean, unclean.
+Peter worked like a man in a trance. His movements were automatic now. Question, hands, push, lift. The formula was a raft in a sea of bewildering faces. But his eyes betrayed a growing turmoil. He was a Jew, a keeper of the Law, standing in the home of an uncircumcised Roman. He was touching the unclean, the Gentile, not with the hem of his garment but with his whole, guiding hands. He was speaking the sacred name over them, pouring it out like the water from the jar. Each time he did it, a small, ingrained part of him winched tighter. He saw not faces, but a cascade of transgressions. A soldier’s hands that had handled pork. The servant woman who had bled just last week. The cook who prepared food for idols on market days. The Law screamed its silent categories at him: unclean, unclean, unclean.
 
 His own body rebelled. A tightness gathered behind his sternum, a somatic echo of the purity codes. He wanted to wash. Not a symbolic baptism, but a real, physical scrubbing with nitre and hyssop. He wanted to retreat to the roof, to pray, to re-establish the walls that had just been washed away.
 
@@ -148,7 +148,7 @@ Peter took it. The rough linen scraped against his wet skin. He met Cornelius’
 
 No one moved to clean up. No one fetched mops or buckets. They stood in their sodden clusters, the steam of their bodies mingling in the sunbeam, and simply existed in the aftermath. The social machinery of the house had ground to a halt. There were no orders to give, no tasks to perform that could possibly match the magnitude of what had just happened to them in this room.
 
-The silence stretched, thick and heavy. It was not an empty silence. It was a silence full of the echo of poured water, of gasped affirmations, of the unspoken, screaming question of what now? It was the silence of a door swinging open onto a landscape no map had ever recorded.
+A silence stretched, thick and heavy. It was not an empty silence. It was a silence full of the echo of poured water, of gasped affirmations, of the unspoken, screaming question of what now? It was the silence of a door swinging open onto a landscape no map had ever recorded.
 
 Peter stared at the mosaic floor. The elegant, repeating knot of black and white was obliterated under the chaos of water and footprints. You could no longer see the pattern. All you could see was the mess.
 
