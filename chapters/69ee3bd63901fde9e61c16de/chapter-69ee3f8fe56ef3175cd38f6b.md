@@ -1,255 +1,233 @@
-The knock echoed through the atrium like a dropped ingot. Cornelius flinched—not at the sound, but at the way his fingers had tightened around the scroll without his permission. The vellum crackled in his grip. He forced himself to unclench, smoothing the message from Joppa against the table's polished cedar. The wax seal had broken during transit, leaving ragged edges where Antonius had pressed his signet ring.
+Cornelius's knees ached against the mosaic floor. The lamp guttered, casting shadows that twitched like living things across the walls. He hadn't moved since the servant closed the door. The scent of rosemary from the courtyard mixed with the metallic tang of his own sweat.
 
-"Again," he said.
+A fly landed on his wrist. He watched it crawl across the broken skin of his knuckles, tracing the cracks where scrubbing had worn through flesh. The sting grounded him.
 
-Ezra stood motionless by the impluvium, hands folded at his waist. The servant's tunic was damp at the hem from the predawn washing ritual, the linen clinging to his shins. "Master?"
+“Dominus?” The voice came through the door, muffled. “The courier from Joppa has returned.”
 
-"Read it again."
+Cornelius stood too fast. Blood rushed from his head, leaving black spots dancing at the edges of his vision. He caught himself on the edge of the table, knocking over the oil lamp. The flame died before it hit the floor.
 
-A hesitation. Then Ezra cleared his throat, the sound swallowed by the high ceilings. "'To the most excellent Cornelius, centurion of the Italian Cohort, peace. We bring Simon called Peter from Joppa as you commanded. He comes with six believing Jews. They will arrive before noon.'"
+The atrium smelled of baking bread and the sharp vinegar they'd used to scour the tiles. Three slaves knelt by the impluvium, polishing the marble rim with cloths that had already been washed twice. His wife Drusilla stood at the far end, directing two girls hanging fresh garlands from the columns. The flowers were wrong—too bright, too Greek. He should have sent for myrtle.
 
-Cornelius traced the edge of the table. The wood was cool despite the gathering heat, its grain worn smooth by decades of use. His father had bought it in Antioch—a frivolous expense, his mother had called it. Too large for their old house in Rome. He'd been eight when the carpenters delivered it, watching as they strained under its weight.
+Silas stood just inside the gate, dust coating his boots. His tunic was damp with sweat at the armpits. Behind him, the two legionaries shifted their weight, eyes darting to the slaves, the food-laden tables, the conspicuously absent idols.
 
-"Six Jews." He exhaled through his nose.
+“Well?” The word came out hoarse. Cornelius cleared his throat.
 
-"The master need not trouble himself with such details." Ezra's voice was too even. The careful neutrality of a man who'd spent years navigating Roman moods.
+Silas bowed. “He comes.”
 
-Cornelius pushed back from the table. His knee struck the leg, sending a dull ache up his thigh. He ignored it, crossing to the courtyard's eastern colonnade where the morning light sliced between the pillars. The rosemary bushes in their terracotta pots needed trimming. Their scent hung thick in the air, undercut by the metallic tang of the sea breeze. He should call for the gardener.
+A slave dropped a copper platter. The clatter echoed off the colonnades. Drusilla didn't turn, but her shoulders stiffened beneath her stola.
 
-"The dining couches." He turned abruptly. "Move them against the walls. All of them."
+Cornelius rubbed his thumb along the edge of his military belt, tracing the impression of the eagle buckle from the back. The leather was smooth from years of this same motion. “How many?”
 
-Ezra blinked. "The triclinium is prepared according to custom—"
+“Six, counting the apostle. Two Romans, three Jews.” Silas hesitated. “One is a Pharisee.”
 
-"Not for Romans. For Jews." Cornelius gestured sharply toward the street. "They won't recline. They'll sit on the floor like beggars if we don't give them benches. And the bread, tell Drusilla no leaven. None. As if it were Passover."
+The garland girls whispered to each other. Cornelius shot them a look, and they bent back to their work with frantic fingers.
 
-A muscle twitched in Ezra's jaw. He'd been a Pharisee before his capture, or so he claimed. The scars on his forearms suggested other allegiances.
+“Where are they now?”
 
-"I know what they'll consider." Cornelius's voice dropped. He thumbed the edge of his belt, the leather worn smooth where the buckle had rubbed. "Move the couches."
+“At the baths near the harbor. The Pharisee refused to enter until he'd purified himself.” Silas's mouth twisted. “He made quite the scene.”
 
-Ezra bowed and retreated. His sandals whispered against the mosaic, a geometric pattern of interlocking squares that had cost Cornelius three months' pay. The craftsman had promised it would last a century.
+Cornelius glanced at the sundial in the courtyard. Shadows crept toward noon. “Send Marcus to guide them here. Tell him to take the back streets.”
 
-Alone, Cornelius braced his hands against a pillar. The marble was still cool from the night. Somewhere in the servants' quarters, a child laughed, one of the kitchen girls' brats, no doubt. He closed his eyes. The angel hadn't mentioned logistics. No instructions on seating arrangements or ritual purity. Only the command: Send for Peter. He will speak words by which you and all your household will be saved.
+Drusilla moved toward him, her steps measured. She held a cup of watered wine. He took it but didn't drink. Her eyes flicked to his raw hands, then away.
 
-Saved from what?
+“You should rest,” she murmured in Latin. “You look like a man who's seen his own ghost.”
 
-A spider had anchored its web between two rosemary branches. Cornelius watched it quiver in the breeze, the strands glistening with dew. One creature waited at the center, legs splayed, perfectly still. Predators always recognized their own.
+The wine tasted sour. He set the cup on the table, next to the platter of figs that had been arranged and rearranged three times. “Is the triclinium prepared?”
 
-"Sir."
+“Down to the last cushion.” She adjusted the fold of his sleeve where it had caught on his belt. “Though I still don't understand why we're feeding them in the dining room when they won't touch half the dishes.”
 
-Cassian stood in the archway, his tunic streaked with flour. The boy was barely fourteen, all elbows and knees, with a voice that cracked at inconvenient moments. "The mistress wants to know if the guests will eat fish."
+A muscle jumped in his jaw. He'd explained this. Twice.
 
-Cornelius straightened. "What?"
+Drusilla sighed. “The courier said six, you said ten. Who else are we expecting?”
 
-"The fish, sir. From yesterday's catch. She's concerned it might… offend." Cassian swallowed. "Given their customs."
+“Lucius and his wife. Gaius. The physician from Antioch.” He checked the sundial again. “They should be here soon.”
 
-The boy's sandals were too large, the straps wrapped twice around his narrow ankles. Another of Drusilla's charity projects. She'd plucked him from the docks last winter, half-starved and coughing blood.
+Her fingers stilled on his sleeve. “You invited the physician before knowing if this apostle would even come?”
 
-"Tell her to prepare it," Cornelius said. "But keep it separate from the other dishes. On its own platter."
+“He's coming.” Cornelius turned toward the kitchen, where the smell of roasting lamb grew stronger. “Tell Cook to leave the meat plain. No garum, no pepper.”
 
-Cassian nodded and scurried away, his footsteps pattering against the tiles like scattered pebbles.
+“Dominus.” Silas stepped forward. “There's more. The apostle—he had a vision.”
 
-Cornelius rubbed his temples. The headache had started behind his left eye, a slow pulse that matched the rhythm of the surf beyond the city walls. He should pray. That's what a God-fearing man would do, retreat to the solarium, kneel on the sun-warmed tiles, and beg for clarity. But the rooftop held only the memory of the angel's voice, that impossible resonance that had vibrated in his teeth.
+Cornelius went very still.
 
-He found himself in the armory.
+“A sheet from heaven,” Silas continued. “Full of unclean animals. A voice told him to kill and eat.”
 
-The room was narrow and windowless, its walls lined with racks of polished gladii and pilum shafts. His old breastplate hung from a stand in the corner, the bronze dull with disuse. He ran a finger along its edge, stirring a faint cloud of dust. Twenty years of service, and this was what remained: a few pieces of metal, a cloak gone threadbare at the shoulders, the lingering stench of old sweat and oiled leather.
+The garland girls gasped. One made the sign against evil.
 
-The dagger lay in its case beneath the armor. Cornelius lifted it, testing the weight. The blade was Damascus steel, its surface rippled like water. A gift from his first commander after the battle of Idistaviso. He'd been barely twenty, still stupid enough to believe in glory.
+Drusilla's hand found his elbow. Her grip was firm. “What does that mean?”
 
-A shadow filled the doorway.
+Cornelius stared at the mosaic beneath his feet—interlocking circles, endless and perfect. An answer slithered through his gut, cold and impossible. He shook his head.
 
-"You're not going to gut a holy man in my dining room, are you?" Drusilla leaned against the frame, her arms crossed. The morning light caught the silver in her hair, turning the strands to wire.
+In the street outside, a donkey brayed. Children shouted. Normal sounds of a normal day in a city that didn't yet know the world was about to crack open.
 
-Cornelius sheathed the dagger. "It's for the bread."
+“Dominus?” Silas prompted.
 
-"Ah. Of course." She stepped inside, her sandals clicking against the stone. "Because nothing says 'welcome' like unsheathing a weapon."
+Cornelius straightened his shoulders. The centurion's mask settled into place. “Bring more lamps to the triclinium. And move that statue of Mercury to the storeroom.”
 
-"I need something to cut the loaf. Their laws require—"
+Drusilla's nails dug into his arm. “That statue was your father's.”
 
-"I know their laws." Drusilla plucked the dagger from his hand. Her fingers were cool, the nails trimmed short. She'd been a farmer's daughter before the legion came through her village. Before the fire and the terms of surrender. "You're sweating through your tunic."
+“He won't mind.” Cornelius pried her fingers loose. “He's been dead twelve years.”
 
-He hadn't noticed. The linen clung to his back, damp and clammy.
+The slaves had stopped pretending to work. They watched him with wide eyes, their polishing cloths limp in their hands. He clapped once, sharp. One sound bounced off the walls. “The apostle will be here within the hour. Move.”
 
-She studied the blade, turning it so the light slid along the edge. "You realize this is madness."
+They scattered like startled birds.
 
-"The vision—"
+Drusilla didn't move. “You're afraid.”
 
-"Was either divine or the result of bad fish. Either way, inviting half of Caesarea to witness your audience with a Jewish preacher is..." She shook her head. "They'll think you've gone native."
+He reached for his belt again, but caught himself. He picked up a fig from the platter, turning it over in his palm. The skin was soft, on the verge of splitting. “I'm a Roman soldier.”
 
-"Let them."
+“Don't.” She took the fig from him and set it back with the others. “Just this once don't lie to me.”
 
-Drusilla sighed and pressed the dagger back into his palm. Her touch lingered, just for a moment. "Cassian says you want the couches moved."
+A breeze ruffled the garlands. Somewhere in the house, a shutter banged against a wall.
 
-"Yes."
+Cornelius looked at his hands—the cracked knuckles, the calluses from twenty years of gripping a gladius. Hands that had built this house, this life, on a foundation of discipline and order.
 
-"And the fish separate."
+Now the foundation was shifting.
 
-"And the bread unleavened."
+He touched his wife's cheek, a gesture so rare it made her blink. “Light the incense in the triclinium. The Jewish kind, from Jerusalem.”
 
-She tilted her head. The gesture was so familiar it ached, the same way she'd looked at him when he'd proposed, when he'd accepted the transfer to Judea, when he'd returned from Germania with shadows in his eyes. "You're preparing for a sacrament."
+Her breath caught. “That's for the Sabbath.”
 
-The word hung between them, too precise.
+“I know.” He turned toward the gate, where Silas still waited. “Bring the apostle straight to me when he arrives. No announcements, no ceremony.”
 
-Cornelius slid the dagger into his belt. "I'm preparing for guests."
+Silas bowed and slipped out into the street.
 
-Drusilla's mouth tightened. She turned toward the door, then paused. "Lucius arrived an hour ago. He's in the courtyard complaining about the heat."
+Drusilla's voice followed him. “What if he refuses to enter?”
 
-Of course he was. Lucius never missed an opportunity to be inconvenient. "I'll deal with him."
+Cornelius didn't answer. One question had kept him awake all night, staring at the ceiling while the household slept.
 
-"See that you do." She glanced back, her expression unreadable. "Before he drinks all the wine."
+In the courtyard, the slaves had returned to their polishing. The marble gleamed. The garlands hung straight. The tables groaned under platters of bread, olives, cheese. Everything was ready.
 
-Her footsteps faded down the hall.
+Nothing was ready.
 
-Cornelius stared at the dagger in his belt. The hilt was worn smooth from years of use, the leather grip darkened with sweat and oil. He'd carried it through a dozen battles, three rebellions, the long march home from Germania. It had never felt so useless.
+He walked to the gate and looked down the street toward the harbor. The sea breeze carried the scent of salt and fish and the distant murmur of the crowd at the docks. Somewhere in that teeming city, a Jewish fisherman was washing Gentile dust from his feet.
 
-Somewhere beyond the house, a trumpet sounded, the morning watch changing at the harbor. The sound was muffled by the walls, a distant bleat that barely penetrated the thick air of the armory.
+Cornelius's pulse thundered in his ears. He flexed his hands, watching fresh blood well up in the cracks.
 
-He took a breath. Then another.
+The wait was almost over.
 
-Then he went to face his guests.
+The physician from Antioch arrived first, his linen robe crisp against the sweat-darkened tunics of the household slaves. He carried a cedar box of instruments, its brass hinges gleaming. Cornelius watched him pause at the threshold, his nostrils flaring at the scent of Jerusalem incense curling from the triclinium.
 
-*
+“Centurion.” The physician inclined his head. His gaze flicked to the raw skin of Cornelius's hands, then away. “You requested my presence?”
 
-The triclinium smelled of beeswax and crushed mint. Cornelius stood at the head of the rearranged dining couches, now pushed flush against the walls to make space for low benches. The mosaic beneath his sandals—a wide depiction of Neptune subduing a sea monster—was partially obscured by a hastily laid reed mat. Drusilla had argued against it. "They'll still see the tiles," she'd said. "You can't unmake a Roman house."
+Cornelius gestured toward the courtyard benches. “For afterward. There may be… manifestations.”
 
-Lucius sprawled on one of the remaining couches, a cup of watered wine balanced on his knee. His tunic was too fine for the hour, the linen dyed a garish saffron that clashed with the room's muted blues and greens. "So we're to sit like schoolboys at their first philosophy lesson?" He took a deliberate sip, his signet ring clinking against the cup's rim. "I half expect you to produce a wax tablet and start diagramming Hebrew verbs."
+The physician's eyebrows rose. He set his box down with deliberate care, the wood whispering against marble. “I was under the impression this was a theological discussion.”
 
-Cornelius ignored him. The household had assembled in uneven rows—Ezra and the other Jewish servants at the front, the Roman freedmen and clients behind them, the slaves lingering near the doorways. Their expressions ranged from polite attention to open skepticism. A kitchen girl picked at a hangnail. One of the grooms stifled a yawn.
+A slave girl tripped carrying a tray of pomegranates. Fruit scattered across the tiles, rolling into the shadows beneath the colonnade. No one moved to retrieve them.
 
-"Peter of Joppa arrives within the hour." Cornelius kept his voice even, the tone he'd used to brief troops before a night march. "He's a devout Jew, a follower of the crucified prophet."
+Cornelius flexed his hand. Fresh blood beaded along the cracks. “Sit by the impluvium. Observe.”
 
-"By what, exactly?" Lucius set his cup down with a thud. "By decent food? By comfortable furniture? By the occasional sacrifice to the genius of the emperor?"
+Lucius and his wife entered with less ceremony, their footsteps muffled by the thick soles of Roman shoes. Lucius wore his senatorial ring, though he'd left the toga at home—a small concession. His wife's stola brushed the floor, the purple border catching the light. She touched the amulet at her throat when she saw the absence of household gods.
 
-A murmur rippled through the room. The freedman Gaius, a barrel-chested former legionary with a missing earlobe, crossed his arms. "I didn't sign on to worship some provincial corpse-god."
+“You've emptied the lararium,” Lucius murmured.
 
-Cornelius's thumb found the edge of his belt. The leather was warm from his grip. "No one's asking you to worship. Only to respect the customs of our guests."
+Cornelius didn't answer. The empty niche gaped like a missing tooth.
 
-"Guests?" Lucius snorted. "You dispatched armed men to drag this Peter here. That makes him a prisoner, not a guest."
+Gaius arrived last, still fastening the buckle of his military baldric. His hair was damp from the baths, curling at the nape of his neck. He took one look at the gathered faces and exhaled through his nose. “This isn't a social call is it?”
 
-The headache pulsed behind Cornelius's left eye. He should have anticipated this. Romans understood hierarchy, not hospitality. "The vision was clear. Peter carries a message from the God of Israel."
+Drusilla appeared at Cornelius's elbow with a cup of wine. He shook his head. She pressed it into his hands anyway. The clay was warm from her grip.
 
-Lucius waved a hand. "Visions. Portents. Next you'll be reading the entrails of chickens." He leaned forward, his voice dropping to a stage whisper. "You do recall we're the ones who conquered these people, yes?"
+The slaves had arranged themselves along the western wall, their hands folded, their eyes downcast. The garland girls stood apart, their fingers plucking at the bright petals. One—the younger—had bitten her lip raw.
 
-Ezra stiffened. His hands, folded in his lap, tightened until the knuckles blanched.
+Cornelius set the untouched wine on a side table. A silence stretched, broken only by the distant clatter of pots from the kitchen. The physician tapped his fingers against his cedar box. Lucius's wife traced the edge of her amulet.
 
-Cornelius exhaled through his nose. The air smelled of the fish Drusilla was preparing, sea bass, probably, its flesh white and flaky beneath a crust of salt. "This isn't about conquest."
+Then the gate creaked.
 
-"About what?" Lucius spread his arms, encompassing the room. "You've upended your household, invited a man who considers us all unclean, and for what? Some nebulous promise from a deity not your own?"
+Every head turned. Silas stepped through, his face unreadable. Behind him, the street remained empty.
 
-A drop of sweat traced Cornelius's spine. The room was too warm, the shutters drawn against the mounting heat. He could feel the weight of their stares, some curious, some pitying, most simply bewildered. Even Ezra watched him with guarded apprehension.
+“Well?” Gaius demanded.
 
-"The angel said—"
+Silas wiped his brow. “They're at the fountain. Arguing.”
 
-"Yes, yes, the angel." Lucius rolled his eyes. "Tell me, did it have wings? A shining sword? Or was it just the bad fish talking?"
+Lucius snorted. “Jews.”
 
-Gaius chuckled. The sound died when Cornelius turned toward him.
+Cornelius's belt dug into his hips. He'd tightened it three times since dawn. The leather felt like it might snap.
 
-For a heartbeat, no one moved. Then Cassian stumbled into the room, his face flushed. "Sir—the party from Joppa, they're at the gate."
+Drusilla touched his wrist. “Let me send for chairs.”
 
-The silence that followed was brittle, thick with unspoken judgment. Cornelius straightened his tunic. The fabric stuck to his shoulders.
+“No.” The word came out sharper than he intended. The slaves flinched. “We stand.”
 
-Lucius raised his cup in mock salute. "By all means, Centurion. Let's meet your holy man."
+The physician leaned forward. “Who exactly are we meeting?”
 
-Cornelius didn't look at him. He strode toward the atrium, his sandals scuffing against the reed mat. Behind him, the household rose in a ragged wave, their murmurs swelling like the tide.
+“A fisherman,” Gaius muttered.
 
-The spider's web was gone when he passed the courtyard. Torn away by the wind or some careless hand. Only a single strand remained, glinting in the sun, too fragile to hold anything at all.
+“A prophet,” Lucius's wife corrected softly.
 
-Lucius reclined on a bench near the impluvium, swirling his wine with deliberate slowness. "You do realize this entire production makes you look like a client kissing his patron's ring?"
+Cornelius stared at the gate. The wood was oak, imported from Gaul, carved with the insignia of his cohort. Through the narrow opening, he caught glimpses of the street—a donkey cart loaded with clay jars, a group of children chasing a chicken, the distant shimmer of the sea beyond.
 
-"Quiet." Cornelius didn't break stride.
+A shout echoed from the direction of the fountain. The words were Aramaic, guttural and fast.
 
-"First the fasting, then the alms to the Judean rabble—"
+The younger garland girl whimpered.
 
-"I said quiet."
+Cornelius's thumb found the edge of his belt again. The leather was wearing thin. He could feel the exact shape of the eagle's wing beneath his callus.
 
-Lucius smirked. He had the same expression their father used to wear when baiting a stubborn mule, patient, amused, utterly certain of his own superiority. "Tell me, brother, when you prostrate yourself before this fisherman, will you do it in Latin or Aramaic?"
+Then—footsteps. Slow, deliberate.
 
-Cornelius's fingers twitched toward his belt. The dagger was still there, its weight a familiar anchor. He forced his hand to his side. "You're here as a courtesy. Not a critic."
+Peter appeared in the gateway, his shadow falling across the threshold. He was shorter than Cornelius expected, his shoulders broad from a lifetime of hauling nets. His beard was streaked with gray, his tunic patched at the elbows. The other Jews clustered behind him, their faces wary. The Pharisee stood apart, his lips moving in silent prayer.
 
-"Ah, but criticism is the highest form of familial love." Lucius stretched, the saffron fabric of his tunic pulling taut across his shoulders. "Someone must remind you what it means to be Roman."
+No one spoke.
 
-A gust of wind rippled the water in the impluvium. The reflection of the sky shattered into shards of blue and white.
+Peter's gaze swept the atrium—the polished marble, the flower garlands, the conspicuously absent idols. His nostrils flared at the incense. Then his eyes found Cornelius.
 
-Drusilla entered from the herb garden, her arms laden with fresh rosemary. The stems scraped against her forearms, leaving thin red lines. She paused at the edge of the colonnade, her gaze flicking between them. "The bread's nearly ready."
+The centurion's breath caught. He'd faced charging Celts, howling Germans, the silent arrows of Parthian horsemen. None of them had ever made his blood sing like this.
 
-Lucius raised his cup. "Unleavened, no doubt."
+The Pharisee grabbed his arm. “You can't—”
 
-"Like your wit." She dumped the herbs onto a side table with more force than necessary. "Must you turn everything into a satire?"
+Peter shook him off. His sandals scraped against the mosaic floor. One sound echoed.
 
-"Someone must provide entertainment while we wait for the messiah."
+Cornelius moved forward. His knees threatened to buckle. He locked them.
 
-Cornelius stopped pacing. The tiles beneath his feet were worn smooth in a particular spot, the place he always stood when giving orders to the household. The familiarity of it grounded him. "Peter is no messiah. He's a messenger."
+For a heartbeat, they stood a spear's length apart. Peter smelled of salt and olive oil and the faint metallic tang of the sea. His eyes were dark, fathomless.
 
-"From a dead man." Lucius drained his wine. "Forgive me if I withhold my enthusiasm."
+Cornelius dropped to one knee.
 
-The kitchen girl—Lydia, her name was Lydia—peeked around the corner, her cheeks dusted with flour. She caught Cornelius's eye and flinched, disappearing back into the shadows.
+The gasp from his household was a living thing. Lucius's wife made a choked sound. Gaius took half a step forward before catching himself.
 
-Drusilla brushed rosemary needles from her arms. "The couches are moved. The fish is prepared. The bread meets their requirements." She hesitated. "There's still the matter of the slaves."
+Peter's calloused hand closed around Cornelius's forearm, hauling him up with surprising strength. “Stand,” he said in heavily accented Greek. “I am only a man.”
 
-Cornelius frowned. "What of them?"
+The centurion's throat worked. He'd rehearsed a hundred speeches, polished each word like a ceremonial blade. None came.
 
-"According to Ezra, these Jews won't eat food handled by uncircumcised hands." She nodded toward the kitchen. "Half the staff can't serve the meal."
+Peter studied his face. The fisherman's thumbs pressed into the pulse points of Cornelius's wrists. His grip was warm, firm. Not the tentative touch of a subject to his superior, but the sure grasp of a man who knew his own worth.
 
-Lucius barked a laugh. "Wonderful. Now we're to geld the servants to please these fanatics?"
+“You sent for me,” Peter said.
 
-Cornelius ignored him. "Have Ezra and the others serve. The rest can stay in the kitchens."
+Cornelius nodded.
 
-Drusilla's mouth tightened. "And when our guests ask why half the household is hiding?"
+The Pharisee edged forward, his robes whispering. “Rabbi, this is—”
 
-"Let them ask."
+Peter held up a hand. The Pharisee fell silent.
 
-She studied him for a long moment. The rosemary scent clung to her, sharp and green. Then, without another word, she turned and walked toward the kitchen, her sandals whispering against the tiles.
+In the courtyard, the slaves had gone still as statues. The physician's fingers hovered over his cedar box. Lucius had gone pale beneath his tan.
 
-Lucius breathed out through his nose. "You're lucky she tolerates your eccentricities."
+Cornelius found his voice. “We are gathered here before God.”
 
-Cornelius watched a ladybug crawl along the rim of the impluvium. Its red shell gleamed like a drop of blood against the marble. "You'd do well to remember whose house you're in."
+The words hung in the air. The incense curled around them, sweet and heavy.
 
-"Ah, yes. The famous Cornelius hospitality." Lucius leaned forward, his voice dropping. "Tell me truly, do you actually believe some backwater preacher has a message from the gods?"
+Peter's gaze never wavered. “Tell me why.”
 
-"Enough." Cornelius's voice cracked like a whip. The ladybug took flight, vanishing into the dappled light of the colonnade.
+A drop of sweat traced Cornelius's spine. That truth rose in his throat—the vision, the angel, the child in Germania whose face still haunted his dreams. But when he opened his mouth, what came out was: “I needed to see your face.”
 
-A commotion erupted near the front gate, raised voices, the clatter of sandals on stone. Cassian burst into the atrium, his tunic askew, breath coming in ragged gasps.
+The garland girls exchanged glances. Gaius muttered something under his breath.
 
-Cornelius was moving before the boy finished. He crossed the atrium in six strides, Lucius's mocking laughter trailing behind him.
+Peter's grip tightened. Then, slowly, he smiled. It transformed his face, carving lines around his eyes, revealing a missing molar on the left side. “Well,” he said. “Here I am.”
 
-The gatekeeper stood just inside the entrance, arguing with one of the grooms. Both fell silent when Cornelius approached.
+The tension in the room shifted, like a sail catching a new wind.
 
-"Well?"
+Cornelius gestured toward the triclinium. “Will you eat with us?”
 
-The groom, a broad-shouldered Numidian with a scar across his chin, shook his head. "Riders on the Joppa road. Three, maybe four hours out."
+The Pharisee made a strangled noise.
 
-Cornelius's pulse thudded in his temples. "You're certain?"
+Peter released Cornelius's arm. He turned to his companions, his expression unreadable. For a long moment, no one moved. Then Peter squared his shoulders and walked toward the dining room.
 
-"Saw the dust cloud myself." The groom wiped his forehead with the back of his hand. "Bunch of men on foot, couple donkeys. Moving slow, but steady."
+The household erupted in whispers. Lucius's wife clutched her amulet. The physician reached for his cedar box. The slaves pressed against the wall, their eyes wide.
 
-Cassian tugged at Cornelius's sleeve. "Sir, the mistress said to ask about the—"
+Cornelius didn't move. He watched Peter's retreating back, the patched tunic, the sun-browned neck, the bare feet that left faint dust prints on the polished floor.
 
-"Later." Cornelius stared past the gate down the narrow street that led to the city's eastern edge. The noonday sun baked the whitewashed walls, turning the air above the stones into a wavering mirage. Somewhere beyond those walls, Peter of Joppa walked toward him, toward this moment, this house, this impossible collision of worlds.
+Drusilla appeared at his side. Her fingers brushed his elbow. “What happens now?”
 
-Lucius appeared at his shoulder, still holding his wine cup. "Well? Are we to stand here gawking like peasants at a triumph?"
+The incense swirled around them, thickening the air.
 
-Cornelius didn't answer. The street was empty save for a stray dog nosing at a pile of refuse. The animal lifted its head, ears pricking at some distant sound. Then it slunk away, tail tucked between its legs.
+Cornelius flexed his hands. The cracks had reopened. Fresh blood welled, dark against his skin.
 
-The sun had begun its descent, stretching the columns' silhouettes like taffy across the courtyard. In two hours, the light would hit the western wall at precisely the angle that turned the marble pink. Cornelius had watched it happen every evening for a decade.
-
-He turned on his heel. "Ezra!"
-
-The servant materialized from the shadows near the storeroom, his hands clasped. "Master?"
-
-"Bring the censers. The good myrrh." Cornelius's voice sounded strange to his own ears, too sharp, too quick. "And tell Drusilla to prepare the guest chambers."
-
-Ezra hesitated. "The Jewish quarters, or—"
-
-"Not the Jewish quarters." Cornelius met his gaze. "The rooms beside mine."
-
-A flicker of surprise crossed Ezra's face. Then he bowed and retreated, his footsteps swallowed by the growing murmur of the household.
-
-Lucius whistled low. "You really mean to house him like an equal."
-
-Cornelius adjusted his belt. The dagger's hilt pressed against his hip, a reminder of the weight he carried. "I mean to honor my guest."
-
-"Honor?" Lucius shook his head. "You're throwing away thirty years of reputation for a fisherman's blessing."
-
-The words should have stung. Instead, Cornelius felt something uncoil in his chest, not quite peace, not quite defiance, but something that tasted of both. He looked past Lucius, past the atrium, to where the first long shadows of afternoon crept across the tiles.
-
-"Let them come."
+“We wait,” he said.
