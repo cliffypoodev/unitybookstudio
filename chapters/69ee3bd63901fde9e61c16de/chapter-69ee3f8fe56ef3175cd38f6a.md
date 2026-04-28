@@ -6,7 +6,7 @@ Peter touched the Pharisee's sleeve. “The Spirit doesn't contradict the Law. B
 
 “Expands it?” Eliab's voice was brittle. “Like a wineskin?”
 
-“Like light.” The image came unbidden. Peter remembered standing on the Mount of Olives at dawn, watching the sun spill gold across the Kidron Valley. How it revealed what the dark had hidden.
+“Like light.” The image came unbidden. Peter remembered standing on the Mount of Olives at dawn, watching the sun spill gold across the Kidron Valley, how it revealed what the dark had hidden.
 
 Eliab's mouth twisted. He turned to his companion, muttering in Aramaic too rapid for Peter to catch. The younger man nodded, his knuckles white on his reins.
 
@@ -88,7 +88,7 @@ Peter approached the Samaritans. The oldest man smelled of sour wine and unwashe
 
 “Where are your families?” Peter asked.
 
-The man spat. “Gone to Sychar. The tax collector took our seed grain. We stayed to…” He trailed off, glancing at the Romans.
+A man spat. “Gone to Sychar. The tax collector took our seed grain. We stayed to…” He trailed off, glancing at the Romans.
 
 To scavenge. To steal if they had to. Peter did not need the rest of the sentence. He reached into his pouch and pressed two denarii into the man's palm. The coin was warm from his body heat.
 
@@ -114,7 +114,7 @@ Ezra edged his mount closer. “Rabbi—”
 
 The boy subsided, his shoulders hunched.
 
-A vulture circled overhead. Peter watched it tilt on the wind, wings outstretched. The image from his vision surged back—the sheet descending, teeming with creatures. Kill and eat. A memory twisted in his gut like something alive.
+A vulture circled overhead. Peter watched it tilt on the wind, wings outstretched. An image from his vision surged back—the sheet descending, teeming with creatures. Kill and eat. A memory twisted in his gut like something alive.
 
 At midday, they passed a village. The huts were squat and windowless, their roofs patched with reeds. A group of women drawing water from a well fell silent as the party approached. One clutched her jar to her chest, her knuckles whitening.
 
@@ -206,7 +206,7 @@ Ezra gasped. “Is that—”
 
 “Caesarea,” Silas finished.
 
-Peter steadied himself. The city sprawled along the coast, its harbor bristling with masts. Even from here, he could see the aqueduct marching across the plain, its arches like the ribs of some enormous beast.
+Peter steadied himself. A city sprawled along the coast, its harbor bristling with masts. Even from here, he could see the aqueduct marching across the plain, its arches like the ribs of some enormous beast.
 
 A Roman city. A Gentile city.
 
@@ -236,7 +236,7 @@ Silas edged his mount closer. “You're grinding your teeth.”
 
 Peter forced his jaw to unclench. The city gates loomed ahead, flanked by statues of Augustus and Herod. The marble faces were pitted by wind and salt, their smiles worn into grimaces.
 
-A line of travelers waited at the gates, merchants with their seals, farmers driving scrawny goats, a pair of Syrian women with bangles chiming at their wrists. The guards waved the Romans through with barely a glance. One yawned, scratching his belly beneath his lorica.
+A line of travelers waited at the gates, merchants with their seals, farmers driving scrawny goats, a pair of Syrian women with bangles chiming at their wrists. One guard waved the Romans through with barely a glance. Another yawned, scratching his belly beneath his lorica.
 
 Eliab hesitated at the threshold. His throat worked. Ezra hovered beside him, his face pale under its coating of dust.
 
