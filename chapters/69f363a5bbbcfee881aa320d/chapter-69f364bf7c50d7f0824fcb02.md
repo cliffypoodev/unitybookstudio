@@ -110,7 +110,7 @@ Ronan said nothing.
 
 A beat. Then, without breaking eye contact, Ronan reached down, grasped the hem of the white T-shirt, and pulled it over his head in one smooth motion. He dropped it on the cot. His torso was lean, defined without being bulky. Old scars mapped his skin—a long, thin line along a rib, a pucker on his shoulder. The skin was pale, save for the faint tan lines on his neck and arms. He stood, exposed, utterly without shame or invitation. Just a fact.
 
-Caspian’s analytical eye cataloged the details, but his mind was elsewhere. The detachment he’d felt was thin, brittle. Ronan’s quiet dignity was a mirror, and in it, Caspian saw not a connoisseur, but a vulture circling a living man.
+Caspian’s analytical eye cataloged the details, but his mind was elsewhere. The detachment he’d felt was thin, brittle. Ronan’s quiet dignity was a mirror, and in it Caspian saw not a connoisseur, but a vulture circling a living man.
 
 He reached out. His hand, usually so steady, betrayed a faint tremor. He stopped it just before his fingers would have made contact with Ronan’s chest. He let it hang there in the space between them, a question.
 
