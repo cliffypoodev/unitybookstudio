@@ -30,7 +30,7 @@ Kael didn’t move. He kept his eyes on Elias. “You watch don’t you? From yo
 
 “Restrain him,” Elias said. His own voice sounded distant, filtered through cotton.
 
-Goran moved, a practiced lunge. Kael moved faster. He didn’t fight, not exactly. He turned, a fluid shift of weight, and the hand meant to grab his arm closed on empty air. Goran stumbled, off-balance. Kael’s elbow came up and back, but with a precise, shocking economy. It connected with Goran’s diaphragm. The big man grunted, the breath leaving him in a surprised whoosh. The stun prod clattered on the tiles.
+Goran moved, a practiced lunge. Kael moved faster. He didn’t fight, not exactly. He turned, a fluid shift of weight, and the hand meant to grab his arm closed on empty air. Goran stumbled, off-balance. Kael’s elbow came up and back, not wild but with a precise, shocking economy. It connected with Goran’s diaphragm. The big man grunted, the breath leaving him in a surprised whoosh. The stun prod clattered on the tiles.
 
 The silence that followed was absolute. Goran wheezed, kneeling. Kael stood still, breathing a little faster now, his hands loose at his sides. He looked at the prod on the floor, then back at Elias.
 
@@ -74,7 +74,7 @@ Kael slumped against the table, chest heaving. A sheen of sweat coated his skin.
 
 A slow, exhausted smile touched his lips. It held no joy. Only a devastating kind of pity. “See?” Kael breathed, the word barely audible. “You can make the machine work. But you’re still just the man pulling the lever.”
 
-Something broke then—not in Kael. In him. A fissure opened in the perfect, frozen ground of his control. A hot, shameful rush flooded up from his stomach—not anger, a sickening hybrid of both that clenched his teeth and prickled the skin at the back of his neck.
+Something broke then—not in Kael. In him. A fissure opened in the perfect, frozen ground of his control. A hot, shameful rush flooded up from his stomach—not anger, but a sickening hybrid of both that clenched his teeth and prickled the skin at the back of his neck.
 
 His hand, still gloved and slick, shot out of its own volition. It didn’t strike. It grasped. It wrapped around Kael’s throat, just holding. Feeling the hammer of the man’s pulse against his palm. A live wire. A counter-rhythm to his own.
 
@@ -130,7 +130,7 @@ He minimized the feed. Opened the master ledger. His cursor hovered over the lin
 
 His hand was steady now. The tremor gone.
 
-He clicked Reassign. A submenu opened it. He selected Administrative Auxiliary. He typed a brief justification: Asset demonstrates psychological resilience unsuitable for general population. Aptitude for logistical tasks observed. Recommend reassignment to records office for evaluation.
+He clicked Reassign. A submenu opened beneath it. He selected Administrative Auxiliary. He typed a brief justification: Asset demonstrates psychological resilience unsuitable for general population. Aptitude for logistical tasks observed. Recommend reassignment to records office for evaluation.
 
 It was a fiction. The records office was a windowless room next to his own, used for storing outdated supply manifests. It was empty. It had a chair, a terminal with no network access, and a door that locked from the outside.
 
