@@ -1,221 +1,165 @@
-The office was a perfect cube of controlled atmosphere. Elias logged the morning yield numbers, his fingers tapping the keyboard with a rhythm as steady as a metronome. The antiseptic smell of the cleaner they used on the keyboards—a sharp, lemony scent that never quite masked the underlying musk of recycled air—filled his nostrils. A faint, rhythmic thumping vibrated through the floor, the bass note of the farm’s primary function. He ignored it. On his screen, a spreadsheet glowed, a grid of orderly green and red. Asset 447’s output had dipped by twelve percent. That would require a dietary adjustment—Asset 221’s protein levels were optimal. He made a note.
+The air in the office tasted of recycled plastic and the faint, citrus bite of industrial cleaner. Elias’s keyboard clicked under his fingers, a steady, arrhythmic counterpoint to the hum of the server rack against the far wall. The blue light from the three monitoring screens washed his hands a corpse-grey. Barn C, Barn A, the intake staging area. All nominal. All green. The figures on his spreadsheet aligned in perfect, satisfying rows—yield per head, volume consistency, collection intervals. He allowed himself three seconds to appreciate the symmetry. Then his eyes flicked to the fourth screen, the one he kept dark unless needed. He tapped a key. The live feed from the new arrival’s holding cell bloomed into silent, grainy life.
 
-The blue light from the bank of monitors on the far wall painted everything in a cold, surgical hue. Four screens showed different barns, angles fixed on the milking stalls. Figures moved in the grainy footage: technicians in pale blue scrubs, the stock restrained in the open-frame chairs. It was a silent ballet, efficient and bloodless. Elias’s coffee, gone cold an hour ago sat in a chipped ceramic mug with a faded logo from a long-defunct software company. A brown ring stained the inside, a perfect circle. He hated imperfection. He would scrub it later.
+Asset 247. Designation: Kael.
 
-A chime sounded from the comms panel—two short, one long. Incoming transport. He minimized the spreadsheet and pulled up the intake manifest. One new unit. Designation: Kael. Preliminary metrics scrolled beside a blurred ID photo: age twenty-eight, physical rating A2, psych evaluation flagged with a single, amber-coded note: Resistant—high defiance potential. Elias’s mouth tightened. Defiance was a variable—variables introduced friction. Friction reduced yield.
+The man sat on the edge of the stainless steel cot, back straight, head up. He wasn’t pacing. Wasn’t slumped. Just sat. Staring at the observation camera with a focus so direct Elias felt an absurd impulse to look away. He didn’t. The file was sparse. No listed dependencies, no psychological flags, no buyer request. Just a blank field under ‘compliance prognosis’ and a scrawled note from procurement: High yield potential. Resistant.
 
-He rose, his chair sighing on its casters, and walked to the observation window that overlooked Processing Stall Three. A room on the other side of the glass was all white tile and stainless steel, hosed down and gleaming. Empty now. He watched as the door on the far side hissed open.
+Resistant was a variable. Variables were manageable. Elias’s system accounted for them. A cold room, withheld meals, isolation—applied in precise, escalating increments—usually recalibrated attitude within forty-eight hours. The human body was a simple machine. Inputs, outputs. Levers of discomfort and reward. He’d refined the process over twelve years. It was elegant. It worked.
 
-Two handlers brought him in. Kael was naked, wrists bound in front with a plastic tie. He walked on his own, which was unusual. Most new arrivals shuffled or had to be half-carried. This one moved with a loose gait, as if he were being shown to a hotel room, not a milking stall. Was taller than the handlers, lean muscle corded over his frame. Dark hair, shorn close. A fresh bruise bloomed on his jaw, a violet smudge against olive skin. One of the handlers must have encouraged cooperation.
+A notification pinged softly. Morning collection for Barn B was complete. The figures auto-populated in his ledger. He saved the file, the action a tiny, physical pleasure. The hinge on his desk drawer squealed on the left side, a thin, protesting sound he’d been meaning to fix for a month. He never did. The imperfection was a tiny anchor, a reminder that systems required maintenance. He liked it.
 
-Elias’s eyes tracked the metrics automatically. Posture: erect shoulders back. Gaze: active, scanning the room, then fixing on the observation window. He couldn’t see through the one-way glass, but he stared right at Elias’s position. A chill, dry and thin, traced Elias’s spine—he dismissed it. A trick of the light.
+His stomach tightened, a low, familiar clench. Not hunger. The pre-meeting tension, the body preparing for a potential operational anomaly. He stood, the chair rolling back silently on its casters. The white coat hanging on the back of the door was crisp, starched. He shrugged into it, the fabric whispering. His fingers brushed a faint, old stain on the cuff, a rust-colored smear from some long-ago incident he could no longer recall. Coffee, maybe. Or something else.
 
-The handlers guided Kael to the center of the room, to the restraint chair. It was a simple, open design—padded supports for the thighs and back, adjustable cuffs for wrists and ankles, a collection basin beneath. Kael looked at it, then at the handler on his left. He said something. The audio was off, but Elias saw his lips move saw the faint curl at the corner of his mouth. Not a smile — something else. A challenge.
+The corridor from the admin wing to the observation rooms was a study in acoustic dissonance. The silence here was a vacuum, broken only by the tap of his shoes on polished concrete. But underneath, felt more than heard, was the low thrum of the barns. Machinery. Movement. A muffled shout, quickly cut off. The sounds were data. He filtered them, categorized them. A shout was an outlier. A cut-off shout was a correction. All good.
 
-The handler reached for his arm. Kael moved.
+He entered Observation Three, a narrow room with a one-way glass wall overlooking the main milking floor of Barn A. The glass was cool against his forehead when he leaned close. Below, the routine unfolded with the serene, choreographed indifference of an assembly line. Men stood at stainless stations, technicians in scrubs working with efficient, detached hands. The hum of the pumps was a constant drone. The air, even up here, carried the sharp, biological scent of antiseptic and something warmer, saltier. He watched a technician finish, decanting the collected fluid into a graduated cylinder before transferring it to a chilled vial. The label was applied. The asset was released back to the washing station. Cycle complete.
 
-For a long moment, they strained there, a frozen tableau of effort. Kael’s face, visible over the handler’s forearm was calm. His chest heaved, but his expression was flat, almost bored. He wasn’t trying to throw the man off. Was just… not complying. His body was a locked door.
+His radio crackled. “Manager Elias to Intake Staging. For the 247 assessment.”
 
-Elias’s hand had gone to the intercom button. He hadn’t pressed it. He watched. His own breathing felt too loud in the quiet office. The thumping from the barns seemed to sync with the pulse in his temple.
+“Acknowledged.”
 
-Finally, with a grunt of effort, the handler managed to force Kael forward, bending him over the back of the restraint chair. He got a cuff around one ankle, then the other, pulling the legs apart. Kael didn’t kick. He let it happen, his body going slack in a way that felt more like contempt than surrender. The handler, panting, secured the other ankle, then the wrists. He stepped back, wiping his bloody nose on his sleeve, his face flushed with anger and exertion.
+The staging room was colder. The light was brighter, harsher, bleaching color from everything. Kael stood in the center of the tiled floor, wearing the standard issue grey shorts. No shirt. The overhead fluorescents gleamed on the tense cords of his shoulders. A security tech, Goran, stood by the door, stun prod held loosely at his side.
 
-Kael was secured. He rested his cheek against the cold padding of the chair, his eyes open, staring at the floor drain. His back was long, the muscles of his shoulders standing in sharp relief. The bruise on his jaw looked darker against the white padding.
+Elias stopped a few feet away, pulling a tablet from his coat pocket. He didn’t look up. “Asset 247. You will be processed through orientation. Dietary schedule, hygiene protocols, collection quotas. Non-compliance results in sanction. Sanctions escalate. Do you understand the basic parameters?”
 
-The handler with the bloody nose keyed his shoulder mic, reporting the incident. Static crackled in reply. The other handler approached Kael with the preliminary stimulant injector—a standard protocol to accelerate initial production. Kael turned his head, just enough to look at the device. He said one word — elias read it on his lips. Don’t.
+Silence.
 
-The handler hesitated, glanced at his partner. The partner nodded, grim. The handler pressed the injector to Kael’s neck — there was a hiss. Kael didn’t flinch. He closed his eyes. A muscle in his jaw jumped. When he opened his eyes again, he looked back at the observation window. His gaze was different. It wasn’t a blind stare into the glass. Focused, knowing. As if he could see the man in the blue-lit room, the spreadsheet still glowing on the monitor, the cold coffee in the chipped mug. As if he could see Elias, and found him wanting.
+Elias looked up. Kael’s eyes weren’t defiant. They were…present. Deep-set, a dark brown that looked almost black in the cruel light. He was older than Elias expected from the file, maybe late thirties. A fine web of lines at the corners of his eyes. A scar, pale and thin, bisected his left eyebrow.
 
-Elias’s hand fell from the intercom. He became aware of a tightness in his own shoulders, a stiffness he had to consciously tell himself to relax. The numbers on his screen meant nothing now. Were just symbols. The thing in the stall was not a symbol. It was a fact. A variable that had already, in three minutes and forty-seven seconds, introduced a quantifiable delay caused an injury, and consumed six hundred and twelve seconds of his attention.
+“I understand you’ve built a very efficient system,” Kael said. His voice was quiet, rasping from disuse, but the words were clear, unhurried. Not a shout. A statement.
 
-Asset Kael’s file remained open on the secondary monitor. The amber flag pulsed — resistant. High defiance potential.
+The wrong kind of variable. Elias kept his face blank. “Your understanding is not required. Your compliance is.”
 
-Elias took a slow breath, tasting the lemon antiseptic and the stale coffee. He double-clicked the file. He began to type a new entry, his fingers precise and clinical on the keys.
+“I’m sure it is.” Kael’s gaze drifted past Elias, to the schematic of the farm layout pinned to a corkboard on the wall. He studied it for a moment, then looked back. “How many men can you break before the math stops working?”
 
-Subject exhibits non-standard resistance — protocol 7-D may be required. He paused. His thumb found the edge of the desk, a tiny splinter in the laminate he’d been meaning to file smooth. He pressed his thumb against it until it hurt. Then he finished the note.
+A hot, sharp pressure bloomed behind Elias’s sternum. Not anger. Something tighter, drier. A screw turning the wrong way. “Yield metrics are not your concern. Goran. Prep him for the initial extraction.”
 
-Recommend personal observation and assessment. Manager intervention authorized.
+Goran stepped forward, the prod humming to life with a low, nasty buzz.
 
-The order came through at 16:47.
+Kael didn’t move. He kept his eyes on Elias. “You watch, don’t you? From your little room. You tally it all up. Does the ledger have a column for what it costs you? Or is that line item just…blank?”
 
-Elias stared at the text on his screen, the sterile blue light leaching the warmth from the words. Personal intervention required — asset Kael. Break protocol. Full compliance objective. Report to Private Processing Four at 18:00.
+“Restrain him,” Elias said. His own voice sounded distant, filtered through cotton.
 
-His fingers hovered over the keyboard. A protest formed—a crisp, logical outline of why this was inefficient, why it violated the separation of functions that kept the system pure. He deleted it. The order hadn’t come from the scheduling AI. It had come from the Owner — a direct command. A clock on his desk ticked. Each second was a grain of sand dropping into a hollow place behind his ribs. He minimized the message. The spreadsheet awaited, a landscape of green cells. He tried to enter the adjusted protein supplement for Asset 447. His finger missed the ‘7,’ hit the ‘8.’ A tiny error. He backspaced, corrected it. The thumping from the barns seemed louder, a rhythmic insistence that pressed against the soles of his shoes.
+Goran moved, a quick, practiced lunge. Kael moved faster. He didn’t fight, not exactly. He turned, a fluid shift of weight, and the hand meant to grab his arm closed on empty air. Goran stumbled, off-balance. Kael’s elbow came up and back, not hard, but with a precise, shocking economy. It connected with Goran’s diaphragm. The big man grunted, the breath leaving him in a surprised whoosh. The stun prod clattered on the tiles.
 
-At 17:55, he stood. His coffee mug sat on the desk, the brown ring a perfect, accusing circle. He left it. The walk to Private Processing Four was seventy-three steps. He counted them. The corridor lights were a different frequency here, a warmer yellow that made the white walls look sallow. A crack in the ceiling tile ran for about ten feet, branching like a river delta on a map. He’d never noticed it before.
+The silence that followed was absolute. Goran wheezed, kneeling. Kael stood still, breathing a little faster now, his hands loose at his sides. He looked at the prod on the floor, then back at Elias.
 
-A door hissed open.
+The pressure in Elias’s chest was a solid thing now, a cold knot where his heart should be beating faster. His mouth was dry. He had protocols for this. Code phrases, alarm buttons, chemical suppressants. His fingers tingled, numb. He did nothing. He watched the man who would not be broken stand in the center of the bright, cold room, and for the first time in twelve years, the numbers in his head were just noise. They meant nothing. The only real thing was the scar on the eyebrow, the quiet rise and fall of the stranger’s chest, and the terrifying, yawning blankness of the line in his ledger where the cost was supposed to be.
 
-This room was smaller than the main stalls. Same white tile, same stainless steel. The restraint chair was a newer model, with additional straps for the chest and forehead. Kael was already in it — naked. Secured. The handlers had done a thorough job. Ankle cuffs, the broad strap across his chest pulling tight against the rise of his pectorals. Another strap across his brow, forcing his head back against the padding, exposing the long line of his throat. His eyes were closed.
+He hadn’t considered how it might look like a sacrifice.
 
-On a rolling tray beside the chair, the tools were laid out in a neat row: lubricant, a series of manual stimulators—silicone sleeves of varying textures—a clean collection vial, a damp cloth. Clinical — standard. Elias’s mouth was dry. He walked to the sink in the corner and turned the tap. The water was cold. He splashed some on his face, the shock of it a brief, clean punctuation. He dried his hands on a paper towel, the rough texture catching on a hangnail he hadn’t known he had.
+“That’s all,” Elias said, not looking at Goran. The security tech’s presence was a procedural requirement, a safeguard. It felt like an intrusion now. The door hissed shut, leaving a vacuum of silence. The hum of the climate control was a high, thin whine in his ears. He turned. Adjusted his gloves. The latex whispered, a sound like skin on skin.
 
-“You can open your eyes.” His own voice sounded strange in the quiet room—flat, but with a thin vibration underneath.
+Kael watched the ceiling. His chest rose and fell in a steady, controlled rhythm. No panic. The scar through his eyebrow was a pale dash in the harsh light. A question mark he’d never answer.
 
-Kael’s eyelids lifted. He didn’t look at Elias. He stared at the ceiling, at the smooth white expanse above him. His breathing was even, deep. The bruise on his jaw had faded to a yellowish-green.
+“This is a recalibration,” Elias said, his voice flat in the sterile space. He moved to the instrument tray. Syringes of topical stimulant. A clean collection vial. A pump unit, its tubing coiled like a transparent intestine. “Your non-compliance introduces friction. Friction reduces systemic efficiency. You will be brought to full erection and manually milked to completion. The process will repeat until you understand that resistance is metabolically wasteful. Your body will learn what your mind refuses.”
 
-“This is inefficient,” Elias said, more to himself than to the asset. He picked up the lubricant, squeezed a clear dollop onto his fingers. Cool, odorless. “Resistance reduces yield. Yield is the only metric that matters.”
+He picked up the syringe, flicked the tip. A bead of clear fluid welled. His own breath felt shallow, tight behind his ribs. Not anxiety. Operational focus.
 
-He moved to the side of the chair. Kael’s body was a map of tension held in check. The muscles in his thighs were hard, defined even at rest. A trail of dark hair led from his navel down to his groin. His cock lay flaccid against his thigh, a neutral piece of biology.
+“Look at me.”
 
-Elias’s job was to change that state. To initiate the physiological response. To break the psychological resistance that was inhibiting it. A simple chain of cause and effect.
+Kael’s head turned on the padded rest. Those dark eyes found his. No fear. No hatred. Just a terrible, weary focus. “You don’t have to do this.”
 
-He reached out, touched the inside of Kael’s thigh with his slick fingers — the skin was warm. Surprisingly warm. Elias had expected the chill of the room to have seeped in. He moved his hand, applying a firm pressure, the way the manual instructed—proximal stimulation to encourage blood flow. His own pulse was a steady, distant drum in his ears. He focused on the mechanics — the angle of his wrist. The coverage of the lubricant.
+“It’s procedure.”
 
-Kael didn’t move. Didn’t flinch. His breath hitched once, then settled back into that deep, infuriating rhythm.
+“It’s a choice.” Kael’s voice was low, a scrape of gravel. “You’re choosing to break a thing to prove it can be broken. That’s not procedure. That’s faith.”
 
-Elias’s fingers moved higher. He took Kael’s cock in his hand. It was just flesh. Weight, warmth, texture. He began to stroke, an efficient motion. Up. Down. Twist at the top. His mind recited the optimal pace. Sixty strokes per minute. He counted in the silence of his own head. One. Two. Three.
+The words were wrong. They landed in his gut, a cold, solid weight. Elias ignored them. He stepped to the side of the table. The grey shorts were already cut away. Kael was exposed, flaccid against his thigh. The body was just a system. Musculature, vascular response. Elias applied the stimulant gel with two gloved fingers, a circular, clinical motion. The skin was warm. He registered the heat, the texture. Data points.
 
-Nothing.
+He stepped back to wait for the chemical reaction. The clock on the wall ticked, a loud, mechanical sound he’d never noticed before. The second hand jumped. Stuttered. Jumped again. A hairline crack ran from the edge of the clock face down toward the six. It looked like a bolt of lightning frozen in cheap plastic.
 
-Kael’s cock remained soft in his grasp.
+Kael’s body responded. Of course it did. The biology was reliable, even when the mind was not. Elias watched the transformation with detached approval. A predictable hydraulic event. He moved back in, took Kael in his gloved hand.
 
-A flicker of something—not frustration, not yet—a cold spike of professional irritation. The variable was not responding. Elias increased the pressure. Changed the rhythm. Used his thumb on the frenulum, a targeted technique.
+The heat was immediate. A live, pulsing warmth that penetrated the latex. Elias’s rhythm was practiced, efficient. Up, twist, down. The slide of the lube was smooth. He kept his eyes on his own hand, on the mechanics of the motion. The sound was wet, obscenely intimate in the quiet room. His own throat was dry. He swallowed. The click of his Adam’s apple was too loud.
 
-A tremor ran through Kael’s abdomen. A slight, involuntary tightening. Elias saw it. A data point. Progress.
+He risked a glance at Kael’s face. The man’s eyes were closed. His jaw was tight, a muscle jumping in his cheek. But his breath hitched. A small, betraying sound escaped his clamped lips on the next upstroke.
 
-But Kael’s eyes remained on the ceiling. His jaw was clenched, the muscle there jumping. Was holding himself somewhere far away, locked behind a door Elias couldn’t see.
+A reaction. Good.
 
-“You are delaying the inevitable,” Elias said, his voice low. “The physiological response will occur. Your defiance only prolongs your discomfort.” He sounded like the manual. Was the manual.
+Elias increased the pace. The slick, rhythmic noise filled the room. His wrist began to ache. A dull burn in the tendon. He ignored it. Focused on the goal. The body was tensing, the muscles of Kael’s abdomen clenching. The biological endpoint was near. Elias readied the collection vial in his other hand. His pulse was a frantic drumbeat in his own ears. Why was his heart racing? This was work. This was data.
 
-Kael’s head turned, just an inch. His eyes met Elias’s. They weren’t defiant. They were… empty. And in that emptiness, Elias saw a reflection of his own face, pale and focused under the yellow lights. A man in a white coat, working on a piece of meat.
+Kael came with a choked-off groan, his back arching off the table, the restraints pulling taut. Elias caught the release in the vial, his movements precise. The fluid was warm against the glass. He capped it, set it aside. Procedure complete.
 
-The cold spike in his chest sharpened, twisted. It wasn’t irritation anymore. It was something else, something that tightened his own stomach. Looked away, back to his task. His hand moved faster. The slick, sliding sound filled the room. His own breathing grew audible, a shallow counterpoint to Kael’s deep, controlled breaths.
+He should have felt the cool satisfaction of a problem solved. A variable corrected.
 
-Was failing.
+He felt nothing. A hollow ringing where triumph should be.
 
-His clinical detachment, the wall he lived behind was proving to be a useless tool here. This wasn’t a system error. This was a will. A silent, immovable will.
+Kael slumped against the table, chest heaving. A sheen of sweat coated his skin. He turned his head, opened his eyes. They were glassy, but the focus was still there, sharpening like a blade being whetted. He looked at Elias’s face, then down at his own body, still partially erect, glistening. Then back to Elias.
 
-A memory flashed, unbidden and utterly irrelevant: the smell of his grandfather’s workshop, pine resin and sawdust, the old man’s hands steady as he planed a warped board. You can’t fight the grain, boy. You have to work with it. Elias blinked, the memory evaporating, leaving only the smell of antiseptic and the warm, mineral scent of the lubricant.
+A slow, exhausted smile touched his lips. It held no joy. Only a devastating kind of pity. “See?” Kael breathed, the word barely audible. “You can make the machine work. But you’re still just the man pulling the lever.”
 
-His hand ached. He switched hands, wiped his slick palm on his trousers, leaving a dark, damp patch on the white fabric. He took Kael’s cock again. It had filled slightly, a half-hearted response, but not enough. Not nearly enough.
+Something broke then. Not in Kael. In him. A fissure opened in the perfect, frozen ground of his control. A hot, shameful rush flooded up from his stomach—not anger, not panic, a sickening hybrid of both that clenched his teeth and prickled the skin at the back of his neck.
 
-Protocol dictated escalation.
+His hand, still gloved and slick, shot out of its own volition. It didn’t strike. It grasped. It wrapped around Kael’s throat, not squeezing, just holding. Feeling the hammer of the man’s pulse against his palm. A live wire. A counter-rhythm to his own.
 
-Elias reached for the stimulator sleeve—the one with the raised nubs inside. He fitted it over Kael’s cock, slid it down to the base. He turned it on. A low, buzzing hum joined the room’s atmosphere. He began to move it, up and down, the artificial stimulation meant to overwhelm nervous resistance.
+“Silence,” Elias hissed. The word came out strangled.
 
-Kael’s body jerked. A full-body spasm, uncontrolled. A rough sound tore from his throat, not a word, a raw expulsion of air. His hips strained against the restraints, the chair groaning.
+Kael didn’t struggle. He just held his gaze. The pulse thudded against Elias’s hand. A relentless, living metric.
 
-Elias stopped. The humming continued. He watched.
+Elias was the one who broke the stare. He looked down. At his hand on Kael’s throat. At the mess between Kael’s legs. At his own pristine white coat, a stark lie in this room that now smelled of sweat and salt and something ruined.
 
-Kael’s head fell back, his throat working as he swallowed. Sweat gleamed on his collarbones. His cock was hardening now, an angry response to the constant vibration. It was a victory, technically. The variable was responding.
+He jerked his hand back as if burned. The glove made a sticky, peeling sound as it left Kael’s skin. He turned away, fumbling for a clean cloth from the tray. He scrubbed at his glove, but the feeling wasn’t on the latex. It was underneath, on his skin, a phantom warmth, a contamination.
 
-But the look on Kael’s face wasn’t surrender. It was a kind of furious, focused endurance. He was taking the sensation and metabolizing it into fuel for his silence.
+“The procedure,” he said to the wall, his voice hollow, “will repeat in one hour. Consider your position.”
 
-The hot looseness in Elias’s chest congealed into a hard, sick knot. He couldn’t look away from Kael’s face. From the sheen of sweat, the clenched teeth, the eyes that were now squeezed shut, not in pleasure, but in a brutal, internal concentration. He was witnessing not a breakdown, but a fortification.
+He didn’t wait for a response. He left the vial on the tray, abandoned the soiled cloth, and walked to the door. His legs carried him, but they felt distant, poorly calibrated. As the door hissed shut behind him, sealing Kael inside, he leaned against the cool corridor wall. The polished concrete felt real, solid. He pressed his forehead to it.
 
-Without thinking, Elias reached out. His fingers, still slick, touched Kael’s cheek, just beside the fading bruise. A gesture utterly outside protocol. A touch meant to… what? Turn his face? Offer comfort? It made no sense.
+From the room, through the soundproofing, he heard nothing. But in his head, the wet, rhythmic sound played on a loop. And beneath it, the steady, mocking tick of the broken clock.
 
-Kael’s eyes flew open.
+The room held the silence like a held breath, thick and chemical. Elias stood over the sink, the water scalding his hands pink. He scrubbed, the soap foaming white, rinsing away the evidence. His fingers trembled. A fine tremor, barely there, but it made the water bead and shiver on his skin. He watched it. A data point. Physiological stress response. Expected.
 
-He didn’t pull away. He just looked. His gaze held Elias’s, and in it, the emptiness was gone. Replaced by a searing, focused attention. He saw Elias. Not the manager. Not the system. One man. One man whose hand was shaking. A man whose breaths were coming in short, quiet gasps. One man who had just broken his own first rule.
+Behind him, Kael hadn’t moved from the table. The only sound was the drip of the tap Elias hadn’t fully closed and the ragged, slowing pull of Kael’s breath. Elias didn’t turn. He stared at the stainless steel backsplash, at his own bleached reflection warped in its surface. His hair was out of place. A single dark strand stuck to his damp forehead. He pushed it back. The gesture felt foreign, someone else’s.
 
-Elias’s fingers trailed down, over the stubble of Kael’s jaw, to his throat. The hammering pulse there, a trapped rhythm. His thumb pressed against the Adam’s apple, making it bob as Kael swallowed.
+His own release had been a shock—a short, violent clench in his gut, a white flash behind his eyes that had nothing to do with the clinical blue light. It left a hollow ache, a spent feeling that was more than physical. A system failure. He’d catalogued the sensation even as it happened: increased heart rate, vasodilation, neurochemical flood. The terms were ash in his mouth now.
 
-He leaned in. He didn’t know why. A space between them dissolved. He could smell the sweat, the clean metallic scent of the room, and underneath it, something warm and salt-and-skin that bypassed his brain and went straight to his gut.
+He shut the water off. The drip continued, a stubborn plink against the basin. He dried his hands on a clean towel from the stack, each motion precise. Folded the towel. Set it aside. When he finally turned, his face was the flat, calm plane he wore for inspections.
 
-His lips brushed Kael’s ear. “Stop,” he whispered. The word was a plea, not a command. “Just… stop.”
+Kael lay where he’d been left, restraints loose now. He’d turned his head to the side, cheek against the cold steel. His eyes were open, fixed on the far wall where a cable snaked into a conduit. He looked exhausted, carved out. But not broken. That was the thing. A deep bruise was already flowering on his hip, a mottled purple against the pale skin. Elias’s doing, a knee driven too hard in the frantic, losing struggle for dominance.
 
-Kael turned his head, his movement restricted by the strap. His lips were inches from Elias’s. His breath was hot against Elias’s mouth. “Make me.”
+“Processing is complete,” Elias said. His voice sounded like it came from the speakers in the ceiling. “You will be assigned to Barn A. Standard quota applies.”
 
-Two words. A challenge. But not the same defiance as before. This was different. This was an invitation. A transfer of agency. You want me to break? Then break me yourself. Not with your tools. With you.
+Kael didn’t look at him. A muscle jumped in his jaw. “Is that what you call it?”
 
-Elias kissed him.
+“It is the designated term.”
 
-It wasn’t clinical. It wasn’t a technique. It was a collision. A hungry, desperate press of mouth against mouth. Kael’s lips were chapped, rough. He opened under Elias, and the taste of him—copper, salt—flooded Elias’s senses. He kissed back, his tongue meeting Elias’s with a fierce, equal heat. The strap across his forehead cut into his skin, but he strained against it, meeting the kiss with a raw, consuming pressure.
+“Right.” Kael shifted, wincing as he pulled his legs off the table. He sat up slowly, the movement speaking of deep aches. He looked at the floor, at the small, drying puddle of their combined spend. Then his gaze lifted, found Elias. The defiance was banked, but the coals still glowed. “Did it work? Am I processed?”
 
-Elias’s hands were everywhere. On his face, in his hair, sliding down the sweat-slick planes of his chest. He fumbled with the buckle of the chest strap, his fingers clumsy. It gave way. He didn’t undo the others. He didn’t need to. He shoved his hand between Kael’s body and the chair found his cock, still sheathed in the buzzing sleeve. He tore the sleeve off, tossed it clattering to the floor. He took him in his bare hand.
+The question was a hook in Elias’s ribs. He walked to the control panel, busied himself with logging the session. His entry was brief. Asset 247. Initial processing. Yield: standard. Compliance: pending. He typed the lie without hesitation. Compliance wasn’t pending. It had been obliterated, and in its place was something else, a tangled wire of recognition that sparked every time he remembered the heat of Kael’s skin, the raw sound he’d made not of pain, but of something closer to fury.
 
-Kael cried out into his mouth, a ragged sound. His hips bucked, thrusting into Elias’s fist. The rhythm was frantic, wild, nothing like the sixty strokes per minute. It was a storm. Elias matched it, his own body pressed against the side of the chair, his erection a painful, ignored pressure in his trousers. All that existed was the heat in his hand, the taste in his mouth, the sounds Kael was making—grunts, gasps, a low, continuous groan that vibrated through both of them.
+“Your transport is waiting,” Elias said, not turning around.
 
-Kael came.
+He heard the rustle as Kael found his shorts, the soft sigh of fabric. The shuffle of bare feet on tile. Elias’s spine tightened, waiting for a touch, a word, a final grenade tossed into the wreckage. It didn’t come. The door hissed open. The guard’s low murmur. The hiss of it closing again.
 
-It wasn’t a collection. It was an eruption. Hot stripes painted Elias’s fist, the white fabric of his sleeve. The force of it shuddered through Kael’s entire frame, a series of convulsions that looked like pain, like release. He threw his head back, the cords of his neck standing out, a guttural shout tearing from his throat before it collapsed into harsh, sucking breaths.
+Elias was alone with the drip and the smell.
 
-Elias held him through it, his hand still moving, until Kael sagged spent, against the restraints. The room was silent except for their breathing—Kael’s loud and ragged, Elias’s a thin, high whistle in his own ears.
+*
 
-Looked down at his hand. At the white fluid streaked across his skin, already cooling. At the dark, wet patches on his sleeve. The smell of it, sharp and distinct cut through the antiseptic.
+Dawn was a grey smear at the office window, a slow leaching of the darkness. Elias hadn’t slept. He’d showered in his private quarters, scrubbing until his skin felt thin. He’d put on a fresh white coat. The coffee in his mug was cold, a bitter scum forming on its surface. He hadn’t tasted it.
 
-Had done his job. Had achieved compliance.
+The farm’s overnight report glowed on his main screen. All metrics nominal. Yield targets met. One incident in Barn C—a struggle during washing, quickly subdued. A note on Asset 212: declining volume, recommend nutritional review. The world continued, perfectly on axis.
 
-He stepped back. His legs were unsteady. He turned to the sink turned on the tap. The water ran over his hand, swirling the evidence down the drain. He scrubbed, the soap foaming white. He scrubbed until his skin was red.
+His fingers rested on the keyboard. He opened the personnel file for Farm Manager Elias. Performance reviews, medical checks, supply requisitions. A twelve-year column of perfect data. At the bottom, a new document had appeared since midnight. A memo from Ownership. Encrypted, but the header was visible: Re: Management of Anomalous Assets & Personnel Welfare.
 
-He didn’t look back at the chair. He couldn’t.
+He didn’t open it. He didn’t need to. The pieces clicked into place with a cold, final sound. The owner’s unusual interest. The cryptic notes on his last review about ‘emotional investment.’ The specific, blank resistance of Kael’s file. It wasn’t random. He’d been the subject of an experiment. A targeted stress test on his own systems. The problem wasn’t Kael. The problem was him. His detachment had been noted. Logged. Diagnosed as a liability. And Kael was the cure, a brutal, living therapy shoved into his sterile world.
 
-A door snapped shut behind him. The corridor was empty, quiet. The crack in the ceiling tile still branched like a river delta, leading nowhere. He walked back to his office, his seventy-three steps, his wet sleeve cold against his arm. The system was intact. The variable had been corrected.
+A laugh bubbled up in his throat, a dry, crackling sound that hurt. He was part of the herd. Just another asset to be managed, his emotional output monitored for optimal performance. The ledger didn’t just track the men in the barns. It tracked him.
 
-He sat at his desk. The spreadsheet glowed. A clock ticked.
+His eyes drifted to the dark fourth screen. With a tap, the feed from Barn A, Bay 4, came alive. Kael stood at a milking station, his back to the camera. A technician worked behind him. Elias watched the tense line of his shoulders, the way his head bowed, not in submission, but in a kind of furious endurance. He watched until the technician finished, until Kael was led away to the showers. The feed was silent, but Elias could imagine the sounds. The hum. The drip. The quiet.
 
-He did not see the numbers. He saw the empty focus in Kael’s eyes. The rough heat of his lips. He heard the shattered sound of his release.
+He minimized the feed. Opened the master ledger. His cursor hovered over the line for Asset 247. The dropdown menu offered options: Reassign. Quarantine. Terminate Contract. Recommend for Premium Auction.
 
-A perfect, frictionless operation. That was the ideal. The defining trait.
+His hand was steady now. The tremor gone.
 
-His hands, clean now began to shake. He placed them flat on the cool surface of the desk. They shook anyway.
+He clicked Reassign. A submenu opened. He selected Administrative Auxiliary. He typed a brief justification: Asset demonstrates psychological resilience unsuitable for general population. Aptitude for logistical tasks observed. Recommend reassignment to records office for evaluation.
 
-The farm slept.
+It was a fiction. The records office was a windowless room next to his own, used for storing outdated supply manifests. It was empty. It had a chair, a terminal with no network access, and a door that locked from the outside.
 
-Elias sat in the dark of his office, the blue glow of the dormant monitors painting his hands a ghostly grey. Silence had a texture here, in the small hours—a thick, cottony pressure against the eardrums, broken only by the occasional hum of a distant pump cycling on, then off. The thumping from the barns had ceased hours ago. The stock slept, or pretended to. The handlers were in their quarters. His world had shrunk to this cube of stale air and the afterimage burned into his retinas: Kael’s face turned toward the glass. The defiant arch of his back.
+He submitted the request. It would be approved automatically. His authority was still good, for now.
 
-His terminal screen was the only active light, a rectangle of sterile white. The intake ledger for Unit Kael was open. The fields waited. Designation, Physical Rating, Initial Yield, Compliance Notes, Disposition Recommendation. His fingers rested on the keys, unmoving. A single drop of sweat traced a cold path from his temple to his jawline. He didn’t wipe it.
+The screen refreshed. Asset 247’s status changed from Active - Barn A to Pending Transfer - Admin Aux.
 
-The coffee mug was clean. He’d scrubbed the brown ring out with a precision that bordered on rage, the abrasive side of the sponge wearing a faint scratch into the ceramic glaze. The scratch bothered him now, a tiny fault line in an otherwise smooth surface. He could feel it with his thumb. A flaw.
+Elias leaned back. The office chair creaked. Outside the window, the grey light was gaining strength, outlining the stark shapes of the distant barn roofs. In a few hours, Goran would bring Kael to the empty room. Elias would be there. He would explain the new rules, the pointless tasks. He would lock the door.
 
-He’d reviewed the stall footage three times. Not the whole session, just the moment of the handler’s approach with the injector. Kael’s lips forming the word. Don’t. The handler’s hesitation. The compliance. Then the biological response, the involuntary tremors, the eventual, messy release into the collection basin. Standard output volume. A perfect clinical result. A total procedural failure.
+He didn’t know what would happen after that. The plan ended at the lock. The future was a blank field, a terrifying white space on the ledger. His stomach was a cold knot. His mouth dry. But beneath the fear, a current of something else moved, something hot and shameful and alive. It didn’t have a name.
 
-The defiance hadn’t broken. It had been bypassed, the body forced to perform while the mind remained locked away, a spectator in its own flesh. That was the worst possible outcome. A compliant body was the farm’s product. A defiant mind was a contagion. It spread. It inspired. It reduced overall yield by seventeen percent in affected cohorts. Had the historical data to prove it.
-
-His order to have Kael moved to an isolation stall had been logical. Contain the variable. Prevent contamination of other assets. The head handler, Rourke had nodded, his expression unreadable. “You want him prepped for a full behavioral reset in the morning?”
-
-Standard procedure. A combination of sensory deprivation and calibrated stimulus to sever the connection between will and action. It took forty-eight hours. It had a ninety-four percent success rate.
-
-Elias had opened his mouth to confirm. The word yes was a shape on his tongue. But his throat closed. A sudden constriction, like a hand squeezing his larynx from the inside. He’d coughed turned it into a dismissive wave. “I’ll review his metrics at dawn. Dismissed.”
-
-Rourke had left, the door sighing shut behind him. The silence afterward was different. Accusatory.
-
-Now, in the dark, the memory of that constriction returned. It wasn’t emotion. It was a physiological anomaly. Stress-induced vagus nerve response. He diagnosed it even as he experienced it. Knowledge didn’t loosen the knot.
-
-Looked at the ledger. The Disposition Recommendation field blinked.
-
-His hand moved. He typed: Asset demonstrates persistent non-compliance. Standard behavioral modification protocols advised. Isolate pending.
-
-He stopped. His fingers hovered.
-
-From the corridor outside his sealed door came a sound. A scrape. Then a low, muffled thump. Then nothing.
-
-Elias froze. All the systems were on night cycle. No handlers were scheduled for corridor patrols. He’d minimized it. He reached for the mouse, his movements slow, deliberate. The click was too loud.
-
-The feed showed a grainy monochrome image of the empty corridor. Fluorescent lights hummed, casting long shadows from the doorframes. Empty. He watched for a full minute. Nothing moved. A glitch. A settling in the building’s old bones.
-
-But his heart was a frantic, hammering thing behind his ribs. A clean, quantifiable tachycardia. He noted it, even as he despised it.
-
-He looked back at the ledger. The words he’d typed seemed alien, someone else’s decision. They were correct. They were the words of the manager. A system demanded them.
-
-He deleted the line. The cursor blinked in the empty white field.
-
-He typed a new sentence. His numb, clumsy. Asset presents unique behavioral profile. Requires direct managerial assessment. Transfer to Private Observation Cell A-1. No standard protocols to be initiated without my express authorization.
-
-He hit enter. The field accepted the text. A log entry timestamped the change: 03:47.
-
-The action triggered a cascade of systemic consequences. An alert would go to the night watch. Kael would be moved from general isolation to the private cell adjacent to this very office suite—a cell with enhanced monitoring, a one-way mirror, and soundproofing so complete you could scream for an hour and not a whisper would escape. Used for evaluating premium stock for specialized clients. It had never been used on managerial orders.
-
-Had just created a procedural anomaly. A singularity in his own perfect ledger.
-
-Why?
-
-That question echoed in the sterile vault of his mind. No clean answer came. Only fragments. The curve of a bruised jaw against white padding. The absolute stillness of a body refusing to fight while also refusing to yield. The word on his lips. Don’t.
-
-It was an operational risk. A variable he had chosen not to eliminate, but to bring closer. To study. That was the justification. He would study the defiance, understand its mechanisms, and then devise a more elegant, permanent solution. It was a higher-order logic.
-
-The tightness in his throat remained.
-
-He stood, his joints stiff. The office was cold. He walked to the observation window that shared a wall with Private Observation Cell A-1. The room beyond was dark, a square of deeper blackness. He could turn on the interior light from his panel. He didn’t.
-
-He placed his palm flat against the cool glass. From the barns far below, the pump hummed again, a deep vibration that traveled up through the floor, into the soles of his shoes, into the bones of his hand. Harvest was beginning, automated and unseen. The farm worked on, blind beast digesting its routine.
-
-He had broken the routine. For no reason his spreadsheets could name.
-
-In the dark glass, his own reflection was a pale ghost superimposed over the black cell. He looked old. Tired. A hair was out of place above his left ear, a tiny rebellion against the precise part he maintained. He left it.
-
-He would wait for dawn. He would review the metrics. He would formulate a new assessment protocol.
-
-A truth, unquantifiable and soft sat in his gut like a heavy stone. He hadn’t brought Kael closer to solve him. He had brought him closer because the silence of the farm had become, for the first time in twelve years, unbearable. And the only thing that seemed to cut through it was the memory of a single, silent word.
+He saved the file. Closed the ledger. The blue light of the screens seemed harsher now, leaching the warmth from everything. He reached for the cold coffee, took a sip. It tasted of dust and bitterness. He drank it anyway.
