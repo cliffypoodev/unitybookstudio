@@ -20,7 +20,7 @@ Jonah’s jaw tightened. He could feel the muscle jump. Problem case. He’d bee
 
 “The standard methods are ineffective on a constitution like yours. Pain is a language you understand, but you translate it into defiance. Humiliation is a fuel. Deprivation only hardens your resolve. It’s admirable, in a purely structural sense. Like a well-made wall.”
 
-The boots stepped closer. Jonah could see the fine grain of the leather now, a scuff on the left toe. The man—the Husbandman—crouched. Jonah kept his gaze down, but from the periphery he saw hands, clean, with prominent knuckles. No rings. The hands rested on denim-clad knees.
+The boots stepped closer. The Husbandman crouched. Jonah kept his gaze down, but from the periphery he saw hands, clean, with prominent knuckles. No rings. The hands rested on denim-clad knees.
 
 “So we come to an offer,” the Husbandman said. His tone was conversational, as if discussing the weather. “A private offer. You spend this night with me. Here. You submit to my attention. Completely. You follow every instruction, you endure every touch, you accept every sensation I choose to give you. You do not resist. You do not fight. You… yield.”
 
@@ -32,7 +32,7 @@ He let that hang. The clock ticked. Three times. Four.
 
 “If you refuse,” the Husbandman said, and now the calm in his voice took on a different quality, like the stillness before a blade falls, “you will be remanded to the general pens at dawn. You know what that means. You’ve heard the sounds from there. You will be broken there. It will take weeks. It will involve the handlers, and the other stock who have learned compliance through brutality. You will not have a private suite at the end of it. You will have a number. And whatever wall you’ve built inside yourself will be rubble.”
 
-Jonah’s heart was a frantic thing against his ribs. He could feel the pulse in his neck. The general pens. He’d seen a man dragged there once, heard the wet, meaty sounds of correction through the vents. The man had come back hollow, his eyes empty as windows.
+Jonah’s heart was a frantic thing against his ribs. He could feel the pulse in his neck. The general pens. He’d seen a man dragged there once heard the wet, meaty sounds of correction through the vents. A man had come back hollow, his eyes empty as windows.
 
 This was not a choice. This was the presentation of two hells, one with a door he could walk through on his own feet, the other where he’d be dragged.
 
@@ -44,7 +44,7 @@ Jonah gave a single, stiff nod.
 
 “Because your defiance has value,” the man said simply. “A broken tool in the pens is just a tool. But a will that chooses to surrender… that is a different material altogether. I have a use for that material.”
 
-He stood. The knees of his jeans made a soft sound. “You don’t have to answer now. The night begins when I say it begins. You will answer with your body. Either it obeys me, or it does not.” He walked away, his footsteps receding. “Think about the cedar,” he said, his voice moving toward the door. “It’s resilient. It bends. But try to keep it from bending, and it snaps.”
+He stood. The knees of his jeans made a soft sound. “You don’t have to answer now. One night begins when I say it begins. You will answer with your body. Either it obeys me, or it does not.” He walked away, his footsteps receding. “Think about the cedar,” he said, his voice moving toward the door. “It’s resilient. It bends. But try to keep it from bending, and it snaps.”
 
 The door closed.
 
@@ -56,7 +56,7 @@ He saw his father’s face, not shouting, but disappointed. The worst look. You�
 
 He wasn’t bending. He was kneeling. There was a difference. Wasn’t there?
 
-The room had a high ceiling. He risked a glance up. Exposed beams, dark wood. In the corner, near a bank of cabinets that looked medical, a single cobweb drifted in some unseen current. It was a flaw. A tiny, useless flaw. He fixated on it. Someone so meticulous, so in control, had missed a cobweb.
+The room had a high ceiling. He risked a glance up. Exposed beams, dark wood. In the corner, near a bank of cabinets that looked medical, a single cobweb drifted in some unseen current. It was a flaw. A tiny, useless flaw. He fixated on it. Someone so meticulous, so in control had missed a cobweb.
 
 His mind skittered, a trapped animal. He thought of the feel of track gravel under his spikes, the specific burn in his lungs during the 1500-meter. That was a good pain. A chosen pain. This was different. This cold was passive. It just was.
 
@@ -82,15 +82,15 @@ The remote clicked. A soft, humming vibration began somewhere in the room, a sub
 
 His fingers, bound behind him, fumbled for the tie at the nape of his neck. The canvas was coarse. He found the knot, picked at it. His father’s face again. Do what you’re told, boy. It’s easier. His fingers trembled. The knot gave.
 
-The smock slid down his arms, caught on the leather cuffs. He had to shrug, a clumsy, degrading motion, to let it fall down his back and pool at his feet on the cedar floor. The air touched his chest, his stomach, his cock. He was completely exposed.
+The smock slid down his arms and caught on the leather cuffs. He had to shrug, a clumsy, degrading motion, to let it fall down his back and pool at his feet on the cedar floor. The air touched his chest, his stomach, his cock. He was completely exposed.
 
-He stared over the Husbandman’s head, at the wall. There was a small, framed print there, an old botanical drawing of a root system. It was intricate, delicate.
+He stared over the Husbandman’s head, at the wall. There was a small, framed print there, an old botanical drawing of a root system. Complex, delicate.
 
 “Look at me,” the Husbandman said.
 
-Jonah’s eyes dragged down. The man’s face was ordinary. Kindly, almost. Sharp blue eyes, lines at the corners, short-cropped grey hair. He looked like a professor, or a retired engineer. He looked at Jonah not with lust, but with a profound, unsettling focus.
+Jonah’s eyes dragged down. The man’s face was ordinary. Kindly, almost. Sharp blue eyes, lines at the corners, short-cropped gray hair. He looked like a professor, or a retired engineer. He looked at Jonah not with lust, but with a profound, unsettling focus.
 
-“The first instruction,” the Husbandman said, his gaze dropping deliberately down Jonah’s body and back up. “You will not come without my permission. Your body will want to. It will be encouraged to. But you will hold it back. That is the discipline you will learn tonight. The discipline of surrender is control. My control. Do you understand?”
+“The first instruction,” the Husbandman said, his gaze dropping deliberately down Jonah’s body and back up, “you will not come without my permission. Your body will want to. It will be encouraged to. But you will hold it back. That is the discipline you will learn tonight. The discipline of surrender is control. My control. Do you understand?”
 
 Jonah understood. The understanding was a cold stone in his belly. This was the game. Not just to make him obey, but to make him want to obey, and then deny him the release of that want.
 
@@ -98,21 +98,11 @@ He said nothing.
 
 The Husbandman took his silence as assent. He smiled, a small, neutral thing. “Good. Let’s begin.”
 
-The hands moved away from his knees. The Husbandman stood, the leather of his boots creaking softly. “Stand up.”
-
-Jonah’s legs protested. The cold had settled into the joints, a thick stiffness. He pushed up, the muscles in his thighs trembling with the effort. He kept his gaze down, on the boots. A small victory, that he could still move under his own power.
-
-“Look at me.”
-
-He didn’t want to. The defiance was a reflex, a spark in a dead wire. He made himself lift his chin.
-
-The man was older than Jonah expected. Mid-fifties, maybe. Lines around the eyes, hair gone gray at the temples and cut short. He wore a simple, dark henley and jeans. He looked like a contractor, a man who worked with his hands. His eyes were the color of old denim, and they held no anger. Just a flat, appraising focus that made Jonah feel like a specimen under glass.
-
 “Follow.”
 
 The Husbandman turned and walked toward the far side of the chamber. Jonah followed, the cedar floor smooth under his bare feet. The room was larger than he’d thought. One whole wall was taken up by a heavy wooden table, its surface polished to a dull gleam. Above it, a bank of adjustable lights on articulated arms. The tools laid out on a steel trolley beside it weren’t the crude implements from the pens. They were clean, precise. Silicone-coated restraints. Bottles with clear liquids. A device that looked like a slender black wand with a series of adjustable rings.
 
-His mouth went dry. That hot, brittle feeling moved through his chest again. Not fear. Not yet. It was the sharp, metallic taste of a challenge accepted, a door closing behind him.
+His mouth went dry. That hot, brittle feeling moved through his chest again. Not fear. Not yet. It was the sharp metallic taste of a challenge accepted, a door closing behind him.
 
 “On the table. Face up.”
 
@@ -120,7 +110,7 @@ Jonah hesitated. The air in the room felt thinner. He could hear his own heart.
 
 “Now, Jonah.”
 
-He climbed onto the table. The wood was cold through the canvas smock. He lay back. The lights above were off, dark lenses staring down.
+He climbed onto the table. The wood was cold against his skin. He lay back. The lights above were off, dark lenses staring down.
 
 The Husbandman moved to the trolley. He picked up the first restraint—a wide band of black leather with a soft inner lining. “Left wrist.”
 
@@ -162,11 +152,11 @@ The needle pinched. A cold flood entered his vein. Jonah tensed, waiting for dar
 
 It didn’t come.
 
-Instead, a warmth started in his chest. It spread outward, liquid and heavy. The sharp edges of his humiliation blurred. The cold of the table faded. His muscles, held taut against the restraints, began to relax. Not because he willed it. They just… unclenched. A deep, chemical sigh moved through him. His thoughts slowed, turning syrupy.
+A warmth started in his chest. It spread outward, liquid and heavy. The sharp edges of his humiliation blurred. The cold of the table faded. His muscles held taut against the restraints began to relax. Not because he willed it. They just… unclenched. A deep, chemical sigh moved through him. His thoughts slowed, turning syrupy.
 
 The vibration from the rings became the center of the universe.
 
-It wasn’t just a sensation now. It was a meaning. A deep, resonant pull that hollowed out his lower belly. His hips gave a tiny, involuntary jerk. Pleasure, pure and simple, began to coil tight inside him. It felt good. It felt unbearably good. The realization was a distant alarm.
+It wasn’t just a sensation now. It was a meaning. A deep, resonant pull that hollowed out his lower belly. His hips gave a tiny, involuntary jerk. Pleasure, pure and simple began to coil tight inside him. It felt good. It felt unbearably good. The realization was a distant alarm.
 
 “No,” he slurred. The word was thick.
 
@@ -190,9 +180,9 @@ The world whited out.
 
 It wasn’t an orgasm he’d ever felt. It was a seizure of pleasure, a silent detonation that ripped through every nerve. His body bowed against the restraints, rigid. His cock jerked, pulsing, but the rings held him tight, milking the sensation into a brutal, extended peak that went on and on, waves of raw sensation with no release. He couldn’t breathe. He couldn’t think. There was only the endless, shattering peak, a pleasure so intense it tipped into a kind of agony.
 
-When it finally began to ebb, it left him wrecked. He collapsed back onto the table, sweat-slick and trembling. Tears leaked from the corners of his eyes. He felt empty, scraped clean. The humiliation was gone. In its place was a vast, hollow exhaustion. And beneath that, a terrifying seed of hunger. His body, spent, already missed the feeling.
+When it finally began to ebb, it left him wrecked. He collapsed back onto the table, sweat-slick and trembling. Tears leaked from the corners of his eyes. He felt empty, scraped clean. The humiliation was gone. In its place was a vast, hollow exhaustion. And beneath that, a terrifying seed of hunger. His body spent, already missed the feeling.
 
-The Husbandman turned the device off. The silence that followed was absolute, broken only by Jonah’s ragged gasps. The man disconnected the wire, began to remove the rings. His touch was the same—firm, impersonal.
+The Husbandman turned the device off. The silence that followed was absolute, broken only by Jonah’s ragged gasps. The man disconnected the wire and began to remove the rings. His touch was the same—firm, impersonal.
 
 “That was the first lesson,” he said, his voice soft in the ringing quiet. “Your body is not your ally. It is a faculty I control.” He placed the wand back on the trolley. “We have all night to practice.”
 
@@ -200,21 +190,21 @@ Jonah lay there, staring at the lightning-bolt crack in the ceiling. The fortres
 
 The water was a shock. Not cold, not hot—somewhere in between, a temperature that felt like nothing until it was everywhere. Jonah flinched. A full-body shudder that started in his shoulders and rattled down to his ankles. He couldn’t stop it. The reaction belonged to a different person, someone who still had control over his own muscles.
 
-He sat in the sunken bath, water up to his chest. Tiled walls, white and clean, curved around him. The air smelled of salt and something herbal, a faint green scent that made him think of crushed leaves. Steam rose in lazy curls. His skin was pink. He stared at it, at the way the water distorted his thighs, made them look wavering and insubstantial. There was a thin, white scar on his left knee from a track meet sophomore year. He’d forgotten about it. Now it was the most important thing in the world.
+He sat in the sunken bath, water up to his chest. Tiled walls, white and clean, curved around him. The air smelled of salt and something herbal, a faint green scent that made him think of crushed leaves. Steam rose in lazy curls. His skin was pink. He stared at it, at the way the water distorted his thighs and made them look wavering and insubstantial. There was a thin, white scar on his left knee from a track meet sophomore year. He’d forgotten about it. Now it was the most important thing in the world.
 
-Hands touched his hair. He didn’t jump this time. The Husbandman stood behind the bath, his sleeves rolled to the elbows. He poured water from a pitcher, slow, over Jonah’s head. It streamed through his hair, down his face. Jonah kept his eyes open. The water blurred his vision, made the tiles swim.
+Hands touched his hair. He didn’t jump this time. The Husbandman stood behind the bath, his sleeves rolled to the elbows. He poured water from a pitcher, slow, over Jonah’s head. It streamed through his hair down his face. Jonah kept his eyes open. The water blurred his vision and made the tiles swim.
 
 “Close your eyes.”
 
 The command was soft. Almost gentle. Jonah closed them. The darkness behind his lids was a relief. The water ran over his forehead, his temples. A thumb smoothed his eyebrow, a gesture so casual, so intimate, it stole the air from his lungs. He couldn’t breathe. He didn’t want to.
 
-The hands worked shampoo into his scalp. Strong fingers, methodical. They found the tension in the muscles at the back of his skull and pressed. A low sound escaped him. Not a word. Just a release of air, a surrender of pressure he hadn’t known he was holding. The shame came then, hot and quick, but it felt distant. Like hearing about someone else’s humiliation.
+The hands worked shampoo into his scalp. Strong fingers methodical. They found the tension in the muscles at the back of his skull and pressed. A low sound escaped him. Not a word. Just a release of air, a surrender of pressure he hadn’t known he was holding. The shame came then, hot and quick, but it felt distant. Like hearing about someone else’s humiliation.
 
 He was clean. That was the absurd detail his mind fixated on. He hadn’t had a proper shower in forty-seven days. Sponge baths from a bucket, the stink of himself always lingering under the smell of the barn. Now his skin felt stripped, new. The grime was gone, and with it some last layer of the person who had collected it.
 
 The rinsing took a long time. The pitcher emptied and refilled. Water sluiced down his neck, his back. The silence between them was different now. Not listening. Spent.
 
-A large, soft towel enveloped him. The Husbandman drew him up from the water, a hand under his arm. Jonah stood, water cascading off him, puddling on the tile floor. He was dried with the same methodical care. The towel moved over his arms, his chest, his legs. It was thorough. Clinical. Devastating. When the towel dabbed between his legs, he felt nothing. A blank space. A hollow where defiance used to live.
+A large, soft towel enveloped him. The Husbandman drew him up from the water, a hand under his arm. Jonah stood, water cascading off him, puddling on the tile floor. He was dried with the same methodical care. The towel moved over his arms, his chest, his legs. Thorough. Clinical. Devastating. When the towel dabbed between his legs, he felt nothing. A blank space. A hollow where defiance used to live.
 
 He was led, naked, back into the main chamber. The room had changed. The low bed was made now, with clean, dark linen. The restraints lay coiled at the foot, neat and harmless-looking. The instruments were gone from the side table. In their place sat a carafe of water and a single glass.
 
@@ -224,7 +214,7 @@ Jonah sat on the edge of the bed. The linen was cool against his thighs. The Hus
 
 Jonah took it. His hands were steady. He drank. The water was cold, with a faint mineral taste. It was the best thing he had ever tasted.
 
-He lifted his gaze. The man’s face was calm. Tired, maybe. There were lines at the corners of his eyes that hadn’t been there—or that Jonah hadn’t let himself see—before. His eyes were a plain, unremarkable brown. They held no triumph. No gloating. That was the worst part.
+He lifted his gaze. The man’s face was calm. Tired maybe. There were lines at the corners of his eyes that hadn’t been there—or that Jonah hadn’t let himself see—before. His eyes were a plain, unremarkable brown. They held no triumph. No gloating. That was the worst part.
 
 “The night is over,” the Husbandman said. “The terms are met.”
 
@@ -234,11 +224,11 @@ Jonah nodded. He had no words. His throat was a closed tunnel.
 
 “Yes.” The word was a scrap of rust.
 
-The Husbandman leaned back in his chair. He studied Jonah for another moment, then his gaze drifted to the window. The sky beyond the glass was the color of old slate, the deep, dark gray that comes just before dawn. A single star, or maybe a planet, hung low in the sky, a pinprick of cold light.
+The Husbandman leaned back in his chair. He studied Jonah for another moment, then his gaze drifted to the window. The sky beyond the glass was the color of old slate, the deep, dark gray that comes just before dawn. A single star, or maybe a planet hung low in the sky, a pinprick of cold light.
 
 “My father was a carpenter,” the man said, his voice shifting into something lower, almost conversational. “He built furniture. He had a thing about wood. He said every piece had a grain, a will of its own. You couldn’t force it. You had to find the way it wanted to be shaped. If you fought it, you’d ruin it. If you listened, you could make something that lasted.” He looked back at Jonah. “I never had the patience for wood.”
 
-Jonah stared at him. The confession sat between them, strange and unasked for. He didn’t know what to do with it. A part of him, a ghost of the old Jonah, wanted to seize it, to twist it into a weapon. See, you’re just like your father. You just find better ways to break things. But the thought had no heat. It faded before it fully formed.
+Jonah stared at him. The confession sat between them, strange and unasked for. He didn’t know what to do with it. A part of him, a ghost of the old Jonah wanted to seize it, to twist it into a weapon. See, you’re just like your father. You just find better ways to break things. But the thought had no heat. It faded before it fully formed.
 
 The Husbandman stood. He went to a wardrobe and returned with a folded bundle of cloth. Soft, gray trousers and a loose linen shirt. He laid them on the bed beside Jonah.
 
@@ -246,11 +236,11 @@ The Husbandman stood. He went to a wardrobe and returned with a folded bundle of
 
 He turned and walked to the door. He didn’t look back. The door opened, then shut with a solid, final click.
 
-The silence rushed back in. It was louder than before.
+The silence rushed back in, louder than before.
 
 Jonah sat for a long time. The light through the window changed, the gray softening at the edges, bleeding toward a pale, watery blue. He watched the star vanish. He finished the water in his glass. He set the empty glass on the floor, the sound a sharp tok in the quiet.
 
-He picked up the clothes. The fabric was soft, worn from many washings. He put them on. The trousers were a little too big at the waist. He tied the drawstring. The shirt smelled of plain soap. It was comfortable.
+He picked up the clothes. The fabric was soft, worn from many washings. He put them on. The trousers were a little too big at the waist. He tied the drawstring. The shirt smelled of plain soap. Comfortable.
 
 He stood and walked to the window. The courtyard was small, paved with old brick. A single birch tree stood in the center, its white bark glowing in the predawn gloom. Its leaves were mostly gone, just a few yellow stragglers clinging to the twigs. The scene was utterly still. No birds. No wind.
 
@@ -260,7 +250,7 @@ He placed his palm flat against the cool glass. His reflection was a ghost over 
 
 He took his hand from the glass. He turned. A man in simple dark clothes stood in the doorway, his hands at his sides. He had a broad, placid face. He nodded once toward the corridor.
 
-Jonah walked to him. He stepped over the threshold without looking back. The corridor was whitewashed, lit by electric sconces. It was quiet. His bare feet made no sound on the smooth stone floor. Gareth fell into step beside him, a half-pace behind.
+Jonah walked to him. He stepped over the threshold without looking back. The corridor was whitewashed, lit by electric sconces. Quiet. His bare feet made no sound on the smooth stone floor. Gareth fell into step beside him, a half-pace behind.
 
 They walked. Doors passed, all closed. One had a number seven painted on it in black. Another had a small, wilted potted plant on a stool outside. The air grew cooler.
 
@@ -274,11 +264,11 @@ Jonah nodded.
 
 Gareth left, pulling the door shut. The lock turned, a smooth, well-oiled sound.
 
-Jonah stood in the center of the room. He could feel the entire, vast emptiness of the farm around him, stretching out in all directions. The silence of his own cell. The distant, rhythmic sounds of the milking floors, a faint, metallic hum through the walls. The memory of the night, not as images, but as a series of physical echoes: the bite of the leather, the impossible heat, the shudder that had torn his soul loose from its moorings.
+Jonah stood in the center of the room. He could feel the entire, vast emptiness of the farm around him, stretching out in all directions. The silence of his own cell. The distant, rhythmic sounds of the milking floors, a faint metallic hum through the walls. The memory of the night, not as images, but as a series of physical echoes: the bite of the leather, the impossible heat, the shudder that had torn his soul loose from its moorings.
 
 He walked to the window. He looked at the birch tree. A leaf detached and spun slowly down, a yellow coin against the brick.
 
-His body felt heavy. Clean, and heavy. A vessel that had been emptied and now waited, passive, to be filled again on schedule. The thought should have been a horror. It was just a fact. The wall inside him was rubble. He was standing in the dust of it, and the air was very, very clear.
+His body felt heavy. Clean, and heavy. A vessel that had been emptied and now waited, passive, to be filled again on schedule. The thought should have been a horror. It was just a fact. The wall inside him was rubble. He was standing in the dust of it, and very, very clear.
 
 He sat on the edge of the bed. He lay back. The ceiling was white, with a single, hair-thin crack that ran from the corner toward the center and then stopped, as if it had forgotten its purpose.
 
