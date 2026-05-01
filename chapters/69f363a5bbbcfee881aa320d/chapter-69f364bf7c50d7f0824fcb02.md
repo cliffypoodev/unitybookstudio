@@ -32,7 +32,7 @@ He didn’t look sedated—he looked… Present. Terribly, utterly present.
 
 “Ronan,” Gerrard said, his voice shifting into a tone of brisk command. “Stand for inspection.”
 
-The man’s eyes moved then, sliding from the wall to Gerrard with a slowness that felt deliberate. Contemptuous—then they shifted to Caspian—They held no fear. No curiosity, either. Just a flat assessment, like a man judging the weight of a tool. After a beat that stretched just long enough to be insubordinate, he stood.
+The man’s eyes moved then, sliding from the wall to Gerrard with a slowness that felt deliberate. Contemptuous—then they shifted to Caspian. They held no fear. No curiosity, either. Just a flat assessment, like a man judging the weight of a tool. After a beat that stretched just long enough to be insubordinate, he stood.
 
 Was taller than Caspian had estimated.
 
@@ -54,13 +54,13 @@ Ronan’s expression didn’t change. His voice, when it came was low, roughened
 
 “A trade.”
 
-“A debt—for someone else—They take the yield. The debt clears.” He said it like he was reciting the weather. No shame—no pride—Just fact. A twist. Not a captive seized, but a volunteer of sorts. A commodity who had chosen his own commodification. A faint, familiar ping of interest, the first he’d felt in months. Quickly followed by a sour disillusionment. Even this was a transaction. Nothing was pure.
+“A debt—for someone else. They take the yield. The debt clears.” He said it like he was reciting the weather. No shame—no pride—Just fact. A twist. Not a captive seized, but a volunteer of sorts. A commodity who had chosen his own commodification. A faint, familiar ping of interest, the first he’d felt in months. Quickly followed by a sour disillusionment. Even this was a transaction. Nothing was pure.
 
 “And the product?” Caspian pressed, adopting Gerrard’s clinical term to see if it would land. “Are you a good producer?”
 
 A flicker, then—Something moved behind the grey eyes. Not anger—Something colder, more remote. Amusement maybe. “The numbers are on the chart.”
 
-“I don’t care about the numbers—I care about the experience. The essence. Your file suggests a… particular biochemical signature. Stress hormones atypically low. Serotonin and oxytocin markers unusually high upon release. They call it ‘the calm fire’ in your notes. What do you call it?”
+“I don’t care about the numbers—I care about the experience. The essence. Your file suggests a… Your file suggests a particular biochemical signature. Stress hormones atypically low. Serotonin and oxytocin markers unusually high upon release. They call it ‘the calm fire’ in your notes. What do you call it?”
 
 Ronan was silent for a long moment. His gaze drifted over Caspian’s shoulder, to the expensive weave of his jacket, then back to his face. “I don’t call it anything. It’s just what happens.”
 
@@ -90,7 +90,7 @@ He turned to Gerrard, his mind clicking over, plans reforming. “Leave us.”
 
 “Leave. Us.” Caspian didn’t raise his voice. He didn’t need to. “Lock the door behind you. I’ll signal when I’m finished.”
 
-Gerrard’s face paled. He looked between Caspian and his impassive stock, conflict warring with the imperative to please a wealthy client. The client won. He gave a stiff nod. “Of course. I’ll be right outside.” The warning in He spoke — clear, but it was directed at Ronan.
+Gerrard’s face paled. He looked between Caspian and his impassive stock, conflict warring with the imperative to please a wealthy client. The client won. He gave a stiff nod. “Of course. I’ll be right outside.” The warning he spoke—Clear, but it was directed at Ronan.
 
 The door shut. The lock thunked again, a final sound.
 
@@ -134,7 +134,7 @@ Caspian stayed by the sideboard, leaning against it. The leather of his shoes cr
 
 No answer. Ronan’s gaze didn’t waver.
 
-“I don’t care about your background.” Caspian took another drink. “I care about the product—the essence—They use that word, you know. Essence. It’s a prettier way of saying ‘what comes out of you.’ It’s all metrics to them—volume—viscosity. Chemical composition.” He gestured with the glass, a vague circle in the air. “Boring.”
+“I don’t care about your background.” Caspian took another drink. “I care about the product—the essence. They use that word, you know. Essence. It’s a prettier way of saying ‘what comes out of you.’ It’s all metrics to them—volume—viscosity. Chemical composition.” He gestured with the glass, a vague circle in the air. “Boring.”
 
 He pushed off from the sideboard and crossed the room. He stopped a few feet from the sofa. The air between them grew warmer, charged with a low hum he couldn’t locate. “I’m not a metrician—I’m a connoisseur—there’s a difference. One measures. The other… tastes.”
 
