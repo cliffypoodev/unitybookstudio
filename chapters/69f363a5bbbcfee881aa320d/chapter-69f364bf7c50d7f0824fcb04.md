@@ -84,7 +84,7 @@ Interesting, he thought. Visual distortion. Mild synesthesia, perhaps. The thoug
 
 The farm.
 
-It vibrated through the soles of his feet. The pumps were no longer a distant hum but a distinct, rhythmic pull-squeeze-release that echoed in the hollow of his own pelvis. His air hitched. He wasn’t supposed to feel that.
+It vibrated through the soles of his feet. The pumps were no longer a distant hum but a distinct, rhythmic pull-squeeze-release that echoed in the hollow of his own pelvis. His silence hitched. He wasn’t supposed to feel that.
 
 He took a step back, bumped into the workbench. A tray of seedlings rattled. That sound was a death knell. He clutched the edge of the bench, the wood grain impossibly detailed under his fingertips. Each whorl was a canyon, a history of drought and rain.
 
@@ -128,7 +128,7 @@ The door gave way. Not from his push. A hand pulled it open from within.
 
 One of the hands, a burly man named Griggs, stared at him. “Orin? What the hell are you doing here?”
 
-Orin looked at him. Really looked. He saw the pores on Griggs’s nose, the burst capillary in his left eye, the stale coffee on his pause. He saw the tired, mean emptiness behind it all. And he saw the thread that connected Griggs to the pulsing heart of the barn, a slack cord of habitual cruelty. Ugly. Frail.
+Orin looked at him. Really looked. He saw the pores on Griggs’s nose, the burst capillary in his left eye, the stale coffee on his air. He saw the tired, mean emptiness behind it all. And he saw the thread that connected Griggs to the pulsing heart of the barn, a slack cord of habitual cruelty. Ugly. Frail.
 
 Orin spoke. A cloud of iridescent dust, invisible to Griggs, ghosted from his lips. It kissed the man’s face.
 
