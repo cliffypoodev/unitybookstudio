@@ -1,243 +1,295 @@
-The light through the slats fell in dusty, angled bars across Silas’s cell. He knelt on the rough burlap of his pallet, hands resting palms-up on his thighs. A chipped ceramic bowl sat between his knees, half-full of water. It wasn’t holy water, not in any sense the world outside would recognize, but it was. He’d watched a guard fill it from the hose in the yard three days ago, the sun catching the arc of liquid, turning it into a brief, brilliant bridge. A sign. Everything was a sign if you knew how to look. The water tasted of rust and plastic, a metallic tang that lingered on the tongue long after he sipped it. It was the taste of communion.
+The rough burlap scrap was a relic, a holy cloth. Silas smoothed its frayed edges against the floor, aligning it with the precise crack in the flagstone that ran toward the door like a river on a map. The scent of hay was thick here, sweet and dusty. It clung to the back of his throat, a permanent taste of home. From the main barn, the familiar rhythm started up—a low, mechanical hum, then the sharper, wetter sounds of the work. To the others, it was just noise. To him, it was the Matins chant. His own body stirred in answer, a low, warm pulse of anticipation deep in his gut. A good sign. The body knew its purpose before the mind could clutter it with doubt.
 
-Across the small space, leaning against the opposite wall with his arms crossed, the new one watched. Lev. He hadn’t spoken in over an hour, just stared with those flat, dark eyes. Were the color of wet slate, and they held none of the fear, the dawning reverence, Silas was used to seeing in new arrivals. They held nothing at all. That was a kind of heresy all by itself.
+The cell door clanked, the sound a flat, iron bell.
 
-Silas ignored him. He focused on the sounds from the main barn, rhythmic thrumming beneath the more immediate noises—the clang of a distant gate, a muffled shout that might have been pain or something else. He knew the schedule. The morning milking was underway. He could almost feel the vibration in the wooden floorboards, a steady pulse that traveled up through the burlap and into the bones of his knees. A sacred percussion. Each pump of the machines, each choked-off cry from the stalls was a verse in the liturgy. He let his eyes drift shut, letting the familiar chorus wash through him. Not wash. That was the wrong word. It didn’t wash; it seeped. It filled the hollow places, dry cracks in his spirit, with a warm, heavy certainty.
+They shoved the new one in. He stumbled, caught himself on the wall with a palm that slapped the stone. A different sound. Angry. Ungraceful.
 
-“You’re fucking praying.”
+Silas didn’t look up. He finished aligning his items: the twisted bit of straw that resembled a shepherd’s crook, the dried pea pod that served as a vessel, the small pile of cleanish wood shavings. An altar. The new one’s breathing was ragged, loud in the quiet between distant chants. It was the breathing of a beast, not a supplicant.
 
-The voice was a rasp, like stone grinding on stone. It didn’t fit the holy sounds.
+“What the fuck is all that?”
 
-Silas didn’t open his eyes. “I am in a state of grateful anticipation.”
+The voice was a rock in a tin can. Harsh. Profane.
 
-A short, sharp sound—a laugh with all the humor stripped out. “Anticipating what? The next time they strap you to that bench and milk you like a cow?”
+Silas lifted his gaze. The man was younger, maybe thirty. Dark hair matted with sweat and something else—grease, maybe. His eyes weren’t empty like so many who came through. They were full of a hot, bright poison. They scanned the cell, the straw pallet, the bucket in the corner, and finally Silas’s little arrangement on the floor. A muscle in his jaw jumped.
 
-“The Offering.” Silas opened his eyes. Looked not at Lev, but at the patch of wall above Lev’s head where the wood was stained a deep, reddish brown from some long-ago leak. The stain spread out in tendrils, like a tree of life rendered in rust. “The purification. The release of essence back to the source from which all life springs.”
+“An offering,” Silas said. His own voice was softer than he remembered using in days. It felt like dust.
 
-Silence. Then a shift of denim against wood as Lev pushed himself off the wall. Was tall, lean where Silas had gone soft in captivity, all tight wire and restless angles. He paced the short length of the cell, three steps each way. His boots scuffed the packed-dirt floor, kicking up little puffs of dust that danced in the light bars. The dust motes were beautiful. They swirled and caught the sun, tiny galaxies spun from nothing.
+“An offering.” The man barked a laugh. It had no joy. “To who? The fucking hay bales?”
 
-“You’re insane,” Lev said, not with anger, but with a cold, clinical detachment that was worse. “They’re fucking rapists with a production quota. This is a factory. We’re the livestock.”
+“To the purpose.” Silas turned back to his altar. The rough texture of the burlap under his fingertips was a comfort. A real thing. “They will come for us soon. You should prepare.”
 
-“You see only the machinery.” Silas’s voice remained soft, a placid pool. “You have not yet learned to see the ritual beneath it. The hands that guide us are not profane. They are consecrated. They perform a sacrament.”
+“Prepare.” The man—Lev, that was the name they’d barked when they dragged him past—slid down the wall to sit. He rubbed a hand over his face, leaving a smudge of dirt on his cheekbone. The shape of it reminded Silas of the ash mark they used to give on the forehead on a certain day, a lifetime ago. A coincidence. A sign, maybe. “Yeah. I’ll prepare. I’ll prepare to get the hell out of this shithole.”
 
-“A sacrament.” Lev stopped pacing. He stood over Silas, blocking the light. His shadow fell across the bowl of water, turning it dark. “They get off on it. You know that, right? The big one with the scar on his jaw—Mack. He times his own climax with yours. He’s got a stopwatch. I heard the other guards laughing about it.”
+Silas smiled. A small, private thing. They all said that at first. The ones with fire in them burned it out screaming against the restraints, or they let it turn inward and rot them into silence. Lev would learn. The process was a mercy, if you could see it. A purification by relentless, physical truth. “There is no ‘out.’ There is only ‘through.’ The gate is not in the fence. It’s here.” He touched his own sternum, then gestured to his groin. “And here.”
 
-Something hot moved through Silas’s chest. Not quite anger. Not quite panic. It was a tight, sour bubble that rose into his throat and sat there, bitter. He hesitated it down. A test. This was a test of his faith. The Adversary sent to tempt him with the ugliness of the literal world. He focused on the sensory anchor of the burlap, scratchy weave against his skin, the smell of old hay and his own sweat, human scent. He noticed a single, black thread against the beige that had come loose from the fabric. He wound it around his forefinger, feeling the rough twist of it.
+Lev stared. His eyes narrowed. The poison in them seemed to simmer. “You’re cracked. They broke you a long time ago, didn’t they?”
 
-“Even the mockery of the unaware serves the purpose,” Silas murmured, more to himself than to Lev. “Their pleasure is a… a byproduct of the holy work. A spark thrown from the engine. It does not diminish the engine’s purpose.”
+“I was remade.” Silas closed his eyes. The sounds from the barn were building, a symphony now. He could pick out the individual notes: the sigh of the pump, the slap of flesh on leather, the low, guttural moans that were not pain but release. Prayer. “Listen. Can you hear it? The liturgy.”
 
-“Holy work.” Lev crouched down suddenly, bringing his face level with Silas’s. His breath smelled of the thin, greasy stew they’d been served at dawn. “What holy work? What’s the divine plan, Silas? We get jerked off into a jar so some rich perverts can drink it or bathe in it or whatever the hell they do? That’s your god’s grand design?”
+“I hear a bunch of guys getting jerked off by strangers in rubber aprons.” Lev shifted, the chains on his ankles clinking. A mundane sound. “This isn’t a church, old man. It’s a fucking factory. We’re livestock. They’re harvesting a product. That’s it.”
 
-He remembered the taste of whiskey, the clean scent of pine, the feel of steering wheel leather under his palms. A memory, sudden and unbidden—driving at night, the yellow lines hypnotic, the radio playing static. It had no place here. He pushed it away. Chaff. The world before was chaff.
+The words were stones. They should have hurt. They didn’t. Silas had built his walls from sterner stuff. “A product,” he echoed, letting the word sit in the air between them. It was flat. Dead. “Is the wine just grape juice? Is the bread just flour? The form is mundane. The transubstantiation is in the surrender.” He opened his eyes and looked directly at Lev. “What they take from us is not just fluid. It is the accumulated sin. The weight of desire for its own sake. They drain the world from us, drop by drop. What’s left is… clean.”
 
-“We are purified,” Silas said, his voice gaining a thin, desperate edge he hated. “We are stripped of the lies of that world. Our pride, our violence, our… our tangled desires. It is burned away in the crucible of this place. What is left is essence. Pure. Uncontaminated. It is given. A gift.”
+Lev’s face did something complicated. Disgust, then a flicker of something like pity, then a hardening back into scorn. It was fascinating. Most were just blank. “What did you do? Out there. Before.”
 
-Lev’s eyes didn’t blink. They just absorbed the words and found them empty. “You weren’t always here. You had a life. A name. What was it?”
+A cold knot tightened in Silas’s belly. Not fear. The ghost of a feeling he’d had a name for, once. He never let it form. “I lived,” he said simply. “It was a profane and noisy life. I am grateful it ended.”
 
-Silas’s finger, wrapped in the black thread, jerked. The thread bit into his skin. “That man is dead.”
+“Yeah? My life was pretty good. I had a job. A girl. A fucking dog.” Lev’s voice hitched, just once. He covered it with a cough. “They took me from a parking garage. Didn’t even fight. Just a needle in the neck. So don’t tell me this is some blessed goddamn vacation. This is theft.”
 
-“What was his name?”
+“A shedding of burdens.” Silas arranged the pea pod just so. “The girl, the dog… they were anchors. Holding you to a world that is dying. Here, you are free of them. You are essential. You are a wellspring.”
 
-“He died in filth and noise. Was nothing.”
+Lev laughed again, a real one this time, sharp and ugly. “A wellspring. Jesus.” He shook his head, looked away at the high, barred window. A slice of gray sky. “You know what I think? I think you did something so bad, so fucking monstrous, that this feels like a reward. You’re not a saint. You’re a coward. You’d rather be a holy fountain than face what you are.”
 
-“Tell me his name.”
+The words landed this time. They didn’t break the walls, but they found a crack, a hairline fracture he didn’t know was there. Something hot moved through his chest—not quite anger, not quite panic, something between the two that didn’t have a name. His mouth went dry. The chanting from the barn seemed to recede, replaced by a high, thin ringing in his ears.
 
-The memory of the whiskey taste flooded his mouth again, acrid and real. The smell of pine, like a wound in a tree. He saw a crack in a ceiling, a different ceiling, shaped like a question mark. He’d stared at it for hours. Days.
+The door clanked again. Two of them stood there, the Farmers. Their aprons were clean, stiff with starch. Their faces were placid, empty vessels for their function. Priests.
 
-“Silas is the name I took in my baptism,” he whispered.
+“Time,” the taller one said. His voice held no inflection.
 
-Lev leaned closer. He lowered his words, not to a whisper, but to something low and intimate, a snake’s hiss. “They broke you so completely you had to build a church out of the pieces. I get it. It’s clever. It’s a hell of a survival trick. But don’t expect me to kneel in the rubble with you.”
+Silas stood, his movements ritual-slow. He bowed his head slightly to the Farmers, then turned to Lev. “Come. Witness the sacrament.”
 
-He stood up, turning his back, and the light flooded back over Silas, sudden and blinding. Silas blinked, his eyes stinging. The warm certainty in his gut had gone cold and hard, a lump of undigested dough. Looked down at the bowl. The water was still. His own distorted reflection stared back up at him—a pale moon of a face, a mouth set in a line that wanted to tremble.
+Lev didn’t move. The Farmer took a step in, his hand dropping to the prod on his belt.
 
-From the barn, the rhythmic thrumming reached a peak, a mechanical drone that vibrated the very air. Then it cut off. The silence that followed was absolute, a held breath. The Offering was complete. For now.
+“Don’t make it difficult,” the other Farmer said. It was almost kind.
 
-Lev spoke to the wall. “My name is Lev. It’s the only name I’ve ever had. I had a sister. I had a job fixing generators. I had a man I loved, and he’s probably dead now, or he thinks I am. This?” He gestured around the cell, a violent slash of his hand that took in the rust-stain tree, the bowl of rusty water. “This is just the place I’m trapped. It’s not a temple. And you’re not a prophet. You’re just another guy in a cage, trying not to scream.”
+Lev pushed himself up, the chains dragging. He looked at Silas, and the poison in his eyes had crystallized into something harder, sharper. A plan. “Fine. Let’s go see the miracle.”
 
-He didn’t look back. He just stood there, a dark cutout against the light, and Silas felt the first fine crack appear in the foundation of everything he believed to be true. It wasn’t a sound. It was a feeling, a cold draft where no draft should be.
+The milking hall was vast, the air warm and thick with the smell of bleach, lube, and something else, something musky and sweet and deeply human. Rows of tables. Men on them, restrained at wrists and ankles, bodies arched or slack. The Farmers moved between them, efficient, their hands working, cups placed, tubes flowing. The sounds were a living thing—grunts, hitched breaths, the slick, rhythmic friction, the occasional choked-off cry that broke into a shuddering sigh. Silas’s own body responded instantly, a flood of heat, a thickening. A readiness. His faith made flesh.
 
-The milking hall was a cathedral of noise and metal. Silas walked the familiar route, the burlap shift they all wore scratching at his thighs. The air here was different—thick with the smell of antiseptic, and something else, something sweet and cloying like overripe fruit. It was the scent of essence, of spent potential hanging in the humid air. His bare feet registered every seam in the concrete floor, every dip where water pooled after the hoses were run. He noticed a crack near the central drain, a thin black line that forked like a lightning bolt. He’d never seen it before. A new sign.
+He was guided to a familiar table. The leather was warm from the body before him. He lay back, offered his wrists to the cuffs without being asked. The familiar bite of the restraint was a welcome. A boundary. To his left, they forced Lev onto a table. He resisted, a brief, useless tensing of his shoulders, before they pinned him and secured the straps.
 
-Lev walked beside him, silent now. His jaw was a hard line, his shoulders tight. Not reverence. Resistance. It vibrated off him like heat.
+“Relax,” Silas murmured across the gap between them. “Let it happen. It’s easier.”
 
-The hall was a long, high-ceilinged space lined with stainless steel tables, each equipped with restraints, pumps, and collection vessels. The tables gleamed under the harsh fluorescent lights, which buzzed at a frequency that made Silas’s teeth ache. A holy vibration. Men were already strapped down at several stations, their bodies pale against the metal, the rhythmic hum of the pumps a discordant choir. Some had their eyes closed. Some stared at the ceiling, mouths slack. One was weeping, soft, hopeless hitches of breath that were lost in the mechanical drone.
+Lev turned his head. His face was pale, sweat already beading on his temple. But his eyes were clear, focused. On Silas. “Is it?”
 
-Their guard, Mack—the one with the scar that bisected his jaw—pointed to two adjacent tables. “You. There. And you.”
+A Farmer approached Silas, gel bottle in hand. The cold shock of it, then the warm, practiced hands. It was not personal. It was ministry. Silas let his head fall back, his eyes close. He focused on the sensations, divorcing them from the physical man causing them. The pull, the building pressure, the exquisite narrowing of the world to a single, rising thread of sensation. He chanted silently, the words he’d made up years ago. A sacrifice most holy. A libation of light. Take this, my everything, and make it clean.
 
-Silas climbed onto the cold surface without hesitation. The metal leached the warmth from his skin. He lay back, the familiar restraint straps crossing his chest, his ankles. He turned his head. Lev stood by his table, unmoving, looking at the apparatus like it was a trap.
+He was close. The thread was taut, humming. The sounds of the hall faded to a pleasant drone.
 
-“Now,” Mack said, his voice bored.
+A crash. A sharp curse.
 
-Lev climbed up. He moved stiffly, every muscle coiled.
+Silas’s eyes flew open. Lev had bucked, hard, throwing his hips upward. The Farmer working on him fumbled, the collection cup tipping. A pearlescent arc splashed across the Farmer’s pristine apron, across the floor.
 
-The ritual began. Mack moved with practiced efficiency, wiping Silas down with a cold, chemical-smelling cloth. The touch was impersonal, clinical. Silas focused on the ceiling. There was a water stain above him, a bloom of brown and yellow in the acoustic tile. It looked like a rose, spreading. He fixed his gaze on its center.
+“You little shit,” the Farmer snarled. The veneer of detached efficiency vanished, replaced by a flash of pure, personal fury.
 
-He heard the click of the pump being positioned, the soft hiss of the suction cup being engaged. A cold pressure, then the machine thrummed to life. The sensation was not pain. It was a deep, an insistent drawing-out. He let his body go slack, let his mind float up to the stained rose. This was the separation. The body was mere vessel. The essence was the offering. The pump’s rhythm was a mantra.
+Lev was panting, a wild, triumphant glare in his eyes. He looked straight at Silas. “Transubstantiation, huh?” he spat. “Looks like spilled milk to me.”
 
-A groan from the next table. Lev. It was a raw, angry sound.
+The other Farmers nearby paused, their rhythm broken. A desecration. A violent ripping of the veil.
 
-“Relax,” Mack muttered, moving between them. “Fight it and it’ll chafe.”
+The struck Farmer wiped his hand down his soiled apron. He looked from the mess on the floor to Lev, and his expression settled into something cold and terrible. He reached for his belt, not for the prod, but for a short, flexible baton.
 
-Silas didn’t look. He breathed in through his nose, out through his mouth. The sweet, cloying smell was stronger here. Holy incense. His own body responded, the inevitable physiological betrayal. He accepted it. The flesh was weak, but its weakness was part of the ceremony. The tingling heat in his groin, the tight coiling in his gut—these were not lust. Were the gathering of the sacrament.
+Silas’s body was still throbbing, aching, abandoned on the cliff-edge of release. The sacred thread was severed. In its place, a cold void opened in his gut. Lev’s defiant, grinning face. The Farmer’s grim, punitive stance. The holy offering pooled on dirty concrete.
 
-Mack checked Silas’s collection vessel, a clear plastic cylinder marked with volume measurements. He gave a grunt, a sound of routine approval. Then he turned to Lev’s station. Silas heard the low curse, the fumbling of equipment.
+The choice was here. Now. Denounce the heretic. Uphold the sanctity of the ritual. Or.
 
-“Keep still, damn it.”
+His mouth moved before his faith could counsel him. “It was my fault.”
 
-“It’s cold,” Lev spat, his voice strained.
+The words hung in the thick air. The angry Farmer turned his gaze from Lev to Silas.
 
-“It’s supposed to be.”
+“What?”
 
-The machine’s hum changed pitch, straining. Lev was fighting the rhythm, clenching against the pull. Heresy. It was a violent rejection of the gift. Silas felt a spike of something hot and ugly in his chest—not concern for Lev, but a furious, pious offense. This noise was a blasphemy in his cathedral.
+Silas’s heart hammered against his ribs, a frantic, animal thing. “I… I distracted him. With my talk. My fault.” The lie was ash on his tongue. A sin.
 
-He turned his head.
+The bell for Matins was a flat, electric buzz that killed the quiet. Silas rose from his pallet, his joints a series of small protests—a knee, a shoulder. The body’s mundane complaints. Lev was already on his feet, leaning against the wall by the door. He hadn’t slept. Silas could see the tension in the line of his back, a wire pulled too tight. The man’s eyes were red-rimmed, but the poison in them had cooled into something harder. Obsidian.
 
-Lev was staring right at him, his face sheened with sweat, his eyes black and bright with a terrible intention. He wasn’t looking at the ceiling, or gone inside himself. He was present, utterly and defiantly present. He gave a sharp, almost imperceptible jerk of his hips.
+“Time for mass, right?” Lev’s voice was a scratch.
 
-The suction cup popped off with a wet, smacking sound.
+“A sacrament,” Silas corrected gently. He touched the burlap scrap, a quick brush of fingertips for blessing, then stood straight. His own body was responding, a low, familiar heat gathering at the base of his spine. An eager emptiness. He welcomed it.
 
-The pump whined, a high-pitched shriek of empty friction. Silas saw it—the clear tube, spraying a fine, milky mist across the steel table, the pump housing, Mack’s trousers.
+The handlers were efficient, silent. Two of them, in their grey coveralls. They opened the door, gestured with the cattle prods—not activated, just a threat of light. The hallway was cool concrete, smelling of bleach and something underneath, something sweet and rotten like overripe fruit. A single fly buzzed against a wire-mesh window, a tiny, frantic percussion.
 
-Time compressed. Mack roared. The sacred rhythm of the hall stuttered. Heads turned on other tables. The desecration was physical, visible, a profane splash across the sterile field.
+The milking hall was a cavern of sound and steam. Tiled walls, a floor sloped toward central drains that gleamed wetly under the harsh fluorescent bars overhead. Rows of tables, leather-padded, with restraints at the wrists and ankles. Most were already occupied. The sounds were a layered liturgy: the mechanical hum of the pumps, the wet, rhythmic friction of hands on flesh, the choked-off grunts and sighs. To Silas, it was a chorus. A hymn of release.
 
-Mack backhanded Lev across the face. The crack of it was sharper than the machine sounds. Lev’s head snapped to the side, blood instantly blooming at the corner of his mouth. But he was smiling. A red, vicious smile.
+His usual table was near the back, beside a stained tile that resembled a weeping eye. He lay down without being told. The leather was cool through the thin cotton of his pants. He offered his wrists to the restraints. The click of the buckles was a satisfying, final sound.
 
-“You little shit,” Mack snarled. He unlocked the wrist restraint on Lev’s right arm, grabbing it, twisting. “You think that’s funny?”
+Lev was forced onto the table next to him. He fought, just a little—a jerk of his shoulder as a handler pushed him down. A waste of energy. The man’s curses were swallowed by the room’s noise. Silas turned his head. He watched as Lev’s ankles were secured, then his wrists. The man’s chest heaved. His fists were clenched.
 
-Lev didn’t answer. He was still looking at Silas, the smile not fading, his eyes asking a silent, devastating question.
+A farmer approached Silas. Brody, his name was. A big man with thick fingers and a placid, bovine face. He didn’t speak. He never did. He uncoupled the pump hose from its hook, the rubber coil slithering like a dark vine. His other hand worked open the button of Silas’s pants, pulled the fabric down just enough. The touch was clinical, dry. Expert.
 
-Mack shoved Lev’s free hand down, pressing it against his own exposed erection. “You want to fuck with the process? Fine. You finish it. By hand. Right now. For everyone.”
+The cold nozzle was fitted, the seal a slight pressure. Silas closed his eyes. He let his breath out, long and slow. He focused on the sensation, the promise of it. The pump clicked on. The suction was a gentle, insistent pull. His body answered instantly, blood rushing, flesh thickening to fill the void. It was not arousal, not as the world understood it. It was an opening. A vessel being readied.
 
-A cold void opened in Silas’s stomach. This was not part of the ritual. This was violence masquerading as procedure. This was the ugliness Lev had spoken of made flesh and command.
+From the table beside him, a different sound. A sharp, pained gasp. Silas opened his eyes.
 
-Lev’s hand moved, but not in the way Mack intended. Clumsy, all anger and no technique. A performance of disgust. Mack watched, his own breath coming faster, his free hand dropping to adjust himself through his pants. The other guards had noticed and were drifting closer, expressions shifting from boredom to a low, gathering interest.
+Lev was rigid, his back arched off the table. His farmer—a younger man with a shaved head—was fumbling. Lev was soft, completely. The farmer’s hand moved roughly, impatiently. Nothing. The man scowled, muttered something, reached for a squeeze bottle of clear lubricant.
 
-“Slower,” Mack whispered, his voice gone thick. “Make it good.”
+“Relax,” Silas whispered across the gap between tables. “Don’t fight it. Let it in.”
 
-Lev’s eyes never left Silas. The question in them hardened into a statement. See? This is what it is.
+Lev’s head turned. His eyes locked onto Silas’s. The poison was back, boiling. “Fuck you.”
 
-And Silas saw. He saw Mack’s pleasure, not as a holy spark, but as a greedy hungry thing. He saw the other guards leaning in, the sacred isolation of the offering shattered into a crude, voyeuristic circle. He saw the collection vessel on his own table, steadily filling with his own essence, and the sight suddenly filled him with a shame so deep like falling.
+“It’s easier if you accept.”
 
-Lev’s body tensed. His back arched, not with ecstasy but with a final, rigid rebellion. The release, when it came wasn’t caught in a vessel. It spattered across his own stomach, across the steel table, a defiant spill.
+“I don’t want it to be easy.”
 
-Mack laughed, an ugly sound. “Wasteful bastard.” He turned, still gripping Lev’s wrist, and his gaze landed on Silas. On Silas’s full collection cylinder. A dark, possessive idea moved across his face. “Clean it up.”
+The farmer with the shaved head was getting angry. His movements became rougher, a brutal, jerking motion. Lev gritted his teeth, a low growl coming from his throat. He was willing himself into failure. A small rebellion. Silas felt a prickle of alarm, a cold feather tracing his spine. This was not the sacred struggle. This was profanity.
 
-Silas blinked. “What?”
+Brody’s hand rested on Silas’s lower belly, a heavy, warm weight. The pump did its work. The building pressure was a sweet, almost painful ache, pooling deep. He was close. He could feel the tremor in his thighs, the tightening of everything. He chanted silently, the words he’d made up years ago. Offer it up.
 
-“You’re so big on purity. On offerings.” Mack released Lev and stepped to Silas’s table. He popped the full cylinder free with a twist. Warm, obscenely heavy in Silas’s field of vision. “This one wasted his. Yours’ll do. Clean him up with it.”
+A crash.
 
-The command hung in the buzzing air. The guards were all watching now. Lev was watching, his bloody smile gone, replaced by a pale, stunned emptiness.
+Lev had kicked out, a violent, bucking motion. His heel connected with the squeeze bottle on the edge of his table. It flew, spinning, and hit the shaved-head farmer square in the chest, splattering clear gel across his coveralls.
 
-This was the test. The ultimate test. To anoint his brother with the offering, to turn the sacrament into a punishment, a humiliation. To prove his faith was stronger than his compassion.
+Everything stopped for a fractured second.
 
-Silas’s mouth was dust. Looked at the cylinder, at his own essence, once the proof of his devotion. Now it just looked like fluid in a jar. Looked at Lev, at the mess on his skin, at the flat despair in his eyes.
+The farmer looked down at the mess on his front. His face, blank before, darkened into something monstrous. He dropped the pump hose. It slapped against the wet tile.
 
-The choice was not between faith and doubt. Between faith and Lev.
+“You little shit.”
 
-Mack unscrewed the lid. The smell, up close was musky, intimate, horrifying. “Go on, preacher. Show him how it’s done.”
+What happened next was a blur of efficient violence. The farmer backhanded Lev across the face. The crack was shockingly loud. Lev’s head snapped to the side. The farmer unbuckled the restraints at Lev’s ankles, then his wrists. He hauled Lev off the table by his arm. Lev stumbled, naked from the waist down, trying to find his feet on the slick floor.
 
-Silas’s free hand—the one not restrained—trembled. He reached out. Mack poured the warm, viscous liquid into his palm, a grotesque communion. It dripped between his fingers.
+“You don’t want the easy way?” the farmer spat. “Fine. You get the lesson.”
 
-He met Lev’s eyes. He saw no mockery there now. Only a terrible, waiting understanding.
+He shoved Lev forward, toward the central space between the tables, where the drains were. Lev fell to his knees. The farmer gestured to two others nearby, who abandoned their stations. They converged. Silas watched, the pump still pulling at him, the sacred rhythm broken. A dissonant chord ringing in the air.
 
-Silas moved his hand. He did not anoint. He did not cleanse. He simply covered Lev’s hand, the one that had defiled the ritual, with his own. Their fingers tangled, slick and warm. A contact that was neither holy nor profane, but simply, devastatingly, human.
+The shaved-head farmer unfastened his own coveralls, pushed them down to his thighs. He was already hard, thick and angry. He grabbed a fistful of Lev’s hair, forced his head forward.
 
-The hall was very quiet, save for the constant hum of the other pumps. Mack’s grin faded. Something had happened. Something the ledger didn’t have a column for.
+“No,” Lev choked out. He tried to twist away.
 
-Silas looked at their joined, messy hands. The gospel, it turned out was written in a language of touch, and he had just forgotten how to read it.
+The farmer’s grip was iron. “You wanted a reaction. Here it is. Open your mouth.”
 
-The cell door clanged shut behind them, the sound final, a period at the end of a screaming sentence. Silas stood just inside, swaying. The world was a tilted thing. His knees wanted to buckle, but he locked them, a stubborn refusal to fall in front of the other man. Lev was already across the small space, sliding down the wall to sit on the bare floor. They’d taken the burlap pallets. They’d stripped the cell of everything—the bowl, the little pile of smooth stones Silas had arranged in a mandala by the door. The room was just a box now. Wood, dirt, light. Empty.
+This was not the ritual. This was a defilement. A punishment. The other two farmers circled, their hands on their own coveralls, watching with flat, interested eyes. A spectacle. Silas’s heart hammered against his ribs. The pressure in his groin was a distracted, urgent throb. His faith was a clear pane of glass, and this was a stone thrown at it.
 
-A deep, sick throbbing pulsed from the small of his back down through his thighs. The punishment. Not the cane—that was for noise, for disobedience. This was quieter. A clinical, precise correction. They’d used a device, cold probe that hummed, and they’d made him watch a screen as his own body betrayed him, muscles seizing in a violent, unending spasm that had nothing to do with pleasure, everything to do with control. To teach him about consequence. To teach Lev about the cost of sacrilege.
+Lev made a gagging sound. His body convulsed.
 
-His faith had curled up inside him like a burned leaf. Brittle. Ashes at the center.
+Something hot moved through Silas’s chest—not quite anger, not quite panic, something between the two that didn’t have a name. It was a physical revulsion, a lurch in his gut. The man was a heretic, a mocker. He deserved correction. But this… this was not correction. This was spoilage. It would leave a stain on the hall, on the day’s offering. On him.
 
-He became aware of a sound. A wet, ragged scraping. Lev’s breath was coming in ragged gasps through his mouth, head back against the wood, eyes closed. A dark bruise was flowering along his jaw, purple and green at the edges. His lower lip was split, swollen.
+He acted before the thought was fully formed.
 
-“They hurt you,” Silas said. His own voice sounded foreign. Dry husks rubbing together.
+“Wait.”
 
-Lev’s eyes opened. They were the same flat slate, but the nothing in them had changed. It wasn’t empty anymore. Full of a specific, focused kind of void. “You talked. You told them it was me.”
+His voice cut through the wet, choking sounds. It sounded strange in his own ears. Firm.
 
-“I did not.”
+The shaved-head farmer paused, looked over. Annoyed. “What?”
 
-“You fucking did. Mack said, ‘Your prophet gave you up.’ He said you begged them to stop, said it was the new one’s idea, the new one’s sin.”
+“He is… uninitiated.” Silas fought to keep his voice even. The pump continued its rhythmic pull, a distracting counterpoint. “His resistance profanes the act. Let me.”
 
-The burned leaf crumbled. Silas remembered the sounds he’d made. Animal sounds. Whimpers. He remembered the pressure building in his bladder, hot fear of losing control in front of them. He remembered Mack’s face, close to his, his breath smelling of mint and tobacco. Tell us who taught you to waste the offering, Silas. Was it him? And he’d nodded. He’d nodded because nodding was the only movement left that might make it stop.
+The farmer stared. The other two exchanged a glance. A flicker of curiosity. Of hunger for a different show.
 
-He hadn’t spoken. But he had given. He had.
+“Let you what?”
 
-“I… indicated.” The words were ash in his mouth.
+Silas took a breath. The air tasted of salt and chemicals. “Let me show him the purpose. A brother’s guidance. It will be… more useful.”
 
-Lev laughed, a short puff of air that made him wince and touch his split lip. “Indicated. Yeah.”
+A long moment. The only sounds were the pumps, the distant moans, and Lev’s ragged breathing. The shaved-head farmer’s mouth curled. A cruel, understanding smile. He released Lev’s hair. Lev slumped forward, coughing, strings of saliva dripping from his lips.
 
-“I am sorry.”
+“Alright, prophet,” the farmer said. He stepped back, tucking himself back into his coveralls. “Show him. Show us all.”
 
-“Don’t.” Lev shifted, winced again. “Your sorry is part of the ritual. I don’t want it.”
+Brody, silent, disconnected the pump from Silas. The release of suction was a small, shocking emptiness. He undid the restraints. Silas sat up, his body trembling with unfinished urgency. He swung his legs off the table, his bare feet on the cold, wet tile. He walked to where Lev knelt.
 
-Silas finally let his knees go. He sank to the floor, just collapsing into a sitting heap. The rough wood grain bit through the thin cotton of his pants. He focused on that bite. A real sensation. Unholy. Profane. Better than the hollowed-out feeling behind his ribs. Looked at his hands. They were clean. They’d hosed him down after. The water had been cold. He’d watched a drop trace a path from his wrist to the tip of his thumb, darkening the dirt between his legs. A tiny, meaningless baptism.
+Lev looked up at him. His lip was split, bleeding. His eyes held no poison now. Just a raw, animal fear. And a question.
 
-“They took everything,” Silas said.
+Silas knelt in front of him. He placed a hand on Lev’s cheek, his thumb brushing the blood from his lip. The gesture felt foreign. An echo from the before-time. He leaned close, his mouth near Lev’s ear.
 
-“They took your toys. Your crazy little shrine.” Lev’s voice was tired. “The room was always empty.”
+“This is the only way now,” he whispered, the words only for them. “Follow me. Or he will break you.”
 
-“It wasn’t.”
+He didn’t wait for an answer. He kissed him.
 
-“It was. You just painted it with your own bullshit. Like a kid with crayons on a prison wall.”
+It was not a kiss of passion. It was a covering. A shield. His mouth was firm, closing over Lev’s startled gasp. He could taste the blood, the sour fear. He pulled back, just inches. Lev’s eyes were wide, stunned.
 
-A flare of the old heat moved in Silas’s chest. Not zeal. Something uglier. A defensive, wounded snarl. He choked it down. It tasted like the rusty water. “You think you see truth. You see only surfaces. You are a man who stares at a tree and sees only lumber.”
+Silas turned him, gently, pushing him down onto his hands and knees on the damp tile. He positioned himself behind. He met the eyes of the watching farmers—Brody, the shaved-head man, the others. Their faces were intent. This was a new kind of prayer.
 
-“And you’re a man who gets fucked in a barn and calls it church.” Lev pushed himself up straighter. The movement pulled his shirt taut across his chest. Silas noticed, irrelevantly, a small hole near the collar, the frayed edges of the fabric. A constellation of three pale freckles on Lev’s neck, just above the collarbone. Human details. Not signs. Just facts. “Your church just burned down, Silas. What’s left?”
+He entered him in one slow push.
 
-Silas had no answer. The silence stretched, filled by the distant, ever-present thrum from the barn. The evening milking. The rhythm was the same, but the music was gone. Now it was just a sound. A mechanical process. A pump pulling fluid from a container.
+Lev cried out, a sharp, torn sound that was swallowed by the hall’s echoes. His body went rigid, then shuddered. Silas held still for a moment, buried to the hilt, feeling the frantic clench of muscle around him. It was too tight, too dry. A brutal fit. He wrapped an arm around Lev’s chest, pulled him back against his own body, chest to sweat-slick back. He put his other hand on Lev’s hip, steadying them both.
 
-“Nothing,” he said, low.
+“Breathe,” he murmured into the nape of Lev’s neck. The scent there was pure terror. “Breathe, and let it go.”
 
-Lev watched him for a long moment. Then he sighed, a sound that seemed to come from the bottom of a deep well. “Come here.”
+He began to move. A hard, driving rhythm. Not pleasure. A performance. A desperate, physical argument. With every thrust, he whispered the liturgy against Lev’s skin. Offer it up. He didn’t know who he was trying to convince. Lev’s body gradually loosened, not in surrender, but in a kind of shocked collapse. The farmers watched, their hands moving on themselves now, a low chorus of grunts rising around them.
 
-Silas looked up.
+Silas felt his own climax building, a wave he could no longer direct toward the sacred vessel. It was just a biological tide now, rising through the violence of the act. He chased it, his movements becoming ragged, losing the ritual precision. He came inside Lev with a choked, silent gasp, his forehead dropping against the knobs of Lev’s spine.
 
-“Your back. You’re holding yourself like your spine’s broken. Come here. Let me see.”
+For a few heartbeats, there was only the sound of their breathing, harsh and syncopated. Then the shaved-head farmer laughed, a short, satisfied bark.
 
-It wasn’t kindness. Lev’s tone held no warmth. Practicality. An inventory of damage. Silas hesitated, then crawled the few feet across the dirt floor. He turned, presenting his back, the thin cotton shirt. Exposed. More exposed than in the milking stall.
+“See? He just needed the right persuasion.”
 
-Lev’s fingers were surprisingly gentle. They pushed the shirt up. The cool air of the cell hit Silas’s skin, raising goosebumps. Lev’s touch traced the muscles along his lower spine, probing. “No blood. No broken skin. They used the neural prod. Hurts like a motherfucker, leaves no mark. Efficient.” His thumb pressed into a knot of muscle. A shock of bright, electric pain shot through Silas, making him gasp. “This is where it’s locked up. Your whole body’s clenched.”
+The farmers drifted back to their stations. The pumps hummed. The chorus resumed, as if the dissonance had never been.
 
-The fingers began to work the muscle, insistent pressure. It hurt. A deep, bruising, necessary hurt. Silas let his head hang. He focused on the sensation, uninterpreted physicality of it. No meaning. Just pressure. Just pain easing incrementally into a dull ache.
+Silas pulled out, away. He stood on shaky legs. Lev remained on his hands and knees, head hanging, his body trembling. A trickle of white mixed with a brighter red slid down his inner thigh.
 
-“Why are you doing this?” Silas asked, his voice muffled.
+Brody approached Silas, handed him a rough towel. His expression was unreadable. He pointed back to the table.
 
-“Because you’re no use to me catatonic. And because I’m stuck in here with you.” The hands kept working. “We’re the same now. Heretics. Or just broken livestock. Doesn’t matter.”
+Silas lay back down. The leather was warm now from his body. He offered his wrists. The restraints clicked shut. Brody reattached the pump, the nozzle cold once more. The suction started again, pulling at the emptiness.
 
-The touch changed. It wasn’t just therapeutic anymore. The pressure softened, becoming a slow rub along the flank of his back, the heel of a hand smoothing over the tense ridge of his shoulder. A different kind of contact. His skin prickled everywhere, a wave of awareness that had nothing to do with faith. It was the simple, animal recognition of another human’s touch, after so long touched only by tools and ritual.
+Silas stared at the ceiling. A water stain spread from a cracked tile above, a brown map of a country that didn’t exist. His body felt used. Hollowed out. The familiar pull at his groin felt like a lie. The taste of blood and fear was still on his tongue, a sacrament gone rancid.
 
-Lev’s hand stilled. Then it slid around Silas’s side, palm flat against his stomach, pulling him back gently until Silas’s shoulders rested against Lev’s chest. Silas went rigid for a second, a lifetime of conditioned responses firing—this was wrong, this was not the time, not the place, not the sacred context.
+He had performed the miracle. He had turned violence into ritual. But the altar was broken. And for the first time in years, the chanting from the other tables just sounded like men in pain.
 
-But there was no context left. Only the cell. The dirt. The two of them.
+The cell door shut with a final, soft click. The iron bell had rung. Now the silence poured in, thick and heavy as poured cement. It filled Silas’s ears, pressed against his eardrums. He stared at the dark streak on the floor where they’d dragged Lev out. It wasn’t blood. Something else. Something from the bucket. The shape of it was all wrong—a clumsy, broken bird.
 
-He let himself lean back. The heat of Lev’s body seeped through both their shirts. He could feel the beat of Lev’s heart against his spine, steadier rhythm than his own frantic pulse. Lev’s chin came to rest on his shoulder. His silence was warm on Silas’s neck.
+His altar was a scatter of debris. The burlap cloth was torn, the straw crook snapped in two. The pea pod vessel had rolled into the corner, a tiny, hollow boat marooned. He didn’t move to fix it. His hands lay in his lap, palms up. They were trembling. A fine, constant vibration, like a wire humming a note too high to hear. He watched them as if they belonged to someone else.
 
-“See?” Lev murmured, the word vibrating through Silas’s bones. “No gods here. No priests. Just this. Warmth. A heartbeat. That’s the only truth this place has ever produced.”
+From the main barn, the sounds had changed. The rhythm was gone. Now it was just noise—shouts, a sharp crack, a low animal sound that cut off. Then the hum of machinery starting up again. Business as usual. The Matins chant had been a lie. Just gears and grease and the wet slap of efficient hands.
 
-One of Lev’s hands remained splayed on Silas’s stomach. The other came up, fingers brushing the side of Silas’s neck, tracing the line of his jaw. It was not a tender gesture. Exploratory. Curious. A mapping of terrain. Silas turned his head slightly, just enough for his cheek to brush against Lev’s fingers.
+A hot, sour taste flooded the back of his throat. He swallowed. It didn’t go away.
 
-A spark. Dry tinder in the emptiness.
+He’d stood there. He’d stood there while they took Lev. Two farmers in their stained aprons, their faces blank as shovels. They hadn’t looked at Silas. They’d just hooked their hands under Lev’s arms and hauled him up. Lev’s head lolled back, his eyes open but empty, fixed on the ceiling beams. There was a cobweb up there, dusty and intricate. Silas had noticed it. A perfect, fragile geometry in the corner of his vision while Lev’s feet scraped across the stones.
 
-Lev’s hand curled, cupping the side of his face, turning him. Silas went, his body moving without instruction from his ruined mind. Their mouths met. Not a kiss of passion, or even comfort. It was a collision. A confirmation. Lev’s split lip was rough against his. The taste was copper and salt. Pain and presence.
+He should have spoken. He should have offered himself. Taken the punishment as the senior disciple, the keeper of the faith. That was what the scripture in his head demanded. The righteous shepherd lays down his life.
 
-Silas kissed him back. A hungry, desperate sound escaped his throat. He twisted in Lev’s grasp, his hands coming up to clutch at Lev’s shoulders. The kiss deepened turned messy, all teeth and clashing mouths. It was nothing like the controlled, purposeful taking of the milking stalls. This was greedy. This was theft. This was two men in a hole, trying to feel something real in the dark.
+His mouth had been full of dust. His tongue, a dead weight.
 
-Lev’s hands went to the waistband of Silas’s pants, fumbling with the tie. Silas helped him, his own fingers clumsy. They pushed the fabric down, just enough. Lev did the same. No ceremony. No preparation. Just skin against skin, hot and urgent.
+They’d left the door unlocked. A test. An invitation to follow, to witness, to protest. He’d taken two steps. Then his legs had locked. The muscles in his thighs went hard as stone. He couldn’t make them move. He’d listened to the sounds of the punishment recede down the corridor—the shuffle of boots, the ragged drag of Lev’s heels—until there was nothing.
 
-Lev spat into his own palm, efficient gesture. He reached between them, his hand closing around them both. Silas jerked, a bolt of sheer sensation shooting up his spine, erasing the ghost of the neural prod’s pain. This was different. This was friction without purpose, pleasure without offering, a joint secretion with no jar to catch it. Purely, gloriously wasteful.
+He was a coward. The revelation was not a lightning strike. It was a cold stone settling in his gut, familiar and heavy. He’d known it before. He knew it now. This was the old feeling, the one he’d baptized as piety. It had a name, after all. It was fear. Plain, simple, shit-in-your-britches fear. He’d built a cathedral on top of it, hung bells in its towers, called its trembling awe.
 
-He buried his face in Lev’s neck, inhaling the scent of sweat and dust and the lingering, greasy smell of the stew. His hips moved, thrusting into the tight, rough circle of Lev’s fist. Lev matched his rhythm, his own grunts coming in harsh bursts against Silas’s ear. There was no transcendence. No vision. Only the building pressure, the slap of skin, the dirt grinding into their knees. Base. Magnificent.
+The door groaned open.
 
-Silas came first, with a choked-off cry that was half-sob. His body convulsed, spilling hot over Lev’s fingers, onto the dirt floor between them. A desecration of the empty space. Lev followed moments after, his whole body stiffening, a low groan ripped from his chest.
+They threw Lev back in. He hit the floor on his side, curled tight around his middle. He didn’t make a sound. The farmers didn’t speak. The door shut. The lock snicked home.
 
-The silence that followed was thick, humid with the smell of sex and spent sweat. Lev’s hand fell away, sticky. He didn’t move to wipe it. Silas stayed where he was, forehead pressed to Lev’s shoulder spent and shaking.
+Silas’s breath hitched. A stupid, wet sound. He crawled over. The stones were cold through the thin fabric of his pants. He reached out, his hand hovering over Lev’s shoulder. He didn’t touch. Lev’s shirt was torn at the collar. The skin beneath was mottled—angry red and purpling already. His breathing was shallow, quick little sips of air.
 
-After a while, Lev spoke, his voice rough. “That’s it. That’s the whole gospel. Feeling something. Because you can. Because they can’t stop you from feeling it.”
+“Lev.”
 
-Silas lifted his head. He looked at the mess on the ground. Not an offering. A stain. He looked at Lev’s bruised face, his own reflection dim in those dark eyes. No saint. No prophet. Just a man. A warm, quiet, fallible man.
+Nothing.
 
-“Yes,” he said. It was the first true prayer he’d uttered in years.
+“Can you hear me?”
+
+Lev’s eyes were open. Staring at the wall. A vein pulsed in his temple, a frantic, trapped thing.
+
+Silas let his hand fall. It landed on Lev’s arm. The heat of the skin shocked him. A living, wounded heat. He left it there. “I’m sorry.”
+
+A laugh. Or a cough. It was a harsh, broken noise that turned into a gasp. Lev squeezed his eyes shut. “Don’t.”
+
+“I failed you.”
+
+“You failed your fucking ghost story.” Lev’s voice was a rasp, ground glass and phlegm. He shifted, winced. “They used the prod. On my… on my balls. Until I came. Just… dry. Hurt like hell. No prize for them. Just the show.” He opened his eyes again. They were clear now. Empty of poison, empty of fire. Just tired. “Your priests are just guys with a job to do. Mean little guys who like hurting people. No trans… whatever-the-fuck. No sacrament. Just pain.”
+
+Silas looked at the dark streak on the floor. He saw it now. It was the shape of a question mark. “I know.”
+
+“Do you?” Lev turned his head. The movement was slow, pained. His gaze fixed on Silas’s face. Searching. “Or are you just building a new story right now? The story of the fallen prophet? The martyr’s companion?”
+
+The words were knives. Precise. They found the spaces between his ribs. Silas felt something give way inside his chest—not a breaking, a deflation. A slow, awful leak. “No story. It’s gone.”
+
+He believed it as he said it. The hollow where his gospel had lived was just that: a hollow. A dry well. The echoes had stopped.
+
+Lev watched him for a long moment. Then he nodded, once. A grim acceptance. “Good. Now we’re just two guys in a room.”
+
+Silas’s hand was still on Lev’s arm. The warmth was seeping into his palm, his fingers. A simple animal comfort. He hadn’t touched anyone, not like this, in years. Not without the ritual, the context, the purpose. Just skin on skin. It felt terrifying. It felt real.
+
+“Can you sit up?”
+
+“Probably not.”
+
+Silas helped him. Got an arm around his back, levered him up against the wall. Lev groaned, his face pale. He was sweating, a fine sheen on his forehead. The smell of him was sharp—pain, fear, a tang of copper. Silas stayed close, his side pressed against Lev’s for support. Their thighs touched. The contact was a live wire.
+
+“They’ll come again,” Lev whispered. “For the evening session. They’ll make us both go.”
+
+“I know.”
+
+“I can’t… I can’t do the thing. Not after that. My body won’t. It’ll just hurt.”
+
+Silas looked down at their hands. Lev’s were curled into loose fists, resting on his own thighs. Silas placed his hand over one of them. Covered it. “Then we give them nothing. We make it difficult. We make it slow.”
+
+Lev’s fingers twitched under his. “They’ll punish us.”
+
+“Yes.”
+
+“Together?”
+
+The word hung in the air between them. It wasn’t a holy word. It was a pact. A dirty, practical, desperate pact. “Together,” Silas said.
+
+A strange sound came from Lev. A sigh that was almost a laugh. He turned his hand over, laced his fingers through Silas’s. His grip was weak, but the intention was firm. “Okay. Okay, then.”
+
+They sat like that as the light through the high, barred window shifted from pale yellow to a deeper gold. The sounds of the farm went on—distant doors, footsteps, the occasional burst of muffled laughter. A fly buzzed against the glass, a tiny, furious drone. Silas watched it. He didn’t think about purification, or offering, or grace. He thought about the weight of Lev’s hand in his. The rough callus on the palm. The steady, if pained, pulse he could feel in the wrist.
+
+It was a different kind of truth. It had no poetry. It was just a hand. It was just a man, broken beside him. It was the only thing in the room that wasn’t a lie.
+
+When the door clanked open again, they didn’t let go.
