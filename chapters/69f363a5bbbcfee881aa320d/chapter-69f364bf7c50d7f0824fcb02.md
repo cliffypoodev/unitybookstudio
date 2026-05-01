@@ -154,7 +154,7 @@ Caspian’s own arousal was a dull, insistent pressure now, confused and urgent.
 
 “Do it.”
 
-Ronan turned his head. He looked up, and for the first time, his eyes held a clear, focused expression. It wasn’t defiance. It was a question. A deep, searching look that went straight through Caspian’s chest. Then he bent forward.
+Ronan turned his head. Looked up, and for the first time, his eyes held a clear, focused expression. It wasn’t defiance. It was a question. A deep, searching look that went straight through Caspian’s chest. Then he bent forward.
 
 His mouth was hot. Shockingly so. Wet and soft and impossibly real. He took Caspian in slowly, with a practiced, efficient motion that spoke of his training. But there was no enthusiasm in it, no performance. It was a task. A precise, mechanical taking.
 
