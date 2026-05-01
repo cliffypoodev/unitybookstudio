@@ -52,7 +52,7 @@ The clock on his desk ticked. Each second was a grain of sand dropping into a ho
 
 At 17:55, he stood. His coffee mug sat on the desk, the brown ring a perfect, accusing circle. He left it. The walk to Private Processing Four was seventy-three steps. He counted them. The corridor lights were a different frequency here, a warmer yellow that made the white walls look sallow. A crack in the ceiling tile ran for about ten feet, branching like a river delta on a map. He’d never noticed it before.
 
-The door hissed open.
+A door hissed open.
 
 This room was smaller than the main stalls. Same white tile, same stainless steel. The restraint chair was a newer model, with additional straps for the chest and forehead. Kael was already in it. Naked. Secured. The handlers had done a thorough job. Ankle cuffs, wrist cuffs, the broad strap across his chest pulling tight against the rise of his pectorals. Another strap across his brow, forcing his head back against the padding, exposing the long line of his throat. His eyes were closed.
 
@@ -154,9 +154,9 @@ He stepped back. His legs were unsteady. He turned to the sink turned on the tap
 
 He didn’t look back at the chair. He couldn’t.
 
-The door snapped shut behind him. The corridor was empty, quiet. The crack in the ceiling tile still branched like a river delta, leading nowhere. He walked back to his office, his seventy-three steps, his wet sleeve cold against his arm. The system was intact. The variable had been corrected.
+A door snapped shut behind him. The corridor was empty, quiet. The crack in the ceiling tile still branched like a river delta, leading nowhere. He walked back to his office, his seventy-three steps, his wet sleeve cold against his arm. The system was intact. The variable had been corrected.
 
-He sat at his desk. The spreadsheet glowed. The clock ticked.
+He sat at his desk. The spreadsheet glowed. A clock ticked.
 
 He did not see the numbers. He saw the empty, then searing, focus in Kael’s eyes. He felt the rough heat of his lips. He heard the shattered sound of his release.
 
@@ -192,7 +192,7 @@ His hand moved. He typed: Asset demonstrates persistent non-compliance. Standard
 
 He stopped. His fingers hovered.
 
-From the corridor outside his sealed door, a sound. A scrape. Then a low, muffled thump. Then nothing.
+From the corridor outside his sealed door came a sound. A scrape. Then a low, muffled thump. Then nothing.
 
 Elias froze. All the systems were on night cycle. No handlers were scheduled for corridor patrols. The security feed for the hallway was on the second monitor. He’d minimized it. He reached for the mouse, his movements slow, deliberate. The click was too loud.
 
@@ -208,7 +208,7 @@ He typed a new sentence. His fingers felt numb, clumsy. Asset presents unique be
 
 He hit enter. The field accepted the text. A log entry timestamped the change: 03:47.
 
-The action triggered a cascade of systemic consequences. An alert would go to the night watch. Kael would be moved from general isolation to the private cell adjacent to this very office suite—a cell with enhanced monitoring, a one-way mirror, and soundproofing so complete you could scream for an hour and not a whisper would escape. It was used for evaluating premium stock for specialized clients. It had never been used on managerial orders.
+The action triggered a cascade of systemic consequences. An alert would go to the night watch. Kael would be moved from general isolation to the private cell adjacent to this very office suite—a cell with enhanced monitoring, a one-way mirror, and soundproofing so complete you could scream for an hour and not a whisper would escape. Used for evaluating premium stock for specialized clients. It had never been used on managerial orders.
 
 He had just created a procedural anomaly. A singularity in his own perfect ledger.
 
@@ -220,7 +220,7 @@ It was an operational risk. A variable he had chosen not to eliminate, but to br
 
 The tightness in his throat remained.
 
-He stood, his joints stiff. The office was cold. He walked to the observation window that shared a wall with Private Cell A-1. The room beyond was dark, a square of deeper blackness. He could turn on the interior light from his panel. He didn’t.
+He stood, his joints stiff. The office was cold. He walked to the observation window that shared a wall with Private Observation Cell A-1. The room beyond was dark, a square of deeper blackness. He could turn on the interior light from his panel. He didn’t.
 
 He placed his palm flat against the cool glass. From the barns far below, the pump hummed again, a deep vibration that traveled up through the floor, into the soles of his shoes, into the bones of his hand. Harvest was beginning, automated and unseen. The farm worked on, a great, blind beast digesting its routine.
 
