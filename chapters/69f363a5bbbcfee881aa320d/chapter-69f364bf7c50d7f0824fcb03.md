@@ -12,7 +12,7 @@ He didn’t turn. He kept his eyes on the crack in the wall. The footsteps were 
 
 The voice was calm. Middle-aged. It held no particular malice, just a flat tone, like a mechanic diagnosing a faulty engine. Jonah said nothing. His jaw ached from clenching.
 
-“The general pens would have you broken within a week,” the voice continued. “You understand that, I assume—it’s not a complex equation. Resistance lowers yield. Low yield is waste. Waste is corrected.”
+“The general pens would have you broken within a week,” the voice continued. “You understand that, I assume. It’s not a complex equation. Resistance lowers yield. Low yield is waste. Waste is corrected.”
 
 He’d seen the pens on his way in, weeks ago—a vast, echoing space full of noise and movement and the sharp, animal smell of many men sweating out fear. He’d heard the sounds, too. Not screams, exactly. Something worse: a low hum, punctuated by the wet, rhythmic slap of efficient labor.
 
@@ -20,7 +20,7 @@ He’d seen the pens on his way in, weeks ago—a vast, echoing space full of no
 
 A laugh tore out of Jonah’s throat, harsh and dry. “Go fuck yourself.”
 
-“If you resist,” the man went on, as if Jonah hadn’t spoken, “you will be transferred to the pens at dawn. The process there is… impersonal—it relies on volume and repetition. It will break you, of course. But it will do so crudely. It will leave scars on your mind that will never truly heal. You will become a functional asset. Nothing more.”
+“If you resist,” the man went on, as if Jonah hadn’t spoken, “you will be transferred to the pens at dawn. The process there is… impersonal. It relies on volume and repetition. It will break you, of course. But it will do so crudely. It will leave scars on your mind that will never truly heal. You will become a functional asset. Nothing more.”
 
 Jonah finally turned.
 
@@ -80,7 +80,7 @@ The Husbandman stopped. He hadn’t even begun to form the fifth count. He simpl
 
 He walked to the bed and picked up one of the leather straps, running it through his fingers. Soft, supple. “Come here, Jonah. Kneel beside the bed.”
 
-Jonah’s legs refused to move. They were pillars of stone rooted to the floor. His beat hitched, a sharp gasp—this was it. The line. The moment of crossing over. The pens again—the noise, anonymous hands. That was a death of the soul. This… This was just a night—one night. He could survive a night. He could dissociate, let it happen to someone else.
+Jonah’s legs refused to move. They were pillars of stone rooted to the floor. His beat hitched, a sharp gasp—this was it. The line. The moment of crossing over. The pens again—the noise, anonymous hands. That was a death of the soul. This… this was just a night—one night. He could survive a night. He could dissociate, let it happen to someone else.
 
 He made his legs work—one heavy step. Then another. The stone was so cold.
 
@@ -118,7 +118,7 @@ Jonah jerked against the restraints, a full-body spasm. The leather held. The to
 
 His fingers brushed the crease where thigh met groin.
 
-A jolt, white-hot and entirely unwanted, shot through Jonah’s gut. He sucked in a sharp silence. No. His mind screamed it. His body, traitorous and stupid, reacted. A faint, humiliating twitch in his cock, lying flaccid against his thigh.
+A jolt, white-hot and entirely unwanted, shot through Jonah’s gut. He sucked in a sharp air. No. His mind screamed it. His body, traitorous and stupid, reacted. A faint, humiliating twitch in his cock, lying flaccid against his thigh.
 
 The Husbandman noted it—a slight tilt of his head. He didn’t comment. His hand moved away, only to return a moment later, palming the soft skin of Jonah’s lower abdomen. The gel had a faint, clean scent. Aloe maybe. Absurd.
 
@@ -148,7 +148,7 @@ A sob broke from him—rage. Despair.
 
 “Please,” he heard himself whimper. The word was a stranger’s.
 
-“Please what, Jonah?” The Husbandman’s air was warm on his temple. The hand on his cock never faltered. “Do you want me to stop? Or do you want to come?”
+“Please what, Jonah?” The Husbandman’s pause was warm on his temple. The hand on his cock never faltered. “Do you want me to stop? Or do you want to come?”
 
 The question was the trap. To ask for it to stop was to admit he needed the mercy. To ask to come was to surrender. Jonah bit his lip until he tasted copper. He shook his head, wordless denial.
 
@@ -174,7 +174,7 @@ He stared at the ceiling. The water stain bloomed in one corner, a soft brown bl
 
 The Husbandman moved around the room, the soft sounds of cleanup—a glass bottle clinking, a lid twisting shut, the rustle of cloth. He didn’t speak. The silence wasn’t punitive. It was… final. The lesson was over. The test had been administered, and Jonah had failed in the most fundamental way. He had passed by failing. He had won by losing.
 
-His cock lay soft against his thigh, a vulnerable thing. Foreign. A traitor. The center of the earthquake. The memory of the last hour wasn’t a linear narrative; it was a series of sense-impressions that flashed behind his eyes like faulty neon. The exact pressure of the man’s hand. The obscene, slick sounds. The low, murmured commands that weren’t commands at all, but inevitabilities spoken aloud. *Let it go. You want to. Just let it go. * The shocking, violent pleasure of release—not a relief, but an annihilation. A white-out behind his eyes that erased every thought, every memory of who he was supposed to be. In that endless second, there had been no Jonah Vale. There had only been sensation, obedient and complete.
+His cock lay soft against his thigh, a vulnerable thing. Foreign. A traitor. The center of the earthquake. The memory of the last hour wasn’t a linear narrative; it was a series of sense impressions that flashed behind his eyes like faulty neon. The exact pressure of the man’s hand. The obscene, slick sounds. The low, murmured commands that weren’t commands at all, but inevitabilities spoken aloud. *Let it go. You want to. Just let it go. * The shocking, violent pleasure of release—not a relief, but an annihilation. A whiteout behind his eyes that erased every thought, every memory of who he was supposed to be. In that endless second, there had been no Jonah Vale. There had only been sensation, obedient and complete.
 
 And the sound he’d made. A raw, broken noise that had torn out of him from a place deeper than his lungs.
 
