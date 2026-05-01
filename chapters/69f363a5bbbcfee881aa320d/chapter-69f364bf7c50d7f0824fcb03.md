@@ -88,7 +88,7 @@ He stared over the Husbandman’s head, at the wall. There was a small, framed p
 
 “Look at me,” the Husbandman said.
 
-Jonah’s eyes dragged down. The man’s face was ordinary. Kindly, almost. Sharp blue eyes, lines at the corners, short-cropped gray hair. He looked like a professor, or a retired engineer. He looked at Jonah not with lust, but with a profound, unsettling focus.
+Jonah’s eyes dragged down. The man’s face was ordinary. Kindly, almost. Sharp blue eyes, lines at the corners, short-cropped gray hair. He looked at Jonah not with lust, but with a profound, unsettling focus.
 
 “The first instruction,” the Husbandman said, his gaze dropping deliberately down Jonah’s body and back up, “you will not come without my permission. Your body will want to. It will be encouraged to. But you will hold it back. That is the discipline you will learn tonight. The discipline of surrender is control. My control. Do you understand?”
 
@@ -144,7 +144,7 @@ His cock filled anyway. It was a slow, inevitable rise. The rings held him, maki
 
 “Baseline established,” the Husbandman murmured, glancing at the console. “Strong physiological reactivity. Psychological resistance index is high. As expected.” He adjusted a dial.
 
-The sensation changed. The vibration smoothed out into a steady, insistent pressure. It wasn’t rough. It was precise. It found a frequency that seemed to bypass his thoughts and speak directly to his spine. A groan caught in Jonah’s throat. He swallowed it.
+The sensation changed. The vibration smoothed out into a steady, insistent pressure. It wasn’t rough. Precise. It found a frequency that seemed to bypass his thoughts and speak directly to his spine. A groan caught in Jonah’s throat. He swallowed it.
 
 “Your mind is a fortress, Jonah,” the man said, his voice calm. He picked up a syringe from the trolley, tapped it. “Walls of pride. Moat of anger. But the body is the land the fortress sits on. And I am not besieging the walls.” He swabbed a spot on Jonah’s inner arm with alcohol. The smell was sharp, clean. “I am softening the earth beneath them.”
 
@@ -196,7 +196,7 @@ Hands touched his hair. He didn’t jump this time. The Husbandman stood behind 
 
 “Close your eyes.”
 
-The command was soft. Almost gentle. Jonah closed them. The darkness behind his lids was a relief. The water ran over his forehead, his temples. A thumb smoothed his eyebrow, a gesture so casual, so intimate, it stole the air from his lungs. He couldn’t breathe. He didn’t want to.
+The command was soft. Almost gentle. Jonah closed them. The darkness behind his lids was a relief. Water ran over his forehead, his temples. A thumb smoothed his eyebrow, a gesture so casual, so intimate, it stole the air from his lungs. He couldn’t breathe. He didn’t want to.
 
 The hands worked shampoo into his scalp. Strong fingers methodical. They found the tension in the muscles at the back of his skull and pressed. A low sound escaped him. Not a word. Just a release of air, a surrender of pressure he hadn’t known he was holding. The shame came then, hot and quick, but it felt distant. Like hearing about someone else’s humiliation.
 
@@ -236,7 +236,7 @@ The Husbandman stood. He went to a wardrobe and returned with a folded bundle of
 
 He turned and walked to the door. He didn’t look back. The door opened, then shut with a solid, final click.
 
-The silence rushed back in, louder than before.
+Silence rushed back in, louder than before.
 
 Jonah sat for a long time. The light through the window changed, the gray softening at the edges, bleeding toward a pale, watery blue. He watched the star vanish. He finished the water in his glass. He set the empty glass on the floor, the sound a sharp tok in the quiet.
 
