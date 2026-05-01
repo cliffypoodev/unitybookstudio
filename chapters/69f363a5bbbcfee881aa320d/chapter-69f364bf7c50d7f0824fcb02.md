@@ -1,3 +1,5 @@
+Chapter 3
+
 Caspian crossed the polished concrete floor, the sound of his handmade Oxfords a precise, intrusive punctuation in the quiet. The air in the showroom barn was a carefully engineered paradox: the clean, mineral scent of ozone from the air purifiers laid over the deep, animal warmth of male bodies and the sweet, hay-like smell of the bedding. It was a ridiculous effort at sanitizing the whole enterprise. He preferred the honesty of the underlying musk. It reminded him of the stables of his youth, of something alive and fundamentally ungovernable.
 
 The owner, a man named Gerrard, who wore a suit cut just shy of Caspian’s own tailor’s skill, hovered at his elbow. “As you can see, we’ve prepared the three profiles you requested. All prime stock. Yield consistency is above ninety-eight percent, purity scores exceptional. We can provide the full biochemical breakdowns, of course.”
