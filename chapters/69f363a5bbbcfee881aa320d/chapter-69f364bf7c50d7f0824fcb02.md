@@ -38,7 +38,7 @@ He was taller than Caspian had estimated.
 
 “Turn around,” Gerrard instructed. Ronan turned, a slow pivot. The shirt stretched across his shoulders. Caspian noticed a small, faded tattoo on the back of his neck, just below the hairline: a simple geometric shape, a triangle within a circle. Old, the lines blurred. A relic from a previous life. The kind of detail the farm usually lasered off. They must have missed it, or deemed it irrelevant.
 
-“Satisfied with the physical parameters?” Gerrard asked, a note of pride returning. “Peak physical condition—no chronic issues. Resilience scores are off the charts. He came to us with an… interesting background. Military adjacent. It lends a certain durability.”
+“Satisfied with the physical parameters?” Gerrard asked, a note of pride returning. “Peak physical condition—no chronic issues. Resilience scores are off the charts. He came to us with an… interesting background. Military-adjacent. It lends a certain durability.”
 
 Caspian ignored him. He took a step closer, into Ronan’s space. The air grew warmer. He could smell the cheap, clean soap from his shower, and beneath it, the salt-skin scent of him. “Look at me.”
 
@@ -190,7 +190,7 @@ Ronan’s whole body arched off the sofa. A choked-off curse ripped from his thr
 
 His own arousal was a painful ache, ignored. This wasn’t about his release. It was about this—the raw, undiluted proof of life in his mouth, the tremor in Ronan’s thighs under his hands, the pleading whispers that weren’t words, just sounds of a dam breaking.
 
-It didn’t take long. Ronan’s hips stuttered, his grip in Caspian’s hair tightening to the point of pain. “I’m—,” he gasped, but Caspian didn’t pull away. He took him deeper, and Ronan came with a shuddering cry that was half agony, half relief.
+It didn’t take long. Ronan’s hips stuttered, his grip in Caspian’s hair tightening to the point of pain. “I’m—” he gasped, but Caspian didn’t pull away. He took him deeper, and Ronan came with a shuddering cry that was half agony, half relief.
 
 Caspian held the thought, the act final, irrevocable. The taste was bitter, musky, complex. It was nothing like the descriptions in the files. It was everything.
 
