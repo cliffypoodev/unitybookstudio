@@ -70,7 +70,7 @@ Silas climbed onto the cold surface without hesitation. The metal leached the wa
 
 Lev climbed up. He moved stiffly, every muscle coiled.
 
-The ritual began. Mack moved with practiced efficiency, wiping Silas down with a cold, chemical-smelling cloth. The touch was impersonal, clinical. Silas focused on the ceiling. There was a water stain above him, a bloom of brown and yellow in the acoustic tile. It looked like a rose, spreading rose. He fixed his gaze on its center.
+The ritual began. Mack moved with practiced efficiency, wiping Silas down with a cold, chemical-smelling cloth. The touch was impersonal, clinical. Silas focused on the ceiling. There was a water stain above him, a bloom of brown and yellow in the acoustic tile. It looked like a rose, spreading. He fixed his gaze on its center.
 
 He heard the click of the pump being positioned, the soft hiss of the suction cup being engaged. A cold pressure, then the machine thrummed to life. The sensation was not pain. It was a deep, an insistent drawing-out. He let his body go slack, let his mind float up to the stained rose. This was the separation. The body was mere vessel. The essence was the offering. The pump’s rhythm was a mantra.
 
@@ -78,7 +78,7 @@ A groan from the next table. Lev. It was a raw, angry sound.
 
 “Relax,” Mack muttered, moving between them. “Fight it and it’ll chafe.”
 
-Silas didn’t look. He breathed in through his nose, out through his mouth. The sweet, cloying smell was stronger here. Holy incense. His own body responded, the inevitable physiological betrayal. He accepted it. The flesh was weak, but its weakness was part of the ceremony. The tingling heat in his groin, tight coiling in his gut—these were not lust. Were the gathering of the sacrament.
+Silas didn’t look. He breathed in through his nose, out through his mouth. The sweet, cloying smell was stronger here. Holy incense. His own body responded, the inevitable physiological betrayal. He accepted it. The flesh was weak, but its weakness was part of the ceremony. The tingling heat in his groin, the tight coiling in his gut—these were not lust. Were the gathering of the sacrament.
 
 Mack checked Silas’s collection vessel, a clear plastic cylinder marked with volume measurements. He gave a grunt, a sound of routine approval. Then he turned to Lev’s station. Silas heard the low curse, the fumbling of equipment.
 
@@ -96,7 +96,7 @@ Lev was staring right at him, his face sheened with sweat, his eyes black and br
 
 The suction cup popped off with a wet, smacking sound.
 
-The pump whined, a high-pitched shriek of empty friction. Silas saw it—the clear tube, whipping loosely, spraying a fine, milky mist across the steel table, the pump housing, Mack’s trousers.
+The pump whined, a high-pitched shriek of empty friction. Silas saw it—the clear tube, spraying a fine, milky mist across the steel table, the pump housing, Mack’s trousers.
 
 Time compressed. Mack roared. The sacred rhythm of the hall stuttered. Heads turned on other tables. The desecration was physical, visible, a profane splash across the sterile field.
 
@@ -110,7 +110,7 @@ Mack shoved Lev’s free hand down, pressing it against his own exposed erection
 
 A cold void opened in Silas’s stomach. This was not part of the ritual. This was violence masquerading as procedure. This was the ugliness Lev had spoken of made flesh and command.
 
-Lev’s hand moved, but not in the way Mack intended. It was a clumsy, all anger and no technique. A performance of disgust. Mack watched, his own breath coming faster, his free hand dropping to adjust himself through his pants. The other guards had noticed and were drifting closer, expressions shifting from boredom to a low, gathering interest.
+Lev’s hand moved, but not in the way Mack intended. Clumsy, all anger and no technique. A performance of disgust. Mack watched, his own breath coming faster, his free hand dropping to adjust himself through his pants. The other guards had noticed and were drifting closer, expressions shifting from boredom to a low, gathering interest.
 
 “Slower,” Mack whispered, his voice gone thick. “Make it good.”
 
@@ -118,9 +118,9 @@ Lev’s eyes never left Silas. The question in them hardened into a statement. S
 
 And Silas saw. He saw Mack’s pleasure, not as a holy spark, but as a greedy hungry thing. He saw the other guards leaning in, the sacred isolation of the offering shattered into a crude, voyeuristic circle. He saw the collection vessel on his own table, steadily filling with his own essence, and the sight suddenly filled him with a shame so deep like falling.
 
-Lev’s body tensed. His back arched, not with ecstasy but with a final, rigid rebellion. The release, when it came wasn’t caught in a vessel. It spattered across his own stomach, across the steel table, defiant spill.
+Lev’s body tensed. His back arched, not with ecstasy but with a final, rigid rebellion. The release, when it came wasn’t caught in a vessel. It spattered across his own stomach, across the steel table, a defiant spill.
 
-Mack laughed, ugly sound. “Wasteful bastard.” He turned, still gripping Lev’s wrist, and his gaze landed on Silas. On Silas’s full collection cylinder. A dark, possessive idea moved across his face. “Clean it up.”
+Mack laughed, an ugly sound. “Wasteful bastard.” He turned, still gripping Lev’s wrist, and his gaze landed on Silas. On Silas’s full collection cylinder. A dark, possessive idea moved across his face. “Clean it up.”
 
 Silas blinked. “What?”
 
@@ -148,11 +148,11 @@ Silas looked at their joined, messy hands. The gospel, it turned out was written
 
 The cell door clanged shut behind them, the sound final, a period at the end of a screaming sentence. Silas stood just inside, swaying. The world was a tilted thing. His knees wanted to buckle, but he locked them, a stubborn refusal to fall in front of the other man. Lev was already across the small space, sliding down the wall to sit on the bare floor. They’d taken the burlap pallets. They’d stripped the cell of everything—the bowl, the little pile of smooth stones Silas had arranged in a mandala by the door. The room was just a box now. Wood, dirt, light. Empty.
 
-A deep, sick throbbing pulsed from the small of his back down through his thighs. The punishment. Not the cane—that was for noise, for disobedience. This was quieter. A clinical, precise correction. They’d used a device, a smooth, cold probe that hummed, and they’d made him watch a screen as his own body betrayed him, muscles seizing in a violent, unending spasm that had nothing to do with pleasure, everything to do with control. To teach him about consequence. To teach Lev about the cost of sacrilege.
+A deep, sick throbbing pulsed from the small of his back down through his thighs. The punishment. Not the cane—that was for noise, for disobedience. This was quieter. A clinical, precise correction. They’d used a device, cold probe that hummed, and they’d made him watch a screen as his own body betrayed him, muscles seizing in a violent, unending spasm that had nothing to do with pleasure, everything to do with control. To teach him about consequence. To teach Lev about the cost of sacrilege.
 
 His faith had curled up inside him like a burned leaf. Brittle. Ashes at the center.
 
-He became aware of a sound. A wet, ragged scraping. Lev’s breath was coming in ragged gasps through his mouth, chest rising, head back against the wood, eyes closed. A dark bruise was flowering along his jaw, purple and green at the edges. His lower lip was split, swollen.
+He became aware of a sound. A wet, ragged scraping. Lev’s breath was coming in ragged gasps through his mouth, head back against the wood, eyes closed. A dark bruise was flowering along his jaw, purple and green at the edges. His lower lip was split, swollen.
 
 “They hurt you,” Silas said. His own voice sounded foreign. Dry husks rubbing together.
 
@@ -162,7 +162,7 @@ Lev’s eyes opened. They were the same flat slate, but the nothing in them had 
 
 “You fucking did. Mack said, ‘Your prophet gave you up.’ He said you begged them to stop, said it was the new one’s idea, the new one’s sin.”
 
-The burned leaf crumbled. Silas remembered the sounds he’d made. Animal sounds. Whimpers. He remembered the pressure building in his bladder, the shameful, hot fear of losing control in front of them. He remembered Mack’s face, close to his, his breath smelling of mint and tobacco. Tell us who taught you to waste the offering, Silas. Was it him? And he’d nodded. He’d nodded because nodding was the only movement left that might make it stop.
+The burned leaf crumbled. Silas remembered the sounds he’d made. Animal sounds. Whimpers. He remembered the pressure building in his bladder, hot fear of losing control in front of them. He remembered Mack’s face, close to his, his breath smelling of mint and tobacco. Tell us who taught you to waste the offering, Silas. Was it him? And he’d nodded. He’d nodded because nodding was the only movement left that might make it stop.
 
 He hadn’t spoken. But he had given. He had.
 
@@ -174,7 +174,7 @@ Lev laughed, a short puff of air that made him wince and touch his split lip. �
 
 “Don’t.” Lev shifted, winced again. “Your sorry is part of the ritual. I don’t want it.”
 
-Silas finally let his knees go. He sank to the floor, not kneeling, just collapsing into a sitting heap. The rough wood grain bit through the thin cotton of his pants. He focused on that bite. A real sensation. Unholy. Profane. Better than the hollowed-out feeling behind his ribs. Looked at his hands. They were clean. They’d hosed him down after. The water had been cold. He’d watched a drop trace a path from his wrist to the tip of his thumb, then fall, darkening the dirt between his legs. A tiny, meaningless baptism.
+Silas finally let his knees go. He sank to the floor, just collapsing into a sitting heap. The rough wood grain bit through the thin cotton of his pants. He focused on that bite. A real sensation. Unholy. Profane. Better than the hollowed-out feeling behind his ribs. Looked at his hands. They were clean. They’d hosed him down after. The water had been cold. He’d watched a drop trace a path from his wrist to the tip of his thumb, darkening the dirt between his legs. A tiny, meaningless baptism.
 
 “They took everything,” Silas said.
 
@@ -202,19 +202,19 @@ It wasn’t kindness. Lev’s tone held no warmth. Practicality. An inventory of
 
 Lev’s fingers were surprisingly gentle. They pushed the shirt up. The cool air of the cell hit Silas’s skin, raising goosebumps. Lev’s touch traced the muscles along his lower spine, probing. “No blood. No broken skin. They used the neural prod. Hurts like a motherfucker, leaves no mark. Efficient.” His thumb pressed into a knot of muscle. A shock of bright, electric pain shot through Silas, making him gasp. “This is where it’s locked up. Your whole body’s clenched.”
 
-The fingers began to work the muscle, a slow, insistent pressure. It hurt. A deep, bruising, necessary hurt. Silas let his head hang. He focused on the sensation, the pure, uninterpreted physicality of it. No meaning. Just pressure. Just pain easing incrementally into a dull ache.
+The fingers began to work the muscle, insistent pressure. It hurt. A deep, bruising, necessary hurt. Silas let his head hang. He focused on the sensation, uninterpreted physicality of it. No meaning. Just pressure. Just pain easing incrementally into a dull ache.
 
 “Why are you doing this?” Silas asked, his voice muffled.
 
 “Because you’re no use to me catatonic. And because I’m stuck in here with you.” The hands kept working. “We’re the same now. Heretics. Or just broken livestock. Doesn’t matter.”
 
-The touch changed. It wasn’t just therapeutic anymore. The pressure softened became a slow rub along the flank of his back, the heel of a hand smoothing over the tense ridge of his shoulder. A different kind of contact. His skin prickled everywhere, a wave of awareness that had nothing to do with faith. It was the simple, animal recognition of another human’s touch, after so long touched only by tools and ritual.
+The touch changed. It wasn’t just therapeutic anymore. The pressure softened, becoming a slow rub along the flank of his back, the heel of a hand smoothing over the tense ridge of his shoulder. A different kind of contact. His skin prickled everywhere, a wave of awareness that had nothing to do with faith. It was the simple, animal recognition of another human’s touch, after so long touched only by tools and ritual.
 
 Lev’s hand stilled. Then it slid around Silas’s side, palm flat against his stomach, pulling him back gently until Silas’s shoulders rested against Lev’s chest. Silas went rigid for a second, a lifetime of conditioned responses firing—this was wrong, this was not the time, not the place, not the sacred context.
 
 But there was no context left. Only the cell. The dirt. The two of them.
 
-He let himself lean back. The heat of Lev’s body seeped through both their shirts. He could feel the beat of Lev’s heart against his spine, a slower, steadier rhythm than his own frantic pulse. Lev’s chin came to rest on his shoulder. His silence was warm on Silas’s neck.
+He let himself lean back. The heat of Lev’s body seeped through both their shirts. He could feel the beat of Lev’s heart against his spine, steadier rhythm than his own frantic pulse. Lev’s chin came to rest on his shoulder. His silence was warm on Silas’s neck.
 
 “See?” Lev murmured, the word vibrating through Silas’s bones. “No gods here. No priests. Just this. Warmth. A heartbeat. That’s the only truth this place has ever produced.”
 
@@ -222,15 +222,15 @@ One of Lev’s hands remained splayed on Silas’s stomach. The other came up, f
 
 A spark. Dry tinder in the emptiness.
 
-Lev’s hand curled, cupping the side of his face, turning him. Silas went, his body moving without instruction from his ruined mind. Their mouths met. Not a kiss of passion, or love, or even comfort. It was a collision. A confirmation. Lev’s split lip was rough against his. The taste was copper and salt. Pain and presence.
+Lev’s hand curled, cupping the side of his face, turning him. Silas went, his body moving without instruction from his ruined mind. Their mouths met. Not a kiss of passion, or even comfort. It was a collision. A confirmation. Lev’s split lip was rough against his. The taste was copper and salt. Pain and presence.
 
-Silas kissed him back. A hungry, desperate sound escaped his throat. He twisted in Lev’s grasp, turning fully, his hands coming up to clutch at Lev’s shoulders. The kiss deepened turned messy, all teeth and clashing mouths. It was nothing like the controlled, purposeful taking of the milking stalls. This was greedy. This was theft. This was two men in a hole, trying to feel something real in the dark.
+Silas kissed him back. A hungry, desperate sound escaped his throat. He twisted in Lev’s grasp, his hands coming up to clutch at Lev’s shoulders. The kiss deepened turned messy, all teeth and clashing mouths. It was nothing like the controlled, purposeful taking of the milking stalls. This was greedy. This was theft. This was two men in a hole, trying to feel something real in the dark.
 
 Lev’s hands went to the waistband of Silas’s pants, fumbling with the tie. Silas helped him, his own fingers clumsy. They pushed the fabric down, just enough. Lev did the same. No ceremony. No preparation. Just skin against skin, hot and urgent.
 
-Lev spat into his own palm, a crude, efficient gesture. He reached between them, his hand closing around them both. Silas jerked, a bolt of sheer sensation shooting up his spine, erasing the ghost of the neural prod’s pain. This was different. This was friction without purpose, pleasure without offering, a joint secretion with no jar to catch it. Purely, gloriously wasteful.
+Lev spat into his own palm, efficient gesture. He reached between them, his hand closing around them both. Silas jerked, a bolt of sheer sensation shooting up his spine, erasing the ghost of the neural prod’s pain. This was different. This was friction without purpose, pleasure without offering, a joint secretion with no jar to catch it. Purely, gloriously wasteful.
 
-He buried his face in Lev’s neck, inhaling the scent of sweat and dust and the lingering, greasy smell of the stew. His hips moved, thrusting into the tight, rough circle of Lev’s fist. Lev matched his rhythm, his own pause coming in harsh grunts against Silas’s ear. There was no transcendence. No vision. Only the building pressure, the slap of skin, the dirt grinding into their knees. Base. Magnificent.
+He buried his face in Lev’s neck, inhaling the scent of sweat and dust and the lingering, greasy smell of the stew. His hips moved, thrusting into the tight, rough circle of Lev’s fist. Lev matched his rhythm, his own grunts coming in harsh bursts against Silas’s ear. There was no transcendence. No vision. Only the building pressure, the slap of skin, the dirt grinding into their knees. Base. Magnificent.
 
 Silas came first, with a choked-off cry that was half-sob. His body convulsed, spilling hot over Lev’s fingers, onto the dirt floor between them. A desecration of the empty space. Lev followed moments after, his whole body stiffening, a low groan ripped from his chest.
 
