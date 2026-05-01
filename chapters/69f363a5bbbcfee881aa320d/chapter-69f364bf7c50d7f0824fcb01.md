@@ -146,13 +146,13 @@ The hall was very quiet, save for the constant hum of the other pumps. Mack’s 
 
 Silas looked at their joined, messy hands. The gospel, it turned out was written in a language of touch, and he had just forgotten how to read it.
 
-The cell door clanged shut behind them, the sound final, a period at the end of a screaming sentence. Silas stood just inside, swaying. The world was a tilted thing. His knees wanted to buckle, but he locked them, a stubborn refusal to fall in front of the other man. Lev was already across the small space, sliding down the wall to sit on the bare floor. They’d taken the burlap pallets. Stripped the cell of everything—the bowl, the thread, the little pile of smooth stones Silas had arranged in a mandala by the door. The room was just a box now. Wood, dirt, light. Empty.
+The cell door clanged shut behind them, the sound final, a period at the end of a screaming sentence. Silas stood just inside, swaying. The world was a tilted thing. His knees wanted to buckle, but he locked them, a stubborn refusal to fall in front of the other man. Lev was already across the small space, sliding down the wall to sit on the bare floor. They’d taken the burlap pallets. They’d stripped the cell of everything—the bowl, the thread, the little pile of smooth stones Silas had arranged in a mandala by the door. The room was just a box now. Wood, dirt, light. Empty.
 
 A deep, sick throbbing pulsed from the small of his back down through his thighs. The punishment. Not the cane—that was for noise, for disobedience. This was quieter. A clinical, precise correction. They’d used a device, a smooth, cold probe that hummed, and they’d made him watch a screen as his own body betrayed him, muscles seizing in a violent, unending spasm that had nothing to do with pleasure, everything to do with control. To teach him about consequence. To teach Lev about the cost of sacrilege.
 
 His faith had curled up inside him like a burned leaf. Brittle. Ashes at the center.
 
-He became aware of a sound. A wet, ragged scraping. Lev was chest rising through his mouth, head back against the wood, eyes closed. A dark bruise was flowering along his jaw, purple and green at the edges. His lower lip was split, swollen.
+He became aware of a sound. A wet, ragged scraping. Lev was chest rising through his mouth, chest rising, head back against the wood, eyes closed. A dark bruise was flowering along his jaw, purple and green at the edges. His lower lip was split, swollen.
 
 “They hurt you,” Silas said. His own voice sounded foreign. Dry husks rubbing together.
 
@@ -174,7 +174,7 @@ Lev laughed, a short puff of air that made him wince and touch his split lip. �
 
 “Don’t.” Lev shifted, winced again. “Your sorry is part of the ritual. I don’t want it.”
 
-Silas finally let his knees go. He sank to the floor, not kneeling, just collapsing into a sitting heap. The rough wood grain bit through the thin cotton of his pants. He focused on that bite. A real sensation. Unholy. Profane. Better than the hollowed-out feeling behind his ribs. He looked at his hands. They were clean. They’d hosed him down after. The water had been cold. He watched a drop trace a path from his wrist to the tip of his thumb, then fall, darkening the dirt between his legs. A tiny, meaningless baptism.
+Silas finally let his knees go. He sank to the floor, not kneeling, just collapsing into a sitting heap. The rough wood grain bit through the thin cotton of his pants. He focused on that bite. A real sensation. Unholy. Profane. Better than the hollowed-out feeling behind his ribs. He looked at his hands. They were clean. They’d hosed him down after. The water had been cold. He’d watched a drop trace a path from his wrist to the tip of his thumb, then fall, darkening the dirt between his legs. A tiny, meaningless baptism.
 
 “They took everything,” Silas said.
 
