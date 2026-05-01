@@ -28,17 +28,17 @@ The room was small, windowless. A narrow cot was bolted to one wall. A sink and 
 
 The photograph in the file hadn’t captured the stillness. The man sat on the edge of the cot, hands resting on his knees. He wore simple grey trousers and a white t-shirt. Late twenties maybe. Dark hair cut short. A lean, wiry build that spoke of natural athleticism rather than gym cultivation. But it was the face that held Caspian. Not classically handsome. The nose had been broken once and healed slightly off-center. A scar bisected one eyebrow. The eyes themselves were a pale grey, and they were fixed not on Gerrard, not on the door, but on a point on the opposite wall, as if studying a flaw in the paint.
 
-He didn’t look sedated — he looked… present. Terribly, utterly present.
+He didn’t look sedated—he looked… present. Terribly, utterly present.
 
 “Ronan,” Gerrard said, his voice shifting into a tone of brisk command. “Stand for inspection.”
 
-The man’s eyes moved then, sliding from the wall to Gerrard with a slowness that felt deliberate. Contemptuous — then they shifted to Caspian. They held no fear. No curiosity, either. Just a flat assessment, like a man judging the weight of a tool. After a beat that stretched just long enough to be insubordinate, he stood.
+The man’s eyes moved then, sliding from the wall to Gerrard with a slowness that felt deliberate. Contemptuous—then they shifted to Caspian — they held no fear. No curiosity, either. Just a flat assessment, like a man judging the weight of a tool. After a beat that stretched just long enough to be insubordinate, he stood.
 
 Was taller than Caspian had estimated.
 
 “Turn around,” Gerrard instructed — ronan turned, a slow pivot. The shirt stretched across his shoulders. Caspian noticed a small, faded tattoo on the back of his neck, just below the hairline: a simple geometric shape, a triangle within a circle. Old, the lines blurred. A relic from a previous life. The kind of detail the farm usually lasered off. They must have missed it, or deemed it irrelevant.
 
-“Satisfied with the physical parameters?” Gerrard asked, a note of pride returning. “Peak physical condition — no chronic issues. Resilience scores are off the charts. He came to us with an… interesting background. Military adjacent. It lends a certain durability.”
+“Satisfied with the physical parameters?” Gerrard asked, a note of pride returning. “Peak physical condition—no chronic issues. Resilience scores are off the charts. He came to us with an… interesting background. Military adjacent. It lends a certain durability.”
 
 Caspian ignored him. He took a step closer, into Ronan’s space. The air grew warmer. He could smell the cheap, clean soap from his shower, and beneath it, the salt-skin scent of him. “Look at me.”
 
@@ -54,15 +54,13 @@ Ronan’s expression didn’t change. His voice, when it came was low, roughened
 
 “A trade.”
 
-“A debt — for someone else. They take the yield. The debt clears.” He said it like he was reciting the weather. No shame — no pride. Just fact.
-
-A twist. Not a captive seized, but a volunteer of sorts. A commodity who had chosen his own commodification. A faint, familiar ping of interest, the first he’d felt in months. Quickly followed by a sour disillusionment. Even this was a transaction. Nothing was pure.
+“A debt—for someone else — they take the yield. The debt clears.” He said it like he was reciting the weather. No shame—no pride — just fact. A twist. Not a captive seized, but a volunteer of sorts. A commodity who had chosen his own commodification. A faint, familiar ping of interest, the first he’d felt in months. Quickly followed by a sour disillusionment. Even this was a transaction. Nothing was pure.
 
 “And the product?” Caspian pressed, adopting Gerrard’s clinical term to see if it would land. “Are you a good producer?”
 
-A flicker, then — something moved behind the grey eyes. Not anger. Something colder, more remote. Amusement maybe. “The numbers are on the chart.”
+A flicker, then—something moved behind the grey eyes. Not anger — something colder, more remote. Amusement maybe. “The numbers are on the chart.”
 
-“I don’t care about the numbers — i care about the experience. The essence. Your file suggests a… particular biochemical signature. Stress hormones atypically low. Serotonin and oxytocin markers unusually high upon release. They call it ‘the calm fire’ in your notes. What do you call it?”
+“I don’t care about the numbers—I care about the experience. The essence. Your file suggests a… particular biochemical signature. Stress hormones atypically low. Serotonin and oxytocin markers unusually high upon release. They call it ‘the calm fire’ in your notes. What do you call it?”
 
 Ronan was silent for a long moment. His gaze drifted over Caspian’s shoulder, to the expensive weave of his jacket, then back to his face. “I don’t call it anything. It’s just what happens.”
 
@@ -72,7 +70,7 @@ Was about to turn away, to tell Gerrard the inspection was over, when Ronan spok
 
 “You look like a man who’s tasted everything twice,” Ronan said, his voice still that low, even monotone. “And found it all ashes the second time.”
 
-Caspian went very still — a doctor stating a symptom. Gerrard made a sharp, disapproving sound.
+Caspian went very still—a doctor stating a symptom. Gerrard made a sharp, disapproving sound.
 
 Caspian held up a hand, silencing him. He stared at Ronan. The man’s face remained impassive, but the intelligence in his eyes was suddenly, glaringly apparent. He’d been observing, too. And he’d seen right through the expensive suit, the connoisseur’s posture, to the hollowed-out core.
 
@@ -92,7 +90,7 @@ He turned to Gerrard, his mind clicking over, plans reforming. “Leave us.”
 
 “Leave. Us.” Caspian didn’t raise his voice. He didn’t need to. “Lock the door behind you. I’ll signal when I’m finished.”
 
-Gerrard’s face paled. He looked between Caspian and his impassive stock, conflict warring with the imperative to please a wealthy client. The client won. He gave a stiff nod. “Of course. I’ll be right outside.” The warning in He said it clear, but it was directed at Ronan.
+Gerrard’s face paled. He looked between Caspian and his impassive stock, conflict warring with the imperative to please a wealthy client. The client won. He gave a stiff nod. “Of course. I’ll be right outside.” The warning in his voice was clear, but it was directed at Ronan.
 
 The door shut. The lock thunked again, a final sound.
 
@@ -110,7 +108,7 @@ Ronan said nothing.
 
 A beat. Then, without breaking eye contact, Ronan reached down, grasped the hem of the white t-shirt, and pulled it over his head in one smooth motion. He dropped it on the cot. His torso was lean, defined without being bulky. Old scars mapped his skin—a long, thin line along a rib, a pucker on his shoulder. The skin was pale, save for the faint tan lines on his neck and arms. He stood, exposed, utterly without shame or invitation. Just a fact.
 
-Caspian’s analytical eye cataloged the details, but his mind was elsewhere. The detachment he’d thin, brittle. Ronan’s quiet dignity was a mirror, and in it, Caspian saw not a connoisseur, but a vulture circling a living man.
+Caspian’s analytical eye cataloged the details, but his mind was elsewhere. The detachment he’d felt was thin, brittle. Ronan’s quiet dignity was a mirror, and in it, Caspian saw not a connoisseur, but a vulture circling a living man.
 
 He reached out. His hand, usually so steady, betrayed a faint tremor. He stopped it just before his fingers would have made contact with Ronan’s chest. He let it hang there in the space between them, a question.
 
@@ -136,9 +134,9 @@ Caspian stayed by the sideboard, leaning against it. The leather of his shoes cr
 
 No answer. Ronan’s gaze didn’t waver.
 
-“I don’t care about your background.” Caspian took another drink. “I care about the product — the essence. They use that word, you know. Essence. It’s a prettier way of saying ‘what comes out of you.’ It’s all metrics to them — volume. Viscosity. Chemical composition.” He gestured with the glass, a vague circle in the air. “Boring.”
+“I don’t care about your background.” Caspian took another drink. “I care about the product—the essence — they use that word, you know. Essence. It’s a prettier way of saying ‘what comes out of you.’ It’s all metrics to them—volume — viscosity. Chemical composition.” He gestured with the glass, a vague circle in the air. “Boring.”
 
-He pushed off from the sideboard and crossed the room. He stopped a few feet from the sofa. The air between them grew warmer, charged with a low hum he couldn’t locate. “I’m not a metrician — i’m a connoisseur. There’s a difference. One measures. The other… tastes.”
+He pushed off from the sideboard and crossed the room. He stopped a few feet from the sofa. The air between them grew warmer, charged with a low hum he couldn’t locate. “I’m not a metrician—I’m a connoisseur — there’s a difference. One measures. The other… tastes.”
 
 Ronan’s expression didn’t change. But something did—a minute tightening at the corner of his mouth. Not a flinch. More like a man recognizing a familiar, tedious game.
 
@@ -148,9 +146,9 @@ Ronan’s expression didn’t change. But something did—a minute tightening at
 
 This time, the pause stretched. Ronan’s eyes searched Caspian’s face, looking for something. A crack maybe. A sign of the kind of man he was dealing with. Caspian kept his own face blank, a mask of casual entitlement. It was a mask he’d worn for decades. It usually fit.
 
-Slowly, Ronan reached down, gripped the hem of the white t-shirt, and pulled it over his head. He dropped it on the sofa beside him. His chest was lean, defined without being bulky. A scatter of dark hair. A few old scars—a pale line across his ribs, another on his shoulder. The skin was taut over muscle, holding a history of use. He didn’t flex. He didn’t try to present himself. He just stood, exposed, waiting for the next command.
+Slowly, Ronan reached down, gripped the hem of the white t-shirt, and pulled it over his head. He dropped it on the sofa beside him. His chest was lean, defined without being bulky. A scatter of dark hair. A few old scars—a pale line across his ribs, another on his shoulder. He didn’t flex. He didn’t try to present himself. He just stood, exposed, waiting for the next command.
 
-Caspian’s tight. He took a final swallow of whisky and set the glass down on a low table with a sharp click. The sound was absurdly loud.
+Caspian’s pause was tight. He took a final swallow of whisky and set the glass down on a low table with a sharp click. The sound was absurdly loud.
 
 “Turn around.”
 
@@ -164,35 +162,25 @@ The voice was low, rough from disuse, but clear. It was the first thing he’d s
 
 “Good.” Caspian closed the distance between them. He could feel the heat radiating from Ronan’s bare back. “Then this will be easier.”
 
-He reached out. He didn’t plan the movement; his hand just lifted, as if pulled by the warmth. His fingertips made contact with the skin between Ronan’s shoulder blades.
+He reached out. He didn’t plan the movement; his hand just lifted, as if pulled by the warmth. His fingertips made contact with the skin between Ronan’s shoulder blades — ronan went utterly still. Not the stillness of before. This was different—a coiled tension, like a wire pulled taut to a singing point. A fine tremor beneath his fingers — not fear. Something else. A current.
 
-Ronan went utterly still. Not the stillness of before. This was different—a coiled tension, like a wire pulled taut to a singing point. a fine tremor beneath his fingers. Not fear. Something else. A current.
+He let his hand slide down, following the ridge of the spine. The skin was smooth, warm. He mapped the landscape of muscle and bone with a clinical detachment that began to crumble with every inch. His own heart beat hitched. He hadn’t touched another person like this in years. Not to inspect — to feel. The difference was catastrophic.
 
-He let his hand slide down, following the ridge of the spine. The skin was smooth, warm. He mapped the landscape of muscle and bone with a clinical detachment that began to crumble with every inch. His own beat hitched. He hadn’t touched another person like this in years. Not to inspect. To feel. The difference was catastrophic.
-
-“Turn back,” he heard himself say. The command was weaker now.
-
-Ronan turned. His face was closer than Caspian expected. Those grey eyes were no longer flat. They held a dark, focused intensity. Was looking at Caspian as if he were the one conducting the inspection. As if he could see the dry rot behind the polished veneer.
+“Turn back,” he heard himself say — the command was weaker now. Ronan turned. His face was closer than Caspian expected. Those grey eyes were no longer flat. They held a dark, focused intensity. Was looking at Caspian as if he were the one conducting the inspection. As if he could see the dry rot behind the polished veneer.
 
 Caspian’s hand was still raised. He let it fall to Ronan’s chest, palm flat over his heart. The beat was strong, rapid, a frantic drum against his ribs. It echoed in the hollow of Caspian’s own chest, a syncopated rhythm that made him dizzy.
 
-Was supposed to be evaluating. Was supposed to be in control. But the control was a sheet of ice cracking underfoot. His other hand came up of its own volition, cupping the side of Ronan’s neck, thumb brushing the line of his jaw. The stubble was rough. Real.
-
-Ronan didn’t pull away. He leaned into the touch, just a fraction. His eyes never left Caspian’s. A challenge. An invitation. Something hot and nameless clawed its way up Caspian’s throat.
-
-He kissed him.
-
-It wasn’t gentle. It was a collision—a desperate, graceless press of mouth against mouth. He expected resistance, disgust. He found none. Ronan’s lips parted under his, and the kiss deepened turned into something raw and consuming. Ronan’s hands came up, not to push him away, but to grip his shoulders, fingers digging into the fine wool of his jacket with a force that threatened to tear it.
+Was supposed to be evaluating. Was supposed to be in control. But the control was a sheet of ice cracking underfoot. His other hand came up of its own volition, cupping the side of Ronan’s neck, thumb brushing the line of his jaw. The stubble was rough — real. Ronan didn’t pull away. He leaned into the touch, just a fraction. His eyes never left Caspian’s. A challenge. An invitation. Something hot and nameless clawed its way up Caspian’s throat — he kissed him. It wasn’t gentle. It was a collision—a desperate, graceless press of mouth against mouth. He expected resistance, disgust. He found none. Ronan’s lips parted under his, and the kiss deepened, turning into something raw and consuming. Ronan’s hands came up, not to push him away, but to grip his shoulders, fingers digging into the fine wool of his jacket with a force that threatened to tear it.
 
 The taste was nothing like the whisky. Salt, and a shocking, vital humanity that broke through the deadening fog in Caspian’s mind like a spear of light. A sound escaped him—a ragged, broken thing he didn’t recognize as his own voice.
 
-He fumbled with the fastening of Ronan’s trousers, his fingers clumsy. The button gave. The zipper bit down. He pushed the rough fabric over his hips, and Ronan kicked it away, stepping out of the puddle of grey without breaking the kiss. His erection strained against the simple cotton of his briefs. Caspian palmed him through the fabric, hot length of him, and Ronan jerked against his hand, a sharp gasp caught still by their joined mouths.
+He fumbled with the fastening of Ronan’s trousers, his fingers clumsy. The button gave. The zipper bit down. He pushed the rough fabric over his hips, and Ronan kicked it away, stepping out of the puddle of grey without breaking the kiss. His erection strained against the simple cotton of his briefs. Caspian palmed him through the fabric, the hot length of him, and Ronan jerked against his hand, a sharp gasp caught still by their joined mouths.
 
 This was the inspection. This was the moment of power. But the power had bled away, replaced by a terrifying, equal hunger. Caspian tore his mouth away, chest rising hard. “On the sofa.”
 
 Ronan went, lowering himself back onto the leather. He watched Caspian strip off his own jacket, his movements hurried, inelegant. The air was cool on Caspian’s skin, raising gooseflesh. He stood before Ronan, half-dressed, feeling more exposed than the naked man on the couch.
 
-He knelt on the floor between Ronan’s spread knees. The like worship. Like surrender. He hooked his fingers in the waistband of Ronan’s briefs and pulled them down. His cock sprang free, thick and flushed, a bead of moisture already glistening at the tip.
+He knelt on the floor between Ronan’s spread knees. It was like worship. Like surrender. He hooked his fingers in the waistband of Ronan’s briefs and pulled them down. His cock sprang free, thick and flushed, a bead of moisture already glistening at the tip.
 
 Caspian stared at it. This was the product. The essence. The commodity he’d come to acquire. It was just a body part. But in this moment, in this dim light, with the taste of Ronan still on his lips, it was the most profoundly human thing he’d ever seen.
 
@@ -208,7 +196,7 @@ Caspian held the thought, the act final, irrevocable. The taste was bitter, musk
 
 He rested his forehead against Ronan’s thigh, his stillness hard. The silence returned, but it was a different silence now. Spent. Shattered.
 
-After a long moment, a hand touched his hair again, just resting there. A touch so gentle like a violence. Caspian closed his eyes. The ice was gone. Was adrift in a warm, and he had no idea how to get back to shore.
+After a long moment, a hand touched his hair again, just resting there. A touch so gentle it was like a violence. Caspian closed his eyes. The ice was gone. Was adrift in a warm sea, and he had no idea how to get back to shore.
 
 The silence after Gerrard left was a solid thing. It filled the glass box, thick and humming, like the air just before a summer storm breaks. Caspian stood by the sideboard, his fingers tracing the sharp edge of a crystal tumbler. He didn’t pour a drink. The taste of Ronan was still on his tongue, musky salt beneath the cleaner sting of the whisky he’d tasted earlier. His own pulse beat like a distant, inconvenient percussion in his ears.
 
@@ -252,7 +240,7 @@ Caspian forced himself to meet that grey stare. “The contract. The purchase. I
 
 A slow blink. “You found me defective.”
 
-Caspian was babbling. He sounded like a pretentious fool. like one.
+Caspian was babbling. He sounded like a pretentious fool. Was like one.
 
 Ronan took a step toward him. Not a threat. Just a reduction of space. “So your inspection is complete. You’ve had your novel experience. You walk away. I stay here.” He tilted his head slightly. “Is that the poignant part for you? The connoisseur’s regret? The one that got away?”
 
@@ -296,4 +284,4 @@ Then the moment broke. Gerrard was there, smiling, a datapad in his hand. “Wel
 
 Caspian picked up the crystal tumbler. He poured two fingers of whisky, the amber liquid catching the light. He didn’t drink it. He just held the cool, heavy weight of it in his hand.
 
-“No,” he said, and his voice was calm, final, and utterly empty. “We’re not.”
+“No,” he said, and He spoke — calm, final, and utterly empty. “We’re not.”
