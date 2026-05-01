@@ -4,7 +4,7 @@ The room wasn’t large. A bed, if you could call it that—a wide, low platform
 
 Jonah’s bare feet were cold. That was the stupid detail his brain kept circling back to. The chill of the stone seeped up through his soles, a grounding ache. They’d let him keep his pants, rough canvas things that chafed his waist. Nothing else. The air brushed over his chest, the back of his neck. This casual exposure felt like a violation. He wasn’t a man who stood half-naked in strange rooms. He was a man who lifted weights until his vision spotted, who ran until his lungs burned, who decided things.
 
-A door opened without a sound.
+The door opened without a sound.
 
 He didn’t turn. He kept his eyes on the crack in the wall. The footsteps were soft, measured. They stopped somewhere behind his left shoulder. A thick, waiting silence followed.
 
@@ -16,7 +16,7 @@ The voice was calm. Middle-aged. It held no particular malice, just a flat tone,
 
 He’d seen the pens on his way in, weeks ago—a vast, echoing space full of noise and movement and the sharp, animal smell of many men sweating out fear. He’d heard the sounds, too. Not screams, exactly. Something worse: a low hum, punctuated by the wet, rhythmic slap of efficient labor.
 
-“I am offering you a different calculus,” the man said. Jonah heard him move, a slight shift of weight. “One night—Here. With me. Your complete, utter submission to my will. No holding back. No defiance. A single, continuous session until I am satisfied.”
+“I am offering you a different calculus,” the man said. Jonah heard him move, a slight shift of weight. “One night—here. With me. Your complete, utter submission to my will. No holding back. No defiance. A single, continuous session until I am satisfied.”
 
 A laugh tore out of Jonah’s throat, harsh and dry. “Go fuck yourself.”
 
@@ -28,13 +28,13 @@ The man stood a few feet away, leaning against the steel trolley. He was older t
 
 “And if I do your little night?” Jonah’s voice was a rasp. “What then? Freedom?”
 
-The Husbandman’s smile was a thin, pale curve. “Privileges—a private cell—Books, perhaps. Better food. The guarantee you will never see the general pens. Your compliance will be purchased, not extracted. There is a difference.”
+The Husbandman’s smile was a thin, pale curve. “Privileges—a private cell—books, perhaps. Better food. The guarantee you will never see the general pens. Your compliance will be purchased, not extracted. There is a difference.”
 
 “A difference to whom?”
 
 “To you,” the man said softly. “That is the only difference that will ever matter again.”
 
-He thought of his father’s hand on his shoulder, steering him toward a chosen weight on the barbell. *You don’t ask if you can. You just do.* Control. It was all about control. Giving it up was the one thing he’d never learned how to do.
+He thought of his father’s hand on his shoulder, steering him toward a chosen weight on the barbell. *You don’t ask if you can. You just do. * Control. It was all about control. Giving it up was the one thing he’d never learned how to do.
 
 This was a trick. It had to be. A prettier cage was still a cage.
 
@@ -52,7 +52,7 @@ He didn’t move. The silence stretched. Somewhere, far away, a pipe clanked. Th
 
 “Why?” Jonah said. “Why the special treatment?”
 
-The Husbandman’s gaze traveled over him, slow and appraising. It didn’t feel sexual. More like an inspection of livestock. “Because your defiance has quality—Most break from fear or pain. You break from pride—I find that… interesting. I want to see it happen. I want to be the one who applies the precise pressure required.” He tilted his head. “Consider it a professional curiosity.”
+The Husbandman’s gaze traveled over him, slow and appraising. It didn’t feel sexual. More like an inspection of livestock. “Because your defiance has quality. Most break from fear or pain. You break from pride. I find that… interesting. I want to see it happen. I want to be the one who applies the precise pressure required.” He tilted his head. “Consider it a professional curiosity.”
 
 Humiliation, hot and sour, flooded Jonah’s throat. He was a specimen. A puzzle. A curiosity.
 
@@ -68,7 +68,7 @@ He could take him. Right now. This man was older, lean, but Jonah had sixty poun
 
 “Three.”
 
-That door was probably locked—there were undoubtedly guards outside. Even if he won, he’d lose. They’d take him to the pens anyway, broken in a different way.
+The door was probably locked—there were undoubtedly guards outside. Even if he won, he’d lose. They’d take him to the pens anyway, broken in a different way.
 
 “Four.”
 
@@ -112,7 +112,7 @@ The man stepped back, considering his work. He picked up a bottle from the troll
 
 He placed his slick hand on Jonah’s inner thigh.
 
-Jonah jerked against the restraints, a full-body spasm. The leather held. The touch was warm, the gel cooler. The Husbandman’s hand was broad, his fingers strong. He began to rub the gel in, a slow methodical massage that started at the knee and moved upward. Clinical—Intimate. Jonah’s moment hitched. He turned his head away, teeth gritted.
+Jonah jerked against the restraints, a full-body spasm. The leather held. The touch was warm, the gel cooler. The Husbandman’s hand was broad, his fingers strong. He began to rub the gel in, a slow methodical massage that started at the knee and moved upward. Clinical. Intimate. Jonah’s moment hitched. He turned his head away, teeth gritted.
 
 “You are accustomed to your body as an instrument of will,” the Husbandman murmured. His hand slid higher. “You tell it to move, and it moves. You tell it to endure, and it endures. This is an illusion. The body has its own loyalties. Its own appetites.”
 
@@ -172,9 +172,9 @@ Time passed in a thick, formless drift. Jonah lay on the cold leather of the pla
 
 He stared at the ceiling. The water stain bloomed in one corner, a soft brown blossom with feathery edges. He traced its shape with his eyes. A bird. A cloud. A map of a country that didn’t exist. His mind was that empty, that quiet.
 
-The Husbandman moved around the room, the soft sounds of cleanup—a glass bottle clinking, a lid twisting shut, the rustle of cloth. He didn’t speak—the silence wasn’t punitive. It was… Final. The lesson was over. The test had been administered, and Jonah had failed in the most fundamental way. He had passed by failing. He had won by losing.
+The Husbandman moved around the room, the soft sounds of cleanup—a glass bottle clinking, a lid twisting shut, the rustle of cloth. He didn’t speak—the silence wasn’t punitive. It was… final. The lesson was over. The test had been administered, and Jonah had failed in the most fundamental way. He had passed by failing. He had won by losing.
 
-His cock lay soft against his thigh, a vulnerable thing. Foreign. A traitor. The center of the earthquake. The memory of the last hour wasn’t a linear narrative; it was a series of sense-impressions that flashed behind his eyes like faulty neon. The exact pressure of the man’s hand. The obscene, slick sounds. The low, murmured commands that weren’t commands at all, but inevitabilities spoken aloud. *Let it go. You want to. Just let it go.* The shocking, violent pleasure of release—not a relief, but an annihilation. A white-out behind his eyes that erased every thought, every memory of who he was supposed to be. In that endless second, there had been no Jonah Vale. There had only been sensation, obedient and complete.
+His cock lay soft against his thigh, a vulnerable thing. Foreign. A traitor. The center of the earthquake. The memory of the last hour wasn’t a linear narrative; it was a series of sense-impressions that flashed behind his eyes like faulty neon. The exact pressure of the man’s hand. The obscene, slick sounds. The low, murmured commands that weren’t commands at all, but inevitabilities spoken aloud. *Let it go. You want to. Just let it go. * The shocking, violent pleasure of release—not a relief, but an annihilation. A white-out behind his eyes that erased every thought, every memory of who he was supposed to be. In that endless second, there had been no Jonah Vale. There had only been sensation, obedient and complete.
 
 And the sound he’d made. A raw, broken noise that had torn out of him from a place deeper than his lungs.
 
