@@ -56,7 +56,7 @@ Then the world dissolved.
 
 The pollen sacs, fat and golden, unsteadied as he leaned close. The air in the greenhouse was still, a held silence. He’d sealed the vents an hour ago. No drafts, no accidents. Just this.
 
-Orin’s own movement sounded too loud. A dry rustle in his throat. He’d washed his hands again, scrubbing under the nails until the skin burned, but the dirt was in him, deeper than soap. It always was. The apple weighed in his coat pocket, a hopeful lump. He ignored it. Focused on the flower.
+Orin’s own quiet sounded too loud. A dry rustle in his throat. He’d washed his hands again, scrubbing under the nails until the skin burned, but the dirt was in him, deeper than soap. It always was. The apple weighed in his coat pocket, a hopeful lump. He ignored it. Focused on the flower.
 
 Ugly. Beautiful, in its way, but ugly. The petals were a deep, bruised color, like a bruise you couldn’t stop pressing. The center was a chaos of filaments, each tipped with a droplet of that iridescent sap. And the pollen. It wasn’t a fine dust. It clung in clumps, like damp saffron, glowing with a faint, internal light. He’d seen it under the microscope. Each grain was a spiked sphere built to hook into a mucous membrane and not let go. Built to communicate.
 
@@ -70,7 +70,7 @@ He picked up the small glass dish he’d prepared. His fingers closed around the
 
 A cloud of gold puffed into the dish, so fine it seemed to hang in the air above it, a miniature constellation. It sparkled in the low glow of the grow lights. His heart did a hard, skipping beat against his ribs. Too late for second thoughts. That was the lie he told himself. Never too late. He could open the door, dump the dish into the compost. He could go back to being the harmless gardener, the man who smuggled apples. He thought of the new intake, the one who’d looked at the sky. He thought of the arc of that shoulder against the steel table. Of one door swinging shut.
 
-Orin lifted the dish. He brought it to his face. His nostrils flared, drawing in one last clean beat of humid glasshouse air. Then he bent forward and inhaled.
+Orin lifted the dish. He brought it to his face. His nostrils flared, drawing in one last clean air of humid glasshouse air. Then he bent forward and inhaled.
 
 This world did not explode.
 
@@ -78,13 +78,13 @@ There was a taste, first. Not a smell, a taste at the back of his sinuses—swee
 
 He straightened setting the dish down with a click that echoed for far too long. He waited. Counted his pulse. Ten beats. Twenty.
 
-A bead of sweat traced a path down his spine. The greenhouse lights seemed to brighten, in a rhythm that matched his silence between them. Or was he matching them? The leaves on the Ophrys plants began to shimmer. Not a trick of the light. A genuine, slow-motion undulation, a gentle pulsing as if they were quiet with him. He blinked. The image persisted.
+A bead of sweat traced a path down his spine. The greenhouse lights seemed to brighten, in a rhythm that matched his pulse between them. Or was he matching them? The leaves on the Ophrys plants began to shimmer. Not a trick of the light. A genuine, slow-motion undulation, a gentle pulsing as if they were chest rising with him. He blinked. The image persisted.
 
 Interesting, he thought. Visual distortion. Mild synesthesia, perhaps. The thought was a dry leaf, crumbling as soon as it formed. Another sensation shouldered it aside. A pressure. Not in his head, but in his skin. Every pore was open, receptive. The air wasn’t just air anymore; it was a thick syrup of information. He could feel the thirst of the plants along the bench, their rooting ache. He could feel the latent heat from the compost piles fifty yards away, their microbial churn. And beyond that, a more complex thrum.
 
 The farm.
 
-It vibrated through the soles of his feet. The pumps were no longer a distant hum but a distinct, rhythmic pull-squeeze-release that echoed in the hollow of his own pelvis. His air hitched. He wasn’t supposed to feel that.
+It vibrated through the soles of his feet. The pumps were no longer a distant hum but a distinct, rhythmic pull-squeeze-release that echoed in the hollow of his own pelvis. His beat hitched. He wasn’t supposed to feel that.
 
 He took a step back, bumped into the workbench. A tray of seedlings rattled. That sound was a death knell. He clutched the edge of the bench, the wood grain impossibly detailed under his fingertips. Each whorl was a canyon, a history of drought and rain.
 
@@ -128,7 +128,7 @@ The door gave way. Not from his push. A hand pulled it open from within.
 
 One of the hands, a burly man named Griggs, stared at him. “Orin? What the hell are you doing here?”
 
-Orin looked at him. Really looked. He saw the pores on Griggs’s nose, the burst capillary in his left eye, the stale coffee on his pause. He saw the tired, mean emptiness behind it all. And he saw the thread that connected Griggs to the pulsing heart of the barn, a slack cord of habitual cruelty. Ugly. Frail.
+Orin looked at him. Really looked. He saw the pores on Griggs’s nose, the burst capillary in his left eye, the stale coffee on his moment. He saw the tired, mean emptiness behind it all. And he saw the thread that connected Griggs to the pulsing heart of the barn, a slack cord of habitual cruelty. Ugly. Frail.
 
 Orin spoke. A cloud of iridescent dust, invisible to Griggs, ghosted from his lips. It kissed the man’s face.
 
@@ -164,7 +164,7 @@ The boy’s silence hitched. He pulled Jenks into an embrace. Clumsy, awkward. T
 
 A current went through the room. A visible shiver.
 
-Across the aisle, a handler dropped his clipboard. He walked to the captive still sitting on his table, a man with silver in his hair and ancient eyes. The handler unbuckled the man’s ankle restraints with tender meticulous care. His fingers lingered on the bruised skin. The older captive placed his hand over the handler’s. Their foreheads touched.
+Across the aisle, a handler dropped his clipboard. He walked to the captive still sitting on the table, a man with silver in his hair and ancient eyes. The handler unbuckled the man’s ankle restraints with tender meticulous care. His fingers lingered on the bruised skin. The older captive placed his hand over the handler’s. Their foreheads touched.
 
 It was a spark in dry tinder.
 
