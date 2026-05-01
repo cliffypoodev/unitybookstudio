@@ -36,7 +36,7 @@ Was a coward. He knew it. Hiding behind botany, playing with stolen fluids while
 
 The guilt wasn’t leaden anymore. It was a hot, sharp wire behind his eyes. Testing on an animal was a delay. A pretense of caution that was just fear.
 
-His beat fogged the glass pane of the bell jar as he lifted it. The movement was decisive, a sharp crack in the humid stillness. He placed the jar over the bloom, sealing the flower in its own private atmosphere. With a practiced twist of his wrist, he tapped the stem. A cloud of fine, gold dust puffed into the jar, swirling in the trapped air.
+His pause fogged the glass pane of the bell jar as he lifted it. The movement was decisive, a sharp crack in the humid stillness. He placed the jar over the bloom, sealing the flower in its own private atmosphere. With a practiced twist of his wrist, he tapped the stem. A cloud of fine, gold dust puffed into the jar, swirling in the trapped air.
 
 He stared at it. The most dangerous substance he had ever created, innocent as dust motes in a sunbeam.
 
@@ -48,7 +48,7 @@ What was his intent, truly? To free them? Or to finally feel clean?
 
 Before the thought could finish, before the fear could clench its fist around his throat, his hands moved. It was not a decision. It was a physiological fact, like a knee jerking under a mallet. He lifted the jar. He broke the seal.
 
-He leaned forward, closed his eyes, and took not a sniff, but a deep, deliberate moment right over the open rim.
+He leaned forward, closed his eyes, and took not a sniff, but a deep, deliberate beat right over the open rim.
 
 The gold dust filled his nose, his lungs. It tasted like honey cut with copper, like rain on hot pavement. For a second, nothing. Just the taste.
 
@@ -56,7 +56,7 @@ Then the world dissolved.
 
 The pollen sacs, fat and golden, unsteadied as he leaned close. A air in the greenhouse was still, a held silence. He’d sealed the vents an hour ago. No drafts, no accidents. Just this.
 
-Orin’s own air sounded too loud. A dry rustle in his throat. He’d washed his hands again, scrubbing under the nails until the skin burned, but the dirt was in him, deeper than soap. It always was. The apple weighed in his coat pocket, a hopeful lump. He ignored it. Focused on the flower.
+Orin’s own moment sounded too loud. A dry rustle in his throat. He’d washed his hands again, scrubbing under the nails until the skin burned, but the dirt was in him, deeper than soap. It always was. The apple weighed in his coat pocket, a hopeful lump. He ignored it. Focused on the flower.
 
 Ugly. Beautiful, in its way, but ugly. The petals were a deep, like a bruise you couldn’t stop pressing. The center was a chaos of filaments, each tipped with a droplet of that iridescent sap. And the pollen. It wasn’t a fine dust. It clung in clumps, like damp saffron, glowing with a faint, internal light. He’d seen it under the microscope—Each grain was a spiked sphere built to hook into a mucous membrane and not let go. Built to communicate.
 
@@ -68,7 +68,7 @@ His hands weren’t steady. He watched them hover near the blossom, fingers spla
 
 He picked up the small glass dish he’d prepared. His fingers closed around the smooth handle of a fine artist’s brush—sable, from a lifetime ago when he painted watercolor fields. The irony tasted metallic. He brought the bristles to the pollen sac, touched them with a feather’s pressure.
 
-A cloud of gold puffed into the dish, so fine it seemed to hang in the air above it, a miniature constellation. It sparkled in the low glow of the grow lights. His heart did a hard, skipping beat against his ribs. Too late for second thoughts. That was the lie he told himself. Never too late. He could open the door, dump the dish into the compost. He could go back to being the harmless gardener, the man who smuggled apples. of the new intake, the one who’d looked at the sky. Of the arc of that shoulder against the steel table. Of one door swinging shut.
+A cloud of gold puffed into the dish, so fine it seemed to hang in the air above it, a miniature constellation. It sparkled in the low glow of the grow lights. His heart did a hard, skipping beat against his ribs. Too late for second thoughts. That was the lie he told himself. Never too late. He could open the door, dump the dish into the compost. He could go back to being the harmless gardener, the man who smuggled apples. of the new intake, the one who’d looked at the sky. of the arc of that shoulder against the steel table. Of one door swinging shut.
 
 Orin lifted the dish. He brought it to his face. His nostrils flared, drawing in one last clean beat of humid glasshouse air. Then he bent forward and inhaled.
 
@@ -80,13 +80,13 @@ He straightened setting the dish down with a click that echoed for far too long.
 
 A bead of sweat traced a path down his spine. The greenhouse lights seemed to brighten, in a rhythm that matched his silence between them. Or was he matching them? The leaves on the *Ophrys* plants began to shimmer. Not a trick of the light. A genuine, slow-motion undulation, a gentle pulsing as if they were quiet with him. He blinked. An image persisted.
 
-Interesting, he thought. Visual distortion. Mild synesthesia, perhaps. was a dry leaf, crumbling as soon as it formed. Another sensation shouldered it aside. A pressure. Not in his head, but in his skin. Every pore was open, receptive. That air wasn’t just air anymore; it was a thick syrup of information. He could feel the thirst of the plants along the bench, rooting ache. He could feel the latent heat from the compost piles fifty yards away, microbial churn. And beyond that, more complex thrum.
+Interesting, he thought. Visual distortion. Mild synesthesia, perhaps. was a dry leaf, crumbling as soon as it formed. Another sensation shouldered it aside. A pressure. Not in his head, but in his skin. Every pore was open, receptive. One air wasn’t just air anymore; it was a thick syrup of information. He could feel the thirst of the plants along the bench, their rooting ache. He could feel the latent heat from the compost piles fifty yards away, their microbial churn. And beyond that, a more complex thrum.
 
 The farm.
 
-It vibrated through the soles of his feet. The pumps were no longer a distant hum but a distinct, rhythmic pull-squeeze-release that echoed in the hollow of his own pelvis. His pause hitched. He wasn’t supposed to feel that.
+It vibrated through the soles of his feet. The pumps were no longer a distant hum but a distinct, rhythmic pull-squeeze-release that echoed in the hollow of his own pelvis. His silence hitched. He wasn’t supposed to feel that.
 
-He took a step back, bumped into the workbench. A tray of seedlings rattled. A sound was a room bell. He clutched the edge of the bench, the wood grain impossibly detailed under his fingertips. Each whorl was a canyon, a history of drought and rain.
+He took a step back, bumped into the workbench. A tray of seedlings rattled. That sound was a room bell. He clutched the edge of the bench, the wood grain impossibly detailed under his fingertips. Each whorl was a canyon, a history of drought and rain.
 
 Then the voices came.
 
@@ -96,39 +96,39 @@ Not voices. Impressions. A tide of raw sensation that was not his own. A deep, g
 
 The empathetic link didn’t stop at pain. It was a conduit. As the tide of stolen sensation washed through him, it met the resistance of his own body, his own untouched nerves. The signals crossed, tangled, fused. The ache in a stranger’s back became a tight heat coiling low in his own belly. A memory of a rough hand on a flank sparked a jolt of electric sensitivity across his skin. The phantom exhaustion after climax transformed into a heavy, full-throated arousal that had no target, just a pure, aching need.
 
-He groaned doubling over. His cock was hard, straining against his work trousers, irrelevant fact. This wasn’t desire. It was an invasion. A feedback loop of stolen physicality. Every pulse of the farm’s machinery was like a stroke. Every stifled cry from the barns reverberated in his own clenched teeth.
+He groaned doubling over. His cock was hard, straining against his work trousers, an irrelevant fact. This wasn’t desire. It was an invasion. A feedback loop of stolen physicality. Every pulse of the farm’s machinery was like a stroke. Every stifled cry from the barns reverberated in his own clenched teeth.
 
-He stumbled away from the bench, into the central aisle. The plants were watching. Their attention, a vegetative curiosity. The large *Ophrys* bloom turned on its stem, following him. The pollen. It wasn’t a disorientant. It was a connector. It stripped away the isolation of individual consciousness and wired everything together—the exploited, the land that bore witness, and him, the guilty intermediary.
+He stumbled away from the bench, into the central aisle. The plants were watching. Their attention was a vegetative curiosity. The large *Ophrys* bloom turned on its stem, following him. The pollen. It wasn’t a disorientant. It was a connector. It stripped away the isolation of individual consciousness and wired everything together—the exploited, the land that bore witness, and him, the guilty intermediary.
 
 A wave of heat crashed over him. He tore at his shirt, buttons pinging against the glass panes. The cool air on his sweat-slicked chest was a shock, then a new kind of torment. His skin was hypersensitive. The brush of his own cotton undershirt as he pulled it over his head was a rasp that made him gasp. He kicked off his boots, shoved his trousers and shorts down in one frantic motion. It was like hands on him. A thousand invisible, knowing hands.
 
-He fell to his knees on the warm, packed-earth floor. The soil welcomed him. He could feel its contentment, its blind hungry joy at his bare skin. He pressed his palms flat against it. Roots said against his senses, subterranean network. They drank from the same tainted water table. They were all part of the same system.
+He fell to his knees on the warm, packed-earth floor. The soil welcomed him. He could feel its contentment, its blind hungry joy at his bare skin. He pressed his palms flat against it. Roots pressed against his senses, a subterranean network. They drank from the same tainted water table. They were all part of the same system.
 
-The pressure built, a peak with no release. He wasn’t being stimulated; he was stimulation. The collective, pent-up tension of two dozen men in the nearby barn, strapped down, emptied, their bodies humming with a frustrated, mechanical cycle. Was a lightning rod for it. A conduit to ground.
+The pressure built, a peak with no release. He wasn’t being stimulated; he was stimulation. the collective, pent-up tension of two dozen men in the nearby barn, strapped down, emptied, their bodies humming with a frustrated, mechanical cycle. Was a lightning rod for it. A conduit to ground.
 
-His back arched. One sound was torn from him, not a cry, but a raw, open-mouthed gasp. His hand moved to his own cock, not by conscious will, but as a necessary pressure valve. The touch was catastrophic. It wasn’t his own hand. Theirs. The rough grip of a farmhand, the desperate friction of a captive in the dark, the clinical efficiency of a machine’s silicone sleeve. All of it, channeled through his own trembling fingers.
+His back arched. A sound was torn from him, not a cry, but a raw, open-mouthed gasp. His hand moved to his own cock, not by conscious will, but as a necessary pressure valve. The touch was catastrophic. It wasn’t his own hand. Theirs. The rough grip of a farmhand, the desperate friction of a captive in the dark, the clinical efficiency of a machine’s silicone sleeve. All of it, channeled through his own trembling fingers.
 
-He came in less than a minute. A violent, shuddering eruption that left him blind and gasping, forehead pressed into the dirt. It wasn’t pleasure. It was a seismic event, personal quake that echoed through the connected web he’d fallen into. For a few seconds, the feedback loop broke. There was silence. A hollow, ringing peace.
+He came in less than a minute. A violent, shuddering eruption that left him blind and gasping, forehead pressed into the dirt. It wasn’t pleasure. It was a seismic event, a personal quake that echoed through the connected web he’d fallen into. For a few seconds, the feedback loop broke. There was silence. A hollow, ringing peace.
 
 He lay there spent, shivering. The soil drank his offering.
 
 Then the connection surged back, stronger. Clearer. The momentary release had opened the channel wider. He wasn’t just feeling echoes anymore. Was a signal. And an answering pulse—not from the barns this time, but from the land itself. From the trees at the property’s edge, their roots drinking from the same source. From the bees in their hives, drunk on tainted nectar. A wave of pure, anarchic vitality rose in response to his distress call. It wasn’t anger. It was a fertile, mindless need to merge, to break down barriers, to join.
 
-Orin pushed himself up on trembling arms. Looked at his hands, dirty again. He started to laugh, broken sound. His beautiful, tidy plan. His weapon of liberation.
+Orin pushed himself up on trembling arms. Looked at his hands, dirty again. He started to laugh, a broken sound. His beautiful, tidy plan. His weapon of liberation.
 
 He hadn’t created a key. He’d created a spark. And the whole damn farm was soaked in gasoline.
 
-The pollen was a ghost in his lungs, a sweet, chalky taste at the back of his throat that bloomed into something else. Orin staggered from the greenhouse, the world tilting on its axis. The gravel path wasn’t solid anymore—it said, low, a slow, rhythmic expansion that matched the thudding in his chest. He leaned against the cool brick of the tool shed, the rough texture alive under his palm. Every grain of mortar spoke quietly. He could feel the roots of the wisteria drinking deep beneath his feet, a slow, wet pull. This wasn’t disorientation. It was an opening.
+The pollen was a ghost in his lungs, chalky taste at the back of his throat that bloomed into something else. Orin staggered from the greenhouse, the world tilting on its axis. The gravel path wasn’t solid anymore—it sighed, low, a slow, rhythmic expansion that matched the thudding in his chest. He leaned against the cool brick of the tool shed, the rough texture alive under his palm. Every grain of mortar spoke quietly. He could feel the roots of the wisteria drinking deep beneath his feet, wet pull. This wasn’t disorientation. It was an opening.
 
 The distant pump-hum wasn’t a sound now. It was a pulse. The farm’s heartbeat. And he could feel the other heartbeats tangled within it—dozens of them, frantic, trapped birds fluttering against the bars of his own ribs. A wave of nausea rolled through him, not sickness but a violent, empathetic lurch. He tasted metal and salt. Fear. Not his. Theirs.
 
-He pushed off the wall. His legs moved without his command, carrying him toward the central barn. The logic was gone, the careful plan incinerated in this new, raw circuitry. Was a conduit. That door loomed ahead, a great slab of painted steel. He didn’t open it. He laid his forehead against it. The vibration here was a song, a terrible, beautiful song of misery and mechanical rhythm. Tears, hot and pointless, streaked his cheeks. He wasn’t crying for himself.
+He pushed off the wall. His legs moved without his command, carrying him toward the central barn. The logic was gone, the careful plan incinerated in this new, raw circuitry. Was a conduit. That door loomed ahead, a great slab of painted steel. He didn’t open it. He laid his forehead against it. The vibration here was a song, beautiful song of misery and mechanical rhythm. Tears, hot and pointless, streaked his cheeks. He wasn’t crying for himself.
 
 A door gave way. Not from his push. A hand pulled it open from within.
 
 One of the hands, a burly man named Griggs, stared at him. “Orin? What the hell are you doing here?”
 
-Orin looked at him. Really looked. He saw the pores on Griggs’s nose, the burst capillary in his left eye, the stale coffee on his beat. He saw the tired, mean emptiness behind it all. And he saw the thread that connected Griggs to the pulsing heart of the barn, a greasy, slack cord of habitual cruelty. Ugly. Frail.
+Orin looked at him. Really looked. He saw the pores on Griggs’s nose, the burst capillary in his left eye, the stale coffee on his air. He saw the tired, mean emptiness behind it all. And he saw the thread that connected Griggs to the pulsing heart of the barn, slack cord of habitual cruelty. Ugly. Frail.
 
 Orin spoke. A cloud of iridescent dust, invisible to Griggs, ghosted from his lips. It kissed the man’s face.
 
@@ -138,23 +138,23 @@ The change wasn’t violent. It was a melting. Griggs’s shoulders slumped. The
 
 Orin stepped past him, into the room of white tile and steel.
 
-The smell hit first—antiseptic, sweat, the coppery tang of adrenaline, and beneath it, the thick, familiar scent of spent seed. Usually a smell of extraction. Now, to his rewired senses, it was the smell of potential, spilled and wasted. One air vibrated with it.
+The smell hit first—antiseptic, sweat, the coppery tang of adrenaline, and beneath it, familiar scent of spent seed. Usually a smell of extraction. Now, to his rewired senses, it was the smell of potential, spilled and wasted. One air vibrated with it.
 
-The barn was a long, high-ceilinged space, lit by harsh fluorescents. Men were strapped to inclined tables, their bodies tense, faces turned away. Handlers moved between them, their actions brisk, routine. That hum of the suction pumps was a constant drone. One of the captives, the one who had held his chin high by the van was fighting the restraints. A handler slapped his thigh, a casual, corrective gesture. “Ease up, 47. You’re just making it longer.”
+The barn was a long, high-ceilinged space, lit by harsh fluorescents. Men were strapped to inclined tables, their bodies tense, faces turned away. Handlers moved between them, their actions brisk, routine. That hum of the suction pumps was a constant drone. One of the captives, the one who had held his chin high by the van was fighting the restraints. A handler slapped his thigh, corrective gesture. “Ease up, 47. You’re just making it longer.”
 
 Orin walked down the central aisle. He didn’t run. He floated. His exhales were gentle, purposeful. The pollen left him with every moment, a benevolent miasma spreading in the recycled air.
 
-The handler who had slapped the captive froze. His hand, still raised began to tremble. He looked at the red mark on the captive’s skin, then at his own palm, as if seeing it for the first time. A low, wounded sound escaped him. He stumbled back, crashing into a wheeled tray of glass collection vials. They shattered on the floor, a sudden, sharp music.
+The handler who had slapped the captive froze. His hand, still raised began to tremble. He looked at the red mark on the captive’s skin, then at his own palm, as if seeing it for the first time. A low, wounded sound escaped him. He stumbled back, crashing into a wheeled tray of glass collection vials. They shattered on the floor, sharp music.
 
 Heads turned. The rhythmic pump-hum stuttered as other handlers paused, confused. The captive, 47, strained against his straps, but his anger was morphing into confusion. He stared at the weeping handler.
 
-“What’s wrong with you, Jenks?” another handler barked from across the room. The command had no teeth. A man’s voice cracked halfway through.
+“What’s wrong with you, Jenks?” Another handler barked from across the room. The command had no teeth. A man’s voice cracked halfway through.
 
 Orin reached the main control panel for the section. He placed his hand on the touchscreen. He didn’t know the codes. He didn’t need them. The electricity in the console was a buzzing willing stream. *Release*.
 
 With a series of solid thunks, the electromagnetic locks on the restraints disengaged.
 
-For a second, there was only the drip of a tap and Jenks’s quiet sobs. Then the captives moved. They pushed themselves up on trembling arms, rubbing wrists raw from the cuffs. They looked at each other, at the handlers who stood frozen and stricken, at Orin, who glowed to them now like a signal in the chemical fog.
+For a second, there was only the drip of a tap and Jenks’s quiet sobs. Then the captives moved. They pushed themselves up on trembling arms, rubbing wrists raw from the cuffs. They looked at each other, at the handlers who stood frozen and stricken, who glowed to them now like a signal in the chemical fog.
 
 The pollen didn’t bring rage. It dissolved the walls. It didn’t whisper *fight*. It said *feel*.
 
@@ -170,17 +170,17 @@ It was a spark in dry tinder.
 
 The careful, terrible order of the barn unraveled into a new shape. A captive stood and pulled a stunned handler into a fierce, desperate kiss. There was no dominance in it, only a hungry, shared astonishment. Another handler, his uniform shirt already torn open by his own hands fell to his knees before a man still strapped to a table and pressed his mouth to the captive’s stomach, his shoulders shaking. The captive’s hands, now free came down to cradle the handler’s head, fingers threading through his hair.
 
-Sound returned, but transformed. Grunts and sobs became sighs, sharp inhales, the wet, open-mouthed sound of kissing. The clatter of a buckle. The rustle of fabric pushed aside. A air grew heavy, humid with a new heat.
+Sound returned, but transformed. Grunts and sobs became sighs, the wet, open-mouthed sound of kissing. The clatter of a buckle. The rustle of fabric pushed aside. A air grew heavy, humid with a new heat.
 
-Orin watched, his back against the humming control panel. The connection was a physical cord in his gut, tied to every person in the room. The handler Jenks’s desperate, repentant mouth on the young captive’s cock, the boy’s head thrown back in a shock of pleasure that was also an act of absolution. The silver-haired captive guided his handler’s head lower, a gentle pressure, and the handler’s eager, grateful acceptance. Was in every touch, every gasp. It was an orgy, yes—a tangle of limbs and seeking mouths, the slick sounds of penetration, the raw, animal cries as bodies found a rhythm older than cruelty. But it was not debasement. It was a frantic, physical language for something there were no words for. An apology. A reclamation. A circuit completed.
+Orin watched, his back against the humming control panel. The connection was a physical cord in his gut, tied to every person in the room. He saw the handler Jenks’s desperate, repentant mouth on the young captive’s cock, the boy’s head thrown back in a shock of pleasure that was also an act of absolution. The silver-haired captive guided his handler’s head lower, a gentle pressure, and the handler’s eager, grateful acceptance. In every touch, every gasp. It was an orgy, yes—a tangle of limbs and seeking mouths, the slick sounds of penetration, animal cries as bodies found a rhythm older than cruelty. But it was not debasement. It was a frantic, physical language for something there were no words for. An apology. A reclamation. A circuit completed.
 
 A handler, his pants around his ankles, bent over a table while a captive moved behind him, his hands gripping the handler’s hips. The handler’s face was pressed to the cold steel, his cries muffled, his body shuddering with each thrust. Surrender. Power given and received. It was a transaction that balanced no ledger, only hearts.
 
-Orin slid down the panel to sit on the floor. His own body was alight, a live wire thrumming with the feedback from a dozen couplings. Was hard, aching, but it was a distant thing. The pleasure was secondary to the overwhelming flood of feeling. He was the farm. The soil, the roots, the men weeping and coming in each other’s arms. He was the wisteria breaking the glass.
+Orin slid down the panel to sit on the floor. His own body was alight, a live wire thrumming with the feedback from a dozen couplings. Was hard, aching, but it was a distant thing. The pleasure was secondary to the overwhelming flood of feeling. He was the farm. The soil, the men weeping and coming in each other’s arms. He was the wisteria breaking the glass.
 
 A door at the far end of the barn flew open. The farm’s head of security, Macklin stood silhouetted, a shock baton in his hand.
 
-He took two steps in and stopped. The scene—the entwined bodies, the weeping, the raw sensuality—hit him like a physical blow. His professional fury crumpled. The baton clattered to the tile. The pollen-rich air reached him. He inhaled it softly.
+He took two steps in and stopped. The scene—the entwined bodies, the raw sensuality—hit him like a physical blow. His professional fury crumpled. The baton clattered to the tile. The pollen-rich air reached him. He inhaled it softly.
 
 His stern face went slack. He looked at his own hands, then at the nearest knot of bodies—a captive was on his knees, taking a handler deep into his throat, the handler’s hands gentle on the captive’s shoulders. Macklin made a sound like a drowning man finding air. He fumbled with his own belt, his movements frantic, not with anger but with a sudden, devastating need. He didn’t join the pile. He just sank against the wall, his own hand working his cock, his eyes wide and lost as he watched the world he’d policed transform into a garden of frantic, tangled vines.
 
