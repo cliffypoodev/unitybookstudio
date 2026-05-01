@@ -46,7 +46,7 @@ He remembered the smell. That sound. The sheer, dehumanizing scale of it. That w
 
 “It means you say ‘yes’ to everything I ask. It means you offer no physical resistance. It means you endure whatever sensation I choose to administer, for as long as I choose to administer it. You will not fight your own body’s responses. You will let them happen.” The Husbandman pushed off from the trolley and took a single step closer. The air between them changed grew heavier. “It means, for this one night, you belong to me. Completely. The terms are absolute.”
 
-Jonah’s skin prickled, a cold sweat breaking out across his back. He wanted to hit something. He wanted to drive his fist through that calm, wooden face. The impulse surged up his arms made his fingers curl into fists.
+Jonah’s skin prickled, a cold sweat breaking out across his back. He wanted to hit something. He wanted to drive his fist through that calm, wooden face. The impulse surged up his arms and made his fingers curl into fists.
 
 He didn’t move. The silence stretched. Somewhere, far away, a pipe clanked. The sound was oddly domestic.
 
@@ -100,7 +100,7 @@ The silence stretched after his sentence. The Husbandman watched him, an assessi
 
 A hot flush crawled up Jonah’s neck. His fingers, stupid and thick, fumbled with the coarse button of the canvas trousers. The metal was cool. He got it open, pushed the rough fabric down over his hips. It pooled around his ankles. The air in the room was the same temperature as before, but different now—a slick, intimate touch over his bare skin. He stepped out of the puddle of cloth and stood there, naked. The stone leeched the warmth from his soles. He fixed his eyes on the crack in the wall again. The lightning bolt. If he stared hard enough maybe he could disappear into it.
 
-Footsteps. The Husbandman circled him, slow. His gaze was like a physical pressure moving over his back, the curve of his ass, the backs of his thighs. It was a violation so complete, so surgical. A memory rose so vivid he could taste it—dust and sweat. It had nothing to do with this room, this moment. His brain offered it like a useless gift.
+Footsteps. The Husbandman circled him, slow. His gaze was like a physical pressure moving over his back, the curve of his ass, the backs of his thighs. It was a violation so complete, so surgical. A memory rose, so vivid he could taste it—dust and sweat. It had nothing to do with this room, this moment. His brain offered it like a useless gift.
 
 “Good,” the Husbandman said. The word landed somewhere behind Jonah’s right ear. “Now the table—on your back. Arms and legs in the restraints.”
 
@@ -118,7 +118,7 @@ Jonah jerked against the restraints, a full-body spasm. The leather held. The to
 
 His fingers brushed the crease where thigh met groin.
 
-A jolt, white-hot and entirely unwanted, shot through Jonah’s gut. He sucked in a sharp air. No. His mind screamed it. His body, traitorous and stupid, reacted. A faint, humiliating twitch in his cock, lying flaccid against his thigh.
+A jolt, white-hot and entirely unwanted, shot through Jonah’s gut. He sucked in a sharp silence. No. His mind screamed it. His body, traitorous and stupid, reacted. A faint, humiliating twitch in his cock, lying flaccid against his thigh.
 
 The Husbandman noted it—a slight tilt of his head. He didn’t comment. His hand moved away, only to return a moment later, palming the soft skin of Jonah’s lower abdomen. The gel had a faint, clean scent. Aloe maybe. Absurd.
 
@@ -148,7 +148,7 @@ A sob broke from him—rage. Despair.
 
 “Please,” he heard himself whimper. The word was a stranger’s.
 
-“Please what, Jonah?” The Husbandman’s pause was warm on his temple. The hand on his cock never faltered. “Do you want me to stop? Or do you want to come?”
+“Please what, Jonah?” The Husbandman’s air was warm on his temple. The hand on his cock never faltered. “Do you want me to stop? Or do you want to come?”
 
 The question was the trap. To ask for it to stop was to admit he needed the mercy. To ask to come was to surrender. Jonah bit his lip until he tasted copper. He shook his head, wordless denial.
 
@@ -158,7 +158,7 @@ The dam broke.
 
 Jonah came with a shattered cry, his body bowing against the restraints. It wasn’t a release; it was an annihilation. Pleasure tore through him, violent and total, wiping his mind clean of every thought, every last scrap of defiance. He spilled over the Husbandman’s fist and his own stomach in hot spurts, his vision whiting out at the edges.
 
-For a long moment, there was only the shuddering aftershock and the ragged sound of his own stillness.
+For a long moment, there was only the shuddering aftershock and the ragged sound of his own chest rising.
 
 Slowly, awareness seeped back. The cold air on his sweat-slick skin. The smell of sex and aloe. The faint satisfied hum from the man beside the table.
 
@@ -182,7 +182,7 @@ That was the thing that hollowed him out now. Not the act. That sound.
 
 The footsteps approached. Jonah didn’t turn his head. A folded stack of fabric appeared in his periphery, placed on the leather beside his hip. Dark gray trousers. A soft, heather-colored T-shirt.
 
-“Get dressed,” the Husbandman said. He spoke the same. Calm. Unchanged. It held no triumph, no gloating. That was the worst part. The man hadn’t conquered an enemy. He’d simply corrected a fault.
+“Get dressed,” the Husbandman said. He spoke the same way. Calm. Unchanged. It held no triumph, no gloating. That was the worst part. The man hadn’t conquered an enemy. He’d simply corrected a fault.
 
 Jonah pushed himself up. His muscles trembled, an uncontrollable shake. He fumbled with the trousers, his fingers thick and stupid. The cloth was clean, simple. Alien against his skin. When he pulled the shirt over his head, the world muffled for a second, and he caught the faint, clean smell of detergent. A small, staggering kindness.
 
