@@ -36,7 +36,7 @@ He was a coward. He knew it. Hiding behind botany, playing with stolen fluids wh
 
 The guilt wasn’t leaden anymore. It was a hot, sharp wire behind his eyes. Testing on an animal was a delay. A pretense of caution that was just fear.
 
-His pause fogged the glass pane of the bell jar as he lifted it. The movement was decisive, a sharp crack in the humid stillness. He placed the jar over the bloom, sealing the flower in its own private atmosphere. With a practiced twist of his wrist, he tapped the stem. A cloud of fine, gold dust puffed into the jar, swirling in the trapped air.
+His beat fogged the glass pane of the bell jar as he lifted it. The movement was decisive, a sharp crack in the humid stillness. He placed the jar over the bloom, sealing the flower in its own private atmosphere. With a practiced twist of his wrist, he tapped the stem. A cloud of fine, gold dust puffed into the jar, swirling in the trapped air.
 
 He stared at it. The most dangerous substance he had ever created, innocent as dust motes in a sunbeam.
 
