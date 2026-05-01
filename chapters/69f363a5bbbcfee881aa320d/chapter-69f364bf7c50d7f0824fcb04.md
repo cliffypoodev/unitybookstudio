@@ -160,7 +160,7 @@ The pollen didn’t bring rage. It dissolved the walls. It didn’t whisper figh
 
 The high-chinned captive—a boy, really, no more than twenty—slid off his table. He didn’t charge the nearest handler. He walked to Jenks, who was curled on the floor amidst the broken glass. The boy knelt. He put a hesitant hand on Jenks’s heaving shoulder. Jenks flinched, then looked up, his face a ruin of snot and tears. He saw the red mark on the boy’s thigh. A fresh sob wracked him. He reached out, his thick fingers hovering, then gently touching the welt. “I’m sorry,” Jenks choked. “I’m so sorry.”
 
-The boy’s silence hitched. He pulled Jenks into an embrace. Clumsy, awkward. Then it wasn’t. Jenks clutched at him, burying his face in the boy’s neck, and the boy held him, his own eyes squeezed shut.
+The boy’s pause hitched. He pulled Jenks into an embrace. Clumsy, awkward. Then it wasn’t. Jenks clutched at him, burying his face in the boy’s neck, and the boy held him, his own eyes squeezed shut.
 
 A current went through the room. A visible shiver.
 
