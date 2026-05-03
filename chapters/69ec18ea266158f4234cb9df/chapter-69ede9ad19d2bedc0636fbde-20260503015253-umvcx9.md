@@ -1,0 +1,149 @@
+The smell hit Dante first. Cheap lemon cleaner and something underneath it, stale and sour like old takeout left in a trash can overnight. He stood outside the apartment door, the numbers 4B stamped in cheap brass that was peeling at the corners. His palms were slick. He wiped them on his jeans, the denim rough against his skin. The hallway carpet was a faded green, a long stain near the baseboard that looked like a map of some country he’d never heard of.
+
+He knocked. Three sharp raps.
+
+The door opened before the sound faded. Uncle Victor filled the frame, not with bulk but with a kind of dense, bureaucratic solidity. His polo shirt was tucked into khakis, a badge on a lanyard around his neck. He didn’t smile. “You’re two minutes late.
+
+“Bus was slow.” Dante’s voice came out flat. He stepped inside, the door clicking shut behind him with a final sound.
+
+The apartment was a box. Beige walls, a brown couch, a single lamp with a dusty shade. A government-issued landscape print hung crooked over a fake wood desk. The air didn’t move. It just sat there, tasting of dust and that lemon stink. Victor’s place always felt like a waiting room for a verdict that had already been decided.
+
+“Sit.” Victor gestured to the couch. He remained standing, arms crossed. He had the same eyes as Dante’s mother, dark and watchful, but where hers had been tired, Victor’s were just… assessing. Like he was counting inventory.
+
+Dante sat on the edge of a cushion. The fabric was scratchy. He could see a single, long black hair caught in the weave near his thigh. Not his. The thought was stupid, irrelevant. His heart was a hard, quick thing behind his ribs.
+
+Victor picked up a file folder from the desk. He didn’t open it. “Your report is due Friday. Officer Jenkins has concerns. Says you’re jumpy at the garage. Missing tools.
+
+“I didn’t take anything.”
+
+“I didn’t say you did.” Victor’s tone was patient, the patience of a man explaining rules to a child. “Perception matters. Jenkins perceives a problem. That becomes my problem. Which becomes,” he tapped the folder against his palm, “your problem.
+
+Dante’s throat tightened. He stared at a water stain on the ceiling, a brownish bloom with tiny cracks radiating out like a spider’s web. He used to look for shapes in stains like that when he was a kid, waiting in social services offices. A dog. A ship. This one looked like nothing. Just a stain.
+
+“I can talk to him,” Dante said. The words felt weak, dissolving in the dead air.
+
+“Talking’s done.” Victor moved then, not toward him but to the window. He adjusted the blinds, a slat of weak afternoon light cutting across the floor, illuminating swirling motes of dust. “The system is a machine, Dante. It runs on paperwork. On boxes checked. I can check the right boxes. I can make Jenkins’s concerns disappear. I can make the next six months smooth. A path right back to clean.
+
+The hope was a cold, sharp hook in Dante’s gut. He knew better than to bite. “What’s it cost?
+
+Victor turned. The light caught the gray at his temples. He looked older than fifty. He looked like every parole board member, every stern-faced counselor Dante had ever sat across from. “A new condition. For my reports. A private one.
+
+“Like what? More meetings?
+
+“Not a meeting.” Victor set the folder down. He leaned against the desk, his posture relaxed, but his eyes were fixed on Dante. A predator’s stillness. “You have a body. You have needs. So do I. The arrangement is simple. You come here. You service those needs. I write the reports that keep you out of a cell. Everyone gets what they want.
+
+The words landed, but their meaning took a second to filter through the noise in Dante’s head. Service those needs. The air in the room got thicker, harder to pull into his lungs. He heard the hum of the refrigerator in the kitchenette, a low, persistent drone. He noticed a chip in the laminate of the coffee table, a little white crescent near the edge.
+
+“You’re joking.” It wasn’t a question. His voice was a dry scrape.
+
+“Do I look like I’m joking?” Victor’s expression didn’t change. “It’s a transaction. Cleaner than money. No evidence. Just mutual benefit. You want your freedom? This is the currency.
+
+Something hot and formless moved through Dante’s chest—not quite rage, not quite the old crawling panic of withdrawal, but a sick cousin to both. His hands clenched on his knees. The choice wasn’t a choice. It was a chute. Go back inside, where the cravings would eat him alive within a week, or step into this.
+
+Victor pushed off the desk. He walked over, stopping a few feet away. He didn’t touch him. Just stood there, looking down. “Friday,” he said, his voice dropping, becoming almost confidential. “The report gets filed by five. You come by after your shift. We’ll settle the first payment. Think of it as… probation supervision. A hands-on approach.
+
+Dante’s mouth was full of cotton. He looked past Victor, at the crooked landscape print. A generic mountain, a generic lake. A place that didn’t exist. He gave a single, stiff nod. It wasn’t agreement. It was surrender. The only kind the system ever recognized.
+
+“Good.” Victor straightened up, the moment of false intimacy gone. He was the officer again. “Now get out. I’ve got paperwork.
+
+Dante stood. His legs held. He walked to the door, the scratch of his boots on the linoleum loud in the quiet. He didn’t look back. The hallway air, even with its mildew smell, felt like a reprieve. A temporary one. He hit the stairwell, the metal door clanging shut behind him, and only then, in the echoing concrete space, did he lean over, bracing his hands on his knees, and suck in a breath that shuddered all the way down to his bones. Friday. The word echoed, a deadline with a new, terrible shape.
+
+The door to 4B felt heavier this time. Dante pushed it open and the same dead air met him, the lemon cleaner and the stale underneath. Victor stood in the middle of the room, already changed out of his polo into a gray t-shirt and sweatpants. He held a mug of coffee. The sight of the casual clothes was worse than the uniform. It meant this was off the books, a private shift.
+
+“Sit,” Victor said, not looking at him. He took a sip from the mug.
+
+Dante stayed by the door. The ceiling stain looked darker. He could see a hairline crack he hadn’t noticed before, running from the brown bloom toward the light fixture.
+
+“The report’s drafted,” Victor said, setting the mug on the desk. The click of ceramic on laminate was too loud. “All positive. Ready to file at four fifty-nine. Assuming our condition is met.
+
+“I don’t know how to do this.” The words were out before Dante could stop them, stupid and true.
+
+Victor finally turned. A faint, patient smile touched his mouth. “It’s not a skill. It’s a function. You’ll manage.” He walked to the couch and sat down, spreading his arms along the back. The space between his legs was an open parenthesis. “Come here.
+
+Dante’s feet moved. The floorboards creaked in one spot, a sound he filed away for no reason. He stopped a foot away, the scratchy brown fabric of the couch filling his vision.
+
+“Kneel.”
+
+His knees hit the thin carpet. A piece of grit dug into his kneecap through the denim. He focused on that tiny pain. Victor’s sweatpants were a soft, worn gray. He could see the shape of him underneath.
+
+A hand came down, not on him, but to the waistband. Victor hooked his thumbs and pushed the fabric down, just enough. His cock was half-hard, thick and uncut, a thatch of dark hair at the base. It smelled of soap and something musky, intimately human. Dante’s stomach turned over. His mouth flooded with saliva, a nauseous reflex.
+
+“Go on,” Victor said. His voice was calm, instructive. “You’ve got a deadline.
+
+Dante leaned forward. The smell got stronger. He opened his mouth, dry and tight, and took the head in. The skin was soft, warmer than he expected. Salt and soap. He gagged, pulling back, a string of spit connecting his lip to the shaft.
+
+“Easy.” Victor’s hand settled on the back of his head, not forcing, just resting. A weight. “Breathe through your nose. Don’t think about it. Think about Friday. Think about walking out of here clean.
+
+Dante closed his eyes. He breathed in through his nose—dust, lemon, man—and leaned in again. He took more this time, until the head hit the back of his throat. His eyes watered. He focused on the grit under his knee, a tiny white stone maybe, and the hum of the fridge. He moved his head, a clumsy jerk. Victor was fully hard now, filling his mouth, a blunt pressure that made his jaw ache.
+
+“There,” Victor murmured. His fingers threaded into Dante’s hair, tightening just a fraction. “That’s the transaction.
+
+Dante moved. In, out. A rhythm established itself, mechanical and grim. Spit dripped down his chin. He could hear Victor’s breathing change, a slight hitch on the inhale. The hand in his hair guided the pace, not rough, but utterly certain. This was the worst part—the clinical efficiency of it. The way his body, traitorously, learned the motion. The ache in his jaw began to feel familiar, almost routine.
+
+Victor’s thighs tensed. A low groan vibrated through him, into Dante’s mouth. “Almost,” he said, the word thick. “Don’t stop.
+
+The bitterness hit the back of Dante’s tongue first, a sharp, alien taste. He choked, tried to pull away, but the hand held him firm until Victor was spent. Then it released him.
+
+Dante fell back onto his heels, coughing, wiping his mouth with the back of his hand. His throat burned. Victor leaned back against the couch, eyes closed, a slow breath leaving his lips. He looked satisfied. Peaceful, even.
+
+After a moment, he opened his eyes and looked down at Dante. He pulled his sweatpants up. “First payment received.” He nodded toward the door. “You can go. I’ll file the report.
+
+Dante stood. His knees popped. The taste was in his sinuses, in the roof of his mouth. He turned without a word and walked out, the door clicking shut behind him on the clean, quiet apartment and the man inside who now owned a piece of his freedom. The hallway carpet stain still looked like a strange, unknown country. He realized he was mapping a route across it in his mind, a path to an exit that didn’t exist.
+
+The baggie was a small, damp square in Dante’s fist. He stood in the doorway of Victor’s bedroom, a room that felt less like a place to sleep and more like a storage unit for a person. A twin bed with a beige spread, a single nightstand, a heavy metal lamp bolted to the wall. The air was colder here, the lemon scent fainter, replaced by the flat smell of drywall and old sweat.
+
+Victor sat on the edge of the bed, already shirtless. His torso was pale, a softness over muscle, a dark thatch of hair between his pecs. He held out a hand, palm up. Wordless.
+
+Dante crossed the threadbare carpet. He dropped the bag into Victor’s hand. The pills inside rattled, a tiny, cheap sound. “It’s what you asked for.
+
+Victor didn’t look at them. His eyes stayed on Dante’s face. He set the bag on the nightstand, next to a digital clock that glowed 7:14 p.m. in red. “Good. Now the other part.
+
+Dante’s stomach turned over, a slow, sick roll. He’d known it was coming. Knowing didn’t make the air any easier to breathe. He stared at a seam in the wallpaper near the ceiling, a strip that had started to peel back, showing a sliver of yellowed glue.
+
+“Clothes. On the floor.” Victor’s voice was quiet. It wasn’t a shout. It was an instruction, the same tone he’d use to explain a form.
+
+Dante’s fingers felt thick, clumsy. He pulled his shirt over his head. The fabric caught on his ear for a second, a stupid, humiliating snag. He kicked off his shoes, toed off his socks. The carpet was rough under his bare feet. He undid his jeans, pushed them and his boxers down in one motion. The air was cold on his skin. He kept his eyes on the peeling wallpaper seam. It looked like a tiny, opening mouth.
+
+“Come here.”
+
+He walked. The space between them felt vast, then suddenly gone. Victor’s hands were dry and warm. They settled on Dante’s hips, turning him, maneuvering him with a terrible, efficient ease. Dante’s mind went somewhere else. The garage. The smell of oil and gasoline. The weight of a wrench in his hand. Anything but here.
+
+Victor’s touch was clinical. A bottle of lube appeared from the nightstand drawer. The click of the cap. The sound of it being squeezed. Dante flinched at the first cold, slick pressure against his asshole. His whole body went rigid. A sound escaped him, not a word, just a choked exhale.
+
+“Relax.” Victor’s breath was against his neck. It smelled of coffee and something minty. “It’ll go easier.
+
+Easy. Nothing about this was easy. Dante forced his shoulders down, tried to unclench his jaw. Victor’s finger pushed inside, a slow, relentless invasion. The burn was sharp, then a deep, wrong pressure. Dante bit the inside of his cheek until he tasted copper. He focused on the red numbers of the clock. 7:16.
+
+Another finger. The stretch was worse, a tearing feeling that wasn’t quite a tear. Victor worked them in and out, a methodical, impersonal rhythm. Preparing him. Like he was a task. Dante’s knees trembled. He locked them, refused to let them buckle.
+
+Then the fingers were gone. The absence was almost worse. He heard the rustle of Victor’s pants, the zip. The blunt, hot pressure of Victor’s cock, thicker than the fingers, nudging against him.
+
+“This is the deal,” Victor murmured, his voice a low rumble in Dante’s ear. “You take this. I write the report. You stay free.
+
+The head pushed past the ring of muscle.
+
+A white-hot spike of pain drove the air from Dante’s lungs. He gasped, a ragged, ugly sound. His hands flew out, braced against the wall. The wallpaper was cool and slightly sticky. Victor didn’t stop. He pushed forward, a slow, excruciating slide until he was fully seated, his hips flush against Dante’s ass. The fullness was unbearable, a violation so complete it short-circuited thought.
+
+Victor held there for a long moment, buried inside him. Dante could feel the man’s heartbeat, a steady thud against his back. Then he pulled back and thrust.
+
+It set a rhythm. Hard, deep, punishing strokes. Each one jolted Dante forward, his forehead bumping the wall. The pain began to mutate, blurring at the edges into a numb, buzzing static. He dissociated, floated somewhere near the ceiling, watching this happen to a body that used to be his. The clock blinked to 7:22.
+
+Victor’s breathing grew ragged. His hands tightened on Dante’s hips, fingers digging in hard enough to bruise. The thrusts lost their mechanical precision, became faster, more frantic. “Yeah,” Victor grunted, the word punched out of him. “There. Right there.
+
+In that raw, stripped moment, Dante heard it. Not just pleasure, but need. A desperate, hungry need. It was the same tone Dante had heard in his own voice, years ago, begging for a fix in a different kind of dark.
+
+Victor came with a shuddering groan, his body locking, pulsing deep inside. He collapsed forward, his weight heavy and sweaty against Dante’s back. For a few seconds, there was only the sound of their breathing—Victor’s slowing, Dante’s still shallow and fast.
+
+Victor pulled out. The sensation was a slick, awful emptiness. Dante stayed against the wall, his cheek pressed to the cool surface.
+
+He heard movement behind him. The rustle of clothing. Then the rattle of the pill bottle.
+
+Dante turned his head.
+
+Victor stood by the nightstand, naked, his back to Dante. He shook two blue pills into his palm. He threw them into his mouth, dry-swallowed with a grimace. His hand trembled, just slightly, as he set the bottle down.
+
+The realization landed softly, a poison feather. It wasn’t about power. Not just about power. It was about this. The need. The transaction. Dante was the currency, but the product was in that baggie. The probation threat, the reports, this whole grim charade in a beige room—it was just the mechanism to get Victor what he really craved.
+
+Victor turned, catching Dante’s look. His expression hardened, the vulnerability shuttered. “Shower’s down the hall,” he said, his voice rough. “Be out in ten minutes. Your report’s already filed.
+
+Dante looked from Victor’s face to the pill bottle. The cyclical despair settled in his bones, colder than the room. He was out of a cell. He was clean. And he was trapped in a new kind of addiction, one where he was both the user and the used.
