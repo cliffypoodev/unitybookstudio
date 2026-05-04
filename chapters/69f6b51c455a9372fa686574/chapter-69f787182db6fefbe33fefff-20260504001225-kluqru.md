@@ -1,0 +1,243 @@
+The ghost light cast its single, unwavering circle on the stage boards, a pale island in the ocean of dark. Iris sat at its edge, her legs dangling into the pit of the orchestra. The echo of their conversation still, a low vibration in the hollow of the theatre. A weapon. A courtroom. She flexed her hands, studied the faint tracery of veins on the backs. They felt unfamiliar, like tools left out in the rain.
+
+The side door creaked open, a long, arthritic sound she knew by now. She didn’t turn. Footsteps crossed up the aisle, not the sharp click of Pauline’s usual heels but a softer, slower scuff. The sound stopped at the lip of the stage. Iris watched the shadow stretch toward her, long and thin, a finger pointing from the dark.
+
+“You’re still here.”
+
+Pauline’s voice was flat. Not a question.
+
+“So are you.”
+
+A pause. The furnace groaned again, a sound like an old man clearing his throat deep in the building’s belly. Iris caught a whiff of cigarette smoke and something else—cold cream maybe. The ordinary scent of a woman ending her day.
+
+“I thought you’d have fled,” Pauline said. “To report. Or to drink. One of the two”.
+
+“The report is written. It’s in my bag. Three lines. ‘Rehearsal proceeded. Blocking finalized for Act Two. No deviations.’” Iris heard the tired precision in her own voice. It was the voice she used for Cross. “The drink can wait”.
+
+Pauline moved then, stepping up onto the stage with a practiced ease that belied her weariness. She didn’t enter the circle of light. She stood just outside it, a silhouette against the deeper black of the velvet curtains. She lit a cigarette. The match flared, painting her face in sudden orange—the sharp cheekbone, the downward curve of her mouth—before it died.
+
+“He’ll want more than that soon.”
+
+“I know.”
+
+“He’ll have it. From your husband, if not from you”.
+
+“I know that, too.”
+
+The simplicity of the exchange was its own kind of relief. No more fencing. The facts were out, lying between them like stones. Iris picked at a splinter on the stage floor. Her thumb found a groove in the wood, a deep scar from some forgotten piece of scenery. She traced its length.
+
+“You asked me earlier,” Pauline began, then stopped. She took a long drag. The ember brightened, a tiny, furious eye in the dark. “You asked what the play could possibly do. Now that they have everything”.
+
+“I remember.”
+
+“There’s a story,” Pauline said. She spoke, quieter now,. It lost its edge became something quieter, more measured. It was the voice she used in early rehearsals, when explaining a character’s history. “It’s not in any of the letters. I never wrote it down”.
+
+Iris’s breath caught. She didn’t look up. She kept her gaze on the scar in the wood.
+
+“After you left Paris,” Pauline said. “Three weeks maybe a month. The patron who funded the journal—the wealthy one, the one who liked to be seen with artists but never got his hands dirty—he was visited. By men from a certain bureau. They had a list. Names from the journal’s editorial board. Mine was on it”.
+
+The ash from Pauline’s cigarette fell, a grey flake drifting silently to the stage. It missed the light.
+
+“They suggested a donation. To show his patriotic fervor. A substantial one. He paid. Then he came to me. He was… apologetic. In that way men are when they’re about to do something vile. He said the journal was a liability. He said my apartment—the one he owned, the one I lived in—would be better used by a family. A French family”.
+
+Iris closed her eyes. She saw the apartment. The high windows overlooking the wet street. The battered desk where Pauline wrote. The narrow bed.
+
+“He gave me forty-eight hours. A courtesy, he called it.” Pauline’s tone was dry, utterly devoid of feeling. “I burned most of the papers. The ones that mattered. The ones that didn’t… I suppose someone found them. In the ashes. The building superintendent maybe. Or the men who came to change the locks”.
+
+A long silence. The theatre seemed to hold its breath. Iris could hear the faint, constant tick of the steam radiator in the far wall.
+
+“I got a note,” Pauline continued. “Slipped under the door of the hotel room I’d rented. It wasn’t signed. It just said, ‘The American contract was a gift. Don’t waste it.’” She let out a short, humorless breath. “I stared at that note for an hour. Trying to decide if it was a threat or a warning. A piece of advice from a friendly source, or a message from the men who’d scared my patron. I never decided”.
+
+Iris’s throat was tight. She forced the words out. “You think I knew”.
+
+“No.” The answer came quickly. Too quickly. “I think you were a vehicle. A useful, pretty vehicle to get a problem out of the city. Your talent was real. Your ambition was real. That made you the perfect container. They gave you a path you already wanted to take. And I…” Pauline paused. The cigarette ember described a slow arc as she brought it to her lips. “I saw you get on that train. I stood on the platform and I watched you go. And the only thing in my head, the only coherent thought was ‘Good.’ Get out. Get clear. Go be famous somewhere they aren’t burning things”.
+
+The splinter under Iris’s thumb broke off. A tiny, sharp pain.
+
+“You told me to stay,” Iris whispered. The memory was a physical thing, a cold stone in her gut. That last fight. The slammed door. The silence.
+
+“I said a lot of things.” Pauline’s silhouette shifted. She leaned a shoulder against a stage flat, a painted column of marble. “Most of them were true. I was angry. I felt… discarded. But that note was in my pocket the whole time. I never showed it to you. I let you think the choice was between me and your career. It wasn’t. It was between my pride and your safety. My pride lost”.
+
+The admission landed in the stillness between them. It didn’t bring comfort. It opened a different kind of wound, wider and more desolate. All those years of guilt, of shaping her life around the story of her own cowardice—They hadn’t been built on nothing. But they hadn’t been built on the full foundation, either. The truth was shoddier. More human. A mix of manipulation, chance, and a terrible, silent protectiveness she had never sensed.
+
+“Why tell me now?” Iris asked. The words shifted, small, a child’s voice in the vast dark.
+
+“Because you’re sitting in the dark planning to use my play as a weapon. Because you deserve to know what you’re aiming.” Pauline dropped the cigarette, ground it out with the toe of her shoe on the stage floor. A final, decisive motion. “And because I’m tired of carrying it alone. It’s a heavy story. I want to put it down”.
+
+Iris finally looked at her. Pauline’s face was in shadow, but the ambient light from the exit signs caught the wet track on one cheek. A single, clean line. She wasn’t crying. It was just a fact. A leak.
+
+“I would have stayed,” Iris said. It was the last piece of the old story, the one she’d told herself. She had to say it, to set it beside the new one.
+
+“I know.” Pauline didn’t move. “That’s the part that festered. Not that you left. That you would have stayed, and I… I engineered your going. I let you be the villain in your own life so I could be the tragic heroine in mine. It was a shitty piece of direction”.
+
+A laugh escaped Iris. It was a raw, broken sound, startling in the quiet. It hurt her throat. Pauline’s mouth twitched. Not a smile. An acknowledgment.
+
+They stayed like that for a long time. Not touching. Not speaking. Sharing the space and the silence and the weight of the unspoken years that now had a different shape. The ghost light hummed. Somewhere on the street outside, a car backfired, the sound muffled and distant. Iris noticed a cobweb strung from the edge of the tormentor curtain to the fly rail, glinting silver in the faint light. It swayed in a draft she couldn’t feel. A perfect, fragile thing with nothing at its center.
+
+The cobweb snapped, a thread breaking free and drifting down into the darkness below the stage. Iris watched it go. The story Pauline had told lay between them now, a new object in the room. It didn’t erase the old one—the twelve years of silence, the train platform, the choice Iris had believed was hers alone. It just sat beside it. A twin shadow. A different shape of the same regret.
+
+“A gift,” Iris repeated. The word tasted wrong metallic. “They called it a gift”.
+
+“They have a language for it.” Pauline’s voice came from the dark. She had moved. She was sitting in the front row now, a deeper shadow against the red plush. The tip of her cigarette glowed like a single, low star. “A career opportunity. A fresh start. A chance to serve your country. Never coercion. Always a gift”.
+
+Iris’s knees ached from dangling. She pulled her legs up, folded them beneath her on the rough stage boards. The dust there had a particular smell, dry and sweet, like old paper and glue. She pressed her palm flat against the wood, feeling the grain. “You never tried to tell me. After”.
+
+“How?” A short, dry laugh. A puff of smoke drifted into the edge of the light. “A letter? ‘Dear Iris, the men who arranged your contract might be the same men who burned my life. Hope you’re well.’ The postmark alone would have been a sentence. For both of us”.
+
+“You could have found a way.”
+
+“Perhaps.” The word was a concession, weary and final. “I was… occupied. With survival. And then with anger. Anger is a very clean fuel. It burns hot and simple. Grief is complicated. It smolders. It makes a mess.” She took another drag. “I let the anger do the work for a long time”.
+
+The ghost light’s bulb emitted a soft, persistent hum, a B-flat just slightly sharp. Iris’s ear tuned to it automatically, a musician’s tic. She wondered if the bulb was old, if the filament was thinning, if that was why the pitch was off. A thing wearing out. She looked at Pauline’s silhouette. “And now”?
+
+The cigarette ember arced down was extinguished against the sole of a shoe. A faint sizzle, then nothing. “Now I have a theatre to run. A play to open. A company to protect. There isn’t room for the luxury of a clean burn”.
+
+It was the most honest thing she’d said. It wasn’t forgiveness. It wasn’t absolution. It was a statement of economy. Iris understood economy. She’d built a life on it. Trading this for that. Voice for safety. Love for a career. Silence for a marriage. A series of sensible, devastating bargains.
+
+“The monologue,” Iris said. Her own voice sounded strange to her, hollowed out. “Martha’s confession. If I say it… if I mean it. They’ll know”.
+
+“Yes.”
+
+“They’ll act.”
+
+“Probably.”
+
+“They could shut down the institute. They could arrest you. They could make me… disappear.” She didn’t say the other thing. The thing about Langston. The thing about the letters he’d already traded.
+
+“They could.” Pauline’s tone was matter-of-fact, a director listing potential blocking choices. “Or they could do nothing. They could sit in their seats and clap at the end and file their reports. The danger is already here, Iris. In this room. In your bag. In my file. The performance changes only one thing: who holds the knife”.
+
+A car passed outside, its headlights painting a quick, sweeping arc across the high, stained-glass windows of the theatre—a flash of jeweled color, then gone. The light didn’t reach the stage.
+
+Iris thought of the report in her bag. Three lines. A lie of omission. She thought of the next one Cross would demand. The names. The activities. She thought of Clara, moving in the wings with a coil of rope over her shoulder, her face a careful blank. She thought of Langston at home, measuring out his gin, waiting for her to bring him something he could use.
+
+“I don’t know if I can,” she said. It was barely a whisper.
+
+“You don’t understand. It’s not… courage I lack. It’s the opposite. I’m tired. I’m so tired of being afraid. I just want it to stop.” She heard the childishness in the words as soon as they left her mouth. She didn’t care.
+
+Pauline was silent for a long time. When she spoke, her voice had changed again. It was softer. Not gentle. Just less edged. “When I got off the boat in New York,” she said, “I had two suitcases and seventy dollars. The seventy dollars was from selling my typewriter. The suitcases were full of burned paper. Ash, mostly. I took a room in a boarding house in Brooklyn where the shower was down the hall. The woman who ran it looked at my passport, looked at me, and said, ‘We don’t have trouble here.’ Meaning I shouldn’t bring any. Meaning she knew. I lay on that bed for three days. I didn’t sleep. I just watched a crack in the ceiling. It was shaped like a question mark. I kept thinking, ‘This is the rest of my life. This room. This crack. This silence.’” She shifted in her seat. The plush creaked. “On the fourth day, I got up. I washed my face. I went out and bought a newspaper and looked for work. Not because I was brave. Because I was hungry. And because that crack was the most ugly thing I had ever seen”.
+
+Iris looked up. She couldn’t see Pauline’s face, only the dark shape of her. “What are you saying”?
+
+“I’m saying the choice isn’t between fear and bravery. It’s between one kind of tired and another.” Pauline stood. Her silhouette straightened became tall and distinct against the faint light from the exit signs. “You can be tired of hiding. Or you can be tired of the crack in the ceiling. Only you know which fatigue is heavier”.
+
+She began to walk up the aisle, her footsteps a soft, fading rhythm on the carpet.
+
+“Pauline.”
+
+The footsteps stopped.
+
+“The note. Under your door. ‘Don’t waste it.’” Iris swallowed. Her throat was sand. “Did you? Waste it”?
+
+A beat of silence. Then, a single, quiet word floated back from the dark.
+
+“No.”
+
+The door at the back of the house opened it. A rectangle of faint yellow light from the lobby appeared, framing Pauline for a second—the set of her shoulders, the proud line of her neck. Then she was gone. The door sighed shut.
+
+Iris was alone again with the ghost light and the hum and the dust.
+
+She sat there until the cold from the stage boards seeped through her skirt and into her bones. She thought of cracks in ceilings. She thought of gifts that were not gifts. She thought of the weight of one fatigue against another. It wasn’t a revelation. It wasn’t a surge of purpose. It was a simple, quiet calibration. Like tuning a string to a different pitch.
+
+Slowly, she got to her feet. Her joints protested. She picked up her bag, the leather worn smooth in one spot from years of carrying. She walked off the stage, through the wings, past the silent, shrouded shapes of flats and props. In the dim hallway outside the dressing rooms, she stopped. On the wall was a framed photograph from the institute’s first production. A group of young actors, beaming, arms around each other. Clara was among them, her smile wide and unguarded, a look Iris hadn’t seen on her face in years.
+
+Iris reached into her bag. Her fingers found the folded carbon paper of her report to Cross. She didn’t take it out. She just held it for a moment, feeling the sharp edge of the paper against her skin.
+
+Then she let go. She closed the bag. She walked out into the Harlem night, the echo of a single word following her like a second heartbeat.
+
+No.
+
+The only thing I could think was that they’d won. That they’d taken the one good thing and made it into a weapon. Against you. Against me.” Pauline’s voice faded to a whisper, a scratch of sound against the vast quiet. “I have hated you for twelve years for getting on that train. And I have hated myself every single day for letting you.
+
+The words didn’t land like a blow. They settled. A fine, cold ash settling over everything in the room, over Iris’s skin, her lungs. She stared at the scar in the wood until it blurred. Her thumb was numb from tracing it.
+
+A truck rumbled by on the street outside, its headlights painting a swift, silent arc across the high ceiling. The light swept over the dusty crystal of the chandelier, over the faded murals of muses on the walls, and was gone. The theatre sank back into its watchful dark.
+
+Pauline moved. She stepped into the circle of the ghost light, her shadow shrinking beneath her. She dropped the cigarette butt and ground it out with the toe of her shoe, a slow, deliberate twist. Then she sat, not beside Iris, but a few feet away, her own legs dangling over the edge. The space between them was exact. Measured. It felt like the most important distance in the world.
+
+Iris’s mouth was dry. She tried to find a question, any question, but they were all dead. Burned up in that Paris fireplace. All that was left was the residue. She looked at Pauline’s profile, lit from below by the single bulb. The familiar slope of her nose, the tight set of her jaw. She looked carved. Weary.
+
+“I got the contract two days after you left,” Iris said. The words came out hoarse, unused. “Langston’s telegram. He’d been shopping the demos for months. Said it was a miracle. The timing was divine.” She gave a short, hollow laugh. It echoed in the hollow of the stage. “I believed him. I think I even prayed. A thank you to a god I didn’t believe in for saving me from having to choose”.
+
+Pauline didn’t turn. She watched the dark space where the seats began.
+
+“You didn’t have to choose,” she said, and it wasn’t forgiveness. It was a correction. A historical footnote. “The choice was made for you. By men in offices who’d never heard you sing. That’s the only power they have. They make the options, and they call it freedom”.
+
+A memory surfaced, unbidden and useless. The smell of the linoleum in the recording studio that first day. A bright, chemical lemon scent over the older smell of dust and cigar smoke. She’d been so nervous her hands shook, and the sound engineer, a man with gravy on his tie had patted her shoulder and said, “Relax, honey. It’s just a love song.” She’d sung ‘The Last Goodbye’ twenty-three times that afternoon. By the end, she didn’t know what the words meant anymore.
+
+“Clara knows,” Iris said. The change of subject was a lifeline. “About the reports. She found one. Last week”.
+
+This made Pauline turn. Her eyes were dark pools in the strange light. “What did she say”?
+
+“She said I was a coward.” Iris hesitated. “She’s not wrong”.
+
+“She’s a child,” Pauline said, but there was no force in it. “She sees in black and white. Right and wrong. She doesn’t understand the grey room they put you in. The one with no doors”.
+
+“There’s always a door.”
+
+“Is there?” Pauline’s gaze was. “Show me”.
+
+Iris had no answer. The silence stretched. From the pocket of her coat, she pulled the Zippo lighter. It was cold in her palm. The worn brass caught the light, a dull gleam. She didn’t flick it. She just held it, its weight a familiar ghost.
+
+Pauline saw it. Her breath hitched, just once. A tiny, almost imperceptible sound.
+
+“You kept it.”
+
+“I never used it.”
+
+“Why?”
+
+Iris ran her thumb over the engraved side. The pattern was nearly smooth. “I don’t know. A souvenir, I suppose. It is of the person I was before”.
+
+“That person is gone.”
+
+Pauline looked away, back into the dark. “Burn it”.
+
+The words hung between them. Not an order. A suggestion. A possibility.
+
+“Now?”
+
+“There’s no better time. The stage is empty. The audience is gone.” Pauline’s voice was flat, practical. “It’s just a piece of metal. Let it go”.
+
+Iris’s fingers closed around it. The edges bit into her palm. For twelve years it had been a secret, a guilty piece of a self she’d locked away. A symbol of a love she’d betrayed. But Pauline’s story had changed its shape. It wasn’t a token of love anymore. It was a receipt. Proof of a transaction she hadn’t known she was making. The men in offices, the patron, Langston with his demos and his divine timing—They had all handled it first. She had just been the courier.
+
+She opened her hand. The lighter sat on her palm, inert.
+
+“It doesn’t mean anything,” she said, and it was mostly true.
+
+“Then it shouldn’t be hard to destroy.”
+
+Iris stood. Her joints protested, stiff from the cold and from sitting too long. She walked to the center of the ghost light’s circle, the very heart of the stage. The boards creaked under her. She flicked the wheel with her thumb.
+
+It caught on the first try. The flame was small, blue at its base, wavering in the still air. It cast a tiny, jumping light that reached only a few inches into the dark.
+
+She held it up. Pauline looked at Pauline over the top of it. Pauline watched, her face unreadable, a statue in the dimness.
+
+Iris turned her hand and dropped the lighter. It fell, flame still burning, and hit the wooden stage with a dull clack. It lay there, burning. A little fire on the floorboards.
+
+They both watched it. The flame licked at the air started to blacken the brass. It was a small, contained danger. It would go out on its own in a minute. It would not consume the theatre. It would not even leave much of a mark.
+
+But something hot moved through Iris’s chest—not quite anger, not quite panic, something between the two that didn’t have a name. It was the feeling of watching something precious and broken finally admit it was broken. She lifted her foot and brought her heel down on the flame.
+
+A hard, decisive stamp.
+
+The light vanished. A wisp of smoke curled up from under her shoe, smelling of spent fuel and scorched metal. She ground her heel once, a final twist. Then she stepped back.
+
+The lighter was a crushed, blackened thing. A piece of litter.
+
+“There,” she said. She pulled the words back, strange to her own ears. Empty. Clean.
+
+Pauline stood. She walked over, her footsteps slow and deliberate. She looked down at the ruined lighter, then up at Iris. For a long moment, she just looked. Her eyes searched Iris’s face, looking for something. Iris didn’t know what she found.
+
+“Good,” Pauline said, finally. It was just a word. But it landed.
+
+She didn’t touch Iris. She didn’t move closer. She simply turned and walked off the stage, her silhouette dissolving into the darkness of the wings. A moment later, Iris heard the side door open, then click shut.
+
+Alone again. The ghost light hummed. The crushed lighter was a dark smudge on the pale wood.
+
+Iris bent and picked it up. It was warm. She put it in her coat pocket. It was just weight now. Nothing more.
+
+She walked to the edge of the stage, looked out at the sea of empty seats. They were waiting. In four days, they would be full. Cross would be there. Langston would be there. They would be watching, listening for a sign. They had the letters. They had the files. They had all the evidence.
+
+But they didn’t have this. This quiet, after the burning. This new, hollow space where the guilt had been.
+
+She turned off the ghost light. The darkness was immediate and total, a physical presence. She didn’t need light to find her way out. She knew the steps by heart.
