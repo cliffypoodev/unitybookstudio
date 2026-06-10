@@ -139,6 +139,9 @@ const SLOP_PATTERNS = [
   { key: 'what remains unclear is',         label: 'what remains unclear is',         regex: /\bwhat\s+remains\s+unclear\s+is\b/gi },
   { key: 'the record shows',                label: 'the record shows',                regex: /\bthe\s+record\s+shows\b/gi },
   { key: 'the surviving record shows',      label: 'the surviving record shows',      regex: /\bthe\s+surviving\s+record\s+shows\b/gi },
+  { key: 'the record suggests',              label: 'the record suggests',              regex: /\bthe\s+record\s+suggests\b/gi },
+  { key: 'this suggests',                    label: 'this suggests (sentence opener)',   regex: /(?:^|(?<=[.!?]\s))This\s+suggests\b/gm },
+  { key: 'the question therefore shifts',    label: 'the question therefore shifts',    regex: /\bthe\s+question\s+therefore\s+shifts\b/gi },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -224,6 +227,9 @@ export const SLOP_BUDGETS = [
   { name: 'what remains unclear is',         keys: ['what remains unclear is'],         budget: 1 },
   { name: 'the record shows',                keys: ['the record shows'],                budget: 1 },
   { name: 'the surviving record shows',      keys: ['the surviving record shows'],      budget: 1 },
+  { name: 'the record suggests',              keys: ['the record suggests'],              budget: 1 },
+  { name: 'this suggests (sentence opener)',  keys: ['this suggests'],                    budget: 1 },
+  { name: 'the question therefore shifts',    keys: ['the question therefore shifts'],    budget: 1 },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -654,6 +660,21 @@ export function reduceAISlopDeterministic(text, options = {}) {
       name: 'the surviving record shows',
       rx: /\bthe\s+surviving\s+record\s+shows\b/gi,
       alts: ['the remaining evidence shows', 'what survives confirms', 'extant sources show'],
+    },
+    {
+      name: 'the record suggests',
+      rx: /\bthe\s+record\s+suggests\b/gi,
+      alts: ['the evidence implies', 'documents suggest', 'sources point to'],
+    },
+    {
+      name: 'this suggests (sentence opener)',
+      rx: /(?:^|(?<=[.!?]\s))This\s+suggests\b/gm,
+      alts: ['This implies', 'This points to', 'This indicates'],
+    },
+    {
+      name: 'the question therefore shifts',
+      rx: /\bthe\s+question\s+therefore\s+shifts\b/gi,
+      alts: ['the question then becomes', 'the focus moves to', 'attention turns to'],
     },
   ];
 

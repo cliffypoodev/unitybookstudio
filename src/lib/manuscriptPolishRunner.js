@@ -335,8 +335,8 @@ export async function runManuscriptPolishPipeline({
       const mpResult = runMidParagraphDialogueAutofixPass(f.content || '', {});
       if (mpResult.midParagraphAutoFixed > 0) { f.content = mpResult.text; midParaAutoFixCount += mpResult.midParagraphAutoFixed; }
     }
-    // AI-slop reduction
-    if (shouldRunAISlopReduction(project)) {
+    // AI-slop reduction — force-enable for NF mode (don't rely solely on profile gate)
+    if (mode === 'nonfiction' || shouldRunAISlopReduction(project)) {
       const slopResult = runAISlopReductionPass(f.content || '', {});
       if (slopResult.repairs.length > 0 || slopResult.improved) {
         f.content = slopResult.text;
@@ -372,7 +372,7 @@ export async function runManuscriptPolishPipeline({
 
         try {
           const recastResult = await runAntiChatbotRecastPipeline(f.content, project, {
-            mode: 'conservative',
+            recastMode: 'conservative',
             chapterNumber: chNum,
           });
           if (recastResult && recastResult.text && recastResult.text !== f.content) {
@@ -386,7 +386,7 @@ export async function runManuscriptPolishPipeline({
             } else {
               f.content = recastResult.text;
               llmPolishCount++;
-              changes.push(`Ch.${chNum}: NF anti-chatbot recast applied (${recastResult.chunksRecast || 0} chunks)`);
+              changes.push(`Ch.${chNum}: NF anti-chatbot recast applied (${recastResult.report?.chunksRecast || 0} chunks)`);
             }
           } else {
             llmPolishLog.push({ chapter: chNum, ok: true, skipped: true });
