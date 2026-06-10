@@ -961,8 +961,8 @@ function buildOutputRules(project, targetWords) {
 - Expose source grounding in natural prose: contemporary newspaper accounts, state archival summaries, court records, redevelopment documents, official reports, photographs, maps, interviews, etc., only when supplied.
 - If a detail is not supported by the supplied material, write around it with cautious phrasing or name it as unresolved.
 - For numbers, death counts, casualty categories, dates, names, source titles, quotes, court outcomes, and locations: do not improvise. State only what the supplied material supports, or explicitly say the available record is unclear.
+- Rotate evidence verbs naturally: "indicate", "suggest", "describe", "point to", "reveal", "reflect", "document", "outline". Never use the same evidence construction more than once per section. BANNED phrases (never use): "the available accounts indicate", "the available accounts suggest", "the surviving record shows", "what remains unclear is".
 - If a casualty count or death location appears contradictory, do NOT resolve it and do NOT insert a generic caution paragraph. Keep the uncertainty concise and tied to the immediate paragraph.
-- Use neutral evidence verbs. Prefer “the available accounts indicate/suggest/describe” over “the record proves/confirms/shows” unless the source context directly supports that certainty.
 - Do not repeat the same thesis sentence in different words. Advance the investigation.`;
   }
 
@@ -1041,7 +1041,7 @@ ${bylineRule}
 - Center the narration on evidence, documents, chronology, institutions, named historical actors, verifiable events, and unanswered questions.
 - If the research describes an investigative process, summarize it as methodology in restrained nonfiction narration. Do not dramatize it as a scene.
 - A person may anchor a passage only if that person is documented in the supplied research and relevant to the historical event. The author/byline is not a historical subject unless explicitly stated.
-- Preferred voice: disciplined investigative narration. Examples: “The surviving record shows...”, “The official report leaves out...”, “Newspaper accounts from the week describe...”, “What remains unclear is...”
+- Preferred voice: disciplined investigative narration. Vary evidentiary constructions — never repeat the same framing device ("The record shows…", "Accounts from the period…") within the same section. Vary evidence-attribution phrasing across the chapter.
 - Forbidden voice: “She stood...”, “She felt...”, “Her stomach tightened...”, “Back at the motel...”, “The whisper became her compass...”, or any phrasing that turns the author into the protagonist.`;
 }
 
@@ -2071,7 +2071,7 @@ export async function generateChapterSceneByScene({
   priorChapterSummaries: suppliedPriorChapterSummaries = [],
   proseModelOverride,
   model: modelOverride,
-  includeFullCraft = false,
+  includeFullCraft = true,
   onProgress,
 }) {
   if (!project) throw new Error('Project is required.');
