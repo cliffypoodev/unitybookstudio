@@ -46,7 +46,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import PublishSettingsSheet from '@/components/publishing/PublishSettingsSheet';
 import useAutoSave from '@/hooks/useAutoSave';
 import { mdToHtml, htmlToMd, stripHtmlToText } from '@/lib/mdHtmlConvert';
-import { chapterHasContent, resolveChapterContent } from '@/lib/chapterStorage';
+import { chapterHasContent, resolveChapterContent, prepareChapterContent } from '@/lib/chapterStorage';
 import { isFrontMatter, isBackMatter, isBodyChapter } from '@/lib/bibliographyGenerator';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { base44 } from '@/api/base44Client';
