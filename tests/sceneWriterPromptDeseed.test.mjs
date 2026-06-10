@@ -41,10 +41,32 @@ assert(
   'Does NOT contain "What remains unclear is..." as a preferred voice example'
 );
 
-// 3. sceneWriter.js DOES contain 'BANNED phrases'
+// 3. sceneWriter.js DOES contain 'BANNED phrases' and all 7 entries
 assert(
   src.includes('BANNED phrases'),
   'Contains BANNED phrases directive'
+);
+
+const EXPECTED_BANNED = [
+  'the available accounts indicate',
+  'the available accounts suggest',
+  'the surviving record shows',
+  'what remains unclear is',
+  'the record suggests',
+  'this suggests',
+  'the question therefore shifts',
+];
+
+for (const phrase of EXPECTED_BANNED) {
+  assert(
+    src.includes(phrase),
+    `BANNED list includes "${phrase}"`
+  );
+}
+
+assert(
+  EXPECTED_BANNED.length === 7,
+  `BANNED list has exactly 7 entries (got ${EXPECTED_BANNED.length})`
 );
 
 // 4. sceneWriter.js has includeFullCraft = true

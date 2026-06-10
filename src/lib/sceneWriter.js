@@ -961,7 +961,7 @@ function buildOutputRules(project, targetWords) {
 - Expose source grounding in natural prose: contemporary newspaper accounts, state archival summaries, court records, redevelopment documents, official reports, photographs, maps, interviews, etc., only when supplied.
 - If a detail is not supported by the supplied material, write around it with cautious phrasing or name it as unresolved.
 - For numbers, death counts, casualty categories, dates, names, source titles, quotes, court outcomes, and locations: do not improvise. State only what the supplied material supports, or explicitly say the available record is unclear.
-- Rotate evidence verbs naturally: "indicate", "suggest", "describe", "point to", "reveal", "reflect", "document", "outline". Never use the same evidence construction more than once per section. BANNED phrases (never use): "the available accounts indicate", "the available accounts suggest", "the surviving record shows", "what remains unclear is".
+- Rotate evidence verbs naturally: "indicate", "suggest", "describe", "point to", "reveal", "reflect", "document", "outline". Never use the same evidence construction more than once per section. BANNED phrases (never use): "the available accounts indicate", "the available accounts suggest", "the surviving record shows", "what remains unclear is", "the record suggests", "this suggests" (as a sentence opener), "the question therefore shifts".
 - If a casualty count or death location appears contradictory, do NOT resolve it and do NOT insert a generic caution paragraph. Keep the uncertainty concise and tied to the immediate paragraph.
 - Do not repeat the same thesis sentence in different words. Advance the investigation.`;
   }
