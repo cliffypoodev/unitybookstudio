@@ -97,6 +97,17 @@ function fixMidSentenceCaps(text) {
     (match, prev, gap, capped, offset) => {
       // Skip proper nouns with unconventional casing (iPhone, GitHub, etc.)
       if (PROPER_NOUN_PRESERVE.has(capped)) return match;
+      // CamelCase guard: extract the full token from the source text.
+      // The regex captures only up to the first internal uppercase (e.g. "You" from "YouTube").
+      // If the full token has an internal uppercase after position 0, it's camelCase — skip it.
+      const afterMatch = text.substring(offset + prev.length + gap.length);
+      const fullTokenMatch = afterMatch.match(/^([A-Za-z]+)/);
+      if (fullTokenMatch) {
+        const fullToken = fullTokenMatch[1];
+        if (PROPER_NOUN_PRESERVE.has(fullToken)) return match;
+        // Generic camelCase guard: any uppercase after position 0 means never modify
+        if (/[A-Z]/.test(fullToken.slice(1))) return match;
+      }
       const lower = capped.toLowerCase();
       if (!SAFE_DOWNCASE_ALL.has(lower)) return match;
       // Check if preceded by an abbreviation (e.g., i.e., etc.) — the
