@@ -1,0 +1,75 @@
+{
+  "profileUsed": "literary",
+  "chunksAnalyzed": 3,
+  "chunksSkipped": 2,
+  "chunksRecast": 0,
+  "chunksFailed": 1,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 12,
+    "symmetryScore": 19,
+    "filterVerbDensity": 9.4,
+    "concreteRatio": 77,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 2.6,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 73,
+    "grade": "GOOD",
+    "diagnostics": [
+      "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (30 words) is not shorter than average (20). End on a punch.",
+      "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 12,
+    "symmetryScore": 19,
+    "filterVerbDensity": 9.4,
+    "concreteRatio": 77,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 2.6,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 73,
+    "grade": "GOOD",
+    "diagnostics": [
+      "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (30 words) is not shorter than average (20). End on a punch.",
+      "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+    ]
+  },
+  "safetyBlocks": 1,
+  "referenceBlocks": 0,
+  "overcorrectionWarnings": [],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "failed",
+      "beforeScore": 67,
+      "afterScore": null,
+      "reason": "Recast cut too much (414 → 345 words, 83%)"
+    },
+    {
+      "index": 1,
+      "action": "skipped",
+      "beforeScore": 76,
+      "afterScore": null,
+      "reason": "Score 76 >= threshold 70"
+    },
+    {
+      "index": 2,
+      "action": "skipped",
+      "beforeScore": 84,
+      "afterScore": null,
+      "reason": "Protected: high_score"
+    }
+  ]
+}

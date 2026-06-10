@@ -1,0 +1,141 @@
+{
+  "profileUsed": "thriller",
+  "recastMode": "conservative",
+  "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+  "chunksAnalyzed": 3,
+  "chunksSkipped": 2,
+  "chunksRecast": 1,
+  "chunksFailed": 0,
+  "chunksRetried": 0,
+  "chunksRetrySucceeded": 0,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 9.5,
+    "symmetryScore": 14,
+    "filterVerbDensity": 3.6,
+    "concreteRatio": 77,
+    "openingVerbStrength": "strong",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0.9,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 5.4,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 83,
+    "grade": "GOOD",
+    "diagnostics": [
+      "\"NOT JUST\" PATTERN: 6 instance(s). Recast as direct statement."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 9.3,
+    "symmetryScore": 11,
+    "filterVerbDensity": 1.8,
+    "concreteRatio": 77,
+    "openingVerbStrength": "strong",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0.9,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 4.6,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 85,
+    "grade": "EXCELLENT",
+    "diagnostics": [
+      "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+    ]
+  },
+  "safetyBlocks": 0,
+  "referenceBlocks": 0,
+  "headingBlocks": 0,
+  "literaryFlatteningBlocks": 0,
+  "overcorrectionWarnings": [],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "skipped",
+      "beforeScore": 83,
+      "afterScore": null,
+      "reason": "Protected: high_score",
+      "origWords": 426,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 391,
+      "maxAllowed": 469,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative",
+      "selectedModel": null,
+      "routingReason": null,
+      "weaknessTypes": null,
+      "headingPreservation": null,
+      "literaryAntiFlattening": null
+    },
+    {
+      "index": 1,
+      "action": "recast",
+      "beforeScore": 66,
+      "afterScore": 80,
+      "reason": "Score 66 < threshold 70",
+      "origWords": 416,
+      "recastWords": 401,
+      "ratio": 96,
+      "minAllowed": 382,
+      "maxAllowed": 458,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative",
+      "selectedModel": "prose-recast-polisher",
+      "routingReason": "general_improvement",
+      "weaknessTypes": [
+        "chatbot_patterns",
+        "weak_opening",
+        "soft_ending"
+      ],
+      "headingPreservation": {
+        "ok": true,
+        "originalCount": 0,
+        "recastCount": 0,
+        "error": null
+      },
+      "literaryAntiFlattening": {
+        "ok": true,
+        "reason": null,
+        "beforeScore": 66,
+        "afterScore": 80,
+        "flatteningDetails": null
+      }
+    },
+    {
+      "index": 2,
+      "action": "skipped",
+      "beforeScore": 90,
+      "afterScore": null,
+      "reason": "Protected: high_score",
+      "origWords": 271,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 249,
+      "maxAllowed": 299,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative",
+      "selectedModel": null,
+      "routingReason": null,
+      "weaknessTypes": null,
+      "headingPreservation": null,
+      "literaryAntiFlattening": null
+    }
+  ],
+  "routingReport": {
+    "modelDistribution": {
+      "prose-recast-polisher": 1
+    },
+    "weaknessDistribution": {
+      "chatbot_patterns": 1,
+      "weak_opening": 1,
+      "soft_ending": 1
+    },
+    "totalChunks": 3,
+    "routedChunks": 1
+  }
+}

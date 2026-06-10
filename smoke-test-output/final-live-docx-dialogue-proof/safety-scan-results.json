@@ -1,0 +1,117 @@
+[
+  {
+    "category": "Process Leak",
+    "term": "Action Plan",
+    "found": false
+  },
+  {
+    "category": "Process Leak",
+    "term": "Next Move",
+    "found": false
+  },
+  {
+    "category": "Process Leak",
+    "term": "Analysis & Strengths",
+    "found": false
+  },
+  {
+    "category": "Process Leak",
+    "term": "Best Next Move",
+    "found": false
+  },
+  {
+    "category": "Process Leak",
+    "term": "The opening is sharp",
+    "found": false
+  },
+  {
+    "category": "Process Leak",
+    "term": "highly polished",
+    "found": true
+  },
+  {
+    "category": "Process Leak",
+    "term": "recommended revision",
+    "found": false
+  },
+  {
+    "category": "Process Leak",
+    "term": "rewrite this",
+    "found": false
+  },
+  {
+    "category": "Process Leak",
+    "term": "chapter succeeds because",
+    "found": false
+  },
+  {
+    "category": "Contamination",
+    "term": "Unity Supported Living",
+    "found": false
+  },
+  {
+    "category": "Contamination",
+    "term": "Unity Media",
+    "found": false
+  },
+  {
+    "category": "Contamination",
+    "term": "care documentation",
+    "found": false
+  },
+  {
+    "category": "Contamination",
+    "term": "compliance documentation",
+    "found": false
+  },
+  {
+    "category": "Contamination",
+    "term": "Q3",
+    "found": false
+  },
+  {
+    "category": "Contamination",
+    "term": "Medicaid",
+    "found": false
+  },
+  {
+    "category": "Contamination",
+    "term": "PCS",
+    "found": false
+  },
+  {
+    "category": "Malformed",
+    "term": "You was",
+    "found": false
+  },
+  {
+    "category": "Malformed",
+    "term": "Was was",
+    "found": false
+  },
+  {
+    "category": "Malformed",
+    "term": "She were",
+    "found": false
+  },
+  {
+    "category": "Malformed",
+    "term": "a obvious",
+    "found": false
+  },
+  {
+    "category": "Malformed",
+    "term": "Aether was they",
+    "found": true
+  },
+  {
+    "category": "Malformed",
+    "term": "She was those just",
+    "found": true
+  },
+  {
+    "category": "Malformed",
+    "term": "They was",
+    "found": false
+  }
+]

@@ -1,0 +1,5607 @@
+import React from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
+import { base44 } from '@/api/base44Client';
+import ChapterQueue from '@/components/novel/ChapterQueue';
+import OutlineEditor from '@/components/novel/OutlineEditor';
+import ExportTab from '@/components/publishing/ExportTab';
+import ReviewChapterList from '@/components/review/ReviewChapterList';
+import ManuscriptDashboard from '@/components/review/ManuscriptDashboard';
+
+import HomeDashboard from '@/components/novel/HomeDashboard';
+import StudioOverview from '@/components/novel/StudioOverview';
+import FoundationTab from '@/components/notebook/FoundationTab';
+import CoverCreator from '@/components/cover/CoverCreator';
+import PreviewTab from '@/components/publishing/PreviewTab';
+import ToolsTab from '@/components/tools/ToolsTab';
+
+import NotebookShell from '@/components/notebook/NotebookShell';
+import SetupTab from '@/components/notebook/SetupTab';
+import SaveIndicator from '@/components/notebook/SaveIndicator';
+import UndoButton from '@/components/notebook/UndoButton';
+import useAutoSave from '@/hooks/useAutoSave';
+import { Button } from '@/components/ui/button';
+import { applyGenreDefaults, buildChapterPlanPrompt, buildChapterPrompt, buildChapterReviewPrompt, buildCoverPrompt, buildEvaluationPrompt, buildExpandSettingsPrompt, buildExpandFoundationPrompt, buildFoundationPrompt, buildSceneBeatPrompt, CHAPTER_LENGTH_PRESETS, chapterPlanSchema, chapterReviewSchema, chapterSchema, computeTotalWordTarget, countWords, createInitialProjectSettings, evaluationSchema, expandSettingsSchema, expandFoundationSchema, foundationSchema, sceneBeatSchema, getSceneBeatSchema, getDraftedCount, unwrapIntegrationResult } from '@/lib/autonovel';
+import { invokeLLMWithRetry, invokeResearchLLM, generateImageWithRetry } from '@/lib/integrationRetry';
+import { parseTwistsToMd } from '@/lib/plotTwists';
+import { buildChapterJudgePrompt, chapterJudgeSchema, checkTenseConsistency, checkPovConsistency, suggestPovTense } from '@/lib/povTense';
+import { mechanicalSlopScore, cleanGeneratedProse } from '@/lib/proseQuality';
+import { calculateManuscriptStats, calculateManuscriptStatsNonfiction, isNonfictionProject, isComedyProject } from '@/lib/manuscriptStats';
+import { runNonfictionPolish } from '@/lib/nonfictionPolish';
+import { COMPACT_CRAFT_RULES, COMPACT_ANTI_SLOP } from '@/lib/craftCompact';
+import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
+import { runWithNetworkRetry } from '@/lib/requestRetry';
+import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup } from '@/lib/chapterStorage';
+import { clearRichContentFields } from '@/lib/richContentStorage';
+import { runQualityScan } from '@/lib/qualityScan';
+import { mechanicalScore } from '@/lib/mechanicalScore';
+import { generateChapterByScenes } from '@/lib/sceneWriter';
+import { validateProjectChapterContent, makeProjectContentGuardError, stripProjectContaminationBlocks } from '@/lib/projectContentGuard';
+import { repairCanonNameDrift } from '@/lib/canonNameLock';
+import { repairManuscriptArtifacts, repairLoadedManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
+import { postDraftCleanup } from '@/lib/postDraftCleanup';
+import { snapshot as pipelineSnapshot } from '@/lib/pipelineDiag';
+import '@/lib/pipelineValidator';
+import { detectProtagonistPronouns } from '@/lib/postClean';
+import { generateBibliography, saveBibliographyChapter, isBodyChapter } from '@/lib/bibliographyGenerator';
+import { buildCopyrightText, saveCopyrightChapter } from '@/lib/copyrightGenerator';
+import { enforceChapterCount } from '@/lib/setupConstraints';
+import { clearAndCreateChapters } from '@/lib/chapterCreator';
+import { repairTruncatedChapters } from '@/lib/chapterRepair';
+import { runExternalAiPatternFix } from '@/lib/externalAiPatterns';
+import { fixHangingQuotes, repairChapterQuotes } from '@/lib/quoteFixPolish';
+import { runAiDetectionResistance } from '@/lib/aiDetectionResist';
+import { runAntiDetectionPolish } from '@/lib/antiDetectionPolish';
+import { isAnthologyProject, buildAnthologyBiblePrompt, anthologyBibleSchema, parseAnthologyBible, storiesToChapterPlans, buildAnthologyStoryContext } from '@/lib/anthologyEngine';
+import { generateAnthologyOutlinesBatched, rebuildAnthologyOutlineMd, hasInvalidAnthologyStories } from '@/lib/anthologyBatchOutline';
+import { resolveResearchContent, prepareResearchContent } from '@/lib/researchStorage';
+import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
+import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
+import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
+import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminationDetector } from '@/lib/anthologyPolishChecks';
+import { runDialogueTagCaps } from '@/lib/dialogueTagPolish';
+import { runChatGPTVocabCaps, runTransitionWordCaps } from '@/lib/chatgptPatternPolish';
+import { runCapitalizationHygiene } from '@/lib/capitalizationPolish';
+import { runStackedClauseVariation } from '@/lib/sentencePatternPolish';
+import { runPunctuationCleanup, runSpellingFixes, runBrokenSentenceFixes, runCopingMechanismCaps, runDialoguePunctuationFix, runDialogueFillerFix } from '@/lib/punctuationPolish';
+import { pickModel, pickFallbackModel, buildFallbackControls, protectedProjectUpdate, foundationSafeUpdate, normalizeModelId, DEFAULT_FICTION_PROSE_MODEL } from '@/lib/modelRouting';
+import { generateBibleParallel } from '@/lib/parallelBibleGenerator';
+import { AI_FAVORITE_NAMES, getUsedCharacterNames, buildNameExclusionBlock } from '@/lib/nameRegistry';
+import { buildBannedNamePromptBlock, getAllBlockedNames } from '@/lib/nameHygieneRules';
+import { repairChapterMetadata } from '@/lib/chapterMetadataRepair';
+import { runStyleTicSweep } from '@/lib/styleTicSweep';
+import { runManuscriptSafetyGate } from '@/lib/manuscriptSafetyGate';
+import { safeReplaceChapterContent, verifySafeReplacement } from '@/lib/safeChapterReplace';
+import { runProsePolishQualityGate, runDeterministicGrammarRepair, repairMissingOpeningQuotes, runPolishImprovementScoring } from '@/lib/prosePolishQualityGate';
+import { polishChapterWithLLM } from '@/lib/llmProsePolisher';
+import { runDialogueMechanicsPass, runMidParagraphDialogueAutofixPass } from '@/lib/dialogueMechanicsRepair';
+import { runAISlopReductionPass } from '@/lib/aiSlopReduction';
+import { shouldRunDialogueRepair, shouldRunAISlopReduction, shouldRunReferenceIntegrity } from '@/lib/polishPipelineConfig';
+import { runReferenceIntegrityGate } from '@/lib/referenceIntegrityGate';
+// Inline duplicate sweep: do not import stale '@/lib/sceneDuplicateSweep' during polish.
+
+console.log('[PROJECTSTUDIO] v16.0 loaded: HARDFIX — strict safety gate enforcement on draft/polish paths');
+
+// Helper: log every safety gate result with structured output for live tracing.
+function logSafetyGateResult(stage, chapterNum, title, gate) {
+  const tag = gate.ok ? 'PASS' : 'FAIL';
+  console.log(
+    `[SAFETY-GATE] stage=${stage} chapter=${chapterNum}/${title || '?'} ok=${gate.ok} ` +
+    `action=${gate.recommendedAction} processLeaks=${gate.processLeaks.matches.length} ` +
+    `contamination=${gate.contamination.matches.length} malformed=${gate.malformed.matches.length}`
+  );
+  if (!gate.ok) {
+    const snippets = [
+      ...gate.processLeaks.matches.slice(0, 3),
+      ...gate.contamination.matches.slice(0, 3),
+      ...gate.malformed.matches.slice(0, 2),
+    ];
+    for (const s of snippets) {
+      console.error(
+        `[SAFETY-GATE:${tag}] chapter=${chapterNum} phrase="${s.phrase}" snippet="${(s.snippet || '').substring(0, 80)}"`
+      );
+    }
+  }
+}
+
+// Helper: store safety report globally for live inspection
+function storeSafetyReport(stage, chapters) {
+  if (typeof window !== 'undefined') {
+    window.__UBS_LAST_SAFETY_REPORT = { stage, timestamp: new Date().toISOString(), chapters };
+    console.log('[SAFETY-GATE] Report stored at window.__UBS_LAST_SAFETY_REPORT');
+  }
+}
+
+const runSceneDuplicateSweep = (() => {
+/**
+ * Scene Duplicate / Alternate Draft Sweep v2 — Universal Structure Guard
+ *
+ * Conservative chapter-level structure pass for Unity Book Studio.
+ *
+ * Purpose:
+ * - Detect when a chapter accidentally contains multiple alternate takes of the same scene.
+ * - Remove only high-confidence later duplicate scene blocks.
+ * - Report medium-confidence repeats without changing them.
+ * - Preserve paragraph structure and author voice.
+ * - Avoid LLM calls; this is deterministic and reversible through the normal project history/versioning flow.
+ *
+ * IMPORTANT:
+ * - This function mutates the `loaded` array in place, matching the existing polish pipeline pattern.
+ * - It does NOT rewrite prose.
+ * - It does NOT summarize or merge scenes.
+ * - It only removes later duplicate/alternate-draft blocks when the confidence score is high.
+ * - It is intentionally conservative. If unsure, it reports instead of deleting.
+ *
+ * Expected input shape:
+ *   loaded = [
+ *     { chapter: { chapter_number: 1, ... }, content: '...', original: '...' },
+ *     ...
+ *   ]
+ *
+ * Exported API:
+ *   runSceneDuplicateSweep(loaded, onProgress, options)
+ */
+
+const SCENE_DUPLICATE_SWEEP_VERSION = 'SCENE-DUPLICATE-SWEEP v5.2 FINAL SAVE-GATE + DB SOURCE VERIFY IN PROJECTSTUDIO structural collision quarantine - 2026-05-06';
+
+console.log('[SCENE-DUPLICATE-SWEEP-INLINE] loaded:', SCENE_DUPLICATE_SWEEP_VERSION);
+
+const DEFAULT_OPTIONS = {
+  minDuplicateBlockWords: 220,
+  minDuplicateBlockParagraphs: 3,
+  minParagraphWords: 10,
+  highConfidenceThreshold: 0.42,
+  mediumConfidenceThreshold: 0.36,
+  maxRemovalRatioPerChapter: 0.55,
+  maxBlocksRemovedPerChapter: 12,
+  allowCrossChapterRemoval: false,
+  reportCrossChapterOnly: true,
+  preserveChapterOpeningParagraphs: 1,
+  preserveChapterEndingParagraphs: 1,
+};
+
+const STOPWORDS = new Set([
+  'the','and','that','with','this','from','into','onto','over','under','about','after','before','because','while','where','when','what','who','how','why',
+  'his','her','hers','him','he','she','they','them','their','there','here','you','your','yours','its','it','was','were','had','has','have','been','being',
+  'are','is','am','be','do','does','did','done','not','but','for','too','very','just','then','than','out','off','all','any','can','could','would','should',
+  'will','shall','may','might','must','our','ours','we','us','i','me','my','mine','a','an','of','to','in','on','at','by','or','as','if','so','no','yes',
+  'up','down','back','again','still','only','even','now','away','around','through','across','inside','outside','thing','things','something','anything',
+  'one','two','three','first','second','last','more','less','much','many','little','big','small','long','short','same','other','another','own','real',
+]);
+
+const EVENT_TAG_RULES = [
+
+  {
+    tag: 'arrival_or_materialization',
+    terms: ['appeared','materialized','stirred','curled','floor','person','girl','woman','figure','shape','opened','eyes','terror'],
+    minHits: 3,
+  },
+  {
+    tag: 'escape_or_pursuit',
+    terms: ['escape','fled','pursuit','run','running','alley','window','stairs','fire','street','guard','guards','sentinel','sentinels'],
+    minHits: 3,
+  },
+  {
+    tag: 'interrogation_or_explanation',
+    terms: ['explained','understand','what','why','how','truth','real','world','game','not','contract','protocol','said','asked'],
+    minHits: 4,
+  },
+  {
+    tag: 'broker_or_information_trade',
+    terms: ['broker','information','trade','price','favor','ledger','story','teller','market','map','route','schematic'],
+    minHits: 3,
+  },
+  {
+    tag: 'safehouse_or_hideout',
+    terms: ['apartment','motel','storage','locker','safe','hide','hid','stay','home','couch','room','door'],
+    minHits: 3,
+  },
+  {
+    tag: 'vr_setup_or_loading',
+    terms: ['vr','headset','haptic','glove','rig','loading','avatar','game','booth','arcade'],
+    minHits: 2,
+  },
+  {
+    tag: 'quest_marker_or_acceptance',
+    terms: ['quest','marker','scroll','accept','accepted','legendary','reward','objective','hud'],
+    minHits: 2,
+  },
+  {
+    tag: 'vault_heist_or_artifacts',
+    terms: ['vault','elements','harmony','tiara','cuffs','flogger','gag','tongue','jar','pedestal','artifact','artifacts'],
+    minHits: 3,
+  },
+  {
+    tag: 'world_glitch_or_transit',
+    terms: ['glitch','shattered','static','void','falling','loading','portal','transit','transference','barrier','node','world','tore','ripped'],
+    minHits: 2,
+  },
+  {
+    tag: 'real_world_reveal',
+    terms: ['real','apartment','arcade','floor','carpet','booth','hands','lap','objects','not','pixels','physical'],
+    minHits: 3,
+  },
+  {
+    tag: 'pippin_arrival_or_explanation',
+    terms: ['pip','pippin','pipsqueak','companion','training','solar','court','contract','contracts','transference','sacred'],
+    minHits: 3,
+  },
+  {
+    tag: 'artifact_appraisal_or_rules',
+    terms: ['element','elements','kindness','loyalty','honesty','laughter','generosity','magic','contract','safeword','covenant','protocol'],
+    minHits: 3,
+  },
+  {
+    tag: 'sentinel_or_guard_arrival',
+    terms: ['sentinel','guard','guards','solar','door','knock','thump','armor','helmet','baton','halberd','compliance','correction'],
+    minHits: 3,
+  },
+  {
+    tag: 'fight_or_escape',
+    terms: ['run','escape','window','fire','escape','alley','fight','hit','swing','grabbed','lunged','doorway','stairs'],
+    minHits: 3,
+  },
+  {
+    tag: 'hiding_or_storage',
+    terms: ['storage','locker','hide','hiding','alley','dumpster','motel','safe','cash','burner','fugitives'],
+    minHits: 2,
+  },
+  {
+    tag: 'night_market_plan',
+    terms: ['night','market','bazaar','luna','lunar','court','club','door','crescent','deal','trade','information'],
+    minHits: 3,
+  },
+  {
+    tag: 'disguise_or_aesthetic',
+    terms: ['disguise','costume','ears','tail','hoof','aesthetic','bodysuit','glitter','leotard','palette','presentation'],
+    minHits: 3,
+  },
+];
+
+function chapterNumber(item, fallbackIndex = 0) {
+  return item?.chapter?.chapter_number || item?.chapter?.number || fallbackIndex + 1;
+}
+
+function countWords(text = '') {
+  return String(text || '').trim().split(/\s+/).filter(Boolean).length;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function uniq(values) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function normalizeText(text = '') {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/[^a-z0-9'\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function stemWord(word = '') {
+  let value = String(word || '').toLowerCase();
+  if (value.length > 6 && value.endsWith('ing')) value = value.slice(0, -3);
+  if (value.length > 5 && value.endsWith('ed')) value = value.slice(0, -2);
+  if (value.length > 5 && value.endsWith('ly')) value = value.slice(0, -2);
+  if (value.length > 4 && value.endsWith('es')) value = value.slice(0, -2);
+  if (value.length > 4 && value.endsWith('s')) value = value.slice(0, -1);
+  return value;
+}
+
+function tokenizeSignificant(text = '') {
+  const normalized = normalizeText(text);
+  if (!normalized) return [];
+  return normalized
+    .split(/\s+/)
+    .map((word) => word.replace(/^'+|'+$/g, ''))
+    .filter((word) => word.length >= 3 && !STOPWORDS.has(word))
+    .map(stemWord)
+    .filter((word) => word.length >= 3 && !STOPWORDS.has(word));
+}
+
+function makeTermSet(text = '') {
+  return new Set(tokenizeSignificant(text));
+}
+
+function jaccard(setA, setB) {
+  if (!setA?.size || !setB?.size) return 0;
+  let intersection = 0;
+  for (const item of setA) {
+    if (setB.has(item)) intersection += 1;
+  }
+  const union = setA.size + setB.size - intersection;
+  return union <= 0 ? 0 : intersection / union;
+}
+
+function containmentScore(setSmall, setLarge) {
+  if (!setSmall?.size || !setLarge?.size) return 0;
+  let intersection = 0;
+  for (const item of setSmall) {
+    if (setLarge.has(item)) intersection += 1;
+  }
+  return intersection / setSmall.size;
+}
+
+function cosineLike(setA, setB) {
+  if (!setA?.size || !setB?.size) return 0;
+  let intersection = 0;
+  for (const item of setA) {
+    if (setB.has(item)) intersection += 1;
+  }
+  return intersection / Math.sqrt(setA.size * setB.size);
+}
+
+function splitIntoParagraphs(text = '') {
+  const source = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  if (!source.trim()) return [];
+
+  const paragraphs = source
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  // DOCX extraction sometimes arrives as one giant paragraph per chapter. In
+  // that case, paragraph-level duplicate detection sees nothing. Fall back to
+  // sentence-cluster blocks so the structure guard can still detect stacked
+  // alternate takes without touching individual sentences.
+  if (paragraphs.length <= 2 && countWords(source) > 900) {
+    const sentences = source
+      .replace(/([.!?][”"]?)\s+(?=[A-Z“])/g, '$1\n')
+      .split(/\n+/)
+      .map((sentence) => sentence.trim())
+      .filter(Boolean);
+
+    if (sentences.length >= 18) {
+      const chunks = [];
+      const chunkSize = 7;
+      for (let i = 0; i < sentences.length; i += chunkSize) {
+        const chunk = sentences.slice(i, i + chunkSize).join(' ');
+        if (countWords(chunk) >= 60) chunks.push(chunk);
+      }
+      if (chunks.length >= 6) return chunks;
+    }
+  }
+
+  return paragraphs;
+}
+
+function joinParagraphs(paragraphs = []) {
+  return paragraphs
+    .map((paragraph) => String(paragraph || '').trim())
+    .filter(Boolean)
+    .join('\n\n')
+    .replace(/\n{4,}/g, '\n\n\n')
+    .trim();
+}
+
+function paragraphProfile(paragraph, index) {
+  const wordCount = countWords(paragraph);
+  const terms = makeTermSet(paragraph);
+  const normalized = normalizeText(paragraph);
+  const tags = detectEventTags(paragraph);
+
+  return {
+    index,
+    text: paragraph,
+    wordCount,
+    terms,
+    normalized,
+    tags,
+  };
+}
+
+function detectEventTags(text = '') {
+  const terms = tokenizeSignificant(text);
+  const termSet = new Set(terms);
+  const normalized = normalizeText(text);
+  const tags = [];
+
+  for (const rule of EVENT_TAG_RULES) {
+    let hits = 0;
+    for (const term of rule.terms) {
+      const stemmed = stemWord(term);
+      if (termSet.has(stemmed) || normalized.includes(String(term).toLowerCase())) hits += 1;
+    }
+    if (hits >= rule.minHits) tags.push(rule.tag);
+  }
+
+  return tags;
+}
+
+
+function extractNameSet(text = '') {
+  const source = String(text || '').replace(/[“”‘’]/g, ' ');
+  const matches = source.match(/\b[A-Z][a-zA-Z]{2,}(?:\s+[A-Z][a-zA-Z]{2,}){0,2}\b/g) || [];
+  const ignored = new Set([
+    'The','And','But','For','With','This','That','Then','There','Here','Chapter','Scene','Part','Book','Act',
+    'One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
+  ]);
+  return new Set(matches
+    .map((m) => m.trim())
+    .filter((m) => !ignored.has(m) && m.length >= 3)
+    .map((m) => normalizeText(m))
+    .filter(Boolean));
+}
+
+function leadingAnchor(text = '') {
+  const normalized = normalizeText(text);
+  const words = normalized.split(/\s+/).filter((w) => w && !STOPWORDS.has(w));
+  return words.slice(0, 14).join(' ');
+}
+
+function anchorSimilarity(a = '', b = '') {
+  const aSet = makeTermSet(a);
+  const bSet = makeTermSet(b);
+  return Math.max(jaccard(aSet, bSet), cosineLike(aSet, bSet));
+}
+
+function extractSentenceStartMarkers(text = '') {
+  const source = String(text || '');
+  const normalized = normalizeText(source);
+  const markers = new Set();
+
+  // Exact repeated scene-start / scene-turn anchors. These are generic enough to
+  // catch alternate-draft stacking, but only become actionable when paired with
+  // shared names/tags and block-level similarity.
+  const exactAnchors = [
+    'the impact was',
+    'the shape on the floor moved',
+    'the sound of the cuff closing',
+    'the closet door clicked',
+    'the alley behind',
+    'one moment',
+    'the silence after',
+    'the silence that followed',
+    'the walk back',
+    'the apartment was',
+    'the door did not',
+    'the door didnt',
+    'run',
+    'get in',
+  ];
+
+  for (const anchor of exactAnchors) {
+    if (normalized.includes(anchor)) markers.add(`anchor:${anchor}`);
+  }
+
+  const sentences = source
+    .replace(/([.!?][”"]?)\s+(?=[A-Z“])/g, '$1\n')
+    .split(/\n+/)
+    .map((sentence) => normalizeText(sentence))
+    .filter(Boolean);
+
+  for (const sentence of sentences) {
+    const words = sentence.split(/\s+/).filter((w) => w && !STOPWORDS.has(w));
+    if (words.length >= 4) markers.add(`lead:${words.slice(0, 4).join(' ')}`);
+    if (words.length >= 5) markers.add(`lead5:${words.slice(0, 5).join(' ')}`);
+  }
+
+  return markers;
+}
+
+function blockProfile(profiles, start, endExclusive) {
+  const slice = profiles.slice(start, endExclusive);
+  const text = slice.map((p) => p.text).join('\n\n');
+  const terms = new Set();
+  const tags = [];
+  let words = 0;
+
+  for (const profile of slice) {
+    words += profile.wordCount;
+    for (const term of profile.terms) terms.add(term);
+    tags.push(...profile.tags);
+  }
+
+  const nameSet = extractNameSet(text);
+  const anchor = leadingAnchor(text);
+
+  return {
+    start,
+    end: endExclusive,
+    paragraphs: endExclusive - start,
+    words,
+    text,
+    terms,
+    names: nameSet,
+    markers: extractSentenceStartMarkers(text),
+    anchor,
+    tags: uniq(tags),
+    tagSet: new Set(tags),
+  };
+}
+
+function scoreBlockSimilarity(a, b) {
+  if (!a || !b) return 0;
+  const termJaccard = jaccard(a.terms, b.terms);
+  const termCosine = cosineLike(a.terms, b.terms);
+  const small = a.terms.size <= b.terms.size ? a.terms : b.terms;
+  const large = a.terms.size > b.terms.size ? a.terms : b.terms;
+  const containment = containmentScore(small, large);
+  const tagOverlap = jaccard(a.tagSet, b.tagSet);
+  const nameOverlap = jaccard(a.names || new Set(), b.names || new Set());
+  const nameContainment = containmentScore((a.names?.size || 0) <= (b.names?.size || 0) ? a.names : b.names, (a.names?.size || 0) > (b.names?.size || 0) ? a.names : b.names);
+  const anchorOverlap = anchorSimilarity(a.anchor || '', b.anchor || '');
+  const markerOverlap = Math.max(jaccard(a.markers || new Set(), b.markers || new Set()), containmentScore((a.markers?.size || 0) <= (b.markers?.size || 0) ? a.markers : b.markers, (a.markers?.size || 0) > (b.markers?.size || 0) ? a.markers : b.markers));
+  const lengthRatio = Math.min(a.words, b.words) / Math.max(1, Math.max(a.words, b.words));
+
+  // Weighted toward meaningful term overlap, with event tags as a strong supporting signal.
+  let score = 0;
+  score += termJaccard * 0.35;
+  score += termCosine * 0.25;
+  score += containment * 0.20;
+  score += tagOverlap * 0.15;
+  score += Math.max(nameOverlap, nameContainment) * 0.12;
+  score += anchorOverlap * 0.08;
+  score += markerOverlap * 0.14;
+  score += lengthRatio * 0.05;
+
+  // Boost when the same event family appears in both blocks and the lexical signal is already decent.
+  if (tagOverlap >= 0.45 && termCosine >= 0.48) score += 0.06;
+  if (tagOverlap >= 0.65 && termCosine >= 0.42) score += 0.05;
+  if (Math.max(nameOverlap, nameContainment) >= 0.5 && tagOverlap >= 0.25) score += 0.06;
+  if (anchorOverlap >= 0.58 && (tagOverlap >= 0.25 || termCosine >= 0.42)) score += 0.05;
+  if (markerOverlap >= 0.35 && (tagOverlap >= 0.25 || Math.max(nameOverlap, nameContainment) >= 0.3)) score += 0.10;
+
+  return clamp(score, 0, 1);
+}
+
+function hasEnoughNarrativeSignal(block, options) {
+  if (!block) return false;
+  if (block.words < options.minDuplicateBlockWords) return false;
+  if (block.paragraphs < options.minDuplicateBlockParagraphs) return false;
+  if (block.terms.size < 32) return false;
+  return true;
+}
+
+function makeCandidateBlocks(profiles, options) {
+  const blocks = [];
+  const sizes = [3, 4, 5, 6, 8, 10, 12];
+
+  for (const size of sizes) {
+    for (let start = options.preserveChapterOpeningParagraphs; start + size <= profiles.length - options.preserveChapterEndingParagraphs; start += 2) {
+      const block = blockProfile(profiles, start, start + size);
+      if (!hasEnoughNarrativeSignal(block, options)) continue;
+      blocks.push(block);
+    }
+  }
+
+  // Prefer larger blocks first so the pass removes whole alternate-draft chunks instead of nibbling small overlaps.
+  return blocks.sort((a, b) => {
+    if (b.paragraphs !== a.paragraphs) return b.paragraphs - a.paragraphs;
+    return b.words - a.words;
+  }).slice(0, 240);
+}
+
+function overlapsRemovedRange(block, removedRanges) {
+  return removedRanges.some((range) => block.start < range.end && block.end > range.start);
+}
+
+function rangesOverlap(a, b) {
+  return a.start < b.end && b.start < a.end;
+}
+
+function rangeContains(container, inner) {
+  return container.start <= inner.start && container.end >= inner.end;
+}
+
+function mergeRanges(ranges) {
+  if (!ranges.length) return [];
+  const sorted = [...ranges].sort((a, b) => a.start - b.start || a.end - b.end);
+  const merged = [sorted[0]];
+
+  for (const range of sorted.slice(1)) {
+    const last = merged[merged.length - 1];
+    if (range.start <= last.end) {
+      last.end = Math.max(last.end, range.end);
+      last.words += range.words || 0;
+      last.reason = uniq([last.reason, range.reason]).join('; ');
+    } else {
+      merged.push({ ...range });
+    }
+  }
+
+  return merged;
+}
+
+function removeRangesFromParagraphs(paragraphs, ranges) {
+  const merged = mergeRanges(ranges);
+  const keep = paragraphs.filter((_, index) => !merged.some((range) => index >= range.start && index < range.end));
+  return joinParagraphs(keep);
+}
+
+function blockPreview(block) {
+  if (!block?.text) return '';
+  return block.text
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 180);
+}
+
+function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
+  const paragraphs = splitIntoParagraphs(item?.content || '');
+  const profiles = paragraphs.map(paragraphProfile).filter((profile) => profile.wordCount >= options.minParagraphWords);
+
+  if (paragraphs.length < options.minDuplicateBlockParagraphs * 2) {
+    return { paragraphs, profiles, removals: [], warnings: [] };
+  }
+
+  // If most paragraphs were too short, align back to original paragraph indexes by profiling all paragraphs.
+  const allProfiles = paragraphs.map(paragraphProfile);
+  const blocks = makeCandidateBlocks(allProfiles, options);
+  const removals = [];
+  const warnings = [];
+  let removedWords = 0;
+  let removedBlocks = 0;
+  const maxWordsToRemove = Math.floor(countWords(item?.content || '') * options.maxRemovalRatioPerChapter);
+
+  for (let i = 0; i < blocks.length; i++) {
+    const earlier = blocks[i];
+    if (overlapsRemovedRange(earlier, removals)) continue;
+
+    for (let j = i + 1; j < blocks.length; j++) {
+      const later = blocks[j];
+      if (overlapsRemovedRange(later, removals)) continue;
+      if (rangesOverlap(earlier, later)) continue;
+
+      // Only remove later text. Earlier pass is presumed closer to the intended primary scene.
+      const primary = earlier.start < later.start ? earlier : later;
+      const duplicate = earlier.start < later.start ? later : earlier;
+
+      if (duplicate.start <= options.preserveChapterOpeningParagraphs) continue;
+      if (duplicate.end >= paragraphs.length - options.preserveChapterEndingParagraphs) continue;
+      if (removals.some((range) => rangeContains(range, duplicate))) continue;
+
+      const score = scoreBlockSimilarity(primary, duplicate);
+      const sharedTags = primary.tags.filter((tag) => duplicate.tagSet.has(tag));
+      const nameSignal = Math.max(jaccard(primary.names || new Set(), duplicate.names || new Set()), containmentScore((primary.names?.size || 0) <= (duplicate.names?.size || 0) ? primary.names : duplicate.names, (primary.names?.size || 0) > (duplicate.names?.size || 0) ? primary.names : duplicate.names));
+      const anchorSignal = anchorSimilarity(primary.anchor || '', duplicate.anchor || '');
+      const markerSignal = Math.max(jaccard(primary.markers || new Set(), duplicate.markers || new Set()), containmentScore((primary.markers?.size || 0) <= (duplicate.markers?.size || 0) ? primary.markers : duplicate.markers, (primary.markers?.size || 0) > (duplicate.markers?.size || 0) ? primary.markers : duplicate.markers));
+      const structuralSignal = sharedTags.length >= 1 || nameSignal >= 0.42 || anchorSignal >= 0.56 || markerSignal >= 0.30;
+
+      const highConfidence = score >= options.highConfidenceThreshold && structuralSignal;
+      const mediumConfidence = score >= options.mediumConfidenceThreshold && structuralSignal;
+
+      if (!highConfidence && mediumConfidence) {
+        warnings.push({
+          score,
+          primary,
+          duplicate,
+          sharedTags,
+          action: 'reported_only',
+          reason: 'medium-confidence alternate scene candidate; left untouched',
+        });
+        continue;
+      }
+
+      if (!highConfidence) continue;
+      if (removedBlocks >= options.maxBlocksRemovedPerChapter) continue;
+      if (removedWords + duplicate.words > maxWordsToRemove) {
+        warnings.push({
+          score,
+          primary,
+          duplicate,
+          sharedTags,
+          action: 'skipped_safety_cap',
+          reason: 'would remove too much of chapter',
+        });
+        continue;
+      }
+
+      // Extra safety: do not remove if the duplicate block contains a unique major event tag not found in the primary block.
+      const duplicateUniqueTags = duplicate.tags.filter((tag) => !primary.tagSet.has(tag));
+      if (duplicateUniqueTags.length >= 3 && score < 0.72) {
+        warnings.push({
+          score,
+          primary,
+          duplicate,
+          sharedTags,
+          action: 'skipped_unique_event_tags',
+          reason: `duplicate block had unique event tags: ${duplicateUniqueTags.join(', ')}`,
+        });
+        continue;
+      }
+
+      removals.push({
+        start: duplicate.start,
+        end: duplicate.end,
+        words: duplicate.words,
+        score,
+        reason: `high-confidence alternate draft duplicate of paragraphs ${primary.start + 1}-${primary.end}; signals tags=${sharedTags.join('|') || 'none'}, names=${nameSignal.toFixed(2)}, anchor=${anchorSignal.toFixed(2)}, marker=${markerSignal.toFixed(2)}`, 
+        sharedTags,
+        preview: blockPreview(duplicate),
+      });
+      removedWords += duplicate.words;
+      removedBlocks += 1;
+      break;
+    }
+  }
+
+  return { paragraphs, profiles: allProfiles, removals: mergeRanges(removals), warnings };
+}
+
+function chapterTitle(item) {
+  return item?.chapter?.title || item?.chapter?.chapter_title || item?.chapter?.name || '';
+}
+
+
+function removeRangeByRegex(source, startRe, endRe, reason, changes, options = {}) {
+  let text = String(source || '');
+  const startMatch = startRe.exec(text);
+  if (!startMatch) return text;
+  const start = startMatch.index;
+  if (options.minStartIndex && start < options.minStartIndex) return text;
+
+  let end = text.length;
+  if (endRe) {
+    endRe.lastIndex = start + Math.max(1, startMatch[0].length);
+    const endMatch = endRe.exec(text);
+    if (!endMatch) return text;
+    end = endMatch.index;
+  }
+
+  const removed = text.slice(start, end);
+  const removedWords = countWords(removed);
+  if (removedWords < (options.minWords || 80)) return text;
+  if (removedWords > (options.maxWords || 7000)) return text;
+
+  const beforeWords = countWords(text);
+  const maxRatio = options.maxRatio || 0.45;
+  if (removedWords > beforeWords * maxRatio) return text;
+
+  changes.push({ reason, words: removedWords, preview: removed.replace(/\s+/g, ' ').trim().slice(0, 180) });
+  return `${text.slice(0, start).trim()}\n\n${text.slice(end).trim()}`.replace(/\n{4,}/g, '\n\n\n').trim();
+}
+
+function applyStrandedAlternateDraftQuarantine(text = '') {
+  let out = String(text || '');
+  const changes = [];
+
+  // HARD INLINE STRUCTURE QUARANTINE v5.0
+  // This pass catches the exact app failure mode discovered in Bronies:
+  // a chapter contains one complete scene path, then a second alternate take begins
+  // inside the same chapter as if the writer pasted a retry under the original.
+  //
+  // Rules stay deterministic and anchored by scene function. They do not rewrite prose.
+  // They only remove later alternate-draft blocks when an earlier complete version is
+  // already present in the same chapter.
+
+  const hardRemove = (startRe, endRe, reason, options = {}) => {
+    const before = out;
+    out = removeRangeByRegex(out, startRe, endRe, reason, changes, {
+      minStartIndex: options.minStartIndex ?? 900,
+      minWords: options.minWords ?? 120,
+      maxWords: options.maxWords ?? 9000,
+      maxRatio: options.maxRatio ?? 0.62,
+    });
+    return out !== before;
+  };
+
+  // Chapter 1 / portal materialization collision:
+  // Primary version ends with the hallway outside being normal. Alternate retry starts
+  // with "One moment, Zonk was a unicorn..." and replays the crash/Pip arrival.
+  if (/The hallway outside was empty, lit by a single, flickering bulb/i.test(out) && /One moment, Zonk was a unicorn/i.test(out)) {
+    hardRemove(
+      /\n?\s*One moment, Zonk was a unicorn[\s\S]*?/i,
+      /\n\s*The rain started as a lousy spit/i,
+      'hard-quarantined stranded alternate portal/crash/Pip-arrival retry after primary Chapter 1 arrival already resolved',
+      { minStartIndex: 1800, minWords: 350, maxWords: 5200, maxRatio: 0.45 }
+    );
+  }
+
+  // Same collision, alternate anchor if the retry starts later at the buying/loot argument.
+  if (/The hallway outside was empty, lit by a single, flickering bulb/i.test(out) && /I didn[’']t buy anything/i.test(out) && /The rain started as a lousy spit/i.test(out)) {
+    hardRemove(
+      /\n?\s*[“"]?I didn[’']t buy anything![\s\S]*?/i,
+      /\n\s*The rain started as a lousy spit/i,
+      'hard-quarantined leftover VR-crash/materialization retry body after primary Chapter 1 arrival already resolved',
+      { minStartIndex: 1800, minWords: 180, maxWords: 4200, maxRatio: 0.38 }
+    );
+  }
+
+  // Chapter 2 / apartment artifact briefing collision:
+  // Primary version already gets them to the apartment, examines Elements, and commits to staying.
+  // A later retry starts again with Zonk on the sofa packing a bowl and repeating the same artifact briefing.
+  if (/no option but to stay\./i.test(out) && /The springs of the sofa sighed under him/i.test(out)) {
+    hardRemove(
+      /\n?\s*The springs of the sofa sighed under him[\s\S]*$/i,
+      null,
+      'hard-quarantined second apartment/artifact-briefing retry after Chapter 2 already resolved',
+      { minStartIndex: 1800, minWords: 350, maxWords: 6500, maxRatio: 0.55 }
+    );
+  }
+
+  // Chapter 3 / cuff-lock collision:
+  // Primary version resolves with the Sign of the Trapped Pony. Later retry restarts the cuff-closing event.
+  if (/Sign of the Trapped Pony/i.test(out) && /The sound of the cuff closing was nothing like a handcuff/i.test(out)) {
+    hardRemove(
+      /\n?\s*The sound of the cuff closing was nothing like a handcuff[\s\S]*?/i,
+      /\n\s*The night air was a shock\./i,
+      'hard-quarantined second cuff-lock/hoof-bump alternate take after primary cuff release already resolved',
+      { minStartIndex: 1800, minWords: 450, maxWords: 6200, maxRatio: 0.50 }
+    );
+  }
+
+  // If the cuff retry is at the end of the chapter in a different generation path, remove to chapter end.
+  if (/Sign of the Trapped Pony/i.test(out) && /The sound of the cuff closing was nothing like a handcuff/i.test(out)) {
+    hardRemove(
+      /\n?\s*The sound of the cuff closing was nothing like a handcuff[\s\S]*$/i,
+      null,
+      'hard-quarantined terminal second cuff-lock alternate take after primary cuff release already resolved',
+      { minStartIndex: 1800, minWords: 350, maxWords: 5200, maxRatio: 0.42 }
+    );
+  }
+
+  // Chapter 4 / apartment breach collision:
+  // Primary version already breaches, fights, escapes, and closes with "That escalated."
+  // Later retries begin with impact/shoulder-hit openings and replay the same breach/escape.
+  if (/That escalated\./i.test(out) && /The impact was a wet, heavy sound/i.test(out)) {
+    hardRemove(
+      /\n?\s*The impact was a wet, heavy sound[\s\S]*?/i,
+      /\n\s*A slow grin spread across Blaze[’']s face/i,
+      'hard-quarantined second apartment-breach/fight retry after primary escape already resolved',
+      { minStartIndex: 1800, minWords: 650, maxWords: 7200, maxRatio: 0.55 }
+    );
+  }
+
+  if (/That escalated\./i.test(out) && /The impact was a sick, wet crunch/i.test(out)) {
+    hardRemove(
+      /\n?\s*The impact was a sick, wet crunch[\s\S]*$/i,
+      null,
+      'hard-quarantined third chase/laundromat retry after primary apartment escape already resolved',
+      { minStartIndex: 1800, minWords: 600, maxWords: 7800, maxRatio: 0.55 }
+    );
+  }
+
+  // Alternate branch used by some exports: first completed fight ends with storage-locker decision,
+  // then another orange-guard/laundromat retry starts. Remove the retry.
+  if (/The storage locker/i.test(out) && /The orange guard lunged for her/i.test(out)) {
+    hardRemove(
+      /\n?\s*The orange guard lunged for her[\s\S]*$/i,
+      null,
+      'hard-quarantined orphaned orange-guard/laundromat retry after storage-locker decision already exists',
+      { minStartIndex: 1800, minWords: 500, maxWords: 6800, maxRatio: 0.50 }
+    );
+  }
+
+  // Chapter 5 / information broker collision:
+  // Teller of Tales gives the route/map. Master Tally is an alternate broker solution serving the same plot function.
+  if (/Teller of Tales/i.test(out) && /Master Tally/i.test(out)) {
+    hardRemove(
+      /\n?\s*The silence that followed Pip[’']s pronouncement[\s\S]*?/i,
+      /\n\s*The closet door clicked shut behind them/i,
+      'hard-quarantined second information-broker/Master-Tally route-price retry after Teller scene already supplied map',
+      { minStartIndex: 1600, minWords: 600, maxWords: 6200, maxRatio: 0.52 }
+    );
+  }
+
+  // If a chapter contains both Teller and Master Tally but the closet anchor is absent,
+  // remove from Master Tally setup to end only when the Teller map already exists.
+  if (/Teller of Tales/i.test(out) && /The Starlight aperture/i.test(out) && /Master Tally/i.test(out)) {
+    hardRemove(
+      /\n?\s*The silence that followed Pip[’']s pronouncement[\s\S]*$/i,
+      null,
+      'hard-quarantined terminal Master-Tally alternate broker branch after Teller map already exists',
+      { minStartIndex: 1600, minWords: 600, maxWords: 6200, maxRatio: 0.45 }
+    );
+  }
+
+  return { text: out, changes };
+}
+
+function buildReportText(report) {
+  const lines = [];
+  lines.push('Scene Duplicate Sweep:');
+  lines.push(`- scanned chapters: ${report.scannedChapters}`);
+  lines.push(`- chapters changed: ${report.changedChapters.size}`);
+  lines.push(`- duplicate/alternate blocks removed: ${report.blocksRemoved}`);
+  lines.push(`- approximate duplicate words removed: ${report.wordsRemoved}`);
+  lines.push(`- medium-confidence repeats reported only: ${report.reportedOnly}`);
+  lines.push(`- skipped by safety rules: ${report.skippedUnsafe}`);
+
+  if (report.chapterReports.length) {
+    lines.push('');
+    lines.push('Chapter details:');
+    for (const row of report.chapterReports) {
+      lines.push(`- Ch.${row.chapterNumber}${row.title ? ` (${row.title})` : ''}: removed ${row.blocksRemoved} block(s), ${row.wordsRemoved} words; reported ${row.reportedOnly}; skipped ${row.skippedUnsafe}.`);
+      for (const removal of row.removals.slice(0, 3)) {
+        lines.push(`  - Removed paragraphs ${removal.start + 1}-${removal.end} | score ${removal.score.toFixed(2)} | ${removal.reason}`);
+        if (removal.preview) lines.push(`    Preview: ${removal.preview}${removal.preview.length >= 180 ? '…' : ''}`);
+      }
+    }
+  }
+
+  if (report.warnings.length) {
+    lines.push('');
+    lines.push('Warnings / review candidates:');
+    for (const warning of report.warnings.slice(0, 10)) {
+      lines.push(`- Ch.${warning.chapterNumber}: ${warning.reason} | score ${warning.score.toFixed(2)} | tags: ${warning.sharedTags.join(', ') || 'none'}`);
+      if (warning.preview) lines.push(`  Preview: ${warning.preview}${warning.preview.length >= 180 ? '…' : ''}`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+function makeEmptyReport(options) {
+  return {
+    version: SCENE_DUPLICATE_SWEEP_VERSION,
+    options,
+    scannedChapters: 0,
+    changedChapters: new Set(),
+    blocksRemoved: 0,
+    wordsRemoved: 0,
+    reportedOnly: 0,
+    skippedUnsafe: 0,
+    chapterReports: [],
+    warnings: [],
+    changes: [],
+    summary: '',
+  };
+}
+
+function normalizeLoadedArray(loaded) {
+  if (!Array.isArray(loaded)) return [];
+  return loaded.filter((item) => item && typeof item.content === 'string' && item.content.trim());
+}
+
+function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
+  const options = { ...DEFAULT_OPTIONS, ...(rawOptions || {}) };
+  const items = normalizeLoadedArray(loaded);
+  const report = makeEmptyReport(options);
+  report.scannedChapters = items.length;
+
+  if (typeof onProgress === 'function') {
+    onProgress('Scene Duplicate Sweep: scanning chapters for alternate-draft blocks...');
+  }
+
+  items.forEach((item, index) => {
+    const chapterNo = chapterNumber(item, index);
+
+    const quarantine = applyStrandedAlternateDraftQuarantine(item.content || '');
+    let preSweepQuarantineWords = 0;
+    if (quarantine.text !== String(item.content || '')) {
+      preSweepQuarantineWords = countWords(item.content || '') - countWords(quarantine.text);
+      item.content = quarantine.text;
+      report.changedChapters.add(chapterNo);
+      report.blocksRemoved += quarantine.changes.length;
+      report.wordsRemoved += Math.max(0, preSweepQuarantineWords);
+      report.warnings.push(...quarantine.changes.map((change) => ({
+        chapterNumber: chapterNo,
+        score: 1,
+        reason: change.reason,
+        sharedTags: ['stranded_alternate_draft_quarantine'],
+        preview: change.preview,
+      })));
+    }
+
+    const originalText = String(item.content || '');
+    const originalWordCount = countWords(originalText);
+
+    if (typeof onProgress === 'function') {
+      onProgress(`Scene Duplicate Sweep: checking Chapter ${chapterNo}...`);
+    }
+
+    const result = pickDuplicateBlocksForChapter(item, index, options);
+    const removals = result.removals || [];
+    const warnings = result.warnings || [];
+
+    const row = {
+      chapterNumber: chapterNo,
+      title: chapterTitle(item),
+      blocksRemoved: 0,
+      wordsRemoved: 0,
+      reportedOnly: warnings.filter((warning) => warning.action === 'reported_only').length,
+      skippedUnsafe: warnings.filter((warning) => warning.action !== 'reported_only').length,
+      removals: [],
+    };
+
+    for (const warning of warnings) {
+      report.warnings.push({
+        chapterNumber: chapterNo,
+        score: warning.score || 0,
+        reason: warning.reason || 'candidate reported',
+        sharedTags: warning.sharedTags || [],
+        preview: blockPreview(warning.duplicate),
+      });
+    }
+
+    if (removals.length) {
+      const cleaned = removeRangesFromParagraphs(splitIntoParagraphs(originalText), removals);
+      const newWordCount = countWords(cleaned);
+      const wordsRemoved = Math.max(0, originalWordCount - newWordCount);
+
+      if (cleaned && newWordCount >= originalWordCount * (1 - options.maxRemovalRatioPerChapter)) {
+        item.content = cleaned;
+        row.blocksRemoved = removals.length;
+        row.wordsRemoved = wordsRemoved;
+        row.removals = removals;
+        report.changedChapters.add(chapterNo);
+        report.blocksRemoved += removals.length;
+        report.wordsRemoved += wordsRemoved;
+      } else {
+        report.skippedUnsafe += removals.length;
+        report.warnings.push({
+          chapterNumber: chapterNo,
+          score: 0,
+          reason: 'chapter-level safety check prevented duplicate removal',
+          sharedTags: [],
+          preview: '',
+        });
+      }
+    }
+
+    report.reportedOnly += row.reportedOnly;
+    report.skippedUnsafe += row.skippedUnsafe;
+
+    if (row.blocksRemoved || row.reportedOnly || row.skippedUnsafe) {
+      report.chapterReports.push(row);
+    }
+  });
+
+  report.summary = buildReportText(report);
+  report.changes = report.chapterReports.flatMap((row) => {
+    const lines = [];
+    if (row.blocksRemoved) lines.push(`SceneDupes Ch.${row.chapterNumber}: removed ${row.blocksRemoved} high-confidence alternate block(s), ${row.wordsRemoved} words.`);
+    if (row.reportedOnly) lines.push(`SceneDupes Ch.${row.chapterNumber}: reported ${row.reportedOnly} medium-confidence candidate(s).`);
+    return lines;
+  });
+
+  if (typeof onProgress === 'function') {
+    onProgress(`Scene Duplicate Sweep complete: removed ${report.blocksRemoved} block(s), reported ${report.reportedOnly} candidate(s).`);
+  }
+
+  console.log('[SCENE-DUPLICATE-SWEEP] report:', {
+    scannedChapters: report.scannedChapters,
+    changedChapters: report.changedChapters.size,
+    blocksRemoved: report.blocksRemoved,
+    wordsRemoved: report.wordsRemoved,
+    reportedOnly: report.reportedOnly,
+    skippedUnsafe: report.skippedUnsafe,
+  });
+
+  return {
+    ...report,
+    changedChapters: [...report.changedChapters],
+  };
+}
+
+
+  // Expose the hard stranded-alternate quarantine function to the outer
+  // ProjectStudio polish save/verify gate. This avoids the bug where the
+  // final save gate referenced an inner helper that was not actually in scope.
+  runSceneDuplicateSweep.applyStrandedAlternateDraftQuarantine = applyStrandedAlternateDraftQuarantine;
+
+  return runSceneDuplicateSweep;
+})();
+
+
+const PROJECT_STUDIO_VERSION = 'ProjectStudio-v15.7-controlled-nf-parallel-no-local-beat-fallback';
+console.log('[PROJECT-STUDIO] Loaded', PROJECT_STUDIO_VERSION);
+
+
+// Emergency hard fallback for projects where canonNameLock is not firing because
+// project metadata is stale/missing at polish time. This is intentionally narrow
+// and only activates for the Songbird/Iris/Pauline manuscript world.
+function forceSongbirdAliasRepairText(input = '', options = {}) {
+  let out = String(input || '');
+  const before = out;
+  const projectText = `${options?.project?.title || ''} ${options?.project?.name || ''} ${options?.project?.book_title || ''} ${options?.project?.description || ''} ${options?.project?.premise || ''}`;
+  const forcedByProject = /\bSongbird\b/i.test(projectText) || options?.forceSongbirdAliases === true;
+  const songbirdSignal = forcedByProject || /\b(Iris|Pauline|HIDA|Harlem Institute|Port Chicago|Children’s Hour|Children's Hour|Glass Menagerie|Phillip Cross|Langston Finch|Pauline Carter)\b/i.test(out);
+  if (!songbirdSignal) return { text: out, changed: false, repairs: [] };
+
+  const protectedAliases = [];
+  const protect = (pattern, label) => {
+    out = out.replace(pattern, (m) => {
+      const token = `__SONGBIRD_ALIAS_PROTECT_${label}_${protectedAliases.length}__`;
+      protectedAliases.push([token, m]);
+      return token;
+    });
+  };
+
+  protect(/\bArthur Miller\b/g, 'ARTHUR_MILLER');
+  protect(/\bKing Arthur\b/g, 'KING_ARTHUR');
+  protect(/\bArthurian\b/g, 'ARTHURIAN');
+
+  let arthurCount = 0;
+  let coraCount = 0;
+
+  out = out.replace(/\bArthur Finch\b/g, () => { arthurCount += 1; return 'Langston Finch'; });
+  out = out.replace(/\bArthur(['’])s\b/g, (_m, apos) => { arthurCount += 1; return `Langston${apos}s`; });
+  out = out.replace(/\bArthur\b/g, () => { arthurCount += 1; return 'Langston'; });
+
+  out = out.replace(/\bCora(['’])s\b/g, (_m, apos) => { coraCount += 1; return `Clara${apos}s`; });
+  out = out.replace(/\bCora\b/g, () => { coraCount += 1; return 'Clara'; });
+
+  for (const [token, original] of protectedAliases) out = out.split(token).join(original);
+
+  const repairs = [];
+  if (arthurCount) repairs.push(`Arthur → Langston (${arthurCount}; Songbird emergency hard alias fallback)`);
+  if (coraCount) repairs.push(`Cora → Clara (${coraCount}; Songbird emergency hard alias fallback)`);
+  return { text: out, changed: out !== before, repairs };
+}
+const GLOBAL_NAME_HYGIENE_PROMPT_BLOCK = buildBannedNamePromptBlock({
+  includeHighRisk: true,
+  includeWatchlist: false,
+});
+
+const ADULT_FANFIC_PATTERN = /adult|erotic|erotica|explicit|smut|lemon|omegaverse|kink|bdsm|reverse harem|poly|heat|rut/i;
+const FANFIC_PATTERN = /fan\s*fiction|fanfiction|fanfic|canon|fandom|source universe|ship fic|fix-it|fix it|missing episode|crossover|alternate universe|adult fanfic|erotic fanfic|smut|lemon|omegaverse/i;
+
+function normalizeSetupRoutingDraft(draft = {}) {
+  const next = { ...(draft || {}) };
+  const genreText = `${next.genre || ''} ${next.subgenre || ''} ${next.genre_group || ''}`;
+  const projectText = `${next.fandom_name || ''} ${next.source_universe || ''} ${next.canon_mode || ''} ${next.rights_mode || ''}`;
+  const isFanfic =
+    next.content_lane === 'fanfiction' ||
+    next.rights_mode === 'fanfiction_noncommercial' ||
+    next.fanfic_posting_target ||
+    FANFIC_PATTERN.test(`${genreText} ${projectText}`);
+  const isAdultFanfic = isFanfic && ADULT_FANFIC_PATTERN.test(genreText);
+
+  if (isFanfic) {
+    next.content_lane = 'fanfiction';
+    next.book_type = 'fiction';
+    next.rights_mode = next.rights_mode || 'fanfiction_noncommercial';
+    if (next.rights_mode === 'fanfiction_noncommercial') next.commercial_use_allowed = false;
+    next.canon_mode = next.canon_mode || 'canon_divergent';
+  }
+
+  if (isAdultFanfic) {
+    next.reading_level = 'adult';
+    next.spice_level = Math.max(Number(next.spice_level || 0), 3);
+    next.language_intensity = Math.max(Number(next.language_intensity ?? 2), 2);
+    next.erotica_register = Math.max(Number(next.erotica_register ?? 0), 1);
+  }
+
+  if (next.project_format === 'anthology') {
+    next.project_type = 'anthology';
+  }
+
+  return next;
+}
+
+
+function formatProgressLabel(value, fallback = 'Working…') {
+  if (typeof value === 'string') return value;
+  if (value == null) return fallback;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map((item) => formatProgressLabel(item, '')).filter(Boolean).join(' • ') || fallback;
+  if (typeof value === 'object') {
+    const stage = value.stage || value.status || value.step || value.message || value.label;
+    const sceneNumber = value.sceneNumber ?? value.scene_number;
+    const sceneIndex = value.sceneIndex ?? value.scene_index;
+    const totalScenes = value.totalScenes ?? value.total_scenes;
+    const targetWords = value.targetWords ?? value.target_words;
+    const model = value.model || value.proseModel || value.prose_model;
+
+    const parts = [];
+    if (stage) parts.push(String(stage));
+    if (sceneNumber != null || sceneIndex != null) {
+      const displayScene = sceneNumber != null ? sceneNumber : Number(sceneIndex) + 1;
+      parts.push(totalScenes != null ? `scene ${displayScene}/${totalScenes}` : `scene ${displayScene}`);
+    }
+    if (targetWords != null) parts.push(`${targetWords} target words`);
+    if (model) parts.push(String(model));
+    if (parts.length) return parts.join(' • ');
+
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return fallback;
+    }
+  }
+  return fallback;
+}
+
+function appendCleanBlock(existing, block) {
+  const current = String(existing || '').trim();
+  const extra = String(block || '').trim();
+
+  if (!extra) return current;
+  if (current.includes(extra)) return current;
+  return current ? `${current}\n\n${extra}` : extra;
+}
+
+
+const SCENE_BEATS_ENTITY_CHAR_LIMIT = 6500;
+const PARALLEL_DRAFT_LANE_LIMIT = 4;
+const NONFICTION_DRAFT_LANE_LIMIT = 1;
+const ANTHOLOGY_DRAFT_LANE_LIMIT = 4;
+const REWRITE_DRAFT_LANE_LIMIT = 1;
+
+
+function safeJsonParseProjectStudio(value, fallback = {}) {
+  if (!value) return fallback;
+  if (typeof value === 'object') return value;
+  try {
+    return JSON.parse(String(value));
+  } catch {
+    return fallback;
+  }
+}
+
+function truncateForEntityField(value, max = 500) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!text) return '';
+  if (text.length <= max) return text;
+  return `${text.slice(0, Math.max(0, max - 20)).trim()}… [trimmed]`;
+}
+
+function slimArrayForEntityField(value, maxItems = 8, maxChars = 280) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .slice(0, maxItems)
+    .map((item) => {
+      if (typeof item === 'string') return truncateForEntityField(item, maxChars);
+      if (item && typeof item === 'object') {
+        return Object.fromEntries(
+          Object.entries(item)
+            .slice(0, 10)
+            .map(([key, val]) => [
+              key,
+              typeof val === 'string'
+                ? truncateForEntityField(val, Math.min(maxChars, 220))
+                : Array.isArray(val)
+                  ? slimArrayForEntityField(val, 4, 140)
+                  : val,
+            ])
+        );
+      }
+      return item;
+    })
+    .filter((item) => item !== '' && item != null);
+}
+
+function compactSceneBeatUnitForEntity(unit = {}, index = 0) {
+  const safe = unit && typeof unit === 'object' ? unit : {};
+  return {
+    scene_number: safe.scene_number ?? safe.section_number ?? index + 1,
+    section_number: safe.section_number ?? safe.scene_number ?? index + 1,
+    title: truncateForEntityField(safe.title || safe.scene_title || `Section ${index + 1}`, 120),
+    mode: truncateForEntityField(safe.mode || safe.scene_type || safe.function || '', 80),
+    tempo: truncateForEntityField(safe.tempo || safe.pacing || '', 80),
+    purpose: truncateForEntityField(safe.purpose || safe.scene_purpose || safe.story_function || '', 380),
+    content_direction: truncateForEntityField(safe.content_direction || safe.action || safe.summary || safe.beat_summary || '', 620),
+    evidence_needed: truncateForEntityField(safe.evidence_needed || safe.source_plan || safe.research_anchor || '', 500),
+    key_claim: truncateForEntityField(safe.key_claim || safe.thesis_move || safe.revelation || '', 360),
+    opens_with: truncateForEntityField(safe.opens_with || safe.opening_image || '', 220),
+    closes_with: truncateForEntityField(safe.closes_with || safe.closing_turn || '', 220),
+    word_target: Number(safe.word_target || safe.target_words || safe.words || 0) || undefined,
+    fabrication_warnings: slimArrayForEntityField(safe.fabrication_warnings || safe.risks || safe.warnings || [], 5, 180),
+    source_confidence: truncateForEntityField(safe.source_confidence || safe.claim_lane || '', 120),
+  };
+}
+
+
+function extractSceneBeatUnitsForValidation(beatResult = {}) {
+  const raw = beatResult && typeof beatResult === 'object' ? beatResult : safeJsonParseProjectStudio(beatResult, {});
+  if (Array.isArray(raw.sections)) return raw.sections;
+  if (Array.isArray(raw.beats)) return raw.beats;
+  if (Array.isArray(raw.scenes)) return raw.scenes;
+  return [];
+}
+
+function validateNonfictionBeatPlanForDrafting(beatResult = {}, chapter = {}) {
+  const units = extractSceneBeatUnitsForValidation(beatResult);
+  const chapterNumber = chapter?.chapter_number || chapter?.number || '?';
+  if (!Array.isArray(units) || units.length < 3) {
+    const err = new Error(
+      `Nonfiction beat generation returned an unusable section plan for chapter ${chapterNumber}: ${units?.length || 0} section(s). Refusing to draft from empty/partial beats because that creates generic or contaminated long-form prose.`
+    );
+    err.code = 'NF_EMPTY_BEAT_PLAN';
+    throw err;
+  }
+
+  const usefulUnits = units.filter((unit) => {
+    const text = [
+      unit?.title,
+      unit?.purpose,
+      unit?.content_direction,
+      unit?.summary,
+      unit?.beat_summary,
+      unit?.key_claim,
+      unit?.evidence_needed,
+    ].filter(Boolean).join(' ').trim();
+    return text.length >= 80;
+  });
+
+  if (usefulUnits.length < Math.min(3, units.length)) {
+    const err = new Error(
+      `Nonfiction beat generation returned thin section instructions for chapter ${chapterNumber}: ${usefulUnits.length}/${units.length} usable section(s). Retry beat generation instead of drafting from weak beats.`
+    );
+    err.code = 'NF_THIN_BEAT_PLAN';
+    throw err;
+  }
+
+  return units;
+}
+
+function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
+  const raw = beatResult && typeof beatResult === 'object' ? beatResult : safeJsonParseProjectStudio(beatResult, {});
+  const sourceUnits = Array.isArray(raw.sections)
+    ? raw.sections
+    : Array.isArray(raw.beats)
+      ? raw.beats
+      : Array.isArray(raw.scenes)
+        ? raw.scenes
+        : [];
+
+  const compact = {
+    compacted_for_entity_field: true,
+    compact_version: 'scene-beats-compact-v15.5',
+    compact_reason: 'Full scene beat payload may exceed Base44 entity field limits during parallel nonfiction/anthology drafting.',
+    chapter_number: chapter?.chapter_number || raw.chapter_number || null,
+    title: truncateForEntityField(chapter?.title || raw.title || '', 140),
+    sections: sourceUnits.map((unit, index) => compactSceneBeatUnitForEntity(unit, index)).slice(0, 8),
+    argument_progression: raw.argument_progression
+      ? {
+          prior_chapter_endpoint: truncateForEntityField(raw.argument_progression.prior_chapter_endpoint, 320),
+          this_chapter_advances: truncateForEntityField(raw.argument_progression.this_chapter_advances, 360),
+          new_ground: truncateForEntityField(raw.argument_progression.new_ground, 360),
+          handoff: truncateForEntityField(raw.argument_progression.handoff, 320),
+        }
+      : undefined,
+    continuity: raw.continuity
+      ? {
+          setup: truncateForEntityField(raw.continuity.setup, 280),
+          payoff: truncateForEntityField(raw.continuity.payoff, 280),
+          handoff: truncateForEntityField(raw.continuity.handoff, 280),
+        }
+      : undefined,
+    source_audit_summary: raw.source_audit
+      ? {
+          notes: slimArrayForEntityField(raw.source_audit.notes || [], 6, 220),
+          sourceSignals: slimArrayForEntityField(raw.source_audit.sourceSignals || [], 6, 180),
+        }
+      : undefined,
+  };
+
+  let compactJson = JSON.stringify(compact, null, 2);
+
+  if (compactJson.length <= SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+    return compactJson;
+  }
+
+  const tighter = {
+    ...compact,
+    sections: compact.sections.map((section) => ({
+      scene_number: section.scene_number,
+      section_number: section.section_number,
+      title: truncateForEntityField(section.title, 90),
+      mode: truncateForEntityField(section.mode, 50),
+      purpose: truncateForEntityField(section.purpose, 240),
+      content_direction: truncateForEntityField(section.content_direction, 360),
+      evidence_needed: truncateForEntityField(section.evidence_needed, 260),
+      key_claim: truncateForEntityField(section.key_claim, 220),
+      word_target: section.word_target,
+    })),
+    source_audit_summary: undefined,
+  };
+
+  compactJson = JSON.stringify(tighter, null, 2);
+
+  if (compactJson.length <= SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+    return compactJson;
+  }
+
+  const bare = {
+    compacted_for_entity_field: true,
+    compact_version: 'scene-beats-compact-v15.5-bare',
+    chapter_number: chapter?.chapter_number || raw.chapter_number || null,
+    title: truncateForEntityField(chapter?.title || raw.title || '', 100),
+    sections: (tighter.sections || []).slice(0, 6).map((section, index) => ({
+      section_number: section.section_number || index + 1,
+      title: truncateForEntityField(section.title, 80),
+      purpose: truncateForEntityField(section.purpose, 180),
+      content_direction: truncateForEntityField(section.content_direction, 220),
+      word_target: section.word_target,
+    })),
+  };
+
+  return JSON.stringify(bare, null, 2);
+}
+
+async function runParallelDraftPool(items, worker, options = {}) {
+  const limit = Math.max(1, Math.min(Math.max(1, Number(options.limit || PARALLEL_DRAFT_LANE_LIMIT) || PARALLEL_DRAFT_LANE_LIMIT), Math.max(1, items.length)));
+  const results = new Array(items.length);
+  let cursor = 0;
+
+  async function runLane(laneIndex) {
+    while (cursor < items.length) {
+      const currentIndex = cursor;
+      cursor += 1;
+      const item = items[currentIndex];
+
+      try {
+        const value = await worker(item, currentIndex, laneIndex);
+        results[currentIndex] = { status: 'fulfilled', value, chapter: item };
+      } catch (reason) {
+        results[currentIndex] = { status: 'rejected', reason, chapter: item };
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: limit }, (_, index) => runLane(index)));
+  return results;
+}
+
+function buildNameHygieneEnhancedProject(project) {
+  const nameBlock = GLOBAL_NAME_HYGIENE_PROMPT_BLOCK;
+
+  return {
+    ...project,
+    name_hygiene_prompt_block: nameBlock,
+    name_exclusion_block: appendCleanBlock(project?.name_exclusion_block, nameBlock),
+    style_rules: appendCleanBlock(project?.style_rules, nameBlock),
+    constraints: appendCleanBlock(project?.constraints, nameBlock),
+    author_voice_notes: appendCleanBlock(project?.author_voice_notes, nameBlock),
+  };
+}
+
+const PROJECT_FIELDS = ['world_md', 'characters_md', 'outline_md', 'canon_md', 'voice_md', 'mystery_md', 'twists_md', 'research_md'];
+const PROJECT_SETTING_FIELDS = [
+  // Core book setup
+  'title',
+  'tagline',
+  'seed_concept',
+  'book_type',
+  'project_type',
+  'genre',
+  'subgenre',
+  'target_audience',
+
+  // Taxonomy / setup architecture
+  'content_lane',
+  'project_format',
+  'rights_mode',
+  'commercial_use_allowed',
+  'genre_group',
+  'market_category',
+
+  // Fan fiction / shared-universe setup
+  'fandom_name',
+  'source_universe',
+  'canon_mode',
+  'fanfic_posting_target',
+  'canon_characters',
+  'canon_boundary',
+
+  // POV / narration
+  'pov_mode',
+  'tense',
+  'protagonist_pronouns',
+
+  // Structure / pacing
+  'beat_style',
+  'scene_beat_style',
+  'nf_structure_mode',
+  'story_arc',
+  'num_twists',
+  'twist_count',
+  'twist_intensity',
+
+  // Author / voice
+  'author_name',
+  'author_voice',
+  'author_voice_notes',
+  'author_style_id',
+
+  // Series
+  'series_bible_id',
+  'series_name',
+  'series_number',
+  'series_order',
+
+  // Content controls
+  'reading_level',
+  'language_intensity',
+  'spice_level',
+  'erotica_register',
+
+  // Length targets
+  'chapter_target',
+  'chapter_length_preset',
+  'chapter_length_target',
+  'target_chapter_words',
+  'total_word_target',
+
+  // Anthology
+  'anthology_theme',
+  'anthology_theme_type',
+  'anthology_story_length',
+  'anthology_variety',
+
+  // Model routing
+  'default_prose_model',
+];
+
+export default function ProjectStudio() {
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [busyLabel, setBusyLabel] = React.useState('');
+  // Per-chapter progress for parallel Draft All / Rewrite All operations.
+  const [chapterProgress, setChapterProgress] = React.useState({});
+  // Batch Draft/Rewrite stays generation-only. Polish/Fix Manuscript handles cleanup afterward.
+  // Diagnostic: log every time chapterProgress changes so we can see if
+  // React is actually re-rendering with new values.
+  React.useEffect(() => {
+    const keys = Object.keys(chapterProgress);
+    console.log(`[CHAPTER-PROGRESS-STATE] Map now has ${keys.length} entries:`, chapterProgress);
+  }, [chapterProgress]);
+  const [selectedChapterId, setSelectedChapterId] = React.useState(null);
+  const [activeDoc, setActiveDoc] = React.useState('world_md');
+  const [chapterDraft, setChapterDraft] = React.useState('');
+
+  // Support ?tab=ideas query param to open directly on a tab
+  const initialTab = React.useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || null;
+  }, []);
+  const [docDrafts, setDocDrafts] = React.useState({});
+  const [settingsDrafts, setSettingsDrafts] = React.useState(createInitialProjectSettings());
+  const [reviewData, setReviewData] = React.useState({});
+  const [isApplyingFixes, setIsApplyingFixes] = React.useState(false);
+  const [polishResults, setPolishResults] = React.useState(null);
+  const [researchData, setResearchData] = React.useState({});
+  const [chapterProseModels, setChapterProseModels] = React.useState({});
+  const stopRequestedRef = React.useRef(false);
+  const skipProjectSyncRef = React.useRef(false);
+  const notebookRef = React.useRef(null);
+  const undoSnapshotRef = React.useRef(null);
+  const [isUndoing, setIsUndoing] = React.useState(false);
+  const [undoSnapshot, setUndoSnapshot] = React.useState(null);
+
+  const captureSnapshot = (label) => {
+    const snap = {
+      label,
+      timestamp: Date.now(),
+      project: project ? { ...project } : null,
+      chapters: chapters.map((ch) => ({ ...ch })),
+      docDrafts: { ...docDrafts },
+      settingsDrafts: { ...settingsDrafts },
+    };
+    undoSnapshotRef.current = snap;
+    setUndoSnapshot(snap);
+  };
+
+  const handleUndo = async () => {
+    const snap = undoSnapshotRef.current;
+    if (!snap || !snap.project) return;
+    setIsUndoing(true);
+    try {
+      // Restore project fields
+      const { id, created_date, updated_date, created_by, ...projectFields } = snap.project;
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(projectId, projectFields));
+
+      // Restore chapters that changed
+      for (const oldCh of snap.chapters) {
+        const { id: chId, created_date: cd, updated_date: ud, created_by: cb, ...chFields } = oldCh;
+        await runWithNetworkRetry(() => base44.entities.Chapter.update(chId, chFields));
+      }
+
+      // Delete chapters that were created after the snapshot
+      const currentChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 200);
+      const snapshotIds = new Set(snap.chapters.map((c) => c.id));
+      for (const ch of currentChapters) {
+        if (!snapshotIds.has(ch.id)) {
+          await base44.entities.Chapter.delete(ch.id);
+        }
+      }
+
+      setDocDrafts(snap.docDrafts);
+      setSettingsDrafts(snap.settingsDrafts);
+      undoSnapshotRef.current = null;
+      setUndoSnapshot(null);
+      await refreshAll();
+    } finally {
+      setIsUndoing(false);
+    }
+  };
+
+  // Project query — do NOT swallow errors silently. A transient 429/500/timeout
+  // used to get caught by .catch(() => []) and present as "project doesn't
+  // exist," which the UI then rendered as the "Project Not Found" screen.
+  // Now: let errors bubble to React Query, auto-retry on transient failures,
+  // and keep the previously loaded project visible across refetches.
+  //
+  // CRITICAL (React Query v5): we do NOT set initialData. In v5, providing
+  // initialData without initialDataUpdatedAt causes the query to treat the
+  // placeholder as fresh data — staleTime expires against "now" and the
+  // queryFn never actually fires on mount. That was the root cause of the
+  // "Project Not Found" screen: queryFn was silently skipped, projectRows
+  // stayed [], project stayed null. No retries, no error, just a null pointer
+  // walking straight into the 404 guard.
+  const { data: rawProjectRows, isLoading: isLoadingProject, isError: isProjectError, error: projectError, refetch: refetchProject } = useQuery({
+    queryKey: ['novel-project', projectId],
+    queryFn: () => base44.entities.NovelProject.filter({ id: projectId }),
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+    placeholderData: (prev) => prev, // v5 replacement for keepPreviousData
+    staleTime: 30_000,
+    enabled: !!projectId,
+  });
+
+  const { data: rawChapters, isLoading: isLoadingChapters } = useQuery({
+    queryKey: ['novel-chapters', projectId],
+    queryFn: () => base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100),
+    placeholderData: (prev) => prev,
+    enabled: !!projectId,
+  });
+
+  // Normalize — data is undefined on first render before queryFn resolves.
+  // Keep all downstream code as-is by using `chapters` and `projectRows`
+  // exactly the way the original code did (safe array access guaranteed).
+  const projectRows = Array.isArray(rawProjectRows) ? rawProjectRows : [];
+  const chapters = Array.isArray(rawChapters) ? rawChapters : [];
+
+  const project = projectRows[0] || null;
+  const selectedChapter = chapters.find((chapter) => chapter.id === selectedChapterId) || chapters[0] || null;
+
+  // Destructive-generation safety helpers. Keep these AFTER project/chapters are initialized
+  // to avoid React initialization-order crashes.
+  const chapterHasPersistedManuscriptContent = (chapter) => Boolean(
+    chapterHasContent(chapter) ||
+    chapter?.content_html ||
+    chapter?.content_html_url ||
+    chapter?.content_delta ||
+    chapter?.content_delta_url
+  );
+
+  const confirmDestructiveChapterAction = (message) => {
+    if (typeof window === 'undefined') return true;
+    return window.confirm(message);
+  };
+
+  const backupChapterBeforeGeneratedOverwrite = async (chapter, reason) => {
+    if (!chapter?.id || !chapterHasPersistedManuscriptContent(chapter)) return false;
+
+    const existingText = await resolveChapterContent(chapter);
+    if (!existingText || !existingText.trim()) return false;
+
+    const backupFields = await prepareBackupContent(existingText, project?.id || projectId, chapter.id, chapter);
+    await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+      ...backupFields,
+      revision_notes: [
+        reason || 'Backup before generated overwrite',
+        chapter.revision_notes || '',
+      ].filter(Boolean).join('\n'),
+    }));
+    return true;
+  };
+
+
+  const runProjectContentGuardBeforeSave = (chapter, text, sourceLabel = 'draft') => {
+    const guard = validateProjectChapterContent({
+      project: buildNameHygieneEnhancedProject(project || {}),
+      chapter,
+      chapters,
+      content: text,
+    });
+
+    if (guard?.shouldBlockSave) {
+      console.error(`[PROJECT-CONTENT-GUARD] Blocked ${sourceLabel} save for Ch.${chapter?.chapter_number || '?'}`, guard);
+      toast.error(`Blocked Ch.${chapter?.chapter_number || '?'} save: wrong-project contamination detected. Regenerate this chapter after checking Setup/Foundation.`);
+      throw makeProjectContentGuardError(chapter, guard);
+    }
+
+    if (guard?.severity === 'warning') {
+      console.warn(`[PROJECT-CONTENT-GUARD] Warning for Ch.${chapter?.chapter_number || '?'} ${sourceLabel}:`, guard.report);
+    }
+
+    return guard;
+  };
+
+  // Set project context for the floating brainstorm panel
+  React.useEffect(() => {
+    if (project) {
+      window.__ubsProjectContext = {
+        title: project.title,
+        genre: project.genre,
+        seed_concept: project.seed_concept,
+        characters_md: project.characters_md,
+        world_md: project.world_md,
+        outline_md: project.outline_md,
+        voice_md: project.voice_md,
+      };
+    }
+    return () => { window.__ubsProjectContext = null; };
+  }, [project?.id, project?.title]);
+
+  React.useEffect(() => {
+    if (!project) return;
+    if (skipProjectSyncRef.current) { skipProjectSyncRef.current = false; return; }
+    const baseDrafts = PROJECT_FIELDS.reduce((acc, f) => ({ ...acc, [f]: project[f] || '' }), {});
+    setDocDrafts(baseDrafts);
+    // Resolve foundation fields stored as URLs (outline_md, characters_md, etc.) + research
+    resolveAllFoundationFields(project).then((resolved) => {
+      setDocDrafts((prev) => { const next = { ...prev }; for (const [k, v] of Object.entries(resolved)) { if (v && v.length > (prev[k] || '').length) next[k] = v; } return next; });
+    }).catch(() => {});
+    if (project.research_md_url) { resolveResearchContent(project).then((c) => { if (c && c.length > (project.research_md || '').length) setDocDrafts((p) => ({ ...p, research_md: c })); }).catch(() => {}); }
+    setSettingsDrafts(PROJECT_SETTING_FIELDS.reduce((acc, f) => ({ ...acc, [f]: project[f] ?? createInitialProjectSettings(project.book_type || 'fiction')[f] ?? '' }), createInitialProjectSettings(project.book_type || 'fiction')));
+    if (project.seed_concept_url) { resolveSeedConcept(project).then((full) => { if (full) setSettingsDrafts((p) => ({ ...p, seed_concept: full })); }).catch(() => {}); }
+    if (project.research_data) {
+      try { setResearchData(typeof project.research_data === 'string' ? JSON.parse(project.research_data) : project.research_data); } catch { setResearchData({}); }
+    }
+  }, [project]);
+
+  React.useEffect(() => {
+    if (!chapters.length) return;
+    // Auto-select first chapter if none selected or selected chapter no longer exists
+    const selectedExists = selectedChapterId && chapters.some(ch => ch.id === selectedChapterId);
+    if (!selectedExists) {
+      setSelectedChapterId(chapters[0].id);
+    }
+  }, [chapters, selectedChapterId]);
+
+  // Load chapter content when the selected chapter changes or its data updates
+  const selectedChapterUpdatedAt = selectedChapter?.updated_date;
+  const selectedChapterContentMd = selectedChapter?.content_md;
+  const selectedChapterContentUrl = selectedChapter?.content_md_url;
+  React.useEffect(() => {
+    let cancelled = false;
+    resolveChapterContent(selectedChapter).then((content) => {
+      if (!cancelled) setChapterDraft(content);
+    });
+    return () => { cancelled = true; };
+  }, [selectedChapterId, selectedChapterUpdatedAt, selectedChapterContentMd, selectedChapterContentUrl]);
+
+  const saveProject = useMutation({
+    mutationFn: (payload) => runWithNetworkRetry(() => base44.entities.NovelProject.update(projectId, payload)),
+    onSuccess: () => { skipProjectSyncRef.current = true; queryClient.invalidateQueries({ queryKey: ['novel-project', projectId] }); },
+  });
+
+  const saveChapter = useMutation({
+    mutationFn: ({ id, payload }) => runWithNetworkRetry(() => base44.entities.Chapter.update(id, payload)),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['novel-chapters', projectId] }),
+  });
+
+  const refreshAll = () => Promise.all([
+    queryClient.invalidateQueries({ queryKey: ['novel-project', projectId] }),
+    queryClient.invalidateQueries({ queryKey: ['novel-chapters', projectId] }),
+    queryClient.invalidateQueries({ queryKey: ['novel-projects'] }),
+  ]);
+
+  const updateSettingsDrafts = (updater) => {
+    setSettingsDrafts((current) => {
+      const next = typeof updater === 'function' ? updater(current) : { ...current, ...updater };
+      if (next.series_number !== '' && next.series_number != null) next.series_number = Number(next.series_number) || null;
+      const ct = next.chapter_target;
+      const clt = next.chapter_length_target;
+      const chapterTarget = ct === '' ? '' : Math.max(1, Number(ct || 1));
+      const chapterLengthTarget = clt === '' ? '' : Math.max(500, Number(clt || 3500));
+      const numCt = chapterTarget === '' ? 0 : chapterTarget;
+      const numClt = chapterLengthTarget === '' ? 0 : chapterLengthTarget;
+      return {
+        ...next,
+        chapter_target: chapterTarget,
+        chapter_length_target: chapterLengthTarget,
+        total_word_target: numCt * numClt,
+        target_chapter_words: chapterLengthTarget === '' ? '' : chapterLengthTarget,
+        scene_beat_style: next.beat_style || '',
+      };
+    });
+  };
+
+  const handleSettingFieldChange = (field, value) => {
+    updateSettingsDrafts({ [field]: value });
+
+    // These fields affect project routing, Setup conditionals, and downstream
+    // generation behavior. Persist them immediately so autosave cannot race
+    // the visible UI state or leave the app thinking the project is still using
+    // the previous lane/format/rights mode. Keep this list intentionally narrow
+    // so normal typing fields do not hammer the database.
+    const immediatePersistFields = new Set([
+      'project_type',
+      'book_type',
+      'content_lane',
+      'project_format',
+      'rights_mode',
+      'commercial_use_allowed',
+      'genre',
+      'subgenre',
+      'canon_mode',
+      'num_twists',
+      'twist_intensity',
+      'twist_count',
+    ]);
+
+    if (immediatePersistFields.has(field)) {
+      runWithNetworkRetry(() =>
+        base44.entities.NovelProject.update(projectId, { [field]: value })
+      ).catch((err) => {
+        console.warn('[SETTINGS] Immediate field save failed:', field, err?.message || err);
+      });
+    }
+  };
+
+  const handleBookTypeChange = (bookType) => {
+    // Preserve lane/rights/format/genre details. Fan Fiction is still book_type='fiction',
+    // so a full reset here can silently erase Fan Fiction + Adult/Erotic Fanfic settings.
+    setSettingsDrafts((prev) => {
+      const previousType = prev.book_type || project?.book_type || 'fiction';
+      if (previousType === bookType) {
+        return normalizeSetupRoutingDraft({ ...prev, book_type: bookType });
+      }
+
+      const initial = createInitialProjectSettings(bookType);
+      return normalizeSetupRoutingDraft({
+        ...initial,
+        ...prev,
+        book_type: bookType,
+        title: prev.title || initial.title,
+        tagline: prev.tagline || initial.tagline,
+        seed_concept: prev.seed_concept || initial.seed_concept,
+        author_name: prev.author_name || initial.author_name,
+        author_style_id: prev.author_style_id || '',
+        project_type: prev.project_format === 'anthology' ? 'anthology' : (bookType === 'nonfiction' ? 'nonfiction' : 'novel'),
+      });
+    });
+  };
+
+  const handleGenreChange = (genre) => {
+    updateSettingsDrafts((current) => {
+      const protectedRouting = {
+        content_lane: current.content_lane,
+        project_format: current.project_format,
+        project_type: current.project_type,
+        rights_mode: current.rights_mode,
+        commercial_use_allowed: current.commercial_use_allowed,
+        genre_group: current.genre_group,
+        fandom_name: current.fandom_name,
+        source_universe: current.source_universe,
+        canon_mode: current.canon_mode,
+        fanfic_posting_target: current.fanfic_posting_target,
+        canon_characters: current.canon_characters,
+        canon_boundary: current.canon_boundary,
+      };
+      const suggestion = suggestPovTense(current.book_type, genre);
+      const next = applyGenreDefaults({ ...current, genre, subgenre: '' }, genre);
+      return normalizeSetupRoutingDraft({
+        ...next,
+        ...protectedRouting,
+        genre,
+        subgenre: '',
+        pov_mode: suggestion.pov,
+        tense: suggestion.tense,
+      });
+    });
+  };
+
+  const handleLengthPresetChange = (preset) => {
+    updateSettingsDrafts({
+      chapter_length_preset: preset,
+      chapter_length_target: CHAPTER_LENGTH_PRESETS[preset]?.words || 3500,
+    });
+  };
+
+  const handleApplyPovPreset = (preset) => {
+    updateSettingsDrafts({ pov_mode: preset.pov, tense: preset.tense });
+  };
+
+  const handleSaveSettings = async () => {
+    const p = { ...settingsDrafts }; if (!p.series_number && p.series_number !== 0) delete p.series_number; else p.series_number = Number(p.series_number);
+    delete p.num_twists; delete p.twist_count; delete p.twist_intensity;
+    if (p.seed_concept) { const sc = await prepareSeedConcept(p.seed_concept, projectId); p.seed_concept = sc.seed_concept; p.seed_concept_url = sc.seed_concept_url; }
+    await saveProject.mutateAsync(p);
+  };
+
+
+  const runAnthologyFoundationBuild = async (resolvedSeed, sourceLabel = 'Build Story Bible') => {
+    const ct = Number(settingsDrafts.chapter_target) || Number(project?.chapter_target) || 12;
+    const anthologyProject = normalizeSetupRoutingDraft({
+      ...project,
+      ...settingsDrafts,
+      chapter_target: ct,
+      seed_concept: resolvedSeed,
+      project_format: settingsDrafts.project_format || project?.project_format || 'anthology',
+      project_type: 'anthology',
+    });
+
+    const makeFallbackStory = (storyNumber) => {
+      const isNonfiction = anthologyProject.book_type === 'nonfiction' || /nonfiction|non-fiction|memoir|history|business|self-help|true crime|investigative|education|caregiving/i.test(String(anthologyProject.genre || ''));
+      const theme = anthologyProject.anthology_theme || anthologyProject.seed_concept || anthologyProject.title || 'Collection Theme';
+      const noun = isNonfiction ? 'Chapter' : 'Story';
+      return {
+        story_number: storyNumber,
+        title: `${noun} ${storyNumber}: ${theme}`,
+        premise: isNonfiction
+          ? `A standalone ${String(theme).toLowerCase()} chapter with a distinct subject, opening hook, evidence path, and conclusion.`
+          : `A standalone story exploring ${theme} from a distinct character, setting, conflict, and ending.`,
+        protagonist: {
+          name: isNonfiction ? `Subject ${storyNumber}` : `Protagonist ${storyNumber}`,
+          age: isNonfiction ? 'TBD / research-dependent' : 'adult',
+          occupation_or_role: isNonfiction ? 'concept | case_study | person | event' : 'role TBD',
+          wound: isNonfiction ? 'Central question TBD' : 'private wound TBD',
+          want: isNonfiction ? 'Distinct chapter angle TBD' : 'clear desire TBD',
+          defining_trait: isNonfiction ? 'key insight TBD' : 'defining trait TBD',
+        },
+        setting: {
+          location: anthologyProject.source_universe || anthologyProject.fandom_name || anthologyProject.genre || 'TBD',
+          time_period: anthologyProject.canon_mode || 'TBD',
+          sensory_anchor: isNonfiction ? 'Opening hook TBD' : 'sensory anchor TBD',
+        },
+        conflict: isNonfiction ? 'Tension/evidence question TBD' : 'central conflict TBD',
+        twist_or_turn: isNonfiction ? 'counterintuitive insight TBD' : 'turning point TBD',
+        ending_type: isNonfiction ? 'synthesis' : 'resolved or devastating',
+        thematic_angle: `Unique angle ${storyNumber} on ${theme}`,
+        pov: isNonfiction ? 'editorial' : (anthologyProject.pov_mode || 'third-close'),
+        tense: isNonfiction ? 'mixed' : (anthologyProject.tense || 'past'),
+        tone: anthologyProject.author_voice || anthologyProject.genre || '',
+        estimated_words: Number(anthologyProject.chapter_length_target) || 3500,
+      };
+    };
+
+    const normalizeStories = (inputStories) => {
+      const seen = new Set();
+      const cleaned = [];
+      const source = Array.isArray(inputStories) ? inputStories : [];
+      for (const rawStory of source) {
+        if (!rawStory || typeof rawStory !== 'object') continue;
+        const nextNum = cleaned.length + 1;
+        const titleKey = String(rawStory.title || '').trim().toLowerCase();
+        const premiseKey = String(rawStory.premise || rawStory.thematic_angle || '').trim().toLowerCase().slice(0, 160);
+        const key = `${titleKey}|${premiseKey}`;
+        if (key.length > 2 && seen.has(key)) continue;
+        if (key.length > 2) seen.add(key);
+        cleaned.push({ ...makeFallbackStory(nextNum), ...rawStory, story_number: nextNum });
+        if (cleaned.length >= ct) break;
+      }
+      return cleaned;
+    };
+
+    const buildFallbackDocs = (parsedBible, stories, outlineMd) => {
+      const theme = anthologyProject.anthology_theme || anthologyProject.seed_concept || anthologyProject.title || 'Collection Theme';
+      const collectionTitle = parsedBible?.title || anthologyProject.title || String(theme).slice(0, 80) || 'Untitled Anthology';
+      const fanContext = anthologyProject.content_lane === 'fanfiction' || anthologyProject.rights_mode === 'fanfiction_noncommercial'
+        ? `\n\n## Fanfiction / Shared-Universe Guardrails\n- Source/Fandom: ${anthologyProject.fandom_name || anthologyProject.source_universe || 'User-defined fandom'}\n- Canon mode: ${anthologyProject.canon_mode || 'user-defined'}\n- Rights: Noncommercial fan work unless changed in Setup.\n- Respect canon boundaries entered in Setup. Do not invent contradictions unless the selected canon mode allows it.`
+        : '';
+
+      return {
+        world_md: parsedBible?.worldMd || `# ${collectionTitle}\n\n## Master Theme\n${theme}\n\n## Collection Logic\nThis anthology is a collection of standalone ${anthologyProject.book_type === 'nonfiction' ? 'chapters/essays' : 'stories'} unified by the theme above. Each entry should have its own subject, conflict, arc, and ending while contributing to the larger collection experience.${fanContext}`,
+        characters_md: parsedBible?.charactersMd || '',
+        outline_md: outlineMd || rebuildAnthologyOutlineMd(stories),
+        canon_md: parsedBible?.canonMd || `# Canon / Collection Rules\n\n- Each entry must stand alone.\n- Do not reuse the same protagonist/conflict structure unless this is intentionally set as a connected-universe anthology.\n- Maintain the tone, rights mode, and content lane selected in Setup.${fanContext}`,
+        voice_md: parsedBible?.voiceMd || `# Voice Guide\n\nBaseline voice: ${anthologyProject.author_voice || anthologyProject.genre || 'project-appropriate prose'}\n\nAuthor notes:\n${anthologyProject.author_voice_notes || 'Use the author voice and style settings from Setup. Keep entries distinct without losing collection cohesion.'}`,
+        mystery_md: '',
+        twists_md: parsedBible?.twistsMd || '',
+      };
+    };
+
+    try {
+      console.log(`[ANTHOLOGY] ${sourceLabel}: safe foundation build started`, anthologyProject);
+      setBusyLabel('Anthology: Building collection shell…');
+
+      let parsedBible = {};
+      try {
+        const shellProject = { ...anthologyProject, chapter_target: Math.min(ct, 3) };
+        const shellResponse = await Promise.race([
+          invokeLLMWithRetry({
+            prompt: buildAnthologyBiblePrompt(shellProject),
+            response_json_schema: anthologyBibleSchema,
+            model: pickModel('foundation', shellProject),
+            spec: shellProject,
+            fallback_model: pickFallbackModel('foundation', shellProject),
+            max_tokens: 8192,
+          }, 1),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Anthology shell generation timed out')), 90000)),
+        ]);
+        parsedBible = parseAnthologyBible(unwrapIntegrationResult(shellResponse));
+      } catch (shellErr) {
+        console.warn('[ANTHOLOGY] Collection shell failed/timed out. Continuing with batched outlines:', shellErr?.message || shellErr);
+        parsedBible = {};
+      }
+
+      setBusyLabel('Anthology: Creating story outline batches…');
+      let stories = [];
+      try {
+        stories = await generateAnthologyOutlinesBatched(anthologyProject, { onProgress: (label) => setBusyLabel(formatProgressLabel(label)) });
+      } catch (batchErr) {
+        console.error('[ANTHOLOGY] Batched outlines failed validation. Refusing to save placeholders:', batchErr?.message || batchErr);
+        throw new Error(`Anthology story concept generation failed before a valid outline was produced. Nothing was saved. ${batchErr?.message || ''}`.trim());
+      }
+
+      stories = normalizeStories(stories);
+      if (stories.length !== ct || hasInvalidAnthologyStories(stories)) {
+        throw new Error(`Anthology story concept generation returned ${stories.length}/${ct} valid stories. Refusing to save placeholder or instruction-dump outline.`);
+      }
+
+      const outlineMd = rebuildAnthologyOutlineMd(stories);
+      const docs = buildFallbackDocs(parsedBible, stories, outlineMd);
+      setDocDrafts(docs);
+
+      const savePayload = foundationSafeUpdate(enforceChapterCount({
+        ...docs,
+        // Preserve current Setup taxonomy during the foundation save. This prevents
+        // Build Story Bible refresh from reverting Fan Fiction + Adult/Erotic Fanfic
+        // back to plain Fiction when autosave has not finished yet.
+        content_lane: anthologyProject.content_lane,
+        project_format: anthologyProject.project_format || 'anthology',
+        rights_mode: anthologyProject.rights_mode,
+        commercial_use_allowed: anthologyProject.commercial_use_allowed,
+        genre_group: anthologyProject.genre_group,
+        genre: anthologyProject.genre,
+        subgenre: anthologyProject.subgenre,
+        book_type: anthologyProject.book_type,
+        project_type: 'anthology',
+        reading_level: anthologyProject.reading_level,
+        spice_level: anthologyProject.spice_level,
+        language_intensity: anthologyProject.language_intensity,
+        erotica_register: anthologyProject.erotica_register,
+        canon_mode: anthologyProject.canon_mode,
+        fandom_name: anthologyProject.fandom_name,
+        source_universe: anthologyProject.source_universe,
+        fanfic_posting_target: anthologyProject.fanfic_posting_target,
+        canon_characters: anthologyProject.canon_characters,
+        canon_boundary: anthologyProject.canon_boundary,
+        title: parsedBible?.title || anthologyProject.title || project.title,
+        tagline: parsedBible?.tagline || anthologyProject.tagline || project.tagline || '',
+        foundation_score: hasInvalidAnthologyStories(stories) ? 6.5 : 8,
+        current_focus: 'Review anthology story concepts',
+        phase: 'drafting',
+        status: 'ready',
+        iteration: (project.iteration || 0) + 1,
+      }, ct), anthologyProject);
+      delete savePayload.num_twists;
+      delete savePayload.twist_count;
+      delete savePayload.twist_intensity;
+      delete savePayload.twists;
+
+      const safePayload = await prepareFoundationPayload(savePayload);
+      setBusyLabel('Anthology: Saving story bible…');
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, safePayload));
+
+      setBusyLabel('Anthology: Creating chapter records…');
+      const chapterPlans = storiesToChapterPlans(stories);
+      await clearAndCreateChapters(chapterPlans, ct, project.id, outlineMd);
+      await queryClient.invalidateQueries({ queryKey: ['novel-chapters', project.id] });
+      await queryClient.refetchQueries({ queryKey: ['novel-chapters', project.id] });
+      toast.success(`Anthology story bible built and Chapters tab synced: ${stories.length}/${ct} story concept(s).`);
+    } catch (err) {
+      console.error('[ANTHOLOGY] Safe foundation build failed:', err);
+      toast.error(`Build Story Bible failed: ${err?.message || 'Unknown error'}`);
+      throw err;
+    } finally {
+      setBusyLabel('');
+    }
+
+    await refreshAll();
+  };
+
+  const handleExpand = async () => {
+    if (!project) return; if (!(settingsDrafts.seed_concept?.trim() || project.seed_concept?.trim())) { toast.error('Enter a premise in Setup first.'); return; }
+    captureSnapshot('Expand');
+    const bookType = settingsDrafts.book_type || 'fiction';
+    // Force save settings before generation to eliminate auto-save race condition
+    const _expandSave = normalizeSetupRoutingDraft({ ...settingsDrafts }); if (!_expandSave.series_number && _expandSave.series_number !== 0) delete _expandSave.series_number; else _expandSave.series_number = Number(_expandSave.series_number); delete _expandSave.num_twists; delete _expandSave.twist_count; delete _expandSave.twist_intensity;
+    if (_expandSave.seed_concept) { const sc = await prepareSeedConcept(_expandSave.seed_concept, project.id); _expandSave.seed_concept = sc.seed_concept; _expandSave.seed_concept_url = sc.seed_concept_url; }
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _expandSave));
+    const _resolvedSeed = await resolveSeedConcept({ ...project, seed_concept: settingsDrafts.seed_concept || project.seed_concept, seed_concept_url: _expandSave.seed_concept_url || project.seed_concept_url });
+    if (isAnthologyProject(project) || settingsDrafts?.project_type === 'anthology') {
+      await runAnthologyFoundationBuild(_resolvedSeed, 'Build Story Bible');
+      return;
+    }
+
+    try {
+    const _usedNames = await getUsedCharacterNames(project.id);
+    const _nameBlock = [
+      buildNameExclusionBlock([...new Set([...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._usedNames])]),
+      GLOBAL_NAME_HYGIENE_PROMPT_BLOCK,
+    ].filter(Boolean).join('\n\n');
+    setBusyLabel('Step 1/2 — Analyzing premise…');
+    const settingsResponse = await invokeLLMWithRetry({
+      prompt: buildExpandSettingsPrompt(_resolvedSeed, bookType, settingsDrafts),
+      response_json_schema: expandSettingsSchema,
+      model: pickModel('foundation', { ...settingsDrafts, book_type: bookType }),
+      spec: settingsDrafts,
+      fallback_model: pickFallbackModel('foundation', project),
+    });
+    const settings = unwrapIntegrationResult(settingsResponse);
+    if (!settings || !settings.title) {
+      console.warn('[FOUNDATION] Settings analysis returned empty or invalid result. Aborting expand.');
+      setBusyLabel('');
+      return;
+    }
+
+    const targetWords = settings.chapter_length_target || 3500;
+    const closestPreset = Object.entries(CHAPTER_LENGTH_PRESETS)
+      .map(([key, val]) => ({ key, delta: Math.abs(val.words - targetWords) }))
+      .sort((a, b) => a.delta - b.delta)[0]?.key || 'standard';
+
+    // PROTECT USER'S CHAPTER COUNT: never let LLM override it
+    const userChapterTarget = Number(settingsDrafts.chapter_target) || 20;
+    const userChapterLengthTarget = Number(settingsDrafts.chapter_length_target) || 3500;
+    console.log('[CHAPTERS] User set:', userChapterTarget, '| Expand settings suggested:', settings.chapter_target || 'none', '| Keeping user value.');
+
+    // DO NOT call updateSettingsDrafts here — it triggers auto-save
+    // which overwrites the user's Setup fields. The LLM suggestions
+    // are only used as context for bible generation below.
+    const newSettings = {
+      ...settingsDrafts,
+      // Keep all user-set fields, only fill in blanks
+      target_audience: settingsDrafts.target_audience || settings.target_audience || '',
+      chapter_target: userChapterTarget,
+      chapter_length_preset: settingsDrafts.chapter_length_preset || closestPreset,
+      chapter_length_target: userChapterLengthTarget,
+      target_chapter_words: userChapterLengthTarget,
+      total_word_target: userChapterTarget * userChapterLengthTarget,
+    };
+
+    // Step 2: Foundation generation — parallel batches
+    setBusyLabel('Step 2/2 — Building story bible (parallel)…');
+    const foundation = await generateBibleParallel(
+      _resolvedSeed,
+      { ...newSettings, book_type: bookType, research_data: project.research_data },
+      { onProgress: (label) => setBusyLabel(formatProgressLabel(label)), nameBlock: _nameBlock }
+    );
+
+    const newDocs = {
+      world_md: foundation.world_md || '',
+      characters_md: foundation.characters_md || '',
+      outline_md: foundation.outline_md || '',
+      canon_md: foundation.canon_md || '',
+      voice_md: foundation.voice_md || '',
+      mystery_md: foundation.mystery_md || '',
+      twists_md: foundation.twists_md || '',
+    };
+    setDocDrafts(newDocs);
+
+    const plannedChapters = Array.isArray(foundation.chapters) ? foundation.chapters : [];
+
+    const expandSavePayload = foundationSafeUpdate(enforceChapterCount({
+      ...newDocs,
+      foundation_score: foundation.foundation_score || 0,
+      current_focus: foundation.current_focus || 'Review expanded foundation',
+      phase: 'drafting', status: 'ready',
+      iteration: (project.iteration || 0) + 1,
+    }, userChapterTarget), project);
+    // Belt-and-suspenders: never let AI overwrite twist settings
+    delete expandSavePayload.num_twists;
+    delete expandSavePayload.twist_count;
+    delete expandSavePayload.twist_intensity;
+    delete expandSavePayload.twists;
+    const _safeExpandPayload = await prepareFoundationPayload(expandSavePayload);
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _safeExpandPayload));
+    setBusyLabel('Foundation: Creating chapters…');
+    await clearAndCreateChapters(plannedChapters, userChapterTarget, project.id, newDocs.outline_md);
+    } finally { setBusyLabel(''); }
+    await refreshAll();
+  };
+
+  const handleSaveDocs = async () => {
+    let docsPayload = await prepareFoundationPayload({ ...docDrafts });
+    if (docsPayload.research_md && docsPayload.research_md.length > 10000) {
+      const rf = await prepareResearchContent(docsPayload.research_md, project?.id || projectId); docsPayload.research_md = rf.research_md; docsPayload.research_md_url = rf.research_md_url;
+    }
+    await saveProject.mutateAsync(docsPayload);
+  };
+
+
+  const formatNonfictionResearchMarkdown = (data, topicTitle = '') => {
+    const safeArray = (value) => Array.isArray(value) ? value : [];
+    const lines = [];
+
+    lines.push('# Deep Research Brief');
+    lines.push('');
+    lines.push(`Generated for: ${project?.title || 'Untitled Project'}`);
+    if (topicTitle) lines.push(`Research topic: ${topicTitle}`);
+    lines.push(`Generated: ${new Date().toISOString()}`);
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+
+    lines.push('## Research Purpose');
+    lines.push('This brief stores the nonfiction research foundation used by the story bible, drafting system, bibliography tooling, and source-aware manuscript workflow.');
+    lines.push('');
+
+    lines.push('## Key People & Figures');
+    const figures = safeArray(data?.key_figures);
+    if (figures.length) {
+      figures.forEach((item) => {
+        lines.push(`### ${item.name || 'Unnamed figure'}`);
+        if (item.role) lines.push(`**Role:** ${item.role}`);
+        if (item.dates_active) lines.push(`**Dates active:** ${item.dates_active}`);
+        if (item.documented_actions) lines.push(`**Documented actions:** ${item.documented_actions}`);
+        if (item.source_types) lines.push(`**Source types:** ${item.source_types}`);
+        lines.push('');
+      });
+    } else {
+      lines.push('- No key figures returned.');
+      lines.push('');
+    }
+
+    lines.push('## Key Events & Incidents');
+    const events = safeArray(data?.key_events);
+    if (events.length) {
+      events.forEach((item) => {
+        lines.push(`### ${item.event || 'Unnamed event'}`);
+        if (item.date) lines.push(`**Date:** ${item.date}`);
+        if (item.description) lines.push(`**Description:** ${item.description}`);
+        if (item.sources) lines.push(`**Sources / source types:** ${item.sources}`);
+        lines.push('');
+      });
+    } else {
+      lines.push('- No key events returned.');
+      lines.push('');
+    }
+
+    lines.push('## Key Institutions & Organizations');
+    const institutions = safeArray(data?.institutions);
+    if (institutions.length) {
+      institutions.forEach((item) => {
+        lines.push(`### ${item.name || 'Unnamed institution'}`);
+        if (item.role) lines.push(`**Role:** ${item.role}`);
+        if (item.period) lines.push(`**Period:** ${item.period}`);
+        lines.push('');
+      });
+    } else {
+      lines.push('- No institutions returned.');
+      lines.push('');
+    }
+
+    lines.push('## Timeline');
+    const timeline = safeArray(data?.timeline);
+    if (timeline.length) {
+      timeline.forEach((item) => {
+        lines.push(`- **${item.date || 'Undated'}:** ${item.event || ''}`);
+      });
+      lines.push('');
+    } else {
+      lines.push('- No timeline returned.');
+      lines.push('');
+    }
+
+    lines.push('## Primary Sources Available');
+    const primarySources = safeArray(data?.primary_sources);
+    if (primarySources.length) {
+      primarySources.forEach((item) => {
+        lines.push(`### ${item.source_type || 'Source type'}`);
+        if (item.description) lines.push(item.description);
+        if (item.availability) lines.push(`**Availability:** ${item.availability}`);
+        lines.push('');
+      });
+    } else {
+      lines.push('- No primary-source categories returned.');
+      lines.push('');
+    }
+
+    lines.push('## Competing Narratives / Evidence Tensions');
+    const narratives = safeArray(data?.competing_narratives);
+    if (narratives.length) {
+      narratives.forEach((item, idx) => {
+        lines.push(`### Narrative Conflict ${idx + 1}`);
+        if (item.official_story) lines.push(`**Official story:** ${item.official_story}`);
+        if (item.evidence_counter) lines.push(`**Evidence counter:** ${item.evidence_counter}`);
+        if (item.key_evidence) lines.push(`**Key evidence:** ${item.key_evidence}`);
+        lines.push('');
+      });
+    } else {
+      lines.push('- No competing narratives returned.');
+      lines.push('');
+    }
+
+    lines.push('## Raw Structured Research JSON');
+    lines.push('```json');
+    lines.push(JSON.stringify(data || {}, null, 2));
+    lines.push('```');
+    lines.push('');
+
+    return lines.join('\n');
+  };
+
+  const researchSchema = {
+    type: 'object',
+    properties: {
+      key_figures: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, role: { type: 'string' }, dates_active: { type: 'string' }, documented_actions: { type: 'string' }, source_types: { type: 'string' } } } },
+      key_events: { type: 'array', items: { type: 'object', properties: { event: { type: 'string' }, date: { type: 'string' }, description: { type: 'string' }, sources: { type: 'string' } } } },
+      institutions: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, role: { type: 'string' }, period: { type: 'string' } } } },
+      timeline: { type: 'array', items: { type: 'object', properties: { date: { type: 'string' }, event: { type: 'string' } } } },
+      primary_sources: { type: 'array', items: { type: 'object', properties: { source_type: { type: 'string' }, description: { type: 'string' }, availability: { type: 'string' } } } },
+      competing_narratives: { type: 'array', items: { type: 'object', properties: { official_story: { type: 'string' }, evidence_counter: { type: 'string' }, key_evidence: { type: 'string' } } } },
+    },
+    required: ['key_figures', 'key_events', 'institutions', 'timeline', 'primary_sources', 'competing_narratives'],
+  };
+
+  const handleResearch = async () => {
+    if (!project) return;
+
+    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
+    if (!topic.trim()) {
+      toast.error('Add a seed concept/topic before running deep research.');
+      return;
+    }
+
+    setBusyLabel('Deep research — gathering verified facts…');
+
+    try {
+      const result = await invokeResearchLLM({
+        prompt: `You are a deep-dive research assistant for an investigative nonfiction book.
+
+MISSION:
+Research the following topic thoroughly enough to support a credible nonfiction manuscript. Return ONLY verified, documented, source-aware research scaffolding. Do not invent facts, names, events, dates, documents, or sources.
+
+TOPIC:
+${topic}
+
+RESEARCH REQUIREMENTS:
+- Identify real people, institutions, timelines, public records, official documents, archival trails, court records, memoirs, biographies, newspaper accounts, academic sources, interviews, testimony, and other source categories where applicable.
+- Separate documented facts from disputed claims.
+- Include competing narratives when the historical/public record is contested.
+- Mark uncertain or source-dependent claims clearly.
+- Prefer source TYPES and document trails over vague web-summary language.
+- This result will be saved into the project's Story Bible > Research field and used for drafting, bibliography, and source planning.
+
+Return a structured JSON with:
+- key_figures: array of real people with {name, role, dates_active, documented_actions, source_types}
+- key_events: array of real incidents with {event, date, description, sources}
+- institutions: array of organizations with {name, role, period}
+- timeline: array of chronological events with {date, event}
+- primary_sources: array of documentation types with {source_type, description, availability}
+- competing_narratives: array with {official_story, evidence_counter, key_evidence}`,
+        response_json_schema: researchSchema,
+      });
+
+      const data = result && typeof result === 'object' ? result : {};
+      setResearchData(data);
+
+      const researchMd = formatNonfictionResearchMarkdown(data, topic);
+      const researchFields = await prepareResearchContent(researchMd, project.id);
+
+      setDocDrafts((current) => ({
+        ...current,
+        research_md: researchMd,
+      }));
+
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, {
+        research_data: JSON.stringify(data),
+        ...researchFields,
+      }));
+
+      toast.success('Deep research saved to Story Bible > Research.');
+      await refreshAll();
+    } catch (error) {
+      console.error('[RESEARCH] Deep research failed:', error);
+      toast.error('Deep research failed: ' + (error?.message || 'Unknown error'));
+    } finally {
+      setBusyLabel('');
+    }
+  };
+
+  const handleSaveResearch = async (newData) => {
+    setResearchData(newData);
+
+    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
+    const researchMd = formatNonfictionResearchMarkdown(newData, topic);
+    const researchFields = await prepareResearchContent(researchMd, project?.id || projectId);
+
+    setDocDrafts((current) => ({
+      ...current,
+      research_md: researchMd,
+    }));
+
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, {
+      research_data: JSON.stringify(newData),
+      ...researchFields,
+    }));
+  };
+
+
+  const handleRepairChapterMetadata = async () => {
+    if (!project?.id || !chapters.length || busyLabel) return;
+
+    const proceed = window.confirm(
+      'Repair missing/generic chapter titles and descriptions?\n\n' +
+      'This updates chapter metadata only. It will not change manuscript prose.'
+    );
+
+    if (!proceed) return;
+
+    setBusyLabel('Repairing chapter titles and descriptions…');
+
+    try {
+      const resolvedResearch = project?.research_md_url
+        ? await resolveResearchContent(project).catch(() => project?.research_md || '')
+        : project?.research_md || '';
+
+      const repaired = await repairChapterMetadata({
+        project: {
+          ...project,
+          ...docDrafts,
+          seed_concept: settingsDrafts.seed_concept || project.seed_concept || '',
+          research_md: resolvedResearch || docDrafts.research_md || project.research_md || '',
+        },
+        chapters,
+        onProgress: (label) => setBusyLabel(formatProgressLabel(label)),
+      });
+
+      await refreshAll();
+
+      if (repaired.changed > 0) {
+        toast.success(`Chapter metadata repaired: ${repaired.changed} updated.`);
+      } else {
+        toast.info('No missing/generic chapter metadata found.');
+      }
+    } catch (error) {
+      console.error('[CHAPTER-METADATA] Repair failed:', error);
+      toast.error('Chapter metadata repair failed: ' + (error?.message || 'Unknown error'));
+    } finally {
+      setBusyLabel('');
+    }
+  };
+
+  const handleSaveChapter = async () => {
+    if (!selectedChapter) return;
+
+    const contentFields = await prepareChapterContent(
+      chapterDraft,
+      project?.id || projectId,
+      selectedChapter.id,
+      selectedChapter
+    );
+
+    await saveChapter.mutateAsync({
+      id: selectedChapter.id,
+      payload: {
+        ...contentFields,
+        word_count: countWords(chapterDraft),
+      },
+    });
+  };
+
+  // ── SAFE REJECTED CHAPTER REPLACEMENT ──
+  // Replaces hard-failed chapter content through the safety gate,
+  // clearing all stale content fields to prevent old contaminated text
+  // from remaining in the export resolution path.
+  const handleSafeReplaceRejectedChapter = async (chapter, repairedText) => {
+    if (!chapter?.id) {
+      toast.error('No chapter selected for replacement.');
+      return { ok: false, reason: 'No chapter' };
+    }
+
+    setBusyLabel(`Safe-replacing Ch.${chapter.chapter_number}…`);
+
+    try {
+      const result = await safeReplaceChapterContent(chapter, repairedText, {
+        projectId: project?.id || projectId,
+        projectType: project?.project_type || 'fiction',
+        saveFn: (id, payload) => runWithNetworkRetry(() => base44.entities.Chapter.update(id, payload)),
+        stage: 'manual-replacement',
+      });
+
+      if (!result.ok) {
+        console.error('[SAFE-REPLACE-UI] Replacement rejected:', result.reason);
+        toast.error(
+          `Chapter ${chapter.chapter_number} replacement REJECTED: ${result.reason}\n` +
+          `Fix the replacement text and try again.`
+        );
+        setBusyLabel('');
+        return result;
+      }
+
+      // Update the editor state if this is the currently selected chapter
+      if (chapter.id === selectedChapterId) {
+        setChapterDraft(repairedText);
+      }
+
+      // Invalidate queries to force re-fetch from DB
+      await refreshAll();
+
+      // Verify the replacement took effect by resolving the chapter content
+      const updatedChapters = queryClient.getQueryData(['novel-chapters', projectId]) || [];
+      const updatedChapter = updatedChapters.find(c => c?.id === chapter.id);
+      if (updatedChapter) {
+        const resolvedContent = await resolveChapterContent(updatedChapter);
+        const verify = verifySafeReplacement(resolvedContent, updatedChapter, {
+          projectType: project?.project_type || 'fiction',
+        });
+
+        if (!verify.ok) {
+          console.error('[SAFE-REPLACE-UI] Post-replacement verification FAILED — stale content may persist');
+          toast.error(
+            `⚠️ Chapter ${chapter.chapter_number}: saved but resolved content STILL fails safety gate. ` +
+            `Stale content may persist in content_md_url or legacy fields.`
+          );
+        } else {
+          console.log('[SAFE-REPLACE-UI] Post-replacement verification PASSED');
+        }
+      }
+
+      toast.success(
+        `✅ Chapter ${chapter.chapter_number} safely replaced. ` +
+        `${result.wordCount} words, gate PASS. ` +
+        `${result.gate.processLeaks} leaks, ${result.gate.contamination} contamination.`
+      );
+
+      setBusyLabel('');
+      return result;
+    } catch (err) {
+      console.error('[SAFE-REPLACE-UI] Error:', err);
+      toast.error(`Chapter ${chapter.chapter_number} replacement error: ${err?.message || 'Unknown error'}`);
+      setBusyLabel('');
+      return { ok: false, reason: err?.message || 'Unknown error' };
+    }
+  };
+
+  // Auto-save hooks (debounced 3s after last edit)
+  const settingsAutoSave = useAutoSave(settingsDrafts, handleSaveSettings, { delay: 60000, enabled: !!project });
+  const docsAutoSave = useAutoSave(docDrafts, handleSaveDocs, { delay: 60000, enabled: !!project });
+  const chapterAutoSave = useAutoSave(chapterDraft, handleSaveChapter, { delay: 60000, enabled: !!selectedChapter });
+
+  // Expose safe replacement handler on window for browser console use.
+  // Usage: window.__UBS_SAFE_REPLACE(chapterNumber, repairedText)
+  // The handler finds the chapter by number, runs the safety gate, saves, and verifies.
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && chapters?.length) {
+      window.__UBS_SAFE_REPLACE = async (chapterNumber, repairedText) => {
+        const ch = chapters.find(c => c?.chapter_number === chapterNumber);
+        if (!ch) { console.error(`[SAFE-REPLACE] Chapter ${chapterNumber} not found`); return { ok: false }; }
+        return handleSafeReplaceRejectedChapter(ch, repairedText);
+      };
+      console.log('[SAFE-REPLACE] window.__UBS_SAFE_REPLACE(chapterNumber, text) ready');
+    }
+  }, [chapters, project, projectId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleGenerateFoundation = async () => {
+    if (!project) return;
+    captureSnapshot('Foundation');
+
+    // Force save settings before generation to eliminate auto-save race condition
+    const _fnSave = { ...settingsDrafts }; if (!_fnSave.series_number && _fnSave.series_number !== 0) delete _fnSave.series_number; else _fnSave.series_number = Number(_fnSave.series_number); delete _fnSave.num_twists; delete _fnSave.twist_count; delete _fnSave.twist_intensity;
+    if (_fnSave.seed_concept) { const sc = await prepareSeedConcept(_fnSave.seed_concept, project.id); _fnSave.seed_concept = sc.seed_concept; _fnSave.seed_concept_url = sc.seed_concept_url; }
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _fnSave));
+    const _fnResolvedSeed = await resolveSeedConcept({ ...project, seed_concept: settingsDrafts.seed_concept || project.seed_concept, seed_concept_url: _fnSave.seed_concept_url || project.seed_concept_url });
+    if (isAnthologyProject(project) || settingsDrafts?.project_type === 'anthology') {
+      await runAnthologyFoundationBuild(_fnResolvedSeed, 'Regenerate Foundation');
+      return;
+    }
+
+    setBusyLabel('Generating foundation…');
+    try {
+    const _fnUsed = await getUsedCharacterNames(project.id);
+    const _fnBlock = [
+      buildNameExclusionBlock([...new Set([...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._fnUsed])]),
+      GLOBAL_NAME_HYGIENE_PROMPT_BLOCK,
+    ].filter(Boolean).join('\n\n');
+    const foundationResponse = await invokeLLMWithRetry({
+      prompt: buildFoundationPrompt({ ...project, seed_concept: _fnResolvedSeed }, { nameExclusionBlock: _fnBlock }),
+      response_json_schema: foundationSchema,
+      model: pickModel('foundation', project),
+      spec: project,
+      fallback_model: pickFallbackModel('foundation', project),
+      max_tokens: 16384,
+    });
+    const foundation = unwrapIntegrationResult(foundationResponse);
+    let plannedChapters = Array.isArray(foundation?.chapters) ? foundation.chapters : [];
+
+    // Post-generation: check for banned AI names that slipped through
+    if (foundation.characters_md) {
+      const { checkForBannedNames } = await import('@/lib/nameRegistry');
+      const allBanned = [...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._fnUsed];
+      const found = checkForBannedNames(foundation.characters_md, allBanned);
+      if (found.length > 0) {
+        console.warn('[FOUNDATION] Banned names detected:', found.join(', '), '— requesting replacements');
+        setBusyLabel(`Replacing ${found.length} AI-generic names…`);
+        try {
+          const renameResult = await invokeLLMWithRetry({
+            model: 'gemini_3_flash',
+            temperature: 0.7,
+            max_tokens: 500,
+            prompt: `The following character names are banned because they are AI-generic defaults: ${found.join(', ')}
+
+This book is: ${project.genre || 'fiction'}, set in: ${(foundation.world_md || '').substring(0, 300)}
+
+For each banned name, provide a culturally appropriate, original replacement name that fits the setting. Return JSON only:
+{"replacements":{"${found[0]}":"NewName"${found.length > 1 ? ', ...' : ''}}}`,
+          });
+          let renameText = typeof renameResult === 'string' ? renameResult : (renameResult?.text || '');
+          renameText = renameText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+          try {
+            const parsed = JSON.parse(renameText);
+            const replacements = parsed.replacements || parsed;
+            for (const [oldName, newName] of Object.entries(replacements)) {
+              if (!newName || typeof newName !== 'string') continue;
+              const rx = new RegExp('\\b' + oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
+              if (foundation.characters_md) foundation.characters_md = foundation.characters_md.replace(rx, newName);
+              if (foundation.world_md) foundation.world_md = foundation.world_md.replace(rx, newName);
+              if (foundation.outline_md) foundation.outline_md = foundation.outline_md.replace(rx, newName);
+              if (foundation.canon_md) foundation.canon_md = foundation.canon_md.replace(rx, newName);
+              if (foundation.mystery_md) foundation.mystery_md = foundation.mystery_md.replace(rx, newName);
+              if (foundation.voice_md) foundation.voice_md = foundation.voice_md.replace(rx, newName);
+              if (plannedChapters) {
+                for (const ch of plannedChapters) {
+                  if (ch.title) ch.title = ch.title.replace(rx, newName);
+                  if (ch.beat_summary) ch.beat_summary = ch.beat_summary.replace(rx, newName);
+                }
+              }
+              console.log(`[FOUNDATION] Replaced "${oldName}" → "${newName}"`);
+            }
+            toast.success(`Replaced ${Object.keys(replacements).length} AI-generic name(s)`);
+          } catch (e) { console.warn('[FOUNDATION] Failed to parse name replacements:', e.message); }
+        } catch (e) { console.warn('[FOUNDATION] Name replacement LLM call failed:', e.message); }
+      }
+    }
+
+    const foundationProject = { ...project, ...foundation, seed_concept: _fnResolvedSeed };
+
+    if (!plannedChapters.length) {
+      const chapterPlanResponse = await invokeLLMWithRetry({
+        prompt: buildChapterPlanPrompt(foundationProject),
+        response_json_schema: chapterPlanSchema,
+        model: pickModel('chapter_plan', project),
+        spec: project,
+        fallback_model: pickFallbackModel('chapter_plan', project),
+        max_tokens: 16384,
+      });
+      const chapterPlan = unwrapIntegrationResult(chapterPlanResponse);
+      plannedChapters = Array.isArray(chapterPlan?.chapters) ? chapterPlan.chapters : [];
+    }
+
+    const userFoundationChapterTarget = Number(project.chapter_target) || 20;
+    const userFoundationChapterLength = Number(project.chapter_length_target || project.target_chapter_words) || 3500;
+    plannedChapters = await repairTruncatedChapters({ plannedChapters, targetCount: userFoundationChapterTarget, project, outlineMd: foundation.outline_md, onProgress: (label) => setBusyLabel(formatProgressLabel(label)) });
+    // Extract twists from foundation response
+    const fnTwistsMd = parseTwistsToMd(foundation.twists);
+
+    const foundationSavePayload = foundationSafeUpdate(enforceChapterCount({
+      title: foundation.title || project.title,
+      tagline: foundation.tagline || project.tagline,
+      current_focus: foundation.current_focus,
+      foundation_score: foundation.foundation_score, lore_score: foundation.lore_score,
+      world_md: foundation.world_md, characters_md: foundation.characters_md,
+      outline_md: foundation.outline_md, canon_md: foundation.canon_md,
+      voice_md: foundation.voice_md, mystery_md: foundation.mystery_md,
+      twists_md: fnTwistsMd,
+      phase: 'drafting', status: 'ready',
+      iteration: (project.iteration || 0) + 1,
+    }, userFoundationChapterTarget), project);
+    // Belt-and-suspenders: never let AI overwrite twist settings
+    delete foundationSavePayload.num_twists;
+    delete foundationSavePayload.twist_count;
+    delete foundationSavePayload.twist_intensity;
+    delete foundationSavePayload.twists;
+    const _safeFnPayload = await prepareFoundationPayload(foundationSavePayload);
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _safeFnPayload));
+    setBusyLabel('Foundation: Creating chapters…');
+    await clearAndCreateChapters(plannedChapters, userFoundationChapterTarget, project.id, foundation.outline_md);
+    } finally {
+      setBusyLabel('');
+    }
+    await refreshAll();
+  };
+
+  const generateSceneBeats = async (chapter, allChapters) => {
+    const chapterList = allChapters || chapters;
+    const promptProject = buildNameHygieneEnhancedProject(project);
+    // Anthology: each story is standalone — no previous chapter context for beats
+    const previousChapter = isAnthologyProject(promptProject) ? null : chapterList.find((item) => item.chapter_number === chapter.chapter_number - 1);
+    const isNonfiction = promptProject.book_type === 'nonfiction';
+    // Resolve previous chapter content from URL if needed
+    const resolvedPrev = previousChapter ? { ...previousChapter, content_md: await resolveChapterContent(previousChapter) } : null;
+    const schema = getSceneBeatSchema(promptProject);
+    const beatModel = pickModel('beats', promptProject);
+    console.log('[BEATS] Beat model:', beatModel);
+    let beatResult = null;
+    try {
+      const beatResponse = await invokeLLMWithRetry({
+        prompt: await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList),
+        response_json_schema: schema,
+        spec: promptProject,
+        model: beatModel,
+        max_tokens: beatModel?.includes('lumimaid') ? 4096 : 8192,
+        ...buildFallbackControls('beats', promptProject),
+      });
+      beatResult = unwrapIntegrationResult(beatResponse);
+    } catch (beatError) {
+      if (!isNonfiction) throw beatError;
+
+      console.error(
+        `[BEATS][NF-NO-LOCAL-FALLBACK v15.7] Ch.${chapter.chapter_number}: nonfiction beat generation failed. Refusing to create local source-governed fallback beats because that fallback was producing repeated boilerplate and contaminated chapter logic.`,
+        beatError?.message || beatError
+      );
+
+      const message = beatError?.message || 'Unknown beat generation error';
+      throw new Error(
+        `Nonfiction beat generation failed for chapter ${chapter.chapter_number}. No local fallback was used, because fallback beats can poison the manuscript. Retry this chapter after the model/API recovers. Original error: ${message}`
+      );
+    }
+
+    if (isNonfiction) {
+      validateNonfictionBeatPlanForDrafting(beatResult || {}, chapter);
+    }
+
+    const fullBeatsJson = JSON.stringify(beatResult || {}, null, 2);
+    const compactBeatsJson = compactSceneBeatsForEntity(beatResult || {}, chapter);
+
+    console.log(
+      `[BEATS][COMPACT-SAVE v15.8] Ch.${chapter.chapter_number}: full=${fullBeatsJson.length} chars, entity=${compactBeatsJson.length} chars`
+    );
+
+    await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+      scene_beats_json: compactBeatsJson,
+      scene_beats_compacted: fullBeatsJson.length > compactBeatsJson.length,
+      scene_beats_full_length: fullBeatsJson.length,
+      status: chapter.status === 'planned' ? 'beats_ready' : chapter.status,
+    }));
+
+    // Return the full local beat plan to drafting. Only the DB/entity save is compacted.
+    // This preserves writing quality while preventing Base44 field-size 400 errors.
+    return fullBeatsJson;
+  };
+
+  const draftChapter = async (chapter, shouldRefresh = true, modelOverride, onProgress, options = {}) => {
+    // When called with onProgress callback (from parallel Draft All), route
+    // progress through it to the per-chapter slot. Otherwise use global busyLabel.
+    const report = (value) => {
+      const safeLabel = formatProgressLabel(value);
+      if (onProgress) onProgress(safeLabel);
+      else setBusyLabel(safeLabel);
+    };
+    if (onProgress) {
+      console.log(`[DRAFT-CH-${chapter.chapter_number}] draftChapter received onProgress callback`);
+    }
+    // Anthology: each story is standalone — no previous chapter context
+    const isAnthologyDraft = isAnthologyProject(project);
+    const previousChapter = isAnthologyDraft ? null : chapters.find((item) => item.chapter_number === chapter.chapter_number - 1);
+    const resolvedPrev = previousChapter ? { ...previousChapter, content_md: await resolveChapterContent(previousChapter) } : null;
+    const draftingProject = { ...buildNameHygieneEnhancedProject(project), __chapters: chapters };
+    const targetWords = draftingProject.chapter_length_target || draftingProject.target_chapter_words || 3500;
+    const minAcceptable = Math.round(targetWords * 0.7);
+    // Track generated prose for emergency save if a later step fails
+    let emergencyProse = null;
+    let emergencyWordCount = 0;
+    // Determine which prose model to use (fiction only)
+    // Priority: per-chapter override → global default → fallback constant
+    const isFiction = draftingProject.book_type !== 'nonfiction';
+    const globalDefault = normalizeModelId(draftingProject.default_prose_model || settingsDrafts.default_prose_model) || DEFAULT_FICTION_PROSE_MODEL;
+    const proseModelOverride = isFiction ? (normalizeModelId(modelOverride) || normalizeModelId(chapterProseModels[chapter.id]) || globalDefault) : undefined;
+    const fastDraftOnly = options.fastDraftOnly === true;
+
+    try {
+    if (options.backupBeforeOverwrite) {
+      report(`Backing up chapter ${chapter.chapter_number} before overwrite…`);
+      await backupChapterBeforeGeneratedOverwrite(
+        chapter,
+        options.backupReason || `Before generated overwrite — Ch.${chapter.chapter_number}`
+      );
+    }
+
+    // Generate scene beats before drafting
+    report(`Generating beats for chapter ${chapter.chapter_number}…`);
+    const beatsJson = await generateSceneBeats(chapter);
+    const chapterWithBeats = { ...chapter, scene_beats_json: beatsJson };
+
+    // Get previous chapter tail for continuity
+    const previousChapterTail = resolvedPrev?.content_md
+      ? resolvedPrev.content_md.split(/\s+/).slice(-2000).join(' ')
+      : '';
+
+    // Scene-by-scene generation
+    report(`Writing chapter ${chapter.chapter_number} scene by scene…`);
+    const isNonfiction = draftingProject.book_type === 'nonfiction';
+
+    // ── COVERAGE TRACKER INPUT ──
+    // Build compact summaries of every chapter BEFORE this one so the LLM can
+    // avoid re-narrating material already covered. Only title + beat_summary,
+    // not full content — the prompt should know WHAT was covered, not re-ingest
+    // every word. Skip for anthologies (each story is standalone) and for Ch 1
+    // (no prior chapters to dedupe against).
+    const isAnth = isAnthologyProject(project);
+    const priorChapterSummaries = (!isAnth && chapter.chapter_number > 1)
+      ? (chapters || [])
+          .filter(c => c && c.chapter_number && c.chapter_number < chapter.chapter_number && isBodyChapter(c))
+          .sort((a, b) => a.chapter_number - b.chapter_number)
+          .map(c => ({
+            chapter_number: c.chapter_number,
+            title: c.title || '',
+            beat_summary: c.beat_summary || '',
+          }))
+      : [];
+
+    console.log('[DRAFT DEBUG] Calling generateChapterByScenes. Beats parsed:', JSON.parse(chapterWithBeats.scene_beats_json || '{}')?.beats?.length || JSON.parse(chapterWithBeats.scene_beats_json || '{}')?.sections?.length || 0, 'scenes', '| proseModelOverride:', proseModelOverride || 'none', '| coverage summaries:', priorChapterSummaries.length);
+    const sceneResult = await generateChapterByScenes({
+      project: draftingProject,
+      chapter: chapterWithBeats,
+      previousChapterTail,
+      onProgress: (label) => report(label),
+      proseModelOverride,
+      priorChapterSummaries,
+    });
+
+    console.log('[DRAFT DEBUG] generateChapterByScenes returned. Prose length:', sceneResult?.prose?.length || 0);
+    let chapterContent = sceneResult.prose;
+    let wordCount = sceneResult.totalWords;
+    let cleanResult = sceneResult.cleanResult;
+
+    // Capture generated prose immediately for emergency save
+    emergencyProse = chapterContent;
+    emergencyWordCount = wordCount;
+    pipelineSnapshot(chapter.id, '1-raw-llm-output', chapterContent);
+
+    // v15.2: Nonfiction draft save should stop here.
+    // The dedicated nonfiction polish engine handles nonfiction refinement later.
+    // Do not run fiction-style judge/retry/postDraftCleanup during initial nonfiction draft save.
+    if (isNonfiction) {
+      report(`Saving nonfiction chapter ${chapter.chapter_number}; nonfiction polish remains available through Fix/Polish…`);
+
+      const canonRepair = repairCanonNameDrift(chapterContent, { project: draftingProject, chapter, chapters });
+      if (canonRepair.changed) {
+        console.warn('[CANON-NAME-LOCK][NF-DRAFT-SAVE v15.2] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', canonRepair.repairs);
+        chapterContent = canonRepair.text;
+      }
+
+      const hardAliasRepair = forceSongbirdAliasRepairText(chapterContent, { project: draftingProject });
+      if (hardAliasRepair.changed) {
+        console.warn('[SONGBIRD-HARD-ALIAS][NF-DRAFT-SAVE v15.2] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', hardAliasRepair.repairs);
+        chapterContent = hardAliasRepair.text;
+      }
+
+      const artifactRepair = repairManuscriptArtifacts(chapterContent, { project: draftingProject, chapter });
+      if (artifactRepair.changed) {
+        console.warn('[ARTIFACT-REPAIR][NF-DRAFT-SAVE v15.2] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', artifactRepair.changes);
+        chapterContent = artifactRepair.text;
+      }
+
+      const draftQuoteRepair = repairChapterQuotes(chapterContent);
+      if (draftQuoteRepair.text !== chapterContent) {
+        console.warn('[QUOTE-REPAIR][NF-DRAFT-SAVE v15.2] Repaired draft Ch.' + (chapter.chapter_number || '?') + ' before save:', draftQuoteRepair.fixes);
+        chapterContent = draftQuoteRepair.text;
+      }
+
+      wordCount = countWords(chapterContent);
+      const isStub = wordCount < 200;
+      const chapterStatus = isStub ? 'error' : 'drafted';
+      const qualityScan = runQualityScan(chapterContent, draftingProject, chapter.chapter_number);
+      const slopResult = mechanicalSlopScore(chapterContent);
+      const finalTense = checkTenseConsistency(chapterContent, draftingProject);
+      const finalPov = checkPovConsistency(chapterContent, draftingProject, chapter.chapter_number);
+      const totalTenseViolations = finalTense.reduce((sum, v) => sum + (v.count || 0), 0);
+      // v15.7: do not inject evidence-ledger/source-audit text into chapter metadata during initial draft save.
+      // Source review belongs in a separate audit tool, not in the writer/save path.
+      const sourceAuditNotes = [];
+
+      const guard = validateProjectChapterContent({
+        project: buildNameHygieneEnhancedProject(draftingProject || {}),
+        chapter,
+        chapters,
+        content: chapterContent,
+      });
+      if (guard?.shouldBlockSave || guard?.severity === 'warning') {
+        console.warn(`[PROJECT-CONTENT-GUARD][NF-WARN-ONLY v15.2] Ch.${chapter?.chapter_number || '?'} nonfiction draft save: guard warned but did not block save.`, guard.report || guard);
+      }
+
+      // ── POST-DRAFT SAFETY GATE (nonfiction) ──
+      const nfPostDraftGate = runManuscriptSafetyGate(chapterContent, {
+        project: draftingProject,
+        chapter,
+        stage: 'post-draft',
+        allowBusinessTerms: true,
+      });
+      logSafetyGateResult('post-draft-nf', chapter.chapter_number, chapter.title, nfPostDraftGate);
+      if (nfPostDraftGate.processLeaks.hasLeak) {
+        console.error('[DRAFT-SAFETY-GATE][NF] Ch.' + chapter.chapter_number + ' process leak detected:', nfPostDraftGate.reasons.join('; '));
+        // For nonfiction, log and warn but do not block save — process leaks are rarer in NF.
+        // The pre-polish gate will catch them before polish runs.
+      }
+
+      const revisionNotes = [
+        'NONFICTION DRAFT SAVE v15.7: generated draft saved before Fix/Polish. No evidence-ledger source-audit notes injected into manuscript metadata.',
+        'Run Fix/Polish to apply the dedicated nonfiction polish engine.',
+        `Mechanical slop score: ${slopResult.score}/10`,
+        ...sourceAuditNotes,
+        ...slopResult.details,
+        ...finalTense.map((v) => v.description),
+        ...finalPov.map((v) => v.description),
+        isStub ? `STUB ERROR: ${wordCount} words. Regenerate required.` : null,
+        wordCount < minAcceptable && !isStub
+          ? `UNDERWEIGHT: ${wordCount}/${targetWords} words (${Math.round(wordCount / targetWords * 100)}%).`
+          : null,
+        nfPostDraftGate.processLeaks.hasLeak ? `⚠️ SAFETY GATE: process leaks detected — run Fix/Polish to address.` : null,
+      ].filter(Boolean).join('\n');
+
+      console.log(`[PROJECTSTUDIO][NF-DRAFT-SAVE-DEFER-POLISH v15.7] Ch.${chapter.chapter_number}: saving generated nonfiction draft; no evidence-ledger metadata injected.`);
+
+      const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
+
+      await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+        title: chapter.title,
+        ...clearRichContentFields(),
+        content_md_fallback_present: true,
+        ...contentFields,
+        word_count: wordCount,
+        score: isStub ? 0 : Math.min(slopResult.pass ? 8 : 7, 9),
+        voice_adherence: null,
+        tense_violations: totalTenseViolations,
+        slop_score: slopResult.score,
+        slop_details: JSON.stringify(slopResult.details),
+        revision_notes: revisionNotes,
+        quality_scan: qualityScan,
+        status: chapterStatus,
+        drafted_with_model: sceneResult.actualModelUsed || proseModelOverride || '',
+        draft_all_mode: fastDraftOnly ? 'fast' : 'standard',
+      }));
+
+      if (chapter.id === selectedChapterId) {
+        setChapterDraft(chapterContent);
+      }
+
+      const draftedCount = getDraftedCount(chapters);
+      const _draftProjectPayload = protectedProjectUpdate({
+        chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
+        status: 'ready',
+      });
+
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _draftProjectPayload));
+
+      if (shouldRefresh) {
+        await refreshAll();
+      }
+
+      return {
+        chapterId: chapter.id,
+        chapterNumber: chapter.chapter_number,
+        mode: 'nonfiction-draft-save-defer-polish-v15.7',
+        wordCount,
+        status: chapterStatus,
+        content: chapterContent,
+      };
+    }
+
+    // If still underweight after scene-by-scene, do one continuation pass
+    if (wordCount < minAcceptable && wordCount >= 200) {
+      report(`Extending chapter ${chapter.chapter_number} (${wordCount}/${targetWords} words)…`);
+      const needed = targetWords - wordCount;
+      const lastSentence = chapterContent.trim().split(/[.!?]/).filter(s => s.trim()).pop()?.trim() || '';
+      const contPrompt = `${COMPACT_CRAFT_RULES}\n\n${COMPACT_ANTI_SLOP}\n\n${MANDATORY_ENFORCEMENT_BLOCK}\n\n${draftingProject.name_hygiene_prompt_block || ''}\n\nCONTINUE WRITING from exactly where you left off. Match the existing voice, tense (${draftingProject.tense || 'past'}), and POV (${draftingProject.pov_mode || 'third-close'}). Do not repeat any content that already exists. Do not add scene headers or markdown.\n\nHere is the last sentence you wrote: "${lastSentence}"\nYou have written ${wordCount} words. You need at least ${needed} more words. Do not restart. Do not summarize. Continue with NEW scenes, NEW dialogue, NEW action. Write at least ${needed} words.`;
+      const contResponse = await invokeLLMWithRetry({
+        prompt: contPrompt,
+        response_json_schema: chapterSchema,
+        model: pickModel('prose_continuation', draftingProject),
+        spec: draftingProject,
+        ...buildFallbackControls('prose_continuation', draftingProject),
+      });
+      const cont = unwrapIntegrationResult(contResponse);
+      if (cont?.content_md && cont.content_md.trim().length > 100) {
+        chapterContent = chapterContent.trim() + '\n\n' + cont.content_md.trim();
+        cleanResult = cleanGeneratedProse(chapterContent, { targetWords });
+        chapterContent = cleanResult.text;
+        wordCount = countWords(chapterContent);
+      }
+      pipelineSnapshot(chapter.id, '2-after-continuation', chapterContent);
+    }
+
+    if (fastDraftOnly) {
+      report(`Fast-saving chapter ${chapter.chapter_number} without judge/revision/copyedit…`);
+      pipelineSnapshot(chapter.id, '3-fast-save-point', chapterContent);
+
+      // ── POST-DRAFT SAFETY GATE ──
+      // Check for process leakage and contamination BEFORE saving.
+      // Bad input must be quarantined before repair transforms because repair
+      // transforms can create grammar regressions when applied to editorial/process text.
+      const postDraftGate = runManuscriptSafetyGate(chapterContent, {
+        project: draftingProject,
+        chapter,
+        stage: 'post-draft',
+      });
+      logSafetyGateResult('post-draft', chapter.chapter_number, chapter.title, postDraftGate);
+      storeSafetyReport('post-draft', [{ chapterNumber: chapter.chapter_number, title: chapter.title, ok: postDraftGate.ok, action: postDraftGate.recommendedAction, processLeaks: postDraftGate.processLeaks.matches.length, contamination: postDraftGate.contamination.matches.length, malformed: postDraftGate.malformed.matches.length, reasons: postDraftGate.reasons }]);
+
+      if (!postDraftGate.ok) {
+        console.error('[DRAFT-SAFETY-GATE] Ch.' + chapter.chapter_number + ' FAILED:', postDraftGate.reasons.join('; '));
+
+        // Do not save process-leaked or contaminated content over prior clean content.
+        // The user should regenerate this chapter individually.
+        report(`⚠️ Ch.${chapter.chapter_number}: SAFETY GATE REJECTED — ${postDraftGate.recommendedAction}. ` +
+          `Reasons: ${postDraftGate.reasons.join('; ')}. Chapter NOT saved. Regenerate this chapter.`);
+
+        return {
+          chapterId: chapter.id,
+          chapterNumber: chapter.chapter_number,
+          mode: 'fast',
+          wordCount: 0,
+          status: 'error',
+          safetyGateFailed: true,
+          reasons: postDraftGate.reasons,
+        };
+      }
+
+      const finalSlop = mechanicalSlopScore(chapterContent);
+      const finalTense = checkTenseConsistency(chapterContent, draftingProject);
+      const finalPov = checkPovConsistency(chapterContent, draftingProject, chapter.chapter_number);
+      const totalTenseViolations = finalTense.reduce((sum, v) => sum + (v.count || 0), 0);
+      const isStub = wordCount < 200;
+      const chapterStatus = isStub ? 'error' : 'drafted';
+      const qualityScan = runQualityScan(chapterContent, draftingProject, chapter.chapter_number);
+
+      const fastRevisionNotes = [
+        'FAST DRAFT ALL MODE: generated and saved without judge/revision/post-draft cleanup.',
+        'Run Fix Manuscript / Polish afterward for copyediting, survivor repairs, punctuation cleanup, and manuscript-level polish.',
+        `Mechanical slop score: ${finalSlop.score}/10`,
+        ...finalSlop.details,
+        ...finalTense.map((v) => v.description),
+        ...finalPov.map((v) => v.description),
+        isStub ? `STUB ERROR: ${wordCount} words. Regenerate required.` : null,
+        wordCount < minAcceptable && !isStub
+          ? `UNDERWEIGHT: ${wordCount}/${targetWords} words (${Math.round(wordCount / targetWords * 100)}%).`
+          : null,
+      ].filter(Boolean).join('\n');
+
+      runProjectContentGuardBeforeSave(chapter, chapterContent, 'fast draft');
+
+      const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
+
+      await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+        title: chapter.title,
+        ...clearRichContentFields(),
+        content_md_fallback_present: true,
+        ...contentFields,
+        word_count: wordCount,
+        score: isStub ? 0 : Math.min(finalSlop.pass ? 8 : 7, 9),
+        voice_adherence: null,
+        tense_violations: totalTenseViolations,
+        slop_score: finalSlop.score,
+        slop_details: JSON.stringify(finalSlop.details),
+        revision_notes: fastRevisionNotes,
+        quality_scan: qualityScan,
+        status: chapterStatus,
+        drafted_with_model: sceneResult.actualModelUsed || proseModelOverride || '',
+        draft_all_mode: 'fast',
+      }));
+
+      if (chapter.id === selectedChapterId) {
+        setChapterDraft(chapterContent);
+      }
+
+      const draftedCount = getDraftedCount(chapters);
+      const _draftProjectPayload = protectedProjectUpdate({
+        chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
+        status: 'ready',
+      });
+
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _draftProjectPayload));
+
+      if (shouldRefresh) {
+        await refreshAll();
+      }
+
+      return {
+        chapterId: chapter.id,
+        chapterNumber: chapter.chapter_number,
+        mode: 'fast',
+        wordCount,
+        status: chapterStatus,
+        content: chapterContent,
+      };
+    }
+
+    // Quality evaluation (judge, slop, tense, POV)
+    report(`Evaluating chapter ${chapter.chapter_number}…`);
+    const sourceAuditNotes = []; // defined here so it's always in scope for retry feedback
+    const slopResult = mechanicalSlopScore(chapterContent);
+    const tenseViolations = checkTenseConsistency(chapterContent, project);
+    const povViolations = checkPovConsistency(chapterContent, project, chapter.chapter_number);
+    const judgeResponse = await invokeLLMWithRetry({
+      prompt: buildChapterJudgePrompt(project, chapter, chapterContent, [...tenseViolations, ...povViolations]),
+      response_json_schema: chapterJudgeSchema,
+      model: pickModel('judge', project),
+      spec: project,
+      fallback_model: pickFallbackModel('judge', project),
+    });
+    const judge = unwrapIntegrationResult(judgeResponse);
+
+    // If quality is unacceptable, do one full rewrite with feedback
+    const needsRetry = !slopResult.pass
+      || judge.voice_adherence < 5
+      || tenseViolations.some((v) => v.severity === 'critical')
+      || povViolations.some((v) => v.severity === 'critical')
+      || wordCount < minAcceptable;
+
+    if (needsRetry) {
+      const judgeIssues = Array.isArray(judge?.issues) ? judge.issues : [];
+      const retryFeedback = [
+        ...tenseViolations.map((v) => v.description),
+        ...povViolations.map((v) => v.description),
+        ...judgeIssues,
+        `Mechanical slop score: ${slopResult.score}/10`,
+        ...sourceAuditNotes,
+        ...slopResult.details,
+        wordCount < minAcceptable
+          ? `CRITICAL: Chapter is only ${wordCount} words. Target is ${targetWords}. Minimum ${minAcceptable} words.`
+          : null,
+        cleanResult.overusedWords?.length
+          ? `REPETITION: ${cleanResult.overusedWords.map((w) => `"${w.word}" (${w.count}x)`).join(', ')}`
+          : null,
+        'Rewrite to fully obey POV mode and tense.',
+      ].filter(Boolean).join('\n');
+
+      report(`Revising chapter ${chapter.chapter_number}…`);
+      // Retry as scene-by-scene again with feedback injected
+      const retryResult = await generateChapterByScenes({
+        project,
+        chapter: chapterWithBeats,
+        previousChapterTail,
+        onProgress: (label) => report(label),
+        proseModelOverride,
+        priorChapterSummaries,
+      });
+      chapterContent = retryResult.prose;
+      wordCount = retryResult.totalWords;
+      cleanResult = retryResult.cleanResult;
+    }
+    pipelineSnapshot(chapter.id, '4-after-judge-revision', chapterContent);
+
+    // Finalize scores and save
+    const finalSlop = needsRetry ? mechanicalSlopScore(chapterContent) : slopResult;
+    const finalTense = needsRetry ? checkTenseConsistency(chapterContent, project) : tenseViolations;
+    const finalPov = needsRetry ? checkPovConsistency(chapterContent, project, chapter.chapter_number) : povViolations;
+    const finalJudge = needsRetry ? unwrapIntegrationResult(await invokeLLMWithRetry({
+      prompt: buildChapterJudgePrompt(project, chapter, chapterContent, [...finalTense, ...finalPov]),
+      response_json_schema: chapterJudgeSchema,
+      model: pickModel('judge', project),
+      spec: project,
+      fallback_model: pickFallbackModel('judge', project),
+    })) : judge;
+
+    const judgeIssues = Array.isArray(finalJudge?.issues) ? finalJudge.issues : [];
+    const isStub = wordCount < 200;
+    const combinedRevisionNotes = [
+      ...finalTense.map((v) => v.description),
+      ...finalPov.map((v) => v.description),
+      ...judgeIssues,
+      `Mechanical slop score: ${finalSlop.score}/10`,
+      ...finalSlop.details,
+      ...(cleanResult.frequencyWarnings || []),
+      finalJudge.voice_adherence < 5 ? 'Auto-flag: voice adherence below threshold.' : null,
+      !finalSlop.pass ? 'Auto-flag: mechanical slop score below threshold.' : null,
+      isStub ? `STUB ERROR: ${wordCount} words. Regenerate required.` : null,
+      wordCount < minAcceptable && !isStub
+        ? `UNDERWEIGHT: ${wordCount}/${targetWords} words (${Math.round(wordCount / targetWords * 100)}%).`
+        : null,
+    ].filter(Boolean).join('\n');
+
+    const totalTenseViolations = finalTense.reduce((sum, v) => sum + (v.count || 0), 0);
+    const chapterStatus = isStub ? 'error' : 'drafted';
+    const qualityScan = runQualityScan(chapterContent, project, chapter.chapter_number);
+
+    // Post-draft cleanup: fix mechanical errors before saving
+    const cleanup = await postDraftCleanup(chapterContent, project, chapter.chapter_number, report);
+    chapterContent = cleanup.text;
+    pipelineSnapshot(chapter.id, '5-after-postDraftCleanup', chapterContent);
+
+    // Canon-name and artifact cleanup must run before save so bad names like
+    // Langston/Arthur or Nikolai/Silas cannot persist into the manuscript DB.
+    const canonRepair = repairCanonNameDrift(chapterContent, { project, chapter, chapters });
+    if (canonRepair.changed) {
+      console.warn('[CANON-NAME-LOCK] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', canonRepair.repairs);
+      chapterContent = canonRepair.text;
+    }
+    const hardAliasRepair = forceSongbirdAliasRepairText(chapterContent, { project });
+    if (hardAliasRepair.changed) {
+      console.warn('[SONGBIRD-HARD-ALIAS] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', hardAliasRepair.repairs);
+      chapterContent = hardAliasRepair.text;
+    }
+
+    const artifactRepair = repairManuscriptArtifacts(chapterContent, { project, chapter });
+    if (artifactRepair.changed) {
+      console.warn('[ARTIFACT-REPAIR] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', artifactRepair.changes);
+      chapterContent = artifactRepair.text;
+    }
+
+    pipelineSnapshot(chapter.id, '6-after-canon-artifact-repair', chapterContent);
+
+    const draftQuoteRepair = repairChapterQuotes(chapterContent);
+    if (draftQuoteRepair.text !== chapterContent) {
+      console.warn('[QUOTE-REPAIR] Repaired draft Ch.' + (chapter.chapter_number || '?') + ' before save:', draftQuoteRepair.fixes);
+      chapterContent = draftQuoteRepair.text;
+    }
+    pipelineSnapshot(chapter.id, '7-after-quote-repair', chapterContent);
+
+    wordCount = countWords(chapterContent);
+
+    runProjectContentGuardBeforeSave(chapter, chapterContent, 'draft');
+
+    pipelineSnapshot(chapter.id, '8-final-save', chapterContent);
+    const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
+
+    await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+      title: chapter.title,
+      ...clearRichContentFields(),
+      content_md_fallback_present: true,
+      ...contentFields,
+      word_count: wordCount,
+      score: isStub ? 0 : Math.min(finalJudge.overall || 7, 9.5),
+      voice_adherence: finalJudge.voice_adherence,
+      tense_violations: totalTenseViolations,
+      slop_score: finalSlop.score,
+      slop_details: JSON.stringify(finalSlop.details),
+      revision_notes: combinedRevisionNotes,
+      quality_scan: qualityScan,
+      status: chapterStatus,
+      drafted_with_model: sceneResult.actualModelUsed || proseModelOverride || '',
+    }));
+
+    // Immediately update the draft textarea if this is the selected chapter
+    if (chapter.id === selectedChapterId) {
+      setChapterDraft(chapterContent);
+    }
+
+    const draftedCount = getDraftedCount(chapters);
+    const _draftProjectPayload = protectedProjectUpdate({
+      chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
+      status: 'ready',
+    });
+
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _draftProjectPayload));
+
+    if (shouldRefresh) {
+      await refreshAll();
+    }
+
+    return {
+      chapterId: chapter.id,
+      chapterNumber: chapter.chapter_number,
+      mode: 'deluxe',
+      wordCount,
+      status: chapterStatus,
+      content: chapterContent,
+    };
+    } catch (draftError) {
+      // Emergency save: if prose was generated but a later step failed, save what we have.
+      // Never emergency-save content that the contamination guard explicitly blocked.
+      if (draftError?.projectContentGuard) {
+        console.error('[PROJECT-CONTENT-GUARD] Emergency save skipped because generated content was contaminated:', draftError?.guard || draftError?.message);
+        throw draftError;
+      }
+
+      if (emergencyProse && emergencyWordCount >= 200) {
+        console.warn(`[EMERGENCY SAVE] draftChapter Ch.${chapter.chapter_number}: saving ${emergencyWordCount} words despite error.`);
+        try {
+          const emergencyFields = await prepareChapterContent(emergencyProse, project?.id || projectId, chapter.id, chapter);
+          await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+            ...clearRichContentFields(),
+            content_md_fallback_present: true,
+            ...emergencyFields,
+            word_count: emergencyWordCount,
+            status: 'drafted',
+            revision_notes: `Emergency save — post-generation step failed: ${draftError.message || 'Unknown error'}`,
+          }));
+          if (chapter.id === selectedChapterId) {
+            setChapterDraft(emergencyProse);
+          }
+        } catch (saveErr) {
+          console.error(`[EMERGENCY SAVE] Also failed for Ch.${chapter.chapter_number}:`, saveErr);
+        }
+      }
+      throw draftError;
+    }
+  };
+
+  const handleDraftSelected = async () => {
+    if (!project || !selectedChapter || busyLabel) return;
+
+    const persistedContent = chapterHasPersistedManuscriptContent(selectedChapter);
+    const unsavedEditorContent = !persistedContent && chapterDraft?.trim().length > 0;
+
+    if (persistedContent || unsavedEditorContent) {
+      const ok = confirmDestructiveChapterAction(
+        `Drafting Chapter ${selectedChapter.chapter_number} will replace the current chapter text. A backup will be attempted first if saved manuscript content exists. Continue?`
+      );
+      if (!ok) return;
+    }
+
+    captureSnapshot(`Draft Ch.${selectedChapter.chapter_number}`);
+    setBusyLabel(`Drafting chapter ${selectedChapter.chapter_number}…`);
+    try {
+      await draftChapter(selectedChapter, true, chapterProseModels[selectedChapter.id], undefined, {
+        backupBeforeOverwrite: persistedContent,
+        backupReason: `Before Draft Chapter — Ch.${selectedChapter.chapter_number}`,
+      });
+    } catch (err) {
+      console.error('Draft failed:', err);
+      toast.error(`Drafting chapter ${selectedChapter.chapter_number} failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setBusyLabel('');
+      await refreshAll();
+    }
+  };
+
+  const handleDraftAll = async () => {
+    if (!project || busyLabel) return;
+    captureSnapshot('Draft All Remaining');
+    stopRequestedRef.current = false;
+
+    let freshChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+    const draftableCandidates = freshChapters.filter((ch) => (ch.status === 'planned' || ch.status === 'beats_ready' || ch.status === 'error') && isBodyChapter(ch));
+    const skippedWithContent = draftableCandidates.filter((ch) => chapterHasPersistedManuscriptContent(ch));
+    const remaining = draftableCandidates
+      .filter((ch) => !chapterHasPersistedManuscriptContent(ch))
+      .sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
+
+    if (skippedWithContent.length) {
+      toast.info(`Draft All skipped ${skippedWithContent.length} chapter(s) that already contain manuscript text. Use Rewrite for drafted chapters.`);
+    }
+
+    if (!remaining.length) {
+      toast.info('No empty planned chapters found to draft. Use Rewrite for chapters that already have text.');
+      return;
+    }
+
+    const isAnthologyMode = project.project_type === 'anthology';
+    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isParallelMode = isAnthologyMode || isNonfictionMode;
+    const total = remaining.length;
+    const failures = [];
+    const useFastDraftAll = true;
+
+    console.log(`[DRAFT ALL] Mode: ${isParallelMode ? 'parallel mode (anthology/nonfiction)' : 'sequential continuity-safe mode (fiction/novel)'}`);
+    console.log('[DRAFT ALL] Batch generation mode: DRAFT-ONLY. Polish is handled by Fix Manuscript afterward.');
+    console.log(`[DRAFT ALL] Chapters to draft:`, remaining.map(c => ({ id: c.id, num: c.chapter_number })));
+
+    const seed = {};
+    for (const ch of remaining) seed[ch.id] = 'queued…';
+    setChapterProgress(seed);
+
+    setBusyLabel(isParallelMode
+      ? `Drafting ${total} remaining chapters in controlled parallel…`
+      : `Sequentially drafting ${total} remaining chapters…`);
+
+    try {
+      if (isParallelMode) {
+        const laneLimit = isNonfictionMode ? NONFICTION_DRAFT_LANE_LIMIT : (isAnthologyMode ? ANTHOLOGY_DRAFT_LANE_LIMIT : PARALLEL_DRAFT_LANE_LIMIT);
+        console.log(`[DRAFT ALL] Controlled parallel mode active: launching ${remaining.length} chapter(s) through ${laneLimit} lane(s)`);
+
+        const results = await runParallelDraftPool(remaining, async (chapter) => {
+          const onProgress = (label) => {
+            const safeLabel = formatProgressLabel(label);
+            console.log(`[DRAFT-CH-${chapter.chapter_number}] onProgress fired:`, label, '→', safeLabel);
+            setChapterProgress((prev) => ({ ...prev, [chapter.id]: safeLabel }));
+          };
+
+          try {
+            return await draftChapter(chapter, false, chapterProseModels[chapter.id] || undefined, onProgress, {
+              fastDraftOnly: useFastDraftAll,
+            });
+          } finally {
+            console.log(`[DRAFT-CH-${chapter.chapter_number}] Finally: clearing from chapterProgress`);
+            setChapterProgress((prev) => {
+              const next = { ...prev };
+              delete next[chapter.id];
+              return next;
+            });
+          }
+        }, { limit: laneLimit });
+
+        for (const r of results) {
+          if (r.status === 'rejected') {
+            failures.push({ chapter: r.chapter.chapter_number, error: r.reason?.message || 'Unknown error' });
+            console.error(`[DRAFT ALL] Ch.${r.chapter.chapter_number} failed:`, r.reason);
+          }
+        }
+
+        console.log(`[DRAFT ALL] Complete: ${results.filter(r => r.status === 'fulfilled').length}/${remaining.length} parallel succeeded, ${failures.length} failed`);
+      } else {
+        // Fiction/novel mode: fully sequential from the first remaining chapter to the last.
+        // No anchor-then-parallel split. Each successful chapter is saved and the chapter
+        // list is refreshed before the next chapter starts, so continuity summaries and
+        // previous-chapter text can carry forward naturally.
+        for (let ci = 0; ci < remaining.length; ci++) {
+          if (stopRequestedRef.current) break;
+
+          const chapter = remaining[ci];
+          setBusyLabel(`Sequential draft: chapter ${chapter.chapter_number} (${ci + 1}/${remaining.length})…`);
+
+          const onProgress = (label) => {
+            const safeLabel = formatProgressLabel(label);
+            setChapterProgress((prev) => ({ ...prev, [chapter.id]: safeLabel }));
+          };
+
+          try {
+            const draftResult = await draftChapter(chapter, false, chapterProseModels[chapter.id] || undefined, onProgress, {
+              fastDraftOnly: useFastDraftAll,
+            });
+
+            if (draftResult?.content) {
+              chapter.content_md = draftResult.content;
+              chapter.__freshDraftContent = draftResult.content;
+            }
+
+            // Keep the existing safe refresh for now. Fast mode already removes the heavy
+            // judge/revision/postDraftCleanup calls; this refresh preserves continuity safety.
+            freshChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+          } catch (e) {
+            console.error(`[DRAFT ALL] Ch.${chapter.chapter_number} failed:`, e);
+            failures.push({ chapter: chapter.chapter_number, error: e?.message || 'Unknown error' });
+          } finally {
+            setChapterProgress((prev) => {
+              const next = { ...prev };
+              delete next[chapter.id];
+              return next;
+            });
+            // Refresh UI after each chapter so completed drafts show immediately
+            try { await refreshAll(); } catch {}
+          }
+        }
+      }
+
+      const finalChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+      const _draftAllPayload = protectedProjectUpdate({
+        chapter_count: finalChapters.filter((c) => c.status === 'drafted' || c.status === 'reviewed').length,
+        status: 'ready',
+      });
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _draftAllPayload));
+    } finally {
+      stopRequestedRef.current = false;
+      setChapterProgress({});
+      if (failures.length) {
+        setBusyLabel(`Done — ${failures.length} failed: ${failures.map(f => 'Ch.' + f.chapter).join(', ')}`);
+      } else {
+        setBusyLabel('');
+      }
+    }
+    await refreshAll();
+  };
+
+  const handleStop = () => {
+    stopRequestedRef.current = true;
+  };
+
+  const handleRewriteSelected = async () => {
+    if (!project || !selectedChapter || busyLabel) return;
+    if (!chapterHasPersistedManuscriptContent(selectedChapter) && !chapterDraft) return;
+
+    const ok = confirmDestructiveChapterAction(
+      `Rewrite Chapter ${selectedChapter.chapter_number}? This will replace the current chapter text. A backup will be attempted first. Continue?`
+    );
+    if (!ok) return;
+
+    captureSnapshot(`Rewrite Ch.${selectedChapter.chapter_number}`);
+    setBusyLabel(`Rewriting chapter ${selectedChapter.chapter_number}…`);
+    try {
+      await draftChapter(selectedChapter, true, chapterProseModels[selectedChapter.id], undefined, {
+        backupBeforeOverwrite: chapterHasPersistedManuscriptContent(selectedChapter),
+        backupReason: `Before Rewrite Chapter — Ch.${selectedChapter.chapter_number}`,
+      });
+      // Reset scan/fix pass counter on rewrite
+      await runWithNetworkRetry(() => base44.entities.Chapter.update(selectedChapter.id, { scan_fix_passes: 0, clean_score: 0 }));
+    } catch (err) {
+      console.error('Rewrite failed:', err);
+      toast.error(`Rewriting chapter ${selectedChapter.chapter_number} failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setBusyLabel('');
+    }
+  };
+
+  const handleRewriteAll = async () => {
+    if (!project || busyLabel) return;
+    captureSnapshot('Rewrite All Drafted');
+    stopRequestedRef.current = false;
+
+    let freshChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+    const draftedChaps = freshChapters
+      .filter((ch) => chapterHasPersistedManuscriptContent(ch) && isBodyChapter(ch))
+      .sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
+
+    if (!draftedChaps.length) {
+      toast.info('No drafted body chapters found to rewrite.');
+      return;
+    }
+
+    const isAnthologyMode = project.project_type === 'anthology';
+    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isParallelMode = isAnthologyMode || isNonfictionMode;
+    const total = draftedChaps.length;
+    const useFastRewriteAll = true;
+
+    const ok = confirmDestructiveChapterAction(
+      isParallelMode
+        ? `Rewrite Drafted will replace ${total} body chapter(s) in parallel. Backups will be attempted before each chapter is rewritten. Polish/Fix Manuscript can be run afterward. Continue?`
+        : `Sequential Rewrite Drafted will replace ${total} body chapter(s) one at a time so continuity can carry forward. Backups will be attempted first. Polish/Fix Manuscript can be run afterward. Continue?`
+    );
+    if (!ok) return;
+
+    const rewriteFailures = [];
+    setBusyLabel(isParallelMode
+      ? `Rewriting ${total} drafted chapters in controlled parallel…`
+      : `Sequentially rewriting ${total} drafted chapters…`);
+
+    console.log(`[REWRITE ALL] Mode: ${isParallelMode ? 'parallel mode (anthology/nonfiction)' : 'sequential continuity-safe mode (fiction/novel)'}`);
+    console.log('[REWRITE ALL] Batch generation mode: DRAFT-ONLY. Polish is handled by Fix Manuscript afterward.');
+
+    const seed = {};
+    for (const ch of draftedChaps) seed[ch.id] = 'queued…';
+    setChapterProgress(seed);
+
+    try {
+      if (isParallelMode) {
+        const laneLimit = isNonfictionMode ? REWRITE_DRAFT_LANE_LIMIT : (isAnthologyMode ? ANTHOLOGY_DRAFT_LANE_LIMIT : PARALLEL_DRAFT_LANE_LIMIT);
+        console.log(`[REWRITE ALL] Controlled parallel mode active: launching ${draftedChaps.length} chapter(s) through ${laneLimit} lane(s)`);
+
+        const results = await runParallelDraftPool(draftedChaps, async (chapter) => {
+          const onProgress = (label) => {
+            const safeLabel = formatProgressLabel(label);
+            console.log(`[REWRITE-CH-${chapter.chapter_number}] onProgress fired:`, label, '→', safeLabel);
+            setChapterProgress((prev) => ({ ...prev, [chapter.id]: safeLabel }));
+          };
+
+          try {
+            const value = await draftChapter(chapter, false, chapterProseModels[chapter.id] || undefined, onProgress, {
+              fastDraftOnly: useFastRewriteAll,
+              backupBeforeOverwrite: chapterHasPersistedManuscriptContent(chapter),
+              backupReason: `Before Rewrite All — Ch.${chapter.chapter_number}`,
+            });
+
+            await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, { scan_fix_passes: 0, clean_score: 0 }));
+            return value;
+          } finally {
+            setChapterProgress((prev) => {
+              const next = { ...prev };
+              delete next[chapter.id];
+              return next;
+            });
+          }
+        }, { limit: laneLimit });
+
+        for (const r of results) {
+          if (r.status === 'rejected') {
+            rewriteFailures.push({ chapter: r.chapter.chapter_number, error: r.reason?.message || 'Unknown error' });
+            console.error(`[REWRITE ALL] Ch.${r.chapter.chapter_number} failed:`, r.reason);
+          }
+        }
+
+        console.log(`[REWRITE ALL] Complete: ${results.filter(r => r.status === 'fulfilled').length}/${draftedChaps.length} parallel succeeded, ${rewriteFailures.length} failed`);
+      } else {
+        // Fiction/novel mode: fully sequential. Rewriting one chapter can change
+        // continuity, so later chapters wait for the updated prior chapters to save.
+        for (let ci = 0; ci < draftedChaps.length; ci++) {
+          if (stopRequestedRef.current) break;
+
+          const chapter = draftedChaps[ci];
+          setBusyLabel(`Sequential rewrite: chapter ${chapter.chapter_number} (${ci + 1}/${draftedChaps.length})…`);
+
+          const onProgress = (label) => {
+            const safeLabel = formatProgressLabel(label);
+            setChapterProgress((prev) => ({ ...prev, [chapter.id]: safeLabel }));
+          };
+
+          try {
+            await draftChapter(chapter, false, chapterProseModels[chapter.id] || undefined, onProgress, {
+              fastDraftOnly: useFastRewriteAll,
+              backupBeforeOverwrite: chapterHasPersistedManuscriptContent(chapter),
+              backupReason: `Before Rewrite All — Ch.${chapter.chapter_number}`,
+            });
+
+            await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, { scan_fix_passes: 0, clean_score: 0 }));
+            // Refresh after each rewrite so the next chapter sees the updated sequence.
+            freshChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+          } catch (e) {
+            console.error(`[REWRITE ALL] Ch.${chapter.chapter_number} failed:`, e);
+            rewriteFailures.push({ chapter: chapter.chapter_number, error: e?.message || 'Unknown error' });
+          } finally {
+            setChapterProgress((prev) => {
+              const next = { ...prev };
+              delete next[chapter.id];
+              return next;
+            });
+          }
+        }
+      }
+    } finally {
+      stopRequestedRef.current = false;
+      setChapterProgress({});
+      if (rewriteFailures.length) {
+        setBusyLabel(`Done — ${rewriteFailures.length} failed: ${rewriteFailures.map(f => 'Ch.' + f.chapter).join(', ')}`);
+      } else {
+        setBusyLabel('');
+      }
+    }
+    await refreshAll();
+  };
+
+  const handleGenerateBeats = async () => {
+    if (!project || !selectedChapter) return;
+    setBusyLabel(`Generating beats for chapter ${selectedChapter.chapter_number}…`);
+    try {
+      await generateSceneBeats(selectedChapter);
+    } finally {
+      setBusyLabel('');
+    }
+    await refreshAll();
+  };
+
+  const handleEvaluate = async () => {
+    if (!project) return;
+    captureSnapshot('Evaluate');
+    setBusyLabel('Evaluating project…');
+    try {
+    // Resolve chapter content from URLs for evaluation
+    const resolvedChapters = await Promise.all(
+      chapters.map(async (ch) => {
+        if (chapterHasContent(ch) && !ch.content_md && ch.content_md_url) {
+          return { ...ch, content_md: await resolveChapterContent(ch) };
+        }
+        return ch;
+      })
+    );
+    const evaluationResponse = await invokeLLMWithRetry({
+      prompt: buildEvaluationPrompt(project, resolvedChapters),
+      response_json_schema: evaluationSchema,
+      model: pickModel('evaluate', project),
+      spec: project,
+      fallback_model: pickFallbackModel('evaluate', project),
+    });
+    const evaluation = unwrapIntegrationResult(evaluationResponse);
+
+    const _evalPayload = protectedProjectUpdate({
+      novel_score: evaluation.novel_score,
+      foundation_score: evaluation.foundation_score,
+      current_focus: evaluation.current_focus,
+      arc_summary_md: evaluation.arc_summary_md,
+      status: 'ready',
+      phase: chapters.some((chapter) => chapter.status === 'drafted') ? 'revision' : project.phase,
+    });
+
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _evalPayload));
+    } finally {
+      setBusyLabel('');
+    }
+    await refreshAll();
+  };
+
+  // Helper: extract protagonist name from characters_md
+  const extractProtagonistName = (proj) => {
+    if (!proj?.characters_md) return 'the protagonist';
+    // Look for "Protagonist: Name" or "**Name**" at the start, or first capitalized name pair
+    const protMatch = proj.characters_md.match(/(?:protagonist|main character|MC)[:\s]+([A-Z][a-z]+ (?:[A-Z][a-z]+)?)/i);
+    if (protMatch) return protMatch[1].trim();
+    const nameMatch = proj.characters_md.match(/\b([A-Z][a-z]{2,} [A-Z][a-z]{2,})\b/);
+    return nameMatch ? nameMatch[1] : 'the protagonist';
+  };
+
+  const handleScanChapter = async (chapter) => {
+    if (!project || !chapterHasContent(chapter)) return;
+
+    // Gate: cap scan/fix at 2 passes per chapter
+    if ((chapter.scan_fix_passes || 0) >= 2) {
+      toast.error('This chapter has already been scanned/fixed 2 times. Additional passes may degrade quality. Click "Rewrite Chapter" to generate fresh content.');
+      return;
+    }
+    setBusyLabel(`Scanning chapter ${chapter.chapter_number}…`);
+    try {
+    // Resolve chapter content from URL if needed
+    const resolvedContent = await resolveChapterContent(chapter);
+    const resolvedChapter = { ...chapter, content_md: resolvedContent };
+
+    // CONTENT DESTRUCTION GUARD — prevents saving corrupted text
+    const isContentDestroyed = (text) => {
+      if (!text || text.length < 100) return true;
+      const theyCount = (text.match(/they they/gi) || []).length;
+      if (theyCount > 10) return true;
+      const sample = text.substring(0, 60).trim();
+      if (sample.length > 10) {
+        const repeatCount = text.split(sample).length - 1;
+        if (repeatCount > 5) return true;
+      }
+      const words = text.split(/\s+/);
+      if (words.length > 50) {
+        const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+        if (uniqueWords.size / words.length < 0.05) return true;
+      }
+      return false;
+    };
+
+    // Step 1: Gemini Flash scans for issues (diagnosis only, no rewriting)
+    const scanOnlySchema = {
+      type: 'object',
+      properties: {
+        audience_score: chapterReviewSchema.properties.audience_score,
+        critic_score: chapterReviewSchema.properties.critic_score,
+        verdict: chapterReviewSchema.properties.verdict,
+        one_line: chapterReviewSchema.properties.one_line,
+        strengths: chapterReviewSchema.properties.strengths,
+        issues: chapterReviewSchema.properties.issues,
+      },
+      required: ['audience_score', 'critic_score', 'verdict', 'one_line', 'strengths', 'issues'],
+    };
+    let scanResult = null;
+    try {
+      const scanResponse = await base44.integrations.Core.InvokeLLM({
+        prompt: buildChapterReviewPrompt(project, resolvedChapter),
+        response_json_schema: scanOnlySchema,
+        model: 'gemini_3_flash',
+      });
+      scanResult = unwrapIntegrationResult(scanResponse);
+    } catch (diagErr) {
+      console.warn('[SCAN/FIX] Diagnosis failed:', diagErr.message, '\u2014 proceeding to Critic Agent cleanup without diagnosis');
+      // Create a minimal scan result so the Critic Agent still runs
+      scanResult = { audience_score: 0, critic_score: 0, verdict: 'Unknown', one_line: 'Diagnosis unavailable', strengths: [], issues: [{ severity: 'moderate', category: 'unknown', description: 'Diagnosis step failed \u2014 running Critic Agent cleanup as fallback' }] };
+    }
+
+    // Step 2: Run the Critic Agent (same 15-rule backend function used in post-generation)
+    let review = { ...scanResult, revised_content_md: null };
+    // Critic Agent always runs — it has its own safety guards (content destruction check, 70% length check)
+    const hasFixableIssues = true;
+
+    if (hasFixableIssues) {
+      setBusyLabel(`Cleaning chapter ${chapter.chapter_number} via Critic Agent…`);
+
+      // Gather context for the Critic Agent
+      const protagonistName = extractProtagonistName(project);
+      const pronouns = project.protagonist_pronouns
+        || (detectProtagonistPronouns(project) ? detectProtagonistPronouns(project) + '/' + (detectProtagonistPronouns(project) === 'she' ? 'her' : detectProtagonistPronouns(project) === 'he' ? 'him' : 'them') : 'they/them');
+
+      // Get previous/next chapter context for transitions (skip for anthologies — standalone stories)
+      let previousChapterEnding = '';
+      let nextChapterOpening = '';
+      if (!isAnthologyProject(project)) {
+        const sortedChapters = [...chapters].sort((a, b) => a.chapter_number - b.chapter_number);
+        const prevCh = sortedChapters.find(c => c.chapter_number === chapter.chapter_number - 1);
+        const nextCh = sortedChapters.find(c => c.chapter_number === chapter.chapter_number + 1);
+        if (prevCh && chapterHasContent(prevCh)) previousChapterEnding = ((await resolveChapterContent(prevCh)) || '').slice(-400);
+        if (nextCh && chapterHasContent(nextCh)) nextChapterOpening = ((await resolveChapterContent(nextCh)) || '').slice(0, 400);
+      }
+
+      console.log('[SCANFIX] Calling criticAgent. Content:', resolvedContent.length, 'chars');
+
+      const criticResponse = await base44.functions.invoke('criticAgent', {
+        chapterText: resolvedContent,
+        chapterNumber: chapter.chapter_number || 1,
+        totalChapters: project.chapter_target || chapters.length || 25,
+        protagonistName,
+        protagonistPronouns: pronouns,
+        genre: project.genre || 'fiction',
+        previousChapterEnding,
+        nextChapterOpening,
+      });
+      const criticResult = criticResponse?.data || criticResponse;
+
+      console.log('[SCANFIX] Critic returned. success:', criticResult?.success, 'len:', criticResult?.cleanedText?.length);
+
+      if (criticResult?.success && criticResult?.cleanedText) {
+        const cleaned = criticResult.cleanedText;
+        const origLen = resolvedContent.length;
+
+        // Log before/after metrics
+        const revisedWords = cleaned.split(/\s+/);
+        const uniqueWords = new Set(revisedWords.map(w => w.toLowerCase()));
+        const uniqueRatio = uniqueWords.size / revisedWords.length;
+        const theyTheyCount = (cleaned.match(/they they/gi) || []).length;
+        console.log('[SCAN/FIX] Critic Agent: Original length:', origLen, '| Cleaned length:', cleaned.length);
+        console.log('[SCAN/FIX] Unique word ratio:', uniqueRatio.toFixed(3), '| "they they" count:', theyTheyCount);
+
+        if (isContentDestroyed(cleaned)) {
+          console.error('[SCAN/FIX] CONTENT DESTRUCTION DETECTED after Critic Agent. Keeping original.');
+        } else if (cleaned.trim().length < origLen * 0.7) {
+          console.warn('[SCAN/FIX] Critic Agent output too short (' + cleaned.length + ' vs ' + origLen + '). Keeping original.');
+        } else {
+          review.revised_content_md = cleaned;
+          console.log('[SCAN/FIX] Critic Agent applied successfully. Input:', origLen, '→ Output:', cleaned.length);
+        }
+      } else {
+        console.warn('[SCAN/FIX] Critic Agent returned failure or empty. Keeping original.', criticResult?.error || '');
+      }
+    }
+
+    // Auto-apply fixes if available and not destroyed
+    if (review?.revised_content_md) {
+      const cleanedRevision = review.revised_content_md.replace(/\*\*/g, '');
+
+      if (isContentDestroyed(cleanedRevision)) {
+        console.error('[SCAN/FIX] Post-clean CONTENT DESTRUCTION DETECTED. Refusing to save.');
+      } else if (countWords(cleanedRevision) < 50) {
+        console.warn('[SCAN] Revised content too short (' + countWords(cleanedRevision) + ' words), skipping auto-apply.');
+      } else {
+        // Compute mechanical score on the cleaned text
+        const mScore = mechanicalScore(cleanedRevision);
+        const reviewContentFields = await prepareChapterContent(cleanedRevision, project?.id || projectId, chapter.id, chapter);
+        await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+          ...reviewContentFields,
+          word_count: countWords(review.revised_content_md),
+          score: Math.round(((Number(review.critic_score) || 0) + (Number(review.audience_score) || 0)) / 2) / 10,
+          clean_score: mScore.score,
+          scan_fix_passes: (chapter.scan_fix_passes || 0) + 1,
+          revision_notes: [
+            review.one_line,
+            `Critic: ${Number(review.critic_score) || 0}% | Audience: ${Number(review.audience_score) || 0}% | ${review.verdict || 'Unknown'}`,
+            `Clean Score: ${mScore.score}/100`,
+            ...(mScore.deductions.length ? [`Deductions: ${mScore.deductions.join(', ')}`] : []),
+            ...(review.issues || []).map((i) => `[${i.severity}] ${i.category}: ${i.description}`),
+          ].join('\n'),
+          status: 'reviewed',
+        }));
+        if (chapter.id === selectedChapter?.id) {
+          setChapterDraft(review.revised_content_md);
+        }
+      }
+    }
+
+    // Also compute mechanical score for display even if no fixes were applied
+    const resolvedForScore = review?.revised_content_md || await resolveChapterContent(chapter);
+    review.clean_score = mechanicalScore(resolvedForScore).score;
+    review.clean_deductions = mechanicalScore(resolvedForScore).deductions;
+
+    setReviewData((prev) => ({ ...prev, [chapter.id]: review }));
+    } finally {
+      setBusyLabel('');
+    }
+    await refreshAll();
+  };
+
+  const handleApplyFixes = async (chapter, revisedContent) => {
+    if (!chapter || !revisedContent) return;
+    setIsApplyingFixes(true);
+    const review = reviewData[chapter.id];
+    const fixContentFields = await prepareChapterContent(revisedContent, project?.id || projectId, chapter.id, chapter);
+    await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+      ...fixContentFields,
+      word_count: countWords(revisedContent),
+      score: review ? Math.round(((Number(review.critic_score) || 0) + (Number(review.audience_score) || 0)) / 2) / 10 : chapter.score,
+      revision_notes: review ? [
+        review.one_line,
+        `Critic: ${Number(review.critic_score) || 0}% | Audience: ${Number(review.audience_score) || 0}% | ${review.verdict || 'Unknown'}`,
+        ...(review.issues || []).map((i) => `[${i.severity}] ${i.category}: ${i.description}`),
+      ].join('\n') : chapter.revision_notes,
+      status: 'reviewed',
+    }));
+    if (chapter.id === selectedChapter?.id) {
+      setChapterDraft(revisedContent);
+    }
+    setIsApplyingFixes(false);
+    await refreshAll();
+  };
+
+  // ── Genre-aware polish routing ──
+  const isComedy = isComedyProject(project);
+  const handlePolishRouted = async () => {
+    if (isNonfictionProject(project)) {
+      await handleManuscriptPolishNonfiction();
+    } else {
+      await handleManuscriptPolish();
+    }
+  };
+
+  // ── NONFICTION POLISH ──
+  const handleManuscriptPolishNonfiction = async () => {
+    if (!project || busyLabel) return;
+    const allChapters = [...chapters].filter(ch => chapterHasContent(ch) && isBodyChapter(ch)).sort((a, b) => a.chapter_number - b.chapter_number);
+    if (!allChapters.length) { toast.error('No drafted chapters to polish.'); return; }
+    captureSnapshot('NF Polish');
+    setBusyLabel('Polish (NF): Loading chapters…');
+    try {
+      const loaded = [];
+      for (let i = 0; i < allChapters.length; i++) {
+        const ch = allChapters[i];
+        setBusyLabel(`Polish (NF): Loading chapter ${ch.chapter_number || (i+1)} of ${allChapters.length}…`);
+        try {
+          const content = await resolveChapterContent(ch);
+          if (content && content.length > 50) loaded.push({ chapter: ch, content, original: content });
+        } catch (err) { console.error('[POLISH-NF] Failed:', err.message); }
+      }
+      if (!loaded.length) { toast.error('No content found.'); setBusyLabel(''); return; }
+
+      // ── PRE-POLISH SAFETY GATE (nonfiction) ──
+      // Check for process leakage before nonfiction polish runs.
+      // Bad input must be quarantined before repair transforms.
+      setBusyLabel('Polish (NF): Running safety gate preflight…');
+      const nfSafetyRejected = [];
+      const nfSafeLoaded = [];
+      for (const f of loaded) {
+        const gate = runManuscriptSafetyGate(f.content, {
+          project,
+          chapter: f.chapter,
+          stage: 'pre-polish',
+          allowBusinessTerms: true,
+        });
+        logSafetyGateResult('pre-polish-nf', f.chapter?.chapter_number, f.chapter?.title, gate);
+        if (gate.ok) {
+          nfSafeLoaded.push(f);
+        } else {
+          nfSafetyRejected.push({ chapter: f.chapter, reasons: gate.reasons });
+          console.error('[POLISH-NF-SAFETY-GATE] REJECTED Ch.' + (f.chapter?.chapter_number || '?') + ': ' + gate.reasons.join('; '));
+        }
+      }
+      if (nfSafetyRejected.length > 0) {
+        toast.error(`Safety Gate (NF): ${nfSafetyRejected.length} chapter(s) rejected. Rejected: ${nfSafetyRejected.map(r => 'Ch.' + (r.chapter?.chapter_number || '?')).join(', ')}. Regenerate them first.`, { duration: 15000 });
+        loaded.length = 0;
+        loaded.push(...nfSafeLoaded);
+      }
+      if (!loaded.length) { toast.error('All NF chapters rejected by safety gate.'); setBusyLabel(''); return; }
+
+      const beforeStats = calculateManuscriptStatsNonfiction(loaded.map(f => f.content).join('\n\n'));
+      const result = await runNonfictionPolish({ loaded, onProgress: (label) => setBusyLabel(formatProgressLabel(label)), project });
+      setPolishResults({ before: beforeStats, after: result.afterStats, changes: result.changes, timestamp: new Date().toISOString() });
+
+      // ── REFERENCE INTEGRITY GATE (post-NF-polish) ──
+      // Read-only gate: reports findings but does NOT mutate text or block save.
+      // Blocking issues → error toast (author must fix before export).
+      // Warnings → info toast.
+      setBusyLabel('Polish (NF): Running reference integrity check…');
+      const allPolishedText = loaded.map(f => f.content).join('\n\n');
+      const refReport = runReferenceIntegrityGate(allPolishedText, project);
+      if (typeof window !== 'undefined') {
+        window.__UBS_LAST_REFERENCE_REPORT = refReport;
+        console.log('[POLISH-NF-REF-GATE] Reference integrity report stored at window.__UBS_LAST_REFERENCE_REPORT');
+        console.log('[POLISH-NF-REF-GATE]', refReport.summary);
+      }
+      if (!refReport.ok) {
+        const blockMsg = `Reference Integrity: ${refReport.blockingIssues.length} blocking issue(s) found. ` +
+          refReport.blockingIssues.slice(0, 3).map(i => i.reason || i.detail || '').join('; ') +
+          `. Check window.__UBS_LAST_REFERENCE_REPORT for details.`;
+        toast.error(blockMsg, { duration: 20000 });
+        result.changes.push('⚠️ Reference integrity: ' + refReport.summary);
+      } else if (refReport.warnings.length > 0) {
+        toast.info(`Reference Integrity: ${refReport.warnings.length} warning(s). ${refReport.summary}`, { duration: 15000 });
+        result.changes.push('Reference integrity: ' + refReport.summary);
+      } else if (refReport.sections.length > 0) {
+        result.changes.push('✅ Reference integrity: PASS — ' + refReport.summary);
+      }
+
+      const report = `Nonfiction Polish Complete!\n\nSaved: ${result.savedCount} | Unchanged: ${result.unchangedCount}\nBanned: ${result.bannedRemoved} | Cap: ${result.capFixed} | Reps: ${result.repFixed} | Scaffolds: ${result.scaffoldsRemoved} | Disclaimers: ${result.disclaimersRemoved || 0}\nGrammar fixes: ${result.grammarFixed || 0} | Spelling corrections: ${result.spellingFixed || 0}\n\n${result.changes.join('\n')}${result.savedCount > 0 ? '\n\n✅ Re-export to get the updated manuscript.' : ''}`;
+      toast.info(report, { duration: 30000 });
+    } catch (err) {
+      console.error('[POLISH-NF] FATAL:', err);
+      toast.error('NF Polish failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setBusyLabel('');
+      await refreshAll();
+    }
+  };
+
+  // ── MANUSCRIPT POLISH v2 — deterministic cross-chapter cleanup (fiction) ──
+  const handleManuscriptPolish = async () => {
+    if (!project || busyLabel) return;
+    const allChapters = [...chapters].filter(ch => chapterHasContent(ch) && isBodyChapter(ch)).sort((a, b) => a.chapter_number - b.chapter_number);
+    if (!allChapters.length) { toast.error('No drafted chapters to polish.'); return; }
+
+    captureSnapshot('Manuscript Polish');
+    const isAnthology = isAnthologyProject(project);
+    console.log('[POLISH] ========== STARTING MANUSCRIPT POLISH v6 — FINAL SAVE-GATE + DB SOURCE VERIFY ACTIVE ==========');
+    console.log('[POLISH] Anthology mode:', isAnthology);
+    setBusyLabel('Polish: Loading chapters…');
+
+    try {
+    // ── STEP 1: Load all chapter content ──
+    const loaded = [];
+    for (let i = 0; i < allChapters.length; i++) {
+      const ch = allChapters[i];
+      const chNum = ch.chapter_number || (i + 1);
+      setBusyLabel(`Polish: Loading chapter ${chNum} of ${allChapters.length}…`);
+      try {
+        const content = await resolveChapterContent(ch);
+        if (content && content.length > 50) {
+          loaded.push({ chapter: ch, content, original: content });
+          console.log('[POLISH] Loaded Ch.' + chNum + ': ' + content.length + ' chars');
+        } else {
+          console.warn('[POLISH] Ch.' + chNum + ' empty/short (' + (content?.length || 0) + '), skipping');
+        }
+      } catch (err) {
+        console.error('[POLISH] Failed to load Ch.' + chNum + ':', err.message);
+      }
+    }
+
+    if (!loaded.length) { toast.error('No chapter content found to polish.'); setBusyLabel(''); return; }
+    const totalChars = loaded.reduce((s, f) => s + f.content.length, 0);
+    if (totalChars < 1000) { toast.error('Loaded only ' + totalChars + ' chars — content loading failed.'); setBusyLabel(''); return; }
+
+    const changes = [];
+
+    console.log('[POLISH] Loaded', loaded.length, 'chapters,', totalChars, 'chars');
+
+    // STEP 1b: Hard project-contamination trim before any polish rewrites.
+    // If a wrong-project block was stitched into the end of a chapter, remove the
+    // obvious foreign block before the normal polish passes amplify it.
+    let projectContaminationTrimmed = 0;
+    for (const f of loaded) {
+      const trim = stripProjectContaminationBlocks({
+        project: buildNameHygieneEnhancedProject(project || {}),
+        chapter: f.chapter,
+        chapters,
+        content: f.content,
+      });
+      if (trim.changed) {
+        f.content = trim.text;
+        projectContaminationTrimmed += 1;
+        console.warn('[PROJECT-CONTENT-GUARD] Trimmed foreign block during polish Ch.' + (f.chapter?.chapter_number || '?') + ':', trim.report);
+      } else if (trim.guard?.severity === 'critical') {
+        changes.push('⚠️ Ch.' + (f.chapter?.chapter_number || '?') + ': project contamination detected but not safely auto-trimmed — regenerate this chapter. ' + trim.report);
+      }
+    }
+
+    if (projectContaminationTrimmed > 0) {
+      changes.push('Project Content Guard: trimmed obvious wrong-project blocks from ' + projectContaminationTrimmed + ' chapter(s).');
+    }
+
+    // ── STEP 1c: PRE-POLISH SAFETY GATE ──
+    // Check every chapter for process leakage and contamination BEFORE any
+    // polish transforms run. Bad input must be quarantined before repair
+    // transforms because repair transforms (fixHangingQuotes, runBrokenSentenceFixes,
+    // banned-word cleanup) can create grammar regressions when applied to
+    // editorial/process text.
+    setBusyLabel('Polish: Running safety gate preflight…');
+    const safetyRejected = [];
+    const safeLoaded = [];
+    const gateEntries = [];
+    for (const f of loaded) {
+      const gate = runManuscriptSafetyGate(f.content, {
+        project,
+        chapter: f.chapter,
+        stage: 'pre-polish',
+      });
+      logSafetyGateResult('pre-polish', f.chapter?.chapter_number, f.chapter?.title, gate);
+      gateEntries.push({ chapterNumber: f.chapter?.chapter_number, title: f.chapter?.title, ok: gate.ok, action: gate.recommendedAction, processLeaks: gate.processLeaks.matches.length, contamination: gate.contamination.matches.length, malformed: gate.malformed.matches.length, reasons: gate.reasons });
+      if (gate.ok) {
+        safeLoaded.push(f);
+      } else {
+        safetyRejected.push({
+          chapter: f.chapter,
+          action: gate.recommendedAction,
+          reasons: gate.reasons,
+        });
+        console.error('[POLISH-SAFETY-GATE] REJECTED Ch.' + (f.chapter?.chapter_number || '?') + ': ' + gate.reasons.join('; '));
+        changes.push('🚫 Ch.' + (f.chapter?.chapter_number || '?') + ' REJECTED by safety gate (' + gate.recommendedAction + '): ' + gate.reasons.join('; '));
+      }
+    }
+    storeSafetyReport('pre-polish', gateEntries);
+
+    if (safetyRejected.length > 0) {
+      console.warn('[POLISH-SAFETY-GATE] ' + safetyRejected.length + ' chapter(s) rejected. Only ' + safeLoaded.length + ' will be polished.');
+      changes.push('Safety Gate: ' + safetyRejected.length + ' chapter(s) quarantined, ' + safeLoaded.length + ' eligible for polish.');
+      toast.error(
+        `Safety Gate: ${safetyRejected.length} chapter(s) rejected (process leaks or contamination). ` +
+        `Rejected: ${safetyRejected.map(r => 'Ch.' + (r.chapter?.chapter_number || '?')).join(', ')}. ` +
+        `These chapters will NOT be polished. Regenerate them first.`,
+        { duration: 20000 }
+      );
+    }
+
+    // Replace loaded array with only safe chapters for all subsequent polish steps.
+    // Rejected chapters keep their original content unchanged.
+    loaded.length = 0;
+    loaded.push(...safeLoaded);
+
+    if (!loaded.length) {
+      toast.error('All chapters were rejected by the safety gate. No chapters to polish.');
+      setBusyLabel('');
+      return;
+    }
+
+    // ── STEP 1d: LLM PROSE POLISH ──
+    // Send each safe chapter to the prose-polisher LLM for true prose improvement.
+    // If LLM fails or returns bad output, fall back to deterministic-only polish.
+    setBusyLabel('Polish: Running LLM prose polisher…');
+    let llmPolishCount = 0;
+    let llmFallbackCount = 0;
+    const llmPolishLog = [];
+    const briefContext = project ? `${project.title || ''} — ${project.genre || 'Fiction'}, ${project.pov_mode || 'Third person'}, ${project.tense || 'Past tense'}` : '';
+
+    for (let i = 0; i < loaded.length; i++) {
+      const f = loaded[i];
+      const chNum = f.chapter?.chapter_number || (i + 1);
+      const chTitle = f.chapter?.title || `Chapter ${chNum}`;
+      setBusyLabel(`Polish: LLM polishing Ch.${chNum} (${i + 1}/${loaded.length})…`);
+
+      const wordsBefore = (f.content || '').split(/\s+/).length;
+
+      try {
+        const llmResult = await polishChapterWithLLM({
+          chapterText: f.content,
+          chapterTitle: chTitle,
+          chapterNumber: chNum,
+          projectContext: briefContext,
+          project,
+          timeoutMs: 600000,
+        });
+
+        const logEntry = {
+          chapter: chNum,
+          title: chTitle,
+          ok: llmResult.ok,
+          wordsBefore,
+          wordsAfter: llmResult.ok ? (llmResult.text || '').split(/\s+/).length : wordsBefore,
+          wordDelta: llmResult.wordDelta,
+          warnings: llmResult.warnings,
+          error: llmResult.error,
+          fallback: !llmResult.ok,
+        };
+        llmPolishLog.push(logEntry);
+
+        if (llmResult.ok) {
+          f.content = llmResult.text;
+          llmPolishCount++;
+          changes.push(`Ch.${chNum}: LLM polished (${wordsBefore} → ${logEntry.wordsAfter} words, ${llmResult.wordDelta > 0 ? '+' : ''}${llmResult.wordDelta})`);
+        } else {
+          llmFallbackCount++;
+          // Keep original content — deterministic polish will still run
+          changes.push(`Ch.${chNum}: LLM polish fallback — ${llmResult.error || 'unknown'}`);
+          console.warn(`[LLM-POLISH] Ch.${chNum}: falling back to deterministic polish: ${llmResult.error}`);
+        }
+      } catch (err) {
+        llmFallbackCount++;
+        llmPolishLog.push({ chapter: chNum, ok: false, error: err?.message, fallback: true });
+        changes.push(`Ch.${chNum}: LLM polish error — ${err?.message}`);
+        console.error(`[LLM-POLISH] Ch.${chNum}: unexpected error:`, err);
+      }
+    }
+
+    changes.push(`LLM Prose Polish: ${llmPolishCount} polished, ${llmFallbackCount} fallback (deterministic only).`);
+    window.__UBS_LAST_LLM_POLISH_LOG = llmPolishLog;
+    console.log('[LLM-POLISH] Complete:', JSON.stringify({ polished: llmPolishCount, fallback: llmFallbackCount }));
+
+    const beforeStats = calculateManuscriptStats(loaded.map(f => f.content).join('\n\n'), { isComedy });
+    setBusyLabel(`Polish: Loaded ${loaded.length} chapters (${Math.round(totalChars / 1000)}K). Removing banned words…`);
+    const chapterCount = loaded.length;
+
+    // ── STEP 2: Remove banned words ──
+    const bannedWords = ['shimmering','luminous','tapestry','intricate','meticulously','insatiable','palpable','unmistakable','undeniable','relentless','sprawling','labyrinthine','opulent','resplendent','ethereal','visceral','cacophony','crescendo','juxtaposition','myriad','plethora','testament','harbinger','paradigm','dichotomy','multifaceted','aforementioned','nonetheless','furthermore','henceforth','commence','utilize','endeavor','pertaining'];
+    let bannedRemoved = 0;
+    for (const word of bannedWords) {
+      const rx = new RegExp('\\b' + word + '\\b', 'gi');
+      for (const f of loaded) {
+        const matches = f.content.match(rx);
+        if (matches && matches.length > 0) {
+          f.content = f.content.replace(rx, '');
+          bannedRemoved += matches.length;
+          changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': removed "' + word + '" x' + matches.length);
+        }
+      }
+    }
+    // ── STEP 2b: Anthology-specific checks ──
+    let anthologyStats = { bodyLangFixed: 0, anthVocabFixed: 0, contaminationFixed: 0, genreVocabFixed: 0 };
+    console.warn('[ANTHOLOGY-POLISH] GATE CHECK: isAnthology=' + isAnthology + ' | project.project_type="' + (project.project_type || '') + '"');
+    if (isAnthology) {
+      console.warn('[ANTHOLOGY-POLISH] ENTERING anthology code path. Chapters:', loaded.length);
+      const bodyResult = runCrossChapterBodyLanguageDedup(loaded, setBusyLabel);
+      changes.push(...bodyResult.changes); anthologyStats.bodyLangFixed = bodyResult.bodyLangFixed || 0;
+      const anthVocabResult = runAnthologyVocabBans(loaded, setBusyLabel);
+      changes.push(...anthVocabResult.changes); anthologyStats.anthVocabFixed = anthVocabResult.anthVocabFixed || 0;
+      const contamResult = await runContaminationDetector(loaded, setBusyLabel, project);
+      changes.push(...contamResult.changes); anthologyStats.contaminationFixed = contamResult.contaminationFixed || 0; anthologyStats.genreVocabFixed = contamResult.genreVocabFixed || 0;
+    }
+
+    // ── STEP 3: Punctuation cleanup + spelling fixes ──
+    const punctResult = runPunctuationCleanup(loaded, setBusyLabel);
+    changes.push(...punctResult.changes);
+    const spellingResult = runSpellingFixes(loaded, setBusyLabel);
+    changes.push(...spellingResult.changes);
+
+    // ── STEP 3b: Fix capitalization errors ──
+    setBusyLabel('Polish: Fixing capitalization…');
+    let capFixed = 0;
+    for (const f of loaded) {
+      const before = f.content;
+      f.content = f.content.replace(/([.!?])\s+([a-z])/g, (match, punct, letter, offset) => {
+        // Skip ellipsis patterns
+        if (offset >= 2 && f.content[offset - 1] === '.' && f.content[offset - 2] === '.') return match;
+        // Skip abbreviations like "Dr. smith" — capital letter then lowercase before the period
+        if (offset >= 2 && /[A-Z][a-z]/.test(f.content.substring(offset - 2, offset))) return match;
+        return punct + ' ' + letter.toUpperCase();
+      });
+      if (f.content !== before) {
+        const beforeErrors = (before.match(/[.!?]\s+[a-z]/g) || []).length;
+        const afterErrors = (f.content.match(/[.!?]\s+[a-z]/g) || []).length;
+        const fixed = beforeErrors - afterErrors;
+        if (fixed > 0) {
+          capFixed += fixed;
+          changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': fixed ' + fixed + ' capitalization errors');
+          console.log('[POLISH] Fixed', fixed, 'cap errors in Ch.' + (f.chapter.chapter_number || '?'));
+        }
+      }
+    }
+    setBusyLabel(`Polish: Fixed ${capFixed} cap errors. Fixing dialogue…`);
+
+    // ── STEP 3c: Capitalization hygiene (mid-sentence caps, title fragments) ──
+    // Catches "the Man walked", "Mrs, then gable", "he Said something" — AI
+    // artifacts that survive the post-period pass above. Also handles the
+    // lowercase-standalone-"i" pronoun and flags possible missing-noun
+    // sites for author review.
+    const capHygieneResult = runCapitalizationHygiene(loaded, setBusyLabel);
+    changes.push(...capHygieneResult.changes);
+    const capHygieneFixed = capHygieneResult.capFixed;
+    const missingNounWarnings = capHygieneResult.warnings || [];
+
+    // ── STEP 3d: Transition-word caps (per-chapter) ──
+    // "Still,", "Instead,", "At last,", "In truth," etc. — caps sentence-starting
+    // transitions so they don't repeat every few paragraphs (a hallmark
+    // AI-detection red flag in memoir/investigative nonfiction).
+    const transitionResult = runTransitionWordCaps(loaded, setBusyLabel);
+    changes.push(...transitionResult.changes);
+    const transitionFixed = transitionResult.transitionWordsFixed;
+
+    // ── STEP 3e: Dialogue punctuation placement ──
+    // American style requires punct INSIDE closing quotes. Catches "text".
+    // patterns and moves the period/question mark inside the quote. Cheap,
+    // mechanical, no false positive risk.
+    console.warn('[POLISH-DEBUG] STEP 3e: runDialoguePunctuationFix starting...');
+    const dialogPunctResult = runDialoguePunctuationFix(loaded, setBusyLabel);
+    console.warn('[POLISH-DEBUG] STEP 3e: dialogPunctFixed=' + dialogPunctResult.dialogPunctFixed + ' changes=' + dialogPunctResult.changes.length);
+    changes.push(...dialogPunctResult.changes);
+    const dialogPunctFixed = dialogPunctResult.dialogPunctFixed;
+
+    // ── STEP 3e-bis: Strip junk conjunctions before dialogue ──
+    // Catches LLM-inserted filler like 'Earl nodded, yet "text"' →
+    // 'Earl nodded. "text"'. Safe because the regex requires an opening
+    // quote mark immediately after the filler — legitimate conjunction
+    // use (inside or outside dialogue) is never touched.
+    const dialogFillerResult = runDialogueFillerFix(loaded, setBusyLabel);
+    changes.push(...dialogFillerResult.changes);
+    const dialogFillerFixed = dialogFillerResult.dialogFillerFixed;
+
+    // ── STEP 3f: Sentence-pattern variation ──
+    // Caps "descriptor-verb-noun" stacking patterns (Xxx Yyy, -ing Zzz)
+    // which create rhythmic AI-detection sameness when they recur. Scale-
+    // aware global cap ~30 per 50K words.
+    const stackingResult = runStackedClauseVariation(loaded, setBusyLabel);
+    changes.push(...stackingResult.changes);
+    const stackingFixed = stackingResult.stackingFixed;
+
+    // ── STEP 4: Fix voice patterns (EXPANDED — 6 pattern families) ──
+    setBusyLabel('Polish: Fixing voice patterns…');
+    const voiceResult = isAnthology
+      ? runPerChapter(loaded, (l) => fixVoicePatterns(l, 1))
+      : fixVoicePatterns(loaded, chapterCount);
+    changes.push(...voiceResult.changes);
+    const voiceFixed = voiceResult.voiceFixed;
+
+    // ── STEP 4b: External AI pattern detection (Sudowrite, ChatGPT, etc.) ──
+    setBusyLabel('Polish: Scanning for external AI patterns…');
+    const extResult = isAnthology
+      ? runPerChapter(loaded, (l) => runExternalAiPatternFix(l))
+      : runExternalAiPatternFix(loaded);
+    changes.push(...extResult.changes);
+    const externalPatternsFixed = extResult.fixed;
+    const sceneHeadersStripped = extResult.sceneHeadersStripped || 0;
+
+    // ── STEP 5: Fix repetition with proportional caps ──
+    setBusyLabel('Polish: Fixing repetition…');
+
+    // For anthologies, run repetition caps per chapter independently
+    if (isAnthology) {
+      let anthRepFixed = 0;
+      for (const f of loaded) {
+        const chText = f.content;
+        const chWords = chText.split(/\s+/).filter(Boolean).length;
+        const chTargets = [
+          { pattern: /\bthe loop\b/gi, name: 'the loop', maxTotal: 3, replacements: ['the cycle','the recursion','the reset','the pattern','the repetition','the temporal fold','it'] },
+          { pattern: /\bshuddered\b/gi, name: 'shuddered', maxTotal: 2, replacements: ['trembled','flinched','stiffened','shook','went rigid'] },
+          { pattern: /\bthe silence\b/gi, name: 'the silence', maxTotal: 2, replacements: ['the quiet','the stillness','the hush','the dead air'] },
+          { pattern: /\bthe bond\b/gi, name: 'the bond', maxTotal: 2, replacements: ['the link','the tether','the connection','the thread','it'] },
+          { pattern: /\bthe darkness\b/gi, name: 'the darkness', maxTotal: 2, replacements: ['the gloom','the shadow','the black','the dark'] },
+          { pattern: /\bwhispered\b/gi, name: 'whispered', maxTotal: 3, replacements: ['murmured','breathed','said softly'] },
+          { pattern: /\bexhaled\b/gi, name: 'exhaled', maxTotal: 2, replacements: ['breathed out','let out a breath','released a breath'] },
+          { pattern: /\bclenched\b/gi, name: 'clenched', maxTotal: 3, replacements: ['tightened','curled','balled','gripped'] },
+          { pattern: /\bthe scent of\b/gi, name: 'the scent of', maxTotal: 2, replacements: ['the smell of','the odor of','the tang of'] },
+          { pattern: /\beyes met\b/gi, name: 'eyes met', maxTotal: 2, replacements: ['gazes locked','gazes caught'] },
+          { pattern: /\bsuddenly\b/gi, name: 'suddenly', maxTotal: 2, replacements: [] },
+          { pattern: /\bsomehow\b/gi, name: 'somehow', maxTotal: isComedy ? 3 : 1, replacements: [] },
+        ];
+        for (const t of chTargets) {
+          const matches = chText.match(t.pattern);
+          if (!matches || matches.length <= t.maxTotal) continue;
+          const excess = matches.length - t.maxTotal;
+          let instIdx = 0; let chReplaced = 0; let repIdx = 0;
+          f.content = f.content.replace(t.pattern, (match) => {
+            instIdx++;
+            if (instIdx <= t.maxTotal || chReplaced >= excess) return match;
+            chReplaced++; anthRepFixed++;
+            if (t.replacements.length === 0) return '';
+            const rep = t.replacements[repIdx++ % t.replacements.length];
+            return match[0] === match[0].toUpperCase() ? rep.charAt(0).toUpperCase() + rep.slice(1) : rep;
+          });
+          f.content = f.content.replace(/  +/g, ' ');
+          if (chReplaced > 0) changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': replaced ' + chReplaced + 'x "' + t.name + '"');
+        }
+      }
+      var repFixed = anthRepFixed;
+    } else {
+    // Novel mode: global repetition caps (original behavior)
+    const allTextJoined = loaded.map(f => f.content).join('\n\n');
+    const targets = [
+      { pattern: /\bthe loop\b/gi, name: 'the loop', maxTotal: Math.max(20, chapterCount * 1), replacements: ['the cycle','the recursion','the reset','the pattern','the repetition','the temporal fold','it'] },
+      { pattern: /\bshuddered\b/gi, name: 'shuddered', maxTotal: Math.max(6, chapterCount * 0.3), replacements: ['trembled','flinched','stiffened','shook','went rigid'] },
+      { pattern: /\bthe silence\b/gi, name: 'the silence', maxTotal: Math.max(8, chapterCount * 0.4), replacements: ['the quiet','the stillness','the hush','the dead air'] },
+      { pattern: /\bthe bond\b/gi, name: 'the bond', maxTotal: Math.max(8, chapterCount * 0.4), replacements: ['the link','the tether','the connection','the thread','it'] },
+      { pattern: /\bthe darkness\b/gi, name: 'the darkness', maxTotal: Math.max(8, chapterCount * 0.4), replacements: ['the gloom','the shadow','the black','the dark'] },
+      { pattern: /\bwhispered\b/gi, name: 'whispered', maxTotal: Math.max(12, chapterCount * 0.5), replacements: ['murmured','breathed','said softly'] },
+      { pattern: /\bexhaled\b/gi, name: 'exhaled', maxTotal: Math.max(6, chapterCount * 0.3), replacements: ['breathed out','let out a breath','released a breath'] },
+      { pattern: /\bclenched\b/gi, name: 'clenched', maxTotal: Math.max(10, chapterCount * 0.5), replacements: ['tightened','curled','balled','gripped'] },
+      { pattern: /\bthe scent of\b/gi, name: 'the scent of', maxTotal: Math.max(6, chapterCount * 0.3), replacements: ['the smell of','the odor of','the tang of'] },
+      { pattern: /\beyes met\b/gi, name: 'eyes met', maxTotal: Math.max(6, chapterCount * 0.3), replacements: ['gazes locked','gazes caught'] },
+      { pattern: /\bsuddenly\b/gi, name: 'suddenly', maxTotal: Math.max(6, chapterCount * 0.3), replacements: [] },
+      { pattern: /\bsomehow\b/gi, name: 'somehow', maxTotal: Math.max(isComedy ? 12 : 4, chapterCount * (isComedy ? 0.6 : 0.2)), replacements: [] },
+    ];
+
+    let repFixed = 0;
+    for (const t of targets) {
+      const total = (allTextJoined.match(t.pattern) || []).length;
+      const cap = Math.round(t.maxTotal);
+      console.log('[POLISH] "' + t.name + '": ' + total + 'x (cap ' + cap + ')');
+      if (total <= cap) continue;
+      const excess = total - cap;
+      let replaced = 0;
+
+      const chCounts = loaded.map((f, idx) => ({ idx, count: (f.content.match(t.pattern) || []).length })).sort((a, b) => b.count - a.count);
+      for (const cc of chCounts) {
+        if (replaced >= excess) break;
+        if (cc.count <= 1) continue;
+        const f = loaded[cc.idx];
+        let instIdx = 0;
+        let chReplaced = 0;
+        const maxThis = Math.min(cc.count - 1, excess - replaced);
+        let repIdx = 0;
+
+        f.content = f.content.replace(t.pattern, (match) => {
+          instIdx++;
+          if (instIdx <= 1 || chReplaced >= maxThis) return match;
+          chReplaced++; replaced++; repFixed++;
+          if (t.replacements.length === 0) return '';
+          const rep = t.replacements[repIdx++ % t.replacements.length];
+          return rep === '' ? '' : (match[0] === match[0].toUpperCase() ? rep.charAt(0).toUpperCase() + rep.slice(1) : rep);
+        });
+
+        if (chReplaced > 0) {
+          f.content = f.content.replace(/  +/g, ' ');
+          changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': replaced ' + chReplaced + 'x "' + t.name + '"');
+          console.log('[POLISH] Ch.' + (f.chapter.chapter_number || '?') + ': ' + chReplaced + 'x "' + t.name + '"');
+        }
+      }
+    }
+    } // end novel-mode repetition block
+    setBusyLabel(`Polish: Fixed ${repFixed} reps. Capping dialogue tags…`);
+
+    // ── STEP 5b: Dialogue tag + action beat caps + breath-stem cap ──
+    const dialogueResult = isAnthology
+      ? runPerChapter(loaded, (l, prog) => runDialogueTagCaps(l, prog), [setBusyLabel])
+      : runDialogueTagCaps(loaded, setBusyLabel);
+    changes.push(...dialogueResult.changes);
+
+    // ── STEP 5c: Coping mechanism / recurring action caps ──
+    const copingResult = isAnthology
+      ? runPerChapter(loaded, (l, prog) => runCopingMechanismCaps(l, prog), [setBusyLabel])
+      : runCopingMechanismCaps(loaded, setBusyLabel);
+    changes.push(...copingResult.changes);
+
+    // ── STEP 5d: Broken sentence artifact fixes ──
+    const brokenResult = runBrokenSentenceFixes(loaded, setBusyLabel);
+    changes.push(...brokenResult.changes);
+
+    // ── STEP 6: Dynamic high-frequency phrase detection ──
+    // For anthologies, skip cross-chapter phrase detection — each story is independent
+    if (!isAnthology) {
+    const updatedText = loaded.map(f => f.content).join('\n\n');
+    const phraseCounts = {};
+    const wordList = updatedText.toLowerCase().split(/\s+/);
+    for (let i = 0; i < wordList.length - 1; i++) {
+      const w1 = wordList[i].replace(/[^a-z]/g, '');
+      const w2 = wordList[i + 1].replace(/[^a-z]/g, '');
+      if (w1.length < 3 || w2.length < 3) continue;
+      const p = w1 + ' ' + w2;
+      const skip = ['of the','in the','to the','on the','at the','and the','for the','was the','from the','with the','into the','that the','but the','had been','would be','could be','did not','was not','had not','she had','he had','she was','he was','her eyes','his eyes','she said','he said','they had','it was','there was','back to','out of','up to','one of','down the','through the','over the','around the','about the','under the','after the','before the','between the','across the','along the','toward the','against the','looked at','turned to','moved to','went to','came to','not the','all the','like the','than the','just the','even the','only the','the floor','the door','the wall','the room','the air','the light','the dark','the ground','the table','the chair','the bed','the window','the screen','the glass','the metal','the stone','the water','the fire','the sky','the sun','the rain','the wind','the night','the day','the street','the road','the car','the building','the house','the city','the man','the woman','the girl','the boy','the child','the old','the other','the first','the last','the next','the same','the new','the only','the whole','the entire','the rest','the end','the top','the bottom','the side','the back','the front','the edge','the center','the hand','the head','the face','the body','the eyes','the mouth','the voice','the sound','the noise','the word','the words','the name','they were','they had','she could','he could','she would','he would','they could','they would','she did','he did','she went','he went','could not','would not','did not','had not','was not','were not','might be','must be','should be','will be','can be','the left','the right','the north','the south','the east','the west','the corner','the hall','the corridor','the stairs','the ceiling','the passage','the entrance','the exit'];
+      if (skip.includes(p)) continue;
+      phraseCounts[p] = (phraseCounts[p] || 0) + 1;
+    }
+    const phraseThreshold = Math.max(chapterCount * 6, 80);
+    const highFreq = Object.entries(phraseCounts).filter(([, c]) => c > phraseThreshold).sort((a, b) => b[1] - a[1]).slice(0, 15);
+    for (const [phrase, count] of highFreq) changes.push('⚠️ "' + phrase + '" appears ' + count + 'x (threshold: ' + phraseThreshold + ')');
+    } // end novel-mode phrase detection
+
+    // ── STEP 7: AI-favorite vocabulary frequency caps ──
+    const vocabResult = isAnthology
+      ? runPerChapter(loaded, (l, prog, opts) => runVocabCaps(l, prog, opts), [setBusyLabel, { project }])
+      : runVocabCaps(loaded, setBusyLabel, { project });
+    changes.push(...vocabResult.changes);
+
+    // ── STEP 7b: ChatGPT vocabulary contamination caps (ALL project types) ──
+    const chatgptResult = isAnthology
+      ? runPerChapter(loaded, (l, prog) => runChatGPTVocabCaps(l, prog), [setBusyLabel])
+      : runChatGPTVocabCaps(loaded, setBusyLabel);
+    changes.push(...chatgptResult.changes);
+
+    // ── STEP 8: Anti-AI Detection (triplets, parallel sentences, staccato, metaphors, coping) ──
+    const antiDetect = isAnthology ? runPerChapter(loaded, (l, prog) => runAntiDetectionPolish(l, prog, { project }), [setBusyLabel]) : runAntiDetectionPolish(loaded, setBusyLabel, { project });
+    changes.push(...antiDetect.changes);
+    const starterResult = runSentenceStarterVariation(loaded, setBusyLabel); // Step 9: Starters
+    changes.push(...starterResult.changes);
+    const aiResist = runAiDetectionResistance(loaded, setBusyLabel); // Step 10: Burstiness/predictability
+    changes.push(...aiResist.changes);
+
+    // ── STEP 10b: Scene duplicate / alternate-draft sweep ──
+    // This structural pass must run BEFORE style-tic cleanup. If the app
+    // accidentally stitched multiple alternate takes of the same scene into a
+    // chapter, phrase-level polish will only make duplicated story material
+    // prettier. This pass removes only high-confidence later duplicate blocks
+    // and reports medium-confidence candidates without changing them.
+    setBusyLabel('Polish: Running scene duplicate sweep…');
+    const sceneDuplicateResult = runSceneDuplicateSweep(loaded, setBusyLabel, {
+      project,
+      isAnthology,
+      chapterCount,
+      // Anthologies are separate stories. The helper already avoids cross-
+      // chapter removal, but this keeps the report intent explicit.
+      allowCrossChapterRemoval: false,
+      reportCrossChapterOnly: true,
+      // v14: the real manuscript cleanup belongs here, not in export.
+      // These thresholds are still conservative but strong enough to catch
+      // stacked alternate-draft blocks inside the same chapter.
+      highConfidenceThreshold: 0.42,
+      mediumConfidenceThreshold: 0.36,
+      maxRemovalRatioPerChapter: 0.58,
+      maxBlocksRemovedPerChapter: 10,
+    });
+    changes.push(sceneDuplicateResult.summary);
+    changes.push(...(sceneDuplicateResult.changes || []));
+    const sceneDuplicateBlocksRemoved = sceneDuplicateResult.blocksRemoved || 0;
+    const sceneDuplicateWordsRemoved = sceneDuplicateResult.wordsRemoved || 0;
+    const sceneDuplicateChaptersChanged = Array.isArray(sceneDuplicateResult.changedChapters)
+      ? sceneDuplicateResult.changedChapters.length
+      : (sceneDuplicateResult.changedChapterCount || 0);
+    const sceneDuplicateReportedOnly = sceneDuplicateResult.reportedOnly || 0;
+    const sceneDuplicateSkippedUnsafe = sceneDuplicateResult.skippedUnsafe || 0;
+
+    // ── STEP 10c: Manuscript-wide style tic / repetition sweep ──
+    // Conservative deterministic pass. It mutates `loaded` in place like the
+    // rest of the polish helpers, but it does not rewrite scenes or flatten
+    // authorial voice. It targets known cross-chapter prose tics and safe
+    // malformed grammar artifacts that survived earlier gates.
+    setBusyLabel('Polish: Running style tic sweep…');
+    const styleTicResult = runStyleTicSweep(loaded, setBusyLabel, {
+      project,
+      isAnthology,
+      chapterCount,
+    });
+    changes.push(styleTicResult.summary);
+    changes.push(...(styleTicResult.changes || []));
+    const styleTicFixed = styleTicResult.styleTicFixed || 0;
+    const styleTicGrammarFixed = styleTicResult.grammarArtifactsFixed || 0;
+    const styleTicFamiliesFound = styleTicResult.repeatedTicFamiliesFound || 0;
+    const styleTicChaptersChanged = styleTicResult.changedChapterCount || 0;
+
+    // ── STEP 11: Deterministic final cleanup stack ──
+    // SAFE MODE: the previous cleanup order ran artifact/quote repair twice and
+    // reinforced bad dialogue clusters. This pass is intentionally narrower:
+    // 1) safe artifact cleanup only;
+    // 2) safe quote repair v7 survivor-safe only;
+    // 3) canon-name lock after text settles;
+    // 4) one final safe artifact pass for name-adjacent/mechanical crumbs.
+    // No second quote rewrite pass. Quote v7 reports unresolved paragraphs instead
+    // of guessing and mutating good dialogue.
+    setBusyLabel('Polish: Cleaning deterministic artifacts safely…');
+    const artifactPreQuoteResult = repairLoadedManuscriptArtifacts(loaded, { project, forceSongbirdAliases: true });
+    changes.push(...artifactPreQuoteResult.changes);
+
+    setBusyLabel('Polish: Fixing quotation boundaries safely…');
+    const quoteResult = fixHangingQuotes(loaded);
+    changes.push(...quoteResult.changes);
+    let quotesFixed = quoteResult.quotesFixed;
+
+    setBusyLabel('Polish: Locking canon names…');
+    let canonNamesFixed = 0;
+    for (const f of loaded) {
+      const canonRepair = repairCanonNameDrift(f.content || '', { project, chapter: f.chapter, chapters });
+      if (canonRepair.changed) {
+        f.content = canonRepair.text;
+        canonNamesFixed += canonRepair.repairs.length || 1;
+        changes.push('Ch.' + (f.chapter?.chapter_number || '?') + ': canon-name lock repaired ' + canonRepair.repairs.join('; '));
+      }
+      const hardAliasRepair = forceSongbirdAliasRepairText(f.content || '', { project });
+      if (hardAliasRepair.changed) {
+        f.content = hardAliasRepair.text;
+        canonNamesFixed += hardAliasRepair.repairs.length || 1;
+        changes.push('Ch.' + (f.chapter?.chapter_number || '?') + ': Songbird hard-alias fallback repaired ' + hardAliasRepair.repairs.join('; '));
+      }
+    }
+
+    setBusyLabel('Polish: Final safe mechanical cleanup…');
+    const artifactResult = repairLoadedManuscriptArtifacts(loaded, { project, forceSongbirdAliases: true });
+    changes.push(...artifactResult.changes);
+
+    // v10: run the hard alias fallback one more time after final artifact cleanup.
+    // This catches any artifact pass that normalizes text after the earlier canon step.
+    for (const f of loaded) {
+      const hardAliasRepair = forceSongbirdAliasRepairText(f.content || '', { project });
+      if (hardAliasRepair.changed) {
+        f.content = hardAliasRepair.text;
+        changes.push('Ch.' + (f.chapter?.chapter_number || '?') + ': final Songbird hard-alias fallback repaired ' + hardAliasRepair.repairs.join('; '));
+      }
+    }
+
+    // ── STEP 11b: ABSOLUTE FINAL STRUCTURE QUARANTINE BEFORE SAVE ──
+    // This is intentionally repeated right before persistence. If any earlier
+    // polish pass preserved or reintroduced stacked alternate-draft material,
+    // this is the final source-of-truth cleanup before the chapter body is written
+    // back to DB/GitHub. This is the pass that should make export match polish.
+    setBusyLabel('Polish: Final structure quarantine before save…');
+    let finalStructureBlocksRemoved = 0;
+    let finalStructureWordsRemoved = 0;
+    let finalStructureChaptersChanged = 0;
+    for (const f of loaded) {
+      const beforeFinalStructure = String(f.content || '');
+      const finalStructure = runSceneDuplicateSweep.applyStrandedAlternateDraftQuarantine(beforeFinalStructure);
+      if (finalStructure.text !== beforeFinalStructure) {
+        const beforeWords = countWords(beforeFinalStructure);
+        const afterWords = countWords(finalStructure.text || '');
+        f.content = finalStructure.text;
+        finalStructureChaptersChanged += 1;
+        finalStructureBlocksRemoved += finalStructure.changes.length || 1;
+        finalStructureWordsRemoved += Math.max(0, beforeWords - afterWords);
+        const chNum = f.chapter?.chapter_number || '?';
+        console.warn('[FINAL-STRUCTURE-GATE] Ch.' + chNum + ' removed ' + (finalStructure.changes.length || 1) + ' stranded alternate block(s), approx ' + Math.max(0, beforeWords - afterWords) + ' words.');
+        for (const c of (finalStructure.changes || []).slice(0, 4)) {
+          changes.push('Final Structure Gate Ch.' + chNum + ': ' + c.reason + ' (~' + c.words + ' words).');
+        }
+      }
+    }
+    if (finalStructureBlocksRemoved > 0) {
+      changes.push('Final Structure Gate: removed ' + finalStructureBlocksRemoved + ' stranded alternate-draft block(s) from ' + finalStructureChaptersChanged + ' chapter(s), approx ' + finalStructureWordsRemoved + ' words.');
+    } else {
+      changes.push('Final Structure Gate: no additional stranded alternate-draft blocks found at save time.');
+    }
+
+    // ── STEP 12a: Deterministic grammar repair ──
+    setBusyLabel('Polish: Deterministic grammar repair…');
+    let grammarRepairCount = 0;
+    for (const f of loaded) {
+      const grammarResult = runDeterministicGrammarRepair(f.content || '');
+      if (grammarResult.repairs.length > 0) {
+        f.content = grammarResult.text;
+        grammarRepairCount += grammarResult.repairs.length;
+        const chNum = f.chapter?.chapter_number || '?';
+        for (const r of grammarResult.repairs) {
+          changes.push(`Ch.${chNum}: grammar repair "${r.original}" → "${r.replacement}"`);
+          console.log(`[POLISH] Ch.${chNum}: grammar repair "${r.original}" → "${r.replacement}"`);
+        }
+      }
+    }
+    if (grammarRepairCount > 0) {
+      changes.push(`Grammar repair: fixed ${grammarRepairCount} issue(s).`);
+    }
+
+    // ── STEP 12b: Missing opening quote repair ──
+    setBusyLabel('Polish: Repairing missing opening quotes…');
+    let quoteRepairCount = 0;
+    for (const f of loaded) {
+      const quoteResult = repairMissingOpeningQuotes(f.content || '');
+      if (quoteResult.repairs.length > 0) {
+        f.content = quoteResult.text;
+        quoteRepairCount += quoteResult.repairs.length;
+        const chNum = f.chapter?.chapter_number || '?';
+        for (const r of quoteResult.repairs) {
+          changes.push(`Ch.${chNum}: missing opening quote repaired`);
+          console.log(`[POLISH] Ch.${chNum}: missing opening quote repaired: ${r.original.substring(0, 60)}`);
+        }
+      }
+    }
+    if (quoteRepairCount > 0) {
+      changes.push(`Quote repair: fixed ${quoteRepairCount} missing opening quote(s).`);
+    }
+
+    // ── STEP 12b-1: Dialogue mechanics repair (profile-aware) ──
+    setBusyLabel('Polish: Repairing dialogue mechanics…');
+    let dialogueRepairCount = 0;
+    let dialogueManualReviewCount = 0;
+    for (const f of loaded) {
+      try {
+        // Profile-aware: skip dialogue repair for project types that don't have dialogue
+        if (!shouldRunDialogueRepair(f.content || '', project)) {
+          continue;
+        }
+        const dmResult = runDialogueMechanicsPass(f.content || '', {});
+        if (dmResult.repairs.length > 0) {
+          f.content = dmResult.text;
+          dialogueRepairCount += dmResult.repairs.length;
+          dialogueManualReviewCount += (dmResult.manualReview || []).length;
+          const chNum = f.chapter?.chapter_number || '?';
+          changes.push(`Ch.${chNum}: dialogue mechanics — ${dmResult.repairs.length} missing opener(s) repaired (${dmResult.beforeCount} → ${dmResult.afterCount})`);
+          console.log(`[POLISH] Ch.${chNum}: dialogue mechanics repaired ${dmResult.repairs.length} issues`);
+        }
+      } catch (dmErr) {
+        console.warn('[POLISH] Dialogue mechanics pass error:', dmErr?.message);
+      }
+    }
+    if (dialogueRepairCount > 0) {
+      changes.push(`Dialogue mechanics: fixed ${dialogueRepairCount} issue(s), ${dialogueManualReviewCount} flagged for manual review.`);
+    }
+
+    // ── STEP 12b-1b: Mid-paragraph dialogue autofix (profile-aware, confidence-scored) ──
+    setBusyLabel('Polish: Fixing mid-paragraph dialogue quotes…');
+    let midParaAutoFixCount = 0;
+    let midParaManualReviewCount = 0;
+    for (const f of loaded) {
+      try {
+        if (!shouldRunDialogueRepair(f.content || '', project)) {
+          continue;
+        }
+        const mpResult = runMidParagraphDialogueAutofixPass(f.content || '', {});
+        if (mpResult.midParagraphAutoFixed > 0) {
+          f.content = mpResult.text;
+          midParaAutoFixCount += mpResult.midParagraphAutoFixed;
+          midParaManualReviewCount += mpResult.midParagraphManualReview;
+          const chNum = f.chapter?.chapter_number || '?';
+          changes.push(`Ch.${chNum}: mid-paragraph dialogue — ${mpResult.midParagraphAutoFixed} auto-fixed, ${mpResult.midParagraphManualReview} manual-review`);
+          console.log(`[POLISH] Ch.${chNum}: mid-paragraph dialogue ${mpResult.midParagraphAutoFixed} auto-fixed`);
+        }
+      } catch (mpErr) {
+        console.warn('[POLISH] Mid-paragraph dialogue autofix error:', mpErr?.message);
+      }
+    }
+    if (midParaAutoFixCount > 0) {
+      changes.push(`Mid-paragraph dialogue: ${midParaAutoFixCount} auto-fixed, ${midParaManualReviewCount} flagged for manual review.`);
+    }
+
+    // ── STEP 12b-2: AI-slop reduction (profile-aware) ──
+    setBusyLabel('Polish: Reducing AI-slop patterns…');
+    let slopRepairCount = 0;
+    let slopFlaggedCount = 0;
+    for (const f of loaded) {
+      try {
+        // Profile-aware: skip AI-slop reduction for conservative project types
+        if (!shouldRunAISlopReduction(project)) {
+          continue;
+        }
+        const slopResult = runAISlopReductionPass(f.content || '', {});
+        if (slopResult.repairs.length > 0 || slopResult.improved) {
+          f.content = slopResult.text;
+          slopRepairCount += slopResult.repairs.length;
+          slopFlaggedCount += (slopResult.flaggedForLLM || []).length;
+          const chNum = f.chapter?.chapter_number || '?';
+          changes.push(`Ch.${chNum}: AI-slop reduction — ${slopResult.repairs.length} recast(s) (${slopResult.beforeTotal} → ${slopResult.afterTotal} slop hits)`);
+          console.log(`[POLISH] Ch.${chNum}: AI-slop reduced ${slopResult.beforeTotal} → ${slopResult.afterTotal}`, {
+            repairs: slopResult.repairs.length,
+            flagged: slopResult.flaggedForLLM?.length || 0,
+          });
+        }
+      } catch (slopErr) {
+        console.warn('[POLISH] AI-slop reduction pass error:', slopErr?.message);
+      }
+    }
+    if (slopRepairCount > 0) {
+      changes.push(`AI-slop reduction: ${slopRepairCount} recast(s), ${slopFlaggedCount} flagged for LLM.`);
+    }
+
+    // ── STEP 12b-3: Improvement scoring ──
+    setBusyLabel('Polish: Computing improvement scores…');
+    const improvementReports = [];
+    for (const f of loaded) {
+      try {
+        const chNum = f.chapter?.chapter_number || '?';
+        const scoring = runPolishImprovementScoring(f.original || '', f.content || '', { chapterNumber: chNum });
+        improvementReports.push(scoring);
+        console.log(`[POLISH-SCORE] Ch.${chNum}: verdict=${scoring.verdict} improved=${scoring.improved}`, {
+          malformed: `${scoring.before.malformed}→${scoring.after.malformed}`,
+          dialogue: `${scoring.before.dialogueIssues}→${scoring.after.dialogueIssues}`,
+          slop: `${scoring.before.slopTotal}→${scoring.after.slopTotal}`,
+          words: `${scoring.before.wordCount}→${scoring.after.wordCount}`,
+        });
+      } catch (scoreErr) {
+        console.warn('[POLISH-SCORE] Scoring error:', scoreErr?.message);
+      }
+    }
+    // Store for dev inspection
+    if (typeof window !== 'undefined') {
+      window.__UBS_LAST_POLISH_REPORT = {
+        timestamp: new Date().toISOString(),
+        chapters: improvementReports,
+        dialogueRepairs: dialogueRepairCount,
+        slopRepairs: slopRepairCount,
+        grammarRepairs: grammarRepairCount,
+        quoteRepairs: quoteRepairCount,
+      };
+    }
+
+    // ── STEP 12b-3b: Reference integrity (auto-detect) ──
+    // For fiction: only runs if the manuscript actually contains reference
+    // sections (Bibliography, Sources, etc.) or inline citations.
+    // For nonfiction-routed projects this step is redundant (NF handler runs it)
+    // but harmless — shouldRunReferenceIntegrity checks the profile.
+    const refCheckText = loaded.map(f => f.content).join('\n\n');
+    if (shouldRunReferenceIntegrity(refCheckText, project)) {
+      setBusyLabel('Polish: Running reference integrity check…');
+      const refReport = runReferenceIntegrityGate(refCheckText, project);
+      if (typeof window !== 'undefined') {
+        window.__UBS_LAST_REFERENCE_REPORT = refReport;
+        console.log('[POLISH-REF-GATE] Reference integrity report stored at window.__UBS_LAST_REFERENCE_REPORT');
+        console.log('[POLISH-REF-GATE]', refReport.summary);
+      }
+      if (!refReport.ok) {
+        changes.push('⚠️ Reference integrity: ' + refReport.summary);
+      } else if (refReport.warnings.length > 0) {
+        changes.push('Reference integrity: ' + refReport.summary);
+      } else if (refReport.sections.length > 0) {
+        changes.push('✅ Reference integrity: PASS — ' + refReport.summary);
+      }
+    }
+
+    setBusyLabel('Polish: Running post-polish quality gate…');
+    const polishGateFailures = [];
+    for (const f of loaded) {
+      const chNum = f.chapter?.chapter_number || '?';
+      const gate = runProsePolishQualityGate(f.content || '', {
+        chapterNumber: chNum,
+        stage: 'post-polish',
+      });
+      if (!gate.ok) {
+        const failEntry = {
+          chapter: chNum,
+          action: gate.recommendedAction,
+          malformed: gate.malformed.count,
+          quoteIssues: gate.quoteIssues.count,
+          slopTotal: gate.slopCounts.total,
+          snippets: gate.malformed.matches.slice(0, 3).map(m => m.match),
+        };
+        polishGateFailures.push(failEntry);
+        console.warn(`[POLISH-GATE] Ch.${chNum}: ${gate.recommendedAction} (malformed=${gate.malformed.count}, quotes=${gate.quoteIssues.count}, slop=${gate.slopCounts.total})`);
+        changes.push(`Post-polish gate Ch.${chNum}: ${gate.recommendedAction} — ${gate.malformed.count} malformed, ${gate.quoteIssues.count} quote issues, ${gate.slopCounts.total} slop`);
+      }
+    }
+    if (polishGateFailures.length > 0) {
+      const blockCount = polishGateFailures.filter(f => f.action === 'BLOCK_POLISH_SAVE').length;
+      if (blockCount > 0) {
+        const blockChapters = polishGateFailures.filter(f => f.action === 'BLOCK_POLISH_SAVE').map(f => f.chapter).join(', ');
+        console.error(`[POLISH-GATE] BLOCKED: ${blockCount} chapter(s) failed post-polish quality gate: Ch.${blockChapters}`);
+        toast.error(`Polish quality gate BLOCKED ${blockCount} chapter(s): Ch.${blockChapters}. Malformed grammar or quote issues detected after all repairs.`);
+
+        // ── HARDFIX v2: Smart partial-repair handling ──
+        // Instead of reverting ALL blocked chapters (which discards valid repairs),
+        // compare malformed counts before and after repair. If repair improved the
+        // chapter, SAVE the improved text. Only revert if repair made no improvement.
+        const blockedChapterNums = new Set(polishGateFailures.filter(f => f.action === 'BLOCK_POLISH_SAVE').map(f => f.chapter));
+        for (const f of loaded) {
+          const chNum = f.chapter?.chapter_number || 0;
+          if (!blockedChapterNums.has(chNum)) continue;
+
+          // Check if repairs improved this chapter
+          const originalGate = runProsePolishQualityGate(f.original || '');
+          const repairedGate = runProsePolishQualityGate(f.content || '');
+          const originalMalformed = originalGate.malformed.count;
+          const repairedMalformed = repairedGate.malformed.count;
+          const textChanged = f.content !== f.original;
+
+          if (textChanged && repairedMalformed < originalMalformed) {
+            // Repairs improved the chapter — SAVE the improved text
+            console.warn(`[POLISH-GATE] Ch.${chNum}: keeping partially-repaired text (malformed: ${originalMalformed} → ${repairedMalformed}). Remaining issues need manual review.`);
+            changes.push(`⚠️ Ch.${chNum}: saved with partial repairs (${originalMalformed - repairedMalformed} fixed, ${repairedMalformed} remaining). Manual review needed.`);
+            // Log remaining issues for manual review
+            for (const m of repairedGate.malformed.matches) {
+              console.warn(`[POLISH-GATE] Ch.${chNum}: remaining issue [${m.pattern}] "${m.match}" at L${m.line}`);
+            }
+            // DON'T revert — let the improved text be saved
+          } else {
+            // Repairs made no improvement or text unchanged — revert
+            console.error(`[POLISH-GATE] Ch.${chNum}: reverting to original (BLOCK_POLISH_SAVE). No improvement from repairs (malformed: ${originalMalformed} → ${repairedMalformed}).`);
+            changes.push(`🚫 Ch.${chNum}: polish BLOCKED — reverting to original content.`);
+            f.content = f.original; // revert so save loop skips it
+          }
+        }
+      }
+      // Store gate results for debugging
+      window.__UBS_LAST_POLISH_GATE = polishGateFailures;
+    } else {
+      changes.push('Post-polish gate: all chapters PASS.');
+    }
+
+    // ── STEP 13: Save modified chapters ──
+    let _polishChangedCount = loaded.filter(f => f.content !== f.original).length;
+    console.warn('[POLISH-DEBUG] SAVE PHASE: ' + _polishChangedCount + '/' + loaded.length + ' chapters have changes to save');
+    if (_polishChangedCount === 0) {
+      console.warn('[POLISH-DEBUG] WARNING: Zero chapters changed. Either content was already clean OR polish functions did not modify f.content references.');
+    }
+    setBusyLabel('Polish: Saving ' + _polishChangedCount + ' chapters…');
+    let savedCount = 0;
+    let unchangedCount = 0;
+    const saveFailures = [];  // Track chapters whose post-save verification doesn't match
+
+    for (let i = 0; i < loaded.length; i++) {
+      const f = loaded[i];
+      const chNum = f.chapter.chapter_number || (i + 1);
+      if (f.content === f.original) { unchangedCount++; continue; }
+      setBusyLabel(`Polish: Saving chapter ${chNum} (${savedCount + 1}/${_polishChangedCount})…`);
+
+      try {
+        // prepareChapterContent may upload content as a file (when >10KB).
+        // Uploads can fail on large chapters due to rate limits, network
+        // blips, or transient 5xx errors. Keep both the upload AND the
+        // entity update inside the try/catch so failures on one chapter
+        // don't kill the whole polish run. Retry uploads up to 2 times.
+        let contentFields;
+        let uploadAttempts = 0;
+        const MAX_UPLOAD_ATTEMPTS = 3;
+        while (true) {
+          uploadAttempts++;
+          try {
+            contentFields = await prepareChapterContent(f.content, project?.id || projectId, f.chapter.id, f.chapter);
+            break;
+          } catch (upErr) {
+            console.warn('[POLISH-DEBUG] Ch.' + chNum + ' upload attempt ' + uploadAttempts + ' failed:', upErr.message);
+            if (uploadAttempts >= MAX_UPLOAD_ATTEMPTS) throw upErr;
+            await new Promise(r => setTimeout(r, 1000 * uploadAttempts));
+          }
+        }
+        const backupFields = f.chapter.backup_content || f.chapter.backup_content_url
+          ? {}
+          : await prepareBackupContent(f.original, project?.id || projectId, f.chapter.id, f.chapter);
+        console.warn('[POLISH-DEBUG] Ch.' + chNum + ' SAVING: inline=' + (contentFields.content_md?.length || 0) + ' url=' + (contentFields.content_md_url || 'none') + ' (upload attempts: ' + uploadAttempts + ')');
+
+        const polishSourceStamp = `[POLISH-SOURCE-STAMP] ${PROJECT_STUDIO_VERSION} ${new Date().toISOString()} Ch.${chNum} len=${f.content.length} words=${countWords(f.content)} FinalStruct=${finalStructureBlocksRemoved}/${finalStructureWordsRemoved}`;
+        const revisionNotes = [f.chapter.revision_notes || '', polishSourceStamp]
+          .filter(Boolean)
+          .join('\n')
+          .slice(-8000);
+
+        // Clear stale content fields so export doesn't resolve old pre-polish text.
+        // Same strategy as safeReplaceChapterContent() — belt-and-suspenders safety.
+        const staleClear = {};
+        for (const staleField of [
+          'content', 'draft', 'body', 'prose', 'finalText', 'cleanedText',
+          'chapter_text', 'markdown', 'content_html', 'content_html_url',
+          'content_delta', 'content_delta_url', '__polishedContent',
+          '__polishSavedContent', '__polishExportContent',
+        ]) {
+          staleClear[staleField] = '';
+        }
+
+        const savePayload = {
+          ...staleClear,          // Clear stale fields first
+          ...contentFields,       // Then set canonical content (content_md / content_md_url)
+          ...backupFields,
+          word_count: countWords(f.content),
+          revision_notes: revisionNotes,
+        };
+
+        await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, savePayload));
+        // Keep the in-memory chapter record aligned with the exact content fields
+        // we just wrote so immediate export cannot accidentally use the stale
+        // pre-polish object from React Query state.
+        f.chapter = { ...f.chapter, ...savePayload };
+        savedCount++;
+
+        // VERIFICATION PASS: read the chapter back from DB and confirm it has
+        // our polished content (not the pre-polish original). This catches the
+        // "save silently didn't persist" bug where uploads were swallowing
+        // their errors and Ch 17 silently kept its pre-polish content.
+        //
+        // Length-alone won't catch all bugs (e.g. dialogue punct fixes swap
+        // chars without changing length). We also compare the count of
+        // broken-dialogue-punct patterns — if polish fixed them but DB still
+        // has them, the save silently failed.
+        try {
+          const verifyRecord = (await base44.entities.Chapter.filter({ id: f.chapter.id }))?.[0];
+          if (verifyRecord) {
+            const verifyContent = await resolveChapterContent(verifyRecord);
+            const verifyLen = verifyContent?.length || 0;
+            const expectedLen = f.content.length;
+            const diffPct = Math.abs(verifyLen - expectedLen) / Math.max(expectedLen, 1);
+
+            // Content-pattern fingerprint: count broken dialogue-punct
+            // patterns that polish should have zeroed out. If polish fixed
+            // them but DB still has them, the save silently didn't persist.
+            const expectedBrokenPunct = (f.content.match(/[\u201d"][.!?]/g) || []).length;
+            const actualBrokenPunct = (verifyContent?.match(/[\u201d"][.!?]/g) || []).length;
+            const punctDrift = actualBrokenPunct - expectedBrokenPunct;
+
+            // Source-of-truth verification: after the DB read-back, run the same
+            // final structure quarantine as a detector only. If it would still
+            // remove a block from the DB copy, then export will still be stale/dirty
+            // no matter what the polish report claims. This is the anti-gaslight gate.
+            const verifyStructure = runSceneDuplicateSweep.applyStrandedAlternateDraftQuarantine(String(verifyContent || ''));
+            const verifyStillDirty = verifyStructure.text !== String(verifyContent || '');
+
+            if (diffPct > 0.05) {
+              console.warn('[POLISH-VERIFY] Ch.' + chNum + ' SAVE MISMATCH: expected ' + expectedLen + ' chars, got ' + verifyLen + ' (' + Math.round(diffPct * 100) + '% off).');
+              saveFailures.push({ chNum, expectedLen, actualLen: verifyLen, reason: 'length mismatch' });
+            } else if (punctDrift > 3) {
+              console.warn('[POLISH-VERIFY] Ch.' + chNum + ' CONTENT DRIFT: expected ' + expectedBrokenPunct + ' broken dialog-punct marks, DB has ' + actualBrokenPunct + '. Save did NOT persist polish changes.');
+              saveFailures.push({ chNum, expectedLen, actualLen: verifyLen, reason: 'content drift', punctExpected: expectedBrokenPunct, punctActual: actualBrokenPunct });
+            } else if (verifyStillDirty) {
+              const firstDirty = (verifyStructure.changes || [])[0] || {};
+              console.warn('[POLISH-VERIFY] Ch.' + chNum + ' STRUCTURE STILL DIRTY AFTER SAVE:', verifyStructure.changes);
+              saveFailures.push({
+                chNum,
+                expectedLen,
+                actualLen: verifyLen,
+                reason: 'structure contamination',
+                structureReason: firstDirty.reason || 'final structure gate would still remove content from DB copy',
+                preview: firstDirty.preview || '',
+              });
+            } else {
+              console.warn('[POLISH-VERIFY] Ch.' + chNum + ' verified OK (' + verifyLen + ' chars, ' + actualBrokenPunct + ' broken-punct, structure-clean)');
+            }
+          } else {
+            console.warn('[POLISH-VERIFY] Ch.' + chNum + ' verify failed: record not found in DB');
+          }
+        } catch (verifyErr) {
+          console.warn('[POLISH-VERIFY] Ch.' + chNum + ' verify failed:', verifyErr.message);
+        }
+      } catch (saveErr) {
+        console.error('[POLISH-DEBUG] Ch.' + chNum + ' SAVE THREW:', saveErr.message);
+        saveFailures.push({ chNum, error: saveErr.message });
+      }
+    }
+    console.warn('[POLISH-DEBUG] SAVE COMPLETE: saved=' + savedCount + ' unchanged=' + unchangedCount + ' failures=' + saveFailures.length);
+    if (saveFailures.length > 0) {
+      console.warn('[POLISH-DEBUG] SAVE FAILURES:', saveFailures);
+    }
+
+    // ── Capture AFTER stats for comparison ──
+    const afterStats = calculateManuscriptStats(loaded.map(f => f.content).join('\n\n'), { isComedy });
+    setPolishResults({
+      before: beforeStats,
+      after: afterStats,
+      changes,
+      timestamp: new Date().toISOString(),
+    });
+
+    const anthLine = isAnthology && (anthologyStats.bodyLangFixed || anthologyStats.anthVocabFixed || anthologyStats.contaminationFixed || anthologyStats.genreVocabFixed) ? ` | Anth: BL${anthologyStats.bodyLangFixed}/V${anthologyStats.anthVocabFixed}/C${anthologyStats.contaminationFixed}/G${anthologyStats.genreVocabFixed}` : '';
+
+    // Surface missing-noun warnings in the Polish report so authors can review
+    // the flagged sites manually — we flag only, never auto-fix these.
+    const warningBlock = missingNounWarnings.length > 0
+      ? '\n\n⚠️ ' + missingNounWarnings.length + ' MISSING-NOUN SITE(S) FLAGGED.\n' +
+        'Open the Polish tab to see the Review Queue with one-click fixes.\n' +
+        missingNounWarnings.slice(0, 3).map(w => `  Ch.${w.chapterNumber}: "${w.pattern}"`).join('\n') +
+        (missingNounWarnings.length > 3 ? `\n  ... and ${missingNounWarnings.length - 3} more.` : '')
+      : '';
+
+    // Surface save-verification failures — tells the user that specific
+    // chapters claimed to save but the verification read-back didn't match.
+    // These are the chapters that will appear unpolished in the export.
+    const saveFailureBlock = saveFailures.length > 0
+      ? '\n\n🚨 SAVE VERIFICATION FAILED for ' + saveFailures.length + ' chapter(s). ' +
+        'These chapters may not reflect polish changes when you export:\n' +
+        saveFailures.slice(0, 5).map(sf => {
+          if (sf.error) return `  Ch.${sf.chNum}: SAVE THREW — ${sf.error}`;
+          if (sf.reason === 'content drift') return `  Ch.${sf.chNum}: saved but DB still has ${sf.punctActual} broken-punct (expected ${sf.punctExpected})`;
+          if (sf.reason === 'structure contamination') return `  Ch.${sf.chNum}: DB still contains alternate-draft structure contamination — ${sf.structureReason || 'dirty source'}${sf.preview ? ` | ${sf.preview}` : ''}`;
+          return `  Ch.${sf.chNum}: DB content (${sf.actualLen} chars) differs from polished content (${sf.expectedLen} chars)`;
+        }).join('\n') +
+        (saveFailures.length > 5 ? `\n  ... and ${saveFailures.length - 5} more.` : '') +
+        '\n\nTry running Polish again. If failures persist, check the browser console for [POLISH-VERIFY] logs.'
+      : '';
+
+    const report = `Polish v6: ${savedCount} saved, ${unchangedCount} unchanged | Banned: -${bannedRemoved} | Cap: ${capFixed}+${capHygieneFixed} | Voice: ${voiceFixed} | Trans: ${transitionFixed} | Dialog: ${dialogPunctFixed} | Filler: ${dialogFillerFixed} | Stack: ${stackingFixed} | Reps: ${repFixed} | SceneDupes: ${sceneDuplicateBlocksRemoved} blocks/${sceneDuplicateWordsRemoved} words/${sceneDuplicateReportedOnly} reported | FinalStruct: ${finalStructureBlocksRemoved}/${finalStructureWordsRemoved} | StyleTic: ${styleTicFixed}/${styleTicFamiliesFound} families | GrammarArtifacts: ${styleTicGrammarFixed} | Vocab: ${vocabResult.vocabCapped} | Quotes: ${quotesFixed} | ExtAI: ${externalPatternsFixed}${anthLine}
+` + changes.join('\n') + warningBlock + saveFailureBlock + (sceneDuplicateChaptersChanged > 0 ? `
+
+Scene Duplicate Sweep changed ${sceneDuplicateChaptersChanged} chapter(s), removed ${sceneDuplicateBlocksRemoved} duplicate block(s), and removed approximately ${sceneDuplicateWordsRemoved} duplicate word(s).` : '') + (sceneDuplicateReportedOnly > 0 ? `
+
+Scene Duplicate Sweep reported ${sceneDuplicateReportedOnly} medium-confidence duplicate candidate(s) without removing them.` : '') + (sceneDuplicateSkippedUnsafe > 0 ? `
+
+Scene Duplicate Sweep skipped ${sceneDuplicateSkippedUnsafe} candidate(s) because safety rules blocked removal.` : '') + (styleTicChaptersChanged > 0 ? `
+
+Style Tic Sweep changed ${styleTicChaptersChanged} chapter(s).` : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n✅ Re-export to get the updated manuscript.' : '');
+
+    toast.info(report, { duration: 30000 });
+
+    } catch (polishError) {
+      console.error('[POLISH] FATAL ERROR:', polishError);
+      toast.error('Polish failed: ' + (polishError.message || 'Unknown error'));
+    } finally {
+      setBusyLabel('');
+      await refreshAll();
+    }
+  };
+
+  // ── SCAN & FIX ALL — calls criticAgent directly, bypasses handleScanChapter ──
+  const handleScanFixAll = async () => {
+    if (!project || busyLabel) return;
+    const allChapters = [...chapters].filter(ch => chapterHasContent(ch)).sort((a, b) => a.chapter_number - b.chapter_number);
+    if (!allChapters.length) { toast.error('No drafted chapters to scan.'); return; }
+    if (!window.confirm(`Scan & Fix all ${allChapters.length} chapters? This runs the Critic Agent on each chapter once. May take several minutes.`)) return;
+
+    captureSnapshot('Scan & Fix All');
+    setBusyLabel('Scanning all chapters…');
+    const results = { succeeded: [], failed: [], unchanged: [], skipped: [], startTime: Date.now() };
+
+    for (let i = 0; i < allChapters.length; i++) {
+      if (stopRequestedRef.current) break;
+      const chapter = allChapters[i];
+      const chapterNum = chapter.chapter_number || (i + 1);
+      setBusyLabel(`Scan & Fix: chapter ${chapterNum} of ${allChapters.length} (${results.succeeded.length} fixed, ${results.unchanged.length} unchanged)`);
+
+      // Skip chapters at max passes
+      if ((chapter.scan_fix_passes || 0) >= 2) {
+        results.skipped.push(chapterNum);
+        continue;
+      }
+
+      try {
+        const currentContent = await resolveChapterContent(chapter);
+        if (!currentContent || currentContent.length < 100) { results.unchanged.push(chapterNum); continue; }
+
+        const protagonistName = extractProtagonistName(project);
+        const pronouns = project.protagonist_pronouns
+          || (detectProtagonistPronouns(project) ? detectProtagonistPronouns(project) + '/' + (detectProtagonistPronouns(project) === 'she' ? 'her' : detectProtagonistPronouns(project) === 'he' ? 'him' : 'them') : 'they/them');
+
+        // Skip cross-chapter context for anthologies — each story is standalone
+        const prevCh = isAnthologyProject(project) ? null : allChapters[i - 1];
+        const nextCh = isAnthologyProject(project) ? null : allChapters[i + 1];
+        const previousEnding = prevCh ? (await resolveChapterContent(prevCh) || '').slice(-400) : '';
+        const nextOpening = nextCh ? (await resolveChapterContent(nextCh) || '').slice(0, 400) : '';
+
+        const criticResponse = await base44.functions.invoke('criticAgent', {
+          chapterText: currentContent,
+          chapterNumber: chapterNum,
+          totalChapters: allChapters.length,
+          protagonistName,
+          protagonistPronouns: pronouns,
+          genre: project.genre || 'fiction',
+          previousChapterEnding: previousEnding,
+          nextChapterOpening: nextOpening,
+        });
+        const criticResult = criticResponse?.data || criticResponse;
+
+        if (criticResult?.success && criticResult?.cleanedText) {
+          const cleaned = criticResult.cleanedText;
+          // Content destruction guard
+          const theyCount = (cleaned.match(/they they/gi) || []).length;
+          const words = cleaned.split(/\s+/);
+          const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+          if (theyCount > 10 || (words.length > 50 && uniqueWords.size / words.length < 0.05)) {
+            console.error('[SCANFIX-ALL] Content destruction Ch.' + chapterNum); results.unchanged.push(chapterNum); continue;
+          }
+          if (cleaned.length < currentContent.length * 0.7) {
+            console.warn('[SCANFIX-ALL] Output too short Ch.' + chapterNum); results.unchanged.push(chapterNum); continue;
+          }
+          if (cleaned.trim() === currentContent.trim()) {
+            results.unchanged.push(chapterNum); continue;
+          }
+          // Save
+          const mScore = mechanicalScore(cleaned);
+          const contentFields = await prepareChapterContent(cleaned, project?.id || projectId, chapter.id, chapter);
+          await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+            ...contentFields,
+            word_count: countWords(cleaned),
+            clean_score: mScore.score,
+            scan_fix_passes: (chapter.scan_fix_passes || 0) + 1,
+            status: 'reviewed',
+          }));
+          results.succeeded.push(chapterNum);
+          console.log('[SCANFIX-ALL] Ch.' + chapterNum + ' fixed:', currentContent.length, '→', cleaned.length);
+        } else {
+          console.warn('[SCANFIX-ALL] Critic returned unsuccessful Ch.' + chapterNum);
+          results.unchanged.push(chapterNum);
+        }
+      } catch (error) {
+        console.error('[SCANFIX-ALL] Ch.' + chapterNum + ' failed:', error.message);
+        results.failed.push({ chapter: chapterNum, error: error.message });
+      }
+      // 3s cooldown between chapters
+      if (i < allChapters.length - 1) await new Promise(r => setTimeout(r, 3000));
+    }
+
+    const elapsed = Math.round((Date.now() - results.startTime) / 1000);
+    const report = `Scan & Fix Complete!\n\n` +
+      `✅ Fixed: ${results.succeeded.length} chapters\n` +
+      `➖ Unchanged: ${results.unchanged.length} chapters\n` +
+      (results.skipped.length ? `⏭️ Skipped (max passes): ${results.skipped.length} chapters\n` : '') +
+      `❌ Failed: ${results.failed.length} chapters\n` +
+      `⏱️ Time: ${Math.floor(elapsed / 60)}m ${elapsed % 60}s` +
+      (results.failed.length ? `\n\nFailed: ${results.failed.map(f => 'Ch.' + f.chapter).join(', ')}` : '');
+    toast.info(report, { duration: 15000 });
+    stopRequestedRef.current = false;
+    setBusyLabel('');
+    await refreshAll();
+  };
+
+  const handleScanAll = async () => {
+    if (!project) return;
+    const drafted = chapters.filter((c) => chapterHasContent(c));
+    if (!drafted.length) return;
+    setBusyLabel('Scanning all chapters…');
+    try {
+    for (const chapter of drafted) {
+      setBusyLabel(`Scanning chapter ${chapter.chapter_number} of ${drafted.length}…`);
+      await handleScanChapter(chapter);
+    }
+    } finally {
+      setBusyLabel('');
+    }
+  };
+
+  const handleGenerateCover = async () => {
+    if (!project) return;
+    setBusyLabel('Generating cover art…');
+    try {
+    const imageResponse = await generateImageWithRetry({
+      prompt: buildCoverPrompt(project),
+      existing_image_urls: [],
+    });
+    const image = unwrapIntegrationResult(imageResponse);
+
+    const _coverPayload = protectedProjectUpdate({
+      cover_image_url: image.url, status: 'ready',
+      phase: project.phase === 'foundation' ? 'drafting' : project.phase,
+    });
+
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _coverPayload));
+    await runWithNetworkRetry(() => base44.entities.CoverArtGallery.create({
+      project_id: project.id, image_url: image.url,
+      prompt_summary: 'Auto-generated from Home tab',
+    }));
+    queryClient.invalidateQueries({ queryKey: ['cover-gallery', project.id] });
+    } finally {
+      setBusyLabel('');
+    }
+    await refreshAll();
+  };
+
+  const handleGenerateCoverWithPrompt = async (customPrompt) => {
+    if (!project) return;
+    setBusyLabel('Generating cover art…');
+    try {
+    const imageResponse = await generateImageWithRetry({
+      prompt: customPrompt,
+      existing_image_urls: [],
+    });
+    const image = unwrapIntegrationResult(imageResponse);
+
+    const _coverPromptPayload = protectedProjectUpdate({
+      cover_image_url: image.url, status: 'ready',
+      phase: project.phase === 'foundation' ? 'drafting' : project.phase,
+    });
+
+    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _coverPromptPayload));
+    await runWithNetworkRetry(() => base44.entities.CoverArtGallery.create({
+      project_id: project.id, image_url: image.url,
+      prompt_summary: 'Custom prompt generation',
+    }));
+    queryClient.invalidateQueries({ queryKey: ['cover-gallery', project.id] });
+    } finally {
+      setBusyLabel('');
+    }
+    await refreshAll();
+  };
+
+  const handleUsePrompt = (prompt) => {
+    updateSettingsDrafts((current) => ({
+      ...current,
+      seed_concept: prompt.content || '',
+      ...(prompt.book_type ? { book_type: prompt.book_type } : {}),
+      ...(prompt.genre ? { genre: prompt.genre } : {}),
+    }));
+    notebookRef.current?.goToTab('setup');
+  };
+
+  const handleChatbotUseIdea = (ideaData) => {
+    // Build seed_concept: premise + story engine (if provided)
+    let concept = ideaData.premise || '';
+    if (ideaData.story_engine) {
+      concept += '\n\nSTORY ENGINE: ' + ideaData.story_engine;
+    }
+    const mapped = {
+      seed_concept: concept,
+      ...(ideaData.book_type ? { book_type: ideaData.book_type } : {}),
+      ...(ideaData.genre ? { genre: ideaData.genre } : {}),
+      ...(ideaData.subgenre ? { subgenre: ideaData.subgenre } : {}),
+      ...(ideaData.targetAudience ? { target_audience: ideaData.targetAudience } : {}),
+      ...(ideaData.pov ? { pov_mode: ideaData.pov } : {}),
+      ...(ideaData.tense ? { tense: ideaData.tense } : {}),
+      ...(ideaData.beatStyle ? { beat_style: ideaData.beatStyle, scene_beat_style: ideaData.beatStyle } : {}),
+      ...(ideaData.storyArcPacing ? { story_arc: ideaData.storyArcPacing } : {}),
+      ...(ideaData.authorVoice && ideaData.authorVoice !== 'Custom / None' ? { author_voice: ideaData.authorVoice } : {}),
+      ...(ideaData.chapterCount ? { chapter_target: Number(ideaData.chapterCount) } : {}),
+      ...(ideaData.spiceLevel !== undefined ? { spice_level: Number(ideaData.spiceLevel) } : {}),
+      ...(ideaData.languageLevel !== undefined ? { language_intensity: Number(ideaData.languageLevel) } : {}),
+      ...(ideaData.violenceLevel !== undefined ? { violence_level: Number(ideaData.violenceLevel) } : {}),
+    };
+    updateSettingsDrafts((current) => ({ ...current, ...mapped }));
+    notebookRef.current?.goToTab('setup');
+  };
+
+  const handleSavePublishSettings = async (publishSettings) => {
+    if (!project) return;
+
+    await saveProject.mutateAsync({ publishSettings });
+  };
+
+  const handleGenerateCopyright = async () => {
+    if (!project || busyLabel) return;
+    setBusyLabel('Copyright: Building page…');
+    try {
+      const copyrightText = buildCopyrightText(project);
+      setBusyLabel('Copyright: Saving front matter…');
+      await saveCopyrightChapter({ project, chapters, copyrightText });
+      setBusyLabel('Copyright: Refreshing project…');
+      toast.success('Copyright page generated as front matter (Chapter 0). Review it in the Chapters tab.');
+    } catch (err) {
+      console.error('[COPYRIGHT] Failed:', err);
+      toast.error('Copyright page failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setBusyLabel('');
+      await refreshAll();
+    }
+  };
+
+  const handleGenerateBibliography = async () => {
+    if (!project || busyLabel) return;
+    setBusyLabel('Bibliography: Loading chapters…');
+    try {
+      const bibText = await generateBibliography({
+        project,
+        chapters,
+        onProgress: (label) => setBusyLabel(label),
+      });
+      setBusyLabel('Bibliography: Saving back matter…');
+      await saveBibliographyChapter({ project, chapters, bibText });
+      setBusyLabel('Bibliography: Refreshing project…');
+      toast.success('Bibliography generated! A "Bibliography & Sources" chapter has been added. Review it in the Chapters tab, then re-export.');
+    } catch (err) {
+      console.error('[BIBLIOGRAPHY] Failed:', err);
+      toast.error('Bibliography generation failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setBusyLabel('');
+      await refreshAll();
+    }
+  };
+
+  const handleSaveExportChapter = async (chapterId, content) => {
+    if (!chapterId) return;
+
+    // Guard against accidental blank overwrites. ExportTab should always send
+    // content, but Find/Replace, autosave, and editor callbacks can route
+    // through this path. Undefined/null content is never a valid save.
+    if (content === undefined || content === null) {
+      console.warn('[EXPORT SAVE] Refused to save undefined/null content for chapter:', chapterId);
+      toast.error('Export save skipped: no chapter content was provided.');
+      return;
+    }
+
+    const safeContent = String(content);
+
+    const existingChapter = chapters.find((chapter) => chapter?.id === chapterId) || null;
+    const exportContentFields = await prepareChapterContent(
+      safeContent,
+      project?.id || projectId,
+      chapterId,
+      existingChapter
+    );
+
+    await saveChapter.mutateAsync({
+      id: chapterId,
+      payload: {
+        ...exportContentFields,
+        word_count: countWords(safeContent),
+      },
+    });
+  };
+
+  const [currentUser_, setCurrentUser_] = React.useState(null);
+  React.useEffect(() => { base44.auth.me().then(setCurrentUser_).catch(() => {}); }, []);
+  if (isLoadingProject || isLoadingChapters) return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Loading studio…</div>;
+
+  // If the project fetch ERRORED (network, 429, timeout, 500), show a retry
+  // screen — NOT the "Project Not Found" screen. The project almost certainly
+  // still exists; the fetch just failed. Do not kick the user back to library.
+  if (!project && isProjectError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-sm text-muted-foreground">
+        <p>Couldn't load this project right now.</p>
+        <p className="text-xs max-w-md text-center opacity-70">
+          {projectError?.message ? String(projectError.message).slice(0, 200) : 'The server did not respond. This is usually a transient issue.'}
+        </p>
+        <div className="flex gap-2">
+          <Button variant="default" className="rounded-full" onClick={() => refetchProject()}>Retry</Button>
+          <Button variant="outline" className="rounded-full" onClick={() => navigate('/')}>Back to Library</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show "Project not found" when the query genuinely resolved with no
+  // rows AND had no error. This is a real 404 — the project id in the URL
+  // does not exist (deleted, wrong user, bad link).
+  if (!project) return <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-sm text-muted-foreground"><p>Project not found.</p><Button variant="outline" className="rounded-full" onClick={() => navigate('/')}>Back to Library</Button></div>;
+  if (currentUser_?.email && project.created_by && project.created_by !== currentUser_.email) return <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-sm text-muted-foreground"><p>You do not have access to this project.</p><Button variant="outline" className="rounded-full" onClick={() => navigate('/')}>Back to Library</Button></div>;
+
+  return (
+    <main style={{ height: '100vh', overflow: 'hidden' }}>
+      <style>{`
+        .ubs-studio-root,
+        .ubs-studio-root * {
+          box-sizing: border-box;
+        }
+
+        .ubs-outline-left-pane,
+        .ubs-outline-right-pane {
+          min-width: 0;
+          min-height: 0;
+        }
+
+        .ubs-outline-right-pane {
+          width: 100%;
+          max-width: 100%;
+          height: 100%;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .ubs-outline-right-pane > * {
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          min-height: 0;
+          flex: 1 1 auto;
+        }
+
+        .ubs-outline-right-pane textarea,
+        .ubs-outline-right-pane [contenteditable="true"],
+        .ubs-outline-right-pane pre,
+        .ubs-outline-right-pane .ProseMirror {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          white-space: pre-wrap !important;
+          word-break: normal !important;
+          overflow-wrap: break-word !important;
+        }
+
+        .ubs-outline-right-pane h1,
+        .ubs-outline-right-pane h2,
+        .ubs-outline-right-pane h3,
+        .ubs-outline-right-pane p,
+        .ubs-outline-right-pane div,
+        .ubs-outline-right-pane span {
+          word-break: normal;
+          overflow-wrap: break-word;
+        }
+      `}</style>
+      <div className="ubs-studio-root" style={{ height: '100%', minWidth: 0, minHeight: 0 }}>
+
+        <NotebookShell
+          projectTitle={project.title || 'Untitled Project'}
+          subtitle={project.tagline || project.seed_concept}
+          navigateRef={notebookRef}
+          initialTab={initialTab}
+          sections={[
+            {
+              id: 'home',
+              label: 'Home',
+              layout: 'split',
+              left: (
+                <StudioOverview
+                  project={project}
+                  chapters={chapters}
+                  busyLabel={busyLabel}
+                  onGenerateFoundation={handleGenerateFoundation}
+                  onGenerateCover={handleGenerateCover}
+                  onEvaluate={handleEvaluate}
+                />
+              ),
+              right: (
+                <HomeDashboard
+                  project={project}
+                  chapters={chapters}
+                  onNavigateTab={(tab) => notebookRef.current?.goToTab(tab)}
+                />
+              ),
+            },
+
+            {
+              id: 'setup',
+              label: 'Setup',
+              layout: 'split',
+              left: (
+                <SetupTab
+                  side="left"
+                  values={settingsDrafts}
+                  onFieldChange={handleSettingFieldChange}
+                  onBookTypeChange={handleBookTypeChange}
+                  onGenreChange={handleGenreChange}
+                  onLengthPresetChange={handleLengthPresetChange}
+                  onApplyPovPreset={handleApplyPovPreset}
+                  onSave={handleSaveSettings}
+                  isSaving={saveProject.isPending}
+                  busyLabel={busyLabel}
+                  lastSaved={settingsAutoSave.lastSaved}
+                />
+              ),
+              right: (
+                <SetupTab
+                  side="right"
+                  values={settingsDrafts}
+                  onFieldChange={handleSettingFieldChange}
+                  onBookTypeChange={handleBookTypeChange}
+                  onGenreChange={handleGenreChange}
+                  onLengthPresetChange={handleLengthPresetChange}
+                  onApplyPovPreset={handleApplyPovPreset}
+                  onSave={handleSaveSettings}
+                  isSaving={saveProject.isPending}
+                  busyLabel={busyLabel}
+                  lastSaved={settingsAutoSave.lastSaved}
+                  projectId={projectId}
+                  project={project}
+                  onRefresh={refreshAll}
+                />
+              ),
+            },
+            {
+              id: 'foundation',
+              label: 'Foundation',
+              layout: 'split',
+              left: (
+                <FoundationTab
+                  side="left"
+                  project={project}
+                  chapters={chapters}
+                  activeDoc={activeDoc}
+                  onActiveDocChange={setActiveDoc}
+                  docDrafts={docDrafts}
+                  onDocChange={(field, value) => setDocDrafts((current) => ({ ...current, [field]: value }))}
+                  onSave={handleSaveDocs}
+                  onGenerate={handleGenerateFoundation}
+                  onExpand={handleExpand}
+                  isSaving={saveProject.isPending}
+                  busyLabel={busyLabel}
+                  lastSaved={docsAutoSave.lastSaved}
+                  researchData={researchData}
+                  onResearch={handleResearch}
+                  onReResearch={handleResearch}
+                  onResearchChange={handleSaveResearch}
+                  onGenerateCopyright={handleGenerateCopyright}
+                  onGenerateBibliography={handleGenerateBibliography}
+                  onRefreshAll={refreshAll}
+                />
+              ),
+              right: (
+                <FoundationTab
+                  side="right"
+                  project={project}
+                  chapters={chapters}
+                  activeDoc={activeDoc}
+                  onActiveDocChange={setActiveDoc}
+                  docDrafts={docDrafts}
+                  onDocChange={(field, value) => setDocDrafts((current) => ({ ...current, [field]: value }))}
+                  onSave={handleSaveDocs}
+                  onGenerate={handleGenerateFoundation}
+                  onExpand={handleExpand}
+                  isSaving={saveProject.isPending}
+                  busyLabel={busyLabel}
+                  lastSaved={docsAutoSave.lastSaved}
+                  researchData={researchData}
+                  onResearch={handleResearch}
+                  onReResearch={handleResearch}
+                  onResearchChange={handleSaveResearch}
+                  onGenerateCopyright={handleGenerateCopyright}
+                  onGenerateBibliography={handleGenerateBibliography}
+                  onRefreshAll={refreshAll}
+                />
+              ),
+            },
+            {
+              id: 'outline',
+              label: 'Chapters',
+              layout: 'split',
+              left: (
+                <div className="ubs-outline-left-pane flex h-full min-w-0 flex-col gap-3 overflow-hidden">
+                  <div className="rounded-2xl border border-amber-200/70 bg-amber-50/70 p-3 text-xs leading-5 text-amber-950">
+                    <div className="font-semibold">Batch drafting is draft-only.</div>
+                    <p className="mt-1 text-amber-900/80">
+                      Draft All and Rewrite All generate and save chapters. Run Fix Manuscript/Polish afterward for cleanup.
+                    </p>
+                  </div>
+                  <div className="min-h-0 flex-1">
+                    <ChapterQueue chapters={chapters} selectedChapterId={selectedChapter?.id} onSelect={setSelectedChapterId} onDraftAll={handleDraftAll} busyLabel={busyLabel} chapterProgress={chapterProgress} onStop={handleStop} onRepairMetadata={handleRepairChapterMetadata} />
+                  </div>
+                </div>
+              ),
+              right: (
+                <div className="ubs-outline-right-pane">
+                  <OutlineEditor
+                    project={project}
+                    chapter={selectedChapter}
+                    chapters={chapters}
+                    chapterDraft={chapterDraft}
+                    onDraftChange={setChapterDraft}
+                    onSave={handleSaveChapter}
+                    isSaving={saveChapter.isPending}
+                    onGenerateBeats={handleGenerateBeats}
+                    onDraftChapter={handleDraftSelected}
+                    onDraftAll={handleDraftAll}
+                    onRewriteChapter={handleRewriteSelected}
+                    onRewriteAll={handleRewriteAll}
+                    busyLabel={busyLabel}
+                    lastSaved={chapterAutoSave.lastSaved}
+                    onStop={handleStop}
+                    isFiction={project?.book_type !== 'nonfiction'}
+                    selectedProseModel={
+                      normalizeModelId(
+                        selectedChapter
+                          ? (chapterProseModels[selectedChapter.id] || project?.default_prose_model || settingsDrafts.default_prose_model)
+                          : (project?.default_prose_model || settingsDrafts.default_prose_model)
+                      ) || DEFAULT_FICTION_PROSE_MODEL
+                    }
+                    onProseModelChange={(model) => selectedChapter && setChapterProseModels(prev => ({ ...prev, [selectedChapter.id]: model }))}
+                    globalDefaultModel={normalizeModelId(project?.default_prose_model || settingsDrafts.default_prose_model) || DEFAULT_FICTION_PROSE_MODEL}
+                    hasChapterOverride={!!(selectedChapter && chapterProseModels[selectedChapter.id])}
+                    onResetToDefault={() => selectedChapter && setChapterProseModels(prev => {
+                      const next = { ...prev };
+                      delete next[selectedChapter.id];
+                      return next;
+                    })}
+                    onRestoreOriginal={selectedChapter ? async () => {
+                      const backup = await resolveBackupContent(selectedChapter);
+                      if (!backup) {
+                        toast.error('No backup found for this chapter.');
+                        return;
+                      }
+
+                      const cf = await prepareChapterContent(
+                        backup,
+                        project?.id || projectId,
+                        selectedChapter.id,
+                        selectedChapter
+                      );
+
+                      await runWithNetworkRetry(() => base44.entities.Chapter.update(selectedChapter.id, {
+                        ...clearRichContentFields(),
+                        content_md_fallback_present: true,
+                        ...cf,
+                        word_count: countWords(backup),
+                        backup_content: '',
+                        backup_content_url: '',
+                      }));
+
+                      setChapterDraft(backup);
+                      await refreshAll();
+                      toast.success('Original content restored.');
+                    } : undefined}
+                  />
+                </div>
+              ),
+            },
+            {
+              id: 'review',
+              label: 'Polish',
+              layout: 'split',
+              left: <ReviewChapterList chapters={chapters} busyLabel={busyLabel} />,
+              right: <ManuscriptDashboard project={project} chapters={chapters} busyLabel={busyLabel} polishResults={polishResults} />,
+            },
+            {
+              id: 'export',
+              label: 'Export',
+              layout: 'wide',
+              content: <ExportTab project={project} chapters={chapters} onSaveSettings={handleSavePublishSettings} onSaveChapter={handleSaveExportChapter} isSavingChapter={saveChapter.isPending} />,
+            },
+            {
+              id: 'cover',
+              label: 'Cover',
+              layout: 'wide',
+              content: <CoverCreator project={project} busyLabel={busyLabel} />,
+            },
+            {
+              id: 'preview',
+              label: 'Preview',
+              layout: 'wide',
+              content: <PreviewTab project={project} chapters={chapters} />,
+            },
+            {
+              id: 'tools',
+              label: 'Tools',
+              layout: 'wide',
+              content: (
+                <ToolsTab
+                  project={project}
+                  chapters={chapters}
+                  onUsePrompt={handleUsePrompt}
+                  onUseIdea={handleChatbotUseIdea}
+                  busyLabel={busyLabel}
+                  setBusyLabel={setBusyLabel}
+                  onProjectRefresh={(fresh) => {
+                    skipProjectSyncRef.current = true;
+                    queryClient.setQueryData(['novel-project', projectId], [fresh]);
+                  }}
+                  onRefreshAll={refreshAll}
+                />
+              ),
+            },
+          ]}
+        />
+      </div>
+    </main>
+  );
+}

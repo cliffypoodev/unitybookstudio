@@ -1,0 +1,440 @@
+{
+  "blocked": true,
+  "hardFailures": [
+    {
+      "chapterNumber": 2,
+      "title": "Chapter 2: The Patron's Palette",
+      "ok": false,
+      "recommendedAction": "REJECT_REGENERATE",
+      "processLeakCount": 8,
+      "contaminationCount": 8,
+      "malformedCount": 1,
+      "reasons": [
+        "CRITICAL process leakage detected (5 instance(s)): \"The opening is sharp, highly polished\", \"Next Move:\", \"Action Plan:\", \"The current trajectory is working exactly as planned\", \"We have established the what and the why\"",
+        "CRITICAL cross-project contamination (6): \"Unity Supported Living Services\", \"Unity Supported Living\", \"Unity Supported Living\", \"Unity Media Solutions\", \"Unity Media\", \"Unity Media\"",
+        "Malformed grammar (1): \"You was\""
+      ],
+      "snippets": [
+        {
+          "type": "process-leak",
+          "phrase": "The opening is sharp, highly polished",
+          "snippet": "The opening is sharp, highly polished, and immediately establishes "
+        },
+        {
+          "type": "process-leak",
+          "phrase": "Next Move:",
+          "snippet": "Next Move: Commit to the Bargain"
+        },
+        {
+          "type": "process-leak",
+          "phrase": "Action Plan:",
+          "snippet": "Action Plan:"
+        },
+        {
+          "type": "contamination",
+          "phrase": "Unity Supported Living Services",
+          "snippet": "eal-time risk assessments for Unity Supported Living Services. For Media Solutions, I manag"
+        },
+        {
+          "type": "contamination",
+          "phrase": "Unity Supported Living",
+          "snippet": "care plans for the clients at Unity Supported Living aren't boilerplate; they refl"
+        },
+        {
+          "type": "contamination",
+          "phrase": "Unity Supported Living",
+          "snippet": "eal-time risk assessments for Unity Supported Living Services. For Media Solutions"
+        },
+        {
+          "type": "malformed",
+          "phrase": "You was",
+          "snippet": "r the source of the critique. You was Julian talking about the pain"
+        }
+      ]
+    }
+  ],
+  "warnings": [],
+  "passed": [
+    {
+      "chapterNumber": 1,
+      "title": "Chapter 1: The Algorithmic Stage",
+      "ok": true,
+      "recommendedAction": "WARN_ONLY",
+      "processLeakCount": 0,
+      "contaminationCount": 1,
+      "malformedCount": 0,
+      "reasons": [
+        "Possible contamination (1): \"ROI\""
+      ],
+      "snippets": [
+        {
+          "type": "contamination",
+          "phrase": "ROI",
+          "snippet": "institutional consensus. \"The projected ROI for immediate deployment of the Aether "
+        }
+      ]
+    },
+    {
+      "chapterNumber": 3,
+      "title": "Chapter 3: The Office of Echoes",
+      "ok": true,
+      "recommendedAction": "WARN_ONLY",
+      "processLeakCount": 0,
+      "contaminationCount": 1,
+      "malformedCount": 0,
+      "reasons": [
+        "Possible contamination (1): \"ROI\""
+      ],
+      "snippets": [
+        {
+          "type": "contamination",
+          "phrase": "ROI",
+          "snippet": "isted quantification, that defied clear ROI, that was the messy source of human cul"
+        }
+      ]
+    },
+    {
+      "chapterNumber": 4,
+      "title": "Chapter 4: The Sacred Screen",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 5,
+      "title": "Chapter 5: The Transit of Ghosts",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 6,
+      "title": "Chapter 6: The Drift of Echoes",
+      "ok": true,
+      "recommendedAction": "WARN_ONLY",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 1,
+      "reasons": [
+        "Malformed grammar (1): \"Was was\""
+      ],
+      "snippets": [
+        {
+          "type": "malformed",
+          "phrase": "Was was",
+          "snippet": "most. “Why did she disappear? Was was it a failure, or was it… an e"
+        }
+      ]
+    },
+    {
+      "chapterNumber": 7,
+      "title": "Chapter 7: The Anatomist's Stage",
+      "ok": true,
+      "recommendedAction": "WARN_ONLY",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 1,
+      "reasons": [
+        "Malformed grammar (1): \"Was was\""
+      ],
+      "snippets": [
+        {
+          "type": "malformed",
+          "phrase": "Was was",
+          "snippet": "put. Who digitized this life? Was was it a single intake stream? Or"
+        }
+      ]
+    },
+    {
+      "chapterNumber": 8,
+      "title": "Chapter 8: The Pixelated Heir",
+      "ok": true,
+      "recommendedAction": "WARN_ONLY",
+      "processLeakCount": 0,
+      "contaminationCount": 3,
+      "malformedCount": 0,
+      "reasons": [
+        "Possible contamination (3): \"startup\", \"startup\", \"ROI\""
+      ],
+      "snippets": [
+        {
+          "type": "contamination",
+          "phrase": "startup",
+          "snippet": "always approached life like a startup pitch deck: everything had an"
+        },
+        {
+          "type": "contamination",
+          "phrase": "startup",
+          "snippet": " of a good life, a successful startup, or a stable marriage. She re"
+        },
+        {
+          "type": "contamination",
+          "phrase": "ROI",
+          "snippet": "a startup pitch deck: everything had an ROI. And she was the most volatile asset. \""
+        }
+      ]
+    },
+    {
+      "chapterNumber": 9,
+      "title": "Chapter 9: The Terminal Veil",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 10,
+      "title": "Chapter 10: The Algorithmic Battlefield",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 11,
+      "title": "Chapter 11: The Plaza Ledger",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 12,
+      "title": "Chapter 12: The Anatomist's Protocol",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 13,
+      "title": "Chapter 13: The Syntax of Survival",
+      "ok": true,
+      "recommendedAction": "WARN_ONLY",
+      "processLeakCount": 0,
+      "contaminationCount": 2,
+      "malformedCount": 0,
+      "reasons": [
+        "Possible contamination (2): \"startup\", \"startup\""
+      ],
+      "snippets": [
+        {
+          "type": "contamination",
+          "phrase": "startup",
+          "snippet": "ience. The failure of her own startup, the one based on predictive "
+        },
+        {
+          "type": "contamination",
+          "phrase": "startup",
+          "snippet": "bt--the residue of her failed startup, the sheer emotional weight o"
+        }
+      ]
+    },
+    {
+      "chapterNumber": 14,
+      "title": "Chapter 14: The Incantation of Bytes",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 15,
+      "title": "Chapter 15: The Transit of Errors",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 16,
+      "title": "Chapter 16: The Whispering Glade",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 17,
+      "title": "Chapter 17: The Echo Chamber",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 18,
+      "title": "Chapter 18: The Stage of Errors",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 19,
+      "title": "Chapter 19: The Threshold of Bytes",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    },
+    {
+      "chapterNumber": 20,
+      "title": "Chapter 20: The Battlefield Code",
+      "ok": true,
+      "recommendedAction": "PASS",
+      "processLeakCount": 0,
+      "contaminationCount": 0,
+      "malformedCount": 0,
+      "reasons": [],
+      "snippets": []
+    }
+  ],
+  "summary": "EXPORT BLOCKED: 1 chapter(s) have hard safety failures.\n  Ch.2 (Chapter 2: The Patron's Palette): CRITICAL process leakage detected (5 instance(s)): \"The opening is sharp, highly polished\", \"Next Move:\", \"Action Plan:\", \"The current trajectory is working exactly as planned\", \"We have established the what and the why\"; CRITICAL cross-project contamination (6): \"Unity Supported Living Services\", \"Unity Supported Living\", \"Unity Supported Living\", \"Unity Media Solutions\", \"Unity Media\", \"Unity Media\"; Malformed grammar (1): \"You was\"\n\nRun Fix/Regenerate on rejected chapters before exporting.",
+  "timestamp": "2026-06-07T16:36:28.507Z",
+  "stage": "pre-export",
+  "totalChapters": 20,
+  "scannedChapters": 20,
+  "_simulationNote": "This simulates the live export path using content extracted from digital-equity-tribunal (4).docx",
+  "_gate": "runPreExportSafetyGate from src/lib/exportSafetyGate.js",
+  "_chapters": [
+    {
+      "chapterNumber": 1,
+      "title": "Chapter 1: The Algorithmic Stage",
+      "contentChars": 25545
+    },
+    {
+      "chapterNumber": 2,
+      "title": "Chapter 2: The Patron's Palette",
+      "contentChars": 24319
+    },
+    {
+      "chapterNumber": 3,
+      "title": "Chapter 3: The Office of Echoes",
+      "contentChars": 20332
+    },
+    {
+      "chapterNumber": 4,
+      "title": "Chapter 4: The Sacred Screen",
+      "contentChars": 22320
+    },
+    {
+      "chapterNumber": 5,
+      "title": "Chapter 5: The Transit of Ghosts",
+      "contentChars": 19504
+    },
+    {
+      "chapterNumber": 6,
+      "title": "Chapter 6: The Drift of Echoes",
+      "contentChars": 23563
+    },
+    {
+      "chapterNumber": 7,
+      "title": "Chapter 7: The Anatomist's Stage",
+      "contentChars": 22257
+    },
+    {
+      "chapterNumber": 8,
+      "title": "Chapter 8: The Pixelated Heir",
+      "contentChars": 20798
+    },
+    {
+      "chapterNumber": 9,
+      "title": "Chapter 9: The Terminal Veil",
+      "contentChars": 28032
+    },
+    {
+      "chapterNumber": 10,
+      "title": "Chapter 10: The Algorithmic Battlefield",
+      "contentChars": 17901
+    },
+    {
+      "chapterNumber": 11,
+      "title": "Chapter 11: The Plaza Ledger",
+      "contentChars": 24763
+    },
+    {
+      "chapterNumber": 12,
+      "title": "Chapter 12: The Anatomist's Protocol",
+      "contentChars": 22020
+    },
+    {
+      "chapterNumber": 13,
+      "title": "Chapter 13: The Syntax of Survival",
+      "contentChars": 22712
+    },
+    {
+      "chapterNumber": 14,
+      "title": "Chapter 14: The Incantation of Bytes",
+      "contentChars": 20512
+    },
+    {
+      "chapterNumber": 15,
+      "title": "Chapter 15: The Transit of Errors",
+      "contentChars": 16352
+    },
+    {
+      "chapterNumber": 16,
+      "title": "Chapter 16: The Whispering Glade",
+      "contentChars": 20953
+    },
+    {
+      "chapterNumber": 17,
+      "title": "Chapter 17: The Echo Chamber",
+      "contentChars": 13902
+    },
+    {
+      "chapterNumber": 18,
+      "title": "Chapter 18: The Stage of Errors",
+      "contentChars": 25107
+    },
+    {
+      "chapterNumber": 19,
+      "title": "Chapter 19: The Threshold of Bytes",
+      "contentChars": 20941
+    },
+    {
+      "chapterNumber": 20,
+      "title": "Chapter 20: The Battlefield Code",
+      "contentChars": 21452
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Genre: Hard Science Fiction
+Opening: sensory
+Exact final line: The station log showed her death certificate had been filed tomorrow.
+Literal objects: the oxygen-use chart, the station log, the interface, Lab C, the door scanner, the manual override panel, the chair, the death certificate

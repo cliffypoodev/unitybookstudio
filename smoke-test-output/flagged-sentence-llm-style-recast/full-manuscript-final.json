@@ -1,0 +1,228 @@
+{
+  "allResults": [
+    {
+      "num": 1,
+      "title": "The Algorithmic Stage",
+      "origSlop": 82,
+      "finalSlop": 58,
+      "reduction": 29.3,
+      "origWords": 3896,
+      "finalWords": 3866,
+      "llmApplied": 16,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 2,
+      "title": "The Patron's Palette",
+      "origSlop": 48,
+      "finalSlop": 33,
+      "reduction": 31.3,
+      "origWords": 3705,
+      "finalWords": 3705,
+      "llmApplied": 7,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 3,
+      "title": "The Office of Echoes",
+      "origSlop": 52,
+      "finalSlop": 41,
+      "reduction": 21.2,
+      "origWords": 3210,
+      "finalWords": 3208,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 4,
+      "title": "The Sacred Screen",
+      "origSlop": 56,
+      "finalSlop": 44,
+      "reduction": 21.4,
+      "origWords": 3453,
+      "finalWords": 3439,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 5,
+      "title": "The Transit of Ghosts",
+      "origSlop": 45,
+      "finalSlop": 35,
+      "reduction": 22.2,
+      "origWords": 3087,
+      "finalWords": 3080,
+      "llmApplied": 8,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 6,
+      "title": "The Drift of Echoes",
+      "origSlop": 68,
+      "finalSlop": 52,
+      "reduction": 23.5,
+      "origWords": 3773,
+      "finalWords": 3765,
+      "llmApplied": 7,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 7,
+      "title": "The Anatomist's Stage",
+      "origSlop": 50,
+      "finalSlop": 44,
+      "reduction": 12,
+      "origWords": 3461,
+      "finalWords": 3461,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 8,
+      "title": "The Pixelated Heir",
+      "origSlop": 43,
+      "finalSlop": 34,
+      "reduction": 20.9,
+      "origWords": 3375,
+      "finalWords": 3352,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 9,
+      "title": "The Terminal Veil",
+      "origSlop": 69,
+      "finalSlop": 43,
+      "reduction": 37.7,
+      "origWords": 4508,
+      "finalWords": 4486,
+      "llmApplied": 8,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 10,
+      "title": "The Algorithmic Battlefield",
+      "origSlop": 37,
+      "finalSlop": 32,
+      "reduction": 13.5,
+      "origWords": 2804,
+      "finalWords": 2802,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 11,
+      "title": "The Plaza Ledger",
+      "origSlop": 44,
+      "finalSlop": 39,
+      "reduction": 11.4,
+      "origWords": 3862,
+      "finalWords": 3862,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 12,
+      "title": "The Anatomist's Protocol",
+      "origSlop": 41,
+      "finalSlop": 35,
+      "reduction": 14.6,
+      "origWords": 3503,
+      "finalWords": 3508,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 13,
+      "title": "The Syntax of Survival",
+      "origSlop": 38,
+      "finalSlop": 31,
+      "reduction": 18.4,
+      "origWords": 3532,
+      "finalWords": 3517,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 14,
+      "title": "The Incantation of Bytes",
+      "origSlop": 33,
+      "finalSlop": 32,
+      "reduction": 3,
+      "origWords": 3298,
+      "finalWords": 3299,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 15,
+      "title": "The Transit of Errors",
+      "origSlop": 33,
+      "finalSlop": 28,
+      "reduction": 15.2,
+      "origWords": 2548,
+      "finalWords": 2531,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 16,
+      "title": "The Whispering Glade",
+      "origSlop": 46,
+      "finalSlop": 36,
+      "reduction": 21.7,
+      "origWords": 3424,
+      "finalWords": 3402,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 17,
+      "title": "The Echo Chamber",
+      "origSlop": 33,
+      "finalSlop": 32,
+      "reduction": 3,
+      "origWords": 2203,
+      "finalWords": 2203,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 18,
+      "title": "The Stage of Errors",
+      "origSlop": 72,
+      "finalSlop": 45,
+      "reduction": 37.5,
+      "origWords": 4046,
+      "finalWords": 4013,
+      "llmApplied": 13,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 19,
+      "title": "The Threshold of Bytes",
+      "origSlop": 36,
+      "finalSlop": 28,
+      "reduction": 22.2,
+      "origWords": 3449,
+      "finalWords": 3447,
+      "llmApplied": 0,
+      "dialogueAfter": 0
+    },
+    {
+      "num": 20,
+      "title": "The Battlefield Code",
+      "origSlop": 55,
+      "finalSlop": 42,
+      "reduction": 23.6,
+      "origWords": 3444,
+      "finalWords": 3414,
+      "llmApplied": 6,
+      "dialogueAfter": 0
+    }
+  ],
+  "totalOrigSlop": 981,
+  "totalFinalSlop": 764,
+  "totalReduction": "22.1",
+  "totalLLMApplied": 65
+}

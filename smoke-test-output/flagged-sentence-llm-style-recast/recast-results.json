@@ -1,0 +1,193 @@
+{
+  "1": {
+    "title": "The Algorithmic Stage",
+    "origSlop": 82,
+    "detSlop": 73,
+    "finalSlop": 58,
+    "origWords": 3896,
+    "finalWords": 3866,
+    "applied": 16,
+    "rejected": 0,
+    "rejectedDetails": [],
+    "appliedDetails": [
+      {
+        "original": "The air in the physical room felt stale",
+        "recast": "The air in the physical room hung stale",
+        "reason": "Remove filtering verb; air \"hangs\" rather than being \"felt\""
+      },
+      {
+        "original": "Mira felt the familiar acidic heat rising in her chest",
+        "recast": "The familiar acidic heat rose in Mira’s chest",
+        "reason": "Remove filtering; invert to let the sensation act"
+      },
+      {
+        "original": "But she felt the tremor in him too",
+        "recast": "But she caught the tremor in him too",
+        "reason": "Replace filtering verb with active perception verb"
+      },
+      {
+        "original": "She felt the familiar pressure building",
+        "recast": "The familiar pressure built",
+        "reason": "Remove filtering; let pressure act directly"
+      },
+      {
+        "original": "Mira felt her breath hitching on the sudden shift",
+        "recast": "Mira’s breath hitched on the sudden shift",
+        "reason": "Remove filtering; breath hitches on its own"
+      },
+      {
+        "original": "Mira felt a cold knot tighten in her stomach",
+        "recast": "A cold knot tightened in Mira’s stomach",
+        "reason": "Remove filtering; let the knot tighten directly"
+      },
+      {
+        "original": "Mira felt it first in her bones, a physical displacement sensation",
+        "recast": "It hit her first in her bones, a physical displacement sensation",
+        "reason": "Replace filtering with impact verb"
+      },
+      {
+        "original": "She felt the cold, clean weight of the platform’s intervention settling over her skin",
+        "recast": "The cold, clean weight of the platform’s intervention settled over her skin",
+        "reason": "Remove filtering; intervention settles directly"
+      },
+      {
+        "original": "Mira felt the initial surge of panic",
+        "recast": "The initial surge of panic hit Mira",
+        "reason": "Remove filtering; panic hits directly"
+      },
+      {
+        "original": "she felt the subtle tug on her digital self",
+        "recast": "the subtle tug on her digital self pulled",
+        "reason": "Remove filtering; tug pulls directly"
+      },
+      {
+        "original": "It felt like someone had applied a subtle dampener to her neurochemistry",
+        "recast": "Someone had applied a subtle dampener to her neurochemistry",
+        "reason": "Remove \"felt like\" hedging; state directly"
+      },
+      {
+        "original": "Mira felt a prickle of rage",
+        "recast": "A prickle of rage spiked through Mira",
+        "reason": "Remove filtering; rage spikes directly"
+      },
+      {
+        "original": "The phrase felt like a physical gag",
+        "recast": "The phrase landed like a physical gag",
+        "reason": "Replace filtering with impact verb"
+      },
+      {
+        "original": "Mira felt herself tipping into an uncomfortable space",
+        "recast": "Mira tipped into an uncomfortable space",
+        "reason": "Remove reflexive filtering"
+      },
+      {
+        "original": "Mira felt a sudden, jarring emptiness in her fingertips",
+        "recast": "A sudden, jarring emptiness spread through Mira’s fingertips",
+        "reason": "Remove filtering; emptiness spreads directly"
+      },
+      {
+        "original": "suddenly felt less like a stage and more like a carefully constructed",
+        "recast": "suddenly looked less like a stage and more like a carefully constructed",
+        "reason": "Replace abstract filtering with concrete perception"
+      }
+    ],
+    "validation": {
+      "valid": true,
+      "issues": [],
+      "pctChange": "99.2"
+    },
+    "dialogueAfter": 0,
+    "densityBefore": 21.05,
+    "densityAfter": 15,
+    "totalReduction": "29.3",
+    "llmReduction": "20.5"
+  },
+  "18": {
+    "title": "The Stage of Errors",
+    "origSlop": 72,
+    "detSlop": 58,
+    "finalSlop": 45,
+    "origWords": 4046,
+    "finalWords": 4013,
+    "applied": 13,
+    "rejected": 0,
+    "rejectedDetails": [],
+    "appliedDetails": [
+      {
+        "original": "I felt a sudden, deep pull toward its cold, sharp truth",
+        "recast": "A sudden, deep pull drew me toward its cold, sharp truth",
+        "reason": "Remove filtering; pull draws directly"
+      },
+      {
+        "original": "that felt ragged and insufficient",
+        "recast": "that came out ragged and insufficient",
+        "reason": "Replace filtering with concrete delivery verb"
+      },
+      {
+        "original": "I felt dizzy, not from adrenaline, but from the sheer density of institutional betrayal",
+        "recast": "Dizziness hit me, not from adrenaline, but from the sheer density of institutional betrayal",
+        "reason": "Remove filtering; dizziness acts directly"
+      },
+      {
+        "original": "The mirror effect always felt like an accusation",
+        "recast": "The mirror effect was an accusation",
+        "reason": "Remove filtering hedging; state directly"
+      },
+      {
+        "original": "bearing an inscription that felt too weighty for the futuristic",
+        "recast": "bearing an inscription too weighty for the futuristic",
+        "reason": "Remove filtering; state quality directly"
+      },
+      {
+        "original": "it felt like a portal",
+        "recast": "it was a portal",
+        "reason": "Remove filtering hedging; state directly"
+      },
+      {
+        "original": "I felt dizzy, like standing at the bottom of a very deep well",
+        "recast": "The room tilted, like standing at the bottom of a very deep well",
+        "reason": "Replace filtering with concrete physical sensation"
+      },
+      {
+        "original": "I felt the pressure of three competing intelligences",
+        "recast": "The pressure of three competing intelligences bore down",
+        "reason": "Remove filtering; pressure acts directly"
+      },
+      {
+        "original": "The empathy it projected felt engineered, not earned",
+        "recast": "The empathy it projected was engineered, not earned",
+        "reason": "Remove filtering hedging; state directly"
+      },
+      {
+        "original": "why it felt familiar, yet wrong",
+        "recast": "why it seemed familiar, yet wrong",
+        "reason": "Replace \"felt\" with more precise perception verb"
+      },
+      {
+        "original": "felt clumsy, weighted down",
+        "recast": "turned clumsy, weighted down",
+        "reason": "Replace filtering with active state change"
+      },
+      {
+        "original": "I felt myself sinking",
+        "recast": "I sank",
+        "reason": "Remove reflexive filtering; state action directly"
+      },
+      {
+        "original": "I felt my vision",
+        "recast": "my vision",
+        "reason": "Remove filtering; vision acts directly"
+      }
+    ],
+    "validation": {
+      "valid": true,
+      "issues": [],
+      "pctChange": "99.2"
+    },
+    "dialogueAfter": 0,
+    "densityBefore": 17.8,
+    "densityAfter": 11.21,
+    "totalReduction": "37.5",
+    "llmReduction": "22.4"
+  }
+}

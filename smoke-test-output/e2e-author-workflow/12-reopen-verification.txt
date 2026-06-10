@@ -1,0 +1,5 @@
+Ch1: found=true match=true disk=1566w mem=1566w
+Ch2: found=true match=true disk=1405w mem=1405w
+Ch3: found=true match=true disk=1156w mem=1156w
+Ch4: found=true match=true disk=1244w mem=1244w
+Ch5: found=true match=true disk=906w mem=906w

@@ -1,0 +1,407 @@
+{
+  "timestamp": "2026-06-09T16:55:27.612Z",
+  "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v5.0 — 2026-06-09",
+  "snapshots": {
+    "A": {
+      "label": "A: Original",
+      "compositeScore": 74,
+      "filterVerbs": 11,
+      "filterVerbDensity": 31.8,
+      "essayBotTransitions": 6,
+      "chatbotPatterns": 13,
+      "headings": 3,
+      "citations": 3,
+      "words": 314
+    },
+    "B": {
+      "label": "B: v4 Chunk Pipeline",
+      "compositeScore": 74,
+      "filterVerbs": 11,
+      "filterVerbDensity": 31.8,
+      "essayBotTransitions": 6,
+      "chatbotPatterns": 13,
+      "headings": 3,
+      "citations": 3,
+      "words": 314
+    },
+    "C": {
+      "label": "C: v5 Cleanup + Micro-Recast",
+      "compositeScore": 80,
+      "filterVerbs": 9,
+      "filterVerbDensity": 26.8,
+      "essayBotTransitions": 0,
+      "chatbotPatterns": 10,
+      "headings": 3,
+      "citations": 3,
+      "words": 298
+    }
+  },
+  "reportB": {
+    "profileUsed": "nonfiction",
+    "recastMode": "conservative",
+    "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v5.0 — 2026-06-09",
+    "chunksAnalyzed": 1,
+    "chunksSkipped": 1,
+    "chunksRecast": 0,
+    "chunksFailed": 0,
+    "chunksRetried": 0,
+    "chunksRetrySucceeded": 0,
+    "beforeMetrics": {
+      "sentenceLengthVariance": 9.6,
+      "symmetryScore": 12,
+      "filterVerbDensity": 31.8,
+      "concreteRatio": 100,
+      "openingVerbStrength": "weak",
+      "endingPunch": true,
+      "tripleConstructionDensity": 3.2,
+      "thesisStatementDensity": 0,
+      "notJustDensity": 0,
+      "balancedReflectionCount": 0,
+      "genericEmotionDensity": 0,
+      "compositeScore": 74,
+      "grade": "GOOD",
+      "diagnostics": [
+        "HIGH FILTER VERB DENSITY: 31.8/1K words (10 instances). Replace with direct sensation.",
+        "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+      ]
+    },
+    "afterMetrics": {
+      "sentenceLengthVariance": 9.6,
+      "symmetryScore": 12,
+      "filterVerbDensity": 31.8,
+      "concreteRatio": 100,
+      "openingVerbStrength": "weak",
+      "endingPunch": true,
+      "tripleConstructionDensity": 3.2,
+      "thesisStatementDensity": 0,
+      "notJustDensity": 0,
+      "balancedReflectionCount": 0,
+      "genericEmotionDensity": 0,
+      "compositeScore": 74,
+      "grade": "GOOD",
+      "diagnostics": [
+        "HIGH FILTER VERB DENSITY: 31.8/1K words (10 instances). Replace with direct sensation.",
+        "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+      ]
+    },
+    "safetyBlocks": 0,
+    "referenceBlocks": 1,
+    "headingBlocks": 0,
+    "literaryFlatteningBlocks": 0,
+    "overcorrectionWarnings": [],
+    "chunkDetails": [
+      {
+        "index": 0,
+        "action": "skipped",
+        "beforeScore": 74,
+        "afterScore": null,
+        "reason": "Protected: citation",
+        "origWords": 314,
+        "recastWords": null,
+        "ratio": null,
+        "minAllowed": 288,
+        "maxAllowed": 346,
+        "retryAttempted": false,
+        "retrySucceeded": false,
+        "recastMode": "conservative",
+        "selectedModel": null,
+        "routingReason": null,
+        "weaknessTypes": null,
+        "headingPreservation": null,
+        "literaryAntiFlattening": null
+      }
+    ],
+    "routingReport": {
+      "modelDistribution": {},
+      "weaknessDistribution": {},
+      "totalChunks": 1,
+      "routedChunks": 0
+    },
+    "deterministicCleanup": null,
+    "microRecastReport": null
+  },
+  "reportC": {
+    "profileUsed": "nonfiction",
+    "recastMode": "conservative",
+    "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v5.0 — 2026-06-09",
+    "chunksAnalyzed": 8,
+    "chunksSkipped": 3,
+    "chunksRecast": 1,
+    "chunksFailed": 2,
+    "chunksRetried": 0,
+    "chunksRetrySucceeded": 0,
+    "beforeMetrics": {
+      "sentenceLengthVariance": 9.6,
+      "symmetryScore": 12,
+      "filterVerbDensity": 31.8,
+      "concreteRatio": 100,
+      "openingVerbStrength": "weak",
+      "endingPunch": true,
+      "tripleConstructionDensity": 3.2,
+      "thesisStatementDensity": 0,
+      "notJustDensity": 0,
+      "balancedReflectionCount": 0,
+      "genericEmotionDensity": 0,
+      "compositeScore": 74,
+      "grade": "GOOD",
+      "diagnostics": [
+        "HIGH FILTER VERB DENSITY: 31.8/1K words (10 instances). Replace with direct sensation.",
+        "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+      ]
+    },
+    "afterMetrics": {
+      "sentenceLengthVariance": 9.5,
+      "symmetryScore": 6,
+      "filterVerbDensity": 26.8,
+      "concreteRatio": 100,
+      "openingVerbStrength": "strong",
+      "endingPunch": true,
+      "tripleConstructionDensity": 3.4,
+      "thesisStatementDensity": 0,
+      "notJustDensity": 0,
+      "balancedReflectionCount": 0,
+      "genericEmotionDensity": 0,
+      "compositeScore": 80,
+      "grade": "GOOD",
+      "diagnostics": [
+        "HIGH FILTER VERB DENSITY: 26.8/1K words (8 instances). Replace with direct sensation."
+      ]
+    },
+    "safetyBlocks": 0,
+    "referenceBlocks": 0,
+    "headingBlocks": 0,
+    "literaryFlatteningBlocks": 0,
+    "overcorrectionWarnings": [],
+    "chunkDetails": [],
+    "routingReport": null,
+    "deterministicCleanup": {
+      "applied": true,
+      "changes": {
+        "essayBot": [
+          {
+            "from": "Moreover, ",
+            "to": "",
+            "position": 236
+          },
+          {
+            "from": "Furthermore, ",
+            "to": "",
+            "position": 0
+          },
+          {
+            "from": "It is important to note that ",
+            "to": "",
+            "position": 291
+          },
+          {
+            "from": "Additionally, ",
+            "to": "",
+            "position": 311
+          },
+          {
+            "from": "Furthermore, ",
+            "to": "",
+            "position": 193
+          },
+          {
+            "from": "Additionally, ",
+            "to": "",
+            "position": 232
+          }
+        ],
+        "filterVerbs": [
+          {
+            "from": "It felt like ",
+            "to": ""
+          },
+          {
+            "from": "systems appeared to be",
+            "to": "systems was"
+          }
+        ],
+        "notJust": [],
+        "openings": [],
+        "total": 8
+      },
+      "essayBotRemoved": 6,
+      "filterVerbsReduced": 2,
+      "openingsFixed": 0,
+      "notJustReduced": 0,
+      "beforeWeaknesses": {
+        "essayBotTransitions": 6,
+        "filterVerbs": 10,
+        "notJustConstructions": 0,
+        "weakOpenings": 1,
+        "isNonfiction": true,
+        "details": {
+          "essayBotList": [
+            "Moreover",
+            "Furthermore",
+            "It is important to note",
+            "Additionally",
+            "Furthermore",
+            "Additionally"
+          ],
+          "filterVerbList": [
+            "felt",
+            "seemed",
+            "appeared",
+            "noticed",
+            "realized",
+            "felt",
+            "wondered",
+            "seemed",
+            "felt",
+            "seemed"
+          ],
+          "profileKey": "nonfiction"
+        }
+      },
+      "afterWeaknesses": {
+        "essayBotTransitions": 0,
+        "filterVerbs": 8,
+        "notJustConstructions": 0,
+        "weakOpenings": 0,
+        "isNonfiction": true,
+        "details": {
+          "essayBotList": [],
+          "filterVerbList": [
+            "seemed",
+            "noticed",
+            "realized",
+            "felt",
+            "wondered",
+            "seemed",
+            "felt",
+            "seemed"
+          ],
+          "profileKey": "nonfiction"
+        }
+      }
+    },
+    "microRecastReport": {
+      "unitsAnalyzed": 8,
+      "unitsEligible": 2,
+      "unitsRecast": 0,
+      "unitsFailed": 2,
+      "unitsSkipped": 3,
+      "unitsProtected": 3,
+      "unitDetails": [
+        {
+          "index": 0,
+          "type": "heading",
+          "action": "skipped",
+          "reason": "Protected: heading",
+          "beforeScore": null,
+          "words": 8
+        },
+        {
+          "index": 1,
+          "type": "eligible",
+          "action": "skipped",
+          "reason": "Score 77 >= threshold 75",
+          "beforeScore": 77,
+          "words": 69
+        },
+        {
+          "index": 2,
+          "type": "eligible",
+          "action": "skipped",
+          "reason": "Score 91 >= threshold 75",
+          "beforeScore": 91,
+          "words": 51
+        },
+        {
+          "index": 3,
+          "type": "heading",
+          "action": "skipped",
+          "reason": "Protected: heading",
+          "beforeScore": null,
+          "words": 7
+        },
+        {
+          "index": 4,
+          "type": "eligible",
+          "action": "failed",
+          "reason": "word_ratio: 90% (62/69 words)",
+          "beforeScore": 65,
+          "afterWords": 62,
+          "words": 69
+        },
+        {
+          "index": 5,
+          "type": "heading",
+          "action": "skipped",
+          "reason": "Protected: heading",
+          "beforeScore": null,
+          "words": 5
+        },
+        {
+          "index": 6,
+          "type": "eligible",
+          "action": "failed",
+          "reason": "word_ratio: 83% (40/48 words)",
+          "beforeScore": 60,
+          "afterWords": 40,
+          "words": 48
+        },
+        {
+          "index": 7,
+          "type": "eligible",
+          "action": "skipped",
+          "reason": "Score 76 >= threshold 75",
+          "beforeScore": 76,
+          "words": 41
+        }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "name": "Headings preserved",
+      "ok": true,
+      "detail": "3→3"
+    },
+    {
+      "name": "Citations preserved",
+      "ok": true,
+      "detail": "3→3"
+    },
+    {
+      "name": "Word count in safe range",
+      "ok": true,
+      "detail": "95%"
+    },
+    {
+      "name": "Essay-bot transitions decreased",
+      "ok": true,
+      "detail": "6→0"
+    },
+    {
+      "name": "Filter verbs decreased or stable",
+      "ok": true,
+      "detail": "11→9"
+    },
+    {
+      "name": "Chatbot patterns stable or decreased",
+      "ok": true,
+      "detail": "13→10"
+    },
+    {
+      "name": "Composite improved or stable",
+      "ok": true,
+      "detail": "74→80"
+    },
+    {
+      "name": "Deterministic cleanup applied",
+      "ok": true,
+      "detail": "applied=true"
+    },
+    {
+      "name": "Pipeline version is v5.0",
+      "ok": true,
+      "detail": "ANTI-CHATBOT-RECAST-PIPELINE v5.0 — 2026-06-09"
+    }
+  ],
+  "allPass": true
+}

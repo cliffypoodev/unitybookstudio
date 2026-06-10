@@ -1,0 +1,101 @@
+{
+  "profileUsed": "literary",
+  "recastMode": "conservative",
+  "chunksAnalyzed": 3,
+  "chunksSkipped": 2,
+  "chunksRecast": 1,
+  "chunksFailed": 0,
+  "chunksRetried": 0,
+  "chunksRetrySucceeded": 0,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 10.4,
+    "symmetryScore": 18,
+    "filterVerbDensity": 8.3,
+    "concreteRatio": 62,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 1.7,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 2.5,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 69,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "HIGH FILTER VERB DENSITY: 8.3/1K words (10 instances). Replace with direct sensation.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (15 words) is not shorter than average (17). End on a punch.",
+      "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 10.3,
+    "symmetryScore": 20,
+    "filterVerbDensity": 6.6,
+    "concreteRatio": 57,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 1.6,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 2.5,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 69,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (15 words) is not shorter than average (17). End on a punch.",
+      "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+    ]
+  },
+  "safetyBlocks": 0,
+  "referenceBlocks": 0,
+  "overcorrectionWarnings": [],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "recast",
+      "beforeScore": 67,
+      "afterScore": 68,
+      "reason": "Score 67 < threshold 70",
+      "origWords": 429,
+      "recastWords": 440,
+      "ratio": 103,
+      "minAllowed": 394,
+      "maxAllowed": 472,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative"
+    },
+    {
+      "index": 1,
+      "action": "skipped",
+      "beforeScore": 88,
+      "afterScore": null,
+      "reason": "Protected: high_score",
+      "origWords": 424,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 390,
+      "maxAllowed": 467,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative"
+    },
+    {
+      "index": 2,
+      "action": "skipped",
+      "beforeScore": 73,
+      "afterScore": null,
+      "reason": "Score 73 >= threshold 70",
+      "origWords": 351,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 322,
+      "maxAllowed": 387,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative"
+    }
+  ]
+}

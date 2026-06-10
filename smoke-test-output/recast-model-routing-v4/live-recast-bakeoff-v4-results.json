@@ -1,0 +1,1234 @@
+{
+  "results": [
+    {
+      "name": "Commercial Thriller",
+      "slug": "thriller",
+      "profileKey": "thriller",
+      "metricsA": {
+        "texture": {
+          "sentenceLengthVariance": 9.5,
+          "symmetryScore": 14,
+          "filterVerbDensity": 3.6,
+          "concreteRatio": 77,
+          "openingVerbStrength": "strong",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0.9,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.4,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 83,
+          "grade": "GOOD",
+          "diagnostics": [
+            "\"NOT JUST\" PATTERN: 6 instance(s). Recast as direct statement."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 4,
+            "not_just": 6,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 1,
+            "generic_emotion": 0,
+            "abstract_emotion": 3,
+            "symmetrical_pairs": 9
+          },
+          "total": 23,
+          "density": 20.7
+        },
+        "filterVerbs": {
+          "total": 4,
+          "density": 3.6
+        },
+        "words": 1113,
+        "headings": 0
+      },
+      "metricsB": {
+        "texture": {
+          "sentenceLengthVariance": 9.5,
+          "symmetryScore": 11,
+          "filterVerbDensity": 2.7,
+          "concreteRatio": 77,
+          "openingVerbStrength": "strong",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0.9,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 4.5,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 84,
+          "grade": "GOOD",
+          "diagnostics": [
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 3,
+            "not_just": 5,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 1,
+            "generic_emotion": 0,
+            "abstract_emotion": 3,
+            "symmetrical_pairs": 7
+          },
+          "total": 19,
+          "density": 17.2
+        },
+        "filterVerbs": {
+          "total": 3,
+          "density": 2.7
+        },
+        "words": 1106,
+        "headings": 0
+      },
+      "metricsC": {
+        "texture": {
+          "sentenceLengthVariance": 9.3,
+          "symmetryScore": 11,
+          "filterVerbDensity": 1.8,
+          "concreteRatio": 77,
+          "openingVerbStrength": "strong",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0.9,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 4.6,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 85,
+          "grade": "EXCELLENT",
+          "diagnostics": [
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 2,
+            "not_just": 5,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 1,
+            "generic_emotion": 0,
+            "abstract_emotion": 3,
+            "symmetrical_pairs": 7
+          },
+          "total": 18,
+          "density": 16.4
+        },
+        "filterVerbs": {
+          "total": 2,
+          "density": 1.8
+        },
+        "words": 1098,
+        "headings": 0
+      },
+      "citA": 0,
+      "citB": 0,
+      "citC": 0,
+      "reportB": {
+        "profileUsed": "thriller",
+        "recastMode": "conservative",
+        "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+        "chunksAnalyzed": 3,
+        "chunksSkipped": 2,
+        "chunksRecast": 1,
+        "chunksFailed": 0,
+        "chunksRetried": 0,
+        "chunksRetrySucceeded": 0,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 9.5,
+          "symmetryScore": 14,
+          "filterVerbDensity": 3.6,
+          "concreteRatio": 77,
+          "openingVerbStrength": "strong",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0.9,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.4,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 83,
+          "grade": "GOOD",
+          "diagnostics": [
+            "\"NOT JUST\" PATTERN: 6 instance(s). Recast as direct statement."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 9.5,
+          "symmetryScore": 11,
+          "filterVerbDensity": 2.7,
+          "concreteRatio": 77,
+          "openingVerbStrength": "strong",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0.9,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 4.5,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 84,
+          "grade": "GOOD",
+          "diagnostics": [
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "safetyBlocks": 0,
+        "referenceBlocks": 0,
+        "headingBlocks": 0,
+        "literaryFlatteningBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "skipped",
+            "beforeScore": 83,
+            "afterScore": null,
+            "reason": "Protected: high_score",
+            "origWords": 426,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 391,
+            "maxAllowed": 469,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          },
+          {
+            "index": 1,
+            "action": "recast",
+            "beforeScore": 66,
+            "afterScore": 79,
+            "reason": "Score 66 < threshold 70",
+            "origWords": 416,
+            "recastWords": 409,
+            "ratio": 98,
+            "minAllowed": 382,
+            "maxAllowed": 458,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": "prose-recast-polisher",
+            "routingReason": "general_improvement",
+            "weaknessTypes": [
+              "chatbot_patterns",
+              "weak_opening",
+              "soft_ending"
+            ],
+            "headingPreservation": {
+              "ok": true,
+              "originalCount": 0,
+              "recastCount": 0,
+              "error": null
+            },
+            "literaryAntiFlattening": {
+              "ok": true,
+              "reason": null,
+              "beforeScore": 66,
+              "afterScore": 79,
+              "flatteningDetails": null
+            }
+          },
+          {
+            "index": 2,
+            "action": "skipped",
+            "beforeScore": 90,
+            "afterScore": null,
+            "reason": "Protected: high_score",
+            "origWords": 271,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 249,
+            "maxAllowed": 299,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          }
+        ],
+        "routingReport": {
+          "modelDistribution": {
+            "prose-recast-polisher": 1
+          },
+          "weaknessDistribution": {
+            "chatbot_patterns": 1,
+            "weak_opening": 1,
+            "soft_ending": 1
+          },
+          "totalChunks": 3,
+          "routedChunks": 1
+        }
+      },
+      "reportC": {
+        "profileUsed": "thriller",
+        "recastMode": "conservative",
+        "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+        "chunksAnalyzed": 3,
+        "chunksSkipped": 2,
+        "chunksRecast": 1,
+        "chunksFailed": 0,
+        "chunksRetried": 0,
+        "chunksRetrySucceeded": 0,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 9.5,
+          "symmetryScore": 14,
+          "filterVerbDensity": 3.6,
+          "concreteRatio": 77,
+          "openingVerbStrength": "strong",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0.9,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.4,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 83,
+          "grade": "GOOD",
+          "diagnostics": [
+            "\"NOT JUST\" PATTERN: 6 instance(s). Recast as direct statement."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 9.3,
+          "symmetryScore": 11,
+          "filterVerbDensity": 1.8,
+          "concreteRatio": 77,
+          "openingVerbStrength": "strong",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0.9,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 4.6,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 85,
+          "grade": "EXCELLENT",
+          "diagnostics": [
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "safetyBlocks": 0,
+        "referenceBlocks": 0,
+        "headingBlocks": 0,
+        "literaryFlatteningBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "skipped",
+            "beforeScore": 83,
+            "afterScore": null,
+            "reason": "Protected: high_score",
+            "origWords": 426,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 391,
+            "maxAllowed": 469,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          },
+          {
+            "index": 1,
+            "action": "recast",
+            "beforeScore": 66,
+            "afterScore": 80,
+            "reason": "Score 66 < threshold 70",
+            "origWords": 416,
+            "recastWords": 401,
+            "ratio": 96,
+            "minAllowed": 382,
+            "maxAllowed": 458,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": "prose-recast-polisher",
+            "routingReason": "general_improvement",
+            "weaknessTypes": [
+              "chatbot_patterns",
+              "weak_opening",
+              "soft_ending"
+            ],
+            "headingPreservation": {
+              "ok": true,
+              "originalCount": 0,
+              "recastCount": 0,
+              "error": null
+            },
+            "literaryAntiFlattening": {
+              "ok": true,
+              "reason": null,
+              "beforeScore": 66,
+              "afterScore": 80,
+              "flatteningDetails": null
+            }
+          },
+          {
+            "index": 2,
+            "action": "skipped",
+            "beforeScore": 90,
+            "afterScore": null,
+            "reason": "Protected: high_score",
+            "origWords": 271,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 249,
+            "maxAllowed": 299,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          }
+        ],
+        "routingReport": {
+          "modelDistribution": {
+            "prose-recast-polisher": 1
+          },
+          "weaknessDistribution": {
+            "chatbot_patterns": 1,
+            "weak_opening": 1,
+            "soft_ending": 1
+          },
+          "totalChunks": 3,
+          "routedChunks": 1
+        }
+      },
+      "deltaB": {
+        "compositeScore": 1,
+        "filterVerbDelta": 1,
+        "chatbotPatternDelta": 4,
+        "headingDelta": 0
+      },
+      "deltaC": {
+        "compositeScore": 2,
+        "filterVerbDelta": 2,
+        "chatbotPatternDelta": 5,
+        "headingDelta": 0
+      }
+    },
+    {
+      "name": "Literary/Speculative Fiction",
+      "slug": "literary",
+      "profileKey": "literary",
+      "metricsA": {
+        "texture": {
+          "sentenceLengthVariance": 10,
+          "symmetryScore": 22,
+          "filterVerbDensity": 9.4,
+          "concreteRatio": 77,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0.9,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 73,
+          "grade": "GOOD",
+          "diagnostics": [
+            "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 11,
+            "not_just": 1,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 3,
+            "symmetrical_pairs": 14
+          },
+          "total": 29,
+          "density": 24.7
+        },
+        "filterVerbs": {
+          "total": 10,
+          "density": 8.5
+        },
+        "words": 1176,
+        "headings": 0
+      },
+      "metricsB": {
+        "texture": {
+          "sentenceLengthVariance": 10.1,
+          "symmetryScore": 23,
+          "filterVerbDensity": 6.8,
+          "concreteRatio": 77,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0.9,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 75,
+          "grade": "GOOD",
+          "diagnostics": [
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 8,
+            "not_just": 1,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 3,
+            "symmetrical_pairs": 15
+          },
+          "total": 27,
+          "density": 23
+        },
+        "filterVerbs": {
+          "total": 7,
+          "density": 6
+        },
+        "words": 1175,
+        "headings": 0
+      },
+      "metricsC": {
+        "texture": {
+          "sentenceLengthVariance": 10,
+          "symmetryScore": 19,
+          "filterVerbDensity": 6,
+          "concreteRatio": 83,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0.9,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 77,
+          "grade": "GOOD",
+          "diagnostics": [
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 7,
+            "not_just": 1,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 2,
+            "symmetrical_pairs": 12
+          },
+          "total": 22,
+          "density": 18.9
+        },
+        "filterVerbs": {
+          "total": 6,
+          "density": 5.2
+        },
+        "words": 1164,
+        "headings": 0
+      },
+      "citA": 0,
+      "citB": 0,
+      "citC": 0,
+      "reportB": {
+        "profileUsed": "literary",
+        "recastMode": "conservative",
+        "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+        "chunksAnalyzed": 3,
+        "chunksSkipped": 2,
+        "chunksRecast": 1,
+        "chunksFailed": 0,
+        "chunksRetried": 0,
+        "chunksRetrySucceeded": 0,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 10,
+          "symmetryScore": 22,
+          "filterVerbDensity": 9.4,
+          "concreteRatio": 77,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0.9,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 73,
+          "grade": "GOOD",
+          "diagnostics": [
+            "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 10.1,
+          "symmetryScore": 23,
+          "filterVerbDensity": 6.8,
+          "concreteRatio": 77,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0.9,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 75,
+          "grade": "GOOD",
+          "diagnostics": [
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+          ]
+        },
+        "safetyBlocks": 0,
+        "referenceBlocks": 0,
+        "headingBlocks": 0,
+        "literaryFlatteningBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "skipped",
+            "beforeScore": 81,
+            "afterScore": null,
+            "reason": "Protected: high_score",
+            "origWords": 404,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 371,
+            "maxAllowed": 445,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          },
+          {
+            "index": 1,
+            "action": "recast",
+            "beforeScore": 65,
+            "afterScore": 75,
+            "reason": "Score 65 < threshold 70",
+            "origWords": 436,
+            "recastWords": 435,
+            "ratio": 100,
+            "minAllowed": 401,
+            "maxAllowed": 480,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": "prose-recast-polisher",
+            "routingReason": "filter_verb_specialist",
+            "weaknessTypes": [
+              "filter_verb_heavy",
+              "chatbot_patterns",
+              "weak_opening",
+              "soft_ending"
+            ],
+            "headingPreservation": {
+              "ok": true,
+              "originalCount": 0,
+              "recastCount": 0,
+              "error": null
+            },
+            "literaryAntiFlattening": {
+              "ok": true,
+              "reason": null,
+              "beforeScore": 65,
+              "afterScore": 75,
+              "flatteningDetails": null
+            }
+          },
+          {
+            "index": 2,
+            "action": "skipped",
+            "beforeScore": 81,
+            "afterScore": null,
+            "reason": "Protected: high_score",
+            "origWords": 336,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 309,
+            "maxAllowed": 370,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          }
+        ],
+        "routingReport": {
+          "modelDistribution": {
+            "prose-recast-polisher": 1
+          },
+          "weaknessDistribution": {
+            "filter_verb_heavy": 1,
+            "chatbot_patterns": 1,
+            "weak_opening": 1,
+            "soft_ending": 1
+          },
+          "totalChunks": 3,
+          "routedChunks": 1
+        }
+      },
+      "reportC": {
+        "profileUsed": "literary",
+        "recastMode": "conservative",
+        "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+        "chunksAnalyzed": 3,
+        "chunksSkipped": 2,
+        "chunksRecast": 1,
+        "chunksFailed": 0,
+        "chunksRetried": 0,
+        "chunksRetrySucceeded": 0,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 10,
+          "symmetryScore": 22,
+          "filterVerbDensity": 9.4,
+          "concreteRatio": 77,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0.9,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 73,
+          "grade": "GOOD",
+          "diagnostics": [
+            "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 10,
+          "symmetryScore": 19,
+          "filterVerbDensity": 6,
+          "concreteRatio": 83,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0.9,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 77,
+          "grade": "GOOD",
+          "diagnostics": [
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+          ]
+        },
+        "safetyBlocks": 0,
+        "referenceBlocks": 0,
+        "headingBlocks": 0,
+        "literaryFlatteningBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "skipped",
+            "beforeScore": 81,
+            "afterScore": null,
+            "reason": "Protected: high_score",
+            "origWords": 404,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 371,
+            "maxAllowed": 445,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          },
+          {
+            "index": 1,
+            "action": "recast",
+            "beforeScore": 65,
+            "afterScore": 81,
+            "reason": "Score 65 < threshold 70",
+            "origWords": 436,
+            "recastWords": 424,
+            "ratio": 97,
+            "minAllowed": 401,
+            "maxAllowed": 480,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": "prose-recast-polisher",
+            "routingReason": "filter_verb_specialist",
+            "weaknessTypes": [
+              "filter_verb_heavy",
+              "chatbot_patterns",
+              "weak_opening",
+              "soft_ending"
+            ],
+            "headingPreservation": {
+              "ok": true,
+              "originalCount": 0,
+              "recastCount": 0,
+              "error": null
+            },
+            "literaryAntiFlattening": {
+              "ok": true,
+              "reason": null,
+              "beforeScore": 65,
+              "afterScore": 81,
+              "flatteningDetails": null
+            }
+          },
+          {
+            "index": 2,
+            "action": "skipped",
+            "beforeScore": 81,
+            "afterScore": null,
+            "reason": "Protected: high_score",
+            "origWords": 336,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 309,
+            "maxAllowed": 370,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          }
+        ],
+        "routingReport": {
+          "modelDistribution": {
+            "prose-recast-polisher": 1
+          },
+          "weaknessDistribution": {
+            "filter_verb_heavy": 1,
+            "chatbot_patterns": 1,
+            "weak_opening": 1,
+            "soft_ending": 1
+          },
+          "totalChunks": 3,
+          "routedChunks": 1
+        }
+      },
+      "deltaB": {
+        "compositeScore": 2,
+        "filterVerbDelta": 3,
+        "chatbotPatternDelta": 2,
+        "headingDelta": 0
+      },
+      "deltaC": {
+        "compositeScore": 4,
+        "filterVerbDelta": 4,
+        "chatbotPatternDelta": 7,
+        "headingDelta": 0
+      }
+    },
+    {
+      "name": "Narrative Nonfiction",
+      "slug": "nonfiction",
+      "profileKey": "nonfiction",
+      "metricsA": {
+        "texture": {
+          "sentenceLengthVariance": 9.8,
+          "symmetryScore": 30,
+          "filterVerbDensity": 2.3,
+          "concreteRatio": 33,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.7,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 72,
+          "grade": "GOOD",
+          "diagnostics": [
+            "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "SOFT ENDING: Last sentence (17 words) is not shorter than average (19). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 2,
+            "not_just": 5,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 2,
+            "symmetrical_pairs": 13
+          },
+          "total": 22,
+          "density": 25.1
+        },
+        "filterVerbs": {
+          "total": 2,
+          "density": 2.3
+        },
+        "words": 877,
+        "headings": 0
+      },
+      "metricsB": {
+        "texture": {
+          "sentenceLengthVariance": 9.8,
+          "symmetryScore": 30,
+          "filterVerbDensity": 2.3,
+          "concreteRatio": 33,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.7,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 72,
+          "grade": "GOOD",
+          "diagnostics": [
+            "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "SOFT ENDING: Last sentence (17 words) is not shorter than average (19). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 2,
+            "not_just": 5,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 2,
+            "symmetrical_pairs": 13
+          },
+          "total": 22,
+          "density": 25.1
+        },
+        "filterVerbs": {
+          "total": 2,
+          "density": 2.3
+        },
+        "words": 877,
+        "headings": 0
+      },
+      "metricsC": {
+        "texture": {
+          "sentenceLengthVariance": 9.8,
+          "symmetryScore": 30,
+          "filterVerbDensity": 2.3,
+          "concreteRatio": 33,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.7,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 72,
+          "grade": "GOOD",
+          "diagnostics": [
+            "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "SOFT ENDING: Last sentence (17 words) is not shorter than average (19). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 2,
+            "not_just": 5,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 2,
+            "symmetrical_pairs": 13
+          },
+          "total": 22,
+          "density": 25.1
+        },
+        "filterVerbs": {
+          "total": 2,
+          "density": 2.3
+        },
+        "words": 877,
+        "headings": 0
+      },
+      "citA": 2,
+      "citB": 2,
+      "citC": 2,
+      "reportB": {
+        "profileUsed": "nonfiction",
+        "recastMode": "conservative",
+        "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+        "chunksAnalyzed": 2,
+        "chunksSkipped": 2,
+        "chunksRecast": 0,
+        "chunksFailed": 0,
+        "chunksRetried": 0,
+        "chunksRetrySucceeded": 0,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 9.8,
+          "symmetryScore": 30,
+          "filterVerbDensity": 2.3,
+          "concreteRatio": 33,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.7,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 72,
+          "grade": "GOOD",
+          "diagnostics": [
+            "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "SOFT ENDING: Last sentence (17 words) is not shorter than average (19). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 9.8,
+          "symmetryScore": 30,
+          "filterVerbDensity": 2.3,
+          "concreteRatio": 33,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.7,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 72,
+          "grade": "GOOD",
+          "diagnostics": [
+            "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "SOFT ENDING: Last sentence (17 words) is not shorter than average (19). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "safetyBlocks": 0,
+        "referenceBlocks": 0,
+        "headingBlocks": 0,
+        "literaryFlatteningBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "skipped",
+            "beforeScore": 72,
+            "afterScore": null,
+            "reason": "Score 72 >= threshold 70",
+            "origWords": 421,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 387,
+            "maxAllowed": 464,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          },
+          {
+            "index": 1,
+            "action": "skipped",
+            "beforeScore": 71,
+            "afterScore": null,
+            "reason": "Score 71 >= threshold 70",
+            "origWords": 456,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 419,
+            "maxAllowed": 502,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          }
+        ],
+        "routingReport": {
+          "modelDistribution": {},
+          "weaknessDistribution": {},
+          "totalChunks": 2,
+          "routedChunks": 0
+        }
+      },
+      "reportC": {
+        "profileUsed": "nonfiction",
+        "recastMode": "conservative",
+        "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+        "chunksAnalyzed": 2,
+        "chunksSkipped": 2,
+        "chunksRecast": 0,
+        "chunksFailed": 0,
+        "chunksRetried": 0,
+        "chunksRetrySucceeded": 0,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 9.8,
+          "symmetryScore": 30,
+          "filterVerbDensity": 2.3,
+          "concreteRatio": 33,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.7,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 72,
+          "grade": "GOOD",
+          "diagnostics": [
+            "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "SOFT ENDING: Last sentence (17 words) is not shorter than average (19). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 9.8,
+          "symmetryScore": 30,
+          "filterVerbDensity": 2.3,
+          "concreteRatio": 33,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 5.7,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 72,
+          "grade": "GOOD",
+          "diagnostics": [
+            "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "SOFT ENDING: Last sentence (17 words) is not shorter than average (19). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "safetyBlocks": 0,
+        "referenceBlocks": 0,
+        "headingBlocks": 0,
+        "literaryFlatteningBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "skipped",
+            "beforeScore": 72,
+            "afterScore": null,
+            "reason": "Score 72 >= threshold 70",
+            "origWords": 421,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 387,
+            "maxAllowed": 464,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          },
+          {
+            "index": 1,
+            "action": "skipped",
+            "beforeScore": 71,
+            "afterScore": null,
+            "reason": "Score 71 >= threshold 70",
+            "origWords": 456,
+            "recastWords": null,
+            "ratio": null,
+            "minAllowed": 419,
+            "maxAllowed": 502,
+            "retryAttempted": false,
+            "retrySucceeded": false,
+            "recastMode": "conservative",
+            "selectedModel": null,
+            "routingReason": null,
+            "weaknessTypes": null,
+            "headingPreservation": null,
+            "literaryAntiFlattening": null
+          }
+        ],
+        "routingReport": {
+          "modelDistribution": {},
+          "weaknessDistribution": {},
+          "totalChunks": 2,
+          "routedChunks": 0
+        }
+      },
+      "deltaB": {
+        "compositeScore": 0,
+        "filterVerbDelta": 0,
+        "chatbotPatternDelta": 0,
+        "headingDelta": 0
+      },
+      "deltaC": {
+        "compositeScore": 0,
+        "filterVerbDelta": 0,
+        "chatbotPatternDelta": 0,
+        "headingDelta": 0
+      }
+    }
+  ],
+  "summary": {
+    "avgDeltaB": 1,
+    "avgDeltaC": 2,
+    "totalFilterB": 4,
+    "totalFilterC": 6,
+    "nfHeadingsPreserved": true
+  },
+  "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+  "timestamp": "2026-06-09T15:42:24.607Z"
+}

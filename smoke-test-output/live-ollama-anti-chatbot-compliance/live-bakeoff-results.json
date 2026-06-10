@@ -1,0 +1,256 @@
+{
+  "results": [
+    {
+      "name": "Commercial Thriller",
+      "slug": "thriller",
+      "wordCountA": 1153,
+      "wordCountB": 1125,
+      "textureA": {
+        "sentenceLengthVariance": 9.3,
+        "symmetryScore": 18,
+        "filterVerbDensity": 6.1,
+        "concreteRatio": 82,
+        "openingVerbStrength": "strong",
+        "endingPunch": true,
+        "tripleConstructionDensity": 0,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 2.6,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 84,
+        "grade": "GOOD",
+        "diagnostics": [
+          "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+        ]
+      },
+      "textureB": {
+        "sentenceLengthVariance": 11.2,
+        "symmetryScore": 25,
+        "filterVerbDensity": 3.6,
+        "concreteRatio": 87,
+        "openingVerbStrength": "strong",
+        "endingPunch": true,
+        "tripleConstructionDensity": 0,
+        "thesisStatementDensity": 0.9,
+        "notJustDensity": 2.7,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 85,
+        "grade": "EXCELLENT",
+        "diagnostics": [
+          "THESIS STATEMENTS FOUND: 1 instance(s). Replace with image or action.",
+          "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+        ]
+      },
+      "patternsA": {
+        "counts": {
+          "filter_verbs": 7,
+          "not_just": 3,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 0,
+          "generic_emotion": 0,
+          "abstract_emotion": 2,
+          "symmetrical_pairs": 12
+        },
+        "total": 24,
+        "density": 20.8
+      },
+      "patternsB": {
+        "counts": {
+          "filter_verbs": 4,
+          "not_just": 3,
+          "thesis_statements": 1,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 0,
+          "generic_emotion": 0,
+          "abstract_emotion": 2,
+          "symmetrical_pairs": 16
+        },
+        "total": 26,
+        "density": 23.1
+      },
+      "delta": {
+        "compositeScore": 1,
+        "chatbotPatternDelta": -2,
+        "chatbotDensityDelta": -2.3,
+        "filterVerbDelta": 2.5
+      },
+      "sampleA": "Marcus used the reinforced steel door to push into a space that swallowed sound—a massive, subterranean operations center built into the decaying concrete structure of what was once a decommissioned military annex. Dust motes danced in the stark white light spilling from dozen overhead fluorescents, illuminating terminals stacked like digital monoliths and consoles festooned with fiber-optic spaghetti. The air conditioning hummed with an industrial, relentless beat, beating out the rhythm of mas",
+      "sampleB": "The decommissioned military annex smelled of ozone and stale industrial carpet, a deep, metallic scent that clung to everything Marcus inhaled. Dust motes swam in the narrow beam of his tactical flashlight, illuminating peeling green paint and years of institutional neglect. He shouldered through two heavy blast doors—the kind built for armored vehicles, not casual trespassers—and stepped into the cool vacuum beyond.\n\nThe space was enormous, a vaulted chamber that had been gutted and rebuilt fro"
+    },
+    {
+      "name": "Literary/Speculative Fiction",
+      "slug": "literary",
+      "wordCountA": 1120,
+      "wordCountB": 1033,
+      "textureA": {
+        "sentenceLengthVariance": 12.9,
+        "symmetryScore": 29,
+        "filterVerbDensity": 7.1,
+        "concreteRatio": 75,
+        "openingVerbStrength": "weak",
+        "endingPunch": false,
+        "tripleConstructionDensity": 0.9,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 0.9,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0.9,
+        "compositeScore": 74,
+        "grade": "GOOD",
+        "diagnostics": [
+          "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+          "SOFT ENDING: Last sentence (34 words) is not shorter than average (21). End on a punch."
+        ]
+      },
+      "textureB": {
+        "sentenceLengthVariance": 9.9,
+        "symmetryScore": 15,
+        "filterVerbDensity": 5.8,
+        "concreteRatio": 78,
+        "openingVerbStrength": "strong",
+        "endingPunch": false,
+        "tripleConstructionDensity": 1,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 1.9,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 80,
+        "grade": "GOOD",
+        "diagnostics": [
+          "SOFT ENDING: Last sentence (29 words) is not shorter than average (18). End on a punch.",
+          "\"NOT JUST\" PATTERN: 2 instance(s). Recast as direct statement."
+        ]
+      },
+      "patternsA": {
+        "counts": {
+          "filter_verbs": 8,
+          "not_just": 1,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 1,
+          "generic_emotion": 1,
+          "abstract_emotion": 3,
+          "symmetrical_pairs": 15
+        },
+        "total": 29,
+        "density": 25.9
+      },
+      "patternsB": {
+        "counts": {
+          "filter_verbs": 6,
+          "not_just": 2,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 1,
+          "generic_emotion": 0,
+          "abstract_emotion": 4,
+          "symmetrical_pairs": 8
+        },
+        "total": 21,
+        "density": 20.3
+      },
+      "delta": {
+        "compositeScore": 6,
+        "chatbotPatternDelta": 8,
+        "chatbotDensityDelta": 5.6,
+        "filterVerbDelta": 1.3
+      },
+      "sampleA": "The waiting room was designed in a shade of institutional beige that seemed genetically engineered to drain color and vitality from everything it touched. It was a vast, shallow space built entirely of composite paneling and synthetic carpet—a perfect tomb for the individual spirit. Elena Vasquez sat on a molded polymer bench that was bolted firmly into place, radiating an almost aggressive permanence. Above her, the fluorescent lights hummed with the steady, tireless energy of bureaucracy itsel",
+      "sampleB": "The waiting room smelled like burned ozone and stale disinfectant, a chemical cocktail that clung to the polyester upholstery of the molded plastic chairs. Building 7—the MVB always insisted it was \"Civic Anchor,\" though the facade revealed only institutional beige peeling at the edges. Elena Vasquez sat rigid in Chair G-14, her spine braced against the low backrest like she were awaiting a minor surgical procedure rather than an existential reckoning.\n\nThree hours had bled off into the echoing "
+    },
+    {
+      "name": "Narrative Nonfiction",
+      "slug": "nonfiction",
+      "wordCountA": 965,
+      "wordCountB": 706,
+      "textureA": {
+        "sentenceLengthVariance": 11,
+        "symmetryScore": 17,
+        "filterVerbDensity": 2.1,
+        "concreteRatio": 33,
+        "openingVerbStrength": "weak",
+        "endingPunch": true,
+        "tripleConstructionDensity": 1,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 1,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 80,
+        "grade": "GOOD",
+        "diagnostics": [
+          "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+          "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+        ]
+      },
+      "textureB": {
+        "sentenceLengthVariance": 9.8,
+        "symmetryScore": 23,
+        "filterVerbDensity": 5.7,
+        "concreteRatio": 25,
+        "openingVerbStrength": "weak",
+        "endingPunch": false,
+        "tripleConstructionDensity": 2.8,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 2.8,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 63,
+        "grade": "COMPETENT",
+        "diagnostics": [
+          "LOW CONCRETE RATIO: 25% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+          "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+          "SOFT ENDING: Last sentence (16 words) is not shorter than average (20). End on a punch.",
+          "\"NOT JUST\" PATTERN: 2 instance(s). Recast as direct statement."
+        ]
+      },
+      "patternsA": {
+        "counts": {
+          "filter_verbs": 2,
+          "not_just": 1,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 1,
+          "generic_emotion": 0,
+          "abstract_emotion": 2,
+          "symmetrical_pairs": 9
+        },
+        "total": 15,
+        "density": 15.5
+      },
+      "patternsB": {
+        "counts": {
+          "filter_verbs": 4,
+          "not_just": 2,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 2,
+          "generic_emotion": 0,
+          "abstract_emotion": 3,
+          "symmetrical_pairs": 8
+        },
+        "total": 19,
+        "density": 26.9
+      },
+      "delta": {
+        "compositeScore": -17,
+        "chatbotPatternDelta": -4,
+        "chatbotDensityDelta": -11.4,
+        "filterVerbDelta": -3.6
+      },
+      "sampleA": "David Hernandez sat in a chair that had seen better days, surrounded by the faint, institutional scent of recycled air and stale coffee. His desk at Delaney & Associates was less an office space and more a staging ground for discovery. He wasn't looking for malpractice; he was supposed to be optimizing the user experience for Milwaukee’s centralized hiring platform—a system so massive it processed nearly fifty thousand applications annually across twelve major municipal employers, from the Fire ",
+      "sampleB": "The corner of David Hernandez’s mahogany desk was littered with discarded printouts: payroll reports, preliminary audit checklists, and four coffee-stained mugs holding the residue of caffeine jitters. He slid a finger across the top sheet—a stack of CivicMetrics documentation—and leaned back in his ergonomic chair, letting the squeak of the caster wheels fill the momentary void. The air conditioning unit hummed, a steady, low thrumming sound that seemed to measure time itself.\n\nHis task, contra"
+    }
+  ],
+  "avgDelta": -3,
+  "avgPatternDrop": 1,
+  "model": "ghostwriter",
+  "temperature": 0.72,
+  "timestamp": "2026-06-09T11:14:55.372Z"
+}

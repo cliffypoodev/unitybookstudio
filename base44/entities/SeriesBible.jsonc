@@ -1,0 +1,125 @@
+{
+  "name": "SeriesBible",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "series_name": {
+      "type": "string",
+      "description": "Name of the series"
+    },
+    "source_project_id": {
+      "type": "string",
+      "description": "ID of the source project if it exists in the app"
+    },
+    "characters_json": {
+      "type": "string",
+      "description": "JSON array of character profiles with end-of-book states"
+    },
+    "world_state": {
+      "type": "string",
+      "description": "The world as it stands after the last book's events"
+    },
+    "resolved_threads": {
+      "type": "string",
+      "description": "JSON array of plot threads that are CLOSED"
+    },
+    "unresolved_threads": {
+      "type": "string",
+      "description": "JSON array of plot threads left open"
+    },
+    "timeline": {
+      "type": "string",
+      "description": "Chronological summary of all major events"
+    },
+    "relationships": {
+      "type": "string",
+      "description": "JSON of character relationship map with current states"
+    },
+    "rules_and_systems": {
+      "type": "string",
+      "description": "Magic systems, technology, laws, organizations with established rules"
+    },
+    "voice_profile": {
+      "type": "string",
+      "description": "Extracted prose style from the previous book"
+    },
+    "tone_and_themes": {
+      "type": "string",
+      "description": "Recurring themes, motifs, imagery patterns"
+    },
+    "key_locations": {
+      "type": "string",
+      "description": "JSON array of important places with descriptions"
+    },
+    "deaths_and_losses": {
+      "type": "string",
+      "description": "JSON array of characters who died or were lost"
+    },
+    "secrets_revealed": {
+      "type": "string",
+      "description": "JSON array of what the reader now knows"
+    },
+    "secrets_remaining": {
+      "type": "string",
+      "description": "JSON array of what the reader doesn't know yet"
+    },
+    "power_levels": {
+      "type": "string",
+      "description": "Character abilities/power at end of book"
+    },
+    "books_analyzed": {
+      "type": "number",
+      "default": 0,
+      "description": "How many books have been fed into this bible"
+    },
+    "last_book_title": {
+      "type": "string",
+      "description": "Title of the most recent book analyzed"
+    },
+    "last_book_ending": {
+      "type": "string",
+      "description": "How the last book ended"
+    }
+  },
+  "required": [
+    "series_name"
+  ]
+}

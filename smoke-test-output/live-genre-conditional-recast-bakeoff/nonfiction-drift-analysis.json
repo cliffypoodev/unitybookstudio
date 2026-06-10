@@ -1,0 +1,43 @@
+{
+  "name": "Narrative Nonfiction",
+  "firstChunk": {
+    "sentenceLengthVariance": 7.9,
+    "symmetryScore": 21,
+    "filterVerbDensity": 2.5,
+    "concreteRatio": 50,
+    "openingVerbStrength": "strong",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 10,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 78,
+    "grade": "GOOD",
+    "diagnostics": [
+      "\"NOT JUST\" PATTERN: 4 instance(s). Recast as direct statement."
+    ]
+  },
+  "lastChunk": {
+    "sentenceLengthVariance": 6.2,
+    "symmetryScore": 38,
+    "filterVerbDensity": 0,
+    "concreteRatio": 50,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 6.2,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 6.2,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 63,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "HIGH SYMMETRY: 38% of sentence pairs are similar length. Break up the rhythm.",
+      "SOFT ENDING: Last sentence (18 words) is not shorter than average (18). End on a punch.",
+      "HIGH TRIPLE CONSTRUCTION DENSITY: 6.2/1K words. Cut \"X, Y, and Z\" patterns."
+    ]
+  },
+  "drift": 15,
+  "chunkCount": 3
+}

@@ -1,0 +1,53 @@
+{
+  "name": "PromptCatalog",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Prompt title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short 1-2 sentence summary"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full prompt text"
+    },
+    "book_type": {
+      "type": "string",
+      "enum": [
+        "fiction",
+        "nonfiction"
+      ],
+      "description": "Fiction or nonfiction"
+    },
+    "genre": {
+      "type": "string",
+      "description": "Primary genre"
+    },
+    "category": {
+      "type": "string",
+      "description": "Broader grouping"
+    },
+    "subcategory": {
+      "type": "string",
+      "description": "Specific grouping within category"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Searchable tags"
+    },
+    "word_count": {
+      "type": "number",
+      "description": "Approximate word count of resulting book"
+    }
+  },
+  "required": [
+    "title",
+    "content"
+  ]
+}

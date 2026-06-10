@@ -1,0 +1,72 @@
+{
+  "title": "The Algorithmic Stage",
+  "slopBefore": 82,
+  "slopAfter": 73,
+  "flagged": [
+    {
+      "snippet": "ndency.  The update specified: RIVALRY TO DEPENDENCY.  Mira felt a cold knot tighten in her stomach, a raw panic that supers",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "o an unnerving silence that was worse than any noise.  Mira felt it first in her bones, a physical displacement sensation, l",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "e interface; she was staring into the core code itself. She felt the cold, clean weight of the platform’s intervention settl",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "tnership; it was an enforced intellectual prosthetic.  Mira felt the initial surge of panic—the specific, gut-punch fear tha",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "e deep than mere augmentation. The camera feed shifted; she felt the subtle tug on her digital self, not just at her perform",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "ne that made her feel genuinely alive, was dampened out. It felt like someone had applied a subtle dampener to her neurochem",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "nerving intensity. “It smooths out the peaks of panic.”Mira felt a prickle of rage that had become personal. She had spent y",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "ough her comms, adopting a neutral, authoritative tone that felt separate from her own voice box—a digital mouthpiece of ins",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "allibility by neutralizing it.  Neutralizing it. The phrase felt like a physical gag. She was being asked to prove that her ",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "ar model,' we are each fulfilling a pre-written trope.” She felt a surge of defiance—a pure, messy emotional overreach that ",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "r her to challenge the system itself, only his rival.  Mira felt herself tipping into an uncomfortable space between player ",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "sconnected her from its most reliable source of power. Mira felt a sudden, jarring emptiness in her fingertips, a void where",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "NexusStream remained. The sheer scale of the arena suddenly felt less like a stage and more like a carefully constructed cag",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    }
+  ]
+}

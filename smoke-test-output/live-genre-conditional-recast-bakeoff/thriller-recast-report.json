@@ -1,0 +1,73 @@
+{
+  "profileUsed": "thriller",
+  "chunksAnalyzed": 3,
+  "chunksSkipped": 2,
+  "chunksRecast": 1,
+  "chunksFailed": 0,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 8.4,
+    "symmetryScore": 19,
+    "filterVerbDensity": 4.7,
+    "concreteRatio": 75,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 3.9,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 70,
+    "grade": "GOOD",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (21 words) is not shorter than average (16). End on a punch.",
+      "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 8.2,
+    "symmetryScore": 14,
+    "filterVerbDensity": 3.3,
+    "concreteRatio": 75,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 4.1,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 72,
+    "grade": "GOOD",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (15 words) is not shorter than average (16). End on a punch.",
+      "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+    ]
+  },
+  "safetyBlocks": 0,
+  "referenceBlocks": 0,
+  "overcorrectionWarnings": [],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "skipped",
+      "beforeScore": 74,
+      "afterScore": null,
+      "reason": "Score 74 >= threshold 70"
+    },
+    {
+      "index": 1,
+      "action": "skipped",
+      "beforeScore": 82,
+      "afterScore": null,
+      "reason": "Protected: dialogue_heavy, high_score"
+    },
+    {
+      "index": 2,
+      "action": "recast",
+      "beforeScore": 67,
+      "afterScore": 78,
+      "reason": "Score 67 < threshold 70"
+    }
+  ]
+}

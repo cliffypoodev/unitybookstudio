@@ -1,0 +1,44 @@
+{
+  "name": "Literary/Speculative Fiction",
+  "firstChunk": {
+    "sentenceLengthVariance": 11,
+    "symmetryScore": 11,
+    "filterVerbDensity": 12.1,
+    "concreteRatio": 60,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 4.8,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 67,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "HIGH FILTER VERB DENSITY: 12.1/1K words (5 instances). Replace with direct sensation.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (34 words) is not shorter than average (21). End on a punch.",
+      "\"NOT JUST\" PATTERN: 2 instance(s). Recast as direct statement."
+    ]
+  },
+  "lastChunk": {
+    "sentenceLengthVariance": 8.4,
+    "symmetryScore": 22,
+    "filterVerbDensity": 3,
+    "concreteRatio": 100,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 0,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 84,
+    "grade": "GOOD",
+    "diagnostics": [
+      "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+    ]
+  },
+  "drift": -17,
+  "chunkCount": 3
+}

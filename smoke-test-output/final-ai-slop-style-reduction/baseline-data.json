@@ -1,0 +1,1182 @@
+[
+  {
+    "num": 1,
+    "title": "The Algorithmic Stage",
+    "wc": 3896,
+    "total": 81,
+    "density": "20.8",
+    "worst": "felt",
+    "worstN": 19,
+    "top3": [
+      [
+        "felt",
+        19
+      ],
+      [
+        "performance",
+        17
+      ],
+      [
+        "wasn't just",
+        7
+      ]
+    ],
+    "severity": "EXTREME",
+    "counts": {
+      "wasn't just": 7,
+      "didn't just": 5,
+      "isn't just": 1,
+      "not just": 3,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 1,
+      "felt": 19,
+      "realized": 1,
+      "realization": 0,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 5,
+      "performance": 17,
+      "the system wasn't": 2,
+      "the platform wasn't": 1,
+      "it was designed to": 1,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 1,
+      "foundational": 0,
+      "optimized": 4,
+      "quantifiable": 4,
+      "measurable": 0,
+      "operational": 3,
+      "interface": 5,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 2,
+    "title": "The Patron's Palette",
+    "wc": 3705,
+    "total": 48,
+    "density": "13.0",
+    "worst": "felt",
+    "worstN": 17,
+    "top3": [
+      [
+        "felt",
+        17
+      ],
+      [
+        "wasn't just",
+        6
+      ],
+      [
+        "the weight of",
+        3
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 6,
+      "didn't just": 2,
+      "isn't just": 2,
+      "not just": 2,
+      "more than just": 0,
+      "the weight of": 3,
+      "the sheer weight": 1,
+      "felt": 17,
+      "realized": 2,
+      "realization": 2,
+      "settled over": 2,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 1,
+      "performance": 0,
+      "the system wasn't": 0,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 1,
+      "wasn't merely": 1,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 0,
+      "optimized": 3,
+      "quantifiable": 1,
+      "measurable": 2,
+      "operational": 0,
+      "interface": 0,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 3,
+    "title": "The Office of Echoes",
+    "wc": 3210,
+    "total": 51,
+    "density": "15.9",
+    "worst": "felt",
+    "worstN": 13,
+    "top3": [
+      [
+        "felt",
+        13
+      ],
+      [
+        "wasn't just",
+        8
+      ],
+      [
+        "performance",
+        6
+      ]
+    ],
+    "severity": "EXTREME",
+    "counts": {
+      "wasn't just": 8,
+      "didn't just": 1,
+      "isn't just": 1,
+      "not just": 0,
+      "more than just": 1,
+      "the weight of": 1,
+      "the sheer weight": 1,
+      "felt": 13,
+      "realized": 2,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 3,
+      "performance": 6,
+      "the system wasn't": 3,
+      "the platform wasn't": 1,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 2,
+      "not merely": 1,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 1,
+      "optimized": 0,
+      "quantifiable": 1,
+      "measurable": 0,
+      "operational": 2,
+      "interface": 1,
+      "feedback loop": 1
+    }
+  },
+  {
+    "num": 4,
+    "title": "The Sacred Screen",
+    "wc": 3453,
+    "total": 58,
+    "density": "16.8",
+    "worst": "wasn't just",
+    "worstN": 11,
+    "top3": [
+      [
+        "wasn't just",
+        11
+      ],
+      [
+        "felt",
+        11
+      ],
+      [
+        "narrative",
+        5
+      ]
+    ],
+    "severity": "EXTREME",
+    "counts": {
+      "wasn't just": 11,
+      "didn't just": 4,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 1,
+      "felt": 11,
+      "realized": 2,
+      "realization": 2,
+      "settled over": 1,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 5,
+      "performance": 1,
+      "the system wasn't": 3,
+      "the platform wasn't": 0,
+      "it was designed to": 1,
+      "it wasn't merely": 0,
+      "wasn't merely": 1,
+      "not merely": 1,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 1,
+      "optimized": 3,
+      "quantifiable": 2,
+      "measurable": 4,
+      "operational": 1,
+      "interface": 2,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 5,
+    "title": "The Transit of Ghosts",
+    "wc": 3087,
+    "total": 45,
+    "density": "14.6",
+    "worst": "felt",
+    "worstN": 16,
+    "top3": [
+      [
+        "felt",
+        16
+      ],
+      [
+        "narrative",
+        10
+      ],
+      [
+        "wasn't just",
+        5
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 5,
+      "didn't just": 1,
+      "isn't just": 1,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 1,
+      "felt": 16,
+      "realized": 1,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 10,
+      "performance": 3,
+      "the system wasn't": 0,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 1,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 1,
+      "optimized": 0,
+      "quantifiable": 2,
+      "measurable": 0,
+      "operational": 0,
+      "interface": 1,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 6,
+    "title": "The Drift of Echoes",
+    "wc": 3773,
+    "total": 66,
+    "density": "17.5",
+    "worst": "felt",
+    "worstN": 15,
+    "top3": [
+      [
+        "felt",
+        15
+      ],
+      [
+        "narrative",
+        11
+      ],
+      [
+        "wasn't just",
+        8
+      ]
+    ],
+    "severity": "EXTREME",
+    "counts": {
+      "wasn't just": 8,
+      "didn't just": 5,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 3,
+      "the sheer weight": 1,
+      "felt": 15,
+      "realized": 3,
+      "realization": 0,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 11,
+      "performance": 0,
+      "the system wasn't": 0,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 1,
+      "wasn't merely": 2,
+      "not merely": 1,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 1,
+      "optimized": 1,
+      "quantifiable": 2,
+      "measurable": 3,
+      "operational": 5,
+      "interface": 3,
+      "feedback loop": 1
+    }
+  },
+  {
+    "num": 7,
+    "title": "The Anatomist's Stage",
+    "wc": 3461,
+    "total": 50,
+    "density": "14.4",
+    "worst": "felt",
+    "worstN": 11,
+    "top3": [
+      [
+        "felt",
+        11
+      ],
+      [
+        "wasn't just",
+        6
+      ],
+      [
+        "didn't just",
+        5
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 6,
+      "didn't just": 5,
+      "isn't just": 1,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 0,
+      "felt": 11,
+      "realized": 0,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 4,
+      "performance": 4,
+      "the system wasn't": 1,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 1,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 0,
+      "optimized": 1,
+      "quantifiable": 1,
+      "measurable": 5,
+      "operational": 2,
+      "interface": 3,
+      "feedback loop": 3
+    }
+  },
+  {
+    "num": 8,
+    "title": "The Pixelated Heir",
+    "wc": 3375,
+    "total": 41,
+    "density": "12.1",
+    "worst": "wasn't just",
+    "worstN": 8,
+    "top3": [
+      [
+        "wasn't just",
+        8
+      ],
+      [
+        "felt",
+        7
+      ],
+      [
+        "narrative",
+        6
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 8,
+      "didn't just": 2,
+      "isn't just": 1,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 0,
+      "felt": 7,
+      "realized": 3,
+      "realization": 2,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 6,
+      "performance": 5,
+      "the system wasn't": 1,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 1,
+      "foundational": 0,
+      "optimized": 0,
+      "quantifiable": 1,
+      "measurable": 1,
+      "operational": 2,
+      "interface": 0,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 9,
+    "title": "The Terminal Veil",
+    "wc": 4508,
+    "total": 68,
+    "density": "15.1",
+    "worst": "felt",
+    "worstN": 19,
+    "top3": [
+      [
+        "felt",
+        19
+      ],
+      [
+        "wasn't just",
+        11
+      ],
+      [
+        "narrative",
+        5
+      ]
+    ],
+    "severity": "EXTREME",
+    "counts": {
+      "wasn't just": 11,
+      "didn't just": 4,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 4,
+      "the sheer weight": 1,
+      "felt": 19,
+      "realized": 1,
+      "realization": 3,
+      "settled over": 1,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 5,
+      "performance": 2,
+      "the system wasn't": 2,
+      "the platform wasn't": 0,
+      "it was designed to": 1,
+      "it wasn't merely": 1,
+      "wasn't merely": 2,
+      "not merely": 1,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 1,
+      "foundational": 0,
+      "optimized": 0,
+      "quantifiable": 1,
+      "measurable": 1,
+      "operational": 4,
+      "interface": 1,
+      "feedback loop": 2
+    }
+  },
+  {
+    "num": 10,
+    "title": "The Algorithmic Battlefield",
+    "wc": 2804,
+    "total": 37,
+    "density": "13.2",
+    "worst": "felt",
+    "worstN": 11,
+    "top3": [
+      [
+        "felt",
+        11
+      ],
+      [
+        "wasn't just",
+        7
+      ],
+      [
+        "narrative",
+        6
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 7,
+      "didn't just": 5,
+      "isn't just": 1,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 0,
+      "felt": 11,
+      "realized": 0,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 6,
+      "performance": 0,
+      "the system wasn't": 0,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 1,
+      "optimized": 0,
+      "quantifiable": 2,
+      "measurable": 1,
+      "operational": 1,
+      "interface": 0,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 11,
+    "title": "The Plaza Ledger",
+    "wc": 3862,
+    "total": 45,
+    "density": "11.7",
+    "worst": "felt",
+    "worstN": 13,
+    "top3": [
+      [
+        "felt",
+        13
+      ],
+      [
+        "wasn't just",
+        6
+      ],
+      [
+        "didn't just",
+        4
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 6,
+      "didn't just": 4,
+      "isn't just": 2,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 2,
+      "felt": 13,
+      "realized": 1,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 4,
+      "performance": 2,
+      "the system wasn't": 0,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 1,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 0,
+      "optimized": 4,
+      "quantifiable": 2,
+      "measurable": 0,
+      "operational": 1,
+      "interface": 0,
+      "feedback loop": 1
+    }
+  },
+  {
+    "num": 12,
+    "title": "The Anatomist's Protocol",
+    "wc": 3503,
+    "total": 40,
+    "density": "11.4",
+    "worst": "felt",
+    "worstN": 11,
+    "top3": [
+      [
+        "felt",
+        11
+      ],
+      [
+        "wasn't just",
+        5
+      ],
+      [
+        "narrative",
+        5
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 5,
+      "didn't just": 2,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 2,
+      "the sheer weight": 0,
+      "felt": 11,
+      "realized": 1,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 5,
+      "performance": 4,
+      "the system wasn't": 0,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 1,
+      "wasn't merely": 2,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 0,
+      "optimized": 1,
+      "quantifiable": 3,
+      "measurable": 2,
+      "operational": 0,
+      "interface": 0,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 13,
+    "title": "The Syntax of Survival",
+    "wc": 3532,
+    "total": 38,
+    "density": "10.8",
+    "worst": "felt",
+    "worstN": 11,
+    "top3": [
+      [
+        "felt",
+        11
+      ],
+      [
+        "wasn't just",
+        7
+      ],
+      [
+        "the weight of",
+        4
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 7,
+      "didn't just": 2,
+      "isn't just": 1,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 4,
+      "the sheer weight": 1,
+      "felt": 11,
+      "realized": 2,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 0,
+      "performance": 0,
+      "the system wasn't": 2,
+      "the platform wasn't": 1,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 1,
+      "optimized": 0,
+      "quantifiable": 1,
+      "measurable": 1,
+      "operational": 1,
+      "interface": 2,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 14,
+    "title": "The Incantation of Bytes",
+    "wc": 3298,
+    "total": 33,
+    "density": "10.0",
+    "worst": "felt",
+    "worstN": 12,
+    "top3": [
+      [
+        "felt",
+        12
+      ],
+      [
+        "narrative",
+        8
+      ],
+      [
+        "wasn't just",
+        3
+      ]
+    ],
+    "severity": "MEDIUM",
+    "counts": {
+      "wasn't just": 3,
+      "didn't just": 1,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 0,
+      "felt": 12,
+      "realized": 0,
+      "realization": 0,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 8,
+      "performance": 1,
+      "the system wasn't": 1,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 0,
+      "optimized": 3,
+      "quantifiable": 3,
+      "measurable": 0,
+      "operational": 0,
+      "interface": 0,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 15,
+    "title": "The Transit of Errors",
+    "wc": 2548,
+    "total": 33,
+    "density": "13.0",
+    "worst": "felt",
+    "worstN": 10,
+    "top3": [
+      [
+        "felt",
+        10
+      ],
+      [
+        "wasn't just",
+        7
+      ],
+      [
+        "performance",
+        5
+      ]
+    ],
+    "severity": "MEDIUM",
+    "counts": {
+      "wasn't just": 7,
+      "didn't just": 1,
+      "isn't just": 1,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 0,
+      "the sheer weight": 1,
+      "felt": 10,
+      "realized": 1,
+      "realization": 0,
+      "settled over": 1,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 1,
+      "performance": 5,
+      "the system wasn't": 1,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 0,
+      "optimized": 0,
+      "quantifiable": 1,
+      "measurable": 1,
+      "operational": 1,
+      "interface": 1,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 16,
+    "title": "The Whispering Glade",
+    "wc": 3424,
+    "total": 47,
+    "density": "13.7",
+    "worst": "wasn't just",
+    "worstN": 8,
+    "top3": [
+      [
+        "wasn't just",
+        8
+      ],
+      [
+        "felt",
+        8
+      ],
+      [
+        "narrative",
+        7
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 8,
+      "didn't just": 4,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 0,
+      "felt": 8,
+      "realized": 3,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 7,
+      "performance": 0,
+      "the system wasn't": 2,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 3,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 1,
+      "foundational": 0,
+      "optimized": 1,
+      "quantifiable": 0,
+      "measurable": 2,
+      "operational": 1,
+      "interface": 4,
+      "feedback loop": 1
+    }
+  },
+  {
+    "num": 17,
+    "title": "The Echo Chamber",
+    "wc": 2203,
+    "total": 31,
+    "density": "14.1",
+    "worst": "felt",
+    "worstN": 9,
+    "top3": [
+      [
+        "felt",
+        9
+      ],
+      [
+        "narrative",
+        7
+      ],
+      [
+        "didn't just",
+        4
+      ]
+    ],
+    "severity": "MEDIUM",
+    "counts": {
+      "wasn't just": 1,
+      "didn't just": 4,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 1,
+      "the sheer weight": 0,
+      "felt": 9,
+      "realized": 3,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 7,
+      "performance": 1,
+      "the system wasn't": 1,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 0,
+      "optimized": 0,
+      "quantifiable": 0,
+      "measurable": 3,
+      "operational": 0,
+      "interface": 0,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 18,
+    "title": "The Stage of Errors",
+    "wc": 4046,
+    "total": 72,
+    "density": "17.8",
+    "worst": "wasn't just",
+    "worstN": 15,
+    "top3": [
+      [
+        "wasn't just",
+        15
+      ],
+      [
+        "felt",
+        15
+      ],
+      [
+        "performance",
+        12
+      ]
+    ],
+    "severity": "EXTREME",
+    "counts": {
+      "wasn't just": 15,
+      "didn't just": 4,
+      "isn't just": 2,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 2,
+      "the sheer weight": 0,
+      "felt": 15,
+      "realized": 0,
+      "realization": 2,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 10,
+      "performance": 12,
+      "the system wasn't": 0,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 0,
+      "foundational": 1,
+      "optimized": 1,
+      "quantifiable": 0,
+      "measurable": 1,
+      "operational": 2,
+      "interface": 5,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 19,
+    "title": "The Threshold of Bytes",
+    "wc": 3449,
+    "total": 36,
+    "density": "10.4",
+    "worst": "felt",
+    "worstN": 10,
+    "top3": [
+      [
+        "felt",
+        10
+      ],
+      [
+        "wasn't just",
+        6
+      ],
+      [
+        "narrative",
+        4
+      ]
+    ],
+    "severity": "HIGH",
+    "counts": {
+      "wasn't just": 6,
+      "didn't just": 1,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 3,
+      "the sheer weight": 0,
+      "felt": 10,
+      "realized": 2,
+      "realization": 0,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 4,
+      "performance": 3,
+      "the system wasn't": 1,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 1,
+      "wasn't merely": 2,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 1,
+      "foundational": 0,
+      "optimized": 1,
+      "quantifiable": 1,
+      "measurable": 0,
+      "operational": 0,
+      "interface": 0,
+      "feedback loop": 0
+    }
+  },
+  {
+    "num": 20,
+    "title": "The Battlefield Code",
+    "wc": 3444,
+    "total": 55,
+    "density": "16.0",
+    "worst": "felt",
+    "worstN": 16,
+    "top3": [
+      [
+        "felt",
+        16
+      ],
+      [
+        "wasn't just",
+        9
+      ],
+      [
+        "operational",
+        6
+      ]
+    ],
+    "severity": "EXTREME",
+    "counts": {
+      "wasn't just": 9,
+      "didn't just": 2,
+      "isn't just": 0,
+      "not just": 0,
+      "more than just": 0,
+      "the weight of": 4,
+      "the sheer weight": 1,
+      "felt": 16,
+      "realized": 2,
+      "realization": 1,
+      "settled over": 0,
+      "washed over": 0,
+      "something shifted": 0,
+      "narrative": 5,
+      "performance": 3,
+      "the system wasn't": 0,
+      "the platform wasn't": 0,
+      "it was designed to": 0,
+      "it wasn't merely": 0,
+      "wasn't merely": 0,
+      "not merely": 0,
+      "palpable": 0,
+      "meticulously": 0,
+      "luminous": 0,
+      "relentless": 0,
+      "woven into": 1,
+      "foundational": 1,
+      "optimized": 0,
+      "quantifiable": 1,
+      "measurable": 2,
+      "operational": 6,
+      "interface": 1,
+      "feedback loop": 0
+    }
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "title": "The Last Room on Bellweather Ward",
+  "genre": "Psychological thriller with light speculative elements",
+  "premise": "Mara Venn, a former hospice nurse, takes a night-shift job at Bellweather House, an elite memory-care facility where one nonverbal resident begins writing the name of Mara's dead brother on glass. As Mara investigates, she discovers Bellweather is preserving memories that should have died with their owners.",
+  "characters": [
+    {
+      "name": "Mara Venn",
+      "desc": "former hospice nurse, practical, guarded, guilty over brother Owen's death"
+    },
+    {
+      "name": "Mr. Vale",
+      "desc": "elderly resident, mostly nonverbal, physically frail, knows things he shouldn't"
+    },
+    {
+      "name": "Dr. Lask",
+      "desc": "facility director, polished, controlled, quietly threatening"
+    },
+    {
+      "name": "Owen Venn",
+      "desc": "Mara's dead brother, present through voicemail/memory/clues"
+    }
+  ],
+  "setting": "Bellweather House, an elite memory-care facility"
+}

@@ -1,0 +1,700 @@
+:root {
+  --notebook-accent: #8b5cf6;
+  --notebook-font-size: 16px;
+  --notebook-paper: #fffdf7;
+  --notebook-paper-alt: #f8f2e7;
+  --notebook-ink: #2a2218;
+  --notebook-muted: #756a59;
+  --notebook-line: rgba(86, 108, 146, 0.16);
+  --notebook-margin: rgba(211, 95, 95, 0.28);
+  --notebook-shadow: 0 30px 90px rgba(35, 24, 12, 0.16);
+}
+
+:root[data-notebook-theme='beta-original'] {
+  --notebook-paper: #fffdf7;
+  --notebook-paper-alt: #f6efe2;
+  --notebook-ink: #2d2419;
+  --notebook-muted: #7b6b59;
+  --notebook-line: rgba(104, 126, 165, 0.16);
+  --notebook-margin: rgba(214, 93, 93, 0.26);
+}
+
+:root[data-notebook-theme='classic-cream'] {
+  --notebook-paper: #fffdf7;
+  --notebook-paper-alt: #f6efe2;
+  --notebook-ink: #2d2419;
+  --notebook-muted: #7b6b59;
+  --notebook-line: rgba(104, 126, 165, 0.16);
+  --notebook-margin: rgba(214, 93, 93, 0.26);
+}
+
+:root[data-notebook-theme='midnight-writer'] {
+  --notebook-paper: #191c27;
+  --notebook-paper-alt: #121521;
+  --notebook-ink: #ecf3ff;
+  --notebook-muted: #a4b2cd;
+  --notebook-line: rgba(117, 143, 196, 0.16);
+  --notebook-margin: rgba(253, 126, 126, 0.24);
+  --notebook-shadow: 0 34px 110px rgba(4, 6, 15, 0.55);
+}
+
+:root[data-notebook-theme='forest-study'] {
+  --notebook-paper: #f5f2e8;
+  --notebook-paper-alt: #ebe5d5;
+  --notebook-ink: #223026;
+  --notebook-muted: #60715f;
+  --notebook-line: rgba(99, 132, 108, 0.15);
+  --notebook-margin: rgba(161, 77, 77, 0.22);
+}
+
+:root[data-notebook-theme='ocean-draft'] {
+  --notebook-paper: #f3f9fc;
+  --notebook-paper-alt: #e7f1f7;
+  --notebook-ink: #16324a;
+  --notebook-muted: #5b7b93;
+  --notebook-line: rgba(88, 136, 182, 0.16);
+  --notebook-margin: rgba(205, 111, 111, 0.2);
+}
+
+:root[data-notebook-theme='typewriter'] {
+  --notebook-paper: #f7f4ee;
+  --notebook-paper-alt: #ebe6db;
+  --notebook-ink: #2c2925;
+  --notebook-muted: #787066;
+  --notebook-line: rgba(122, 133, 160, 0.15);
+  --notebook-margin: rgba(176, 97, 97, 0.22);
+}
+
+:root[data-notebook-theme='antique-sepia'] {
+  --notebook-paper: #f9f1df;
+  --notebook-paper-alt: #efe3cb;
+  --notebook-ink: #4b311a;
+  --notebook-muted: #8a6a49;
+  --notebook-line: rgba(158, 122, 88, 0.14);
+  --notebook-margin: rgba(181, 97, 81, 0.22);
+}
+
+.notebook-frame {
+  color: var(--notebook-ink);
+  font-size: var(--notebook-font-size);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.notebook-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.notebook-kicker {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--notebook-muted);
+}
+
+.notebook-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4vw, 4.5rem);
+  line-height: 0.95;
+  color: var(--notebook-ink);
+}
+
+.notebook-subtitle {
+  margin: 0.75rem 0 0;
+  max-width: 48rem;
+  color: var(--notebook-muted);
+}
+
+.notebook-tabs {
+  display: none;
+}
+
+.notebook-tabs-wrapper {
+  display: none;
+}
+
+.notebook-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 2px solid transparent;
+  border-bottom: 0;
+  border-radius: 1rem 1rem 0 0;
+  padding: 0.75rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: white;
+  opacity: 0.55;
+  white-space: nowrap;
+  transform-origin: bottom center;
+  will-change: transform, opacity, filter, box-shadow, border-color;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, filter 0.2s ease;
+  filter: brightness(0.85) saturate(0.7);
+}
+
+.notebook-tab:hover {
+  opacity: 0.8;
+  filter: brightness(0.95) saturate(0.85);
+}
+
+.notebook-tab.is-active {
+  opacity: 1;
+  transform: scale(1.08);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 0 10px 1px currentColor,
+    0 0 24px 3px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  filter: brightness(1.15) saturate(1.25);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 8px rgba(255, 255, 255, 0.15);
+  z-index: 2;
+}
+
+.notebook-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.notebook-spread-wrap,
+.notebook-body.is-wide {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.notebook-spread-wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
+}
+
+.notebook-spread-wrap .notebook-page {
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+}
+
+.notebook-page {
+  position: relative;
+  min-height: 0;
+  max-height: none;
+  background: linear-gradient(180deg, var(--notebook-paper), var(--notebook-paper-alt));
+  border: 1px solid rgba(76, 58, 37, 0.08);
+  box-shadow: var(--notebook-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.notebook-page--left {
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.notebook-page--right {
+  border-radius: 0.5rem 2rem 2rem 0.5rem;
+}
+
+.notebook-page--wide {
+  border-radius: 0 2rem 2rem 0;
+  overflow: hidden;
+}
+
+.notebook-page.is-ruled::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 32px,
+    var(--notebook-line) 33px,
+    transparent 34px
+  );
+  pointer-events: none;
+}
+
+.notebook-page.has-margin::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3.5rem;
+  width: 1px;
+  background: var(--notebook-margin);
+  pointer-events: none;
+}
+
+.notebook-page-inner {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  padding: 1.5rem 1.5rem 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(76, 58, 37, 0.15) transparent;
+}
+
+.notebook-page-inner::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notebook-page-inner::-webkit-scrollbar-thumb {
+  background: rgba(76, 58, 37, 0.15);
+  border-radius: 4px;
+}
+
+.notebook-page-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notebook-page--wide .notebook-page-inner {
+  padding: 1.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.notebook-spiral {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 0;
+  z-index: 20;
+  pointer-events: none;
+  color: rgba(72, 63, 54, 0.55);
+}
+
+.notebook-spiral-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  background: linear-gradient(180deg, rgba(72,63,54,0.08), rgba(72,63,54,0.14), rgba(72,63,54,0.08));
+  border-radius: 2px;
+}
+
+.notebook-spiral-ring {
+  position: relative;
+  z-index: 2;
+}
+
+.notebook-spiral-svg {
+  width: 28px;
+  height: 14px;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.06));
+}
+
+.notebook-placeholder {
+  display: flex;
+  min-height: 52vh;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px dashed rgba(76, 58, 37, 0.18);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  background: rgba(255,255,255,0.35);
+}
+
+.notebook-placeholder-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3vw, 3rem);
+  color: var(--notebook-ink);
+}
+
+.notebook-placeholder-copy {
+  margin: 0.8rem 0 0;
+  max-width: 38rem;
+  color: var(--notebook-muted);
+  line-height: 1.8;
+}
+
+.notebook-scribble {
+  position: relative;
+  display: block;
+  width: fit-content;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--notebook-ink);
+}
+
+.notebook-scribble-svg {
+  width: 180px;
+  height: 70px;
+}
+
+.notebook-scribble-path {
+  fill: none;
+  stroke: var(--notebook-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 520;
+  stroke-dashoffset: 520;
+  transition: stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1), opacity 0.2s ease;
+  opacity: 0.2;
+}
+
+.notebook-scribble.is-active .notebook-scribble-path,
+.notebook-scribble:hover .notebook-scribble-path {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+.notebook-scribble-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 14px 28px;
+  font-weight: 700;
+}
+
+.notebook-project-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(76, 58, 37, 0.12);
+  background: rgba(255,255,255,0.42);
+  padding: 0.9rem 1rem;
+  text-align: left;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.notebook-project-row:hover,
+.notebook-project-row.is-active {
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.7);
+  border-color: var(--notebook-accent);
+}
+
+.notebook-stat-card {
+  border-radius: 1.2rem;
+  border: 1px solid rgba(76, 58, 37, 0.12);
+  background: rgba(255,255,255,0.48);
+  padding: 1rem;
+}
+
+.notebook-stat-label {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--notebook-muted);
+}
+
+.notebook-stat-value {
+  margin: 0.6rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--notebook-ink);
+}
+
+/* Mobile layout is handled by JS (useIsMobile) in NotebookShell */
+
+/* Fix Quill editor toolbar SVG icons */
+.ql-toolbar svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+.ql-toolbar .ql-picker-label svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+.ql-toolbar .ql-stroke {
+  stroke: currentColor;
+}
+.ql-toolbar .ql-fill {
+  fill: currentColor;
+}
+
+/* Quill custom font classes */
+.ql-font-default { font-family: inherit; }
+.ql-font-Cormorant\ Garamond, .ql-font-Cormorant-Garamond { font-family: 'Cormorant Garamond', serif; }
+.ql-font-Georgia { font-family: 'Georgia', serif; }
+.ql-font-Merriweather { font-family: 'Merriweather', serif; }
+.ql-font-Libre\ Baskerville, .ql-font-Libre-Baskerville { font-family: 'Libre Baskerville', serif; }
+.ql-font-Lora { font-family: 'Lora', serif; }
+.ql-font-Playfair\ Display, .ql-font-Playfair-Display { font-family: 'Playfair Display', serif; }
+.ql-font-Inter { font-family: 'Inter', sans-serif; }
+.ql-font-Arial { font-family: 'Arial', sans-serif; }
+.ql-font-Times\ New\ Roman, .ql-font-Times-New-Roman { font-family: 'Times New Roman', serif; }
+
+/* Quill custom size classes */
+.ql-size-10px { font-size: 10px; }
+.ql-size-11px { font-size: 11px; }
+.ql-size-12px { font-size: 12px; }
+.ql-size-13px { font-size: 13px; }
+.ql-size-14px { font-size: 14px; }
+.ql-size-16px { font-size: 16px; }
+.ql-size-18px { font-size: 18px; }
+.ql-size-20px { font-size: 20px; }
+.ql-size-24px { font-size: 24px; }
+.ql-size-28px { font-size: 28px; }
+.ql-size-32px { font-size: 32px; }
+.ql-size-36px { font-size: 36px; }
+.ql-size-48px { font-size: 48px; }
+
+/* Export editor — word-processor paragraph styling */
+.export-quill-editor .ql-editor p {
+  margin-bottom: 0.85em;
+  text-align: justify;
+  text-indent: 1.5em;
+}
+
+.export-quill-editor .ql-editor p:first-child {
+  text-indent: 0;
+}
+
+.export-quill-editor .ql-editor h1,
+.export-quill-editor .ql-editor h2,
+.export-quill-editor .ql-editor h3 {
+  text-indent: 0;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.export-quill-editor .ql-editor h1 {
+  text-align: center;
+  font-size: 1.6em;
+  font-weight: 700;
+}
+
+.export-quill-editor .ql-editor h2 {
+  text-align: center;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.export-quill-editor .ql-editor h3 {
+  font-size: 1.15em;
+  font-weight: 600;
+}
+
+.export-quill-editor .ql-editor hr {
+  margin: 1.5em auto;
+  border: none;
+  text-align: center;
+}
+
+.export-quill-editor .ql-editor hr::after {
+  content: '• • •';
+  color: var(--notebook-muted, #756a59);
+  letter-spacing: 0.5em;
+  font-size: 0.85em;
+}
+
+.export-quill-editor .ql-editor blockquote {
+  border-left: 3px solid var(--notebook-line, rgba(86, 108, 146, 0.16));
+  padding-left: 1em;
+  margin: 1em 0;
+  font-style: italic;
+  color: var(--notebook-muted, #756a59);
+}
+
+@media (max-width: 640px) {
+  .notebook-header {
+    flex-direction: column;
+  }
+
+  .notebook-tabs {
+    gap: 0.25rem;
+  }
+
+  .notebook-tab {
+    min-width: 0;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.02em;
+    border-radius: 0.75rem 0.75rem 0 0;
+  }
+
+  .notebook-page-inner {
+    padding: 1rem 0.75rem;
+  }
+
+  .notebook-page--wide .notebook-page-inner {
+    padding: 0.5rem;
+  }
+
+  .notebook-page.has-margin::after {
+    left: 2rem;
+  }
+}
+
+/* ================================================================
+   MOBILE OPTIMIZATION — Single Page View
+   Only activates when viewport ≤ 768px
+   ================================================================ */
+
+@media (max-width: 768px) {
+
+  /* ─── TAB BAR: Horizontal scroll, no wrapping ─── */
+  .notebook-tabs-wrapper {
+    display: block;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .notebook-tabs-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+  .notebook-tabs-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, hsl(var(--background)));
+    pointer-events: none;
+    z-index: 35;
+  }
+  .notebook-tabs {
+    display: flex !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap !important;
+    gap: 0.2rem !important;
+    padding-right: 30px !important;
+  }
+  .notebook-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .notebook-tab {
+    flex: 0 0 auto !important;
+    min-width: 56px;
+    padding: 0.45rem 0.6rem !important;
+    font-size: 0.55rem !important;
+  }
+  .notebook-tab.is-active {
+    transform: scale(1.04);
+  }
+
+  /* ─── NOTEBOOK MOBILE SINGLE PAGE ─── */
+  .notebook-mobile-single {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .notebook-page--mobile {
+    flex: none !important;
+    width: 100% !important;
+    border-radius: 1rem !important;
+    min-height: 65vh;
+    max-height: none;
+  }
+
+  /* Hide spiral on mobile (it's in desktop spread only, but just in case) */
+  .notebook-spiral {
+    display: none !important;
+  }
+
+  /* Hide margin lines on mobile for cleanliness */
+  .notebook-page.has-margin::after {
+    display: none !important;
+  }
+
+  /* ─── PAGE TOGGLE ─── */
+  .mobile-page-toggle {
+    display: flex !important;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+  .mobile-page-toggle .mpt-btn {
+    padding: 6px 20px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(76, 58, 37, 0.15);
+    background: var(--notebook-paper, #fffdf7);
+    color: var(--notebook-muted, #756a59);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mobile-page-toggle .mpt-btn.active {
+    background: var(--notebook-ink, #2a2218);
+    color: var(--notebook-paper, #fffdf7);
+    border-color: var(--notebook-ink, #2a2218);
+  }
+
+  /* ─── WIDE TABS: Reduce padding ─── */
+  .notebook-page--wide {
+    min-height: auto;
+    max-height: none;
+    border-radius: 1rem !important;
+  }
+  .notebook-page--wide .notebook-page-inner {
+    padding: 0.5rem !important;
+  }
+
+  /* ─── HEADER: Compact on mobile ─── */
+  .notebook-title {
+    font-size: clamp(1.5rem, 6vw, 2.2rem) !important;
+  }
+  .notebook-subtitle {
+    font-size: 0.8rem;
+  }
+
+  /* ─── FORM INPUTS: Prevent iOS zoom ─── */
+  input[type="text"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* ─── GENERAL SPACING ─── */
+  .notebook-frame {
+    padding: 0;
+  }
+}
+
+/* Hide page toggle on desktop */
+@media (min-width: 769px) {
+  .mobile-page-toggle {
+    display: none !important;
+  }
+  .notebook-tabs-wrapper::after {
+    display: none;
+  }
+}

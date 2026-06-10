@@ -1,0 +1,100 @@
+═══ Chapter 6 Diagnosis ═══
+
+Text length: 1368 chars, 221 words
+
+── CANARY SEARCH ──
+  "She were": FOUND (2)
+    → "...had been replaced by something heavier. She were carrying a weight that wasn't hers alon..."
+    → "...She were those just metrics? She was all that me..."
+  "a obvious": FOUND (1)
+    → "...? It was no longer a void of sound, but a obvious thing, pressing against her ears...."
+  "Aether were": FOUND (1)
+    → "...cated emotional noise just data points? Aether were they optimized for emotional echo? It w..."
+  "were those just": FOUND (1)
+    → "...She were those just metrics? She was all that messy, over-c..."
+  "Was was": not found
+  "You was": not found
+  "He were": FOUND (2)
+    → "...ad been replaced by something heavier. She were carrying a weight that wasn't hers alon..."
+    → "...She were those just metrics? She was all that me..."
+  "She was it": not found
+
+── QUALITY GATE (PRE-REPAIR) ──
+  ok: false
+  recommendedAction: BLOCK_POLISH_SAVE
+  malformed count: 5
+    [she-were] "She were" → L3
+    [she-were] "She were" → L5
+    [a-obvious] "a obvious" → L5
+    [aether-were] "Aether were" → L5
+    [were-those-just] "She were those just" → L5
+  quoteIssues count: 0
+  slop total: 15
+
+── DETERMINISTIC GRAMMAR REPAIR ──
+  repairs made: 3
+    "She were" → "She was" [rule: she-were]
+      ctx: "had been replaced by something heavier. She were carrying a weight that wasn't h"
+    "She were" → "She was" [rule: she-were]
+      ctx: "had been replaced by something heavier. She were carrying a weight that wasn't h"
+    "a obvious" → "an obvious" [rule: a-obvious]
+      ctx: "? It was no longer a void of sound, but a obvious thing, pressing against her ea"
+
+── MISSING OPENING QUOTE REPAIR ──
+  repairs made: 0
+
+── QUALITY GATE (POST-REPAIR) ──
+  ok: false
+  recommendedAction: BLOCK_POLISH_SAVE
+  malformed count: 1
+    [aether-were] "Aether were" → L5
+  quoteIssues count: 0
+  slop total: 15
+
+── MANUSCRIPT SAFETY GATE (PRE-REPAIR, pre-export) ──
+  ok: false
+  recommendedAction: REJECT_MANUAL_REVIEW
+  processLeaks: 0
+  contamination: 0
+  malformed: 5
+    reason: Malformed grammar (5): "She were", "She were", "a obvious", "Aether were", "were those just"
+
+── MANUSCRIPT SAFETY GATE (POST-REPAIR, pre-export) ──
+  ok: true
+  recommendedAction: WARN_ONLY
+  processLeaks: 0
+  contamination: 0
+  malformed: 1
+    reason: Malformed grammar (1): "Aether were"
+
+── SAVE LOOP TRACE (simulated) ──
+  f.content before repair: 1368 chars
+  f.content after repair: 1367 chars
+  f.content === f.original? false
+  Post-polish quality gate: BLOCK_POLISH_SAVE
+  ⚠️ BLOCK_POLISH_SAVE triggered
+  Current behavior: f.content = f.original (REVERTS ALL REPAIRS)
+  After revert: f.content === f.original → save loop SKIPS chapter
+  Export will resolve ORIGINAL text (with all malformed issues)
+
+  ROOT CAUSE CONFIRMED:
+  Grammar repair DOES fix "She were" and "a obvious"
+  But "Aether were" remains (no repair rule)
+  Quality gate sees Aether were → BLOCK_POLISH_SAVE
+  Save loop REVERTS entire chapter → ALL repairs lost
+  Export sees original text with She were + a obvious
+
+── REPAIRS THAT GET LOST ON REVERT ──
+  ✅ Fixed "She were" → "She was" → LOST on revert ❌
+  ✅ Fixed "She were" → "She was" → LOST on revert ❌
+  ✅ Fixed "a obvious" → "an obvious" → LOST on revert ❌
+
+── CANARY SEARCH (POST-REPAIR) ──
+  "She were": ABSENT ✅
+  "a obvious": ABSENT ✅
+  "Aether were": FOUND (1) — STILL PRESENT
+  "were those just": ABSENT ✅
+  "Was was": ABSENT ✅
+  "You was": ABSENT ✅
+  "He were": ABSENT ✅
+  "She was it": ABSENT ✅

@@ -1,0 +1,112 @@
+{
+  "profileUsed": "nonfiction",
+  "recastMode": "conservative",
+  "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+  "chunksAnalyzed": 2,
+  "chunksSkipped": 1,
+  "chunksRecast": 0,
+  "chunksFailed": 1,
+  "chunksRetried": 0,
+  "chunksRetrySucceeded": 0,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 12.4,
+    "symmetryScore": 13,
+    "filterVerbDensity": 24.5,
+    "concreteRatio": 100,
+    "openingVerbStrength": "weak",
+    "endingPunch": true,
+    "tripleConstructionDensity": 1.5,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 0,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 1.5,
+    "compositeScore": 76,
+    "grade": "GOOD",
+    "diagnostics": [
+      "HIGH FILTER VERB DENSITY: 24.5/1K words (16 instances). Replace with direct sensation.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 12.4,
+    "symmetryScore": 13,
+    "filterVerbDensity": 24.5,
+    "concreteRatio": 100,
+    "openingVerbStrength": "weak",
+    "endingPunch": true,
+    "tripleConstructionDensity": 1.5,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 0,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 1.5,
+    "compositeScore": 76,
+    "grade": "GOOD",
+    "diagnostics": [
+      "HIGH FILTER VERB DENSITY: 24.5/1K words (16 instances). Replace with direct sensation.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+    ]
+  },
+  "safetyBlocks": 1,
+  "referenceBlocks": 1,
+  "headingBlocks": 0,
+  "literaryFlatteningBlocks": 0,
+  "overcorrectionWarnings": [],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "skipped",
+      "beforeScore": 70,
+      "afterScore": null,
+      "reason": "Protected: citation",
+      "origWords": 471,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 433,
+      "maxAllowed": 519,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative",
+      "selectedModel": null,
+      "routingReason": null,
+      "weaknessTypes": null,
+      "headingPreservation": null,
+      "literaryAntiFlattening": null
+    },
+    {
+      "index": 1,
+      "action": "failed",
+      "beforeScore": 79,
+      "afterScore": null,
+      "reason": "Recast cut too much (181 → 158 words, 87%)",
+      "origWords": 181,
+      "recastWords": 158,
+      "ratio": 87,
+      "minAllowed": 166,
+      "maxAllowed": 200,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative",
+      "selectedModel": "prose-recast-polisher",
+      "routingReason": "nonfiction_authority",
+      "weaknessTypes": [
+        "filter_verb_heavy",
+        "essay_bot_transitions",
+        "heading_bearing"
+      ],
+      "headingPreservation": null,
+      "literaryAntiFlattening": null
+    }
+  ],
+  "routingReport": {
+    "modelDistribution": {
+      "prose-recast-polisher": 1
+    },
+    "weaknessDistribution": {
+      "filter_verb_heavy": 1,
+      "essay_bot_transitions": 1,
+      "heading_bearing": 1
+    },
+    "totalChunks": 2,
+    "routedChunks": 1
+  }
+}

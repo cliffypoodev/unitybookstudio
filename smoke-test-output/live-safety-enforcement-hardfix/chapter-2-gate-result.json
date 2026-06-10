@@ -1,0 +1,129 @@
+{
+  "ok": false,
+  "processLeaks": {
+    "hasLeak": true,
+    "matches": [
+      {
+        "phrase": "The opening is sharp, highly polished",
+        "index": 0,
+        "snippet": "The opening is sharp, highly polished, and immediately establishes ",
+        "severity": "critical"
+      },
+      {
+        "phrase": "Next Move:",
+        "index": 648,
+        "snippet": "Next Move: Commit to the Bargain",
+        "severity": "critical",
+        "line": 4
+      },
+      {
+        "phrase": "Action Plan:",
+        "index": 1199,
+        "snippet": "Action Plan:",
+        "severity": "critical",
+        "line": 7
+      },
+      {
+        "phrase": "The current trajectory is working exactly as planned",
+        "index": 553,
+        "snippet": "chological tension perfectly. The current trajectory is working exactly as planned. We have established the what",
+        "severity": "critical"
+      },
+      {
+        "phrase": "We have established the what and the why",
+        "index": 607,
+        "snippet": "s working exactly as planned. We have established the what and the why. Next Move: Commit to the Bar",
+        "severity": "critical"
+      },
+      {
+        "phrase": "We need to move",
+        "index": 682,
+        "snippet": "t Move: Commit to the Bargain We need to move immediately into the mechanic",
+        "severity": "high"
+      },
+      {
+        "phrase": "We need to move",
+        "index": 1866,
+        "snippet": "thoritative, detached speech. We need to move past the initial handshake an",
+        "severity": "high"
+      },
+      {
+        "phrase": "Focus on how",
+        "index": 1994,
+        "snippet": "re we hit the emotional core. Focus on how he begins painting, that he a",
+        "severity": "high"
+      }
+    ]
+  },
+  "contamination": {
+    "hasContamination": true,
+    "matches": [
+      {
+        "phrase": "Unity Supported Living Services",
+        "index": 18398,
+        "snippet": "eal-time risk assessments for Unity Supported Living Services. For Media Solutions, I manag",
+        "severity": "critical"
+      },
+      {
+        "phrase": "Unity Supported Living",
+        "index": 15658,
+        "snippet": "care plans for the clients at Unity Supported Living aren't boilerplate; they refl",
+        "severity": "critical"
+      },
+      {
+        "phrase": "Unity Supported Living",
+        "index": 18398,
+        "snippet": "eal-time risk assessments for Unity Supported Living Services. For Media Solutions",
+        "severity": "critical"
+      },
+      {
+        "phrase": "Unity Media Solutions",
+        "index": 21577,
+        "snippet": "essed, shifting focus back to Unity Media Solutions. \"The AI element. My unique v",
+        "severity": "critical"
+      },
+      {
+        "phrase": "Unity Media",
+        "index": 17758,
+        "snippet": "equired granular focus, while Unity Media needed the expansive imaginat",
+        "severity": "critical"
+      },
+      {
+        "phrase": "Unity Media",
+        "index": 21577,
+        "snippet": "essed, shifting focus back to Unity Media Solutions. \"The AI element. M",
+        "severity": "critical"
+      },
+      {
+        "phrase": "care documentation",
+        "index": 17708,
+        "snippet": " He had been pulled thin. The care documentation required granular focus, whil",
+        "severity": "high"
+      },
+      {
+        "phrase": "compliance documentation",
+        "index": 17382,
+        "snippet": "o inefficiencies. Look at the compliance documentation alone; last quarter, I flagge",
+        "severity": "high"
+      }
+    ]
+  },
+  "malformed": {
+    "hasMalformed": true,
+    "matches": [
+      {
+        "phrase": "You was",
+        "index": 6611,
+        "snippet": "r the source of the critique. You was Julian talking about the pain"
+      }
+    ]
+  },
+  "recommendedAction": "REJECT_REGENERATE",
+  "reasons": [
+    "CRITICAL process leakage detected (5 instance(s)): \"The opening is sharp, highly polished\", \"Next Move:\", \"Action Plan:\", \"The current trajectory is working exactly as planned\", \"We have established the what and the why\"",
+    "CRITICAL cross-project contamination (6): \"Unity Supported Living Services\", \"Unity Supported Living\", \"Unity Supported Living\", \"Unity Media Solutions\", \"Unity Media\", \"Unity Media\"",
+    "Malformed grammar (1): \"You was\""
+  ],
+  "stage": "pre-export",
+  "chapterNumber": 2
+}

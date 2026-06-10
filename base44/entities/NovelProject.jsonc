@@ -1,0 +1,423 @@
+{
+  "name": "NovelProject",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Project title"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Short book hook"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Displayed author or agent name"
+    },
+    "book_type": {
+      "type": "string",
+      "enum": [
+        "fiction",
+        "nonfiction"
+      ],
+      "default": "fiction"
+    },
+    "project_type": {
+      "type": "string",
+      "enum": [
+        "fiction",
+        "nonfiction",
+        "erotica",
+        "anthology"
+      ],
+      "default": "fiction",
+      "description": "Primary project type that controls pipeline routing"
+    },
+    "genre": {
+      "type": "string",
+      "description": "Primary genre or category for the book"
+    },
+    "subgenre": {
+      "type": "string",
+      "description": "Optional subgenre"
+    },
+    "target_audience": {
+      "type": "string",
+      "description": "Intended readership"
+    },
+    "pov_mode": {
+      "type": "string",
+      "description": "Primary POV mode"
+    },
+    "tense": {
+      "type": "string",
+      "description": "Primary tense mode"
+    },
+    "protagonist_pronouns": {
+      "type": "string",
+      "enum": [
+        "she/her",
+        "he/him",
+        "they/them"
+      ],
+      "description": "Explicit protagonist pronouns"
+    },
+    "beat_style": {
+      "type": "string",
+      "description": "Preferred beat style for fiction"
+    },
+    "scene_beat_style": {
+      "type": "string",
+      "description": "Compatibility field for beat style"
+    },
+    "story_arc": {
+      "type": "string",
+      "enum": [
+        "three_act",
+        "save_the_cat",
+        "heros_journey",
+        "romance_arc",
+        "mystery_reveal",
+        "tragedy",
+        "thriller_escalation",
+        "horror_descent",
+        "literary_character",
+        "epic_saga"
+      ],
+      "default": "three_act"
+    },
+    "num_twists": {
+      "type": "number",
+      "default": 3
+    },
+    "twist_intensity": {
+      "type": "string",
+      "enum": [
+        "subtle",
+        "moderate",
+        "dramatic",
+        "devastating"
+      ],
+      "default": "moderate"
+    },
+    "nf_structure_mode": {
+      "type": "string",
+      "description": "Nonfiction structure mode"
+    },
+    "author_voice": {
+      "type": "string"
+    },
+    "author_voice_notes": {
+      "type": "string"
+    },
+    "author_style_id": {
+      "type": "string"
+    },
+    "language_intensity": {
+      "type": "number",
+      "default": 2
+    },
+    "spice_level": {
+      "type": "number",
+      "default": 0
+    },
+    "erotica_register": {
+      "type": "number",
+      "default": 0
+    },
+    "discovered_voice": {
+      "type": "string"
+    },
+    "seed_concept": {
+      "type": "string",
+      "description": "Seed concept used to generate the book (truncated preview if large)"
+    },
+    "seed_concept_url": {
+      "type": "string",
+      "description": "URL to uploaded seed concept when content exceeds field size limits"
+    },
+    "anthology_theme": {
+      "type": "string",
+      "description": "Unifying theme for anthology collections"
+    },
+    "anthology_theme_type": {
+      "type": "string",
+      "enum": [
+        "topic",
+        "setting",
+        "constraint",
+        "mood",
+        "question",
+        "connected"
+      ],
+      "default": "topic",
+      "description": "How the anthology theme manifests across stories"
+    },
+    "anthology_story_length": {
+      "type": "string",
+      "enum": [
+        "flash",
+        "short",
+        "standard",
+        "novelette"
+      ],
+      "default": "short",
+      "description": "Target length per story in the anthology"
+    },
+    "anthology_variety": {
+      "type": "string",
+      "enum": [
+        "consistent",
+        "moderate",
+        "high"
+      ],
+      "default": "high",
+      "description": "How much variety across stories in tone, POV, structure"
+    },
+    "default_prose_model": {
+      "type": "string",
+      "description": "Global default prose model for fiction drafting (e.g. deepseek/deepseek-chat)"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "foundation",
+        "drafting",
+        "revision",
+        "export"
+      ],
+      "default": "foundation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "generating_foundation",
+        "drafting",
+        "evaluating",
+        "ready"
+      ],
+      "default": "idle"
+    },
+    "current_focus": {
+      "type": "string"
+    },
+    "iteration": {
+      "type": "number",
+      "default": 0
+    },
+    "foundation_score": {
+      "type": "number",
+      "default": 0
+    },
+    "lore_score": {
+      "type": "number",
+      "default": 0
+    },
+    "novel_score": {
+      "type": "number",
+      "default": 0
+    },
+    "world_md": {
+      "type": "string"
+    },
+    "world_md_url": {
+      "type": "string",
+      "description": "URL to uploaded world markdown when content exceeds field size limits"
+    },
+    "characters_md": {
+      "type": "string"
+    },
+    "characters_md_url": {
+      "type": "string",
+      "description": "URL to uploaded characters markdown when content exceeds field size limits"
+    },
+    "outline_md": {
+      "type": "string"
+    },
+    "outline_md_url": {
+      "type": "string",
+      "description": "URL to uploaded outline markdown when content exceeds field size limits"
+    },
+    "canon_md": {
+      "type": "string"
+    },
+    "canon_md_url": {
+      "type": "string",
+      "description": "URL to uploaded canon markdown when content exceeds field size limits"
+    },
+    "voice_md": {
+      "type": "string"
+    },
+    "voice_md_url": {
+      "type": "string",
+      "description": "URL to uploaded voice markdown when content exceeds field size limits"
+    },
+    "mystery_md": {
+      "type": "string"
+    },
+    "mystery_md_url": {
+      "type": "string",
+      "description": "URL to uploaded mystery markdown when content exceeds field size limits"
+    },
+    "twists_md": {
+      "type": "string"
+    },
+    "twists_md_url": {
+      "type": "string",
+      "description": "URL to uploaded twists markdown when content exceeds field size limits"
+    },
+    "arc_summary_md": {
+      "type": "string"
+    },
+    "research_data": {
+      "type": "string",
+      "description": "JSON string of structured research data"
+    },
+    "research_md": {
+      "type": "string",
+      "description": "Fiction plausibility brief \u2014 small inline content only"
+    },
+    "research_md_url": {
+      "type": "string",
+      "description": "URL to uploaded research markdown file when content exceeds field size limits"
+    },
+    "ideas_chat_json": {
+      "type": "string",
+      "description": "JSON string of brainstorm chat messages (inline for small conversations)"
+    },
+    "ideas_chat_url": {
+      "type": "string",
+      "description": "URL to uploaded chat history file when conversation exceeds field size limits"
+    },
+    "amazon_description": {
+      "type": "string",
+      "description": "Amazon KDP book description for the product page"
+    },
+    "kdp_categories": {
+      "type": "string",
+      "description": "JSON string of Amazon KDP browse category recommendations"
+    },
+    "chapter_target": {
+      "type": "number",
+      "default": 20
+    },
+    "chapter_length_preset": {
+      "type": "string"
+    },
+    "chapter_length_target": {
+      "type": "number",
+      "default": 3500
+    },
+    "target_chapter_words": {
+      "type": "number",
+      "default": 3500
+    },
+    "total_word_target": {
+      "type": "number",
+      "default": 70000
+    },
+    "chapter_count": {
+      "type": "number",
+      "default": 0
+    },
+    "cover_image_url": {
+      "type": "string"
+    },
+    "cover_art_url": {
+      "type": "string"
+    },
+    "cover_canvas_json": {
+      "type": "string"
+    },
+    "wrap_canvas_json": {
+      "type": "string"
+    },
+    "publisher_logo_url": {
+      "type": "string",
+      "description": "Per-project publisher logo URL (replaces hardcoded default)"
+    },
+    "isbn_paperback": {
+      "type": "string",
+      "description": "ISBN-13 saved from ISBNBarcode component"
+    },
+    "cover_price": {
+      "type": "string",
+      "description": "Retail price displayed on barcode"
+    },
+    "bookTheme": {
+      "type": "object",
+      "description": "Legacy publishing theme (deprecated)"
+    },
+    "publishSettings": {
+      "type": "object"
+    },
+    "folder_id": {
+      "type": "string"
+    },
+    "series_id": {
+      "type": "string"
+    },
+    "series_order": {
+      "type": "number",
+      "default": 0
+    },
+    "series_bible_id": {
+      "type": "string"
+    },
+    "series_name": {
+      "type": "string"
+    },
+    "series_number": {
+      "type": "number"
+    },
+    "critique_rating": {
+      "type": "number"
+    },
+    "critique_verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "seed_concept"
+  ]
+}

@@ -1,0 +1,1281 @@
+{
+  "scanDate": "2026-06-06T01:45:45.886Z",
+  "totalChapters": 20,
+  "chapters": [
+    {
+      "number": 1,
+      "title": "The Algorithmic Stage",
+      "wordCount": 3323,
+      "recommendation": {
+        "chapter": 1,
+        "title": "The Algorithmic Stage",
+        "status": "SAFE_FOR_POLISH",
+        "mainIssue": "MINOR_CLEANUP_NEEDED",
+        "severity": "LOW",
+        "action": "Standard polish pass will address remaining issues.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 1,
+        "title": "The Algorithmic Stage",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 1,
+        "title": "The Algorithmic Stage",
+        "counts": {
+          "not just": 3,
+          "the weight of": 2,
+          "the narrative": 3,
+          "the performance": 2,
+          "something shifted": 1,
+          "felt": 12,
+          "realized": 3,
+          "palpable": 1,
+          "shimmering": 1,
+          "relentless": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [palpable, shimmering]"
+        ],
+        "totalSlop": 29,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 1,
+        "title": "The Algorithmic Stage",
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "sameness": {
+        "chapter": 1,
+        "title": "The Algorithmic Stage",
+        "score": 5,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 2,
+      "title": "The Patron's Palette",
+      "wordCount": 1957,
+      "recommendation": {
+        "chapter": 2,
+        "title": "The Patron's Palette",
+        "status": "SAFE_FOR_MECHANICAL_CLEANUP",
+        "mainIssue": "DIALOGUE_PUNCTUATION",
+        "severity": "MEDIUM",
+        "action": "Fix dialogue punctuation before polish.",
+        "formulaScore": 1
+      },
+      "processLeak": {
+        "chapter": 2,
+        "title": "The Patron's Palette",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 2,
+        "title": "The Patron's Palette",
+        "counts": {
+          "not just": 4,
+          "more than just": 1,
+          "the weight of": 1,
+          "felt": 11,
+          "realized": 1,
+          "shimmering": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [shimmering]"
+        ],
+        "totalSlop": 19,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 2,
+        "title": "The Patron's Palette",
+        "issues": 7,
+        "severity": "CRITICAL"
+      },
+      "sameness": {
+        "chapter": 2,
+        "title": "The Patron's Palette",
+        "score": 1,
+        "beats": [
+          "B: system-quantifies-trait"
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "title": "The Office of Echoes",
+      "wordCount": 3746,
+      "recommendation": {
+        "chapter": 3,
+        "title": "The Office of Echoes",
+        "status": "SAFE_FOR_POLISH",
+        "mainIssue": "MINOR_CLEANUP_NEEDED",
+        "severity": "LOW",
+        "action": "Standard polish pass will address remaining issues.",
+        "formulaScore": 6
+      },
+      "processLeak": {
+        "chapter": 3,
+        "title": "The Office of Echoes",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 3,
+        "title": "The Office of Echoes",
+        "counts": {
+          "not just": 4,
+          "the weight of": 1,
+          "the performance": 1,
+          "woven into": 1,
+          "fabric of": 1,
+          "felt": 11,
+          "realized": 1,
+          "luminous": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [luminous]"
+        ],
+        "totalSlop": 21,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 3,
+        "title": "The Office of Echoes",
+        "issues": 1,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 3,
+        "title": "The Office of Echoes",
+        "score": 6,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 4,
+      "title": "The Sacred Screen",
+      "wordCount": 2662,
+      "recommendation": {
+        "chapter": 4,
+        "title": "The Sacred Screen",
+        "status": "SAFE_FOR_POLISH",
+        "mainIssue": "CLEAN",
+        "severity": "NONE",
+        "action": "Ready for polish.",
+        "formulaScore": 3
+      },
+      "processLeak": {
+        "chapter": 4,
+        "title": "The Sacred Screen",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 4,
+        "title": "The Sacred Screen",
+        "counts": {
+          "not just": 2,
+          "the weight of": 1,
+          "the narrative": 1,
+          "collective memory": 1,
+          "felt": 10,
+          "realized": 1
+        },
+        "flags": [],
+        "totalSlop": 16,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 4,
+        "title": "The Sacred Screen",
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "sameness": {
+        "chapter": 4,
+        "title": "The Sacred Screen",
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw"
+        ]
+      }
+    },
+    {
+      "number": 5,
+      "title": "The Transit of Ghosts",
+      "wordCount": 1815,
+      "recommendation": {
+        "chapter": 5,
+        "title": "The Transit of Ghosts",
+        "status": "SAFE_FOR_POLISH",
+        "mainIssue": "MINOR_CLEANUP_NEEDED",
+        "severity": "LOW",
+        "action": "Standard polish pass will address remaining issues.",
+        "formulaScore": 3
+      },
+      "processLeak": {
+        "chapter": 5,
+        "title": "The Transit of Ghosts",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 5,
+        "title": "The Transit of Ghosts",
+        "counts": {
+          "the weight of": 1,
+          "the narrative": 2,
+          "felt": 6,
+          "meticulously": 1,
+          "ethereal": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [meticulously, ethereal]"
+        ],
+        "totalSlop": 11,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 5,
+        "title": "The Transit of Ghosts",
+        "issues": 1,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 5,
+        "title": "The Transit of Ghosts",
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw"
+        ]
+      }
+    },
+    {
+      "number": 6,
+      "title": "The Drift of Echoes",
+      "wordCount": 2879,
+      "recommendation": {
+        "chapter": 6,
+        "title": "The Drift of Echoes",
+        "status": "REGENERATE",
+        "mainIssue": "PROCESS_LEAKAGE",
+        "severity": "CRITICAL",
+        "action": "Regenerate from scratch. Do not polish.",
+        "formulaScore": 4
+      },
+      "processLeak": {
+        "chapter": 6,
+        "title": "The Drift of Echoes",
+        "status": "REGENERATE",
+        "leaks": [
+          {
+            "phrase": "The prose hits all the required marks",
+            "position": 0,
+            "snippet": "The prose hits all the required marks—it’s immediate, deeply textured, and su"
+          },
+          {
+            "phrase": "Analysis & Strengths",
+            "position": 275,
+            "snippet": "t need to polish anything structurally. Analysis & Strengths 1. Voice Consistency (Gillian Flynn): T"
+          },
+          {
+            "phrase": "Areas for Refinement",
+            "position": 1533,
+            "snippet": "he trap of sterile room interrogations. Areas for Refinement (Micro-Adjustments) 1. Show vs. Tell (T"
+          },
+          {
+            "phrase": "Best Next Move",
+            "position": 2744,
+            "snippet": "ction? Give the machine its own “will.” Best Next Move: The Pivot Point We need to move from D"
+          },
+          {
+            "phrase": "Best next move",
+            "position": 2744,
+            "snippet": "ction? Give the machine its own “will.” Best Next Move: The Pivot Point We need to move from D"
+          },
+          {
+            "phrase": "Action Plan",
+            "position": 3508,
+            "snippet": "trauma in order to advance the mission. Action Plan for Next Section: 1. Hayes pushes harde"
+          },
+          {
+            "phrase": "Action Plan for Next Section",
+            "position": 3508,
+            "snippet": "trauma in order to advance the mission. Action Plan for Next Section: 1. Hayes pushes harder on the operatio"
+          },
+          {
+            "phrase": "Constraint Adherence",
+            "position": 1319,
+            "snippet": "ing Action (investigating the core). 4. Constraint Adherence: You nailed the “Anti-Template Rules.” "
+          },
+          {
+            "phrase": "Show vs. Tell",
+            "position": 1577,
+            "snippet": "s for Refinement (Micro-Adjustments) 1. Show vs. Tell (The Wound): While you mention her sist"
+          },
+          {
+            "phrase": "Pacing & Tension",
+            "position": 885,
+            "snippet": "her anxiety about the system itself. 3. Pacing & Tension: You established competence first (Aria"
+          },
+          {
+            "phrase": "Voice Consistency",
+            "position": 299,
+            "snippet": "g structurally. Analysis & Strengths 1. Voice Consistency (Gillian Flynn): The tone is spot-on. Y"
+          },
+          {
+            "phrase": "Sensory Density",
+            "position": 607,
+            "snippet": "ly pitched for this genre and voice. 2. Sensory Density: The descriptions of the environment (i"
+          },
+          {
+            "phrase": "I recommend",
+            "position": 2130,
+            "snippet": "academic authority,” which is good, but I recommend making his dialogue even more loaded. H"
+          },
+          {
+            "phrase": "next section",
+            "position": 2518,
+            "snippet": "t”). 3. The Mechanical Failure: For the next section, don’t let the failure be passive. Once"
+          },
+          {
+            "phrase": "Inciting Incident",
+            "position": 1234,
+            "snippet": "structure is solid: Setup $\\rightarrow$ Inciting Incident (failure) $\\rightarrow$ Rising Action ("
+          },
+          {
+            "phrase": "Rising Action",
+            "position": 1276,
+            "snippet": "citing Incident (failure) $\\rightarrow$ Rising Action (investigating the core). 4. Constraint"
+          },
+          {
+            "phrase": "The structure is solid",
+            "position": 1190,
+            "snippet": " the stakes feel earned, not arbitrary. The structure is solid: Setup $\\rightarrow$ Inciting Incident "
+          },
+          {
+            "phrase": "The next logical step",
+            "position": 2861,
+            "snippet": "?) to Intervention (How do we fix it?). The next logical step, given the established pattern of failu"
+          },
+          {
+            "phrase": "The goal is for the reader",
+            "position": 1822,
+            "snippet": "ound rather than simply referencing it. The goal is for the reader to feel the weight of the guilt in her "
+          },
+          {
+            "phrase": "Micro-Adjustments",
+            "position": 1555,
+            "snippet": "m interrogations. Areas for Refinement (Micro-Adjustments) 1. Show vs. Tell (The Wound): While yo"
+          },
+          {
+            "phrase": "Strengths\n",
+            "position": 286,
+            "snippet": "olish anything structurally. Analysis & Strengths 1. Voice Consistency (Gillian Flynn): Th"
+          }
+        ]
+      },
+      "slop": {
+        "chapter": 6,
+        "title": "The Drift of Echoes",
+        "counts": {
+          "not just": 4,
+          "the weight of": 2,
+          "the narrative": 2,
+          "fabric of": 1,
+          "felt": 10,
+          "realized": 1,
+          "meticulously": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [meticulously]"
+        ],
+        "totalSlop": 21,
+        "status": "REGENERATE"
+      },
+      "dialogue": {
+        "chapter": 6,
+        "title": "The Drift of Echoes",
+        "issues": 10,
+        "severity": "CRITICAL"
+      },
+      "sameness": {
+        "chapter": 6,
+        "title": "The Drift of Echoes",
+        "score": 4,
+        "beats": [
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 7,
+      "title": "The Anatomist's Stage",
+      "wordCount": 3723,
+      "recommendation": {
+        "chapter": 7,
+        "title": "The Anatomist's Stage",
+        "status": "REWRITE_OR_DEEP_POLISH",
+        "mainIssue": "HEAVY_AI_SLOP",
+        "severity": "HIGH",
+        "action": "Deep polish or partial rewrite to remove slop patterns.",
+        "formulaScore": 4
+      },
+      "processLeak": {
+        "chapter": 7,
+        "title": "The Anatomist's Stage",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 7,
+        "title": "The Anatomist's Stage",
+        "counts": {
+          "not just": 5,
+          "more than just": 1,
+          "the weight of": 1,
+          "the narrative": 2,
+          "the performance": 1,
+          "felt": 9,
+          "shimmering": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"not just\" family > 5",
+          "FLAG_POLISH_REQUIRED: banned words [shimmering]"
+        ],
+        "totalSlop": 20,
+        "status": "REWRITE_OR_DEEP_POLISH"
+      },
+      "dialogue": {
+        "chapter": 7,
+        "title": "The Anatomist's Stage",
+        "issues": 10,
+        "severity": "CRITICAL"
+      },
+      "sameness": {
+        "chapter": 7,
+        "title": "The Anatomist's Stage",
+        "score": 4,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 8,
+      "title": "The Pixelated Heir",
+      "wordCount": 3425,
+      "recommendation": {
+        "chapter": 8,
+        "title": "The Pixelated Heir",
+        "status": "SAFE_FOR_POLISH",
+        "mainIssue": "MINOR_CLEANUP_NEEDED",
+        "severity": "LOW",
+        "action": "Standard polish pass will address remaining issues.",
+        "formulaScore": 4
+      },
+      "processLeak": {
+        "chapter": 8,
+        "title": "The Pixelated Heir",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 8,
+        "title": "The Pixelated Heir",
+        "counts": {
+          "not just": 5,
+          "the weight of": 2,
+          "the narrative": 1,
+          "rot beneath": 1,
+          "felt": 16,
+          "realized": 1,
+          "palpable": 1,
+          "meticulously": 1,
+          "shimmering": 1
+        },
+        "flags": [
+          "FLAG_STYLE_REVIEW: \"felt\" > 12",
+          "FLAG_POLISH_REQUIRED: banned words [palpable, meticulously, shimmering]"
+        ],
+        "totalSlop": 29,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 8,
+        "title": "The Pixelated Heir",
+        "issues": 11,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 8,
+        "title": "The Pixelated Heir",
+        "score": 4,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw"
+        ]
+      }
+    },
+    {
+      "number": 9,
+      "title": "The Terminal Veil",
+      "wordCount": 3501,
+      "recommendation": {
+        "chapter": 9,
+        "title": "The Terminal Veil",
+        "status": "REGENERATE",
+        "mainIssue": "PROCESS_LEAKAGE",
+        "severity": "CRITICAL",
+        "action": "Regenerate from scratch. Do not polish.",
+        "formulaScore": 4
+      },
+      "processLeak": {
+        "chapter": 9,
+        "title": "The Terminal Veil",
+        "status": "REGENERATE",
+        "leaks": [
+          {
+            "phrase": "Revision notes",
+            "position": 15202,
+            "snippet": "roposal drafts, stained with coffee and revision notes. Node three was blank, a null state. “T"
+          },
+          {
+            "phrase": "REVISION NOTES",
+            "position": 15202,
+            "snippet": "roposal drafts, stained with coffee and revision notes. Node three was blank, a null state. “T"
+          },
+          {
+            "phrase": "Self-Correction",
+            "position": 3268,
+            "snippet": "cy' with ' Bias,' and ' Anomaly' with ' Self-Correction. This is not external fraud, a dry voic"
+          }
+        ]
+      },
+      "slop": {
+        "chapter": 9,
+        "title": "The Terminal Veil",
+        "counts": {
+          "not just": 5,
+          "the weight of": 4,
+          "the narrative": 1,
+          "the truth was": 1,
+          "felt": 19,
+          "realized": 1,
+          "ethereal": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"the weight of\" > 3",
+          "FLAG_STYLE_REVIEW: \"felt\" > 12",
+          "FLAG_POLISH_REQUIRED: banned words [ethereal]"
+        ],
+        "totalSlop": 32,
+        "status": "REGENERATE"
+      },
+      "dialogue": {
+        "chapter": 9,
+        "title": "The Terminal Veil",
+        "issues": 4,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 9,
+        "title": "The Terminal Veil",
+        "score": 4,
+        "beats": [
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 10,
+      "title": "The Algorithmic Battlefield",
+      "wordCount": 2131,
+      "recommendation": {
+        "chapter": 10,
+        "title": "The Algorithmic Battlefield",
+        "status": "REGENERATE",
+        "mainIssue": "PROCESS_LEAKAGE",
+        "severity": "CRITICAL",
+        "action": "Regenerate from scratch. Do not polish.",
+        "formulaScore": 3
+      },
+      "processLeak": {
+        "chapter": 10,
+        "title": "The Algorithmic Battlefield",
+        "status": "REGENERATE",
+        "leaks": [
+          {
+            "phrase": "Best Next Move",
+            "position": 1334,
+            "snippet": "g past the purely theoretical sparring. Best Next Move: Deepening the Conflict The current mom"
+          },
+          {
+            "phrase": "Best next move",
+            "position": 1334,
+            "snippet": "g past the purely theoretical sparring. Best Next Move: Deepening the Conflict The current mom"
+          }
+        ]
+      },
+      "slop": {
+        "chapter": 10,
+        "title": "The Algorithmic Battlefield",
+        "counts": {
+          "not just": 5,
+          "felt": 5,
+          "realized": 3,
+          "palpable": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [palpable]"
+        ],
+        "totalSlop": 14,
+        "status": "REGENERATE"
+      },
+      "dialogue": {
+        "chapter": 10,
+        "title": "The Algorithmic Battlefield",
+        "issues": 4,
+        "severity": "CRITICAL"
+      },
+      "sameness": {
+        "chapter": 10,
+        "title": "The Algorithmic Battlefield",
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed"
+        ]
+      }
+    },
+    {
+      "number": 11,
+      "title": "The Plaza Ledger",
+      "wordCount": 5781,
+      "recommendation": {
+        "chapter": 11,
+        "title": "The Plaza Ledger",
+        "status": "REWRITE_OR_DEEP_POLISH",
+        "mainIssue": "HEAVY_AI_SLOP",
+        "severity": "HIGH",
+        "action": "Deep polish or partial rewrite to remove slop patterns.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 11,
+        "title": "The Plaza Ledger",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 11,
+        "title": "The Plaza Ledger",
+        "counts": {
+          "not just": 6,
+          "more than just": 1,
+          "the weight of": 4,
+          "the narrative": 2,
+          "woven into": 1,
+          "fabric of": 1,
+          "something shifted": 1,
+          "felt": 24,
+          "realized": 7,
+          "meticulously": 1,
+          "shimmering": 1,
+          "relentless": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"not just\" family > 5",
+          "FLAG_HEAVY_SLOP: \"the weight of\" > 3",
+          "FLAG_STYLE_REVIEW: \"felt\" > 12",
+          "FLAG_STYLE_REVIEW: \"realized\" > 5",
+          "FLAG_POLISH_REQUIRED: banned words [meticulously, shimmering]"
+        ],
+        "totalSlop": 50,
+        "status": "REWRITE_OR_DEEP_POLISH"
+      },
+      "dialogue": {
+        "chapter": 11,
+        "title": "The Plaza Ledger",
+        "issues": 19,
+        "severity": "CRITICAL"
+      },
+      "sameness": {
+        "chapter": 11,
+        "title": "The Plaza Ledger",
+        "score": 5,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 12,
+      "title": "The Anatomist's Protocol",
+      "wordCount": 4826,
+      "recommendation": {
+        "chapter": 12,
+        "title": "The Anatomist's Protocol",
+        "status": "REWRITE_OR_DEEP_POLISH",
+        "mainIssue": "HEAVY_AI_SLOP",
+        "severity": "HIGH",
+        "action": "Deep polish or partial rewrite to remove slop patterns.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 12,
+        "title": "The Anatomist's Protocol",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 12,
+        "title": "The Anatomist's Protocol",
+        "counts": {
+          "not just": 6,
+          "more than just": 3,
+          "the narrative": 1,
+          "the truth was": 2,
+          "fabric of": 1,
+          "felt": 14,
+          "realized": 1,
+          "meticulously": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"not just\" family > 5",
+          "FLAG_STYLE_REVIEW: \"felt\" > 12",
+          "FLAG_POLISH_REQUIRED: banned words [meticulously]"
+        ],
+        "totalSlop": 29,
+        "status": "REWRITE_OR_DEEP_POLISH"
+      },
+      "dialogue": {
+        "chapter": 12,
+        "title": "The Anatomist's Protocol",
+        "issues": 5,
+        "severity": "CRITICAL"
+      },
+      "sameness": {
+        "chapter": 12,
+        "title": "The Anatomist's Protocol",
+        "score": 5,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 13,
+      "title": "The Syntax of Survival",
+      "wordCount": 2478,
+      "recommendation": {
+        "chapter": 13,
+        "title": "The Syntax of Survival",
+        "status": "REGENERATE",
+        "mainIssue": "PROCESS_LEAKAGE",
+        "severity": "CRITICAL",
+        "action": "Regenerate from scratch. Do not polish.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 13,
+        "title": "The Syntax of Survival",
+        "status": "REGENERATE",
+        "leaks": [
+          {
+            "phrase": "Self-Correction",
+            "position": 11453,
+            "snippet": "ng, thinking engine that allows for its self-correction and expansion. You don’t just write out"
+          }
+        ]
+      },
+      "slop": {
+        "chapter": 13,
+        "title": "The Syntax of Survival",
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 3,
+          "realized": 1,
+          "shimmering": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [shimmering]"
+        ],
+        "totalSlop": 8,
+        "status": "REGENERATE"
+      },
+      "dialogue": {
+        "chapter": 13,
+        "title": "The Syntax of Survival",
+        "issues": 1,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 13,
+        "title": "The Syntax of Survival",
+        "score": 5,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed"
+        ]
+      }
+    },
+    {
+      "number": 14,
+      "title": "The Incantation of Bytes",
+      "wordCount": 4070,
+      "recommendation": {
+        "chapter": 14,
+        "title": "The Incantation of Bytes",
+        "status": "REWRITE_OR_DEEP_POLISH",
+        "mainIssue": "HEAVY_AI_SLOP",
+        "severity": "HIGH",
+        "action": "Deep polish or partial rewrite to remove slop patterns.",
+        "formulaScore": 4
+      },
+      "processLeak": {
+        "chapter": 14,
+        "title": "The Incantation of Bytes",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 14,
+        "title": "The Incantation of Bytes",
+        "counts": {
+          "not just": 9,
+          "the weight of": 3,
+          "the narrative": 6,
+          "felt": 17,
+          "realized": 1,
+          "luminous": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"not just\" family > 5",
+          "FLAG_HEAVY_SLOP: \"narrative\" > 5",
+          "FLAG_STYLE_REVIEW: \"felt\" > 12",
+          "FLAG_POLISH_REQUIRED: banned words [luminous]"
+        ],
+        "totalSlop": 37,
+        "status": "REWRITE_OR_DEEP_POLISH"
+      },
+      "dialogue": {
+        "chapter": 14,
+        "title": "The Incantation of Bytes",
+        "issues": 7,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 14,
+        "title": "The Incantation of Bytes",
+        "score": 4,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed"
+        ]
+      }
+    },
+    {
+      "number": 15,
+      "title": "The Transit of Errors",
+      "wordCount": 2921,
+      "recommendation": {
+        "chapter": 15,
+        "title": "The Transit of Errors",
+        "status": "REGENERATE",
+        "mainIssue": "PROCESS_LEAKAGE",
+        "severity": "CRITICAL",
+        "action": "Regenerate from scratch. Do not polish.",
+        "formulaScore": 6
+      },
+      "processLeak": {
+        "chapter": 15,
+        "title": "The Transit of Errors",
+        "status": "REGENERATE",
+        "leaks": [
+          {
+            "phrase": "I recommend",
+            "position": 2079,
+            "snippet": "Raj and the AI system’s representation. I recommend focusing the next segment on: 1. Extern"
+          },
+          {
+            "phrase": "Strengths:",
+            "position": 830,
+            "snippet": "ntic debt) works perfectly. Reasoning & Strengths: 1. Immediate Stakes: The transition fro"
+          }
+        ]
+      },
+      "slop": {
+        "chapter": 15,
+        "title": "The Transit of Errors",
+        "counts": {
+          "not just": 4,
+          "the weight of": 2,
+          "the truth was": 1,
+          "felt": 11,
+          "realized": 1
+        },
+        "flags": [],
+        "totalSlop": 19,
+        "status": "REGENERATE"
+      },
+      "dialogue": {
+        "chapter": 15,
+        "title": "The Transit of Errors",
+        "issues": 8,
+        "severity": "CRITICAL"
+      },
+      "sameness": {
+        "chapter": 15,
+        "title": "The Transit of Errors",
+        "score": 6,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 16,
+      "title": "The Whispering Glade",
+      "wordCount": 3996,
+      "recommendation": {
+        "chapter": 16,
+        "title": "The Whispering Glade",
+        "status": "REWRITE_OR_DEEP_POLISH",
+        "mainIssue": "HEAVY_AI_SLOP",
+        "severity": "HIGH",
+        "action": "Deep polish or partial rewrite to remove slop patterns.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 16,
+        "title": "The Whispering Glade",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 16,
+        "title": "The Whispering Glade",
+        "counts": {
+          "not just": 5,
+          "more than just": 1,
+          "the weight of": 2,
+          "felt": 16,
+          "realized": 5,
+          "palpable": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"not just\" family > 5",
+          "FLAG_STYLE_REVIEW: \"felt\" > 12",
+          "FLAG_POLISH_REQUIRED: banned words [palpable]"
+        ],
+        "totalSlop": 30,
+        "status": "REWRITE_OR_DEEP_POLISH"
+      },
+      "dialogue": {
+        "chapter": 16,
+        "title": "The Whispering Glade",
+        "issues": 5,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 16,
+        "title": "The Whispering Glade",
+        "score": 5,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 17,
+      "title": "The Echo Chamber",
+      "wordCount": 3869,
+      "recommendation": {
+        "chapter": 17,
+        "title": "The Echo Chamber",
+        "status": "SAFE_FOR_POLISH",
+        "mainIssue": "MINOR_CLEANUP_NEEDED",
+        "severity": "LOW",
+        "action": "Standard polish pass will address remaining issues.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 17,
+        "title": "The Echo Chamber",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 17,
+        "title": "The Echo Chamber",
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 3,
+          "felt": 14,
+          "realized": 2
+        },
+        "flags": [
+          "FLAG_STYLE_REVIEW: \"felt\" > 12"
+        ],
+        "totalSlop": 22,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 17,
+        "title": "The Echo Chamber",
+        "issues": 5,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 17,
+        "title": "The Echo Chamber",
+        "score": 5,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed"
+        ]
+      }
+    },
+    {
+      "number": 18,
+      "title": "The Stage of Errors",
+      "wordCount": 1992,
+      "recommendation": {
+        "chapter": 18,
+        "title": "The Stage of Errors",
+        "status": "SAFE_FOR_POLISH",
+        "mainIssue": "MINOR_CLEANUP_NEEDED",
+        "severity": "LOW",
+        "action": "Standard polish pass will address remaining issues.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 18,
+        "title": "The Stage of Errors",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 18,
+        "title": "The Stage of Errors",
+        "counts": {
+          "not just": 2,
+          "the weight of": 2,
+          "the performance": 1,
+          "the emotional architecture": 1,
+          "felt": 5,
+          "shimmering": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [shimmering]"
+        ],
+        "totalSlop": 12,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 18,
+        "title": "The Stage of Errors",
+        "issues": 2,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 18,
+        "title": "The Stage of Errors",
+        "score": 5,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 19,
+      "title": "The Threshold of Bytes",
+      "wordCount": 1466,
+      "recommendation": {
+        "chapter": 19,
+        "title": "The Threshold of Bytes",
+        "status": "SAFE_FOR_POLISH",
+        "mainIssue": "MINOR_CLEANUP_NEEDED",
+        "severity": "LOW",
+        "action": "Standard polish pass will address remaining issues.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 19,
+        "title": "The Threshold of Bytes",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 19,
+        "title": "The Threshold of Bytes",
+        "counts": {
+          "not just": 1,
+          "woven into": 1,
+          "fabric of": 1,
+          "felt": 5,
+          "realized": 2,
+          "shimmering": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [shimmering]"
+        ],
+        "totalSlop": 11,
+        "status": "SAFE_FOR_POLISH"
+      },
+      "dialogue": {
+        "chapter": 19,
+        "title": "The Threshold of Bytes",
+        "issues": 1,
+        "severity": "MINOR"
+      },
+      "sameness": {
+        "chapter": 19,
+        "title": "The Threshold of Bytes",
+        "score": 5,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    },
+    {
+      "number": 20,
+      "title": "The Battlefield Code",
+      "wordCount": 3406,
+      "recommendation": {
+        "chapter": 20,
+        "title": "The Battlefield Code",
+        "status": "REWRITE_OR_DEEP_POLISH",
+        "mainIssue": "HEAVY_AI_SLOP",
+        "severity": "HIGH",
+        "action": "Deep polish or partial rewrite to remove slop patterns.",
+        "formulaScore": 5
+      },
+      "processLeak": {
+        "chapter": 20,
+        "title": "The Battlefield Code",
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "chapter": 20,
+        "title": "The Battlefield Code",
+        "counts": {
+          "not just": 5,
+          "more than just": 1,
+          "the weight of": 1,
+          "the truth was": 1,
+          "felt": 11,
+          "realized": 1,
+          "relentless": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"not just\" family > 5"
+        ],
+        "totalSlop": 21,
+        "status": "REWRITE_OR_DEEP_POLISH"
+      },
+      "dialogue": {
+        "chapter": 20,
+        "title": "The Battlefield Code",
+        "issues": 11,
+        "severity": "CRITICAL"
+      },
+      "sameness": {
+        "chapter": 20,
+        "title": "The Battlefield Code",
+        "score": 5,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed",
+          "F: philosophical-ending"
+        ]
+      }
+    }
+  ],
+  "anthologyVerdict": {
+    "structuralSameness": "MODERATE_SAMENESS",
+    "processLeakageCount": 5,
+    "heavySlopCount": 6,
+    "gateVerdict": "PARTIAL_PASS"
+  },
+  "stats": {
+    "regen": 5,
+    "deepPolish": 6,
+    "mechFix": 1,
+    "safePolish": 8
+  }
+}

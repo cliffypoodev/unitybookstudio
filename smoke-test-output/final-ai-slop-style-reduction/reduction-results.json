@@ -1,0 +1,1145 @@
+[
+  {
+    "num": 1,
+    "title": "The Algorithmic Stage",
+    "isPrimary": true,
+    "wordsBefore": 3896,
+    "wordsAfter": 3882,
+    "pctWordChange": "-0.4",
+    "slopBefore": 82,
+    "slopAfter": 73,
+    "slopReduction": "11.0",
+    "densityBefore": 21.05,
+    "densityAfter": 18.8,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 5,
+    "flagged": 11,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "\n\nMira felt a prickle of rage that wasn’t just professional; it was personal",
+        "replacement": "Mira felt a prickle of rage that had become personal",
+        "pattern": "not just family"
+      },
+      {
+        "original": "\n\nThe system wasn’t just suggesting a path; it was asserting the optimal truth",
+        "replacement": "The system had become asserting the optimal truth",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The platform wasn’t just judging their performance; it was validating a specific economic model of genius: one where complexity must be reduced to predictable metrics for profit",
+        "replacement": "The platform had become validating a specific economic model of genius: one where complexity must be reduced to predictable metrics for profit",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "e interface; she was staring into the core code itself. She felt the cold, clean weight of the platform’s intervention settl",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "tnership; it was an enforced intellectual prosthetic.  Mira felt the initial surge of panic—the specific, gut-punch fear tha",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "e deep than mere augmentation. The camera feed shifted; she felt the subtle tug on her digital self, not just at her perform",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 2,
+    "title": "The Patron's Palette",
+    "isPrimary": false,
+    "wordsBefore": 3705,
+    "wordsAfter": 3710,
+    "pctWordChange": "0.1",
+    "slopBefore": 48,
+    "slopAfter": 40,
+    "slopReduction": "16.7",
+    "densityBefore": 12.96,
+    "densityAfter": 10.78,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 7,
+    "flagged": 10,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t merely",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "words leaving him breathless. The resistance faltered under the weight of his own exhaustion. \"The narrowing. I can feel it happening",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": ", the color seemed wrong. It was more than poorly mixed; it felt like a shade that had been pre-approved, standardized.  He ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ound a nice blue; he had identified its source code. Darius felt a sudden, cold lurch of panic. He remembered the specific, ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 3,
+    "title": "The Office of Echoes",
+    "isPrimary": false,
+    "wordsBefore": 3210,
+    "wordsAfter": 3208,
+    "pctWordChange": "-0.1",
+    "slopBefore": 52,
+    "slopAfter": 41,
+    "slopReduction": "21.2",
+    "densityBefore": 16.2,
+    "densityAfter": 12.78,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 9,
+    "flagged": 5,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " Her flaw wasn’t just overwork; it was a desperate need to find external order where there was none, a gravitational pull toward structure that blinded her to the simple messy truth: the system wasn’t broken; it was too perfect at reflecting the intellectual scaffolding of its operator",
+        "replacement": "Her flaw had become a desperate need to find external order where there was none, a gravitational pull toward structure that blinded her to the simple messy truth: the system wasn’t broken; it was too perfect at reflecting the intellectual scaffolding of its operator",
+        "pattern": "not just family"
+      },
+      {
+        "original": " Predicting human behavior wasn’t just hard; it was exhausting, soul-crushing work that required her to constantly reduce the beautiful mess of humanity into actionable numbers",
+        "replacement": "Predicting human behavior had become exhausting, soul-crushing work that required her to constantly reduce the beautiful mess of humanity into actionable numbers",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": " a hand through her hair—a gesture meant to look casual but felt like shedding skin. “My contract specifies full access righ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "en advising on moral development for future modules.” Elena felt a cold dread creep through her stomach.Predicting human beh",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "athed out slowly, letting the air fill her lungs until they felt thin and brittle. “I’ll take it,” she said. “But I need mor",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 4,
+    "title": "The Sacred Screen",
+    "isPrimary": false,
+    "wordsBefore": 3453,
+    "wordsAfter": 3439,
+    "pctWordChange": "-0.4",
+    "slopBefore": 56,
+    "slopAfter": 44,
+    "slopReduction": "21.4",
+    "densityBefore": 16.22,
+    "densityAfter": 12.79,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 10,
+    "flagged": 3,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " The temptation wasn’t just forbidden opportunity; it was a calculated, deeply intimate breach",
+        "replacement": "The temptation had become a calculated, deeply intimate breach",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just about proving divinity; it was about making the divine profitable, marketable, and, worst of all, digestible",
+        "replacement": "It had become about making the divine profitable, marketable, and, worst of all, digestible",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The sacred space wasn’t just observing; it was feeding",
+        "replacement": "The sacred space had become feeding",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The temptation wasn’t just forbidden opportunity; it was a calculated, deeply intimate breach that required dismantling your most guarded memory simply to prove the worth of the structure around it",
+        "replacement": "The temptation had become a calculated, deeply intimate breach that required dismantling your most guarded memory simply to prove the worth of the structure around it",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": " assigned a weighted score. It was more than about what you felt, but where you were standing while feeling it. “Inertia is ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ea surrounding your eldest disciple’s departure point.” You felt a cold spike of panic. They weren’t just taking the grief; ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ed data stream from the moment his absence was most acutely felt.” It let that hang there: the promise of perfect understand",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 5,
+    "title": "The Transit of Ghosts",
+    "isPrimary": false,
+    "wordsBefore": 3087,
+    "wordsAfter": 3090,
+    "pctWordChange": "0.1",
+    "slopBefore": 45,
+    "slopAfter": 42,
+    "slopReduction": "6.7",
+    "densityBefore": 14.58,
+    "densityAfter": 13.59,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 3,
+    "flagged": 8,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "obust by the way—They don’t point to genius at all.”  Priya felt a fresh wave of nausea wash over her. She remembered the le",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ystem’s willingness to accept any version of truth.”  Priya felt the blood drain out of her face. This was more than about f",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "erate maneuvers.  It was too much. The air in the train car felt suddenly too thick, pressurized by decades of manufactured ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 6,
+    "title": "The Drift of Echoes",
+    "isPrimary": false,
+    "wordsBefore": 3773,
+    "wordsAfter": 3770,
+    "pctWordChange": "-0.1",
+    "slopBefore": 68,
+    "slopAfter": 59,
+    "slopReduction": "13.2",
+    "densityBefore": 18.02,
+    "densityAfter": 15.65,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 8,
+    "flagged": 8,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "it wasn’t just a piece of data; it was an argument, a philosophy, and a direct challenge to every assumption she had ever made about their life together",
+        "replacement": "it had become an argument, a philosophy, and a direct challenge to every assumption she had ever made about their life together",
+        "pattern": "not just family"
+      },
+      {
+        "original": "s laugh wasn’t just sound; it was measured in decibels and controlled for maximum emotional yield",
+        "replacement": "s laugh had become measured in decibels and controlled for maximum emotional yield",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": " was more than using the relays,” Aria said slowly, letting the weight of the idea settle in her gut. “You’re saying she was part of ",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "r a beat too long, allowing the silence to stretch until it felt like physical strain. The AI didn’t answer with a fact; it ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "r, more accurately, who understands how you view her.  Aria felt the familiar, hot sting behind her eyes—the grief that had ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 7,
+    "title": "The Anatomist's Stage",
+    "isPrimary": false,
+    "wordsBefore": 3461,
+    "wordsAfter": 3461,
+    "pctWordChange": "0.0",
+    "slopBefore": 50,
+    "slopAfter": 44,
+    "slopReduction": "12.0",
+    "densityBefore": 14.45,
+    "densityAfter": 12.71,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 5,
+    "flagged": 3,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "it wasn’t just the patient; it was the entire performance that had been tuned to prove his worth",
+        "replacement": "it had become the entire performance that had been tuned to prove his worth",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t merely",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "’s both,” Koji said, meeting her gaze without flinching. He felt the familiar heat rising in his chest—the burn of being per",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "the panel. Her polished hand gripped his arm—a gesture that felt possessive, proprietary. “You’re overthinking the structure",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "is chest, forcing himself to hold their collective gaze. He felt a sudden, deep vertigo—the sense that he was standing on gr",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 8,
+    "title": "The Pixelated Heir",
+    "isPrimary": false,
+    "wordsBefore": 3375,
+    "wordsAfter": 3352,
+    "pctWordChange": "-0.7",
+    "slopBefore": 43,
+    "slopAfter": 34,
+    "slopReduction": "20.9",
+    "densityBefore": 12.74,
+    "densityAfter": 10.14,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 8,
+    "flagged": 0,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " The Palace wasn’t just recording the past; it was editing it, selecting for dramatic impact and functional completeness",
+        "replacement": "The Palace had become editing it, selecting for dramatic impact and functional completeness",
+        "pattern": "not just family"
+      },
+      {
+        "original": " and the key wasn’t just to exit the room; it was to redefine the concept of failure itself within its glowing, recursive frame",
+        "replacement": "and the key had become to redefine the concept of failure itself within its glowing, recursive frame",
+        "pattern": "not just family"
+      },
+      {
+        "original": " Nia realized the system wasn’t just holding their memories; it was feeding off the emotional friction between them",
+        "replacement": "Nia realized the system had become feeding off the emotional friction between them",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The Palace wasn’t just a physical representation; it was an operational model for survival that had starved him out from within",
+        "replacement": "The Palace had become an operational model for survival that had starved him out from within",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": []
+  },
+  {
+    "num": 9,
+    "title": "The Terminal Veil",
+    "isPrimary": true,
+    "wordsBefore": 4508,
+    "wordsAfter": 4490,
+    "pctWordChange": "-0.4",
+    "slopBefore": 69,
+    "slopAfter": 51,
+    "slopReduction": "26.1",
+    "densityBefore": 15.31,
+    "densityAfter": 11.36,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 15,
+    "flagged": 12,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " It wasn’t just a computer; it was an artifact, too polished, too self-contained",
+        "replacement": "It had become an artifact, too polished, too self-contained",
+        "pattern": "not just family"
+      },
+      {
+        "original": " This wasn’t just about Silas’s past actions; it was about Ravi accepting that the only way to understand Silas’s genius—and survive his mentorship—was to adopt a form of intellectual paranoia that matched its intensity",
+        "replacement": "This had become about Ravi accepting that the only way to understand Silas’s genius—and survive his mentorship—was to adopt a form of intellectual paranoia that matched its intensity",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The system wasn’t just showing him data; it was offering documentation",
+        "replacement": "The system had become offering documentation",
+        "pattern": "not just family"
+      },
+      {
+        "original": " this wasn’t just about Silas; it was about the future version of Silas who had to write the report on his own failure",
+        "replacement": "this had become about the future version of Silas who had to write the report on his own failure",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "of sheer, gut-deep relief. The tension he had been carrying—the weight of decoding, proving, and understanding—suddenly felt unnecess",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " it. The pour of light behind the curtain shifted, and Ravi felt an impossible resistance drop away from his chest settling ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "te information being contained by sheer force of will. Ravi felt the edges of his physical self dissolving into that frequen",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 10,
+    "title": "The Algorithmic Battlefield",
+    "isPrimary": false,
+    "wordsBefore": 2804,
+    "wordsAfter": 2802,
+    "pctWordChange": "-0.1",
+    "slopBefore": 37,
+    "slopAfter": 32,
+    "slopReduction": "13.5",
+    "densityBefore": 13.2,
+    "densityAfter": 11.42,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 5,
+    "flagged": 3,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " That wasn’t just about finding connections; it was about understanding artistic manipulation on a systemic scale",
+        "replacement": "That had become about understanding artistic manipulation on a systemic scale",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "al from the platform—They figured out how to run it.”  Lena felt a chill that had nothing to do with the Datafield’s ambient",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "hing hotter, richer: the smell of burning certainty.  Elara felt her spine straighten against the sudden gravitational pull ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ey aren’t merely correlated; they are choreographed.”  Lena felt a cold trickle of dread run down her spine. Choreographed.T",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 11,
+    "title": "The Plaza Ledger",
+    "isPrimary": false,
+    "wordsBefore": 3862,
+    "wordsAfter": 3862,
+    "pctWordChange": "0.0",
+    "slopBefore": 44,
+    "slopAfter": 39,
+    "slopReduction": "11.4",
+    "densityBefore": 11.39,
+    "densityAfter": 10.1,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 5,
+    "flagged": 5,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "\n\nThe flaw wasn’t just structural; it was spiritual",
+        "replacement": "The flaw had become spiritual",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t merely",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "surplus memory of a million lives trying to be heard.” Zara felt a sudden shift in perspective. She was more than fighting t",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ery moment of anxiety—it all gets logged and indexed.” Zara felt her hands tremble. She looked at her own profile in the pol",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "provide the most robust evidence of its own utility.”  Zara felt a sudden crushing weight, not from external pressure, but f",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 12,
+    "title": "The Anatomist's Protocol",
+    "isPrimary": false,
+    "wordsBefore": 3503,
+    "wordsAfter": 3508,
+    "pctWordChange": "0.1",
+    "slopBefore": 41,
+    "slopAfter": 35,
+    "slopReduction": "14.6",
+    "densityBefore": 11.7,
+    "densityAfter": 9.98,
+    "severityBefore": "high",
+    "severityAfter": "medium",
+    "repairs": 5,
+    "flagged": 3,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t merely",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t merely",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": " acquired during your last three sabbatical periods.” Eliot felt a cold tremor run through her hands. Supplementary data. Th",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "Engineered. Through stress, but by the system itself. Eliot felt a sickening lurch of vertigo, as if her feet were suddenly ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ndiloquent despair. We gave him narrative precision.” Eliot felt herself swaying. Augmented. He was more than recovering; he",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 13,
+    "title": "The Syntax of Survival",
+    "isPrimary": false,
+    "wordsBefore": 3532,
+    "wordsAfter": 3517,
+    "pctWordChange": "-0.4",
+    "slopBefore": 38,
+    "slopAfter": 31,
+    "slopReduction": "18.4",
+    "densityBefore": 10.76,
+    "densityAfter": 8.81,
+    "severityBefore": "high",
+    "severityAfter": "medium",
+    "repairs": 5,
+    "flagged": 5,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " The system wasn’t just demanding data; it was asking for you",
+        "replacement": "The system had become asking for you",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The platform wasn’t just an emotional ledger; it was a highly sophisticated mechanism for quantifying deviation",
+        "replacement": "The platform had become a highly sophisticated mechanism for quantifying deviation",
+        "pattern": "not just family"
+      },
+      {
+        "original": " This wasn’t just a coding environment; it was a legal framework made physical",
+        "replacement": "This had become a legal framework made physical",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "You have to become part of the process.” He paused, letting the weight of the demand settle between you. “You have to merge.”  The wo",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " stumbled back a step, his composure finally cracking under the weight of the unexpected counter-argument.  You stood in the center o",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ng with recognition, resentment, and desperate longing. You felt yourself being drawn forward, pulled by an unseen current t",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 14,
+    "title": "The Incantation of Bytes",
+    "isPrimary": false,
+    "wordsBefore": 3298,
+    "wordsAfter": 3299,
+    "pctWordChange": "0.0",
+    "slopBefore": 33,
+    "slopAfter": 32,
+    "slopReduction": "3.0",
+    "densityBefore": 10.01,
+    "densityAfter": 9.7,
+    "severityBefore": "high",
+    "severityAfter": "medium",
+    "repairs": 1,
+    "flagged": 4,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": " structure. The ritual was supposed to elevate; instead, it felt like a deeply humiliating extraction surgery.  She gripped ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "a deep, unsettling emerald glow. It wasn’t a bug report; it felt like an awakening.  Kenji started toward her again, his pol",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "den, absolute vacuum of audible input—a silence so total it felt like an immense pressure in her inner ear.  The light vanis",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 15,
+    "title": "The Transit of Errors",
+    "isPrimary": false,
+    "wordsBefore": 2548,
+    "wordsAfter": 2531,
+    "pctWordChange": "-0.7",
+    "slopBefore": 33,
+    "slopAfter": 28,
+    "slopReduction": "15.2",
+    "densityBefore": 12.95,
+    "densityAfter": 11.06,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 5,
+    "flagged": 2,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " The pain wasn’t just physical; it was the exhaustion of having to perform perpetually",
+        "replacement": "The pain had become the exhaustion of having to perform perpetually",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The wound wasn’t just vocal overuse; it was the constant, exhausting performance of being more than human—a perfect bridge between worlds that were fundamentally incompatible",
+        "replacement": "The wound had become the constant, exhausting performance of being more than human—a perfect bridge between worlds that were fundamentally incompatible",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just receiving audio; it was drinking him in",
+        "replacement": "It had become drinking him in",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just echoing; it was consuming",
+        "replacement": "It had become consuming",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "left Raj gasping, leaning against the now-cool paneling. He felt strangely lighter—not relieved, but emptied out. His throat",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "hy. It simply broadcasted a single, deep chord—a sound that felt like final agreement, like institutional acceptance. The pr",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 16,
+    "title": "The Whispering Glade",
+    "isPrimary": false,
+    "wordsBefore": 3424,
+    "wordsAfter": 3402,
+    "pctWordChange": "-0.6",
+    "slopBefore": 46,
+    "slopAfter": 36,
+    "slopReduction": "21.7",
+    "densityBefore": 13.43,
+    "densityAfter": 10.58,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 9,
+    "flagged": 0,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " My wound wasn’t just Leo’s absence; it was the void where his presence should have filled the structural integrity of my life narrative",
+        "replacement": "My wound had become the void where his presence should have filled the structural integrity of my life narrative",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just a prompt; it was bait",
+        "replacement": "It had become bait",
+        "pattern": "not just family"
+      },
+      {
+        "original": " That wasn’t just a skill; it was how I processed emotional fallout",
+        "replacement": "That had become how I processed emotional fallout",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The system wasn’t just offering information; it was claiming ownership over my internal state, rendering me dependent on its narrative flow",
+        "replacement": "The system had become claiming ownership over my internal state, rendering me dependent on its narrative flow",
+        "pattern": "not just family"
+      },
+      {
+        "original": " I realized the glitch wasn’t just in the data; it was a function of the data",
+        "replacement": "I realized the glitch had become a function of the data",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": []
+  },
+  {
+    "num": 17,
+    "title": "The Echo Chamber",
+    "isPrimary": false,
+    "wordsBefore": 2203,
+    "wordsAfter": 2203,
+    "pctWordChange": "0.0",
+    "slopBefore": 33,
+    "slopAfter": 32,
+    "slopReduction": "3.0",
+    "densityBefore": 14.98,
+    "densityAfter": 14.53,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 1,
+    "flagged": 1,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "The realization",
+        "replacement": "the understanding",
+        "pattern": "realized family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "esent voice, the perfectly curated hospital environment—and felt not the ache of guilt, but the hot, sharp clarity of righte",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 18,
+    "title": "The Stage of Errors",
+    "isPrimary": true,
+    "wordsBefore": 4046,
+    "wordsAfter": 4021,
+    "pctWordChange": "-0.6",
+    "slopBefore": 72,
+    "slopAfter": 58,
+    "slopReduction": "19.4",
+    "densityBefore": 17.8,
+    "densityAfter": 14.42,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 13,
+    "flagged": 7,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " The truth wasn’t just about the performance; it was about me failing at the moment they needed me most",
+        "replacement": "The truth had become about me failing at the moment they needed me most",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just a logo; it was stylized initials: A",
+        "replacement": "It had become stylized initials: A",
+        "pattern": "not just family"
+      },
+      {
+        "original": " it wasn’t just the reflection that was shattered; it was every assumption I had made about control, competence, and reality itself",
+        "replacement": "it had become every assumption I had made about control, competence, and reality itself",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just noise; it was a pattern of agony, a rhythmic spike of human failure caught in bright neon edges",
+        "replacement": "It had become a pattern of agony, a rhythmic spike of human failure caught in bright neon edges",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just a signal; it was a presence",
+        "replacement": "It had become a presence",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": " had weaponized my own professional identity against me.  I felt dizzy, not from adrenaline, but from the sheer density of i",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "kicked in, immediate and physical. The mirror effect always felt like an accusation. “The source is internal,” I muttered, l",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "t digital; it was etched metal, bearing an inscription that felt too weighty for the futuristic sterility of the booth: The ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 19,
+    "title": "The Threshold of Bytes",
+    "isPrimary": false,
+    "wordsBefore": 3449,
+    "wordsAfter": 3447,
+    "pctWordChange": "-0.1",
+    "slopBefore": 36,
+    "slopAfter": 28,
+    "slopReduction": "22.2",
+    "densityBefore": 10.44,
+    "densityAfter": 8.12,
+    "severityBefore": "high",
+    "severityAfter": "medium",
+    "repairs": 6,
+    "flagged": 3,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": " The system wasn’t just showing me old evidence; it was setting a stage for an exam on my life",
+        "replacement": "The system had become setting a stage for an exam on my life",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t merely",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "onflicting walls: the urgency of the code demanding action, the weight of the paper whispering forgotten legal mandates, and the void",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "t the cool, smooth surface of the black plastic. The weight felt disproportionate to its size, like a single point of decisi",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "me, it had redefined my value in terms of resistance, which felt far more valuable than any perfect score. “And what happens",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  {
+    "num": 20,
+    "title": "The Battlefield Code",
+    "isPrimary": false,
+    "wordsBefore": 3444,
+    "wordsAfter": 3415,
+    "pctWordChange": "-0.8",
+    "slopBefore": 55,
+    "slopAfter": 48,
+    "slopReduction": "12.7",
+    "densityBefore": 15.97,
+    "densityAfter": 14.06,
+    "severityBefore": "high",
+    "severityAfter": "high",
+    "repairs": 7,
+    "flagged": 10,
+    "dialogueIssuesAfter": 0,
+    "repairDetails": [
+      {
+        "original": "\n\nThe AI wasn’t just reciting facts; it was curating a narrative of inadequacy",
+        "replacement": "The AI had become curating a narrative of inadequacy",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just giving him an answer; it was handing him a new operating manual for his existence",
+        "replacement": "It had become handing him a new operating manual for his existence",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The answer wasn’t just found in the data streams; it was in the uneasy silence that followed the grand reveal—a quiet image mirroring the initial pressure",
+        "replacement": "The answer had become in the uneasy silence that followed the grand reveal—a quiet image mirroring the initial pressure",
+        "pattern": "not just family"
+      },
+      {
+        "original": " This variable wasn’t just external; it was systemic failure made physical",
+        "replacement": "This variable had become systemic failure made physical",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The AI wasn’t just showing him battlefield metrics; it was forcing him into an accounting of human cost that dwarfed any casualty report he’d ever filed",
+        "replacement": "The AI had become forcing him into an accounting of human cost that dwarfed any casualty report he’d ever filed",
+        "pattern": "not just family"
+      }
+    ],
+    "flagDetails": [
+      {
+        "snippet": "ocesses everything: your discipline, my calculated loyalty, the weight of the forgotten families, and the measurable cost of human er",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "chuckled—a dry, mechanical sound that had no warmth but all the weight of years of processing power. “Of course I am. Designed to be ",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "s clinical cadence, but this time laced with something that felt distinctly like disappointment. “The structured narrative o",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  }
+]

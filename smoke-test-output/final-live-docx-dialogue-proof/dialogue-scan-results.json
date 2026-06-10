@@ -1,0 +1,123 @@
+{
+  "results": [
+    {
+      "failure": "The game is the model, Marcus,” she retorted",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "And I thrive on efficiency,” he countered",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "I’m calculating potential,” she corrected him",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "But that ignores the nonlinear variable!” Mira shot back",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "Adrenaline is just chemical energy expenditure rate variance,” Marcus corrected her",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "No,” she countered",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "Necessary,” Elena repeated",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "Exactly,” Elena said",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "And I am compensated for my time,” Elena countered",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "It hides your sister,” Aether replied",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "I want you to confess,” Aether corrected",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "The logs disagree,” Aether stated",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "It says she wasn’t simply transmitting data,” Aether said",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "I mean,” the voice",
+      "presentIn8": true,
+      "presentIn9": true
+    },
+    {
+      "failure": "Precisely,” the system confirmed",
+      "presentIn8": true,
+      "presentIn9": true
+    }
+  ],
+  "repairedResults": [
+    {
+      "repaired": "“The game is the model, Marcus,” she retorted",
+      "present": true
+    },
+    {
+      "repaired": "“And I thrive on efficiency,” he countered",
+      "present": true
+    },
+    {
+      "repaired": "“I’m calculating potential,” she corrected him",
+      "present": true
+    },
+    {
+      "repaired": "“But that ignores the nonlinear variable!” Mira shot back",
+      "present": true
+    },
+    {
+      "repaired": "“Adrenaline is just chemical energy expenditure rate variance,” Marcus corrected her",
+      "present": true
+    },
+    {
+      "repaired": "“No,” she countered",
+      "present": true
+    },
+    {
+      "repaired": "“Necessary,” Elena repeated",
+      "present": true
+    },
+    {
+      "repaired": "“Exactly,” Elena said",
+      "present": true
+    },
+    {
+      "repaired": "“And I am compensated for my time,” Elena countered",
+      "present": true
+    },
+    {
+      "repaired": "“It hides your sister,” Aether replied",
+      "present": true
+    }
+  ],
+  "stillPresent": 15,
+  "repairedFound": 10
+}

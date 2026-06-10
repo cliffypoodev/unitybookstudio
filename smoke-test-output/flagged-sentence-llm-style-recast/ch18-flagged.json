@@ -1,0 +1,52 @@
+{
+  "title": "The Stage of Errors",
+  "slopBefore": 72,
+  "slopAfter": 58,
+  "flagged": [
+    {
+      "snippet": "carefully veiled anxiety, the raw panic radiating off me. I felt a sudden, deep pull toward its cold, sharp truth. It promis",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "nt. “That’s it,” I said, letting out a pause of relief that felt ragged and insufficient. “Just an optical illusion.”  But b",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": " had weaponized my own professional identity against me.  I felt dizzy, not from adrenaline, but from the sheer density of i",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "kicked in, immediate and physical. The mirror effect always felt like an accusation. “The source is internal,” I muttered, l",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "t digital; it was etched metal, bearing an inscription that felt too weighty for the futuristic sterility of the booth: The ",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "gned to eliminate distortion. It was more than a window; it felt like a portal. And inside it, behind the perfect clarity of",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": " sheer volume of truth presented was a physical pressure. I felt dizzy, like standing at the bottom of a very deep well. Thi",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "ere was no third console, no visible hardware shift. Yet, I felt the pressure of three competing intelligences—the Director’",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    },
+    {
+      "snippet": "ons before they were fully formed. The empathy it projected felt engineered, not earned. “The Director,” I started slowly, m",
+      "pattern": "felt",
+      "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+    }
+  ]
+}

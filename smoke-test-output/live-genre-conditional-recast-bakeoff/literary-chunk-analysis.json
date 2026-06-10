@@ -1,0 +1,23 @@
+[
+  {
+    "index": 0,
+    "words": 414,
+    "score": 67,
+    "eligible": true,
+    "reason": "Score 67 < threshold 70"
+  },
+  {
+    "index": 1,
+    "words": 420,
+    "score": 76,
+    "eligible": false,
+    "reason": "Score 76 >= threshold 70"
+  },
+  {
+    "index": 2,
+    "words": 336,
+    "score": 84,
+    "eligible": false,
+    "reason": "Protected: high_score"
+  }
+]

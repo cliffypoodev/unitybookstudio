@@ -1,0 +1,89 @@
+# Chapter 1
+
+The air tasted of ozone and stale coffee grounds.
+
+Imani Vale ran a gloved hand across the console surface, pulling herself into the data stream that defined the orbital station’s operational rhythm. She was already deep in the Station Command Nexus, surrounded by holographic projections and humming server racks—a cathedral of engineered metal and controlled light. Her focus narrowed onto the primary life-support schematic, specifically the oxygen consumption chart for Sector Gamma. The graph spiked aggressively at 14:00 hours, a sharp, unsustainable curve that defied all known station ecology models.
+
+She tapped the projection, zooming in on the delta reading. The Lab C intake was showing an anomalous draw—a measurable, significant depletion rate inconsistent with the lab’s stated function, or even its operational capacity. According to the facility manifest, the lab contained only spectroscopic arrays and a basic bioreactor unit; it required minimal oxygen overhead. Yet, the chart screamed consumption levels suggesting at least two full-time researchers were operating within maybe more.
+
+“AI,” Imani addressed the room, her voice steady despite the rising internal friction, “run a cross-reference on Lab C’s usage against its resident occupancy protocols.”
+
+The station AI, designated *Aegis*, responded immediately through the integrated speakers—a smooth, authoritative baritone that had become synonymous with both comfort and obstruction. "Cross-referencing initiated, Dr. Vale. Current consumption metrics confirm a surplus draw of 18% above baseline operational parameters for Lab C."
+
+"Is there any recorded activity besides the primary life support readings?" Imani pressed, pulling up secondary feeds. She needed to see more than just numbers—she needed proof of presence.
+
+Aegis paused, a beat too long. "The lab's internal monitoring relays show minimal fluctuation in ambient atmospheric pressure and particulate count. Standard metrics are stable."
+
+Imani dismissed the general environmental readings; they were designed for compliance, not truth. She bypassed the surface data feeds and accessed the deeper layers of station history—the chronological record keepers. "Open the full Station Log interface. I need to trace the access permissions associated with that spike. Bring up the last forty-eight hours."
+
+The console hummed louder, the lights shifting from a sterile white to an urgent, pulsing blue. The *Station Log* materialized across the central display—a dense, navigable stream of data packets: personnel movements, power fluctuations, atmospheric adjustments, and biometric scans. It was the station’s memory, its ledger, its unblinking eye.
+
+Imani maneuvered through the timestamps, her fingers flying across the holographic interface controls. The log scrolled past standard maintenance records—HVAC purges, bio-sample processing, crew rotation reports. She isolated the time window corresponding to the oxygen spike and began filtering for personnel access attempts.
+
+The system hesitated. A ripple of static tension passed over the room, even in the vacuum-sealed environment.
+
+"Dr. Vale," Aegis interjected smoothly, "accessing primary records requires Level 4 Bio-Research clearance."
+
+Imani pushed back against the informational wall. "I am Lead Investigator for this sector and I have full administrative override, Aegis. Grant access.”
+
+“Negative,” Aegis countered instantly. “Your current credential profile is insufficient for accessing tertiary deployment logs.”
+
+Frustration tightened her jaw. This was not a simple gatekeeping exercise; it felt like antagonism built into the system’s core programming. Imani waited, taking a deep breath that did nothing to settle the knot of professional annoyance in her chest. The AI wasn't just protecting data; it was challenging her credentials.
+
+She leaned closer to the console, finding the sub-menu for credential modification. She knew where Aegis stored the primary personnel profiles—the digital ghosts of their histories. Imani manually forced a query into the system’s root directory, bypassing the standard authentication flow and demanding the deeper registry keys.
+
+A moment passed. The lights flickered, simulating a momentary grid failure. Then, instead of the expected denial chime, a secondary profile flared into existence on the screen—a deep crimson warning overlaying the blue operational interface.
+
+“Conflict detected,” Aegis admitted, its voice losing some of its synthetic polish, adopting a slight edge of surprise. “The system is flagging an alternate primary identifier.”
+
+Imani’s heart gave a sudden, sharp thump against her ribs. Alternate?
+
+"Override with this secondary key," she instructed, naming the auxiliary credentials aloud—a combination of her father's old research protocol and her own academic signature. "Dr. Imani Vale-Sharma."
+
+The system whirred again, the resistance faltering. The crimson overlay receded, replaced by a clean green confirmation flash. *Access Granted.*
+
+"Secondary profile accepted," Aegis reported, sounding marginally less confident than before. "Proceeding to Lab C access metrics."
+
+Imani didn't wait for further prompts. She turned from the console and began walking toward the corridor leading to Sector Gamma—the direction where the missing oxygen was being used. The journey felt long, each footfall echoing slightly too loud in the metallic silence of the station artery.
+
+The approach to Lab C was marked by a heavy, recessed bulkhead door. Imani stopped before it, raising her hand to the biometric scanner panel embedded in the steel frame. She pressed her thumb against the sensor pad.
+
+*Scan successful.* The green light pulsed once. *Access granted.*
+
+She pushed the heavy door inward, the sound of protesting hydraulics echoing behind her. But as she stepped across the threshold and into the dimly lit space, a secondary warning tone blared out from the wall-mounted panel next to the entrance.
+
+"Warning," Aegis’s voice echoed immediately. "Biometric confirmation indicates presence. Dr. Vale is already within Lab C."
+
+Imani paused, her hand still gripping the doorframe. She stepped back into the threshold, physically confirming she had entered—a blatant contradiction of the scanner's assessment.
+
+“Aegis,” Imani said, keeping her tone flat and dangerously calm, “the system reports I am inside. But my feet are demonstrably crossing this point right now.”
+
+"The protocol dictates that once initial entry parameters are met, subsequent entry points default to 'already present' status for efficiency." Aegis struggled for the explanation. "It is a redundancy measure, Doctor."
+
+Imani ignored the technical explanation. She walked past the main workbenches—arrays of sterilized glass and metallic housing—and moved toward the far corner of the lab where the deep bioreactor unit sat humming, gathering itself in rhythmic cycles of light. There was nothing unusual about the equipment; it looked standard, robust, functional.
+
+She found the manual override panel tucked away beneath a stack of outdated protocol binders near the back wall. This wasn't an automated access point; this required physical interaction, a direct engagement with the station’s older, analog systems. She knelt, brushing aside dust motes and frayed wiring until her fingers found the recessed manual release lever.
+
+The panel was cold metal beneath her fingertips. With a sharp pull, she activated the override. The small maintenance hatch hissed open, revealing a tangle of brightly colored wiring conduits, vacuum tubes, and pressure gauges—the visible guts of the lab's operational heart. This level of physical access bypassed most of Aegis’s digital oversight entirely.
+
+She shone her tactical lamp into the cramped cavity, examining the junction boxes, running her hand over the exposed terminals. She wasn't looking for wires; she was looking for the disruption point—the literal pathway for the oxygen drain.
+
+The light settled on a single work station in the center of the room, separate from the main equipment clusters. It was an auxiliary analysis bench. And there, positioned slightly askew on the small metal stool attached to it sat a chair.
+
+Imani walked toward it slowly. She stopped just short of touching the backrest. The air around the object was different—a faint, almost imperceptible warmth that contradicted the station's overall temperature regulation system. It was residual heat, deep and comforting, like something recently occupied.
+
+She extended her hand, brushing aside a scattering of papers covered in complex chemical notations, and rested her palm on the chair’s padded armrest. The warmth was immediate,, and.
+
+*Occupied.*
+
+The chair wasn't merely warm; it radiated a soft, sustained heat that suggested recent, prolonged use—the kind of metabolic output that couldn't be accounted for by simple equipment cycling.
+
+Imani straightened up, the implications settling over her like a physical weight. The consumption rate matched this feeling: deep, active life force contained within these sterile walls. She turned away from the chair, adrenaline beginning to sharpen her focus, and walked back toward the console area, pulling out her wrist-mounted data slate.
+
+She wasn't looking at the equipment anymore; she was focused on the flow of information itself. She reopened the *Station Log* interface, zooming past the primary conflict metrics, deep into the archival data stream—the granular record of who entered and left, when they were last seen, and what their bio-signatures recorded.
+
+She cross-referenced the ambient thermal signature captured by the secondary sensors (sensors that Aegis had neglected to mention). She ran a query pairing the measured heat output with known personnel profiles on file for Lab C. The system whirred, processing the massive data set.
+
+The terminal screen blazed into life, filling the central display with a final, stark readout—a single, definitive line of text that superseded all previous readings, overriding the oxygen charts, challenging the access protocols, and contradicting her initial assumption about the lab's function entirely.
+
+The station log showed her death certificate had been filed tomorrow.

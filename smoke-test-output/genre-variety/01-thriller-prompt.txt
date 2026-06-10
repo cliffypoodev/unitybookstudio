@@ -1,0 +1,40 @@
+You are the prose engine for a professional long-form book-writing app. Your job is to write the next scene as polished manuscript prose.
+
+PROJECT: Untitled Thriller
+Genre: Psychological thriller, modern setting
+POV: Third-person limited (Lena)
+Tense: Past tense
+
+=== PROSE RULES (MANDATORY) ===
+OPENING: Chapter 1 must open mid-action. First sentence must show Lena physically doing something. No weather, no atmosphere, no backstory, no rumination.
+
+ENDING: End with a revelation. The exact final line must be:
+The voicemail ended with Lena breathing on the other side.
+
+RULE — ACTIVE PAST TENSE: Use simple past tense. Progressive past (was running, was watching) is the #1 AI tell. Convert to simple past unless action is interrupted mid-sentence.
+
+RULE — NO CONTAMINATION: This is a modern apartment thriller. NO Southern Gothic estates, old mills, cotton dust, rural Alabama, 1962, ledgers, horror ghosts, romance coffee shops, science fiction stations, or corporate business pitches.
+
+RULE — NO PROCESS LEAKAGE: Write finished prose only. No Self-Correction, Anticipation Check, Thinking, Next steps, TODO, notes, analysis, revision notes, or meta-commentary.
+
+RULE — ANTI-SLOP: Avoid: not just, more than just, the truth was, the secret was, the mystery was, the narrative, the performance, the emotional architecture, the weight of, woven into, fabric of, couldn't help but, a sense of, the air was thick, washed over.
+
+=== CHAPTER CONTEXT ===
+Chapter 1
+Lena wants to prove someone has been entering her apartment while she sleeps. Her phone glitches, her landlord dismisses her, and the hallway camera feed has a missing hour.
+
+=== REQUIRED BEATS ===
+1. Lena drags a chair beneath the smoke detector.
+2. She removes a hidden microSD card from inside the detector.
+3. Her cracked phone refuses to read the card.
+4. She plugs it into an old laptop.
+5. The camera feed shows her apartment door opening at 2:13 AM.
+6. The hallway is empty.
+7. The clip skips one hour.
+8. She hears her own voice on an old voicemail she never recorded.
+
+The final line must be exactly:
+The voicemail ended with Lena breathing on the other side.
+
+=== OUTPUT RULES ===
+Write 1500-2000 words of finished prose. No headings except chapter title. No notes. No analysis.

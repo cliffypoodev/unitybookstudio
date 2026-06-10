@@ -1,0 +1,146 @@
+{
+  "profileUsed": "literary",
+  "recastMode": "conservative",
+  "pipelineVersion": "ANTI-CHATBOT-RECAST-PIPELINE v4.0 — 2026-06-09",
+  "chunksAnalyzed": 3,
+  "chunksSkipped": 2,
+  "chunksRecast": 1,
+  "chunksFailed": 0,
+  "chunksRetried": 0,
+  "chunksRetrySucceeded": 0,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 10,
+    "symmetryScore": 22,
+    "filterVerbDensity": 9.4,
+    "concreteRatio": 77,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 0.9,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 73,
+    "grade": "GOOD",
+    "diagnostics": [
+      "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 10,
+    "symmetryScore": 19,
+    "filterVerbDensity": 6,
+    "concreteRatio": 83,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 0.9,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 77,
+    "grade": "GOOD",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (30 words) is not shorter than average (18). End on a punch."
+    ]
+  },
+  "safetyBlocks": 0,
+  "referenceBlocks": 0,
+  "headingBlocks": 0,
+  "literaryFlatteningBlocks": 0,
+  "overcorrectionWarnings": [],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "skipped",
+      "beforeScore": 81,
+      "afterScore": null,
+      "reason": "Protected: high_score",
+      "origWords": 404,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 371,
+      "maxAllowed": 445,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative",
+      "selectedModel": null,
+      "routingReason": null,
+      "weaknessTypes": null,
+      "headingPreservation": null,
+      "literaryAntiFlattening": null
+    },
+    {
+      "index": 1,
+      "action": "recast",
+      "beforeScore": 65,
+      "afterScore": 81,
+      "reason": "Score 65 < threshold 70",
+      "origWords": 436,
+      "recastWords": 424,
+      "ratio": 97,
+      "minAllowed": 401,
+      "maxAllowed": 480,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative",
+      "selectedModel": "prose-recast-polisher",
+      "routingReason": "filter_verb_specialist",
+      "weaknessTypes": [
+        "filter_verb_heavy",
+        "chatbot_patterns",
+        "weak_opening",
+        "soft_ending"
+      ],
+      "headingPreservation": {
+        "ok": true,
+        "originalCount": 0,
+        "recastCount": 0,
+        "error": null
+      },
+      "literaryAntiFlattening": {
+        "ok": true,
+        "reason": null,
+        "beforeScore": 65,
+        "afterScore": 81,
+        "flatteningDetails": null
+      }
+    },
+    {
+      "index": 2,
+      "action": "skipped",
+      "beforeScore": 81,
+      "afterScore": null,
+      "reason": "Protected: high_score",
+      "origWords": 336,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 309,
+      "maxAllowed": 370,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative",
+      "selectedModel": null,
+      "routingReason": null,
+      "weaknessTypes": null,
+      "headingPreservation": null,
+      "literaryAntiFlattening": null
+    }
+  ],
+  "routingReport": {
+    "modelDistribution": {
+      "prose-recast-polisher": 1
+    },
+    "weaknessDistribution": {
+      "filter_verb_heavy": 1,
+      "chatbot_patterns": 1,
+      "weak_opening": 1,
+      "soft_ending": 1
+    },
+    "totalChunks": 3,
+    "routedChunks": 1
+  }
+}

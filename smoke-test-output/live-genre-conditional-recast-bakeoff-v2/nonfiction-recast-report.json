@@ -1,0 +1,87 @@
+{
+  "profileUsed": "nonfiction",
+  "recastMode": "conservative",
+  "chunksAnalyzed": 2,
+  "chunksSkipped": 1,
+  "chunksRecast": 0,
+  "chunksFailed": 1,
+  "chunksRetried": 0,
+  "chunksRetrySucceeded": 0,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 8.6,
+    "symmetryScore": 24,
+    "filterVerbDensity": 3.6,
+    "concreteRatio": 0,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 6.1,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 66,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "LOW CONCRETE RATIO: 0% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+      "SOFT ENDING: Last sentence (30 words) is not shorter than average (20). End on a punch.",
+      "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 8.6,
+    "symmetryScore": 24,
+    "filterVerbDensity": 3.6,
+    "concreteRatio": 0,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 6.1,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 66,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "LOW CONCRETE RATIO: 0% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+      "SOFT ENDING: Last sentence (30 words) is not shorter than average (20). End on a punch.",
+      "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+    ]
+  },
+  "safetyBlocks": 1,
+  "referenceBlocks": 0,
+  "overcorrectionWarnings": [
+    "Chunk 0: Recast scored lower (58 < 62)"
+  ],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "failed",
+      "beforeScore": 62,
+      "afterScore": null,
+      "reason": "Recast scored lower (58 < 62)",
+      "origWords": 409,
+      "recastWords": 399,
+      "ratio": 98,
+      "minAllowed": 376,
+      "maxAllowed": 450,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative"
+    },
+    {
+      "index": 1,
+      "action": "skipped",
+      "beforeScore": 71,
+      "afterScore": null,
+      "reason": "Score 71 >= threshold 70",
+      "origWords": 415,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 381,
+      "maxAllowed": 457,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative"
+    }
+  ]
+}

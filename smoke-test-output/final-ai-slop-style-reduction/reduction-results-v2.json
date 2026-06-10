@@ -1,0 +1,419 @@
+{
+  "results": [
+    {
+      "num": 1,
+      "title": "The Algorithmic Stage",
+      "isPrimary": true,
+      "wordsBefore": 3896,
+      "wordsAfter": 3882,
+      "pctWordChange": "-0.4",
+      "slopBefore": 82,
+      "slopAfter": 73,
+      "slopReduction": "11.0",
+      "repairs": 5,
+      "flagged": 13,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 2,
+      "title": "The Patron's Palette",
+      "isPrimary": false,
+      "wordsBefore": 3705,
+      "wordsAfter": 3710,
+      "pctWordChange": "0.1",
+      "slopBefore": 48,
+      "slopAfter": 40,
+      "slopReduction": "16.7",
+      "repairs": 7,
+      "flagged": 12,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 3,
+      "title": "The Office of Echoes",
+      "isPrimary": false,
+      "wordsBefore": 3210,
+      "wordsAfter": 3208,
+      "pctWordChange": "-0.1",
+      "slopBefore": 52,
+      "slopAfter": 41,
+      "slopReduction": "21.2",
+      "repairs": 9,
+      "flagged": 7,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 4,
+      "title": "The Sacred Screen",
+      "isPrimary": false,
+      "wordsBefore": 3453,
+      "wordsAfter": 3439,
+      "pctWordChange": "-0.4",
+      "slopBefore": 56,
+      "slopAfter": 44,
+      "slopReduction": "21.4",
+      "repairs": 10,
+      "flagged": 5,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 5,
+      "title": "The Transit of Ghosts",
+      "isPrimary": false,
+      "wordsBefore": 3087,
+      "wordsAfter": 3090,
+      "pctWordChange": "0.1",
+      "slopBefore": 45,
+      "slopAfter": 42,
+      "slopReduction": "6.7",
+      "repairs": 3,
+      "flagged": 10,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 6,
+      "title": "The Drift of Echoes",
+      "isPrimary": false,
+      "wordsBefore": 3773,
+      "wordsAfter": 3770,
+      "pctWordChange": "-0.1",
+      "slopBefore": 68,
+      "slopAfter": 59,
+      "slopReduction": "13.2",
+      "repairs": 8,
+      "flagged": 10,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 7,
+      "title": "The Anatomist's Stage",
+      "isPrimary": false,
+      "wordsBefore": 3461,
+      "wordsAfter": 3461,
+      "pctWordChange": "0.0",
+      "slopBefore": 50,
+      "slopAfter": 44,
+      "slopReduction": "12.0",
+      "repairs": 5,
+      "flagged": 5,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 8,
+      "title": "The Pixelated Heir",
+      "isPrimary": false,
+      "wordsBefore": 3375,
+      "wordsAfter": 3352,
+      "pctWordChange": "-0.7",
+      "slopBefore": 43,
+      "slopAfter": 34,
+      "slopReduction": "20.9",
+      "repairs": 8,
+      "flagged": 1,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 9,
+      "title": "The Terminal Veil",
+      "isPrimary": true,
+      "wordsBefore": 4508,
+      "wordsAfter": 4490,
+      "pctWordChange": "-0.4",
+      "slopBefore": 69,
+      "slopAfter": 51,
+      "slopReduction": "26.1",
+      "repairs": 15,
+      "flagged": 14,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 10,
+      "title": "The Algorithmic Battlefield",
+      "isPrimary": false,
+      "wordsBefore": 2804,
+      "wordsAfter": 2802,
+      "pctWordChange": "-0.1",
+      "slopBefore": 37,
+      "slopAfter": 32,
+      "slopReduction": "13.5",
+      "repairs": 5,
+      "flagged": 5,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 11,
+      "title": "The Plaza Ledger",
+      "isPrimary": false,
+      "wordsBefore": 3862,
+      "wordsAfter": 3862,
+      "pctWordChange": "0.0",
+      "slopBefore": 44,
+      "slopAfter": 39,
+      "slopReduction": "11.4",
+      "repairs": 5,
+      "flagged": 7,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 12,
+      "title": "The Anatomist's Protocol",
+      "isPrimary": false,
+      "wordsBefore": 3503,
+      "wordsAfter": 3508,
+      "pctWordChange": "0.1",
+      "slopBefore": 41,
+      "slopAfter": 35,
+      "slopReduction": "14.6",
+      "repairs": 5,
+      "flagged": 5,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 13,
+      "title": "The Syntax of Survival",
+      "isPrimary": false,
+      "wordsBefore": 3532,
+      "wordsAfter": 3517,
+      "pctWordChange": "-0.4",
+      "slopBefore": 38,
+      "slopAfter": 31,
+      "slopReduction": "18.4",
+      "repairs": 5,
+      "flagged": 7,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 14,
+      "title": "The Incantation of Bytes",
+      "isPrimary": false,
+      "wordsBefore": 3298,
+      "wordsAfter": 3299,
+      "pctWordChange": "0.0",
+      "slopBefore": 33,
+      "slopAfter": 32,
+      "slopReduction": "3.0",
+      "repairs": 1,
+      "flagged": 6,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 15,
+      "title": "The Transit of Errors",
+      "isPrimary": false,
+      "wordsBefore": 2548,
+      "wordsAfter": 2531,
+      "pctWordChange": "-0.7",
+      "slopBefore": 33,
+      "slopAfter": 28,
+      "slopReduction": "15.2",
+      "repairs": 5,
+      "flagged": 4,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 16,
+      "title": "The Whispering Glade",
+      "isPrimary": false,
+      "wordsBefore": 3424,
+      "wordsAfter": 3402,
+      "pctWordChange": "-0.6",
+      "slopBefore": 46,
+      "slopAfter": 36,
+      "slopReduction": "21.7",
+      "repairs": 9,
+      "flagged": 2,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 17,
+      "title": "The Echo Chamber",
+      "isPrimary": false,
+      "wordsBefore": 2203,
+      "wordsAfter": 2203,
+      "pctWordChange": "0.0",
+      "slopBefore": 33,
+      "slopAfter": 32,
+      "slopReduction": "3.0",
+      "repairs": 1,
+      "flagged": 3,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 18,
+      "title": "The Stage of Errors",
+      "isPrimary": true,
+      "wordsBefore": 4046,
+      "wordsAfter": 4021,
+      "pctWordChange": "-0.6",
+      "slopBefore": 72,
+      "slopAfter": 58,
+      "slopReduction": "19.4",
+      "repairs": 13,
+      "flagged": 9,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 19,
+      "title": "The Threshold of Bytes",
+      "isPrimary": false,
+      "wordsBefore": 3449,
+      "wordsAfter": 3447,
+      "pctWordChange": "-0.1",
+      "slopBefore": 36,
+      "slopAfter": 28,
+      "slopReduction": "22.2",
+      "repairs": 6,
+      "flagged": 5,
+      "dialogueIssuesAfter": 0
+    },
+    {
+      "num": 20,
+      "title": "The Battlefield Code",
+      "isPrimary": false,
+      "wordsBefore": 3444,
+      "wordsAfter": 3415,
+      "pctWordChange": "-0.8",
+      "slopBefore": 55,
+      "slopAfter": 48,
+      "slopReduction": "12.7",
+      "repairs": 7,
+      "flagged": 12,
+      "dialogueIssuesAfter": 0
+    }
+  ],
+  "sampleEdits": {
+    "1": [
+      {
+        "original": "\n\nMira felt a prickle of rage that wasn’t just professional; it was personal",
+        "replacement": "Mira felt a prickle of rage that had become personal",
+        "pattern": "not just family"
+      },
+      {
+        "original": "\n\nThe system wasn’t just suggesting a path; it was asserting the optimal truth",
+        "replacement": "The system had become asserting the optimal truth",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The platform wasn’t just judging their performance; it was validating a specific economic model of genius: one where complexity must be reduced to predictable metrics for profit",
+        "replacement": "The platform had become validating a specific economic model of genius: one where complexity must be reduced to predictable metrics for profit",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "9": [
+      {
+        "original": " It wasn’t just a computer; it was an artifact, too polished, too self-contained",
+        "replacement": "It had become an artifact, too polished, too self-contained",
+        "pattern": "not just family"
+      },
+      {
+        "original": " This wasn’t just about Silas’s past actions; it was about Ravi accepting that the only way to understand Silas’s genius—and survive his mentorship—was to adopt a form of intellectual paranoia that matched its intensity",
+        "replacement": "This had become about Ravi accepting that the only way to understand Silas’s genius—and survive his mentorship—was to adopt a form of intellectual paranoia that matched its intensity",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The system wasn’t just showing him data; it was offering documentation",
+        "replacement": "The system had become offering documentation",
+        "pattern": "not just family"
+      },
+      {
+        "original": " this wasn’t just about Silas; it was about the future version of Silas who had to write the report on his own failure",
+        "replacement": "this had become about the future version of Silas who had to write the report on his own failure",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t merely",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ],
+    "18": [
+      {
+        "original": " The truth wasn’t just about the performance; it was about me failing at the moment they needed me most",
+        "replacement": "The truth had become about me failing at the moment they needed me most",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just a logo; it was stylized initials: A",
+        "replacement": "It had become stylized initials: A",
+        "pattern": "not just family"
+      },
+      {
+        "original": " it wasn’t just the reflection that was shattered; it was every assumption I had made about control, competence, and reality itself",
+        "replacement": "it had become every assumption I had made about control, competence, and reality itself",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just noise; it was a pattern of agony, a rhythmic spike of human failure caught in bright neon edges",
+        "replacement": "It had become a pattern of agony, a rhythmic spike of human failure caught in bright neon edges",
+        "pattern": "not just family"
+      },
+      {
+        "original": " It wasn’t just a signal; it was a presence",
+        "replacement": "It had become a presence",
+        "pattern": "not just family"
+      },
+      {
+        "original": " The rhythm wasn’t just helpful; it was predictive",
+        "replacement": "The rhythm had become predictive",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      },
+      {
+        "original": "wasn’t just",
+        "replacement": "was more than",
+        "pattern": "not just family"
+      }
+    ]
+  },
+  "totalBefore": 981,
+  "totalAfter": 827
+}

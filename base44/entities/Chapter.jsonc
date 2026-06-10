@@ -1,0 +1,146 @@
+{
+  "name": "Chapter",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "NovelProject id"
+    },
+    "chapter_number": {
+      "type": "number",
+      "description": "Sequential chapter number"
+    },
+    "title": {
+      "type": "string",
+      "description": "Chapter title"
+    },
+    "beat_summary": {
+      "type": "string",
+      "description": "Planned beat summary"
+    },
+    "scene_beats_json": {
+      "type": "string",
+      "description": "JSON string of structured scene beats generated before drafting"
+    },
+    "content_md": {
+      "type": "string",
+      "description": "Drafted chapter in markdown (inline for small chapters)"
+    },
+    "content_md_url": {
+      "type": "string",
+      "description": "URL to uploaded markdown file for large chapters that exceed field size limits"
+    },
+    "backup_content": {
+      "type": "string",
+      "description": "Backup of content_md before polish/proofread overwrites (inline for small, URL for large)"
+    },
+    "backup_content_url": {
+      "type": "string",
+      "description": "URL to uploaded backup file when backup content exceeds field size limits"
+    },
+    "summary_json": {
+      "type": "string",
+      "description": "JSON string of compressed chapter summary for rolling context and anti-repetition tracking"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "beats_ready",
+        "drafted",
+        "reviewed",
+        "error"
+      ],
+      "default": "planned"
+    },
+    "word_count": {
+      "type": "number",
+      "default": 0
+    },
+    "score": {
+      "type": "number",
+      "default": 0
+    },
+    "voice_adherence": {
+      "type": "number",
+      "default": 0
+    },
+    "tense_violations": {
+      "type": "number",
+      "default": 0
+    },
+    "slop_score": {
+      "type": "number",
+      "default": 0
+    },
+    "slop_details": {
+      "type": "string",
+      "description": "Serialized mechanical slop findings"
+    },
+    "revision_notes": {
+      "type": "string",
+      "description": "Evaluation or revision guidance"
+    },
+    "quality_scan": {
+      "type": "string",
+      "description": "Post-generation quality warnings: word repetition, POV drift, etc."
+    },
+    "scan_fix_passes": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of scan/fix passes applied to this chapter"
+    },
+    "clean_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Mechanical rule-based quality score (0-100)"
+    },
+    "drafted_with_model": {
+      "type": "string",
+      "description": "Model ID used to draft this chapter (e.g. deepseek/deepseek-chat)"
+    }
+  },
+  "required": [
+    "project_id",
+    "chapter_number"
+  ]
+}

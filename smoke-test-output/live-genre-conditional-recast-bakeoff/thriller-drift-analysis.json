@@ -1,0 +1,42 @@
+{
+  "name": "Commercial Thriller",
+  "firstChunk": {
+    "sentenceLengthVariance": 7,
+    "symmetryScore": 17,
+    "filterVerbDensity": 4.7,
+    "concreteRatio": 100,
+    "openingVerbStrength": "weak",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 7,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 74,
+    "grade": "GOOD",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+    ]
+  },
+  "lastChunk": {
+    "sentenceLengthVariance": 7.2,
+    "symmetryScore": 12,
+    "filterVerbDensity": 0,
+    "concreteRatio": 50,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 2.7,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 78,
+    "grade": "GOOD",
+    "diagnostics": [
+      "SOFT ENDING: Last sentence (15 words) is not shorter than average (14). End on a punch."
+    ]
+  },
+  "drift": -4,
+  "chunkCount": 3
+}

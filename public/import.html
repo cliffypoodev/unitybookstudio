@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UBS Import Tool</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background: #1a1a2e; color: #e0e0e0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: #16213e; border-radius: 16px; padding: 40px; max-width: 600px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .sub { color: #888; font-size: 13px; margin-bottom: 24px; }
+    .dropzone { border: 2px dashed #444; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all .2s; margin-bottom: 20px; }
+    .dropzone:hover, .dropzone.drag { border-color: #6c63ff; background: rgba(108,99,255,.08); }
+    .dropzone p { font-size: 15px; color: #aaa; }
+    .dropzone .icon { font-size: 40px; margin-bottom: 10px; }
+    #log { background: #0d1117; border-radius: 8px; padding: 16px; font-family: 'SF Mono', monospace; font-size: 12px; line-height: 1.6; max-height: 400px; overflow-y: auto; display: none; white-space: pre-wrap; word-break: break-all; }
+    .done { color: #4ade80; }
+    .err { color: #f87171; }
+    .info { color: #60a5fa; }
+    .warn { color: #fbbf24; }
+    #progress { display: none; margin-bottom: 16px; }
+    #bar { height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
+    #fill { height: 100%; background: linear-gradient(90deg, #6c63ff, #4ade80); width: 0%; transition: width .3s; }
+    #status { font-size: 13px; color: #888; margin-top: 8px; }
+    #result { display: none; background: #0d3320; border: 1px solid #166534; border-radius: 8px; padding: 16px; margin-top: 16px; font-size: 14px; }
+    #result.error { background: #3b1111; border-color: #991b1b; }
+    button { background: #6c63ff; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 12px; }
+    button:hover { background: #5b52e5; }
+    input[type=file] { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📚 UBS Library Import</h1>
+    <p class="sub">Import your Base44 full export JSON into local IndexedDB</p>
+
+    <div class="dropzone" id="dropzone" onclick="fileInput.click()">
+      <div class="icon">📂</div>
+      <p>Click or drag your <strong>UBS-FullExport</strong> .json file here</p>
+    </div>
+    <input type="file" id="fileInput" accept=".json">
+
+    <div id="progress">
+      <div id="bar"><div id="fill"></div></div>
+      <div id="status">Starting...</div>
+    </div>
+
+    <div id="log"></div>
+    <div id="result"></div>
+  </div>
+
+<script>
+const DB_NAME = 'UnityBookStudio';
+const DB_VERSION = 1;
+
+const ENTITY_STORES = [
+  'NovelProject', 'Chapter', 'SeriesBible', 'AuthorStyle',
+  'CoverArtGallery', 'PromptCatalog', 'ProjectFolder',
+  'BookProject', '_FileStore',
+];
+
+const KEY_TO_STORE = {
+  projects:     'NovelProject',
+  chapters:     'Chapter',
+  coverArt:     'CoverArtGallery',
+  authorStyles: 'AuthorStyle',
+  seriesBibles: 'SeriesBible',
+  folders:      'ProjectFolder',
+  prompts:      'PromptCatalog',
+};
+
+const logEl = document.getElementById('log');
+const progressEl = document.getElementById('progress');
+const fillEl = document.getElementById('fill');
+const statusEl = document.getElementById('status');
+const resultEl = document.getElementById('result');
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+
+function log(msg, cls = '') {
+  logEl.style.display = 'block';
+  const line = document.createElement('div');
+  line.className = cls;
+  line.textContent = msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function setProgress(pct, text) {
+  progressEl.style.display = 'block';
+  fillEl.style.width = pct + '%';
+  statusEl.textContent = text;
+}
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      for (const name of ENTITY_STORES) {
+        if (!db.objectStoreNames.contains(name)) {
+          const store = db.createObjectStore(name, { keyPath: 'id' });
+          store.createIndex('created_by', 'created_by', { unique: false });
+          store.createIndex('project_id', 'project_id', { unique: false });
+          store.createIndex('created_date', 'created_date', { unique: false });
+          store.createIndex('updated_date', 'updated_date', { unique: false });
+        }
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(new Error('Failed to open IndexedDB: ' + (req.error?.message || 'unknown')));
+  });
+}
+
+function putBatch(db, storeName, records) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    let count = 0;
+    let errors = 0;
+
+    for (const record of records) {
+      try {
+        const req = store.put(record);
+        req.onsuccess = () => { count++; };
+        req.onerror = (e) => {
+          errors++;
+          e.preventDefault(); // Don't abort the whole transaction
+        };
+      } catch (err) {
+        errors++;
+      }
+    }
+
+    tx.oncomplete = () => resolve({ count, errors });
+    tx.onerror = () => reject(new Error('Transaction failed on ' + storeName + ': ' + (tx.error?.message || 'unknown')));
+    tx.onabort = () => reject(new Error('Transaction aborted on ' + storeName + ': ' + (tx.error?.message || 'unknown')));
+  });
+}
+
+function countStore(db, storeName) {
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(storeName, 'readonly');
+      const store = tx.objectStore(storeName);
+      const req = store.count();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(0);
+    } catch { resolve(0); }
+  });
+}
+
+async function runImport(file) {
+  dropzone.style.display = 'none';
+  logEl.innerHTML = '';
+
+  log('Reading file: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' MB)', 'info');
+  setProgress(5, 'Reading file...');
+
+  let data;
+  try {
+    const text = await file.text();
+    setProgress(15, 'Parsing JSON...');
+    log('Parsing JSON...', 'info');
+    data = JSON.parse(text);
+  } catch (err) {
+    log('ERROR: Failed to parse JSON: ' + err.message, 'err');
+    resultEl.style.display = 'block';
+    resultEl.className = 'error';
+    resultEl.textContent = '❌ Failed to parse JSON file: ' + err.message;
+    return;
+  }
+
+  log('Export version: ' + (data.version || 'unknown'), 'info');
+  log('Exported at: ' + (data.exported_at || 'unknown'), 'info');
+
+  if (data.counts) {
+    log('Expected counts: ' + JSON.stringify(data.counts), 'info');
+  }
+
+  setProgress(20, 'Opening IndexedDB...');
+  log('Opening IndexedDB...', 'info');
+
+  let db;
+  try {
+    db = await openDB();
+    log('IndexedDB opened: ' + db.name + ' v' + db.version, 'done');
+  } catch (err) {
+    log('ERROR: ' + err.message, 'err');
+    resultEl.style.display = 'block';
+    resultEl.className = 'error';
+    resultEl.textContent = '❌ Failed to open IndexedDB: ' + err.message;
+    return;
+  }
+
+  // Show DB state before
+  log('--- DB state before import ---', 'info');
+  for (const name of ENTITY_STORES) {
+    const c = await countStore(db, name);
+    if (c > 0) log('  ' + name + ': ' + c + ' records');
+  }
+
+  // Process each entity type
+  const keys = Object.keys(KEY_TO_STORE);
+  const totalRecords = keys.reduce((sum, k) => sum + (data[k]?.length || 0), 0);
+  let processedRecords = 0;
+  const summary = {};
+
+  for (let ki = 0; ki < keys.length; ki++) {
+    const jsonKey = keys[ki];
+    const storeName = KEY_TO_STORE[jsonKey];
+    const records = data[jsonKey];
+
+    if (!records || !Array.isArray(records) || records.length === 0) {
+      log(jsonKey + ' → ' + storeName + ': 0 records (skipped)');
+      summary[jsonKey] = { total: 0, imported: 0, errors: 0 };
+      continue;
+    }
+
+    log(jsonKey + ' → ' + storeName + ': ' + records.length + ' records...', 'info');
+
+    // Prepare records — ensure id exists, remap created_by
+    const prepared = records.map(r => {
+      const rec = { ...r };
+      if (!rec.id) {
+        rec.id = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+      }
+      if (rec.created_by) {
+        rec.original_created_by = rec.created_by;
+        rec.created_by = 'local@unitybookstudio.app';
+      }
+      return rec;
+    });
+
+    // Write in batches of 200 to avoid blocking
+    const BATCH = 200;
+    let totalImported = 0;
+    let totalErrors = 0;
+
+    for (let i = 0; i < prepared.length; i += BATCH) {
+      const batch = prepared.slice(i, i + BATCH);
+      try {
+        const result = await putBatch(db, storeName, batch);
+        totalImported += result.count;
+        totalErrors += result.errors;
+      } catch (err) {
+        log('  Batch error: ' + err.message, 'err');
+        totalErrors += batch.length;
+      }
+
+      processedRecords += batch.length;
+      const pct = 20 + Math.round((processedRecords / totalRecords) * 75);
+      setProgress(pct, `Importing ${storeName}: ${Math.min(i + BATCH, prepared.length)}/${prepared.length}...`);
+
+      // Yield to UI
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    summary[jsonKey] = { total: records.length, imported: totalImported, errors: totalErrors };
+    const status = totalErrors > 0 ? 'warn' : 'done';
+    log('  ' + storeName + ': ✅ ' + totalImported + ' imported' + (totalErrors > 0 ? ', ❌ ' + totalErrors + ' errors' : ''), status);
+  }
+
+  setProgress(100, 'Done!');
+
+  // Show DB state after
+  log('--- DB state after import ---', 'info');
+  for (const name of ENTITY_STORES) {
+    const c = await countStore(db, name);
+    if (c > 0) log('  ' + name + ': ' + c + ' records', 'done');
+  }
+
+  // Summary
+  const totalImported = Object.values(summary).reduce((s, r) => s + r.imported, 0);
+  const totalErrors = Object.values(summary).reduce((s, r) => s + r.errors, 0);
+
+  log('');
+  log('═══════════════════════════════════', 'done');
+  log('  IMPORT COMPLETE', 'done');
+  log('  ' + totalImported + ' records imported' + (totalErrors > 0 ? ', ' + totalErrors + ' errors' : ''), 'done');
+  log('  ' + (summary.projects?.imported || 0) + ' projects', 'done');
+  log('  ' + (summary.chapters?.imported || 0) + ' chapters', 'done');
+  log('  ' + (summary.coverArt?.imported || 0) + ' cover art', 'done');
+  log('  ' + (summary.seriesBibles?.imported || 0) + ' series bibles', 'done');
+  log('  ' + (summary.folders?.imported || 0) + ' folders', 'done');
+  log('  ' + (summary.prompts?.imported || 0) + ' prompts', 'done');
+  log('═══════════════════════════════════', 'done');
+
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '✅ <strong>' + totalImported + ' records imported!</strong><br>' +
+    (summary.projects?.imported || 0) + ' projects, ' +
+    (summary.chapters?.imported || 0) + ' chapters<br><br>' +
+    '<a href="/" style="color:#4ade80">← Back to Unity Book Studio</a> (refresh to see your library)';
+}
+
+// File input handler
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) runImport(file);
+});
+
+// Drag and drop
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('drag'); });
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) runImport(file);
+});
+</script>
+</body>
+</html>

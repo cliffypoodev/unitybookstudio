@@ -1,0 +1,64 @@
+{
+  "name": "Narrative Nonfiction",
+  "opening": {
+    "sentenceLengthVariance": 10.2,
+    "symmetryScore": 27,
+    "filterVerbDensity": 7.3,
+    "concreteRatio": 0,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 3.7,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 60,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "LOW CONCRETE RATIO: 0% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (32 words) is not shorter than average (23). End on a punch."
+    ]
+  },
+  "middle": {
+    "sentenceLengthVariance": 7.6,
+    "symmetryScore": 18,
+    "filterVerbDensity": 5.2,
+    "concreteRatio": 0,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 5.2,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 0,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 61,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "LOW CONCRETE RATIO: 0% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (29 words) is not shorter than average (16). End on a punch.",
+      "HIGH TRIPLE CONSTRUCTION DENSITY: 5.2/1K words. Cut \"X, Y, and Z\" patterns."
+    ]
+  },
+  "ending": {
+    "sentenceLengthVariance": 10.3,
+    "symmetryScore": 27,
+    "filterVerbDensity": 4.2,
+    "concreteRatio": 50,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 4.2,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 4.2,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 69,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "SOFT ENDING: Last sentence (16 words) is not shorter than average (20). End on a punch.",
+      "HIGH TRIPLE CONSTRUCTION DENSITY: 4.2/1K words. Cut \"X, Y, and Z\" patterns."
+    ]
+  },
+  "drift": -9
+}

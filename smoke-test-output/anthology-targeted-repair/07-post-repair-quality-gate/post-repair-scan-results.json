@@ -1,0 +1,823 @@
+{
+  "scanDate": "2026-06-06T20:35:27.607Z",
+  "totalChapters": 20,
+  "chapters": [
+    {
+      "number": 1,
+      "title": "The Algorithmic Stage",
+      "wordCount": 3323,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 3,
+          "the weight of": 2,
+          "the narrative": 3,
+          "the performance": 2,
+          "something shifted": 1,
+          "felt": 12,
+          "realized": 3,
+          "relentless": 1
+        },
+        "flags": [],
+        "totalSlop": 27,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "E: hidden-layer-revealed"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 2,
+      "title": "The Patron's Palette",
+      "wordCount": 1957,
+      "repairAction": "MECHANICAL_CLEANUP",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 4,
+          "more than just": 1,
+          "the weight of": 1,
+          "felt": 11,
+          "realized": 1,
+          "shimmering": 1
+        },
+        "flags": [
+          "FLAG_POLISH_REQUIRED: banned words [shimmering]"
+        ],
+        "totalSlop": 19,
+        "status": "MINOR_FLAGS"
+      },
+      "dialogue": {
+        "issues": 31,
+        "severity": "CRITICAL"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "E: hidden-layer-revealed"
+        ]
+      },
+      "overallStatus": "MINOR_FLAGS"
+    },
+    {
+      "number": 3,
+      "title": "The Office of Echoes",
+      "wordCount": 3746,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 4,
+          "the weight of": 1,
+          "the performance": 1,
+          "woven into": 1,
+          "fabric of": 1,
+          "felt": 11,
+          "realized": 1
+        },
+        "flags": [],
+        "totalSlop": 20,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 4,
+      "title": "The Sacred Screen",
+      "wordCount": 2662,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "the weight of": 1,
+          "the narrative": 1,
+          "felt": 10,
+          "realized": 1
+        },
+        "flags": [],
+        "totalSlop": 15,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [
+          "Opens with \"The air...\""
+        ],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 2,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 5,
+      "title": "The Transit of Ghosts",
+      "wordCount": 1815,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "the weight of": 1,
+          "the narrative": 2,
+          "felt": 6
+        },
+        "flags": [],
+        "totalSlop": 9,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "F: philosophical-ending"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 6,
+      "title": "The Drift of Echoes",
+      "wordCount": 2111,
+      "repairAction": "REGENERATED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 1,
+          "the weight of": 3,
+          "felt": 6,
+          "realized": 1
+        },
+        "flags": [],
+        "totalSlop": 11,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 1,
+        "severity": "MINOR"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 2,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 7,
+      "title": "The Anatomist's Stage",
+      "wordCount": 3720,
+      "repairAction": "DEEP_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 1,
+          "the narrative": 2,
+          "the performance": 1,
+          "felt": 9
+        },
+        "flags": [],
+        "totalSlop": 16,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 4,
+        "beats": [
+          "A: protagonist-as-expert",
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 8,
+      "title": "The Pixelated Heir",
+      "wordCount": 3425,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 5,
+          "the weight of": 2,
+          "the narrative": 1,
+          "rot beneath": 1,
+          "felt": 16,
+          "realized": 1
+        },
+        "flags": [
+          "FLAG_STYLE_REVIEW: \"felt\" > 12"
+        ],
+        "totalSlop": 26,
+        "status": "MINOR_FLAGS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw"
+        ]
+      },
+      "overallStatus": "MINOR_FLAGS"
+    },
+    {
+      "number": 9,
+      "title": "The Terminal Veil",
+      "wordCount": 3501,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "FAIL",
+        "leaks": [
+          {
+            "phrase": "Self-Correction",
+            "position": 3268,
+            "snippet": "cy' with ' Bias,' and ' Anomaly' with ' Self-Correction.\nThis is not external fraud, a dry voic"
+          }
+        ]
+      },
+      "slop": {
+        "counts": {
+          "not just": 5,
+          "the weight of": 4,
+          "the narrative": 1,
+          "the truth was": 1,
+          "felt": 19,
+          "realized": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"the weight of\" > 3",
+          "FLAG_STYLE_REVIEW: \"felt\" > 12"
+        ],
+        "totalSlop": 31,
+        "status": "NEEDS_POLISH"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 2,
+        "beats": [
+          "B: system-quantifies-trait",
+          "E: hidden-layer-revealed"
+        ]
+      },
+      "overallStatus": "FAIL_PROCESS_LEAK"
+    },
+    {
+      "number": 10,
+      "title": "The Algorithmic Battlefield",
+      "wordCount": 3233,
+      "repairAction": "REGENERATED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 4,
+          "the weight of": 4,
+          "the narrative": 1,
+          "felt": 7,
+          "realized": 2,
+          "relentless": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"the weight of\" > 3"
+        ],
+        "totalSlop": 19,
+        "status": "NEEDS_POLISH"
+      },
+      "dialogue": {
+        "issues": 3,
+        "severity": "MINOR"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 2,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization"
+        ]
+      },
+      "overallStatus": "NEEDS_REVIEW"
+    },
+    {
+      "number": 11,
+      "title": "The Plaza Ledger",
+      "wordCount": 5777,
+      "repairAction": "DEEP_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 2,
+          "the narrative": 2,
+          "woven into": 1,
+          "felt": 10,
+          "realized": 3,
+          "relentless": 1
+        },
+        "flags": [],
+        "totalSlop": 22,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 4,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 12,
+      "title": "The Anatomist's Protocol",
+      "wordCount": 4820,
+      "repairAction": "DEEP_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "more than just": 2,
+          "the narrative": 1,
+          "the truth was": 2,
+          "felt": 10,
+          "realized": 1
+        },
+        "flags": [],
+        "totalSlop": 18,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 13,
+      "title": "The Syntax of Survival",
+      "wordCount": 2478,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 3,
+          "realized": 1
+        },
+        "flags": [],
+        "totalSlop": 7,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "E: hidden-layer-revealed"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 14,
+      "title": "The Incantation of Bytes",
+      "wordCount": 4063,
+      "repairAction": "DEEP_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "the weight of": 2,
+          "the narrative": 6,
+          "felt": 10,
+          "realized": 1
+        },
+        "flags": [
+          "FLAG_HEAVY_SLOP: \"narrative\" > 5"
+        ],
+        "totalSlop": 21,
+        "status": "NEEDS_POLISH"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 4,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw",
+          "E: hidden-layer-revealed"
+        ]
+      },
+      "overallStatus": "NEEDS_REVIEW"
+    },
+    {
+      "number": 15,
+      "title": "The Transit of Errors",
+      "wordCount": 2515,
+      "repairAction": "REGENERATED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 1,
+          "the narrative": 1,
+          "felt": 9
+        },
+        "flags": [],
+        "totalSlop": 14,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 2,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 16,
+      "title": "The Whispering Glade",
+      "wordCount": 3993,
+      "repairAction": "DEEP_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 2,
+          "felt": 10,
+          "realized": 3
+        },
+        "flags": [],
+        "totalSlop": 18,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "D: protagonist-finds-flaw",
+          "F: philosophical-ending"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 17,
+      "title": "The Echo Chamber",
+      "wordCount": 3869,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 3,
+          "felt": 14,
+          "realized": 2
+        },
+        "flags": [
+          "FLAG_STYLE_REVIEW: \"felt\" > 12"
+        ],
+        "totalSlop": 22,
+        "status": "MINOR_FLAGS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [
+          "Opens with \"The air...\""
+        ],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 3,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization",
+          "D: protagonist-finds-flaw"
+        ]
+      },
+      "overallStatus": "MINOR_FLAGS"
+    },
+    {
+      "number": 18,
+      "title": "The Stage of Errors",
+      "wordCount": 1992,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "the weight of": 2,
+          "the performance": 1,
+          "felt": 5
+        },
+        "flags": [],
+        "totalSlop": 10,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [
+          "Opens with \"The air...\""
+        ],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 2,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 19,
+      "title": "The Threshold of Bytes",
+      "wordCount": 1466,
+      "repairAction": "STANDARD_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 1,
+          "woven into": 1,
+          "fabric of": 1,
+          "felt": 5,
+          "realized": 2
+        },
+        "flags": [],
+        "totalSlop": 10,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 2,
+        "beats": [
+          "C: authority-explains-monetization",
+          "E: hidden-layer-revealed"
+        ]
+      },
+      "overallStatus": "PASS"
+    },
+    {
+      "number": 20,
+      "title": "The Battlefield Code",
+      "wordCount": 3403,
+      "repairAction": "DEEP_POLISHED",
+      "processLeak": {
+        "status": "PASS",
+        "leaks": []
+      },
+      "slop": {
+        "counts": {
+          "not just": 2,
+          "more than just": 1,
+          "the weight of": 1,
+          "the truth was": 1,
+          "felt": 10,
+          "realized": 1,
+          "relentless": 1
+        },
+        "flags": [],
+        "totalSlop": 17,
+        "status": "PASS"
+      },
+      "dialogue": {
+        "issues": 0,
+        "severity": "CLEAN"
+      },
+      "openingEnding": {
+        "openingIssues": [],
+        "endingIssues": []
+      },
+      "sameness": {
+        "score": 2,
+        "beats": [
+          "B: system-quantifies-trait",
+          "C: authority-explains-monetization"
+        ]
+      },
+      "overallStatus": "PASS"
+    }
+  ],
+  "anthologyVerdict": {
+    "processLeakageCount": 1,
+    "heavySlopCount": 3,
+    "averageSamenessScore": 2.8,
+    "gateVerdict": "PARTIAL_PASS"
+  }
+}

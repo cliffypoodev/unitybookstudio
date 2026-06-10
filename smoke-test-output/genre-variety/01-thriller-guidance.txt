@@ -1,0 +1,4 @@
+Genre: Psychological Thriller
+Opening: mid-action
+Exact final line: The voicemail ended with Lena breathing on the other side.
+Literal objects: the smoke detector, the microSD card, the cracked phone, the laptop, the camera feed, the voicemail

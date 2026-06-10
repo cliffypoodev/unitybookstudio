@@ -1,0 +1,56 @@
+{
+  "name": "Commercial Thriller",
+  "opening": {
+    "sentenceLengthVariance": 11.8,
+    "symmetryScore": 19,
+    "filterVerbDensity": 2.6,
+    "concreteRatio": 100,
+    "openingVerbStrength": "strong",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 0,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 94,
+    "grade": "EXCELLENT",
+    "diagnostics": []
+  },
+  "middle": {
+    "sentenceLengthVariance": 10.4,
+    "symmetryScore": 29,
+    "filterVerbDensity": 0,
+    "concreteRatio": 78,
+    "openingVerbStrength": "weak",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 3,
+    "notJustDensity": 6,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 73,
+    "grade": "GOOD",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "THESIS STATEMENTS FOUND: 1 instance(s). Replace with image or action.",
+      "\"NOT JUST\" PATTERN: 2 instance(s). Recast as direct statement."
+    ]
+  },
+  "ending": {
+    "sentenceLengthVariance": 11,
+    "symmetryScore": 24,
+    "filterVerbDensity": 7.2,
+    "concreteRatio": 100,
+    "openingVerbStrength": "strong",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 2.4,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 84,
+    "grade": "GOOD",
+    "diagnostics": []
+  },
+  "drift": 10
+}

@@ -1,0 +1,59 @@
+{
+  "name": "Literary/Speculative Fiction",
+  "opening": {
+    "sentenceLengthVariance": 10.5,
+    "symmetryScore": 12,
+    "filterVerbDensity": 4.7,
+    "concreteRatio": 80,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 0,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 87,
+    "grade": "EXCELLENT",
+    "diagnostics": [
+      "SOFT ENDING: Last sentence (20 words) is not shorter than average (24). End on a punch."
+    ]
+  },
+  "middle": {
+    "sentenceLengthVariance": 8.5,
+    "symmetryScore": 24,
+    "filterVerbDensity": 6.3,
+    "concreteRatio": 83,
+    "openingVerbStrength": "weak",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 3.2,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 75,
+    "grade": "GOOD",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+    ]
+  },
+  "ending": {
+    "sentenceLengthVariance": 8.5,
+    "symmetryScore": 11,
+    "filterVerbDensity": 6.8,
+    "concreteRatio": 50,
+    "openingVerbStrength": "weak",
+    "endingPunch": false,
+    "tripleConstructionDensity": 3.4,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 3.4,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 65,
+    "grade": "COMPETENT",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "SOFT ENDING: Last sentence (29 words) is not shorter than average (15). End on a punch."
+    ]
+  },
+  "drift": 22
+}

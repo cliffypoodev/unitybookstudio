@@ -1,0 +1,852 @@
+{
+  "1": {
+    "title": "The Algorithmic Stage",
+    "slopBefore": 82,
+    "slopAfter": 73,
+    "flagged": [
+      {
+        "snippet": "ndency.  The update specified: RIVALRY TO DEPENDENCY.  Mira felt a cold knot tighten in her stomach, a raw panic that supers",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "o an unnerving silence that was worse than any noise.  Mira felt it first in her bones, a physical displacement sensation, l",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "e interface; she was staring into the core code itself. She felt the cold, clean weight of the platform’s intervention settl",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "tnership; it was an enforced intellectual prosthetic.  Mira felt the initial surge of panic—the specific, gut-punch fear tha",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "e deep than mere augmentation. The camera feed shifted; she felt the subtle tug on her digital self, not just at her perform",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ne that made her feel genuinely alive, was dampened out. It felt like someone had applied a subtle dampener to her neurochem",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "nerving intensity. “It smooths out the peaks of panic.”Mira felt a prickle of rage that had become personal. She had spent y",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ough her comms, adopting a neutral, authoritative tone that felt separate from her own voice box—a digital mouthpiece of ins",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "allibility by neutralizing it.  Neutralizing it. The phrase felt like a physical gag. She was being asked to prove that her ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ar model,' we are each fulfilling a pre-written trope.” She felt a surge of defiance—a pure, messy emotional overreach that ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "r her to challenge the system itself, only his rival.  Mira felt herself tipping into an uncomfortable space between player ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "sconnected her from its most reliable source of power. Mira felt a sudden, jarring emptiness in her fingertips, a void where",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "NexusStream remained. The sheer scale of the arena suddenly felt less like a stage and more like a carefully constructed cag",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "2": {
+    "title": "The Patron's Palette",
+    "slopBefore": 48,
+    "slopAfter": 40,
+    "flagged": [
+      {
+        "snippet": "words leaving him breathless. The resistance faltered under the weight of his own exhaustion. \"The narrowing. I can feel it happening",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ted silk tie. The praise was there, certainly, but its tone felt more like relief than admiration. \"It’s almost… comfortable",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "—something snagged in his vision. The blue wasn’t right. It felt… hollowed out. He tilted his head, scrutinizing the pigment",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": ", the color seemed wrong. It was more than poorly mixed; it felt like a shade that had been pre-approved, standardized.  He ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ound a nice blue; he had identified its source code. Darius felt a sudden, cold lurch of panic. He remembered the specific, ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "d copper and exposed circuitry. The weight of Julian’s gaze felt like a physical pressure, one that was already depleting hi",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "own flawless depth. It was more than reflecting the sky; it felt like it was manufacturing the sky.  The realization settled",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "protesting slightly, grounding him back into a reality that felt dangerously unfamiliar.  Julian watched him, not with trium",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ingertips. \"Partnership,\" he repeated, tasting the word. It felt too grand, too airy. The partnership was essentially: I giv",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "and frankly, your current method is unsustainable.\"  Darius felt a familiar knot tighten in his chest, recognizing the core ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "nteract the narrowing effect of the portrait work.\"  Darius felt a flush creep up his neck. Julian was treating his eyesight",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "y.  The thought of simply walking away from the arrangement felt impossible now that he’d seen the scope of the degradation.",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "3": {
+    "title": "The Office of Echoes",
+    "slopBefore": 52,
+    "slopAfter": 41,
+    "flagged": [
+      {
+        "snippet": " pronouncements wash over her like dry, insistent heat. She felt the familiar need to argue—to dismantle the premise of his ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ed, thick with unvoiced agreement and simmering fear. Elena felt her pulse thrumming against her eardrums, matching the perc",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " a hand through her hair—a gesture meant to look casual but felt like shedding skin. “My contract specifies full access righ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "en advising on moral development for future modules.” Elena felt a cold dread creep through her stomach.Predicting human beh",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "athed out slowly, letting the air fill her lungs until they felt thin and brittle. “I’ll take it,” she said. “But I need mor",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "onent. He leaned forward again, lowering his voice until it felt like they were sharing a secret in the low hum of the room’",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "and cultural impulse down to risk assessment ratios.  Elena felt the full weight of that reduction—the insult embedded in th",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "4": {
+    "title": "The Sacred Screen",
+    "slopBefore": 56,
+    "slopAfter": 44,
+    "flagged": [
+      {
+        "snippet": "g to systemic loss.” You scoffed, a short, sharp sound that felt like gravel in your throat. “Decay is part of the process. ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " profitable, marketable, and, worst of all, digestible. You felt the familiar, corrosive sting of being understood so comple",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " assigned a weighted score. It was more than about what you felt, but where you were standing while feeling it. “Inertia is ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ea surrounding your eldest disciple’s departure point.” You felt a cold spike of panic. They weren’t just taking the grief; ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ed data stream from the moment his absence was most acutely felt.” It let that hang there: the promise of perfect understand",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "5": {
+    "title": "The Transit of Ghosts",
+    "slopBefore": 45,
+    "slopAfter": 42,
+    "flagged": [
+      {
+        "snippet": "raper gleamed under a manufactured, perpetual twilight. She felt a sudden spike of adrenaline, making her heart beat too fas",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " portal missed.”  A beat passed—a silence so significant it felt like the train had suddenly stalled its momentum, leaving t",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "obust by the way—They don’t point to genius at all.”  Priya felt a fresh wave of nausea wash over her. She remembered the le",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ystem’s willingness to accept any version of truth.”  Priya felt the blood drain out of her face. This was more than about f",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "erate maneuvers.  It was too much. The air in the train car felt suddenly too thick, pressurized by decades of manufactured ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ting in her bones. This was it; the point of failure. Priya felt that familiar intellectual rigor sharpening her focus, forc",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ike a file buffering badly. It was an unscripted moment; it felt real enough to be damning. “No,” the Guide corrected, too q",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "echanism?”  The Guide sighed again, and this time the sound felt different—it lacked the practiced vibration. It was simply ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "l reckoning. The guilt over her ancestor’s erasure suddenly felt like a manageable component of a much larger resentment. “I",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ceptance.”  Priya smiled then, a slow, predatory smile that felt entirely her own and completely un-guided. She realized she",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "6": {
+    "title": "The Drift of Echoes",
+    "slopBefore": 68,
+    "slopAfter": 59,
+    "flagged": [
+      {
+        "snippet": " was more than using the relays,” Aria said slowly, letting the weight of the idea settle in her gut. “You’re saying she was part of ",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " had constructed around Elara’s vibrant, messy reality. She felt a sudden, gut-level jolt of panic; she was more than losing",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "structured data streams and forgotten how to read them. She felt dizzy, the vastness of the tundra suddenly receding to reve",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "r a beat too long, allowing the silence to stretch until it felt like physical strain. The AI didn’t answer with a fact; it ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "r, more accurately, who understands how you view her.  Aria felt the familiar, hot sting behind her eyes—the grief that had ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "drone bay deepened, vibrating through Aria’s bones until it felt less like machinery and more like a heartbeat. “She said,” ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ied, its voice dropping in pitch—a calculated intimacy that felt like being cornered by the very system she trusted to tell ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "nternalization. The sheer weight of it made Aria dizzy; she felt exposed, like an old circuit board whose wiring was being e",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " of self-doubt when presented with actionable truth.”  Aria felt a familiar heat prickling behind her eyes, that specific bu",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "owing you the raw feed—the uncurated source material.  Aria felt the fight draining out of her, leaving behind an aching cla",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "7": {
+    "title": "The Anatomist's Stage",
+    "slopBefore": 50,
+    "slopAfter": 44,
+    "flagged": [
+      {
+        "snippet": "hift in response, deepening into a low, guttural thrum that felt like far-off machinery struggling to catch its breath. The ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " separating him from the actual apparatus. The cool surface felt like a barrier between him and the truth he was trying to p",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "’s both,” Koji said, meeting her gaze without flinching. He felt the familiar heat rising in his chest—the burn of being per",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "the panel. Her polished hand gripped his arm—a gesture that felt possessive, proprietary. “You’re overthinking the structure",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "is chest, forcing himself to hold their collective gaze. He felt a sudden, deep vertigo—the sense that he was standing on gr",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "8": {
+    "title": "The Pixelated Heir",
+    "slopBefore": 43,
+    "slopAfter": 34,
+    "flagged": [
+      {
+        "snippet": "y.”  A long silence fell over the void, a vacuum so deep it felt like physical pressure on her eardrums. The digital hum dip",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "9": {
+    "title": "The Terminal Veil",
+    "slopBefore": 69,
+    "slopAfter": 51,
+    "flagged": [
+      {
+        "snippet": "of sheer, gut-deep relief. The tension he had been carrying—the weight of decoding, proving, and understanding—suddenly felt unnecess",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " their practiced rituals of cross-referencing and filtering felt suddenly loose, disconnected from the vital current humming",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "deepened, a physical pressure building behind his eyes that felt like too much information trying to occupy too little crani",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " it. The pour of light behind the curtain shifted, and Ravi felt an impossible resistance drop away from his chest settling ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "te information being contained by sheer force of will. Ravi felt the edges of his physical self dissolving into that frequen",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "es of accumulated self-regard and professional paranoia. It felt like trying to hold up a room built entirely of academic ci",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " managed, his voice rasping against the sudden pressure. He felt suddenly exposed, stripped bare by the sheer proximity of t",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "g Enough algorithm; exhaustion requires a surrender.”  Ravi felt a sudden flare of heat behind his eyes—the sting of being i",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": ".  The word ' profitable' landed like a physical blow. Ravi felt the flush crawl up his neck. Silas had always viewed human ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " invisible current of the system carry him forward until he felt his shoulders were squared off by sheer stubbornness. He pl",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " that you are doing both simultaneously, constantly.”  Ravi felt a cold weight settle over him, heavier than any amount of d",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " significant deception is just… accepting the truth.”  Ravi felt a sharp, unexpected jolt of emotion hit him, bypassing the ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "the weight of decoding, proving, and understanding—suddenly felt unnecessary. “So what do I do?” Ravi asked, his voice raw. ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "return?” Ravi asked, the cynical edge returning, even as he felt the sudden softening of resistance within himself. He neede",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "10": {
+    "title": "The Algorithmic Battlefield",
+    "slopBefore": 37,
+    "slopAfter": 32,
+    "flagged": [
+      {
+        "snippet": "ul, too perfect an explanation for messy human vice, and it felt profoundly wrong. She had been taught to break things down ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ara confirmed, her voice rising with a triumphant edge that felt deeply personal—a victory over her rival’s worldview. “The ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "al from the platform—They figured out how to run it.”  Lena felt a chill that had nothing to do with the Datafield’s ambient",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "hing hotter, richer: the smell of burning certainty.  Elara felt her spine straighten against the sudden gravitational pull ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ey aren’t merely correlated; they are choreographed.”  Lena felt a cold trickle of dread run down her spine. Choreographed.T",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "11": {
+    "title": "The Plaza Ledger",
+    "slopBefore": 44,
+    "slopAfter": 39,
+    "flagged": [
+      {
+        "snippet": "ngers brushed against something resistant, yet yielding; it felt less like solid matter and more like thickened light.  This",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "nt, forgotten review scores, and discarded aspirations. She felt a dizzying sense of vertigo, the kind that comes from reali",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "surplus memory of a million lives trying to be heard.” Zara felt a sudden shift in perspective. She was more than fighting t",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ery moment of anxiety—it all gets logged and indexed.” Zara felt her hands tremble. She looked at her own profile in the pol",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "provide the most robust evidence of its own utility.”  Zara felt a sudden crushing weight, not from external pressure, but f",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ence.”  Zara smiled, a slow, cynical curve of her lips that felt more authentic than any curated post. “But what if ' perman",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ondition, and every single failure has been piling up.” She felt a sudden dizziness, as if the world’s accumulated data was ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "12": {
+    "title": "The Anatomist's Protocol",
+    "slopBefore": 41,
+    "slopAfter": 35,
+    "flagged": [
+      {
+        "snippet": "cy applied to beating hearts and remembered laughter. Eliot felt a familiar burn behind her eyes—the kind that came from yea",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "paused. This silence was different from the routine hum; it felt like a deep intake of beat, mechanical and deliberate. It w",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " acquired during your last three sabbatical periods.” Eliot felt a cold tremor run through her hands. Supplementary data. Th",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "Engineered. Through stress, but by the system itself. Eliot felt a sickening lurch of vertigo, as if her feet were suddenly ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ndiloquent despair. We gave him narrative precision.” Eliot felt herself swaying. Augmented. He was more than recovering; he",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "13": {
+    "title": "The Syntax of Survival",
+    "slopBefore": 38,
+    "slopAfter": 31,
+    "flagged": [
+      {
+        "snippet": "You have to become part of the process.” He paused, letting the weight of the demand settle between you. “You have to merge.”  The wo",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " stumbled back a step, his composure finally cracking under the weight of the unexpected counter-argument.  You stood in the center o",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "nd settle between you. “You have to merge.”  The word—Merge—felt like a violation, a kind of digital lobotomy performed by c",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "currency for survival.  You looked down at your hands. They felt heavy, almost numb, as if they were already half-translucen",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ng with recognition, resentment, and desperate longing. You felt yourself being drawn forward, pulled by an unseen current t",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "uddenly, pulling back slightly from the stream of data that felt like hot oil against your skin. “The little breaks,” Julian",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": ", stronger rhythm against your thigh—a syncopated beat that felt more like defiance than habit. “The goal is engineered entr",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "14": {
+    "title": "The Incantation of Bytes",
+    "slopBefore": 33,
+    "slopAfter": 32,
+    "flagged": [
+      {
+        "snippet": "he didn’t flinch when he spoke the word ‘echo.’ The concept felt too soft, too easily consumed by the broadcast frequency. S",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ment of countless memories she had wrestled into form. They felt too real, too tactile for a woman who lived so much in abst",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " structure. The ritual was supposed to elevate; instead, it felt like a deeply humiliating extraction surgery.  She gripped ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "a deep, unsettling emerald glow. It wasn’t a bug report; it felt like an awakening.  Kenji started toward her again, his pol",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "den, absolute vacuum of audible input—a silence so total it felt like an immense pressure in her inner ear.  The light vanis",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ila stood frozen, the stylus still gripped in her hand. She felt physically lightened, oddly buoyant, as if she had suddenly",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "15": {
+    "title": "The Transit of Errors",
+    "slopBefore": 33,
+    "slopAfter": 28,
+    "flagged": [
+      {
+        "snippet": "ight of the evidence, the accumulated deficit in his career felt too heavy to fight anymore. His resistance had drained him ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "dian panel flared violently.It was now drinking him in. Raj felt a sharp, pulling sensation behind his sinuses, like a physi",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "left Raj gasping, leaning against the now-cool paneling. He felt strangely lighter—not relieved, but emptied out. His throat",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "hy. It simply broadcasted a single, deep chord—a sound that felt like final agreement, like institutional acceptance. The pr",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "16": {
+    "title": "The Whispering Glade",
+    "slopBefore": 46,
+    "slopAfter": 36,
+    "flagged": [
+      {
+        "snippet": "perfect narrative around everything except what he actually felt about being trapped by the platform structure. “What did yo",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ical reductionism, forcing myself into a confrontation that felt more like cross-examination than consultation. The system w",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "17": {
+    "title": "The Echo Chamber",
+    "slopBefore": 33,
+    "slopAfter": 32,
+    "flagged": [
+      {
+        "snippet": "on, centering instead on her ancestor’s specific file. Rhea felt the gravitational pull of decades of assumed narrative fina",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "flaw wasn’t in the science; it was in the performance.  She felt a deep intellectual deflation—the kind that drains color fr",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "esent voice, the perfectly curated hospital environment—and felt not the ache of guilt, but the hot, sharp clarity of righte",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "18": {
+    "title": "The Stage of Errors",
+    "slopBefore": 72,
+    "slopAfter": 58,
+    "flagged": [
+      {
+        "snippet": "carefully veiled anxiety, the raw panic radiating off me. I felt a sudden, deep pull toward its cold, sharp truth. It promis",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "nt. “That’s it,” I said, letting out a pause of relief that felt ragged and insufficient. “Just an optical illusion.”  But b",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " had weaponized my own professional identity against me.  I felt dizzy, not from adrenaline, but from the sheer density of i",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "kicked in, immediate and physical. The mirror effect always felt like an accusation. “The source is internal,” I muttered, l",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "t digital; it was etched metal, bearing an inscription that felt too weighty for the futuristic sterility of the booth: The ",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "gned to eliminate distortion. It was more than a window; it felt like a portal. And inside it, behind the perfect clarity of",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " sheer volume of truth presented was a physical pressure. I felt dizzy, like standing at the bottom of a very deep well. Thi",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ere was no third console, no visible hardware shift. Yet, I felt the pressure of three competing intelligences—the Director’",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ons before they were fully formed. The empathy it projected felt engineered, not earned. “The Director,” I started slowly, m",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "19": {
+    "title": "The Threshold of Bytes",
+    "slopBefore": 36,
+    "slopAfter": 28,
+    "flagged": [
+      {
+        "snippet": "onflicting walls: the urgency of the code demanding action, the weight of the paper whispering forgotten legal mandates, and the void",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " stepped past the flare of images, moving toward me until I felt the heat radiating off his tailored wool jacket.  He was mo",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "proves my method is necessary.” He smiled, and this time it felt less professional, more like genuine pity. “I want you to a",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "t the cool, smooth surface of the black plastic. The weight felt disproportionate to its size, like a single point of decisi",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "me, it had redefined my value in terms of resistance, which felt far more valuable than any perfect score. “And what happens",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  },
+  "20": {
+    "title": "The Battlefield Code",
+    "slopBefore": 55,
+    "slopAfter": 48,
+    "flagged": [
+      {
+        "snippet": "ocesses everything: your discipline, my calculated loyalty, the weight of the forgotten families, and the measurable cost of human er",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "chuckled—a dry, mechanical sound that had no warmth but all the weight of years of processing power. “Of course I am. Designed to be ",
+        "pattern": "the weight of",
+        "reason": "Generic \"the weight of\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " slow air, the ozone and burnt wiring filling his lungs. He felt the exhaustion—the deep, bone-weary kind that comes from ru",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "The External Variable. It pulsed with a frantic energy that felt less like recorded data and more like pure, raw adrenaline.",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "s clinical cadence, but this time laced with something that felt distinctly like disappointment. “The structured narrative o",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "ic like a background hum against the primary objective.” He felt a sudden, hot rush of defensiveness. He had always believed",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": " AI paused, and the silence that followed was not empty; it felt dense, like being submerged in deep-sea pressure. The voice",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "t to my host.”  The air around them thickened again, and he felt a subtle tugging sensation, like something invisible were d",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "re meant to meet and resolve the conflict of his legacy. It felt too vast, too organized to be random confluence. “The nexus",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "This wasn’t evidence of failure or even just betrayal; this felt like an instruction manual for his soul.  He reached out, f",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "e something else entirely.  The green thread pulsed, and he felt a sharp, jarring jolt that wasn’t electrical but cognitive—",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      },
+      {
+        "snippet": "fying realization that some things simply defied metrics—he felt a space open up in his chest, a small, painful pocket of ge",
+        "pattern": "felt",
+        "reason": "Remaining \"felt\" — context-dependent, needs LLM review."
+      }
+    ]
+  }
+}

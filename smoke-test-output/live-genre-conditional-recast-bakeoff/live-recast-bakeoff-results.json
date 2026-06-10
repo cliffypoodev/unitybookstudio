@@ -1,0 +1,555 @@
+{
+  "results": [
+    {
+      "name": "Commercial Thriller",
+      "slug": "thriller",
+      "profileKey": "thriller",
+      "wordCountA": 1273,
+      "wordCountB": 1214,
+      "textureA": {
+        "sentenceLengthVariance": 8.4,
+        "symmetryScore": 19,
+        "filterVerbDensity": 4.7,
+        "concreteRatio": 75,
+        "openingVerbStrength": "weak",
+        "endingPunch": false,
+        "tripleConstructionDensity": 0,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 3.9,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 70,
+        "grade": "GOOD",
+        "diagnostics": [
+          "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+          "SOFT ENDING: Last sentence (21 words) is not shorter than average (16). End on a punch.",
+          "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+        ]
+      },
+      "textureB": {
+        "sentenceLengthVariance": 8.2,
+        "symmetryScore": 14,
+        "filterVerbDensity": 3.3,
+        "concreteRatio": 75,
+        "openingVerbStrength": "weak",
+        "endingPunch": false,
+        "tripleConstructionDensity": 0,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 4.1,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 72,
+        "grade": "GOOD",
+        "diagnostics": [
+          "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+          "SOFT ENDING: Last sentence (15 words) is not shorter than average (16). End on a punch.",
+          "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+        ]
+      },
+      "patternsA": {
+        "counts": {
+          "filter_verbs": 6,
+          "not_just": 5,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 0,
+          "generic_emotion": 0,
+          "abstract_emotion": 3,
+          "symmetrical_pairs": 15
+        },
+        "total": 29,
+        "density": 22.8
+      },
+      "patternsB": {
+        "counts": {
+          "filter_verbs": 4,
+          "not_just": 5,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 0,
+          "generic_emotion": 0,
+          "abstract_emotion": 3,
+          "symmetrical_pairs": 11
+        },
+        "total": 23,
+        "density": 18.9
+      },
+      "recastReport": {
+        "profileUsed": "thriller",
+        "chunksAnalyzed": 3,
+        "chunksSkipped": 2,
+        "chunksRecast": 1,
+        "chunksFailed": 0,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 8.4,
+          "symmetryScore": 19,
+          "filterVerbDensity": 4.7,
+          "concreteRatio": 75,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 3.9,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 70,
+          "grade": "GOOD",
+          "diagnostics": [
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (21 words) is not shorter than average (16). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 8.2,
+          "symmetryScore": 14,
+          "filterVerbDensity": 3.3,
+          "concreteRatio": 75,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 4.1,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 72,
+          "grade": "GOOD",
+          "diagnostics": [
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (15 words) is not shorter than average (16). End on a punch.",
+            "\"NOT JUST\" PATTERN: 5 instance(s). Recast as direct statement."
+          ]
+        },
+        "safetyBlocks": 0,
+        "referenceBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "skipped",
+            "beforeScore": 74,
+            "afterScore": null,
+            "reason": "Score 74 >= threshold 70"
+          },
+          {
+            "index": 1,
+            "action": "skipped",
+            "beforeScore": 82,
+            "afterScore": null,
+            "reason": "Protected: dialogue_heavy, high_score"
+          },
+          {
+            "index": 2,
+            "action": "recast",
+            "beforeScore": 67,
+            "afterScore": 78,
+            "reason": "Score 67 < threshold 70"
+          }
+        ]
+      },
+      "chunkAnalysis": [
+        {
+          "index": 0,
+          "words": 430,
+          "score": 74,
+          "eligible": false,
+          "reason": "Score 74 >= threshold 70"
+        },
+        {
+          "index": 1,
+          "words": 416,
+          "score": 82,
+          "eligible": false,
+          "reason": "Protected: dialogue_heavy, high_score"
+        },
+        {
+          "index": 2,
+          "words": 427,
+          "score": 67,
+          "eligible": true,
+          "reason": "Score 67 < threshold 70"
+        }
+      ],
+      "delta": {
+        "compositeScore": 2,
+        "chatbotPatternDelta": 6,
+        "chatbotDensityDelta": 3.9,
+        "filterVerbDelta": 1.4
+      }
+    },
+    {
+      "name": "Literary/Speculative Fiction",
+      "slug": "literary",
+      "profileKey": "literary",
+      "wordCountA": 1170,
+      "wordCountB": 1170,
+      "textureA": {
+        "sentenceLengthVariance": 12,
+        "symmetryScore": 19,
+        "filterVerbDensity": 9.4,
+        "concreteRatio": 77,
+        "openingVerbStrength": "weak",
+        "endingPunch": false,
+        "tripleConstructionDensity": 0,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 2.6,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 73,
+        "grade": "GOOD",
+        "diagnostics": [
+          "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+          "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+          "SOFT ENDING: Last sentence (30 words) is not shorter than average (20). End on a punch.",
+          "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+        ]
+      },
+      "textureB": {
+        "sentenceLengthVariance": 12,
+        "symmetryScore": 19,
+        "filterVerbDensity": 9.4,
+        "concreteRatio": 77,
+        "openingVerbStrength": "weak",
+        "endingPunch": false,
+        "tripleConstructionDensity": 0,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 2.6,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 73,
+        "grade": "GOOD",
+        "diagnostics": [
+          "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+          "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+          "SOFT ENDING: Last sentence (30 words) is not shorter than average (20). End on a punch.",
+          "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+        ]
+      },
+      "patternsA": {
+        "counts": {
+          "filter_verbs": 11,
+          "not_just": 3,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 0,
+          "generic_emotion": 0,
+          "abstract_emotion": 3,
+          "symmetrical_pairs": 11
+        },
+        "total": 28,
+        "density": 23.9
+      },
+      "patternsB": {
+        "counts": {
+          "filter_verbs": 11,
+          "not_just": 3,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 0,
+          "generic_emotion": 0,
+          "abstract_emotion": 3,
+          "symmetrical_pairs": 11
+        },
+        "total": 28,
+        "density": 23.9
+      },
+      "recastReport": {
+        "profileUsed": "literary",
+        "chunksAnalyzed": 3,
+        "chunksSkipped": 2,
+        "chunksRecast": 0,
+        "chunksFailed": 1,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 12,
+          "symmetryScore": 19,
+          "filterVerbDensity": 9.4,
+          "concreteRatio": 77,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 2.6,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 73,
+          "grade": "GOOD",
+          "diagnostics": [
+            "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (20). End on a punch.",
+            "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 12,
+          "symmetryScore": 19,
+          "filterVerbDensity": 9.4,
+          "concreteRatio": 77,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 2.6,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 73,
+          "grade": "GOOD",
+          "diagnostics": [
+            "HIGH FILTER VERB DENSITY: 9.4/1K words (11 instances). Replace with direct sensation.",
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (30 words) is not shorter than average (20). End on a punch.",
+            "\"NOT JUST\" PATTERN: 3 instance(s). Recast as direct statement."
+          ]
+        },
+        "safetyBlocks": 1,
+        "referenceBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "failed",
+            "beforeScore": 67,
+            "afterScore": null,
+            "reason": "Recast cut too much (414 → 345 words, 83%)"
+          },
+          {
+            "index": 1,
+            "action": "skipped",
+            "beforeScore": 76,
+            "afterScore": null,
+            "reason": "Score 76 >= threshold 70"
+          },
+          {
+            "index": 2,
+            "action": "skipped",
+            "beforeScore": 84,
+            "afterScore": null,
+            "reason": "Protected: high_score"
+          }
+        ]
+      },
+      "chunkAnalysis": [
+        {
+          "index": 0,
+          "words": 414,
+          "score": 67,
+          "eligible": true,
+          "reason": "Score 67 < threshold 70"
+        },
+        {
+          "index": 1,
+          "words": 420,
+          "score": 76,
+          "eligible": false,
+          "reason": "Score 76 >= threshold 70"
+        },
+        {
+          "index": 2,
+          "words": 336,
+          "score": 84,
+          "eligible": false,
+          "reason": "Protected: high_score"
+        }
+      ],
+      "delta": {
+        "compositeScore": 0,
+        "chatbotPatternDelta": 0,
+        "chatbotDensityDelta": 0,
+        "filterVerbDelta": 0
+      }
+    },
+    {
+      "name": "Narrative Nonfiction",
+      "slug": "nonfiction",
+      "profileKey": "nonfiction",
+      "wordCountA": 1066,
+      "wordCountB": 1023,
+      "textureA": {
+        "sentenceLengthVariance": 9.5,
+        "symmetryScore": 22,
+        "filterVerbDensity": 0.9,
+        "concreteRatio": 50,
+        "openingVerbStrength": "strong",
+        "endingPunch": false,
+        "tripleConstructionDensity": 2.8,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 8.4,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 73,
+        "grade": "GOOD",
+        "diagnostics": [
+          "SOFT ENDING: Last sentence (18 words) is not shorter than average (21). End on a punch.",
+          "\"NOT JUST\" PATTERN: 9 instance(s). Recast as direct statement."
+        ]
+      },
+      "textureB": {
+        "sentenceLengthVariance": 9.2,
+        "symmetryScore": 22,
+        "filterVerbDensity": 1,
+        "concreteRatio": 50,
+        "openingVerbStrength": "strong",
+        "endingPunch": false,
+        "tripleConstructionDensity": 2.9,
+        "thesisStatementDensity": 0,
+        "notJustDensity": 6.8,
+        "balancedReflectionCount": 0,
+        "genericEmotionDensity": 0,
+        "compositeScore": 73,
+        "grade": "GOOD",
+        "diagnostics": [
+          "SOFT ENDING: Last sentence (18 words) is not shorter than average (20). End on a punch.",
+          "\"NOT JUST\" PATTERN: 7 instance(s). Recast as direct statement."
+        ]
+      },
+      "patternsA": {
+        "counts": {
+          "filter_verbs": 1,
+          "not_just": 9,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 3,
+          "generic_emotion": 0,
+          "abstract_emotion": 0,
+          "symmetrical_pairs": 11
+        },
+        "total": 24,
+        "density": 22.5
+      },
+      "patternsB": {
+        "counts": {
+          "filter_verbs": 1,
+          "not_just": 7,
+          "thesis_statements": 0,
+          "lesson_endings": 0,
+          "balanced_reflection": 0,
+          "triple_construction": 3,
+          "generic_emotion": 0,
+          "abstract_emotion": 0,
+          "symmetrical_pairs": 11
+        },
+        "total": 22,
+        "density": 21.5
+      },
+      "recastReport": {
+        "profileUsed": "nonfiction",
+        "chunksAnalyzed": 3,
+        "chunksSkipped": 1,
+        "chunksRecast": 1,
+        "chunksFailed": 1,
+        "beforeMetrics": {
+          "sentenceLengthVariance": 9.5,
+          "symmetryScore": 22,
+          "filterVerbDensity": 0.9,
+          "concreteRatio": 50,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 2.8,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 8.4,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 73,
+          "grade": "GOOD",
+          "diagnostics": [
+            "SOFT ENDING: Last sentence (18 words) is not shorter than average (21). End on a punch.",
+            "\"NOT JUST\" PATTERN: 9 instance(s). Recast as direct statement."
+          ]
+        },
+        "afterMetrics": {
+          "sentenceLengthVariance": 9.2,
+          "symmetryScore": 22,
+          "filterVerbDensity": 1,
+          "concreteRatio": 50,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 2.9,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 6.8,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 73,
+          "grade": "GOOD",
+          "diagnostics": [
+            "SOFT ENDING: Last sentence (18 words) is not shorter than average (20). End on a punch.",
+            "\"NOT JUST\" PATTERN: 7 instance(s). Recast as direct statement."
+          ]
+        },
+        "safetyBlocks": 1,
+        "referenceBlocks": 0,
+        "overcorrectionWarnings": [],
+        "chunkDetails": [
+          {
+            "index": 0,
+            "action": "skipped",
+            "beforeScore": 78,
+            "afterScore": null,
+            "reason": "Score 78 >= threshold 70"
+          },
+          {
+            "index": 1,
+            "action": "recast",
+            "beforeScore": 68,
+            "afterScore": 80,
+            "reason": "Score 68 < threshold 70"
+          },
+          {
+            "index": 2,
+            "action": "failed",
+            "beforeScore": 66,
+            "afterScore": null,
+            "reason": "Recast cut too much (223 → 189 words, 85%)"
+          }
+        ]
+      },
+      "chunkAnalysis": [
+        {
+          "index": 0,
+          "words": 402,
+          "score": 78,
+          "eligible": false,
+          "reason": "Score 78 >= threshold 70"
+        },
+        {
+          "index": 1,
+          "words": 441,
+          "score": 68,
+          "eligible": true,
+          "reason": "Score 68 < threshold 70"
+        },
+        {
+          "index": 2,
+          "words": 223,
+          "score": 66,
+          "eligible": true,
+          "reason": "Score 66 < threshold 70"
+        }
+      ],
+      "delta": {
+        "compositeScore": 0,
+        "chatbotPatternDelta": 2,
+        "chatbotDensityDelta": 1,
+        "filterVerbDelta": -0.1
+      }
+    }
+  ],
+  "summary": {
+    "avgDelta": 0.7,
+    "avgPatternDrop": 2.7,
+    "totalRecast": 2,
+    "totalAnalyzed": 9,
+    "totalSkipped": 5,
+    "totalFailed": 2,
+    "totalSafetyBlocks": 2
+  },
+  "genModel": "ghostwriter",
+  "recastModel": "prose-polisher",
+  "genTemperature": 0.72,
+  "recastTemperature": 0.55,
+  "timestamp": "2026-06-09T14:19:25.412Z"
+}

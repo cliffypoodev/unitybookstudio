@@ -1,0 +1,749 @@
+/**
+ * sceneBeatNormalizer.js
+ *
+ * Deterministic preflight cleanup for generated scene beats.
+ *
+ * Purpose:
+ * The prose writer can only be as clean as the beats it receives. If the beat
+ * generator outputs three alternate versions of the same scene event, the scene
+ * writer will stitch those alternates into the chapter. This helper removes or
+ * merges overlapping beats BEFORE prose generation.
+ *
+ * v2 adds Story Function Uniqueness:
+ * Some duplicate beats do not share obvious surface language. Example:
+ *   - Beat A: protagonist returns home and writes the first report alone.
+ *   - Beat B: protagonist sits at spouse/manager's desk and struggles with the same first report while spouse pressures her.
+ * Those are different staging choices, but the same story function. The writer
+ * should not draft both as full scenes. This normalizer merges same-function
+ * beats and keeps the more dramatic/escalatory version.
+ */
+
+const STOPWORDS = new Set([
+  'the','and','that','this','with','from','into','onto','about','there','their','they','them','then','than','when','where','what','were','was','had','has','have','his','her','she','him','you','your','for','but','not','all','out','one','two','three','four','five','just','like','back','down','over','under','again','very','would','could','should','been','being','through','because','before','after','inside','outside','still','only','really','more','most','some','any','every','each','its','it','he','we','i','a','an','of','to','in','on','at','by','as','is','are','or','if','chapter','scene','beat','must','will','should','begin','end','start','continue','protagonist','character','characters','pov'
+]);
+
+const EVENT_VERBS = [
+  'arrive','arrives','arrival','enter','enters','meet','meets','meeting','confront','confronts','confrontation',
+  'discover','discovers','discovery','learn','learns','realize','realizes','reveal','reveals','revelation',
+  'explain','explains','explanation','interrogate','interrogates','question','questions','argue','argues','argument',
+  'escape','escapes','flee','flees','run','runs','attack','attacks','fight','fights','breach','breaches',
+  'hide','hides','search','searches','investigate','investigates','report','reports','blackmail','blackmails',
+  'threaten','threatens','assign','assigns','read','reads','rehearse','rehearses','perform','performs',
+  'write','writes','confess','confesses','decide','decides','choose','chooses','trade','trades','return','returns',
+  'process','reflect','debrief','pressure','coerce','observe','spy','file','typing','type','draft','submit'
+];
+
+const STORY_FUNCTIONS = [
+  {
+    id: 'arrival_introduction',
+    label: 'arrival/introduction',
+    keywords: ['arrive','arrival','enter','enters','reaches','taxi','cab','doorway','building','institute','hotel','apartment','office','first sees','approaches','steps inside','crosses threshold'],
+  },
+  {
+    id: 'first_meeting_confrontation',
+    label: 'first meeting/confrontation',
+    keywords: ['first meeting','meets','encounters','recognition','recognizes','reunion','old lover','former lover','confronts','face to face','sees again','they meet','long expected'],
+  },
+  {
+    id: 'assignment_task',
+    label: 'assignment/tasking',
+    keywords: ['assigns','assignment','task','orders','tells her to','gives her','script','position','job','role','voice coach','consultant','liaison','must attend','starts tomorrow'],
+  },
+  {
+    id: 'report_writing',
+    label: 'report-writing/reflection',
+    keywords: ['report','reports','write report','writes report','first report','file report','typing','typewriter','stationery','post office box','cross','observations','initial observations','what to say','sterile','harmless','folds the paper','envelope'],
+  },
+  {
+    id: 'domestic_debrief',
+    label: 'domestic debrief/pressure',
+    keywords: ['husband','langston','manager','apartment','home','living room','study','dressing table','sideboard','gin','debrief','explains','pressures','rationalizes','best possible','only way','we have to'],
+  },
+  {
+    id: 'exit_aftermath',
+    label: 'exit/aftermath',
+    keywords: ['leaves','walks out','outside','street','alley','taxi','cab ride','goes home','afterward','aftermath','return home','cold outside','door closes'],
+  },
+  {
+    id: 'rehearsal_performance',
+    label: 'rehearsal/performance',
+    keywords: ['rehearsal','rehearse','stage','actors','script','reads lines','performance','piano','blocking','scene run','audience','applause','spotlight'],
+  },
+  {
+    id: 'coercion_blackmail',
+    label: 'coercion/blackmail',
+    keywords: ['blackmail','threat','threatens','committee','washington','huac','summons','subpoena','folder','photograph','moral turpitude','lavender','un-american','cooperate'],
+  },
+  {
+    id: 'decision_commitment',
+    label: 'decision/commitment',
+    keywords: ['decides','decision','choice','chooses','will not','will never','agrees','accepts','commits','answer','takes the path','new cage','there was no way back'],
+  },
+  {
+    id: 'memory_flashback',
+    label: 'memory/flashback',
+    keywords: ['memory','remembered','flashback','paris','years ago','twelve years','1937','past','younger','used to','garret','seine'],
+  },
+  {
+    id: 'reveal_discovery',
+    label: 'reveal/discovery',
+    keywords: ['reveals','discovers','learns','realizes','understands','recognition','truth','secret','hidden','source','funding','letter','photograph','evidence'],
+  },
+  {
+    id: 'proposal_offer',
+    label: 'proposal/offer',
+    keywords: ['offers','proposal','deal','compromise','revue','broadway','stage','opportunity','contract','backer','producer','arrangement','terms'],
+  },
+];
+
+const SINGLE_USE_FUNCTIONS = new Set([
+  'arrival_introduction',
+  'first_meeting_confrontation',
+  'assignment_task',
+  'report_writing',
+  'domestic_debrief',
+  'coercion_blackmail',
+  'proposal_offer',
+]);
+
+
+const DECISION_DOMAINS = [
+  {
+    id: 'record_contract_departure',
+    label: 'record contract / departure decision',
+    domainKeywords: ['contract','record','label','apex','studio','recording','new york','radio','boat','train','departure','leaves','leaving','signs','signed','offer','letter','stipend'],
+    stages: [
+      { id: 'offer_received', rank: 1, label: 'offer appears/arrives', keywords: ['offer','letter','record label','recording contract','apex','studio time','terms enclosed','representative','contract arrives','receives'] },
+      { id: 'offer_disclosed_conflict', rank: 2, label: 'offer disclosed / relationship conflict', keywords: ['tells','shows','places the letter','pauline reads','argument','conflict','chooses safety','choice between','chance','security','alternative','what is the alternative','pauline says','confronts'] },
+      { id: 'commitment_signed', rank: 3, label: 'commitment / signing', keywords: ['signs','signed','accepts','agrees','answers them','goes to the address','representative','terms','moral turpitude','standard clause','gold pen','monthly stipend','rights'] },
+      { id: 'departure_consequence', rank: 4, label: 'departure / final consequence', keywords: ['train','station','platform','whistle','conductor','passport','documents','suitcase','guitar case','leaves','departure','boat leaves','last day','farewell','note','cage','window','fields'] },
+    ],
+  },
+  {
+    id: 'report_betrayal_decision',
+    label: 'informant report / betrayal decision',
+    domainKeywords: ['report','cross','washington','committee','informant','observe','observations','names','file','envelope','post office box','political atmosphere'],
+    stages: [
+      { id: 'demand_received', rank: 1, label: 'demand/report requirement appears', keywords: ['cross','committee','washington','asks','requires','report','observations','names','atmosphere','assignment'] },
+      { id: 'moral_conflict', rank: 2, label: 'moral conflict over what to report', keywords: ['what to say','struggles','cannot write','blank page','sterile','harmless','names','consequences','betray','guilt'] },
+      { id: 'report_written', rank: 3, label: 'report written/submitted', keywords: ['writes','typed','signs','sealed','folded','envelope','post office box','initial observations','no overt political'] },
+      { id: 'pressure_after_report', rank: 4, label: 'pressure escalates after report', keywords: ['not enough','needs more','more texture','expects','next week','langston pressures','cross dissatisfied','wants names'] },
+    ],
+  },
+  {
+    id: 'funding_secret_decision',
+    label: 'secret funding / patronage decision',
+    domainKeywords: ['funding','money','trust','bank','patron','backer','strauss','duke','leo','foundation','transfer','accounts','ledger','receipts'],
+    stages: [
+      { id: 'funding_introduced', rank: 1, label: 'funding/patronage introduced', keywords: ['funding','money','patron','backer','offer','producer','trust','bank draft','foundation'] },
+      { id: 'source_questioned', rank: 2, label: 'source questioned/conflict', keywords: ['who are they','where from','source','asks','questions','dangerous','patrons','trust','board'] },
+      { id: 'secret_revealed', rank: 3, label: 'secret mechanism revealed', keywords: ['launder','accounts','receipts','buffer','insulation','plausible deniability','conduit','paper trail','signatures'] },
+      { id: 'decision_to_hide_or_expose', rank: 4, label: 'decision to hide/expose secret', keywords: ['will not write','won’t report','decides not','protect','hide','expose','tell cross','burn','shut down'] },
+    ],
+  },
+];
+
+function classifyDecisionStage(beat) {
+  const raw = textOf(beat);
+  const norm = normalize(raw);
+  const matches = [];
+
+  for (const domain of DECISION_DOMAINS) {
+    let domainScore = 0;
+    for (const kw of domain.domainKeywords) {
+      if (includesPhrase(norm, kw)) domainScore += kw.includes(' ') ? 2 : 1;
+    }
+    if (domainScore <= 0) continue;
+
+    for (const stage of domain.stages) {
+      let stageScore = 0;
+      for (const kw of stage.keywords) {
+        if (includesPhrase(norm, kw)) stageScore += kw.includes(' ') ? 2 : 1;
+      }
+      if (stageScore > 0) {
+        matches.push({
+          domain: domain.id,
+          domainLabel: domain.label,
+          stage: stage.id,
+          stageLabel: stage.label,
+          rank: stage.rank,
+          score: domainScore + stageScore,
+        });
+      }
+    }
+  }
+
+  matches.sort((a, b) => b.score - a.score || a.rank - b.rank);
+  return matches[0] || null;
+}
+
+function hasDecisionChronologyConflict(currentBeat, keptBeat) {
+  const current = classifyDecisionStage(currentBeat);
+  const kept = classifyDecisionStage(keptBeat);
+  if (!current || !kept || current.domain !== kept.domain) return null;
+
+  const currentText = normalize(textOf(currentBeat));
+  const keptText = normalize(textOf(keptBeat));
+  const overlap = coreOverlap(extractEventSignature(currentBeat), extractEventSignature(keptBeat));
+
+  if (current.stage === kept.stage) {
+    return {
+      duplicate: true,
+      confidence: 'high',
+      reason: `duplicate major decision stage: ${current.domainLabel} / ${current.stageLabel}`,
+    };
+  }
+
+  // The current beat arrives after keptBeat in the list. If it moves backward in the same major decision chain,
+  // it is almost always an alternate take or chronology glitch, not a fresh scene.
+  if (current.rank < kept.rank) {
+    return {
+      duplicate: true,
+      confidence: 'high',
+      reason: `chronology regression in ${current.domainLabel}: ${current.stageLabel} appears after ${kept.stageLabel}`,
+    };
+  }
+
+  // Offer/disclosure/signing beats can be written as separate scenes only if each creates a state change.
+  // If the surface overlap is high, merge the weaker one so the chapter doesn't replay the same decision.
+  if (current.rank <= kept.rank + 1 && overlap.score >= 0.36 && !hasMajorStateChange(currentBeat)) {
+    return {
+      duplicate: true,
+      confidence: 'high',
+      reason: `same major decision chain without a fresh state change: ${current.domainLabel}`,
+    };
+  }
+
+  // A departure/consequence beat may contain a final note or object, but it must not restart the contract/offer logic.
+  if (kept.rank === 4 && current.rank <= 3) {
+    return {
+      duplicate: true,
+      confidence: 'high',
+      reason: `post-departure restart blocked in ${current.domainLabel}: ${current.stageLabel}`,
+    };
+  }
+
+  return null;
+}
+
+function enforceDecisionChronology(beats) {
+  const warnings = [];
+  const out = beats.map((beat) => ({ ...(beat || {}) }));
+  let merged = 0;
+  let reordered = 0;
+  let replaced = 0;
+
+  for (const domain of DECISION_DOMAINS) {
+    const items = [];
+    for (let i = 0; i < out.length; i += 1) {
+      const classified = classifyDecisionStage(out[i]);
+      if (classified?.domain === domain.id) items.push({ index: i, beat: out[i], classified });
+    }
+    if (items.length <= 1) continue;
+
+    const byStage = new Map();
+    for (const item of items) {
+      const existing = byStage.get(item.classified.stage);
+      if (!existing) {
+        byStage.set(item.classified.stage, item);
+        continue;
+      }
+      const chosen = chooseBaseAndDuplicate(existing.beat, item.beat);
+      const chosenItem = chosen.replaced ? item : existing;
+      chosenItem.beat = appendMergeNote(chosen.base, chosen.duplicate, `duplicate major decision stage: ${domain.label} / ${item.classified.stageLabel}`);
+      byStage.set(item.classified.stage, chosenItem);
+      merged += 1;
+      if (chosen.replaced) replaced += 1;
+      warnings.push(`Merged duplicate decision stage in ${domain.label}: ${item.classified.stageLabel}.`);
+    }
+
+    const selected = [...byStage.values()].sort((a, b) => a.classified.rank - b.classified.rank);
+    const originalOrder = selected.map((x) => x.classified.rank).join(',');
+    const originalRanks = items.map((x) => x.classified.rank).join(',');
+    const isOutOfOrder = items.some((item, idx) => idx > 0 && item.classified.rank < items[idx - 1].classified.rank);
+
+    if (isOutOfOrder) {
+      reordered += 1;
+      warnings.push(`Reordered major decision chain for ${domain.label}: ${originalRanks} → ${originalOrder}.`);
+    }
+
+    const targetIndices = items.map((x) => x.index).sort((a, b) => a - b);
+    const remove = new Set(targetIndices);
+    const replacementByIndex = new Map();
+    selected.forEach((item, idx) => {
+      const target = targetIndices[idx];
+      if (target != null) {
+        replacementByIndex.set(target, {
+          ...(item.beat || {}),
+          chronology_stage: item.classified.stageLabel,
+          chronology_domain: item.classified.domainLabel,
+          beats: [
+            ...(Array.isArray(item.beat?.beats) ? item.beat.beats : []),
+            `CHRONOLOGY GUARD: This is ${item.classified.stageLabel} in the ${item.classified.domainLabel} chain. Do not replay earlier stages. Keep the sequence in order: offer/demand → conflict → commitment/report → departure/consequence.`,
+          ],
+        });
+      }
+    });
+
+    for (const idx of targetIndices) {
+      if (!replacementByIndex.has(idx)) {
+        const source = items.find((x) => x.index === idx);
+        const recipient = selected[selected.length - 1];
+        if (recipient?.beat && source?.beat) {
+          recipient.beat = appendMergeNote(recipient.beat, source.beat, `removed duplicate/out-of-order decision beat from ${domain.label}`);
+        }
+      }
+    }
+
+    const next = [];
+    for (let i = 0; i < out.length; i += 1) {
+      if (replacementByIndex.has(i)) next.push(replacementByIndex.get(i));
+      else if (!remove.has(i)) next.push(out[i]);
+    }
+    out.length = 0;
+    out.push(...next);
+  }
+
+  return { beats: out, merged, reordered, replaced, warnings };
+}
+
+function textOf(value) {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.map(textOf).filter(Boolean).join(' ');
+  if (typeof value === 'object') {
+    return [
+      value.scene_goal,
+      value.goal,
+      value.purpose,
+      value.story_function,
+      value.function,
+      value.setting,
+      value.location,
+      value.conflict,
+      value.emotional_arc,
+      value.exit_hook,
+      value.summary,
+      value.description,
+      value.content_direction,
+      value.beats,
+      value.key_claim,
+      value.opens_with,
+      value.closes_with,
+    ].map(textOf).filter(Boolean).join(' ');
+  }
+  return String(value);
+}
+
+function normalize(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[“”]/g, '"')
+    .replace(/[’]/g, "'")
+    .replace(/[^a-z0-9\s']/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function keywords(text) {
+  const words = normalize(text).split(' ').filter(Boolean);
+  const out = [];
+  const seen = new Set();
+  for (const word of words) {
+    if (word.length < 4 || STOPWORDS.has(word)) continue;
+    const stem = stemWord(word);
+    if (STOPWORDS.has(stem) || seen.has(stem)) continue;
+    seen.add(stem);
+    out.push(stem);
+  }
+  return out;
+}
+
+function stemWord(word) {
+  return String(word || '')
+    .replace(/'(?:s|re|ve|ll|d)$/i, '')
+    .replace(/(?:ing|edly|edly|ed|es|s)$/i, '')
+    .slice(0, 28);
+}
+
+function jaccard(a, b) {
+  const aSet = new Set(a || []);
+  const bSet = new Set(b || []);
+  if (!aSet.size || !bSet.size) return 0;
+  let intersection = 0;
+  for (const item of aSet) if (bSet.has(item)) intersection += 1;
+  const union = aSet.size + bSet.size - intersection;
+  return union ? intersection / union : 0;
+}
+
+function includesPhrase(text, phrase) {
+  const t = normalize(text);
+  const p = normalize(phrase);
+  if (!p) return false;
+  if (p.includes(' ')) return t.includes(p);
+  return t.split(' ').some((w) => stemWord(w) === stemWord(p));
+}
+
+function classifyStoryFunctions(beat) {
+  const raw = textOf(beat);
+  const norm = normalize(raw);
+  const scored = [];
+
+  for (const fn of STORY_FUNCTIONS) {
+    let score = 0;
+    for (const phrase of fn.keywords) {
+      if (includesPhrase(norm, phrase)) score += phrase.includes(' ') ? 2 : 1;
+    }
+    if (score > 0) scored.push({ id: fn.id, label: fn.label, score });
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 3);
+}
+
+function primaryFunction(beat) {
+  const functions = classifyStoryFunctions(beat);
+  return functions[0] || null;
+}
+
+function sharesSingleUseStoryFunction(aBeat, bBeat) {
+  const aFns = classifyStoryFunctions(aBeat).filter((f) => SINGLE_USE_FUNCTIONS.has(f.id));
+  const bFns = classifyStoryFunctions(bBeat).filter((f) => SINGLE_USE_FUNCTIONS.has(f.id));
+  if (!aFns.length || !bFns.length) return null;
+
+  for (const a of aFns) {
+    const b = bFns.find((item) => item.id === a.id);
+    if (b) return { id: a.id, label: a.label, score: Math.min(a.score, b.score) };
+  }
+
+  // Report-writing and domestic debrief often show up as two stagings of the same aftermath.
+  const aIds = new Set(aFns.map((f) => f.id));
+  const bIds = new Set(bFns.map((f) => f.id));
+  if ((aIds.has('report_writing') && bIds.has('domestic_debrief')) || (aIds.has('domestic_debrief') && bIds.has('report_writing'))) {
+    const aText = normalize(textOf(aBeat));
+    const bText = normalize(textOf(bBeat));
+    const sharedAftermathTerms = ['report', 'cross', 'washington', 'langston', 'apartment', 'study', 'typewriter', 'envelope']
+      .filter((term) => aText.includes(term) && bText.includes(term));
+    if (sharedAftermathTerms.length >= 2) {
+      return { id: 'report_writing', label: 'report-writing/domestic aftermath', score: sharedAftermathTerms.length };
+    }
+  }
+
+  return null;
+}
+
+function extractEventSignature(beat) {
+  const full = normalize(textOf(beat));
+  const fullWords = full.split(' ').filter(Boolean);
+  const names = [];
+  const properish = String(textOf(beat)).match(/\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})?\b/g) || [];
+  for (const name of properish) {
+    const lower = name.toLowerCase();
+    if (STOPWORDS.has(lower)) continue;
+    if (!names.includes(lower)) names.push(lower);
+    if (names.length >= 8) break;
+  }
+
+  const verbs = [];
+  for (const verb of EVENT_VERBS) {
+    const stem = stemWord(verb);
+    if (fullWords.some((w) => stemWord(w) === stem) && !verbs.includes(stem)) verbs.push(stem);
+  }
+
+  const places = keywords(beat?.setting || beat?.location || '').slice(0, 8);
+  const objects = keywords(`${beat?.scene_goal || beat?.goal || ''} ${beat?.conflict || ''} ${beat?.exit_hook || ''}`).slice(0, 16);
+
+  return {
+    text: full,
+    words: keywords(full),
+    names,
+    verbs,
+    places,
+    objects,
+  };
+}
+
+function samePlace(a, b) {
+  if (!a.places.length || !b.places.length) return false;
+  return jaccard(a.places, b.places) >= 0.34 || a.places.some((p) => b.places.includes(p));
+}
+
+function coreOverlap(a, b) {
+  const wordScore = jaccard(a.words, b.words);
+  const objectScore = jaccard(a.objects, b.objects);
+  const verbScore = jaccard(a.verbs, b.verbs);
+  const nameScore = jaccard(a.names, b.names);
+  const placeScore = samePlace(a, b) ? 0.22 : 0;
+
+  return {
+    score: Math.max(wordScore, objectScore * 0.9) + verbScore * 0.2 + nameScore * 0.18 + placeScore,
+    wordScore,
+    objectScore,
+    verbScore,
+    nameScore,
+    placeScore,
+  };
+}
+
+function hasMajorStateChange(beat) {
+  const text = normalize(textOf(beat));
+  const markers = [
+    'new information', 'new evidence', 'reveals', 'discovers', 'learns', 'realizes', 'decision', 'chooses',
+    'changes her mind', 'commits', 'betrays', 'confesses', 'attack', 'escape', 'death', 'arrest', 'arrival of',
+    'new threat', 'turning point', 'irreversible', 'publicly', 'exposed', 'caught', 'secret is revealed',
+  ];
+  return markers.some((m) => text.includes(normalize(m)));
+}
+
+function dramaticUtilityScore(beat) {
+  const text = normalize(textOf(beat));
+  let score = 0;
+
+  const conflictTerms = [
+    'confront', 'pressure', 'threat', 'blackmail', 'argue', 'forces', 'refuses', 'choice', 'decision', 'reveals',
+    'discovers', 'learns', 'realizes', 'confession', 'betrayal', 'danger', 'secret', 'cross', 'langston', 'pauline',
+    'clara', 'duke', 'strauss', 'evidence', 'report', 'names', 'subpoena', 'photograph', 'folder', 'script',
+  ];
+  for (const term of conflictTerms) if (text.includes(term)) score += 1;
+
+  if (hasMajorStateChange(beat)) score += 3;
+  if (text.includes('dialogue') || text.includes('conversation') || text.includes('says') || text.includes('tells')) score += 2;
+  if (text.includes('alone') || text.includes('reflects') || text.includes('thinks')) score -= 1;
+  if (text.length > 450) score += 1;
+
+  const fn = primaryFunction(beat);
+  if (fn?.id === 'domestic_debrief' || fn?.id === 'first_meeting_confrontation' || fn?.id === 'coercion_blackmail') score += 2;
+  if (fn?.id === 'report_writing' && text.includes('langston')) score += 2;
+
+  return score;
+}
+
+function chooseBaseAndDuplicate(keptBeat, newBeat) {
+  const keptScore = dramaticUtilityScore(keptBeat);
+  const newScore = dramaticUtilityScore(newBeat);
+
+  if (newScore >= keptScore + 2) {
+    return { base: newBeat, duplicate: keptBeat, replaced: true, keptScore, newScore };
+  }
+
+  return { base: keptBeat, duplicate: newBeat, replaced: false, keptScore, newScore };
+}
+
+function looksLikeAlternateDraft(currentBeat, keptBeat) {
+  const current = extractEventSignature(currentBeat);
+  const kept = extractEventSignature(keptBeat);
+  const overlap = coreOverlap(current, kept);
+
+  const sameLocation = samePlace(current, kept);
+  const sameMainPeople = current.names.length && kept.names.length && jaccard(current.names, kept.names) >= 0.34;
+  const sameAction = current.verbs.length && kept.verbs.length && jaccard(current.verbs, kept.verbs) >= 0.25;
+  const sameObjects = current.objects.length && kept.objects.length && jaccard(current.objects, kept.objects) >= 0.34;
+  const sameFunction = sharesSingleUseStoryFunction(currentBeat, keptBeat);
+  const chronologyConflict = hasDecisionChronologyConflict(currentBeat, keptBeat);
+
+  if (chronologyConflict?.duplicate) {
+    return chronologyConflict;
+  }
+
+  if (overlap.score >= 0.64) {
+    return { duplicate: true, confidence: 'high', reason: `high semantic overlap (${overlap.score.toFixed(2)})` };
+  }
+
+  if (sameLocation && sameMainPeople && (sameAction || sameObjects) && overlap.score >= 0.48) {
+    return { duplicate: true, confidence: 'high', reason: `same place/people/action overlap (${overlap.score.toFixed(2)})` };
+  }
+
+  if (sameFunction && sameFunction.score >= 2 && !hasMajorStateChange(currentBeat)) {
+    return { duplicate: true, confidence: 'high', reason: `same story function: ${sameFunction.label}` };
+  }
+
+  if (sameFunction && sameFunction.score >= 1 && overlap.score >= 0.32) {
+    return { duplicate: true, confidence: 'high', reason: `same story function with supporting overlap: ${sameFunction.label} (${overlap.score.toFixed(2)})` };
+  }
+
+  if (sameLocation && sameAction && sameObjects && overlap.score >= 0.44) {
+    return { duplicate: true, confidence: 'medium', reason: `same location/action/object overlap (${overlap.score.toFixed(2)})` };
+  }
+
+  if (sameFunction) {
+    return { duplicate: true, confidence: 'medium', reason: `possible repeated story function: ${sameFunction.label}` };
+  }
+
+  if (overlap.score >= 0.5 && (sameAction || sameObjects)) {
+    return { duplicate: true, confidence: 'medium', reason: `medium event overlap (${overlap.score.toFixed(2)})` };
+  }
+
+  return { duplicate: false, confidence: 'none', reason: '' };
+}
+
+function appendMergeNote(baseBeat, duplicateBeat, reason) {
+  const base = { ...(baseBeat || {}) };
+  const note = `Merged alternate/same-function beat material: ${summarizeBeat(duplicateBeat)}. Do NOT write this as a separate scene; include only any new consequence, pressure, or unique detail if it advances the chosen scene. Reason: ${reason}.`;
+
+  const existing = Array.isArray(base.beats) ? base.beats.slice() : [];
+  existing.push(note);
+  base.beats = existing;
+  base.merged_duplicate_notes = [
+    ...(Array.isArray(base.merged_duplicate_notes) ? base.merged_duplicate_notes : []),
+    note,
+  ];
+
+  if (duplicateBeat?.exit_hook && !String(base.exit_hook || '').includes(String(duplicateBeat.exit_hook).slice(0, 35))) {
+    base.exit_hook = [base.exit_hook, `Merged exit pressure: ${duplicateBeat.exit_hook}`].filter(Boolean).join(' | ');
+  }
+
+  const baseFn = primaryFunction(baseBeat);
+  const dupFn = primaryFunction(duplicateBeat);
+  base.story_function = base.story_function || baseFn?.label || dupFn?.label || undefined;
+
+  return base;
+}
+
+function summarizeBeat(beat) {
+  const raw = [beat?.scene_goal || beat?.goal || beat?.purpose, beat?.conflict, beat?.exit_hook]
+    .filter(Boolean)
+    .join(' / ');
+  const s = String(raw || textOf(beat) || '').replace(/\s+/g, ' ').trim();
+  return s.length > 280 ? `${s.slice(0, 277)}...` : s;
+}
+
+function resequence(beats) {
+  return beats.map((beat, index) => ({
+    ...(beat || {}),
+    scene_number: index + 1,
+    sceneNumber: index + 1,
+  }));
+}
+
+function addFunctionWarnings(beats) {
+  const seen = new Map();
+  return beats.map((beat) => {
+    const fn = primaryFunction(beat);
+    if (!fn || !SINGLE_USE_FUNCTIONS.has(fn.id)) return beat;
+    const count = seen.get(fn.id) || 0;
+    seen.set(fn.id, count + 1);
+    if (count === 0) return { ...beat, story_function: beat.story_function || fn.label };
+    return {
+      ...beat,
+      story_function: beat.story_function || fn.label,
+      continuity_warning: `Repeated story function detected: ${fn.label}. This scene must create a new state change and must not replay the earlier ${fn.label} beat.`,
+      beats: [
+        ...(Array.isArray(beat?.beats) ? beat.beats : []),
+        `STORY FUNCTION WARNING: Another ${fn.label} beat already exists in this chapter. Write only if this scene creates a new irreversible state change. Do not repeat the same emotional processing or logistics.`,
+      ],
+    };
+  });
+}
+
+export function normalizeSceneBeatsForDrafting(rawBeats, options = {}) {
+  const beats = Array.isArray(rawBeats) ? rawBeats.filter(Boolean) : [];
+  const isNonfiction = Boolean(options.isNonfiction);
+
+  if (!beats.length || isNonfiction) {
+    return {
+      beats,
+      changed: false,
+      removed: 0,
+      merged: 0,
+      reported: 0,
+      warnings: [],
+      report: 'Scene Beat Normalizer: skipped.',
+    };
+  }
+
+  const chronologyPass = enforceDecisionChronology(beats);
+  const inputBeats = chronologyPass.beats;
+
+  const kept = [];
+  const warnings = [...chronologyPass.warnings];
+  let removed = chronologyPass.merged;
+  let merged = chronologyPass.merged;
+  let reported = 0;
+  let functionMerged = 0;
+  let chronologyMerged = chronologyPass.merged;
+  let chronologyReordered = chronologyPass.reordered;
+  let replacedWithStronger = chronologyPass.replaced;
+
+  for (const beat of inputBeats) {
+    let matchedIndex = -1;
+    let match = null;
+
+    for (let i = 0; i < kept.length; i += 1) {
+      const candidate = looksLikeAlternateDraft(beat, kept[i]);
+      if (candidate.duplicate) {
+        matchedIndex = i;
+        match = candidate;
+        break;
+      }
+    }
+
+    if (matchedIndex >= 0 && match?.confidence === 'high') {
+      const chosen = chooseBaseAndDuplicate(kept[matchedIndex], beat);
+      kept[matchedIndex] = appendMergeNote(chosen.base, chosen.duplicate, match.reason);
+      removed += 1;
+      merged += 1;
+      if (String(match.reason || '').includes('story function')) functionMerged += 1;
+      if (chosen.replaced) replacedWithStronger += 1;
+      warnings.push(
+        `${chosen.replaced ? 'Replaced earlier beat with stronger same-function beat' : 'Merged/dropped duplicate beat'} ${beat.scene_number || beat.sceneNumber || '?'} into beat ${matchedIndex + 1}: ${match.reason}`
+      );
+      continue;
+    }
+
+    if (matchedIndex >= 0 && match?.confidence === 'medium') {
+      const sameFunction = String(match.reason || '').includes('story function');
+
+      // Same-function aftermath beats are safer to merge than to keep, because keeping both creates the exact
+      // duplicate-report / duplicate-reflection problem we are fixing.
+      if (sameFunction) {
+        const chosen = chooseBaseAndDuplicate(kept[matchedIndex], beat);
+        kept[matchedIndex] = appendMergeNote(chosen.base, chosen.duplicate, match.reason);
+        removed += 1;
+        merged += 1;
+        functionMerged += 1;
+        if (chosen.replaced) replacedWithStronger += 1;
+        warnings.push(
+          `${chosen.replaced ? 'Replaced earlier beat with stronger same-function beat' : 'Merged same-function beat'} ${beat.scene_number || beat.sceneNumber || '?'} into beat ${matchedIndex + 1}: ${match.reason}`
+        );
+        continue;
+      }
+
+      reported += 1;
+      warnings.push(`Medium-confidence overlapping beat ${beat.scene_number || beat.sceneNumber || '?'} kept for safety: ${match.reason}`);
+      kept.push({
+        ...(beat || {}),
+        continuity_warning: `This beat may overlap an earlier beat. Treat it only as a consequence/escalation, never a restart. ${match.reason}`,
+        beats: [
+          ...(Array.isArray(beat?.beats) ? beat.beats : []),
+          `CONTINUITY WARNING: This beat overlaps earlier material. Write only the new consequence/escalation. Do NOT replay the same encounter, setup, report, or aftermath. ${match.reason}`,
+        ],
+      });
+      continue;
+    }
+
+    kept.push({ ...(beat || {}) });
+  }
+
+  const finalBeats = addFunctionWarnings(resequence(kept.length ? kept : beats));
+  const changed = removed > 0 || merged > 0 || reported > 0 || chronologyReordered > 0 || finalBeats.length !== beats.length;
+
+  return {
+    beats: finalBeats,
+    changed,
+    removed,
+    merged,
+    functionMerged,
+    replacedWithStronger,
+    chronologyMerged,
+    chronologyReordered,
+    reported,
+    warnings,
+    originalCount: beats.length,
+    finalCount: finalBeats.length,
+    report: `Scene Beat Normalizer: ${beats.length} → ${finalBeats.length} beats | merged/dropped ${merged} duplicate(s) | same-function merges ${functionMerged} | chronology merges ${chronologyMerged} | chronology reorders ${chronologyReordered} | stronger beat replacements ${replacedWithStronger} | reported ${reported} medium-confidence overlap(s).`,
+  };
+}
+
+export default normalizeSceneBeatsForDrafting;
+
+console.log('[SCENE-BEAT-NORMALIZER] loaded: story-function + chronology guard preflight v3.0 - 2026-05-03');

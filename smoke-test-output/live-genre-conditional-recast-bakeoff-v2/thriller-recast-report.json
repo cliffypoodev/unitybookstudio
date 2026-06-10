@@ -1,0 +1,97 @@
+{
+  "profileUsed": "thriller",
+  "recastMode": "conservative",
+  "chunksAnalyzed": 3,
+  "chunksSkipped": 2,
+  "chunksRecast": 1,
+  "chunksFailed": 0,
+  "chunksRetried": 0,
+  "chunksRetrySucceeded": 0,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 9,
+    "symmetryScore": 21,
+    "filterVerbDensity": 3.4,
+    "concreteRatio": 100,
+    "openingVerbStrength": "weak",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0.8,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 1.7,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 80,
+    "grade": "GOOD",
+    "diagnostics": [
+      "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+      "\"NOT JUST\" PATTERN: 2 instance(s). Recast as direct statement."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 8.9,
+    "symmetryScore": 26,
+    "filterVerbDensity": 1.7,
+    "concreteRatio": 100,
+    "openingVerbStrength": "strong",
+    "endingPunch": true,
+    "tripleConstructionDensity": 0.8,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 1.7,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 86,
+    "grade": "EXCELLENT",
+    "diagnostics": [
+      "\"NOT JUST\" PATTERN: 2 instance(s). Recast as direct statement."
+    ]
+  },
+  "safetyBlocks": 0,
+  "referenceBlocks": 0,
+  "overcorrectionWarnings": [],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "recast",
+      "beforeScore": 67,
+      "afterScore": 73,
+      "reason": "Score 67 < threshold 70",
+      "origWords": 424,
+      "recastWords": 417,
+      "ratio": 98,
+      "minAllowed": 390,
+      "maxAllowed": 467,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative"
+    },
+    {
+      "index": 1,
+      "action": "skipped",
+      "beforeScore": 83,
+      "afterScore": null,
+      "reason": "Protected: high_score",
+      "origWords": 411,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 378,
+      "maxAllowed": 453,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative"
+    },
+    {
+      "index": 2,
+      "action": "skipped",
+      "beforeScore": 90,
+      "afterScore": null,
+      "reason": "Protected: high_score",
+      "origWords": 356,
+      "recastWords": null,
+      "ratio": null,
+      "minAllowed": 327,
+      "maxAllowed": 392,
+      "retryAttempted": false,
+      "retrySucceeded": false,
+      "recastMode": "conservative"
+    }
+  ]
+}

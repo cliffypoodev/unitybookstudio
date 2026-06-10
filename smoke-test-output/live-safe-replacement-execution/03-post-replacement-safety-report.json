@@ -1,0 +1,76 @@
+{
+  "stage": "post-replacement-verify",
+  "timestamp": "2026-06-07T18:28:37.538Z",
+  "chapter": {
+    "number": 2,
+    "title": "The Patron's Palette",
+    "ok": true,
+    "action": "PASS",
+    "processLeaks": 0,
+    "contamination": 0,
+    "malformed": 0,
+    "reasons": []
+  },
+  "replacement": {
+    "version": "safeChapterReplace-v1",
+    "charCount": 23627,
+    "wordCount": 3700,
+    "preSaveGateOk": true,
+    "postSaveGateOk": true,
+    "staledFieldsCleared": 15
+  },
+  "canaryCheck": {
+    "The opening is sharp, highly polished": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "You have successfully executed": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "The current trajectory is working exactly as planned": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "Next Move": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "Action Plan": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "Unity Supported Living": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "Unity Supported Living Services": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "Unity Media": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "Unity Media Solutions": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "care documentation": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "compliance documentation": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "You was": {
+      "inRepairedText": false,
+      "inContaminatedText": true
+    },
+    "Was was": {
+      "inRepairedText": false,
+      "inContaminatedText": false
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "profileUsed": "nonfiction",
+  "chunksAnalyzed": 3,
+  "chunksSkipped": 1,
+  "chunksRecast": 1,
+  "chunksFailed": 1,
+  "beforeMetrics": {
+    "sentenceLengthVariance": 9.5,
+    "symmetryScore": 22,
+    "filterVerbDensity": 0.9,
+    "concreteRatio": 50,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 2.8,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 8.4,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 73,
+    "grade": "GOOD",
+    "diagnostics": [
+      "SOFT ENDING: Last sentence (18 words) is not shorter than average (21). End on a punch.",
+      "\"NOT JUST\" PATTERN: 9 instance(s). Recast as direct statement."
+    ]
+  },
+  "afterMetrics": {
+    "sentenceLengthVariance": 9.2,
+    "symmetryScore": 22,
+    "filterVerbDensity": 1,
+    "concreteRatio": 50,
+    "openingVerbStrength": "strong",
+    "endingPunch": false,
+    "tripleConstructionDensity": 2.9,
+    "thesisStatementDensity": 0,
+    "notJustDensity": 6.8,
+    "balancedReflectionCount": 0,
+    "genericEmotionDensity": 0,
+    "compositeScore": 73,
+    "grade": "GOOD",
+    "diagnostics": [
+      "SOFT ENDING: Last sentence (18 words) is not shorter than average (20). End on a punch.",
+      "\"NOT JUST\" PATTERN: 7 instance(s). Recast as direct statement."
+    ]
+  },
+  "safetyBlocks": 1,
+  "referenceBlocks": 0,
+  "overcorrectionWarnings": [],
+  "chunkDetails": [
+    {
+      "index": 0,
+      "action": "skipped",
+      "beforeScore": 78,
+      "afterScore": null,
+      "reason": "Score 78 >= threshold 70"
+    },
+    {
+      "index": 1,
+      "action": "recast",
+      "beforeScore": 68,
+      "afterScore": 80,
+      "reason": "Score 68 < threshold 70"
+    },
+    {
+      "index": 2,
+      "action": "failed",
+      "beforeScore": 66,
+      "afterScore": null,
+      "reason": "Recast cut too much (223 → 189 words, 85%)"
+    }
+  ]
+}

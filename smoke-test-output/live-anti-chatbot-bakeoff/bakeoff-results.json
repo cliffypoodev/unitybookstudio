@@ -1,0 +1,257 @@
+{
+  "results": [
+    {
+      "name": "Commercial Thriller",
+      "versionA": {
+        "texture": {
+          "sentenceLengthVariance": 6.7,
+          "symmetryScore": 15,
+          "filterVerbDensity": 30.8,
+          "concreteRatio": 33,
+          "openingVerbStrength": "strong",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 3.8,
+          "notJustDensity": 7.7,
+          "balancedReflectionCount": 1,
+          "genericEmotionDensity": 7.7,
+          "compositeScore": 43,
+          "grade": "CHATBOT_ADJACENT",
+          "diagnostics": [
+            "HIGH FILTER VERB DENSITY: 30.8/1K words (8 instances). Replace with direct sensation.",
+            "LOW CONCRETE RATIO: 33% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "SOFT ENDING: Last sentence (16 words) is not shorter than average (12). End on a punch.",
+            "THESIS STATEMENTS FOUND: 1 instance(s). Replace with image or action.",
+            "\"NOT JUST\" PATTERN: 2 instance(s). Recast as direct statement.",
+            "BALANCED REFLECTION: 1 instance(s) of \"part of her wanted...\" — pick the dominant impulse."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 8,
+            "not_just": 2,
+            "thesis_statements": 1,
+            "lesson_endings": 1,
+            "balanced_reflection": 1,
+            "triple_construction": 0,
+            "generic_emotion": 2,
+            "abstract_emotion": 2,
+            "symmetrical_pairs": 3
+          },
+          "total": 20,
+          "density": 76.9
+        }
+      },
+      "versionB": {
+        "texture": {
+          "sentenceLengthVariance": 7.9,
+          "symmetryScore": 18,
+          "filterVerbDensity": 0,
+          "concreteRatio": 100,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 81,
+          "grade": "GOOD",
+          "diagnostics": [
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (7 words) is not shorter than average (8). End on a punch."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 0,
+            "not_just": 0,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 0,
+            "symmetrical_pairs": 5
+          },
+          "total": 5,
+          "density": 20.4
+        }
+      },
+      "delta": {
+        "compositeScore": 38,
+        "chatbotPatternDelta": 15,
+        "chatbotDensityDelta": 56.5
+      }
+    },
+    {
+      "name": "Literary/Speculative",
+      "versionA": {
+        "texture": {
+          "sentenceLengthVariance": 7.5,
+          "symmetryScore": 7,
+          "filterVerbDensity": 22,
+          "concreteRatio": 0,
+          "openingVerbStrength": "weak",
+          "endingPunch": true,
+          "tripleConstructionDensity": 7.3,
+          "thesisStatementDensity": 11,
+          "notJustDensity": 3.7,
+          "balancedReflectionCount": 1,
+          "genericEmotionDensity": 3.7,
+          "compositeScore": 37,
+          "grade": "CHATBOT_SLOP",
+          "diagnostics": [
+            "HIGH FILTER VERB DENSITY: 22.0/1K words (6 instances). Replace with direct sensation.",
+            "LOW CONCRETE RATIO: 0% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "HIGH TRIPLE CONSTRUCTION DENSITY: 7.3/1K words. Cut \"X, Y, and Z\" patterns.",
+            "THESIS STATEMENTS FOUND: 3 instance(s). Replace with image or action.",
+            "BALANCED REFLECTION: 1 instance(s) of \"part of her wanted...\" — pick the dominant impulse."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 6,
+            "not_just": 1,
+            "thesis_statements": 3,
+            "lesson_endings": 0,
+            "balanced_reflection": 1,
+            "triple_construction": 2,
+            "generic_emotion": 1,
+            "abstract_emotion": 1,
+            "symmetrical_pairs": 1
+          },
+          "total": 16,
+          "density": 58.6
+        }
+      },
+      "versionB": {
+        "texture": {
+          "sentenceLengthVariance": 10.1,
+          "symmetryScore": 6,
+          "filterVerbDensity": 0,
+          "concreteRatio": 50,
+          "openingVerbStrength": "weak",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 87,
+          "grade": "EXCELLENT",
+          "diagnostics": [
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 0,
+            "not_just": 0,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 1,
+            "symmetrical_pairs": 1
+          },
+          "total": 2,
+          "density": 7.6
+        }
+      },
+      "delta": {
+        "compositeScore": 50,
+        "chatbotPatternDelta": 14,
+        "chatbotDensityDelta": 51
+      }
+    },
+    {
+      "name": "Narrative Nonfiction",
+      "versionA": {
+        "texture": {
+          "sentenceLengthVariance": 13.9,
+          "symmetryScore": 33,
+          "filterVerbDensity": 25.9,
+          "concreteRatio": 0,
+          "openingVerbStrength": "weak",
+          "endingPunch": false,
+          "tripleConstructionDensity": 3.7,
+          "thesisStatementDensity": 7.4,
+          "notJustDensity": 3.7,
+          "balancedReflectionCount": 1,
+          "genericEmotionDensity": 3.7,
+          "compositeScore": 36,
+          "grade": "CHATBOT_SLOP",
+          "diagnostics": [
+            "HIGH FILTER VERB DENSITY: 25.9/1K words (7 instances). Replace with direct sensation.",
+            "LOW CONCRETE RATIO: 0% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action.",
+            "SOFT ENDING: Last sentence (26 words) is not shorter than average (21). End on a punch.",
+            "THESIS STATEMENTS FOUND: 2 instance(s). Replace with image or action.",
+            "BALANCED REFLECTION: 1 instance(s) of \"part of her wanted...\" — pick the dominant impulse."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 7,
+            "not_just": 1,
+            "thesis_statements": 2,
+            "lesson_endings": 0,
+            "balanced_reflection": 1,
+            "triple_construction": 1,
+            "generic_emotion": 1,
+            "abstract_emotion": 1,
+            "symmetrical_pairs": 4
+          },
+          "total": 18,
+          "density": 66.7
+        }
+      },
+      "versionB": {
+        "texture": {
+          "sentenceLengthVariance": 9.4,
+          "symmetryScore": 16,
+          "filterVerbDensity": 0,
+          "concreteRatio": 0,
+          "openingVerbStrength": "weak",
+          "endingPunch": true,
+          "tripleConstructionDensity": 0,
+          "thesisStatementDensity": 0,
+          "notJustDensity": 0,
+          "balancedReflectionCount": 0,
+          "genericEmotionDensity": 0,
+          "compositeScore": 78,
+          "grade": "GOOD",
+          "diagnostics": [
+            "LOW CONCRETE RATIO: 0% concrete vs abstract. More physical detail, fewer abstract emotion nouns.",
+            "WEAK OPENING VERB: First sentence uses state verb. Open with action."
+          ]
+        },
+        "patterns": {
+          "counts": {
+            "filter_verbs": 0,
+            "not_just": 0,
+            "thesis_statements": 0,
+            "lesson_endings": 0,
+            "balanced_reflection": 0,
+            "triple_construction": 0,
+            "generic_emotion": 0,
+            "abstract_emotion": 4,
+            "symmetrical_pairs": 3
+          },
+          "total": 7,
+          "density": 29.7
+        }
+      },
+      "delta": {
+        "compositeScore": 42,
+        "chatbotPatternDelta": 11,
+        "chatbotDensityDelta": 37
+      }
+    }
+  ],
+  "avgDelta": 43,
+  "avgPatternDrop": 13
+}

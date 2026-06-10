@@ -1,0 +1,128 @@
+{
+  "name": "AuthorStyle",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Profile name, e.g. 'Carrie L. DuBois' or 'My Dark Fantasy Voice'"
+    },
+    "pen_name": {
+      "type": "string",
+      "description": "Optional pen name to use on manuscripts"
+    },
+    "tone": {
+      "type": "string",
+      "description": "Overall tone, e.g. 'Sardonic, precise, emotionally restrained'"
+    },
+    "sentence_rhythm": {
+      "type": "string",
+      "description": "Sentence rhythm style"
+    },
+    "vocabulary_level": {
+      "type": "string",
+      "description": "Vocabulary level guidance"
+    },
+    "paragraph_style": {
+      "type": "string",
+      "description": "Paragraph structure preferences"
+    },
+    "dialogue_style": {
+      "type": "string",
+      "description": "How dialogue is written"
+    },
+    "dialogue_tags": {
+      "type": "string",
+      "description": "Dialogue tag preferences"
+    },
+    "description_approach": {
+      "type": "string",
+      "description": "How descriptions are handled"
+    },
+    "sensory_focus": {
+      "type": "string",
+      "description": "Which senses to emphasize"
+    },
+    "metaphor_style": {
+      "type": "string",
+      "description": "Metaphor and imagery approach"
+    },
+    "emotional_handling": {
+      "type": "string",
+      "description": "How emotions are conveyed"
+    },
+    "internal_monologue": {
+      "type": "string",
+      "description": "Internal monologue style"
+    },
+    "humor_style": {
+      "type": "string",
+      "description": "Humor approach"
+    },
+    "pacing_preference": {
+      "type": "string",
+      "description": "Pacing preferences"
+    },
+    "chapter_endings": {
+      "type": "string",
+      "description": "How chapters should end"
+    },
+    "always_do": {
+      "type": "string",
+      "description": "Rules to always follow"
+    },
+    "never_do": {
+      "type": "string",
+      "description": "Rules to never break"
+    },
+    "sample_paragraph": {
+      "type": "string",
+      "description": "100-200 word reference paragraph for tone matching"
+    },
+    "genre_affinity": {
+      "type": "string",
+      "description": "Genres this style works best for"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

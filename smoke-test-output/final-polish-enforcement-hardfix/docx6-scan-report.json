@@ -1,0 +1,574 @@
+{
+  "chapters": [
+    {
+      "num": 1,
+      "title": "The Algorithmic Stage",
+      "words": 3897,
+      "chars": 25640,
+      "failures": [
+        {
+          "id": "missing-open-quote-1",
+          "severity": "HARD",
+          "match": "The game is the model, Marcus,”",
+          "context": "odel your existential dread.” The game is the model, Marcus,” she retorted, her voice sharp"
+        },
+        {
+          "id": "missing-open-quote-2",
+          "severity": "HARD",
+          "match": "And I thrive on efficiency,”",
+          "context": "kes decisions messy and bad.” And I thrive on efficiency,” he countered instantly, his t"
+        }
+      ],
+      "slop": {
+        "not-just": 3,
+        "wasnt-just": 7,
+        "didnt-just": 5,
+        "isnt-just": 1,
+        "weight-of": 1,
+        "felt": 19,
+        "realized": 1,
+        "narrative": 5,
+        "performance": 17,
+        "system-wasnt": 2,
+        "platform-wasnt": 1
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 62
+    },
+    {
+      "num": 2,
+      "title": "The Patron's Palette",
+      "words": 3706,
+      "chars": 23660,
+      "failures": [],
+      "slop": {
+        "not-just": 2,
+        "wasnt-just": 6,
+        "didnt-just": 2,
+        "isnt-just": 2,
+        "weight-of": 3,
+        "felt": 17,
+        "realized": 2,
+        "narrative": 1,
+        "performance": 0,
+        "system-wasnt": 0,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 35
+    },
+    {
+      "num": 3,
+      "title": "The Office of Echoes",
+      "words": 3211,
+      "chars": 20404,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 8,
+        "didnt-just": 1,
+        "isnt-just": 1,
+        "weight-of": 1,
+        "felt": 13,
+        "realized": 2,
+        "narrative": 3,
+        "performance": 6,
+        "system-wasnt": 3,
+        "platform-wasnt": 1
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 39
+    },
+    {
+      "num": 4,
+      "title": "The Sacred Screen",
+      "words": 3454,
+      "chars": 22386,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 11,
+        "didnt-just": 4,
+        "isnt-just": 0,
+        "weight-of": 1,
+        "felt": 11,
+        "realized": 2,
+        "narrative": 5,
+        "performance": 1,
+        "system-wasnt": 3,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 38
+    },
+    {
+      "num": 5,
+      "title": "The Transit of Ghosts",
+      "words": 3089,
+      "chars": 19574,
+      "failures": [
+        {
+          "id": "she-were-carrying",
+          "severity": "HARD",
+          "match": "She were carrying",
+          "context": " gnawing weight in her chest. She were carrying an inheritance that felt less"
+        },
+        {
+          "id": "she-was-it-monopolistic",
+          "severity": "HARD",
+          "match": "She was it monopolistic practice",
+          "context": "ust good at selling scarcity? She was it monopolistic practice, or simply genius anticipatin"
+        }
+      ],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 5,
+        "didnt-just": 1,
+        "isnt-just": 1,
+        "weight-of": 1,
+        "felt": 16,
+        "realized": 1,
+        "narrative": 10,
+        "performance": 3,
+        "system-wasnt": 0,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [
+        {
+          "id": "she-were",
+          "match": "She were",
+          "context": " gnawing weight in her chest. She were carrying an inheritance that "
+        },
+        {
+          "id": "she-was-it",
+          "match": "She was it",
+          "context": "ust good at selling scarcity? She was it monopolistic practice, or sim"
+        }
+      ],
+      "slopTotal": 38
+    },
+    {
+      "num": 6,
+      "title": "The Drift of Echoes",
+      "words": 3774,
+      "chars": 23625,
+      "failures": [
+        {
+          "id": "she-were-metrics",
+          "severity": "HARD",
+          "match": "She were those just metrics",
+          "context": "ythm of their shared routine. She were those just metrics? She was all that messy, over"
+        },
+        {
+          "id": "aether-were",
+          "severity": "HARD",
+          "match": "Aether were they",
+          "context": "rst—was all just data points? Aether were they optimized for emotional echo?"
+        },
+        {
+          "id": "a-obvious",
+          "severity": "HARD",
+          "match": "a obvious",
+          "context": "o longer a void of sound, but a obvious thing, pressing against her e"
+        }
+      ],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 8,
+        "didnt-just": 5,
+        "isnt-just": 0,
+        "weight-of": 3,
+        "felt": 15,
+        "realized": 3,
+        "narrative": 11,
+        "performance": 0,
+        "system-wasnt": 0,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [
+        {
+          "id": "she-were",
+          "match": "She were",
+          "context": "ythm of their shared routine. She were those just metrics? She was a"
+        },
+        {
+          "id": "were-those-just",
+          "match": "were those just",
+          "context": " of their shared routine. She were those just metrics? She was all that mes"
+        }
+      ],
+      "slopTotal": 45
+    },
+    {
+      "num": 7,
+      "title": "The Anatomist's Stage",
+      "words": 3463,
+      "chars": 22326,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 6,
+        "didnt-just": 5,
+        "isnt-just": 1,
+        "weight-of": 1,
+        "felt": 11,
+        "realized": 0,
+        "narrative": 4,
+        "performance": 4,
+        "system-wasnt": 1,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [
+        {
+          "id": "was-was",
+          "match": "Was was",
+          "context": "put. Who digitized this life? Was was it a single intake stream? Or"
+        }
+      ],
+      "slopTotal": 33
+    },
+    {
+      "num": 8,
+      "title": "The Pixelated Heir",
+      "words": 3376,
+      "chars": 20862,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 8,
+        "didnt-just": 2,
+        "isnt-just": 1,
+        "weight-of": 1,
+        "felt": 7,
+        "realized": 3,
+        "narrative": 6,
+        "performance": 5,
+        "system-wasnt": 1,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 34
+    },
+    {
+      "num": 9,
+      "title": "The Terminal Veil",
+      "words": 4509,
+      "chars": 28125,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 11,
+        "didnt-just": 4,
+        "isnt-just": 0,
+        "weight-of": 4,
+        "felt": 19,
+        "realized": 1,
+        "narrative": 5,
+        "performance": 2,
+        "system-wasnt": 2,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [
+        "next move"
+      ],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 48
+    },
+    {
+      "num": 10,
+      "title": "The Algorithmic Battlefield",
+      "words": 2805,
+      "chars": 17971,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 7,
+        "didnt-just": 5,
+        "isnt-just": 1,
+        "weight-of": 1,
+        "felt": 11,
+        "realized": 0,
+        "narrative": 6,
+        "performance": 0,
+        "system-wasnt": 0,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 31
+    },
+    {
+      "num": 11,
+      "title": "The Plaza Ledger",
+      "words": 3863,
+      "chars": 24831,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 6,
+        "didnt-just": 4,
+        "isnt-just": 2,
+        "weight-of": 1,
+        "felt": 13,
+        "realized": 1,
+        "narrative": 4,
+        "performance": 2,
+        "system-wasnt": 0,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 33
+    },
+    {
+      "num": 12,
+      "title": "The Anatomist's Protocol",
+      "words": 3504,
+      "chars": 22103,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 5,
+        "didnt-just": 2,
+        "isnt-just": 0,
+        "weight-of": 2,
+        "felt": 11,
+        "realized": 1,
+        "narrative": 5,
+        "performance": 4,
+        "system-wasnt": 0,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 30
+    },
+    {
+      "num": 13,
+      "title": "The Syntax of Survival",
+      "words": 3533,
+      "chars": 22779,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 7,
+        "didnt-just": 2,
+        "isnt-just": 1,
+        "weight-of": 4,
+        "felt": 11,
+        "realized": 2,
+        "narrative": 0,
+        "performance": 0,
+        "system-wasnt": 2,
+        "platform-wasnt": 1
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 30
+    },
+    {
+      "num": 14,
+      "title": "The Incantation of Bytes",
+      "words": 3299,
+      "chars": 20597,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 3,
+        "didnt-just": 1,
+        "isnt-just": 0,
+        "weight-of": 1,
+        "felt": 12,
+        "realized": 0,
+        "narrative": 8,
+        "performance": 1,
+        "system-wasnt": 1,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 27
+    },
+    {
+      "num": 15,
+      "title": "The Transit of Errors",
+      "words": 2549,
+      "chars": 16413,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 7,
+        "didnt-just": 1,
+        "isnt-just": 1,
+        "weight-of": 0,
+        "felt": 10,
+        "realized": 1,
+        "narrative": 1,
+        "performance": 5,
+        "system-wasnt": 1,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 27
+    },
+    {
+      "num": 16,
+      "title": "The Whispering Glade",
+      "words": 3425,
+      "chars": 21038,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 8,
+        "didnt-just": 4,
+        "isnt-just": 0,
+        "weight-of": 1,
+        "felt": 8,
+        "realized": 3,
+        "narrative": 7,
+        "performance": 0,
+        "system-wasnt": 2,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 33
+    },
+    {
+      "num": 17,
+      "title": "The Echo Chamber",
+      "words": 2204,
+      "chars": 13948,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 1,
+        "didnt-just": 4,
+        "isnt-just": 0,
+        "weight-of": 1,
+        "felt": 9,
+        "realized": 3,
+        "narrative": 7,
+        "performance": 1,
+        "system-wasnt": 1,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 27
+    },
+    {
+      "num": 18,
+      "title": "The Stage of Errors",
+      "words": 4047,
+      "chars": 25208,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 15,
+        "didnt-just": 4,
+        "isnt-just": 2,
+        "weight-of": 2,
+        "felt": 15,
+        "realized": 0,
+        "narrative": 10,
+        "performance": 12,
+        "system-wasnt": 0,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 60
+    },
+    {
+      "num": 19,
+      "title": "The Threshold of Bytes",
+      "words": 3450,
+      "chars": 21022,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 6,
+        "didnt-just": 1,
+        "isnt-just": 0,
+        "weight-of": 3,
+        "felt": 10,
+        "realized": 2,
+        "narrative": 4,
+        "performance": 3,
+        "system-wasnt": 1,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 30
+    },
+    {
+      "num": 20,
+      "title": "The Battlefield Code",
+      "words": 3445,
+      "chars": 21531,
+      "failures": [],
+      "slop": {
+        "not-just": 0,
+        "wasnt-just": 9,
+        "didnt-just": 2,
+        "isnt-just": 0,
+        "weight-of": 4,
+        "felt": 16,
+        "realized": 2,
+        "narrative": 5,
+        "performance": 3,
+        "system-wasnt": 0,
+        "platform-wasnt": 0
+      },
+      "processLeaks": [],
+      "contamination": [],
+      "grammar": [],
+      "slopTotal": 41
+    }
+  ],
+  "globalSlop": {
+    "not-just": 5,
+    "wasnt-just": 144,
+    "didnt-just": 59,
+    "isnt-just": 14,
+    "weight-of": 36,
+    "felt": 254,
+    "realized": 30,
+    "narrative": 107,
+    "performance": 69,
+    "system-wasnt": 20,
+    "platform-wasnt": 3
+  },
+  "globalFailures": 7,
+  "globalHard": 5
+}

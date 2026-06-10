@@ -1,0 +1,61 @@
+{
+  "name": "CoverArtGallery",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "NovelProject id this art belongs to"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL of the generated cover art"
+    },
+    "prompt_summary": {
+      "type": "string",
+      "description": "Short description of the prompt used"
+    }
+  },
+  "required": [
+    "project_id",
+    "image_url"
+  ]
+}
