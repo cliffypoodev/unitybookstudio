@@ -248,13 +248,15 @@ function smartenParagraph(p = '') {
     }
 
     // If a quote is followed immediately by a capital with no space, add space.
-    if ((next || '').match(/[A-Z]/) && out.endsWith('”')) out += ' ';
+    // Guard: only add space if the output doesn't already end with a space before the closing quote.
+    if ((next || '').match(/[A-Z]/) && out.endsWith('\u201d') && !out.endsWith(' \u201d')) out += ' ';
   }
 
   // Fix accidental spacing introduced above before punctuation.
-  return out.replace(/\s+([,.!?;:])/g, '$1')
-    .replace(/([,]”)\s*(he|she)\b/g, '$1 $2')
-    .replace(/([.!?]”)\s*(He|She)\b/g, '$1 $2');
+  return out.replace(/ \u201d /g, '\u201d ')          // collapse ` \u201d ` → `\u201d `
+    .replace(/\s+([,.!?;:])/g, '$1')
+    .replace(/([,]\u201d)\s*(he|she)\b/g, '$1 $2')
+    .replace(/([.!?]\u201d)\s*(He|She)\b/g, '$1 $2');
 }
 
 

@@ -29,7 +29,9 @@ export function runPunctuationCleanup(loaded, onProgress) {
       for (let i = 0; i < f.content.length; i++) {
         const ch = f.content[i];
         if (ch === '"') {
-          if (!inQuote) {
+          // Em-dash boundary: quote after em-dash is always an opener
+          const prevChar = f.content[i - 1] || '';
+          if (!inQuote || prevChar === '\u2014') {
             result += '\u201c'; // opening curly "
             inQuote = true;
           } else {

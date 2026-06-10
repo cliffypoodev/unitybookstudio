@@ -77,6 +77,13 @@ const SAFE_DOWNCASE_ARTICLES = new Set([
 
 const SAFE_DOWNCASE_ALL = new Set([...SAFE_DOWNCASE_VERBS, ...SAFE_DOWNCASE_ARTICLES]);
 
+// Abbreviations that end with a period — a capital letter after these is NOT
+// a mid-sentence cap error. E.g. "e.g. The" should not downcase "The".
+const ABBREVIATION_WHITELIST = /\b(?:e\.g|i\.e|etc|vs|a\.m|p\.m|Dr|Mr|Mrs|Ms|St|No|Jr|Sr|Prof|Rev)\.\s$/;
+
+// Proper nouns with unconventional casing that should never be downcased.
+const PROPER_NOUN_PRESERVE = new Set(['YouTube', 'iPhone', 'iPad', 'iOS', 'macOS', 'eBay', 'OpenAI', 'GitHub', 'TikTok', 'LinkedIn', 'PowerPoint', 'JavaScript', 'WiFi', 'PhD', 'McDonald', 'DeVito', 'McCoy', 'McGregor']);
+
 /**
  * Fix random mid-sentence capitalized words.
  * Scan for pattern: [word][space][CapitalWord] where the second word is on
@@ -87,9 +94,15 @@ function fixMidSentenceCaps(text) {
   // Original pattern: lowercase word + space + CapWord
   let out = text.replace(
     /([a-z][a-z']{0,20})(\s+)([A-Z][a-z]{1,15})/g,
-    (match, prev, gap, capped) => {
+    (match, prev, gap, capped, offset) => {
+      // Skip proper nouns with unconventional casing (iPhone, GitHub, etc.)
+      if (PROPER_NOUN_PRESERVE.has(capped)) return match;
       const lower = capped.toLowerCase();
       if (!SAFE_DOWNCASE_ALL.has(lower)) return match;
+      // Check if preceded by an abbreviation (e.g., i.e., etc.) — the
+      // capital after these is a legitimate sentence start, not an error.
+      const precedingContext = text.substring(Math.max(0, offset - 20), offset + prev.length + gap.length);
+      if (ABBREVIATION_WHITELIST.test(precedingContext)) return match;
       fixed++;
       return prev + gap + lower;
     }
@@ -99,6 +112,7 @@ function fixMidSentenceCaps(text) {
   out = out.replace(
     /(,\s+)([A-Z][a-z]{1,15})(\b)/g,
     (match, comma, capped, boundary) => {
+      if (PROPER_NOUN_PRESERVE.has(capped)) return match;
       const lower = capped.toLowerCase();
       if (!SAFE_DOWNCASE_ALL.has(lower)) return match;
       fixed++;
