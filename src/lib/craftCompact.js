@@ -24,7 +24,21 @@ export { getAntiChatbotRulesForProject };
 
 // ── Universal rules: remain in agent system prompts ──
 
-export const COMPACT_CRAFT_RULES = '';
+export const COMPACT_CRAFT_RULES = `
+=== SCENE CRAFT RULES ===
+1. Show, don't tell. Replace "She felt angry" with action: "She slammed the folder on the desk."
+2. Dialogue must reveal character or advance plot. Cut small talk unless it's subtext.
+3. One POV per scene. No head-hopping.
+4. Vary sentence length. Follow a long sentence with a short one. Monotonous rhythm = AI detection.
+5. Sensory details: at least 2 senses per scene (not just visual).
+6. Avoid filter verbs: "She saw", "He felt", "She noticed", "He realized". Go direct.
+7. End chapters on tension, revelation, or decision. Never end on resolution.
+8. Beats > tags. "She crossed her arms" > "she said angrily."
+9. Specificity over generality. "A 1987 Ford Ranger" > "an old truck."
+10. Cut adverbs from dialogue tags. "Quietly" "angrily" "softly" — the dialogue should do this work.
+11. No consecutive paragraphs starting with the same word.
+12. Subtext in every conversation: what characters DON'T say matters more.
+=== END SCENE CRAFT ===`;
 export const COMPACT_ANTI_SLOP = '';
 export const ANTI_DETECTION_PROSE_RULES = '';
 export const ANTI_DETECTION_PROSE_RULES_NF = '';
