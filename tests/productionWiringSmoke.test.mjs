@@ -250,6 +250,8 @@ console.log('\n═══ SECTION 3: LLM Recast Runtime Safety ═══\n');
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
+const root = new URL('..', import.meta.url).pathname;
+
 function searchForImport(dir, pattern) {
   const files = [];
   function walk(d) {
@@ -269,11 +271,11 @@ function searchForImport(dir, pattern) {
   return files;
 }
 
-const recastMapImports = searchForImport('/Users/cliff/Downloads/UBS/src', 'llm-recast-map');
+const recastMapImports = searchForImport(join(root, 'src'), 'llm-recast-map');
 assert(recastMapImports.length === 0, 'No production code imports llm-recast-map');
 
 // Verify no DET character names in llmSentenceRecast.js
-const recastContent = readFileSync('/Users/cliff/Downloads/UBS/src/lib/llmSentenceRecast.js', 'utf-8');
+const recastContent = readFileSync(join(root, 'src/lib/llmSentenceRecast.js'), 'utf-8');
 const detNames = ['Mira', 'Marcus', 'Elena', 'Aether', 'Julian', 'Priya', 'Darius', 'Ravi', 'NexusStream'];
 for (const name of detNames) {
   assert(!recastContent.includes(name), `llmSentenceRecast.js: no "${name}" hardcoding`);

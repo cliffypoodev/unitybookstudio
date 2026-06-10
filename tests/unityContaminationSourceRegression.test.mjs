@@ -9,7 +9,7 @@ import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const SRC = '/Users/cliff/Downloads/UBS/src';
+const SRC = new URL('../src', import.meta.url).pathname;
 
 let passed = 0;
 let failed = 0;
