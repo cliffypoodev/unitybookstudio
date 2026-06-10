@@ -132,6 +132,13 @@ const SLOP_PATTERNS = [
   { key: 'operational',       label: 'operational',             regex: /\boperational\b/gi },
   { key: 'interface',         label: 'interface',               regex: /\binterface\b/gi },
   { key: 'feedback loop',     label: 'feedback loop',           regex: /\bfeedback\s+loop\b/gi },
+
+  // ── forensic phrases ──
+  { key: 'the available accounts indicate', label: 'the available accounts indicate', regex: /\bthe\s+available\s+accounts\s+indicate\b/gi },
+  { key: 'the available accounts suggest',  label: 'the available accounts suggest',  regex: /\bthe\s+available\s+accounts\s+suggest\b/gi },
+  { key: 'what remains unclear is',         label: 'what remains unclear is',         regex: /\bwhat\s+remains\s+unclear\s+is\b/gi },
+  { key: 'the record shows',                label: 'the record shows',                regex: /\bthe\s+record\s+shows\b/gi },
+  { key: 'the surviving record shows',      label: 'the surviving record shows',      regex: /\bthe\s+surviving\s+record\s+shows\b/gi },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -210,6 +217,13 @@ export const SLOP_BUDGETS = [
   { name: 'operational',   keys: ['operational'],   budget: 2 },
   { name: 'interface',     keys: ['interface'],     budget: 3 },
   { name: 'feedback loop', keys: ['feedback loop'], budget: 1 },
+
+  // ── forensic phrases (budget=1 each) ──
+  { name: 'the available accounts indicate', keys: ['the available accounts indicate'], budget: 1 },
+  { name: 'the available accounts suggest',  keys: ['the available accounts suggest'],  budget: 1 },
+  { name: 'what remains unclear is',         keys: ['what remains unclear is'],         budget: 1 },
+  { name: 'the record shows',                keys: ['the record shows'],                budget: 1 },
+  { name: 'the surviving record shows',      keys: ['the surviving record shows'],      budget: 1 },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -614,6 +628,50 @@ export function reduceAISlopDeterministic(text, options = {}) {
     });
   }
 
+  // ── Recast: forensic phrases ──
+  const forensicRecasts = [
+    {
+      name: 'the available accounts indicate',
+      rx: /\bthe\s+available\s+accounts\s+indicate\b/gi,
+      alts: ['the evidence indicates', 'records indicate', 'the sources show'],
+    },
+    {
+      name: 'the available accounts suggest',
+      rx: /\bthe\s+available\s+accounts\s+suggest\b/gi,
+      alts: ['the evidence suggests', 'records suggest', 'the sources imply'],
+    },
+    {
+      name: 'what remains unclear is',
+      rx: /\bwhat\s+remains\s+unclear\s+is\b/gi,
+      alts: ['the open question is', 'still uncertain is', 'one unresolved point is'],
+    },
+    {
+      name: 'the record shows',
+      rx: /\bthe\s+record\s+shows\b/gi,
+      alts: ['documents confirm', 'the evidence shows', 'sources confirm'],
+    },
+    {
+      name: 'the surviving record shows',
+      rx: /\bthe\s+surviving\s+record\s+shows\b/gi,
+      alts: ['the remaining evidence shows', 'what survives confirms', 'extant sources show'],
+    },
+  ];
+
+  for (const fp of forensicRecasts) {
+    if (!overBudgetMap[fp.name]) continue;
+    const info = overBudgetMap[fp.name];
+    let fpIdx = 0;
+    result = recastExcess(result, fp.rx, info.budget, fp.name, (match) => {
+      const alt = fp.alts[fpIdx % fp.alts.length];
+      fpIdx++;
+      // Preserve original capitalisation
+      const replacement = match[0] === match[0].toUpperCase()
+        ? alt.charAt(0).toUpperCase() + alt.slice(1)
+        : alt;
+      return { replacement };
+    });
+  }
+
   // Clean up any double spaces left by removals
   result = result
     .replace(/[ \t]{2,}/g, ' ')
@@ -681,6 +739,104 @@ export function runAISlopReductionPass(text, options = {}) {
     afterBudgetReport,
     improved,
   };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 6. recastBannedVocabulary
+ *
+ * Replaces 33 banned AI-slop words with grammatically valid synonyms.
+ * NEVER deletes to empty string — always substitutes.
+ * Cycles through synonym options to vary output.
+ * ═════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Map of banned words to their synonym replacement options.
+ * At least 2 options per word.
+ */
+const BANNED_VOCAB_MAP = {
+  'shimmering':     ['gleaming', 'bright', 'glinting'],
+  'luminous':       ['bright', 'glowing', 'radiant'],
+  'tapestry':       ['fabric', 'web', 'mosaic'],
+  'intricate':      ['complex', 'detailed', 'elaborate'],
+  'meticulously':   ['carefully', 'precisely', 'thoroughly'],
+  'insatiable':     ['unquenchable', 'greedy', 'voracious'],
+  'palpable':       ['obvious', 'thick', 'tangible'],
+  'unmistakable':   ['clear', 'obvious', 'plain'],
+  'undeniable':     ['clear', 'certain', 'plain'],
+  'relentless':     ['constant', 'unyielding', 'steady'],
+  'sprawling':      ['vast', 'wide', 'expansive'],
+  'labyrinthine':   ['winding', 'tangled', 'convoluted'],
+  'opulent':        ['lavish', 'rich', 'luxurious'],
+  'resplendent':    ['brilliant', 'dazzling', 'striking'],
+  'ethereal':       ['delicate', 'airy', 'ghostly'],
+  'visceral':       ['raw', 'gut-level', 'deep'],
+  'cacophony':      ['din', 'racket', 'noise'],
+  'crescendo':      ['peak', 'climax', 'surge'],
+  'juxtaposition':  ['contrast', 'comparison', 'pairing'],
+  'myriad':         ['countless', 'many', 'numerous'],
+  'plethora':       ['abundance', 'wealth', 'excess'],
+  'testament':      ['proof', 'evidence', 'sign'],
+  'harbinger':      ['herald', 'sign', 'omen'],
+  'paradigm':       ['model', 'framework', 'pattern'],
+  'dichotomy':      ['divide', 'split', 'contrast'],
+  'multifaceted':   ['complex', 'varied', 'layered'],
+  'aforementioned': ['previous', 'earlier', 'noted'],
+  'nonetheless':    ['still', 'even so', 'yet'],
+  'furthermore':    ['also', 'in addition', 'besides'],
+  'henceforth':     ['from now on', 'going forward', 'after this'],
+  'commence':       ['begin', 'start', 'open'],
+  'utilize':        ['use', 'employ', 'apply'],
+  'endeavor':       ['effort', 'attempt', 'venture'],
+  'pertaining':     ['about', 'related', 'regarding'],
+};
+
+/**
+ * Replace each occurrence of the 33 banned vocabulary words with a cycling
+ * synonym. Never deletes to empty string.
+ *
+ * @param {string} text
+ * @returns {{ text: string, recasts: Array<{original: string, replacement: string, word: string}> }}
+ */
+export function recastBannedVocabulary(text) {
+  let result = normalizeText(text);
+  const recasts = [];
+
+  if (!result.trim()) {
+    return { text: result, recasts };
+  }
+
+  // Track per-word cycling index
+  const cycleIndex = {};
+
+  for (const [word, synonyms] of Object.entries(BANNED_VOCAB_MAP)) {
+    const rx = new RegExp('\\b' + word + '\\b', 'gi');
+    cycleIndex[word] = 0;
+
+    result = result.replace(rx, (match) => {
+      const idx = cycleIndex[word];
+      const synonym = synonyms[idx % synonyms.length];
+      cycleIndex[word] = idx + 1;
+
+      // Preserve capitalisation of the original match
+      let replacement;
+      if (match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()) {
+        // First letter was capitalised
+        if (match === match.toUpperCase()) {
+          // ALL CAPS
+          replacement = synonym.toUpperCase();
+        } else {
+          replacement = synonym.charAt(0).toUpperCase() + synonym.slice(1);
+        }
+      } else {
+        replacement = synonym;
+      }
+
+      recasts.push({ original: match, replacement, word });
+      return replacement;
+    });
+  }
+
+  return { text: result, recasts };
 }
 
 export default runAISlopReductionPass;
