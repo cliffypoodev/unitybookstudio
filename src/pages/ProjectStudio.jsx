@@ -4092,6 +4092,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
     // Merge pipeline results into local scope variables used by the save/toast logic
     changes.push(...pipelineResult.changes);
     const anthologyStats = pipelineResult.anthologyStats || { bodyLangFixed: 0, anthVocabFixed: 0, contaminationFixed: 0, genreVocabFixed: 0 };
+    const ps = pipelineResult.stats || {};
     const missingNounWarnings = []; // Now handled inside pipeline; no inline capHygiene warnings
     const polishGateFailures = pipelineResult.gateFailures || [];
     if (polishGateFailures.length > 0) {
@@ -4140,7 +4141,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
           : await prepareBackupContent(f.original, project?.id || projectId, f.chapter.id, f.chapter);
         console.warn('[POLISH-DEBUG] Ch.' + chNum + ' SAVING: inline=' + (contentFields.content_md?.length || 0) + ' url=' + (contentFields.content_md_url || 'none') + ' (upload attempts: ' + uploadAttempts + ')');
 
-        const polishSourceStamp = `[POLISH-SOURCE-STAMP] ${PROJECT_STUDIO_VERSION} ${new Date().toISOString()} Ch.${chNum} len=${f.content.length} words=${countWords(f.content)} FinalStruct=${finalStructureBlocksRemoved}/${finalStructureWordsRemoved}`;
+        const polishSourceStamp = `[POLISH-SOURCE-STAMP] ${PROJECT_STUDIO_VERSION} ${new Date().toISOString()} Ch.${chNum} len=${f.content.length} words=${countWords(f.content)} SceneDup=${ps.sceneDuplicate?.blocksRemoved || 0}/${ps.sceneDuplicate?.wordsRemoved || 0}`;
         const revisionNotes = [f.chapter.revision_notes || '', polishSourceStamp]
           .filter(Boolean)
           .join('\n')
@@ -4276,16 +4277,16 @@ For each banned name, provide a culturally appropriate, original replacement nam
         '\n\nTry running Polish again. If failures persist, check the browser console for [POLISH-VERIFY] logs.'
       : '';
 
-    const report = `Polish v6: ${savedCount} saved, ${unchangedCount} unchanged | Banned: -${bannedRemoved} | Cap: ${capFixed}+${capHygieneFixed} | Voice: ${voiceFixed} | Trans: ${transitionFixed} | Dialog: ${dialogPunctFixed} | Filler: ${dialogFillerFixed} | Stack: ${stackingFixed} | Reps: ${repFixed} | SceneDupes: ${sceneDuplicateBlocksRemoved} blocks/${sceneDuplicateWordsRemoved} words/${sceneDuplicateReportedOnly} reported | FinalStruct: ${finalStructureBlocksRemoved}/${finalStructureWordsRemoved} | StyleTic: ${styleTicFixed}/${styleTicFamiliesFound} families | GrammarArtifacts: ${styleTicGrammarFixed} | Vocab: ${vocabResult.vocabCapped} | Quotes: ${quotesFixed} | ExtAI: ${externalPatternsFixed}${anthLine}
-` + changes.join('\n') + warningBlock + saveFailureBlock + (sceneDuplicateChaptersChanged > 0 ? `
+    const report = `Polish v6: ${savedCount} saved, ${unchangedCount} unchanged | Banned: -${ps.bannedRecastCount || 0} | Cap: ${ps.capFixed || 0}+${ps.capHygieneFixed || 0} | Voice: ${ps.voiceFixed || 0} | Trans: ${ps.transitionFixed || 0} | Dialog: ${ps.dialogPunctFixed || 0} | Filler: ${ps.dialogFillerFixed || 0} | Stack: ${ps.stackingFixed || 0} | Reps: ${ps.repFixed || 0} | SceneDupes: ${ps.sceneDuplicate?.blocksRemoved || 0} blocks/${ps.sceneDuplicate?.wordsRemoved || 0} words/${ps.sceneDuplicate?.reportedOnly || 0} reported | StyleTic: ${ps.styleTic?.fixed || 0}/${ps.styleTic?.familiesFound || 0} families | GrammarArtifacts: ${ps.styleTic?.grammarFixed || 0} | Vocab: ${ps.vocabCapped || 0} | Quotes: ${ps.quotesFixed || 0} | ExtAI: ${ps.externalPatternsFixed || 0} | LLM: ${ps.llmPolishCount || 0}/${ps.llmFallbackCount || 0}${anthLine}
+` + changes.join('\n') + warningBlock + saveFailureBlock + ((ps.sceneDuplicate?.chaptersChanged || 0) > 0 ? `
 
-Scene Duplicate Sweep changed ${sceneDuplicateChaptersChanged} chapter(s), removed ${sceneDuplicateBlocksRemoved} duplicate block(s), and removed approximately ${sceneDuplicateWordsRemoved} duplicate word(s).` : '') + (sceneDuplicateReportedOnly > 0 ? `
+Scene Duplicate Sweep changed ${ps.sceneDuplicate.chaptersChanged} chapter(s), removed ${ps.sceneDuplicate.blocksRemoved} duplicate block(s), and removed approximately ${ps.sceneDuplicate.wordsRemoved} duplicate word(s).` : '') + ((ps.sceneDuplicate?.reportedOnly || 0) > 0 ? `
 
-Scene Duplicate Sweep reported ${sceneDuplicateReportedOnly} medium-confidence duplicate candidate(s) without removing them.` : '') + (sceneDuplicateSkippedUnsafe > 0 ? `
+Scene Duplicate Sweep reported ${ps.sceneDuplicate.reportedOnly} medium-confidence duplicate candidate(s) without removing them.` : '') + ((ps.sceneDuplicate?.skippedUnsafe || 0) > 0 ? `
 
-Scene Duplicate Sweep skipped ${sceneDuplicateSkippedUnsafe} candidate(s) because safety rules blocked removal.` : '') + (styleTicChaptersChanged > 0 ? `
+Scene Duplicate Sweep skipped ${ps.sceneDuplicate.skippedUnsafe} candidate(s) because safety rules blocked removal.` : '') + ((ps.styleTic?.chaptersChanged || 0) > 0 ? `
 
-Style Tic Sweep changed ${styleTicChaptersChanged} chapter(s).` : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n✅ Re-export to get the updated manuscript.' : '');
+Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n✅ Re-export to get the updated manuscript.' : '');
 
     toast.info(report, { duration: 30000 });
 

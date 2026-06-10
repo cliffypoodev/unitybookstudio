@@ -144,18 +144,23 @@ export async function runManuscriptPolishPipeline({
   // A5: Capitalization hygiene + transition word caps
   const capHygieneResult = runCapitalizationHygiene(loaded, onProgress);
   changes.push(...capHygieneResult.changes);
+  const capHygieneFixed = capHygieneResult.capFixed || 0;
   const transitionResult = runTransitionWordCaps(loaded, onProgress);
   changes.push(...transitionResult.changes);
+  const transitionFixed = transitionResult.changes?.length || 0;
 
   // A6: Dialogue punctuation + filler
   const dialogPunctResult = runDialoguePunctuationFix(loaded, onProgress);
   changes.push(...dialogPunctResult.changes);
+  const dialogPunctFixed = dialogPunctResult.dialogPunctFixed || 0;
   const dialogFillerResult = runDialogueFillerFix(loaded, onProgress);
   changes.push(...dialogFillerResult.changes);
+  const dialogFillerFixed = dialogFillerResult.dialogFillerFixed || 0;
 
   // A7: Stacked clause variation
   const stackingResult = runStackedClauseVariation(loaded, onProgress);
   changes.push(...stackingResult.changes);
+  const stackingFixed = stackingResult.stackingFixed || 0;
 
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE B: Per-chapter style/voice cleanup (manuscript-level dispatch)
@@ -167,6 +172,7 @@ export async function runManuscriptPolishPipeline({
     ? runPerChapter(loaded, (l) => fixVoicePatterns(l, 1))
     : fixVoicePatterns(loaded, chapterCount);
   changes.push(...voiceResult.changes);
+  const voiceFixed = voiceResult.voiceFixed || 0;
 
   // B2: External AI pattern detection
   onProgress('Polish: Scanning for external AI patterns…');
@@ -174,10 +180,12 @@ export async function runManuscriptPolishPipeline({
     ? runPerChapter(loaded, (l) => runExternalAiPatternFix(l))
     : runExternalAiPatternFix(loaded);
   changes.push(...extResult.changes);
+  const externalPatternsFixed = extResult.fixed || 0;
 
   // B3: Repetition caps (MOVED from ProjectStudio inline)
   onProgress('Polish: Fixing repetition…');
   const repResult = runRepetitionCaps(loaded, { isAnthology, isComedy, chapterCount, changes });
+  const repFixed = repResult.repFixed || 0;
 
   // B4: Dialogue tag caps + coping mechanism caps + broken sentence fixes
   const dialogueTagResult = isAnthology
@@ -201,6 +209,7 @@ export async function runManuscriptPolishPipeline({
     ? runPerChapter(loaded, (l, prog, opts) => runVocabCaps(l, prog, opts), [onProgress, { project }])
     : runVocabCaps(loaded, onProgress, { project });
   changes.push(...vocabResult.changes);
+  const vocabCapped = vocabResult.vocabCapped || 0;
   const chatgptResult = isAnthology
     ? runPerChapter(loaded, (l, prog) => runChatGPTVocabCaps(l, prog), [onProgress])
     : runChatGPTVocabCaps(loaded, onProgress);
@@ -217,6 +226,7 @@ export async function runManuscriptPolishPipeline({
   changes.push(...aiResist.changes);
 
   // B8: Scene duplicate sweep (if provided by caller)
+  let sceneDuplicateStats = { blocksRemoved: 0, wordsRemoved: 0, reportedOnly: 0, chaptersChanged: 0, skippedUnsafe: 0 };
   if (sceneDuplicateSweep) {
     onProgress('Polish: Running scene duplicate sweep…');
     const sceneDupResult = sceneDuplicateSweep(loaded, onProgress, {
@@ -227,6 +237,13 @@ export async function runManuscriptPolishPipeline({
     });
     changes.push(sceneDupResult.summary);
     changes.push(...(sceneDupResult.changes || []));
+    sceneDuplicateStats = {
+      blocksRemoved: sceneDupResult.blocksRemoved || 0,
+      wordsRemoved: sceneDupResult.wordsRemoved || 0,
+      reportedOnly: sceneDupResult.reportedOnly || 0,
+      chaptersChanged: sceneDupResult.changedChapters?.size || 0,
+      skippedUnsafe: sceneDupResult.skippedUnsafe || 0,
+    };
   }
 
   // B9: Style tic sweep
@@ -248,6 +265,7 @@ export async function runManuscriptPolishPipeline({
   onProgress('Polish: Fixing quotation boundaries…');
   const quoteResult = fixHangingQuotes(loaded);
   changes.push(...quoteResult.changes);
+  const quotesFixed = quoteResult.quotesFixed || 0;
 
   // C3: Canon name lock
   onProgress('Polish: Locking canon names…');
@@ -446,6 +464,38 @@ export async function runManuscriptPolishPipeline({
     gateFailures,
     llmLog: llmPolishLog,
     improvementReports,
+    anthologyStats,
+    // Comprehensive stats for report template
+    stats: {
+      bannedRecastCount,
+      capFixed,
+      capHygieneFixed,
+      voiceFixed,
+      transitionFixed,
+      dialogPunctFixed,
+      dialogFillerFixed,
+      stackingFixed,
+      repFixed,
+      externalPatternsFixed,
+      vocabCapped,
+      quotesFixed,
+      grammarRepairCount,
+      quoteRepairCount,
+      dialogueRepairCount,
+      midParaAutoFixCount,
+      slopRepairCount,
+      canonNamesFixed,
+      llmPolishCount,
+      llmFallbackCount,
+      sceneDuplicate: sceneDuplicateStats,
+      styleTic: {
+        fixed: styleTicResult.styleTicFixed || 0,
+        familiesFound: styleTicResult.repeatedTicFamiliesFound || 0,
+        grammarFixed: styleTicResult.grammarArtifactsFixed || 0,
+        chaptersChanged: styleTicResult.changedChapterCount || 0,
+      },
+    },
+    // Legacy flat fields (kept for backward compat)
     bannedRecastCount,
     grammarRepairCount,
     quoteRepairCount,
@@ -453,7 +503,6 @@ export async function runManuscriptPolishPipeline({
     slopRepairCount,
     capFixed,
     canonNamesFixed,
-    anthologyStats,
   };
 }
 
