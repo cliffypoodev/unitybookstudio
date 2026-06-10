@@ -725,7 +725,22 @@ Respond ONLY in JSON. No markdown, no backticks.
   "review": "[${reviewer.word_target} review in this outlet's voice]",
   "summary_line": "[one-sentence pull quote, or empty string if not customary for this outlet]",
   "audience_prediction": [integer 0-100 predicted audience score],
-  "audience_reasoning": "[one sentence explaining expected critic/audience divergence or alignment]"
+  "audience_reasoning": "[one sentence explaining expected critic/audience divergence or alignment]",
+  "commercial_eval": {
+    "firstLineHook": [0-10],
+    "scenePressure": [0-10],
+    "characterDesire": [0-10],
+    "conflictClarity": [0-10],
+    "voice": [0-10],
+    "specificity": [0-10],
+    "subtext": [0-10],
+    "pacing": [0-10],
+    "endingTurn": [0-10],
+    "genreFit": [0-10],
+    "marketability": [0-10],
+    "aiSmoothnessAbsence": [0-10]
+  },
+  "topFixes": ["[max 5 specific actionable revision instructions, ranked by impact]"]
 }`;
 }
 
@@ -745,6 +760,30 @@ export const REVIEWER_RESPONSE_SCHEMA = {
     summary_line: { type: 'string' },
     audience_prediction: { type: 'number' },
     audience_reasoning: { type: 'string' },
+    // Commercial evaluation dimensions (0-10 each, optional)
+    commercial_eval: {
+      type: 'object',
+      properties: {
+        firstLineHook: { type: 'number', description: '0-10: Does the opening sentence compel reading?' },
+        scenePressure: { type: 'number', description: '0-10: Consistent scene-level tension/stakes' },
+        characterDesire: { type: 'number', description: '0-10: Clear character want driving chapters' },
+        conflictClarity: { type: 'number', description: '0-10: Central conflict immediately comprehensible' },
+        voice: { type: 'number', description: '0-10: Distinctive, author-owned prose voice' },
+        specificity: { type: 'number', description: '0-10: Concrete details vs. generic abstraction' },
+        subtext: { type: 'number', description: '0-10: Characters say one thing, mean another' },
+        pacing: { type: 'number', description: '0-10: Scene length/rhythm variation, no stalls' },
+        endingTurn: { type: 'number', description: '0-10: Final chapter delivers surprise/payoff' },
+        genreFit: { type: 'number', description: '0-10: Meets genre reader expectations' },
+        marketability: { type: 'number', description: '0-10: Bookseller hand-sell potential' },
+        aiSmoothnessAbsence: { type: 'number', description: '0-10: Prose avoids AI-detection patterns' },
+      },
+    },
+    // Top concrete revision instructions (max 5)
+    topFixes: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Up to 5 specific, actionable revision instructions ranked by impact',
+    },
   },
   required: ['outlet', 'rating_label', 'rating_numeric', 'review', 'audience_prediction'],
 };

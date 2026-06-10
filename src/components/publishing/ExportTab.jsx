@@ -883,6 +883,27 @@ export default function ExportTab({
         };
       }
 
+      // ── PERSIST SURFACE REPAIRS TO DB (fire-and-forget) ──
+      // Save repaired text back to the chapter record so the same deterministic
+      // fixes don't need to run on every export. Only persists if repairs were made.
+      if (totalSurfaceRepairs > 0 || totalMidParaAutoFixed > 0) {
+        const repairChapters = cleaned.filter(ch =>
+          surfaceRepairReport.some(r => r.chapter === ch.chapter_number) ||
+          midParaReport.some(r => r.chapter === ch.chapter_number)
+        );
+        for (const ch of repairChapters) {
+          if (!ch?.id || !ch?.content_md) continue;
+          try {
+            const persistFields = await prepareChapterContent(ch.content_md, project?.id, ch.id, ch);
+            await runWithNetworkRetry(() => base44.entities.Chapter.update(ch.id, persistFields));
+            console.log(`[EXPORT-PERSIST] Ch.${ch.chapter_number}: surface repairs persisted to DB`);
+          } catch (persistErr) {
+            // Non-blocking: export continues even if persist fails
+            console.warn(`[EXPORT-PERSIST] Ch.${ch.chapter_number}: persist failed (export unaffected):`, persistErr?.message);
+          }
+        }
+      }
+
       // ── PRE-EXPORT SAFETY GATE (STRICT) ──
       // Scan all resolved chapters for process leaks, contamination, and dialogue issues.
       // HARD BLOCK: Do not produce DOCX if any chapter has hard failures.
