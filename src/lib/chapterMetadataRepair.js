@@ -343,6 +343,7 @@ async function repairOneChapter({ project, chapter, chapters, index, outlineMap 
 
   try {
     const response = await invokeLLMWithRetry({
+    task_type: 'foundation',
       prompt: buildMetadataPrompt({
         project,
         chapter,

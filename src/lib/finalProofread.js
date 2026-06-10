@@ -364,6 +364,7 @@ async function buildContinuitySpine(loaded, onProgress) {
 
     try {
       const result = await invokeLLMWithRetry({
+      task_type: 'polish',
         prompt: `You are a continuity editor. Extract a structured summary of this chapter.
 
 CHAPTER ${i + 1}: "${entry.chapterTitle}"
@@ -474,6 +475,7 @@ Return JSON only, no markdown wrapping:
 {"findings":[{"severity":"critical|major|minor","category":"editorial_artifact|dialogue_punctuation|mangled|comma_splice|missing_word|capitalization|fused_word|orphaned_dialogue|unfinished","original_text":"EXACT text from the chapter — must be copy-pasted, not paraphrased","description":"What is wrong (one sentence)","suggested_fix":"Drop-in replacement text, or empty string if the text should be deleted"}]}`;
 
       return invokeLLMWithRetry({
+      task_type: 'polish',
         prompt,
         model: freshModel,
         fallback_model: freshModel === 'gemini_3_flash' ? 'deepseek/deepseek-chat-v3-0324' : 'gemini_3_flash',
@@ -627,6 +629,7 @@ async function runCrossChapterCheck(spine, project, onProgress) {
 
   try {
     const result = await invokeLLMWithRetry({
+      task_type: 'polish',
       prompt: `You are a continuity editor reviewing a novel's chapter summaries. Find ONLY clear contradictions — not style differences.
 
 CHAPTER SUMMARIES:

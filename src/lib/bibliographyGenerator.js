@@ -510,6 +510,7 @@ export async function generateBibliography({ project, chapters, onProgress }) {
 
   try {
     const response = await invokeLLMWithRetry({
+    task_type: 'research',
       prompt,
       model: 'openai_gpt5',
       fallback_model: 'anthropic/claude-sonnet-4-20250514',

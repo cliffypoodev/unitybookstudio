@@ -431,6 +431,7 @@ Respond ONLY in JSON. No markdown fences, no preamble:
 }`;
 
   const response = await invokeLLMWithRetry({
+    task_type: 'research',
     prompt,
     model: pickModel('analytics'),
     fallback_model: pickFallbackModel('analytics'),

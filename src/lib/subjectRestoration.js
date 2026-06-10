@@ -326,6 +326,7 @@ export async function runSubjectRestoration(project, chapters, setBusyLabel) {
       console.warn('[SUBJECT-RESTORE] Ch.' + chNum + ': calling LLM (' + w.hits.length + ' damaged, prompt ' + prompt.length + ' chars)');
 
       const response = await invokeLLMWithRetry({
+    task_type: 'prose',
         prompt,
         model: pickModel('critique'),
         fallback_model: 'deepseek/deepseek-v3.2-20251201',

@@ -140,6 +140,7 @@ export async function runProofreader(loaded, project, onProgress) {
       );
 
       return invokeLLMWithRetry({
+      task_type: 'polish',
         prompt: proofPrompt,
         model: pickModel('critique'),
         fallback_model: 'deepseek/deepseek-v3.2-20251201',

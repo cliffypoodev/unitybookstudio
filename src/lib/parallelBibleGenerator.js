@@ -545,6 +545,7 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
 
   const callLLM = async (prompt, schema, extraOpts = {}) => {
     const raw = await invokeLLMWithRetry({
+    task_type: 'foundation',
       prompt,
       response_json_schema: schema,
       model,

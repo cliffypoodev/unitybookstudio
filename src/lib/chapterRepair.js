@@ -27,6 +27,7 @@ export async function repairTruncatedChapters({
     .join('\n');
 
   const repairResp = await invokeLLMWithRetry({
+    task_type: 'prose',
     prompt: `The outline was TRUNCATED at ${plannedChapters.length} chapters. Generate chapters ${missingFrom} through ${targetCount}.
 
 Project: ${project.title} | Genre: ${project.genre}

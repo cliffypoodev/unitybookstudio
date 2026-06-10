@@ -100,6 +100,7 @@ Respond with ONLY the JSON object. No commentary, no markdown formatting, no bac
   try {
     onProgress?.('Series: Extracting characters, world, and plot…');
     const response = await invokeLLMWithRetry({
+    task_type: 'foundation',
       prompt: extractionPrompt,
       model: 'gemini_3_flash',
       fallback_model: 'gpt_5_mini',
@@ -118,6 +119,7 @@ Respond with ONLY the JSON object. No commentary, no markdown formatting, no bac
     onProgress?.('Series: Analyzing remaining chapters…');
     try {
       const supResponse = await invokeLLMWithRetry({
+    task_type: 'foundation',
         prompt: `You previously analyzed the first half of a manuscript. Here is the second half. Extract any ADDITIONAL characters, plot threads, revelations, or world details not found in the first half. Respond in the same JSON format. Only include NEW information.\n\nMANUSCRIPT (continued):\n${manuscriptText.substring(maxChunkSize, maxChunkSize * 2)}\n\nRespond with ONLY a JSON object containing any new characters, threads, or details.`,
         model: 'gemini_3_flash',
       });

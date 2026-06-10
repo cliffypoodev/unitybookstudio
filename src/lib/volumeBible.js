@@ -122,6 +122,7 @@ Extract THREE things. Return JSON only, no markdown wrapping.
 }`;
 
   const result = await invokeLLMWithRetry({
+    task_type: 'foundation',
     prompt,
     model: 'gemini_3_flash',
     fallback_model: 'deepseek/deepseek-chat-v3-0324',

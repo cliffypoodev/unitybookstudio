@@ -82,12 +82,16 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
     console.warn('[LOCAL-LLM] Web search requested but not available locally. Proceeding without web context.');
   }
 
+  const resolvedModel = payload.model || null;
+  console.log(`[LLM-RETRY] taskType=${taskType} model=${resolvedModel || 'default'} context=${context}`);
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       const rawText = await callAgent({
         prompt: payload.prompt,
         taskType,
-        project: payload._project || null,
+        model: resolvedModel,
+        project: payload._project || payload.project || null,
         temperature: payload.temperature,
         maxTokens,
         jsonSchema: payload.response_json_schema || null,

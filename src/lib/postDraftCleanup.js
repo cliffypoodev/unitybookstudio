@@ -917,6 +917,7 @@ async function llmCopyedit({
 
   try {
     const result = await invokeLLMWithRetry({
+    task_type: 'polish',
       prompt,
       model: 'openai_gpt5',
       fallback_model: 'deepseek/deepseek-v3.2',
@@ -2077,6 +2078,7 @@ async function requestMalformedPatches({
   });
 
   const result = await invokeLLMWithRetry({
+    task_type: 'critique',
     prompt,
     model: pickModel('critique', project) || 'openai_gpt5',
     fallback_model: pickFallbackModel('critique', project) || 'deepseek/deepseek-v3.2',

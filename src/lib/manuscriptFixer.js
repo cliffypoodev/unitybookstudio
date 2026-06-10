@@ -4274,6 +4274,7 @@ POLISHED SAMPLE:
 ${candidateSample}`;
 
   const response = await invokeLLMWithRetry({
+    task_type: 'prose',
     prompt,
     model: 'openai_gpt5',
     fallback_model: 'anthropic/claude-sonnet-4-20250514',

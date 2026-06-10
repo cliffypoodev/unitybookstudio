@@ -33,6 +33,7 @@ Extract:
 }`;
 
   const result = await invokeLLMWithRetry({
+    task_type: 'prose',
     prompt: summaryPrompt,
     model: pickModel('foundation'),
     temperature: 0,
