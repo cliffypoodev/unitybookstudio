@@ -39,7 +39,8 @@ import { repairCanonNameDrift } from './canonNameLock.js';
 import { runPerChapter } from './anthologyPolishHelper.js';
 import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminationDetector }
   from './anthologyPolishChecks.js';
-import { isAnthologyProject, isComedyProject } from './manuscriptStats.js';
+import { isAnthologyProject } from './anthologyEngine.js';
+import { isComedyProject } from './manuscriptStats.js';
 
 // ── Per-chapter modules (operate on single text strings) ──
 import { runDeterministicGrammarRepair, runProsePolishQualityGate,
@@ -54,8 +55,6 @@ import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 
-// ── Name hygiene ──
-import { forceSongbirdAliasRepairText } from './nameHygieneRules.js';
 
 export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.0 — 2026-06-10';
 
@@ -260,11 +259,7 @@ export async function runManuscriptPolishPipeline({
       canonNamesFixed += canonRepair.repairs?.length || 1;
       changes.push(`Ch.${f.chapter?.chapter_number || '?'}: canon-name lock repaired ${canonRepair.repairs?.join('; ') || ''}`);
     }
-    const hardAlias = forceSongbirdAliasRepairText(f.content || '', { project });
-    if (hardAlias.changed) {
-      f.content = hardAlias.text;
-      canonNamesFixed += hardAlias.repairs?.length || 1;
-    }
+    // Note: forceSongbirdAliasRepairText is project-specific and runs in ProjectStudio.
   }
 
   // C4: Final artifact cleanup
