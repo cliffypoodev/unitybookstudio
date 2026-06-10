@@ -44,6 +44,24 @@ for (const { file, taskType } of callSites) {
   assert(hasTaskType, `${file.split('/').pop()} has task_type: '${taskType}'`);
 }
 
+// ── 3. UI component call sites have task_type ──
+console.log('\n── 3: UI component call sites have task_type ──');
+
+const uiCallSites = [
+  { file: 'src/pages/ProjectStudio.jsx', taskType: 'foundation', label: 'ProjectStudio foundation calls' },
+  { file: 'src/pages/ProjectStudio.jsx', taskType: 'outline', label: 'ProjectStudio outline calls' },
+  { file: 'src/pages/ProjectStudio.jsx', taskType: 'prose', label: 'ProjectStudio prose calls' },
+  { file: 'src/pages/ProjectStudio.jsx', taskType: 'critique', label: 'ProjectStudio critique calls' },
+  { file: 'src/components/tools/CriticSubPage.jsx', taskType: 'critique', label: 'CriticSubPage critique call' },
+  { file: 'src/components/tools/CompareSubPage.jsx', taskType: 'critique', label: 'CompareSubPage critique calls' },
+];
+
+for (const { file, taskType, label } of uiCallSites) {
+  const code = readFileSync(root + file, 'utf-8');
+  const hasTaskType = code.includes(`task_type: '${taskType}'`);
+  assert(hasTaskType, `${label} has task_type: '${taskType}'`);
+}
+
 // ── Summary ──
 console.log(`\n${'═'.repeat(60)}`);
 console.log(`AGENT ROUTING: ${passed} passed, ${failed} failed`);

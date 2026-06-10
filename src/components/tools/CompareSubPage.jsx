@@ -347,6 +347,7 @@ export default function CompareSubPage({ project, chapters, busyLabel, setBusyLa
         const prompt = buildReviewerPrompt(reviewer, context);
         try {
           const response = await invokeLLMWithRetry({
+            task_type: 'critique',
             prompt,
             response_json_schema: REVIEWER_RESPONSE_SCHEMA,
             model: 'gemini_3_flash',
@@ -491,6 +492,7 @@ Write your verdict as JSON. No markdown fences. Follow this shape exactly:
 }`;
 
       const response = await invokeLLMWithRetry({
+        task_type: 'critique',
         prompt,
         model: pickModel('compare'),
         fallback_model: pickFallbackModel('compare'),

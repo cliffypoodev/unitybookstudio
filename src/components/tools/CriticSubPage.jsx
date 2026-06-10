@@ -75,6 +75,7 @@ async function runSingleReviewer(reviewer, context) {
   const prompt = buildReviewerPrompt(reviewer, context);
   try {
     const response = await invokeLLMWithRetry({
+      task_type: 'critique',
       prompt,
       response_json_schema: REVIEWER_RESPONSE_SCHEMA,
       model: 'gemini_3_flash',
