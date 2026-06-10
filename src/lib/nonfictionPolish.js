@@ -445,6 +445,10 @@ function runNonfictionCredibilityGate(loaded, onProgress, { project } = {}) {
 /**
  * Run nonfiction-specific polish on loaded chapter data.
  * Returns { savedCount, unchangedCount, changes, beforeStats, afterStats, bannedRemoved, capFixed, repFixed, scaffoldsRemoved, punctuationFixes }
+ *
+ * @deprecated Prefer runManuscriptPolishPipeline({ mode: 'nonfiction' }) from manuscriptPolishRunner.js.
+ *   This function is retained for backward compatibility and to export
+ *   the NF deterministic core via runNonfictionDeterministicCore().
  */
 export async function runNonfictionPolish({ loaded, onProgress, project }) {
   const changes = [];
@@ -885,4 +889,202 @@ export async function runNonfictionPolish({ loaded, onProgress, project }) {
     antiDetect,
     nfCredibilityGate,
   };
+}
+
+/**
+ * Run all NF-specific deterministic transforms (steps L through 10c) WITHOUT saving.
+ * This is the reusable core of the NF pipeline, called by manuscriptPolishRunner
+ * in nonfiction mode.
+ *
+ * All universal transforms (punctuation, voice, vocab caps, etc.) are run by the
+ * runner's standard phases. This function runs ONLY the NF-unique transforms:
+ * disclaimer stripping, NF grammar/spelling fixes, NF repetition targets,
+ * scaffold detection, NF credibility gate, em-dash/progressive reducers,
+ * dichotomy/not-just-but/yet/think-of-it-as/ai-phrase cappers, garbled quotes.
+ *
+ * @param {Array} loaded - [{chapter, content, original}]
+ * @param {Function} onProgress - Progress callback
+ * @param {Object} project - Project record
+ * @returns {Object} { changes, stats }
+ */
+export function runNonfictionDeterministicCore(loaded, onProgress, project) {
+  const changes = [];
+  const chapterCount = loaded.length;
+  const stats = {};
+
+  // Step L: Disclaimer stripper
+  const disclaimerResult = runDisclaimerStripper(loaded, onProgress);
+  changes.push(...disclaimerResult.changes);
+  stats.disclaimersRemoved = disclaimerResult.totalRemoved;
+
+  // Step 3b: NF grammar fixes (fragment repair, unclosed quotes, mixed quotes, abbreviation caps)
+  onProgress?.('Polish (NF): Fixing grammar issues…');
+  let grammarFixed = 0;
+  for (const f of loaded) {
+    const beforeGrammar = f.content;
+    f.content = f.content.replace(/\band\.\s+([A-Z])/g, (_m, c) => { grammarFixed++; return 'and ' + c.toLowerCase(); });
+    f.content = f.content.replace(/\bbut\.\s+([A-Z])/g, (_m, c) => { grammarFixed++; return 'but ' + c.toLowerCase(); });
+    f.content = f.content.replace(/\bor\.\s+([A-Z])/g, (_m, c) => { grammarFixed++; return 'or ' + c.toLowerCase(); });
+    // Smart/straight quote normalization
+    const paragraphs = f.content.split(/\n\n+/);
+    const fixedParagraphs = paragraphs.map(para => {
+      if (!para.trim()) return para;
+      const hasSmartOpen = para.includes('\u201c');
+      const hasSmartClose = para.includes('\u201d');
+      const hasStraight = para.includes('"');
+      if ((hasSmartOpen || hasSmartClose) && hasStraight) {
+        let inQuote = false; let result = '';
+        for (let i = 0; i < para.length; i++) {
+          if (para[i] === '"') { result += !inQuote ? '\u201c' : '\u201d'; inQuote = !inQuote; }
+          else if (para[i] === '\u201c') { inQuote = true; result += para[i]; }
+          else if (para[i] === '\u201d') { inQuote = false; result += para[i]; }
+          else { result += para[i]; }
+        }
+        para = result;
+      }
+      const smartOpen = (para.match(/\u201c/g) || []).length;
+      const smartClose = (para.match(/\u201d/g) || []).length;
+      if (smartOpen > smartClose) {
+        for (let d = 0; d < smartOpen - smartClose; d++) {
+          if (para.match(/[.!?]\s*$/)) para = para.replace(/([.!?])(\s*)$/, '\u201d$1$2');
+          else para = para.trimEnd() + '\u201d';
+          grammarFixed++;
+        }
+      } else if (smartClose > smartOpen) {
+        for (let d = 0; d < smartClose - smartOpen; d++) {
+          const fc = para.indexOf('\u201d');
+          if (fc > 0) {
+            const before = para.substring(0, fc);
+            const ls = Math.max(before.lastIndexOf('. ') + 2, before.lastIndexOf('? ') + 2, before.lastIndexOf('! ') + 2, 0);
+            para = para.substring(0, ls) + '\u201c' + para.substring(ls);
+            grammarFixed++;
+          }
+        }
+      }
+      const straightCount = (para.match(/"/g) || []).length;
+      if (straightCount % 2 !== 0) {
+        if (para.match(/[.!?]\s*$/)) para = para.replace(/([.!?])(\s*)$/, '"$1$2');
+        else para = para.trimEnd() + '"';
+        grammarFixed++;
+      }
+      return para;
+    });
+    f.content = fixedParagraphs.join('\n\n');
+    const abbrevRx = /(\b(?:Mr|Mrs|Ms|Miss|Dr|Prof|Rev|Gen|Gov|Sgt|Cpl|Lt|Capt|Maj|Col|Jr|Sr)\.\s*[A-Z]\.)\s+([A-Z])([a-z])/g;
+    const commonAfterAbbrev = ['after','before','during','until','while','when','where','from','into','onto','upon','with','about','above','below','under','over','through','between','among','against','toward','around','along','across','behind'];
+    f.content = f.content.replace(abbrevRx, (match, abbrev, cap, rest) => {
+      const nextWord = cap + rest;
+      if (commonAfterAbbrev.includes(nextWord.toLowerCase())) { grammarFixed++; return abbrev + ' ' + nextWord.toLowerCase(); }
+      return match;
+    });
+    if (f.content !== beforeGrammar) changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': fixed grammar issues');
+  }
+  if (grammarFixed > 0) changes.push('NF grammar fixes: ' + grammarFixed);
+  stats.grammarFixed = grammarFixed;
+
+  // Step 3c: NF misspelling corrections (drug names, proper nouns, legal terms)
+  let spellingFixed = 0;
+  const allCorrections = [
+    [/\bsecond sodium\b/gi, 'Seconal sodium'], [/\bseconal sodium\b/g, 'Seconal sodium'],
+    [/\bphenobarbidal\b/gi, 'Phenobarbital'], [/\bphenobarbitol\b/gi, 'Phenobarbital'], [/\bphenobarbatol\b/gi, 'Phenobarbital'],
+    [/\bbenzadrine\b/gi, 'Benzedrine'], [/\bbenzadene\b/gi, 'Benzedrine'], [/\bbenzedrene\b/gi, 'Benzedrine'],
+    [/\bamfetamine\b/gi, 'amphetamine'], [/\bbarbitol\b/gi, 'barbital'], [/\bchloropromazine\b/gi, 'chlorpromazine'],
+    [/\bdiazapam\b/gi, 'diazepam'], [/\bmethanphetamine\b/gi, 'methamphetamine'], [/\bmorphene\b/gi, 'morphine'],
+    [/\bsecobarbatol\b/gi, 'secobarbital'],
+    [/\bLouis B Mayer\b/g, 'Louis B. Mayer'], [/\bDavid O Selznick\b/g, 'David O. Selznick'],
+    [/\bDr\. Jacobsen\b/g, 'Dr. Jacobson'], [/\bKefauver Comittee\b/gi, 'Kefauver Committee'],
+    [/\bKefauver Commitee\b/gi, 'Kefauver Committee'],
+    [/\bhabeus corpus\b/gi, 'habeas corpus'], [/\bsui generus\b/gi, 'sui generis'],
+    [/\bde Haviland\b/g, 'de Havilland'], [/\bde haviland\b/gi, 'de Havilland'], [/\bDeHavilland\b/g, 'de Havilland'],
+  ];
+  for (const [pattern, replacement] of allCorrections) {
+    for (const f of loaded) {
+      const matches = f.content.match(pattern);
+      if (matches && matches.length > 0) {
+        f.content = f.content.replace(pattern, replacement);
+        spellingFixed += matches.length;
+      }
+    }
+  }
+  stats.spellingFixed = spellingFixed;
+
+  // Step 4: NF repetition targets
+  const allText = loaded.map(f => f.content).join('\n\n');
+  let repFixed = 0;
+  for (const t of NF_REPETITION_TARGETS) {
+    const total = (allText.match(t.pattern) || []).length;
+    const cap = Math.round(t.maxFixed ?? Math.max(3, chapterCount * (t.maxPerChapter || 0.3)));
+    if (total <= cap) continue;
+    const excess = total - cap;
+    let replaced = 0;
+    const chCounts = loaded.map((f, idx) => ({ idx, count: (f.content.match(t.pattern) || []).length })).sort((a, b) => b.count - a.count);
+    for (const cc of chCounts) {
+      if (replaced >= excess) break;
+      if (cc.count <= 1) continue;
+      const f = loaded[cc.idx];
+      let instIdx = 0; let chReplaced = 0; const maxThis = Math.min(cc.count - 1, excess - replaced); let repIdx = 0;
+      f.content = f.content.replace(t.pattern, (match) => {
+        instIdx++;
+        if (instIdx <= 1 || chReplaced >= maxThis) return match;
+        chReplaced++; replaced++; repFixed++;
+        if (t.replacements.length === 0) return '';
+        const rep = t.replacements[repIdx++ % t.replacements.length];
+        return match[0] === match[0].toUpperCase() ? rep.charAt(0).toUpperCase() + rep.slice(1) : rep;
+      });
+      if (chReplaced > 0) { f.content = f.content.replace(/  +/g, ' '); changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': replaced ' + chReplaced + 'x "' + t.name + '"'); }
+    }
+  }
+  stats.repFixed = repFixed;
+
+  // Step 5: Scaffold detection
+  let scaffoldsRemoved = 0;
+  for (const rx of HARD_SCAFFOLDS) {
+    for (const f of loaded) {
+      const matches = f.content.match(rx);
+      if (matches && matches.length > 0) { f.content = f.content.replace(rx, ''); scaffoldsRemoved += matches.length; }
+    }
+  }
+  for (const rx of SOFT_SCAFFOLDS) {
+    for (const f of loaded) {
+      const matches = f.content.match(rx);
+      if (matches && matches.length > 0) { changes.push('\u26a0\ufe0f Ch.' + (f.chapter.chapter_number || '?') + ': found "' + matches[0] + '" \u2014 verify if intentional'); }
+    }
+  }
+  stats.scaffoldsRemoved = scaffoldsRemoved;
+
+  // NF-only chatgpt pattern modules
+  const dichotomyResult = runDichotomyPatternReducer(loaded, onProgress);
+  changes.push(...dichotomyResult.changes);
+  const njbResult = runNotJustButReducer(loaded, onProgress);
+  changes.push(...njbResult.changes);
+  const yetResult = runYetMisuseFixer(loaded, onProgress);
+  changes.push(...yetResult.changes);
+  const toiaResult = runThinkOfItAsCapper(loaded, onProgress);
+  changes.push(...toiaResult.changes);
+  const aiPhraseResult = runAiPhraseCapper(loaded, onProgress);
+  changes.push(...aiPhraseResult.changes);
+
+  // Em-dash + progressive reducers
+  const emDashReduce = runEmDashReducer(loaded, onProgress);
+  changes.push(...emDashReduce.changes);
+  const progReduce = runProgressiveReducer(loaded, onProgress);
+  changes.push(...progReduce.changes);
+
+  // Garbled quote cleanup
+  let garbledFixed = 0;
+  for (const f of loaded) {
+    const before10b = f.content;
+    f.content = f.content.replace(/[\u201d]{2,}/g, '\u201d');
+    f.content = f.content.replace(/[\u201c]{2,}/g, '\u201c');
+    f.content = f.content.replace(/"{2,}/g, '"');
+    if (f.content !== before10b) garbledFixed++;
+  }
+  stats.garbledFixed = garbledFixed;
+
+  // NF credibility gate (the big NF-specific gate)
+  const nfCredibilityGate = runNonfictionCredibilityGate(loaded, onProgress, { project });
+  changes.push(...nfCredibilityGate.changes);
+  stats.credibilityGate = nfCredibilityGate;
+
+  return { changes, stats };
 }

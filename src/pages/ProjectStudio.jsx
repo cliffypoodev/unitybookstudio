@@ -29,7 +29,7 @@ import { parseTwistsToMd } from '@/lib/plotTwists';
 import { buildChapterJudgePrompt, chapterJudgeSchema, checkTenseConsistency, checkPovConsistency, suggestPovTense } from '@/lib/povTense';
 import { mechanicalSlopScore, cleanGeneratedProse } from '@/lib/proseQuality';
 import { calculateManuscriptStats, calculateManuscriptStatsNonfiction, isNonfictionProject, isComedyProject } from '@/lib/manuscriptStats';
-import { runNonfictionPolish } from '@/lib/nonfictionPolish';
+// runNonfictionPolish is now handled by runManuscriptPolishPipeline({ mode: 'nonfiction' })
 import { COMPACT_CRAFT_RULES, COMPACT_ANTI_SLOP } from '@/lib/craftCompact';
 import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
@@ -1987,6 +1987,7 @@ export default function ProjectStudio() {
         const shellProject = { ...anthologyProject, chapter_target: Math.min(ct, 3) };
         const shellResponse = await Promise.race([
           invokeLLMWithRetry({
+            task_type: 'foundation',
             prompt: buildAnthologyBiblePrompt(shellProject),
             response_json_schema: anthologyBibleSchema,
             model: pickModel('foundation', shellProject),
@@ -2100,6 +2101,7 @@ export default function ProjectStudio() {
     ].filter(Boolean).join('\n\n');
     setBusyLabel('Step 1/2 — Analyzing premise…');
     const settingsResponse = await invokeLLMWithRetry({
+      task_type: 'foundation',
       prompt: buildExpandSettingsPrompt(_resolvedSeed, bookType, settingsDrafts),
       response_json_schema: expandSettingsSchema,
       model: pickModel('foundation', { ...settingsDrafts, book_type: bookType }),
@@ -2573,6 +2575,7 @@ Return a structured JSON with:
       GLOBAL_NAME_HYGIENE_PROMPT_BLOCK,
     ].filter(Boolean).join('\n\n');
     const foundationResponse = await invokeLLMWithRetry({
+      task_type: 'foundation',
       prompt: buildFoundationPrompt({ ...project, seed_concept: _fnResolvedSeed }, { nameExclusionBlock: _fnBlock }),
       response_json_schema: foundationSchema,
       model: pickModel('foundation', project),
@@ -2593,6 +2596,7 @@ Return a structured JSON with:
         setBusyLabel(`Replacing ${found.length} AI-generic names…`);
         try {
           const renameResult = await invokeLLMWithRetry({
+            task_type: 'foundation',
             model: 'gemini_3_flash',
             temperature: 0.7,
             max_tokens: 500,
@@ -2635,6 +2639,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
 
     if (!plannedChapters.length) {
       const chapterPlanResponse = await invokeLLMWithRetry({
+        task_type: 'outline',
         prompt: buildChapterPlanPrompt(foundationProject),
         response_json_schema: chapterPlanSchema,
         model: pickModel('chapter_plan', project),
@@ -2693,6 +2698,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
     let beatResult = null;
     try {
       const beatResponse = await invokeLLMWithRetry({
+        task_type: 'outline',
         prompt: await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList),
         response_json_schema: schema,
         spec: promptProject,
@@ -2963,6 +2969,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
       const lastSentence = chapterContent.trim().split(/[.!?]/).filter(s => s.trim()).pop()?.trim() || '';
       const contPrompt = `${COMPACT_CRAFT_RULES}\n\n${COMPACT_ANTI_SLOP}\n\n${MANDATORY_ENFORCEMENT_BLOCK}\n\n${draftingProject.name_hygiene_prompt_block || ''}\n\nCONTINUE WRITING from exactly where you left off. Match the existing voice, tense (${draftingProject.tense || 'past'}), and POV (${draftingProject.pov_mode || 'third-close'}). Do not repeat any content that already exists. Do not add scene headers or markdown.\n\nHere is the last sentence you wrote: "${lastSentence}"\nYou have written ${wordCount} words. You need at least ${needed} more words. Do not restart. Do not summarize. Continue with NEW scenes, NEW dialogue, NEW action. Write at least ${needed} words.`;
       const contResponse = await invokeLLMWithRetry({
+        task_type: 'prose',
         prompt: contPrompt,
         response_json_schema: chapterSchema,
         model: pickModel('prose_continuation', draftingProject),
@@ -3090,6 +3097,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
     const tenseViolations = checkTenseConsistency(chapterContent, project);
     const povViolations = checkPovConsistency(chapterContent, project, chapter.chapter_number);
     const judgeResponse = await invokeLLMWithRetry({
+      task_type: 'critique',
       prompt: buildChapterJudgePrompt(project, chapter, chapterContent, [...tenseViolations, ...povViolations]),
       response_json_schema: chapterJudgeSchema,
       model: pickModel('judge', project),
@@ -3144,6 +3152,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
     const finalTense = needsRetry ? checkTenseConsistency(chapterContent, project) : tenseViolations;
     const finalPov = needsRetry ? checkPovConsistency(chapterContent, project, chapter.chapter_number) : povViolations;
     const finalJudge = needsRetry ? unwrapIntegrationResult(await invokeLLMWithRetry({
+      task_type: 'critique',
       prompt: buildChapterJudgePrompt(project, chapter, chapterContent, [...finalTense, ...finalPov]),
       response_json_schema: chapterJudgeSchema,
       model: pickModel('judge', project),
@@ -3632,6 +3641,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
       })
     );
     const evaluationResponse = await invokeLLMWithRetry({
+      task_type: 'critique',
       prompt: buildEvaluationPrompt(project, resolvedChapters),
       response_json_schema: evaluationSchema,
       model: pickModel('evaluate', project),
@@ -3916,35 +3926,81 @@ For each banned name, provide a culturally appropriate, original replacement nam
       if (!loaded.length) { toast.error('All NF chapters rejected by safety gate.'); setBusyLabel(''); return; }
 
       const beforeStats = calculateManuscriptStatsNonfiction(loaded.map(f => f.content).join('\n\n'));
-      const result = await runNonfictionPolish({ loaded, onProgress: (label) => setBusyLabel(formatProgressLabel(label)), project });
-      setPolishResults({ before: beforeStats, after: result.afterStats, changes: result.changes, timestamp: new Date().toISOString() });
+
+      // ── UNIFIED PIPELINE (NF mode) ──
+      const pipelineResult = await runManuscriptPolishPipeline({
+        loaded,
+        project,
+        onProgress: (label) => setBusyLabel(formatProgressLabel(label)),
+        allowLLM: true,
+        mode: 'nonfiction',
+      });
+
+      const changes = [...pipelineResult.changes];
+      const ps = pipelineResult.stats || {};
+
+      // ── SAVE LOOP (same architecture as fiction handler) ──
+      let savedCount = 0;
+      let unchangedCount = 0;
+      const saveFailures = [];
+      const _polishChangedCount = loaded.filter(f => f.content !== f.original).length;
+      setBusyLabel('Polish (NF): Saving ' + _polishChangedCount + ' chapters…');
+
+      for (let i = 0; i < loaded.length; i++) {
+        const f = loaded[i];
+        const chNum = f.chapter.chapter_number || (i + 1);
+        if (f.content === f.original) { unchangedCount++; continue; }
+        setBusyLabel(`Polish (NF): Saving chapter ${chNum} (${savedCount + 1}/${_polishChangedCount})…`);
+        try {
+          const contentFields = await prepareChapterContent(f.content, project?.id || projectId, f.chapter.id, f.chapter);
+          const backupFields = f.chapter.backup_content || f.chapter.backup_content_url
+            ? {}
+            : await prepareBackupContent(f.original, project?.id || projectId, f.chapter.id, f.chapter);
+          const staleClear = {};
+          for (const staleField of [
+            'content', 'draft', 'body', 'prose', 'finalText', 'cleanedText',
+            'chapter_text', 'markdown', 'content_html', 'content_html_url',
+            'content_delta', 'content_delta_url', '__polishedContent',
+            '__polishSavedContent', '__polishExportContent',
+          ]) { staleClear[staleField] = ''; }
+          const savePayload = {
+            ...staleClear,
+            ...contentFields,
+            ...backupFields,
+            word_count: countWords(f.content),
+          };
+          await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, savePayload));
+          f.chapter = { ...f.chapter, ...savePayload };
+          savedCount++;
+        } catch (saveErr) {
+          console.error('[POLISH-NF] Ch.' + chNum + ' SAVE THREW:', saveErr.message);
+          saveFailures.push({ chNum, error: saveErr.message });
+        }
+      }
+
+      const afterStats = calculateManuscriptStatsNonfiction(loaded.map(f => f.content).join('\n\n'));
+      setPolishResults({ before: beforeStats, after: afterStats, changes, timestamp: new Date().toISOString() });
 
       // ── REFERENCE INTEGRITY GATE (post-NF-polish) ──
-      // Read-only gate: reports findings but does NOT mutate text or block save.
-      // Blocking issues → error toast (author must fix before export).
-      // Warnings → info toast.
       setBusyLabel('Polish (NF): Running reference integrity check…');
       const allPolishedText = loaded.map(f => f.content).join('\n\n');
       const refReport = runReferenceIntegrityGate(allPolishedText, project);
       if (typeof window !== 'undefined') {
         window.__UBS_LAST_REFERENCE_REPORT = refReport;
-        console.log('[POLISH-NF-REF-GATE] Reference integrity report stored at window.__UBS_LAST_REFERENCE_REPORT');
-        console.log('[POLISH-NF-REF-GATE]', refReport.summary);
       }
       if (!refReport.ok) {
-        const blockMsg = `Reference Integrity: ${refReport.blockingIssues.length} blocking issue(s) found. ` +
-          refReport.blockingIssues.slice(0, 3).map(i => i.reason || i.detail || '').join('; ') +
-          `. Check window.__UBS_LAST_REFERENCE_REPORT for details.`;
-        toast.error(blockMsg, { duration: 20000 });
-        result.changes.push('⚠️ Reference integrity: ' + refReport.summary);
-      } else if (refReport.warnings.length > 0) {
-        toast.info(`Reference Integrity: ${refReport.warnings.length} warning(s). ${refReport.summary}`, { duration: 15000 });
-        result.changes.push('Reference integrity: ' + refReport.summary);
-      } else if (refReport.sections.length > 0) {
-        result.changes.push('✅ Reference integrity: PASS — ' + refReport.summary);
+        toast.error(`Reference Integrity: ${refReport.blockingIssues.length} blocking issue(s).`, { duration: 20000 });
+        changes.push('\u26a0\ufe0f Reference integrity: ' + refReport.summary);
+      } else if (refReport.warnings?.length > 0) {
+        toast.info(`Reference Integrity: ${refReport.warnings.length} warning(s).`, { duration: 15000 });
+        changes.push('Reference integrity: ' + refReport.summary);
+      } else if (refReport.sections?.length > 0) {
+        changes.push('\u2705 Reference integrity: PASS \u2014 ' + refReport.summary);
       }
 
-      const report = `Nonfiction Polish Complete!\n\nSaved: ${result.savedCount} | Unchanged: ${result.unchangedCount}\nBanned: ${result.bannedRemoved} | Cap: ${result.capFixed} | Reps: ${result.repFixed} | Scaffolds: ${result.scaffoldsRemoved} | Disclaimers: ${result.disclaimersRemoved || 0}\nGrammar fixes: ${result.grammarFixed || 0} | Spelling corrections: ${result.spellingFixed || 0}\n\n${result.changes.join('\n')}${result.savedCount > 0 ? '\n\n✅ Re-export to get the updated manuscript.' : ''}`;
+      const nfCoreStats = ps.nfCore || {};
+      const report = `NF Polish v2: ${savedCount} saved, ${unchangedCount} unchanged | Banned: -${ps.bannedRecastCount || 0} | Cap: ${ps.capFixed || 0} | Voice: ${ps.voiceFixed || 0} | Reps: ${nfCoreStats.repFixed || 0} | Scaffolds: ${nfCoreStats.scaffoldsRemoved || 0} | Disclaimers: ${nfCoreStats.disclaimersRemoved || 0} | Grammar(NF): ${nfCoreStats.grammarFixed || 0} | Spelling: ${nfCoreStats.spellingFixed || 0} | Vocab: ${ps.vocabCapped || 0} | Quotes: ${ps.quotesFixed || 0} | ExtAI: ${ps.externalPatternsFixed || 0}
+` + changes.join('\n') + (saveFailures.length > 0 ? '\n\n\ud83d\udea8 SAVE FAILED for ' + saveFailures.length + ' chapter(s).' : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n\u2705 Re-export to get the updated manuscript.' : '');
       toast.info(report, { duration: 30000 });
     } catch (err) {
       console.error('[POLISH-NF] FATAL:', err);

@@ -54,6 +54,9 @@ import { shouldRunDialogueRepair, shouldRunAISlopReduction, shouldRunReferenceIn
 import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
+import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
+import { detectEssayImbalance } from './unifiedProseRefinement.js';
+import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
 
 
 export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.0 — 2026-06-10';
@@ -106,9 +109,9 @@ export async function runManuscriptPolishPipeline({
     changes.push(`Banned vocabulary: recast ${bannedRecastCount} word(s) with synonyms (no deletions).`);
   }
 
-  // A2: Anthology-specific checks
+  // A2: Anthology-specific checks (fiction-only)
   let anthologyStats = { bodyLangFixed: 0, anthVocabFixed: 0, contaminationFixed: 0, genreVocabFixed: 0 };
-  if (isAnthology) {
+  if (mode !== 'nonfiction' && isAnthology) {
     onProgress('Polish: Anthology-specific checks…');
     const bodyResult = runCrossChapterBodyLanguageDedup(loaded, onProgress);
     changes.push(...bodyResult.changes); anthologyStats.bodyLangFixed = bodyResult.bodyLangFixed || 0;
@@ -150,12 +153,16 @@ export async function runManuscriptPolishPipeline({
   const transitionFixed = transitionResult.changes?.length || 0;
 
   // A6: Dialogue punctuation + filler
-  const dialogPunctResult = runDialoguePunctuationFix(loaded, onProgress);
-  changes.push(...dialogPunctResult.changes);
-  const dialogPunctFixed = dialogPunctResult.dialogPunctFixed || 0;
-  const dialogFillerResult = runDialogueFillerFix(loaded, onProgress);
-  changes.push(...dialogFillerResult.changes);
-  const dialogFillerFixed = dialogFillerResult.dialogFillerFixed || 0;
+  let dialogPunctFixed = 0;
+  let dialogFillerFixed = 0;
+  if (mode !== 'nonfiction') {
+    const dialogPunctResult = runDialoguePunctuationFix(loaded, onProgress);
+    changes.push(...dialogPunctResult.changes);
+    dialogPunctFixed = dialogPunctResult.dialogPunctFixed || 0;
+    const dialogFillerResult = runDialogueFillerFix(loaded, onProgress);
+    changes.push(...dialogFillerResult.changes);
+    dialogFillerFixed = dialogFillerResult.dialogFillerFixed || 0;
+  }
 
   // A7: Stacked clause variation
   const stackingResult = runStackedClauseVariation(loaded, onProgress);
@@ -165,6 +172,15 @@ export async function runManuscriptPolishPipeline({
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE B: Per-chapter style/voice cleanup (manuscript-level dispatch)
   // ══════════════════════════════════════════════════════════════════════════
+
+  // NF-SPECIFIC: Run NF deterministic core
+  let nfCoreStats = {};
+  if (mode === 'nonfiction') {
+    onProgress('Polish (NF): Running nonfiction deterministic core…');
+    const nfCore = runNonfictionDeterministicCore(loaded, onProgress, project);
+    changes.push(...nfCore.changes);
+    nfCoreStats = nfCore.stats || {};
+  }
 
   // B1: Voice patterns
   onProgress('Polish: Fixing voice patterns…');
@@ -182,24 +198,31 @@ export async function runManuscriptPolishPipeline({
   changes.push(...extResult.changes);
   const externalPatternsFixed = extResult.fixed || 0;
 
-  // B3: Repetition caps (MOVED from ProjectStudio inline)
+  // B3: Repetition caps (fiction-only — NF has its own rep targets in NF core)
   onProgress('Polish: Fixing repetition…');
-  const repResult = runRepetitionCaps(loaded, { isAnthology, isComedy, chapterCount, changes });
-  const repFixed = repResult.repFixed || 0;
+  let repFixed = 0;
+  if (mode !== 'nonfiction') {
+    const repResult = runRepetitionCaps(loaded, { isAnthology, isComedy, chapterCount, changes });
+    repFixed = repResult.repFixed || 0;
+  } else {
+    repFixed = nfCoreStats.repFixed || 0;
+  }
 
-  // B4: Dialogue tag caps + coping mechanism caps + broken sentence fixes
-  const dialogueTagResult = isAnthology
-    ? runPerChapter(loaded, (l, prog) => runDialogueTagCaps(l, prog), [onProgress])
-    : runDialogueTagCaps(loaded, onProgress);
-  changes.push(...dialogueTagResult.changes);
-  const copingResult = isAnthology
-    ? runPerChapter(loaded, (l, prog) => runCopingMechanismCaps(l, prog), [onProgress])
-    : runCopingMechanismCaps(loaded, onProgress);
-  changes.push(...copingResult.changes);
+  // B4: Dialogue tag caps + coping mechanism caps + broken sentence fixes (fiction-only)
+  if (mode !== 'nonfiction') {
+    const dialogueTagResult = isAnthology
+      ? runPerChapter(loaded, (l, prog) => runDialogueTagCaps(l, prog), [onProgress])
+      : runDialogueTagCaps(loaded, onProgress);
+    changes.push(...dialogueTagResult.changes);
+    const copingResult = isAnthology
+      ? runPerChapter(loaded, (l, prog) => runCopingMechanismCaps(l, prog), [onProgress])
+      : runCopingMechanismCaps(loaded, onProgress);
+    changes.push(...copingResult.changes);
+  }
   const brokenResult = runBrokenSentenceFixes(loaded, onProgress);
   changes.push(...brokenResult.changes);
 
-  // B5: Dynamic high-frequency phrase detection (novel mode only, report only)
+  // B5: Dynamic high-frequency phrase detection
   if (!isAnthology) {
     runHighFrequencyPhraseDetection(loaded, chapterCount, changes);
   }
@@ -225,9 +248,9 @@ export async function runManuscriptPolishPipeline({
   const aiResist = runAiDetectionResistance(loaded, onProgress);
   changes.push(...aiResist.changes);
 
-  // B8: Scene duplicate sweep (if provided by caller)
+  // B8: Scene duplicate sweep (fiction only)
   let sceneDuplicateStats = { blocksRemoved: 0, wordsRemoved: 0, reportedOnly: 0, chaptersChanged: 0, skippedUnsafe: 0 };
-  if (sceneDuplicateSweep) {
+  if (mode !== 'nonfiction' && sceneDuplicateSweep) {
     onProgress('Polish: Running scene duplicate sweep…');
     const sceneDupResult = sceneDuplicateSweep(loaded, onProgress, {
       project, isAnthology, chapterCount,
@@ -277,7 +300,6 @@ export async function runManuscriptPolishPipeline({
       canonNamesFixed += canonRepair.repairs?.length || 1;
       changes.push(`Ch.${f.chapter?.chapter_number || '?'}: canon-name lock repaired ${canonRepair.repairs?.join('; ') || ''}`);
     }
-    // Note: forceSongbirdAliasRepairText is project-specific and runs in ProjectStudio.
   }
 
   // C4: Final artifact cleanup
@@ -285,32 +307,29 @@ export async function runManuscriptPolishPipeline({
   const artifactResult = repairLoadedManuscriptArtifacts(loaded, { project, forceSongbirdAliases: true });
   changes.push(...artifactResult.changes);
 
-  // C5: Grammar repair + quote repair + dialogue mechanics + AI-slop
-  onProgress('Polish: Deterministic grammar repair…');
+  // C5: Deterministic grammar repair + dialogue mechanics
+  onProgress('Polish: Running grammar repair…');
   let grammarRepairCount = 0;
   let quoteRepairCount = 0;
   let dialogueRepairCount = 0;
   let midParaAutoFixCount = 0;
   let slopRepairCount = 0;
 
-  for (const f of loaded) {
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
     // Grammar
     const gResult = runDeterministicGrammarRepair(f.content || '');
     if (gResult.repairs.length > 0) { f.content = gResult.text; grammarRepairCount += gResult.repairs.length; }
-
     // Missing opening quotes
     const qResult = repairMissingOpeningQuotes(f.content || '');
     if (qResult.repairs.length > 0) { f.content = qResult.text; quoteRepairCount += qResult.repairs.length; }
-
-    // Dialogue mechanics
-    if (shouldRunDialogueRepair(f.content || '', project)) {
+    // Dialogue mechanics (fiction only — NF source quotes must not be reformatted)
+    if (mode !== 'nonfiction' && shouldRunDialogueRepair(f.content || '', project)) {
       const dmResult = runDialogueMechanicsPass(f.content || '', {});
       if (dmResult.repairs.length > 0) { f.content = dmResult.text; dialogueRepairCount += dmResult.repairs.length; }
-
       const mpResult = runMidParagraphDialogueAutofixPass(f.content || '', {});
       if (mpResult.midParagraphAutoFixed > 0) { f.content = mpResult.text; midParaAutoFixCount += mpResult.midParagraphAutoFixed; }
     }
-
     // AI-slop reduction
     if (shouldRunAISlopReduction(project)) {
       const slopResult = runAISlopReductionPass(f.content || '', {});
@@ -335,62 +354,104 @@ export async function runManuscriptPolishPipeline({
   let llmFallbackCount = 0;
 
   if (allowLLM) {
-    onProgress('Polish: Running LLM prose polisher…');
-    const briefContext = project
-      ? `${project.title || ''} — ${project.genre || 'Fiction'}, ${project.pov_mode || 'Third person'}, ${project.tense || 'Past tense'}`
-      : '';
+    if (mode === 'nonfiction') {
+      // ── NF Mode: Anti-chatbot recast pipeline (heading/citation safe) ──
+      onProgress('Polish (NF): Running anti-chatbot recast pipeline…');
+      for (let i = 0; i < loaded.length; i++) {
+        const f = loaded[i];
+        const chNum = f.chapter?.chapter_number || (i + 1);
+        onProgress(`Polish (NF): Anti-chatbot recast Ch.${chNum} (${i + 1}/${loaded.length})…`);
+        const preLLMContent = f.content;
+        const preLLMSlop = runAISlopReductionPass(preLLMContent, {});
+        const preLLMSlopTotal = preLLMSlop.beforeTotal || 0;
 
-    for (let i = 0; i < loaded.length; i++) {
-      const f = loaded[i];
-      const chNum = f.chapter?.chapter_number || (i + 1);
-      const chTitle = f.chapter?.title || `Chapter ${chNum}`;
-      onProgress(`Polish: LLM polishing Ch.${chNum} (${i + 1}/${loaded.length})…`);
-
-      // Capture pre-LLM state for slop regression check
-      const preLLMContent = f.content;
-      const preLLMSlop = runAISlopReductionPass(preLLMContent, {});
-      const preLLMSlopTotal = preLLMSlop.beforeTotal || 0;
-      const wordsBefore = (f.content || '').split(/\s+/).length;
-
-      try {
-        const llmResult = await polishChapterWithLLM({
-          chapterText: f.content,
-          chapterTitle: chTitle,
-          chapterNumber: chNum,
-          projectContext: briefContext,
-          project,
-          timeoutMs: 600000,
-        });
-
-        if (llmResult.ok) {
-          // ── Slop regression check: reject LLM output if it increases slop ──
-          const postLLMSlop = runAISlopReductionPass(llmResult.text, {});
-          const postLLMSlopTotal = postLLMSlop.beforeTotal || 0;
-
-          if (postLLMSlopTotal > preLLMSlopTotal + 2) {
-            // LLM made slop WORSE → revert
-            llmFallbackCount++;
-            llmPolishLog.push({ chapter: chNum, ok: false, error: `slop regression (${preLLMSlopTotal} → ${postLLMSlopTotal})`, fallback: true });
-            changes.push(`Ch.${chNum}: LLM polish REVERTED — slop regression (${preLLMSlopTotal} → ${postLLMSlopTotal})`);
-            console.warn(`[POLISH-RUNNER] Ch.${chNum}: LLM slop regression — reverting`);
+        try {
+          const recastResult = await runAntiChatbotRecastPipeline(f.content, project, {
+            mode: 'conservative',
+            chapterNumber: chNum,
+          });
+          if (recastResult && recastResult.text && recastResult.text !== f.content) {
+            // Slop regression check
+            const postSlop = runAISlopReductionPass(recastResult.text, {});
+            const postSlopTotal = postSlop.beforeTotal || 0;
+            if (postSlopTotal > preLLMSlopTotal + 2) {
+              llmFallbackCount++;
+              llmPolishLog.push({ chapter: chNum, ok: false, error: `NF recast slop regression (${preLLMSlopTotal} → ${postSlopTotal})`, fallback: true });
+              changes.push(`Ch.${chNum}: NF recast REVERTED — slop regression`);
+            } else {
+              f.content = recastResult.text;
+              llmPolishCount++;
+              changes.push(`Ch.${chNum}: NF anti-chatbot recast applied (${recastResult.chunksRecast || 0} chunks)`);
+            }
           } else {
-            f.content = llmResult.text;
-            llmPolishCount++;
-            const wordsAfter = (llmResult.text || '').split(/\s+/).length;
-            changes.push(`Ch.${chNum}: LLM polished (${wordsBefore} → ${wordsAfter} words)`);
+            llmPolishLog.push({ chapter: chNum, ok: true, skipped: true });
           }
-        } else {
+        } catch (err) {
           llmFallbackCount++;
-          llmPolishLog.push({ chapter: chNum, ok: false, error: llmResult.error, fallback: true });
-          changes.push(`Ch.${chNum}: LLM polish fallback — ${llmResult.error || 'unknown'}`);
+          llmPolishLog.push({ chapter: chNum, ok: false, error: err?.message, fallback: true });
+          changes.push(`Ch.${chNum}: NF recast error — ${err?.message}`);
         }
-      } catch (err) {
-        llmFallbackCount++;
-        llmPolishLog.push({ chapter: chNum, ok: false, error: err?.message, fallback: true });
-        changes.push(`Ch.${chNum}: LLM polish error — ${err?.message}`);
       }
+      changes.push(`NF Anti-Chatbot Recast: ${llmPolishCount} recasted, ${llmFallbackCount} fallback.`);
+    } else {
+      // ── Fiction Mode: LLM prose polish ──
+      onProgress('Polish: Running LLM prose polisher…');
+      const briefContext = project
+        ? `${project.title || ''} — ${project.genre || 'Fiction'}, ${project.pov_mode || 'Third person'}, ${project.tense || 'Past tense'}`
+        : '';
+
+      for (let i = 0; i < loaded.length; i++) {
+        const f = loaded[i];
+        const chNum = f.chapter?.chapter_number || (i + 1);
+        const chTitle = f.chapter?.title || `Chapter ${chNum}`;
+        onProgress(`Polish: LLM polishing Ch.${chNum} (${i + 1}/${loaded.length})…`);
+
+        // Capture pre-LLM state for slop regression check
+        const preLLMContent = f.content;
+        const preLLMSlop = runAISlopReductionPass(preLLMContent, {});
+        const preLLMSlopTotal = preLLMSlop.beforeTotal || 0;
+        const wordsBefore = (f.content || '').split(/\s+/).length;
+
+        try {
+          const llmResult = await polishChapterWithLLM({
+            chapterText: f.content,
+            chapterTitle: chTitle,
+            chapterNumber: chNum,
+            projectContext: briefContext,
+            project,
+            timeoutMs: 600000,
+          });
+
+          if (llmResult.ok) {
+            // ── Slop regression check: reject LLM output if it increases slop ──
+            const postLLMSlop = runAISlopReductionPass(llmResult.text, {});
+            const postLLMSlopTotal = postLLMSlop.beforeTotal || 0;
+
+            if (postLLMSlopTotal > preLLMSlopTotal + 2) {
+              // LLM made slop WORSE → revert
+              llmFallbackCount++;
+              llmPolishLog.push({ chapter: chNum, ok: false, error: `slop regression (${preLLMSlopTotal} → ${postLLMSlopTotal})`, fallback: true });
+              changes.push(`Ch.${chNum}: LLM polish REVERTED — slop regression (${preLLMSlopTotal} → ${postLLMSlopTotal})`);
+              console.warn(`[POLISH-RUNNER] Ch.${chNum}: LLM slop regression — reverting`);
+            } else {
+              f.content = llmResult.text;
+              llmPolishCount++;
+              const wordsAfter = (llmResult.text || '').split(/\s+/).length;
+              changes.push(`Ch.${chNum}: LLM polished (${wordsBefore} → ${wordsAfter} words)`);
+            }
+          } else {
+            llmFallbackCount++;
+            llmPolishLog.push({ chapter: chNum, ok: false, error: llmResult.error, fallback: true });
+            changes.push(`Ch.${chNum}: LLM polish fallback — ${llmResult.error || 'unknown'}`);
+          }
+        } catch (err) {
+          llmFallbackCount++;
+          llmPolishLog.push({ chapter: chNum, ok: false, error: err?.message, fallback: true });
+          changes.push(`Ch.${chNum}: LLM polish error — ${err?.message}`);
+        }
+      }
+      changes.push(`LLM Prose Polish: ${llmPolishCount} polished, ${llmFallbackCount} fallback.`);
     }
-    changes.push(`LLM Prose Polish: ${llmPolishCount} polished, ${llmFallbackCount} fallback.`);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -457,6 +518,18 @@ export async function runManuscriptPolishPipeline({
     else if (refReport.warnings?.length > 0) changes.push('Reference integrity: ' + refReport.summary);
   }
 
+  // Essay imbalance detection (NF diagnostic — report only, never rewrites)
+  if (mode === 'nonfiction') {
+    onProgress('Polish (NF): Checking essay/narrative balance…');
+    for (const f of loaded) {
+      const chNum = f.chapter?.chapter_number || '?';
+      const imbalance = detectEssayImbalance(f.content || '', project);
+      if (imbalance.warnings.length > 0) {
+        changes.push(...imbalance.warnings.map(w => `Ch.${chNum}: ${w}`));
+      }
+    }
+  }
+
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 
   return {
@@ -494,6 +567,7 @@ export async function runManuscriptPolishPipeline({
         grammarFixed: styleTicResult.grammarArtifactsFixed || 0,
         chaptersChanged: styleTicResult.changedChapterCount || 0,
       },
+      nfCore: nfCoreStats,
     },
     // Legacy flat fields (kept for backward compat)
     bannedRecastCount,
