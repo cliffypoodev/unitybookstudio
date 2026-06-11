@@ -72,6 +72,7 @@ export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.0 — 2026-06-10';
  * @param {boolean} [options.allowLLM=true] - Enable LLM prose polish
  * @param {string} [options.mode='fiction'] - 'fiction' or 'nonfiction'
  * @param {Function} [options.sceneDuplicateSweep] - Scene duplicate sweep function (injected from caller)
+ * @param {Function} [options._llmOverride] - TEST ONLY: mock function replacing polishChapterWithLLM. Receives ({ chapterText, chapterNumber }) and must return { ok, text, error }.
  * @returns {Object} { changes, savedCount, unchangedCount, afterStats, gateFailures, llmLog, ... }
  */
 export async function runManuscriptPolishPipeline({
@@ -81,6 +82,7 @@ export async function runManuscriptPolishPipeline({
   allowLLM = true,
   mode = 'fiction',
   sceneDuplicateSweep = null,
+  _llmOverride = null,
 }) {
   const changes = [];
   const isAnthology = isAnthologyProject(project);
@@ -410,14 +412,16 @@ export async function runManuscriptPolishPipeline({
         const wordsBefore = (f.content || '').split(/\s+/).length;
 
         try {
-          const llmResult = await polishChapterWithLLM({
-            chapterText: f.content,
-            chapterTitle: chTitle,
-            chapterNumber: chNum,
-            projectContext: briefContext,
-            project,
-            timeoutMs: 600000,
-          });
+          const llmResult = _llmOverride
+            ? await _llmOverride({ chapterText: f.content, chapterNumber: chNum })
+            : await polishChapterWithLLM({
+                chapterText: f.content,
+                chapterTitle: chTitle,
+                chapterNumber: chNum,
+                projectContext: briefContext,
+                project,
+                timeoutMs: 600000,
+              });
 
           if (llmResult.ok) {
             // ── Slop regression check: reject LLM output if it increases slop ──
