@@ -94,6 +94,13 @@ export async function runManuscriptPolishPipeline({
   console.log(`[POLISH-RUNNER] ========== START v1.0 ==========`);
   console.log(`[POLISH-RUNNER] chapters=${chapterCount} anthology=${isAnthology} mode=${mode} allowLLM=${allowLLM}`);
 
+  // Record original word counts for global loss guard (Step 2)
+  const originalWordCounts = new Map();
+  for (const f of loaded) {
+    const chNum = f.chapter?.chapter_number || '?';
+    originalWordCounts.set(chNum, countWords(f.original || f.content || ''));
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE A: Manuscript-level pre-pass (cross-chapter deterministic)
   // ══════════════════════════════════════════════════════════════════════════
@@ -546,6 +553,28 @@ export async function runManuscriptPolishPipeline({
     }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // PHASE F: Global per-chapter content loss guard (backstop)
+  // ══════════════════════════════════════════════════════════════════════════
+  let contentLossReverts = 0;
+  for (const f of loaded) {
+    const chNum = f.chapter?.chapter_number || '?';
+    const originalWc = originalWordCounts.get(chNum) || 0;
+    if (originalWc < 50) continue; // skip trivially short chapters
+    const finalWc = countWords(f.content || '');
+    const retainedRatio = finalWc / originalWc;
+    if (retainedRatio < 0.85) {
+      const lossPct = Math.round((1 - retainedRatio) * 100);
+      console.warn(`[POLISH-RUNNER] Ch.${chNum}: GLOBAL LOSS GUARD — final ${finalWc} words is ${lossPct}% below original ${originalWc} words. REVERTING.`);
+      f.content = f.original || f.content;
+      contentLossReverts++;
+      changes.push(`Ch.${chNum} REVERTED — total content loss ${lossPct}% exceeded safety limit; flagged for manual review`);
+    }
+  }
+  if (contentLossReverts > 0) {
+    changes.push(`Content loss guard: ${contentLossReverts} chapter(s) reverted to pre-pipeline content.`);
+  }
+
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 
   return {
@@ -584,6 +613,7 @@ export async function runManuscriptPolishPipeline({
         chaptersChanged: styleTicResult.changedChapterCount || 0,
       },
       nfCore: nfCoreStats,
+      contentLossReverts,
     },
     // Legacy flat fields (kept for backward compat)
     bannedRecastCount,
