@@ -13,7 +13,14 @@ export function normalizeWritingModel(requestedModel) {
   if (requestedModel && requestedModel !== PRIMARY_WRITING_MODEL) console.warn(`[WRITING MODEL] Ignoring "${requestedModel}". Using ${PRIMARY_WRITING_MODEL}.`);
   return PRIMARY_WRITING_MODEL;
 }
-export function logWritingModelUsage(context = "Writing task") { console.log(`[WRITING MODEL] ${context}: ${PRIMARY_WRITING_MODEL} (Local)`); }
+export function logWritingModelUsage(context = "Writing task") {
+  // Only log the primary writing model for actual writing tasks.
+  // Non-writing tasks (critique, polish, research, etc.) route to specialized agents
+  // via AGENT_MODELS in localLLM.js — logging 'ghostwriter' for them is misleading.
+  if (isWritingTask(context)) {
+    console.log(`[WRITING MODEL] ${context}: ${PRIMARY_WRITING_MODEL} (Local)`);
+  }
+}
 export function isWritingTask(taskType = "") {
   const n = String(taskType || "").toLowerCase();
   if (!n) return true;
