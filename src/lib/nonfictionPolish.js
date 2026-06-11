@@ -202,6 +202,7 @@ function removeSourcePlaceholdersFromProse(content) {
     .replace(NF_SOURCE_PLACEHOLDER_RX, '')
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/(["\u201d])([a-zA-Z])/g, '$1 $2')
     .replace(/\n{4,}/g, '\n\n\n')
     .trim();
 
@@ -323,7 +324,8 @@ function reduceAbstractPhraseDensity(content) {
     .replace(/\bThe question was no longer\b/gi, 'The question changed')
     .replace(/\bWhat remained was\b/gi, 'What remained')
     .replace(/[ \t]{2,}/g, ' ')
-    .replace(/\s+([,.;:!?])/g, '$1');
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/(["\u201d])([a-zA-Z])/g, '$1 $2');
 
   return { content: next, fixed };
 }

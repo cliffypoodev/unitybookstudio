@@ -58,6 +58,7 @@ import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
 import { safeUppercaseReplace } from './safeUppercase.js';
+import { healLegacyArtifacts } from './legacyArtifactHealer.js';
 
 
 export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.0 — 2026-06-10';
@@ -96,6 +97,21 @@ export async function runManuscriptPolishPipeline({
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE A: Manuscript-level pre-pass (cross-chapter deterministic)
   // ══════════════════════════════════════════════════════════════════════════
+
+  // A0: Legacy artifact healing (baked-in corruption from pre-merge pipeline)
+  onProgress('Polish: Healing legacy artifacts…');
+  let legacyRepairCount = 0;
+  for (const f of loaded) {
+    const healResult = healLegacyArtifacts(f.content);
+    if (healResult.repairs.length > 0) {
+      f.content = healResult.text;
+      legacyRepairCount += healResult.repairs.length;
+      changes.push(`Ch.${f.chapter?.chapter_number || '?'}: healed ${healResult.repairs.length} legacy artifact(s)`);
+    }
+  }
+  if (legacyRepairCount > 0) {
+    changes.push(`Legacy artifact healing: ${legacyRepairCount} repair(s).`);
+  }
 
   // A1: Banned vocabulary RECAST (synonym substitution, never empty-string)
   onProgress('Polish: Recasting banned vocabulary…');

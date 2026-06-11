@@ -326,12 +326,13 @@ function postSmartCleanup(text = '') {
 
   // Tidy quote adjacency.
   out = out
-    .replace(/”\s*“/g, '” “')
-    .replace(/“\s+/g, '“')
-    .replace(/\s+”/g, '”')
+    .replace(/\u201c\s*\u201d/g, '\u201c \u201d')
+    .replace(/\u201c\s+/g, '\u201c')
+    .replace(/\s+\u201d/g, '\u201d')
     .replace(/\s+([,.!?;:])/g, '$1')
     .replace(/[ \t]{2,}/g, ' ')
-    .replace(/\n{4,}/g, '\n\n\n');
+    .replace(/\n{4,}/g, '\n\n\n')
+    .replace(/(["\u201d])([a-zA-Z])/g, '$1 $2');
 
   return out;
 }

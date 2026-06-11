@@ -1,7 +1,7 @@
 // tests/forensicPhraseChapterBudget.test.mjs
 // Verifies forensic phrase budgets: budget=1, per-chapter, grammatical recasts, varied outputs
 
-import { reduceAISlopDeterministic, buildAISlopBudgetReport } from '../src/lib/aiSlopReduction.js';
+import { reduceAISlopDeterministic, buildAISlopBudgetReport, recastBannedVocabulary } from '../src/lib/aiSlopReduction.js';
 
 let passed = 0;
 let failed = 0;
@@ -140,6 +140,43 @@ console.log('\n── Test 6: Single occurrence within budget ──');
   const result = reduceAISlopDeterministic(text);
   assert('6a. No repairs needed', result.repairs.length === 0);
   assert('6b. Text unchanged', result.text.trim() === text.trim());
+}
+
+// ── TEST 7: "testament to" preposition-aware recast ──
+console.log('\n── Test 7: "testament to" preposition-aware recast ──');
+{
+  const text = 'It was a testament to greed. A testament to ambition. Pure testament to recklessness.';
+  const result = recastBannedVocabulary(text);
+  assert('7a. No "proof to" in output', !result.text.includes('proof to'));
+  assert('7b. No "evidence to" in output', !result.text.includes('evidence to'));
+  assert('7c. No "sign to" in output', !result.text.includes('sign to'));
+  // Should use tribute to / monument to / proof of
+  const hasValidRecast = result.text.includes('tribute to') || result.text.includes('monument to') || result.text.includes('proof of');
+  assert('7d. Has valid preposition-aware recast', hasValidRecast);
+  assert('7e. Recasts were logged', result.recasts.length >= 3);
+}
+
+// ── TEST 8: "the question therefore shifts to" grammar-safe recast ──
+console.log('\n── Test 8: "question therefore shifts to" grammar-safe recast ──');
+{
+  const text = 'The question therefore shifts to the courts. The question therefore shifts to public opinion. The question therefore shifts entirely.';
+  const result = reduceAISlopDeterministic(text);
+  assert('8a. No "becomes to" in output', !result.text.includes('becomes to'));
+  // The "to" versions should use to-compatible alts
+  assert('8b. Output is non-empty and meaningful', result.text.trim().length > 30);
+}
+
+// ── TEST 9: Clause-guard for "the record suggests" ──
+console.log('\n── Test 9: Clause-guard for "the record suggests" ──');
+{
+  const text = 'The record suggests no inspection followed. The record suggests a cover-up. The record suggests they were complicit.';
+  const result = reduceAISlopDeterministic(text);
+  assert('9a. No "point to no inspection" in output', !result.text.includes('point to no'));
+  assert('9b. No "point to they" in output', !result.text.includes('point to they'));
+  assert('9c. Output is grammatically coherent (non-empty)', result.text.trim().length > 30);
+  // The clause-following instances should use clause-compatible alternatives
+  const hasClauseAlt = result.text.includes('implies') || result.text.includes('indicate') || result.text.includes('suggest');
+  assert('9d. Clause-compatible alternatives used', hasClauseAlt || result.repairs.length === 0);
 }
 
 // ── SUMMARY ──

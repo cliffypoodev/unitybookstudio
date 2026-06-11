@@ -639,12 +639,30 @@ export function reduceAISlopDeterministic(text, options = {}) {
     {
       name: 'the available accounts indicate',
       rx: /\bthe\s+available\s+accounts\s+indicate\b/gi,
-      alts: ['the evidence indicates', 'records indicate', 'the sources show'],
+      altsFn: (match, snippet) => {
+        const matchIdx = snippet.toLowerCase().indexOf(match.toLowerCase());
+        const afterMatch = matchIdx >= 0 ? snippet.substring(matchIdx + match.length).trim() : '';
+        const firstWord = (afterMatch.match(/^\w+/) || [''])[0].toLowerCase();
+        const CLAUSE_STARTS = new Set(['no','not','that','it','he','she','they','we','this','there','nothing','everything','something','neither','both','all','none','each','any','some']);
+        if (CLAUSE_STARTS.has(firstWord)) {
+          return ['the evidence indicates', 'records indicate', 'the sources confirm'];
+        }
+        return ['the evidence points to', 'records point to', 'the sources show'];
+      },
     },
     {
       name: 'the available accounts suggest',
       rx: /\bthe\s+available\s+accounts\s+suggest\b/gi,
-      alts: ['the evidence suggests', 'records suggest', 'the sources imply'],
+      altsFn: (match, snippet) => {
+        const matchIdx = snippet.toLowerCase().indexOf(match.toLowerCase());
+        const afterMatch = matchIdx >= 0 ? snippet.substring(matchIdx + match.length).trim() : '';
+        const firstWord = (afterMatch.match(/^\w+/) || [''])[0].toLowerCase();
+        const CLAUSE_STARTS = new Set(['no','not','that','it','he','she','they','we','this','there','nothing','everything','something','neither','both','all','none','each','any','some']);
+        if (CLAUSE_STARTS.has(firstWord)) {
+          return ['the evidence suggests', 'records suggest', 'the sources imply'];
+        }
+        return ['the evidence points to', 'records point to', 'the sources show'];
+      },
     },
     {
       name: 'what remains unclear is',
@@ -664,7 +682,17 @@ export function reduceAISlopDeterministic(text, options = {}) {
     {
       name: 'the record suggests',
       rx: /\bthe\s+record\s+suggests\b/gi,
-      alts: ['the evidence implies', 'documents suggest', 'sources point to'],
+      altsFn: (match, snippet) => {
+        // Check what follows the match to determine clause vs noun context
+        const matchIdx = snippet.toLowerCase().indexOf(match.toLowerCase());
+        const afterMatch = matchIdx >= 0 ? snippet.substring(matchIdx + match.length).trim() : '';
+        const firstWord = (afterMatch.match(/^\w+/) || [''])[0].toLowerCase();
+        const CLAUSE_STARTS = new Set(['no','not','that','it','he','she','they','we','this','there','nothing','everything','something','neither','both','all','none','each','any','some']);
+        if (CLAUSE_STARTS.has(firstWord)) {
+          return ['the evidence implies', 'documents suggest', 'the record indicates'];
+        }
+        return ['the evidence points to', 'documents confirm', 'sources point to'];
+      },
     },
     {
       name: 'this suggests (sentence opener)',
@@ -673,8 +701,13 @@ export function reduceAISlopDeterministic(text, options = {}) {
     },
     {
       name: 'the question therefore shifts',
+      rx: /\bthe\s+question\s+therefore\s+shifts\s+to\b/gi,
+      alts: ['the focus then moves to', 'attention turns to', 'the inquiry turns to'],
+    },
+    {
+      name: 'the question therefore shifts',
       rx: /\bthe\s+question\s+therefore\s+shifts\b/gi,
-      alts: ['the question then becomes', 'the focus moves to', 'attention turns to'],
+      alts: ['the question then becomes', 'the focus shifts', 'the central question becomes'],
     },
   ];
 
@@ -682,8 +715,14 @@ export function reduceAISlopDeterministic(text, options = {}) {
     if (!overBudgetMap[fp.name]) continue;
     const info = overBudgetMap[fp.name];
     let fpIdx = 0;
-    result = recastExcess(result, fp.rx, info.budget, fp.name, (match) => {
-      const alt = fp.alts[fpIdx % fp.alts.length];
+    result = recastExcess(result, fp.rx, info.budget, fp.name, (match, snippet) => {
+      let alt;
+      if (fp.altsFn) {
+        const altsPool = fp.altsFn(match, snippet);
+        alt = altsPool[fpIdx % altsPool.length];
+      } else {
+        alt = fp.alts[fpIdx % fp.alts.length];
+      }
       fpIdx++;
       // Preserve original capitalisation
       const replacement = match[0] === match[0].toUpperCase()
@@ -825,6 +864,23 @@ export function recastBannedVocabulary(text) {
   if (!result.trim()) {
     return { text: result, recasts };
   }
+
+  // ── Special phrase handling: "testament to" needs preposition-aware recast ──
+  let testamentToIdx = 0;
+  result = result.replace(/\btestament\s+to\b/gi, (match) => {
+    const alts = ['tribute to', 'monument to', 'proof of'];
+    const alt = alts[testamentToIdx % alts.length];
+    testamentToIdx++;
+    // Preserve capitalisation
+    let replacement;
+    if (match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()) {
+      replacement = alt.charAt(0).toUpperCase() + alt.slice(1);
+    } else {
+      replacement = alt;
+    }
+    recasts.push({ original: match, replacement, word: 'testament' });
+    return replacement;
+  });
 
   // Track per-word cycling index
   const cycleIndex = {};
