@@ -138,7 +138,7 @@ export async function runManuscriptPolishPipeline({
       // Guard 1: ellipsis
       if (/\.{2,}$/.test(preceding)) return match;
       // Guard 2: abbreviation whitelist
-      if (/\b(?:e\.g|i\.e|etc|vs|viz|a\.m|p\.m|cf|al|Dr|Mr|Mrs|Ms|St|No|Jr|Sr|Prof|Rev)\.\s$/i.test(preceding)) return match;
+      if (/\b(?:e\.g|i\.e|etc|vs|viz|a\.m|p\.m|cf|al|Dr|Mr|Mrs|Ms|St|No|Jr|Sr|Prof|Rev)\.$/i.test(preceding)) return match;
       // Guard 3: preceding proper noun
       if (offset >= 2 && /[A-Z][a-z]/.test(f.content.substring(offset - 2, offset))) return match;
       return punct + ' ' + letter.toUpperCase();

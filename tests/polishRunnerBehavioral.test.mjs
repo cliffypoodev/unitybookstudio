@@ -99,7 +99,7 @@ assert(hasSynonyms, 'Recast map contains synonym replacements');
 
 // ── 7. NF recast uses conservative mode ──
 console.log('\n7. NF recast configuration');
-assert(runnerSource.includes("mode: 'conservative'"), 'NF recast uses conservative mode');
+assert(runnerSource.includes("recastMode: 'conservative'"), 'NF recast uses conservative mode');
 
 // ── Summary ──
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);

@@ -137,7 +137,7 @@ export function runDisclaimerStripper(loaded, onProgress) {
     f.content = f.content.replace(/\n\s*\n\s*\n+/g, '\n\n');  // collapse triple+ newlines
     f.content = f.content.replace(/  +/g, ' ');                 // collapse double spaces
     f.content = f.content.replace(/^\s+/gm, (m) => m.replace(/ +/, '')); // leading spaces on lines
-    f.content = f.content.replace(/\.\s*\.\s/g, '. ');          // double periods
+    f.content = f.content.replace(/(?<!\.)\.(\s*)\.\s(?!\.)/g, '. ');  // double periods (skip ellipsis)
     // Fix orphaned lowercase after deletion left a sentence starting mid-thought
     // GUARDED: skip abbreviations (e.g., i.e., etc.), ellipsis, and title abbreviations
     f.content = f.content.replace(/([.!?])\s+([a-z])/g, (m, punct, letter, offset) => {
@@ -145,7 +145,7 @@ export function runDisclaimerStripper(loaded, onProgress) {
       const preceding = f.content.substring(Math.max(0, offset - 12), offset + 1);
       if (/\.{2,}$/.test(preceding)) return m;
       // Guard 2: abbreviation whitelist — e.g., i.e., etc., vs., a.m., p.m., cf., al., Dr., Mr., Mrs., Ms., St., Jr., Sr., Prof., Rev., No.
-      if (/\b(?:e\.g|i\.e|etc|vs|viz|a\.m|p\.m|cf|al|Dr|Mr|Mrs|Ms|St|No|Jr|Sr|Prof|Rev)\.\s$/i.test(preceding)) return m;
+      if (/\b(?:e\.g|i\.e|etc|vs|viz|a\.m|p\.m|cf|al|Dr|Mr|Mrs|Ms|St|No|Jr|Sr|Prof|Rev)\.$/i.test(preceding)) return m;
       // Guard 3: preceding proper noun (not a true sentence end)
       if (offset >= 2 && /[A-Z][a-z]/.test(f.content.substring(offset - 2, offset))) return m;
       return punct + ' ' + letter.toUpperCase();
