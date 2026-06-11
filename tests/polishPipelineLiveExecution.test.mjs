@@ -13,6 +13,8 @@ import { runCapitalizationHygiene } from '../src/lib/capitalizationPolish.js';
 import { runAISlopReductionPass } from '../src/lib/aiSlopReduction.js';
 import { runTransitionWordCaps } from '../src/lib/chatgptPatternPolish.js';
 import { shouldUppercaseAfterPunct } from '../src/lib/safeUppercase.js';
+import { healLegacyArtifacts } from '../src/lib/legacyArtifactHealer.js';
+import { runManuscriptPolishPipeline } from '../src/lib/manuscriptPolishRunner.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -385,6 +387,102 @@ console.log('\n=== TEST 8: Blind-uppercase sweep ===\n');
       `${consumer} imports from safeUppercase.js`
     );
   }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TEST 9 — Legacy corruption healing (full runner)
+// ════════════════════════════════════════════════════════════════════════════
+console.log('\nTEST 9 — Legacy corruption healing (full runner)');
+{
+  // Direct healer tests first
+  const legacyInput = 'E.g. The youTube clip played—Every frame mattered.';
+  const healed = healLegacyArtifacts(legacyInput);
+  assert(healed.text.includes('YouTube'), '9a. youTube → YouTube');
+  assert(healed.text.includes('e.g. the') || healed.text.includes('E.g. the'), '9b. E.g. The → E.g. the');
+  assert(healed.text.includes('—every'), '9c. —Every → —every');
+  assert(healed.repairs.length >= 3, '9d. At least 3 repairs logged');
+
+  // URL safety: youtube inside URL must NOT be touched
+  const urlInput = 'watch https://youtube.com/clip for details';
+  const urlHealed = healLegacyArtifacts(urlInput);
+  assert(urlHealed.text.includes('youtube.com'), '9e. youtube inside URL untouched');
+
+  // Already-correct text must not be touched
+  const correctInput = 'the YouTube channel is great';
+  const correctHealed = healLegacyArtifacts(correctInput);
+  assert(correctHealed.text === correctInput, '9f. Already-correct text unchanged');
+  assert(correctHealed.repairs.length === 0, '9g. No repairs on correct text');
+
+  // Full runner integration test
+  const legacyFixture = 'E.g. The youTube clip played—Every frame mattered. Watch https://youtube.com/clip here. The YouTube channel confirmed it.';
+  const loaded = [{
+    chapter: { chapter_number: 1, title: 'Ch 1' },
+    content: legacyFixture,
+    original: legacyFixture,
+  }];
+  await runManuscriptPolishPipeline({
+    loaded,
+    project: { title: 'Legacy Test', genre: 'thriller' },
+    allowLLM: false,
+    mode: 'fiction',
+  });
+  const output = loaded[0].content;
+  assert(output.includes('YouTube clip') || output.includes('YouTube'), '9h. Full runner: YouTube restored');
+  assert(!output.includes('youTube'), '9i. Full runner: youTube corruption gone');
+  assert(output.includes('youtube.com'), '9j. Full runner: URL youtube untouched');
+
+  // Second-pass stability
+  const loaded2 = [{
+    chapter: { chapter_number: 1, title: 'Ch 1' },
+    content: output,
+    original: output,
+  }];
+  await runManuscriptPolishPipeline({
+    loaded: loaded2,
+    project: { title: 'Legacy Test', genre: 'thriller' },
+    allowLLM: false,
+    mode: 'fiction',
+  });
+  assert(loaded2[0].content === output, '9k. Second pass is stable (idempotent)');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TEST 10 — NF quote-spacing (closing quote + space + letter preserved)
+// ════════════════════════════════════════════════════════════════════════════
+console.log('\nTEST 10 — NF quote-spacing');
+{
+  const nfFixture = '"Quote with bad spacing," said the clerk. This was not merely a formality.';
+  const loaded = [{
+    chapter: { chapter_number: 1, title: 'Ch 1' },
+    content: nfFixture,
+    original: nfFixture,
+  }];
+  await runManuscriptPolishPipeline({
+    loaded,
+    project: { title: 'NF Quote Test', genre: 'nonfiction', type: 'true_crime' },
+    allowLLM: false,
+    mode: 'nonfiction',
+  });
+  const output = loaded[0].content;
+  // The closing quote must be followed by a space before "said"
+  assert(!output.includes(',"said') && !output.includes(',\u201dsaid'), '10a. No collapsed quote+said');
+  assert(output.includes('" said') || output.includes('\u201d said') || output.includes('," said') || output.includes(',\u201d said'), '10b. Space after closing quote preserved');
+
+  // Second fixture: more pathological
+  const nfFixture2 = '"Evidence was clear," he explained. The available accounts indicate a pattern. This was not simply about greed.';
+  const loaded2 = [{
+    chapter: { chapter_number: 1, title: 'Ch 1' },
+    content: nfFixture2,
+    original: nfFixture2,
+  }];
+  await runManuscriptPolishPipeline({
+    loaded: loaded2,
+    project: { title: 'NF Quote Test 2', genre: 'nonfiction', type: 'true_crime' },
+    allowLLM: false,
+    mode: 'nonfiction',
+  });
+  const output2 = loaded2[0].content;
+  assert(!output2.includes('"he') && !output2.includes('\u201dhe'), '10c. No collapsed quote+he in fixture 2');
 }
 
 // ════════════════════════════════════════════════════════════════════════════
