@@ -18,6 +18,7 @@
 
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
+import { shouldUppercaseAfterPunct } from '@/lib/safeUppercase';
 
 const POST_DRAFT_CLEANUP_VERSION = 'MICRO-COPYEDIT v4 HARD-SURVIVOR FINAL PASS - 2026-05-02';
 
@@ -528,11 +529,7 @@ function regexCleanup(inputText, options = {}) {
 
   let capFixed = 0;
   t = t.replace(/([.!?])\s+([a-z])/g, (match, punct, letter, offset) => {
-    const before = t.slice(Math.max(0, offset - 12), offset + 1);
-
-    if (/\b(?:mr|mrs|ms|dr|st|prof|sr|jr)\.$/i.test(before.trim())) return match;
-    if (/\.\.\.$/.test(before)) return match;
-
+    if (!shouldUppercaseAfterPunct(t, offset, letter)) return match;
     capFixed += 1;
     return `${punct} ${letter.toUpperCase()}`;
   });
