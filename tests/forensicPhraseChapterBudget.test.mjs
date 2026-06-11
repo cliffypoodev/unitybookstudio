@@ -166,17 +166,43 @@ console.log('\n── Test 8: "question therefore shifts to" grammar-safe recast
   assert('8b. Output is non-empty and meaningful', result.text.trim().length > 30);
 }
 
-// ── TEST 9: Clause-guard for "the record suggests" ──
-console.log('\n── Test 9: Clause-guard for "the record suggests" ──');
+// ── TEST 9: Universal-complement verbs for "the record suggests" ──
+console.log('\n── Test 9: Universal-complement verbs for "the record suggests" ──');
 {
   const text = 'The record suggests no inspection followed. The record suggests a cover-up. The record suggests they were complicit.';
   const result = reduceAISlopDeterministic(text);
-  assert('9a. No "point to no inspection" in output', !result.text.includes('point to no'));
-  assert('9b. No "point to they" in output', !result.text.includes('point to they'));
+  assert('9a. No "points to" in output', !result.text.includes('points to'));
+  assert('9b. No "point to" in output', !result.text.includes('point to'));
   assert('9c. Output is grammatically coherent (non-empty)', result.text.trim().length > 30);
-  // The clause-following instances should use clause-compatible alternatives
-  const hasClauseAlt = result.text.includes('implies') || result.text.includes('indicate') || result.text.includes('suggest');
-  assert('9d. Clause-compatible alternatives used', hasClauseAlt || result.repairs.length === 0);
+  // All alternatives are now universal-complement: implies, suggest, indicates
+  const hasUniversalAlt = result.text.includes('implies') || result.text.includes('suggest') || result.text.includes('indicates');
+  assert('9d. Universal-complement alternatives used', hasUniversalAlt || result.repairs.length === 0);
+}
+
+// ── TEST 10: 6-tic evidence-verb fixture (mixed clause/NP continuations) ──
+console.log('\n── Test 10: 6-tic evidence-verb fixture (clause + NP mixed) ──');
+{
+  // 6 forensic tics alternating clause and NP continuations
+  const text = [
+    'The record suggests officials knew about the danger.',
+    'The record suggests a cover-up at the highest levels.',
+    'The available accounts indicate no inspection followed the fire.',
+    'The available accounts indicate a pattern of negligence.',
+    'The available accounts suggest they were warned repeatedly.',
+    'The available accounts suggest pressure from the mayor.',
+  ].join(' ');
+  const result = reduceAISlopDeterministic(text);
+  // NP-only verbs must never appear
+  assert('10a. No "points to officials" in output', !result.text.includes('points to officials'));
+  assert('10b. No "point to no" in output', !result.text.includes('point to no'));
+  assert('10c. No "points to" anywhere', !result.text.includes('points to'));
+  assert('10d. No "point to" anywhere', !result.text.includes('point to'));
+  // Check no "to" + finite-verb sequence in recast output
+  const badToVerb = /\b(?:points?\s+to|shows?\s+to)\s+(?:officials|they|no|he|she|we)\b/i;
+  assert('10e. No NP-only verb + clause start in output', !badToVerb.test(result.text));
+  // Output should be non-empty and have recasts applied
+  assert('10f. Output is non-empty', result.text.trim().length > 50);
+  assert('10g. Repairs were applied', result.repairs.length >= 2);
 }
 
 // ── SUMMARY ──
