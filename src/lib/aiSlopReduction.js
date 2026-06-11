@@ -639,30 +639,12 @@ export function reduceAISlopDeterministic(text, options = {}) {
     {
       name: 'the available accounts indicate',
       rx: /\bthe\s+available\s+accounts\s+indicate\b/gi,
-      altsFn: (match, snippet) => {
-        const matchIdx = snippet.toLowerCase().indexOf(match.toLowerCase());
-        const afterMatch = matchIdx >= 0 ? snippet.substring(matchIdx + match.length).trim() : '';
-        const firstWord = (afterMatch.match(/^\w+/) || [''])[0].toLowerCase();
-        const CLAUSE_STARTS = new Set(['no','not','that','it','he','she','they','we','this','there','nothing','everything','something','neither','both','all','none','each','any','some']);
-        if (CLAUSE_STARTS.has(firstWord)) {
-          return ['the evidence indicates', 'records indicate', 'the sources confirm'];
-        }
-        return ['the evidence points to', 'records point to', 'the sources show'];
-      },
+      alts: ['the evidence indicates', 'records indicate', 'the sources confirm'],
     },
     {
       name: 'the available accounts suggest',
       rx: /\bthe\s+available\s+accounts\s+suggest\b/gi,
-      altsFn: (match, snippet) => {
-        const matchIdx = snippet.toLowerCase().indexOf(match.toLowerCase());
-        const afterMatch = matchIdx >= 0 ? snippet.substring(matchIdx + match.length).trim() : '';
-        const firstWord = (afterMatch.match(/^\w+/) || [''])[0].toLowerCase();
-        const CLAUSE_STARTS = new Set(['no','not','that','it','he','she','they','we','this','there','nothing','everything','something','neither','both','all','none','each','any','some']);
-        if (CLAUSE_STARTS.has(firstWord)) {
-          return ['the evidence suggests', 'records suggest', 'the sources imply'];
-        }
-        return ['the evidence points to', 'records point to', 'the sources show'];
-      },
+      alts: ['the evidence suggests', 'records suggest', 'the sources imply'],
     },
     {
       name: 'what remains unclear is',
@@ -682,17 +664,7 @@ export function reduceAISlopDeterministic(text, options = {}) {
     {
       name: 'the record suggests',
       rx: /\bthe\s+record\s+suggests\b/gi,
-      altsFn: (match, snippet) => {
-        // Check what follows the match to determine clause vs noun context
-        const matchIdx = snippet.toLowerCase().indexOf(match.toLowerCase());
-        const afterMatch = matchIdx >= 0 ? snippet.substring(matchIdx + match.length).trim() : '';
-        const firstWord = (afterMatch.match(/^\w+/) || [''])[0].toLowerCase();
-        const CLAUSE_STARTS = new Set(['no','not','that','it','he','she','they','we','this','there','nothing','everything','something','neither','both','all','none','each','any','some']);
-        if (CLAUSE_STARTS.has(firstWord)) {
-          return ['the evidence implies', 'documents suggest', 'the record indicates'];
-        }
-        return ['the evidence points to', 'documents confirm', 'sources point to'];
-      },
+      alts: ['the evidence implies', 'documents suggest', 'the record indicates'],
     },
     {
       name: 'this suggests (sentence opener)',
@@ -716,13 +688,7 @@ export function reduceAISlopDeterministic(text, options = {}) {
     const info = overBudgetMap[fp.name];
     let fpIdx = 0;
     result = recastExcess(result, fp.rx, info.budget, fp.name, (match, snippet) => {
-      let alt;
-      if (fp.altsFn) {
-        const altsPool = fp.altsFn(match, snippet);
-        alt = altsPool[fpIdx % altsPool.length];
-      } else {
-        alt = fp.alts[fpIdx % fp.alts.length];
-      }
+      const alt = fp.alts[fpIdx % fp.alts.length];
       fpIdx++;
       // Preserve original capitalisation
       const replacement = match[0] === match[0].toUpperCase()
