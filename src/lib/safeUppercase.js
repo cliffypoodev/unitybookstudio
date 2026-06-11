@@ -35,6 +35,20 @@
 const ABBREVIATION_RX = /\b(?:e\.g|i\.e|etc|vs|viz|a\.m|p\.m|cf|al|Dr|Mr|Mrs|Ms|St|No|Jr|Sr|Prof|Rev)\.$/i;
 
 /**
+ * Exported abbreviation token set — single source of truth.
+ * Each entry is a lowercase token (with dots) whose trailing period is NOT
+ * a sentence terminator.  Consumers:
+ *   - antiDetectionPolish.js (abbreviation-aware sentence splitter)
+ *   - Any future module that needs to distinguish abbreviation periods.
+ */
+export const ABBREVIATION_TOKENS = new Set([
+  'e.g', 'i.e', 'etc', 'vs', 'viz',
+  'a.m', 'p.m',
+  'cf', 'al',
+  'dr', 'mr', 'mrs', 'ms', 'st', 'no', 'jr', 'sr', 'prof', 'rev',
+]);
+
+/**
  * Ellipsis regex — matches when the preceding context ends with 2+ dots.
  */
 const ELLIPSIS_RX = /\.{2,}$/;

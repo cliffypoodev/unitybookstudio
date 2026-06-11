@@ -106,6 +106,27 @@ console.log('\n── Test 5: Pre-polished text stability ──');
   assert('5b. Pass 2 === Pass 1 (stable)', p2 === p1);
 }
 
+// ── TEST 6: Abbreviation-aware convergence (a.m., p.m., Dr., e.g.) ──
+console.log('\n── Test 6: Abbreviation-period preservation ──');
+{
+  const fixture = 'The a.m. recordings were critical. The p.m. logs were not. Dr. Chen reviewed both, e.g. the night batch.';
+  const [p1, p2, p3] = await runPasses(fixture, 'nonfiction');
+
+  // Abbreviation periods must survive — never converted to semicolons
+  assert('6a. "a.m." preserved in output', p1.includes('a.m.'));
+  assert('6b. "p.m." preserved in output', p1.includes('p.m.'));
+  assert('6c. "Dr." preserved in output', p1.includes('Dr.'));
+  assert('6d. "e.g." preserved in output', p1.includes('e.g.'));
+  // No semicolon directly after an abbreviation
+  assert('6e. No "a.m;" in output', !p1.includes('a.m;'));
+  assert('6f. No "p.m;" in output', !p1.includes('p.m;'));
+  assert('6g. No "Dr;" in output', !p1.includes('Dr;'));
+  assert('6h. No "e.g;" in output', !p1.includes('e.g;'));
+  // Convergence
+  assert('6i. Pass 2 === Pass 1 (convergent)', p2 === p1);
+  assert('6j. Pass 3 === Pass 2 (stable)', p3 === p2);
+}
+
 // ── SUMMARY ──
 console.log(`\n${'═'.repeat(60)}`);
 console.log(`CONVERGENCE: ${passed} passed, ${failed} failed out of ${passed + failed}`);
