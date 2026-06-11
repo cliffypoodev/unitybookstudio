@@ -4929,7 +4929,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
               label: 'Polish',
               layout: 'split',
               left: <ReviewChapterList chapters={chapters} busyLabel={busyLabel} />,
-              right: <ManuscriptDashboard project={project} chapters={chapters} busyLabel={busyLabel} polishResults={polishResults} />,
+              right: <ManuscriptDashboard project={project} chapters={chapters} busyLabel={busyLabel} polishResults={polishResults} onFixEntireManuscript={handlePolishRouted} />,
             },
             {
               id: 'export',

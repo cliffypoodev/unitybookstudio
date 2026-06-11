@@ -7688,6 +7688,12 @@ function buildHumanSummary(report) {
   return lines.join('\n');
 }
 
+/**
+ * @deprecated Use runManuscriptPolishPipeline (via ProjectStudio's handlePolishRouted) instead.
+ * This legacy fixer is retained for programmatic/test use only. It does NOT run the unified
+ * pipeline (no forensic-phrase reduction, no banned-vocab recast, no legacy healer, no LLM phase).
+ * All UI controls should route through handlePolishRouted → runManuscriptPolishPipeline.
+ */
 export async function fixEntireManuscript({
   project,
   chapters,

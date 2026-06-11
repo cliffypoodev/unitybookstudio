@@ -1,6 +1,6 @@
 // src/lib/integrationRetry.js — FULL REPLACEMENT for local Ollama
 
-import { callAgent, callOllama, AGENT_MODELS } from '@/lib/localLLM';
+import { callAgent, callOllama, AGENT_MODELS, resolveAgent } from '@/lib/localLLM';
 import { resolveWritingModel, normalizeWritingModel, logWritingModelUsage, isWritingTask } from '@/lib/writingModel';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -82,8 +82,19 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
     console.warn('[LOCAL-LLM] Web search requested but not available locally. Proceeding without web context.');
   }
 
-  const resolvedModel = payload.model || null;
-  console.log(`[LLM-RETRY] taskType=${taskType} model=${resolvedModel || 'default'} context=${context}`);
+  // Guard: if the caller passed the primary writing model (ghostwriter) as an explicit
+  // model, but the task_type resolves to a non-ghostwriter agent (critic, polisher, etc.),
+  // drop the model override so callAgent uses the agent's own model from AGENT_MODELS.
+  let resolvedModel = payload.model || null;
+  if (resolvedModel) {
+    const agentKey = resolveAgent(taskType, payload._project || payload.project || null);
+    const agentModel = AGENT_MODELS[agentKey];
+    if (resolvedModel === AGENT_MODELS.ghostwriter && agentModel && agentModel !== AGENT_MODELS.ghostwriter) {
+      console.log(`[LLM-RETRY] Dropping explicit model '${resolvedModel}' for task '${taskType}' — agent '${agentKey}' uses '${agentModel}'`);
+      resolvedModel = null;
+    }
+  }
+  console.log(`[LLM-RETRY] taskType=${taskType} model=${resolvedModel || 'agent-default'} context=${context}`);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {

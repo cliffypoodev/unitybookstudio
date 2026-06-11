@@ -33,7 +33,8 @@ import { countWords } from '@/lib/autonovel';
 import { base44 } from '@/api/base44Client';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
-import { fixEntireManuscript } from '@/lib/manuscriptFixer';
+// NOTE: fixEntireManuscript is intentionally NOT imported here.
+// All polish is routed through ProjectStudio's handlePolishRouted → runManuscriptPolishPipeline.
 
 const MANUSCRIPT_DASHBOARD_VERSION = 'ManuscriptDashboard-fixer-prop-safe-v2';
 console.log('[MANUSCRIPT-DASHBOARD] Loaded', MANUSCRIPT_DASHBOARD_VERSION);
@@ -144,8 +145,7 @@ export default function ManuscriptDashboard({
   const polishHandler =
     onFixEntireManuscript ||
     onManuscriptPolish ||
-    onPolish ||
-    fixEntireManuscript;
+    onPolish;
 
   const loadStats = async () => {
     if (!drafted.length) {
@@ -242,19 +242,13 @@ export default function ManuscriptDashboard({
       let report = null;
 
       /*
-       * Important:
-       * Some parents pass a wrapper handler that expects no args.
-       * Some parents pass the raw fixEntireManuscript function, which REQUIRES
-       * { project, chapters, onProgress }.
-       *
-       * Calling with the payload is safe for wrapper handlers because extra args
-       * are ignored by JavaScript, and it fixes the raw-function crash:
-       * "Project is required."
+       * The polish handler is always a ProjectStudio wrapper (handlePolishRouted)
+       * that uses its own state for project/chapters. Extra args are safely ignored.
        */
       report = await polishHandler(payload);
 
-      if (!report && polishHandler !== fixEntireManuscript) {
-        // If a parent wrapper performed the work but returned nothing, keep UI stable.
+      if (!report) {
+        // Parent wrapper performed the work but returned nothing — keep UI stable.
         report = {
           summary: 'Fix Entire Manuscript completed. Refresh stats/export to review results.',
         };
