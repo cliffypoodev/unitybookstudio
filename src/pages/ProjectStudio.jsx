@@ -153,9 +153,10 @@ const DEFAULT_OPTIONS = {
   minDuplicateBlockWords: 220,
   minDuplicateBlockParagraphs: 3,
   minParagraphWords: 10,
+  nearExactThreshold: 0.95,
   highConfidenceThreshold: 0.42,
   mediumConfidenceThreshold: 0.36,
-  maxRemovalRatioPerChapter: 0.55,
+  maxRemovalRatioPerChapter: 0.10,
   maxBlocksRemovedPerChapter: 12,
   allowCrossChapterRemoval: false,
   reportCrossChapterOnly: true,
@@ -667,6 +668,7 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
       const markerSignal = Math.max(jaccard(primary.markers || new Set(), duplicate.markers || new Set()), containmentScore((primary.markers?.size || 0) <= (duplicate.markers?.size || 0) ? primary.markers : duplicate.markers, (primary.markers?.size || 0) > (duplicate.markers?.size || 0) ? primary.markers : duplicate.markers));
       const structuralSignal = sharedTags.length >= 1 || nameSignal >= 0.42 || anchorSignal >= 0.56 || markerSignal >= 0.30;
 
+      const nearExact = score >= options.nearExactThreshold && structuralSignal;
       const highConfidence = score >= options.highConfidenceThreshold && structuralSignal;
       const mediumConfidence = score >= options.mediumConfidenceThreshold && structuralSignal;
 
@@ -683,6 +685,21 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
       }
 
       if (!highConfidence) continue;
+
+      // ── Content-loss guard: only near-exact duplicates (>= 0.95) may be auto-removed,
+      // and only up to 10% of the chapter's words. Everything else is flagged for review. ──
+      if (!nearExact) {
+        warnings.push({
+          score,
+          primary,
+          duplicate,
+          sharedTags,
+          action: 'flagged_for_review',
+          reason: `high-confidence but below near-exact threshold (${score.toFixed(2)} < ${options.nearExactThreshold}); flagged for manual review`,
+        });
+        continue;
+      }
+
       if (removedBlocks >= options.maxBlocksRemovedPerChapter) continue;
       if (removedWords + duplicate.words > maxWordsToRemove) {
         warnings.push({
@@ -691,14 +708,14 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
           duplicate,
           sharedTags,
           action: 'skipped_safety_cap',
-          reason: 'would remove too much of chapter',
+          reason: 'would remove too much of chapter (10% cap)',
         });
         continue;
       }
 
       // Extra safety: do not remove if the duplicate block contains a unique major event tag not found in the primary block.
       const duplicateUniqueTags = duplicate.tags.filter((tag) => !primary.tagSet.has(tag));
-      if (duplicateUniqueTags.length >= 3 && score < 0.72) {
+      if (duplicateUniqueTags.length >= 3 && score < 0.98) {
         warnings.push({
           score,
           primary,
@@ -715,7 +732,7 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
         end: duplicate.end,
         words: duplicate.words,
         score,
-        reason: `high-confidence alternate draft duplicate of paragraphs ${primary.start + 1}-${primary.end}; signals tags=${sharedTags.join('|') || 'none'}, names=${nameSignal.toFixed(2)}, anchor=${anchorSignal.toFixed(2)}, marker=${markerSignal.toFixed(2)}`, 
+        reason: `near-exact alternate draft duplicate of paragraphs ${primary.start + 1}-${primary.end} (score ${score.toFixed(2)}); signals tags=${sharedTags.join('|') || 'none'}, names=${nameSignal.toFixed(2)}, anchor=${anchorSignal.toFixed(2)}, marker=${markerSignal.toFixed(2)}`, 
         sharedTags,
         preview: blockPreview(duplicate),
       });
@@ -941,7 +958,9 @@ function makeEmptyReport(options) {
     wordsRemoved: 0,
     reportedOnly: 0,
     skippedUnsafe: 0,
+    flaggedForReview: 0,
     chapterReports: [],
+    flaggedBlocks: [],
     warnings: [],
     changes: [],
     summary: '',
@@ -1005,13 +1024,25 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
     };
 
     for (const warning of warnings) {
-      report.warnings.push({
+      const entry = {
         chapterNumber: chapterNo,
         score: warning.score || 0,
         reason: warning.reason || 'candidate reported',
         sharedTags: warning.sharedTags || [],
         preview: blockPreview(warning.duplicate),
-      });
+      };
+      report.warnings.push(entry);
+
+      // Collect flagged-for-review blocks separately for structured access
+      if (warning.action === 'flagged_for_review') {
+        report.flaggedBlocks.push({
+          chapterNumber: chapterNo,
+          words: warning.duplicate?.words || 0,
+          similarity: warning.score || 0,
+          preview: blockPreview(warning.duplicate),
+        });
+        report.flaggedForReview++;
+      }
     }
 
     if (removals.length) {
@@ -1050,10 +1081,15 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
   report.summary = buildReportText(report);
   report.changes = report.chapterReports.flatMap((row) => {
     const lines = [];
-    if (row.blocksRemoved) lines.push(`SceneDupes Ch.${row.chapterNumber}: removed ${row.blocksRemoved} high-confidence alternate block(s), ${row.wordsRemoved} words.`);
+    if (row.blocksRemoved) lines.push(`SceneDupes Ch.${row.chapterNumber}: removed ${row.blocksRemoved} near-exact alternate block(s), ${row.wordsRemoved} words.`);
     if (row.reportedOnly) lines.push(`SceneDupes Ch.${row.chapterNumber}: reported ${row.reportedOnly} medium-confidence candidate(s).`);
     return lines;
   });
+
+  // Surface flagged blocks as review-only changes
+  for (const fb of report.flaggedBlocks) {
+    report.changes.push(`SceneDupes Ch.${fb.chapterNumber}: ${fb.words} words of suspected duplicate content flagged for manual review (similarity ${fb.similarity.toFixed(2)})`);
+  }
 
   if (typeof onProgress === 'function') {
     onProgress(`Scene Duplicate Sweep complete: removed ${report.blocksRemoved} block(s), reported ${report.reportedOnly} candidate(s).`);

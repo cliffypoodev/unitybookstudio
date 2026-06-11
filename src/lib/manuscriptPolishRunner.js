@@ -61,7 +61,19 @@ import { safeUppercaseReplace } from './safeUppercase.js';
 import { healLegacyArtifacts } from './legacyArtifactHealer.js';
 
 
-export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.0 — 2026-06-10';
+export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.1 — 2026-06-11';
+
+/**
+ * Simple DJB2-variant hash for LLM idempotency stamps.
+ * Returns an 8-char hex string. Not cryptographic — just a content fingerprint.
+ */
+export function simpleHash(text = '') {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
 
 /**
  * Run the full manuscript polish pipeline.
@@ -93,6 +105,13 @@ export async function runManuscriptPolishPipeline({
 
   console.log(`[POLISH-RUNNER] ========== START v1.0 ==========`);
   console.log(`[POLISH-RUNNER] chapters=${chapterCount} anthology=${isAnthology} mode=${mode} allowLLM=${allowLLM}`);
+
+  // Record original word counts for global loss guard (Step 2)
+  const originalWordCounts = new Map();
+  for (const f of loaded) {
+    const chNum = f.chapter?.chapter_number || '?';
+    originalWordCounts.set(chNum, countWords(f.original || f.content || ''));
+  }
 
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE A: Manuscript-level pre-pass (cross-chapter deterministic)
@@ -270,8 +289,6 @@ export async function runManuscriptPolishPipeline({
     const sceneDupResult = sceneDuplicateSweep(loaded, onProgress, {
       project, isAnthology, chapterCount,
       allowCrossChapterRemoval: false, reportCrossChapterOnly: true,
-      highConfidenceThreshold: 0.42, mediumConfidenceThreshold: 0.36,
-      maxRemovalRatioPerChapter: 0.58, maxBlocksRemovedPerChapter: 10,
     });
     changes.push(sceneDupResult.summary);
     changes.push(...(sceneDupResult.changes || []));
@@ -279,7 +296,8 @@ export async function runManuscriptPolishPipeline({
       blocksRemoved: sceneDupResult.blocksRemoved || 0,
       wordsRemoved: sceneDupResult.wordsRemoved || 0,
       reportedOnly: sceneDupResult.reportedOnly || 0,
-      chaptersChanged: sceneDupResult.changedChapters?.size || 0,
+      flaggedForReview: sceneDupResult.flaggedForReview || 0,
+      chaptersChanged: sceneDupResult.changedChapters?.size || sceneDupResult.changedChapters?.length || 0,
       skippedUnsafe: sceneDupResult.skippedUnsafe || 0,
     };
   }
@@ -421,6 +439,16 @@ export async function runManuscriptPolishPipeline({
         const chTitle = f.chapter?.title || `Chapter ${chNum}`;
         onProgress(`Polish: LLM polishing Ch.${chNum} (${i + 1}/${loaded.length})…`);
 
+        // LLM idempotency: skip if this chapter's content hasn't changed since
+        // last LLM polish (hash stamp in revision_notes matches current content hash)
+        const contentHash = simpleHash(f.content || '');
+        const existingStamp = (f.chapter?.revision_notes || '').match(/\[llm-polished:([a-f0-9]+)\]/);
+        if (existingStamp && existingStamp[1] === contentHash) {
+          llmPolishLog.push({ chapter: chNum, ok: true, skipped: true, reason: 'idempotency-hash-match' });
+          changes.push(`Ch.${chNum}: LLM polish skipped (already polished, hash match)`);
+          continue;
+        }
+
         // Capture pre-LLM state for slop regression check
         const preLLMContent = f.content;
         const preLLMSlop = runAISlopReductionPass(preLLMContent, {});
@@ -455,6 +483,9 @@ export async function runManuscriptPolishPipeline({
               llmPolishCount++;
               const wordsAfter = (llmResult.text || '').split(/\s+/).length;
               changes.push(`Ch.${chNum}: LLM polished (${wordsBefore} → ${wordsAfter} words)`);
+              // Stamp idempotency hash so re-runs skip this chapter
+              const polishedHash = simpleHash(llmResult.text);
+              f.chapter.revision_notes = ((f.chapter.revision_notes || '') + `\n[llm-polished:${polishedHash}]`).slice(-8000);
             }
           } else {
             llmFallbackCount++;
@@ -547,6 +578,28 @@ export async function runManuscriptPolishPipeline({
     }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // PHASE F: Global per-chapter content loss guard (backstop)
+  // ══════════════════════════════════════════════════════════════════════════
+  let contentLossReverts = 0;
+  for (const f of loaded) {
+    const chNum = f.chapter?.chapter_number || '?';
+    const originalWc = originalWordCounts.get(chNum) || 0;
+    if (originalWc < 50) continue; // skip trivially short chapters
+    const finalWc = countWords(f.content || '');
+    const retainedRatio = finalWc / originalWc;
+    if (retainedRatio < 0.85) {
+      const lossPct = Math.round((1 - retainedRatio) * 100);
+      console.warn(`[POLISH-RUNNER] Ch.${chNum}: GLOBAL LOSS GUARD — final ${finalWc} words is ${lossPct}% below original ${originalWc} words. REVERTING.`);
+      f.content = f.original || f.content;
+      contentLossReverts++;
+      changes.push(`Ch.${chNum} REVERTED — total content loss ${lossPct}% exceeded safety limit; flagged for manual review`);
+    }
+  }
+  if (contentLossReverts > 0) {
+    changes.push(`Content loss guard: ${contentLossReverts} chapter(s) reverted to pre-pipeline content.`);
+  }
+
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 
   return {
@@ -585,6 +638,7 @@ export async function runManuscriptPolishPipeline({
         chaptersChanged: styleTicResult.changedChapterCount || 0,
       },
       nfCore: nfCoreStats,
+      contentLossReverts,
     },
     // Legacy flat fields (kept for backward compat)
     bannedRecastCount,
