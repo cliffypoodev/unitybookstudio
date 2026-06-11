@@ -132,9 +132,9 @@ export async function runManuscriptPolishPipeline({
   let anthologyStats = { bodyLangFixed: 0, anthVocabFixed: 0, contaminationFixed: 0, genreVocabFixed: 0 };
   if (mode !== 'nonfiction' && isAnthology) {
     onProgress('Polish: Anthology-specific checks…');
-    const bodyResult = runCrossChapterBodyLanguageDedup(loaded, onProgress);
+    const bodyResult = await runCrossChapterBodyLanguageDedup(loaded, onProgress);
     changes.push(...bodyResult.changes); anthologyStats.bodyLangFixed = bodyResult.bodyLangFixed || 0;
-    const anthVocabResult = runAnthologyVocabBans(loaded, onProgress);
+    const anthVocabResult = await runAnthologyVocabBans(loaded, onProgress);
     changes.push(...anthVocabResult.changes); anthologyStats.anthVocabFixed = anthVocabResult.anthVocabFixed || 0;
     const contamResult = await runContaminationDetector(loaded, onProgress, project);
     changes.push(...contamResult.changes); anthologyStats.contaminationFixed = contamResult.contaminationFixed || 0;
