@@ -6,6 +6,46 @@
  */
 
 import { runExtraPolishChecks } from '@/lib/extraPolishChecks';
+import { ABBREVIATION_TOKENS } from '@/lib/safeUppercase';
+
+/**
+ * Abbreviation-aware sentence splitter.
+ * Splits text on [.!?] followed by whitespace, but treats a period as
+ * NON-terminal when the preceding token is a whitelisted abbreviation
+ * (e.g., a.m., p.m., Dr., etc.).  This prevents "The a.m. recordings"
+ * from being split into two fragments.
+ *
+ * @param {string} text
+ * @returns {string[]} Array of sentence strings (each may still end with punctuation).
+ */
+function splitSentencesAbbreviationAware(text) {
+  // First, do a naive split
+  const raw = text.split(/(?<=[.!?])\s+/);
+  // Then merge back any fragment whose predecessor ends with an abbreviation period
+  const result = [];
+  for (let i = 0; i < raw.length; i++) {
+    const seg = raw[i];
+    if (result.length === 0) {
+      result.push(seg);
+      continue;
+    }
+    const prev = result[result.length - 1];
+    // Check if the previous segment ends with an abbreviation period
+    // Extract the last token before the trailing period
+    const trailingMatch = prev.match(/(\S+)\.\s*$/);
+    if (trailingMatch) {
+      // Strip trailing period to get the raw token, then lowercase for lookup
+      const token = trailingMatch[1].replace(/\.$/, '').toLowerCase();
+      if (ABBREVIATION_TOKENS.has(token)) {
+        // This period belongs to an abbreviation — merge back
+        result[result.length - 1] = prev + ' ' + seg;
+        continue;
+      }
+    }
+    result.push(seg);
+  }
+  return result;
+}
 
 // ── METAPHOR FAMILIES ──────────────────────────────────────────────────────
 const METAPHOR_FAMILIES = {
@@ -92,7 +132,7 @@ function detectAndFixTriplets(loaded) {
     //       with the em-dash density reducer (Step 9c), which converted them to commas,
     //       re-creating new short fragments on the next pass.
     {
-      const sentences = f.content.split(/(?<=[.!?])\s+/);
+      const sentences = splitSentencesAbbreviationAware(f.content);
       const joins = []; // indices into sentences[] to merge [i] with [i+1]
       for (let i = 0; i < sentences.length - 2; i++) {
         const s1 = sentences[i], s2 = sentences[i + 1], s3 = sentences[i + 2];
@@ -191,7 +231,7 @@ function detectAndFixParallelSentences(loaded, isNF = false) {
 
     // Loop until no more parallel runs found or MAX_PASSES reached
     for (let pass = 0; pass < MAX_PASSES; pass++) {
-      const sentences = f.content.split(/(?<=[.!?])\s+/);
+      const sentences = splitSentencesAbbreviationAware(f.content);
       if (sentences.length < 3) break;
       let passFixed = 0;
 
@@ -264,7 +304,7 @@ function detectAndFixStaccato(loaded) {
 
     // Loop until no more staccato runs found or MAX_PASSES reached
     for (let pass = 0; pass < MAX_PASSES; pass++) {
-      const sentences = f.content.split(/(?<=[.!?])\s+/);
+      const sentences = splitSentencesAbbreviationAware(f.content);
       if (sentences.length < 4) break;
       let passFixed = 0;
 
@@ -559,7 +599,7 @@ function detectRhythmSymmetry(loaded) {
 
   for (const f of loaded) {
     const chNum = f.chapter.chapter_number || '?';
-    const sentences = f.content.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+    const sentences = splitSentencesAbbreviationAware(f.content).filter(s => s.trim().length > 0);
     if (sentences.length < 3) continue;
 
     let chFlagged = 0;
@@ -669,7 +709,7 @@ function detectEmotionalMath(loaded) {
     }
 
     // Step 2: Flag remaining emotional-math patterns (context-aware)
-    const sentences = f.content.split(/(?<=[.!?])\s+/);
+    const sentences = splitSentencesAbbreviationAware(f.content);
     for (const sentence of sentences) {
       if (/^\s*[""\u201C]/.test(sentence)) continue;
       if (/\b(?:screen|display|readout|interface|terminal|console|currency|credits?|coins?)\b/i.test(sentence)) continue;
