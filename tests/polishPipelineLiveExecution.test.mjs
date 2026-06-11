@@ -163,8 +163,8 @@ console.log('\n=== TEST 4: NF Slop Gate (shouldRunAISlopReduction bypass) ===\n'
 
   const runnerSource = readFileSync(path.join(root, 'src/lib/manuscriptPolishRunner.js'), 'utf-8');
   assert(
-    runnerSource.includes("mode === 'nonfiction' || shouldRunAISlopReduction"),
-    'Runner has NF-mode bypass for shouldRunAISlopReduction gate'
+    runnerSource.includes("mode === 'nonfiction' || isAnthology || shouldRunAISlopReduction"),
+    'Runner has NF-mode and anthology bypass for shouldRunAISlopReduction gate'
   );
 }
 

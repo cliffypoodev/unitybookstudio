@@ -168,6 +168,62 @@ console.log('\n── 7: Changes log ──');
 assert('7a. Changes array has entries', (result?.changes || []).length > 0);
 assert('7b. At least 5 change entries', (result?.changes || []).length >= 5);
 
+// ── 8: Anthology forensic-tic slop reduction (the gate fix) ──
+console.log('\n── 8: Forensic-tic slop reduction in anthology mode ──');
+
+// Build a chapter stuffed with forensic-tic phrases that runAISlopReductionPass targets
+const forensicFixture = `The old manor loomed above the village, half-hidden by ancient oaks. The available accounts indicate that Lord Harwell built the original wing in 1743. The groundskeeper spoke in clipped sentences, his distrust evident.
+
+"Nobody goes up there at night," he said. "Not since the fire."
+
+The available accounts indicate that three servants perished in the blaze, though the official record lists only two. The village historian disagreed with the coroner's findings. She had spent decades piecing together the truth from letters and diaries.
+
+What remains unclear is whether Lord Harwell himself set the fire or merely allowed it to spread. The insurance papers tell one story; the servants' letters tell another. The available accounts indicate conflicting motives among the household staff.
+
+Elena studied the charred beams in the east corridor. The damage pattern was inconsistent with the official explanation. What remains unclear is how the fire reached the third floor when every staircase was stone. She made careful notes, photographing each anomaly.
+
+"You're wasting your time," the groundskeeper called from below. "Some questions don't have answers."
+
+Elena smiled. In her experience, every question had an answer — the difficulty was surviving long enough to find it.`;
+
+const forensicLoaded = [{
+  chapter: { chapter_number: 1, title: 'The Manor Fire', id: 'ch-forensic-001' },
+  content: forensicFixture,
+  original: forensicFixture,
+}];
+
+let forensicResult;
+let forensicThrew = false;
+try {
+  forensicResult = await runManuscriptPolishPipeline({
+    loaded: forensicLoaded,
+    project: anthologyProject,
+    allowLLM: false,
+    mode: 'fiction',
+    onProgress: () => {},
+  });
+} catch (err) {
+  forensicThrew = true;
+  console.error(`  💥 Forensic fixture pipeline threw: ${err.message}`);
+}
+
+assert('8a. Forensic fixture pipeline did not throw', !forensicThrew);
+
+const forensicOutput = forensicLoaded[0].content;
+const accountsCount = (forensicOutput.match(/The available accounts indicate/gi) || []).length;
+const unclearCount = (forensicOutput.match(/What remains unclear is/gi) || []).length;
+
+assert(`8b. "The available accounts indicate" reduced to <= 1 (was 3, now ${accountsCount})`, accountsCount <= 1);
+assert(`8c. "What remains unclear is" reduced to <= 1 (was 2, now ${unclearCount})`, unclearCount <= 1);
+
+// Verify the replacements are grammatically coherent (non-empty, no double spaces, no orphan punctuation)
+assert('8d. Output is non-empty', forensicOutput.length > 200);
+assert('8e. No double-space artifacts', !forensicOutput.includes('  '));
+
+// Verify slop repair count is nonzero in stats
+const slopCount = forensicResult?.stats?.slopRepairCount || forensicResult?.slopRepairCount || 0;
+assert(`8f. slopRepairCount > 0 (got ${slopCount})`, slopCount > 0);
+
 // ═══════════════════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════════════════

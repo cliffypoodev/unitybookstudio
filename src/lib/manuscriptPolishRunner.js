@@ -363,8 +363,8 @@ export async function runManuscriptPolishPipeline({
       const mpResult = runMidParagraphDialogueAutofixPass(f.content || '', {});
       if (mpResult.midParagraphAutoFixed > 0) { f.content = mpResult.text; midParaAutoFixCount += mpResult.midParagraphAutoFixed; }
     }
-    // AI-slop reduction — force-enable for NF mode (don't rely solely on profile gate)
-    if (mode === 'nonfiction' || shouldRunAISlopReduction(project)) {
+    // AI-slop reduction — force-enable for NF and anthology (deterministic budgeted recasts are safe for all modes)
+    if (mode === 'nonfiction' || isAnthology || shouldRunAISlopReduction(project)) {
       const slopResult = runAISlopReductionPass(f.content || '', {});
       if (slopResult.repairs.length > 0 || slopResult.improved) {
         f.content = slopResult.text;
