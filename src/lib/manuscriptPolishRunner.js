@@ -57,6 +57,7 @@ import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
+import { safeUppercaseReplace } from './safeUppercase.js';
 
 
 export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.0 — 2026-06-10';
@@ -133,16 +134,7 @@ export async function runManuscriptPolishPipeline({
   let capFixed = 0;
   for (const f of loaded) {
     const before = f.content;
-    f.content = f.content.replace(/([.!?])\s+([a-z])/g, (match, punct, letter, offset) => {
-      const preceding = f.content.substring(Math.max(0, offset - 12), offset + 1);
-      // Guard 1: ellipsis
-      if (/\.{2,}$/.test(preceding)) return match;
-      // Guard 2: abbreviation whitelist
-      if (/\b(?:e\.g|i\.e|etc|vs|viz|a\.m|p\.m|cf|al|Dr|Mr|Mrs|Ms|St|No|Jr|Sr|Prof|Rev)\.$/i.test(preceding)) return match;
-      // Guard 3: preceding proper noun
-      if (offset >= 2 && /[A-Z][a-z]/.test(f.content.substring(offset - 2, offset))) return match;
-      return punct + ' ' + letter.toUpperCase();
-    });
+    f.content = safeUppercaseReplace(f.content);
     if (f.content !== before) {
       const fixed = (before.match(/[.!?]\s+[a-z]/g) || []).length - (f.content.match(/[.!?]\s+[a-z]/g) || []).length;
       if (fixed > 0) { capFixed += fixed; changes.push(`Ch.${f.chapter?.chapter_number || '?'}: fixed ${fixed} cap errors`); }

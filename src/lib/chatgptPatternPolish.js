@@ -3,6 +3,8 @@
  * Applies to ALL project types (vocab caps) and NONFICTION only (dichotomy pattern).
  */
 
+import { safeUppercaseReplace } from './safeUppercase.js';
+
 /**
  * ChatGPT vocabulary caps — words that leak from ChatGPT source manuscripts.
  * Caps are per 100K words. For shorter manuscripts, minimum 1 allowed.
@@ -325,6 +327,9 @@ export function runTransitionWordCaps(loaded, onProgress) {
   const chapterCount = loaded.length || 1;
   const globalScaleFactor = Math.max(1, chapterCount / 25);
 
+  // ── GLOBAL per-transition-word cap loop ──
+  const chaptersWithRemovals = new Set();
+
   for (const entry of TRANSITION_WORDS) {
     // Global ceiling: base 3, scaled modestly by manuscript length. "Then"
     // gets a higher ceiling (5) because it's more commonly used organically.
@@ -365,6 +370,7 @@ export function runTransitionWordCaps(loaded, onProgress) {
       });
 
       if (removed > 0) {
+        chaptersWithRemovals.add(f);
         changes.push(
           'Ch.' + (f.chapter?.chapter_number || '?') + ': "' + entry.word +
           ',"  capped (' + matches.length + ' → ' + (matches.length - removed) +
@@ -379,13 +385,11 @@ export function runTransitionWordCaps(loaded, onProgress) {
   }
 
   // Second pass: fix any lowercase letters that are now at start of sentence
-  // because we stripped a capitalized "Still, "/"Instead, " etc. Pattern:
-  // period + space + lowercase letter (or newline + lowercase letter).
-  for (const f of loaded) {
-    f.content = f.content.replace(
-      /(^|\n|\. +|\! +|\? +)([a-z])/g,
-      (match, pre, letter) => pre + letter.toUpperCase()
-    );
+  // because we stripped a capitalized "Still, "/"Instead, " etc.
+  // ONLY run on chapters where this function actually removed transitions,
+  // and use the shared guard to protect abbreviations (e.g., i.e., a.m., etc.)
+  for (const f of chaptersWithRemovals) {
+    f.content = safeUppercaseReplace(f.content);
   }
 
   if (transitionWordsFixed > 0) {
