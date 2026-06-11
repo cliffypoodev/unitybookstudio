@@ -270,8 +270,6 @@ export async function runManuscriptPolishPipeline({
     const sceneDupResult = sceneDuplicateSweep(loaded, onProgress, {
       project, isAnthology, chapterCount,
       allowCrossChapterRemoval: false, reportCrossChapterOnly: true,
-      highConfidenceThreshold: 0.42, mediumConfidenceThreshold: 0.36,
-      maxRemovalRatioPerChapter: 0.58, maxBlocksRemovedPerChapter: 10,
     });
     changes.push(sceneDupResult.summary);
     changes.push(...(sceneDupResult.changes || []));
@@ -279,7 +277,8 @@ export async function runManuscriptPolishPipeline({
       blocksRemoved: sceneDupResult.blocksRemoved || 0,
       wordsRemoved: sceneDupResult.wordsRemoved || 0,
       reportedOnly: sceneDupResult.reportedOnly || 0,
-      chaptersChanged: sceneDupResult.changedChapters?.size || 0,
+      flaggedForReview: sceneDupResult.flaggedForReview || 0,
+      chaptersChanged: sceneDupResult.changedChapters?.size || sceneDupResult.changedChapters?.length || 0,
       skippedUnsafe: sceneDupResult.skippedUnsafe || 0,
     };
   }
