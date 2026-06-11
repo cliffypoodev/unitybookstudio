@@ -61,7 +61,19 @@ import { safeUppercaseReplace } from './safeUppercase.js';
 import { healLegacyArtifacts } from './legacyArtifactHealer.js';
 
 
-export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.0 — 2026-06-10';
+export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.1 — 2026-06-11';
+
+/**
+ * Simple DJB2-variant hash for LLM idempotency stamps.
+ * Returns an 8-char hex string. Not cryptographic — just a content fingerprint.
+ */
+export function simpleHash(text = '') {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
 
 /**
  * Run the full manuscript polish pipeline.
@@ -427,6 +439,16 @@ export async function runManuscriptPolishPipeline({
         const chTitle = f.chapter?.title || `Chapter ${chNum}`;
         onProgress(`Polish: LLM polishing Ch.${chNum} (${i + 1}/${loaded.length})…`);
 
+        // LLM idempotency: skip if this chapter's content hasn't changed since
+        // last LLM polish (hash stamp in revision_notes matches current content hash)
+        const contentHash = simpleHash(f.content || '');
+        const existingStamp = (f.chapter?.revision_notes || '').match(/\[llm-polished:([a-f0-9]+)\]/);
+        if (existingStamp && existingStamp[1] === contentHash) {
+          llmPolishLog.push({ chapter: chNum, ok: true, skipped: true, reason: 'idempotency-hash-match' });
+          changes.push(`Ch.${chNum}: LLM polish skipped (already polished, hash match)`);
+          continue;
+        }
+
         // Capture pre-LLM state for slop regression check
         const preLLMContent = f.content;
         const preLLMSlop = runAISlopReductionPass(preLLMContent, {});
@@ -461,6 +483,9 @@ export async function runManuscriptPolishPipeline({
               llmPolishCount++;
               const wordsAfter = (llmResult.text || '').split(/\s+/).length;
               changes.push(`Ch.${chNum}: LLM polished (${wordsBefore} → ${wordsAfter} words)`);
+              // Stamp idempotency hash so re-runs skip this chapter
+              const polishedHash = simpleHash(llmResult.text);
+              f.chapter.revision_notes = ((f.chapter.revision_notes || '') + `\n[llm-polished:${polishedHash}]`).slice(-8000);
             }
           } else {
             llmFallbackCount++;

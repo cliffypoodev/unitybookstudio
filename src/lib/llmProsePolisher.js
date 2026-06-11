@@ -50,9 +50,12 @@ PROSE QUALITY:
 - Remove obvious AI-generated cadence and repeated rhetorical patterns.
 - Reduce repeated thesis language ("X wasn't just Y; it was Z" over and over).
 - Prefer concrete action, image, dialogue, and object handling over abstract explanation.
-- Cut 5–12% only if the prose is bloated.
+- Cut 5–12% MAXIMUM — only if the prose is bloated. NEVER cut more than 12%.
+- Do not delete entire paragraphs, scenes, or substantial passages.
 - Do not make the prose more ornate or more generic.
 - Do not use "The air…" as a chapter opening.
+- CRITICAL: The polished chapter MUST retain at least 88% of the original word count.
+  If in doubt, preserve text rather than cutting it.
 ${POLISHER_ANTI_CHATBOT_RULES}
 
 FORBIDDEN OUTPUT:
@@ -169,14 +172,14 @@ export function validatePolisherOutput(output, original, expectedTitle = '') {
   const wordsAfter = countWords(cleaned);
   const ratio = wordsBefore > 0 ? wordsAfter / wordsBefore : 0;
 
-  if (ratio < 0.70) {
-    return { ok: false, text: original, warnings, error: `LLM cut more than 30% of content (${wordsBefore} → ${wordsAfter} words, ${Math.round(ratio * 100)}%)` };
+  if (ratio < 0.88) {
+    return { ok: false, text: original, warnings, error: `LLM cut more than 12% of content (${wordsBefore} → ${wordsAfter} words, ${Math.round(ratio * 100)}%)` };
   }
   if (ratio > 1.15) {
     return { ok: false, text: original, warnings, error: `LLM expanded more than 15% (${wordsBefore} → ${wordsAfter} words, ${Math.round(ratio * 100)}%)` };
   }
-  if (ratio < 0.88) {
-    warnings.push(`LLM cut more than 12% (${wordsBefore} → ${wordsAfter} words, ${Math.round(ratio * 100)}%)`);
+  if (ratio < 0.92) {
+    warnings.push(`LLM cut more than 8% (${wordsBefore} → ${wordsAfter} words, ${Math.round(ratio * 100)}%)`);
   }
 
   // ── Soft warning: chapter opening ──
