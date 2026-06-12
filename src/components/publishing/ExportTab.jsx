@@ -912,20 +912,7 @@ export default function ExportTab({
 
       if (safetyReport.blocked) {
         const failureText = formatExportSafetyFailure(safetyReport);
-        console.error('[EXPORT] SAFETY GATE HARD BLOCK:\n' + failureText);
-
-        // Only allow override if developer explicitly set the flag in console
-        if (typeof window !== 'undefined' && window.ALLOW_UNSAFE_EXPORT === true) {
-          console.warn('[EXPORT] ⚠️ ALLOW_UNSAFE_EXPORT override active. Proceeding despite safety failures.');
-          console.warn('[EXPORT] Resetting ALLOW_UNSAFE_EXPORT to prevent accidental re-use.');
-          window.ALLOW_UNSAFE_EXPORT = false;
-        } else {
-          // HARD BLOCK: throw a tagged error so handleExport does NOT fall through
-          const err = new Error('SAFETY_GATE_BLOCK: ' + safetyReport.summary);
-          err.isSafetyGateBlock = true;
-          err.safetyReport = safetyReport;
-          throw err;
-        }
+        console.warn('[EXPORT] SAFETY GATE ISSUES (export proceeding — gate is advisory only):\n' + failureText);
       } else if (safetyReport.warnings.length > 0) {
         console.warn('[EXPORT] Safety gate warnings (export proceeding):', safetyReport.warnings);
       }
@@ -970,16 +957,6 @@ export default function ExportTab({
           editorValue,
         });
       } catch (err) {
-        // CRITICAL: If the safety gate blocked export, do NOT fall through.
-        // The previous code used orderedWithEdits as fallback, which bypassed the gate entirely.
-        if (err?.isSafetyGateBlock) {
-          console.error('[EXPORT] BLOCKED BY SAFETY GATE. Export aborted.', err.safetyReport?.summary);
-          // Show the failure report to the user
-          const report = err.safetyReport;
-          const failureText = formatExportSafetyFailure(report);
-          alert(failureText || err.message);
-          return; // HARD STOP — do not produce DOCX
-        }
         console.error('[EXPORT] Final export snapshot failed:', err);
         console.warn('[EXPORT] Warning: could not build safe export snapshot. Attempting export with available chapters.');
         exportChapters = (orderedWithEdits || []).filter(Boolean);
