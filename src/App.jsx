@@ -12,7 +12,55 @@ import Dashboard from './pages/Dashboard';
 import ProjectStudio from './pages/ProjectStudio';
 import ImportCatalog from './pages/ImportCatalog';
 import SeriesManager from './pages/SeriesManager';
+import React, { useState, useEffect } from 'react';
 // Add page imports here
+
+// ── Migration banner ────────────────────────────────────────────────────
+
+function MigrationBanner() {
+  const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { runServerMigration } = await import('@/lib/serverMigration');
+        const result = await runServerMigration();
+        if (!cancelled && result.migrated) {
+          setMessage('Library migrated to server storage — all your devices now share it.');
+        }
+      } catch (err) {
+        console.warn('[MIGRATION] Failed:', err.message);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (!message) return null;
+
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999,
+      background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+      color: 'white', padding: '12px 20px', textAlign: 'center',
+      fontWeight: 600, fontSize: '14px',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+    }}>
+      <span>✅ {message}</span>
+      <button
+        onClick={() => setMessage(null)}
+        style={{
+          background: 'rgba(255,255,255,0.25)', border: 'none', color: 'white',
+          borderRadius: '4px', padding: '4px 12px', cursor: 'pointer',
+          fontSize: '12px', fontWeight: 700,
+        }}
+      >
+        Dismiss
+      </button>
+    </div>
+  );
+}
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -58,6 +106,7 @@ function App() {
       <AuthProvider>
         <QueryClientProvider client={queryClientInstance}>
           <Router>
+            <MigrationBanner />
             <AuthenticatedApp />
           </Router>
           <Toaster />
