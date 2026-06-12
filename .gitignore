@@ -29,3 +29,6 @@ dist-ssr
 
 .env
 .vite
+
+# Server-side data store
+/data/
