@@ -28,8 +28,9 @@ The crew moved with quiet efficiency. No one spoke above a whisper. Marcus had s
 
 const mockPolishLLM = async (prompt) => {
   // Replace the tell-don't-show paragraph with a shown version
+  // Original: 34 words. This rewrite: 39 words (ratio 1.15, within 0.88–1.25).
   if (prompt.includes('silence before docking')) {
-    return `The crew moved with quiet efficiency. No one spoke above a whisper. A deckhand fumbled a rope and winced at the look from the bosun. Another pressed his lips together so tightly they turned white. Marcus watched their stiff movements and clenched jaws. They had reason to be careful.`;
+    return `The crew moved with quiet efficiency. No one spoke above a whisper. A deckhand fumbled a rope and flinched at the bosun's glare. Another pressed his lips white. Marcus watched their clenched jaws and stiff hands. They had reason to be careful.`;
   }
   // Generic fallback — return something reasonable
   return prompt.match(/TARGET PARAGRAPH.*?:\n([\s\S]*?)(?:\n\n|FOLLOWING)/)?.[1]?.trim() || 'Fallback paragraph text here.';

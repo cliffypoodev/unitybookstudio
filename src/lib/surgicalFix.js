@@ -13,6 +13,9 @@
 
 import { invokeLLMWithRetry } from '@/lib/integrationRetry.js';
 import { countAISlopPatterns } from '@/lib/aiSlopReduction.js';
+import { prepareChapterContent, resolveChapterContent } from '@/lib/chapterStorage.js';
+import { base44 } from '@/api/base44Client.js';
+import { runWithNetworkRetry } from '@/lib/requestRetry.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * HELPERS
@@ -147,9 +150,10 @@ async function applyProseFix(chapterText, issue, _llmOverride) {
   const originalWords = countWords(target);
   const revisedWords = countWords(revised);
 
-  // Length check: ±50% tolerance (tell→show rewrites often expand significantly)
-  if (originalWords > 0 && (revisedWords < originalWords * 0.5 || revisedWords > originalWords * 1.5)) {
-    return { status: 'failed', chapterText, detail: `Length mismatch: ${originalWords} → ${revisedWords} words` };
+  // Length check: 0.88–1.25 (12% cut floor consistent with pipeline-wide LLM cut limit;
+  // 25% expansion ceiling gives headroom for tell→show rewrites).
+  if (originalWords > 0 && (revisedWords < originalWords * 0.88 || revisedWords > originalWords * 1.25)) {
+    return { status: 'failed', chapterText, detail: `Length mismatch: ${originalWords} → ${revisedWords} words (ratio ${(revisedWords / originalWords).toFixed(2)}, allowed 0.88–1.25)` };
   }
 
   // Slop check: don't introduce more slop
@@ -262,8 +266,86 @@ export async function applySurgicalFixes({ loaded, issues, project, onProgress, 
         const saveResult = await _saveOverride(chapterNum, currentContent, stamp);
         chapterSaves.push({ chapterNumber: chapterNum, ...saveResult });
       } else {
-        // In production, this would call prepareChapterContent + Chapter.update + verify
-        chapterSaves.push({ chapterNumber: chapterNum, status: 'saved', words: finalWords, stamp });
+        // ── PRODUCTION SAVE PATH ─────────────────────────────────────
+        // Replicates the exact sequence from ProjectStudio polish save loop:
+        // prepareChapterContent → Chapter.update → read-back verification.
+        try {
+          const chapter = entry.chapter;
+          const projectId = project?.id || '';
+
+          // 1. Prepare content (handles large-content GitHub upload)
+          let contentFields;
+          let uploadAttempts = 0;
+          const MAX_UPLOAD_ATTEMPTS = 3;
+          while (true) {
+            uploadAttempts++;
+            try {
+              contentFields = await prepareChapterContent(currentContent, projectId, chapter.id, chapter);
+              break;
+            } catch (upErr) {
+              console.warn('[CRITIC-FIX] Ch.' + chapterNum + ' upload attempt ' + uploadAttempts + ' failed:', upErr.message);
+              if (uploadAttempts >= MAX_UPLOAD_ATTEMPTS) throw upErr;
+              await new Promise(r => setTimeout(r, 1000 * uploadAttempts));
+            }
+          }
+
+          // 2. Build revision_notes with stamp (same pattern as polish)
+          const revisionNotes = [chapter.revision_notes || '', stamp]
+            .filter(Boolean)
+            .join('\n')
+            .slice(-8000);
+
+          // 3. Clear stale content fields (same list as polish save loop)
+          const staleClear = {};
+          for (const staleField of [
+            'content', 'draft', 'body', 'prose', 'finalText', 'cleanedText',
+            'chapter_text', 'markdown', 'content_html', 'content_html_url',
+            'content_delta', 'content_delta_url', '__polishedContent',
+            '__polishSavedContent', '__polishExportContent',
+          ]) { staleClear[staleField] = ''; }
+
+          // 4. Build save payload and persist
+          const savePayload = {
+            ...staleClear,
+            ...contentFields,
+            word_count: finalWords,
+            revision_notes: revisionNotes,
+          };
+
+          await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, savePayload));
+
+          // 5. Update in-memory chapter record so immediate export uses fresh content
+          entry.chapter = { ...chapter, ...savePayload };
+
+          // 6. Read-back verification: confirm DB has our content
+          let verifyPassed = false;
+          try {
+            const verifyRecord = (await base44.entities.Chapter.filter({ id: chapter.id }))?.[0];
+            if (verifyRecord) {
+              const verifyContent = await resolveChapterContent(verifyRecord);
+              const verifyLen = verifyContent?.length || 0;
+              const expectedLen = currentContent.length;
+              const diffPct = Math.abs(verifyLen - expectedLen) / Math.max(expectedLen, 1);
+              if (diffPct > 0.05) {
+                console.warn('[CRITIC-FIX-VERIFY] Ch.' + chapterNum + ' SAVE MISMATCH: expected ' + expectedLen + ' chars, got ' + verifyLen);
+              } else {
+                verifyPassed = true;
+                console.log('[CRITIC-FIX-VERIFY] Ch.' + chapterNum + ' verified OK (' + verifyLen + ' chars)');
+              }
+            }
+          } catch (verifyErr) {
+            console.warn('[CRITIC-FIX-VERIFY] Ch.' + chapterNum + ' verify failed:', verifyErr.message);
+          }
+
+          if (verifyPassed) {
+            chapterSaves.push({ chapterNumber: chapterNum, status: 'saved', words: finalWords, stamp });
+          } else {
+            chapterSaves.push({ chapterNumber: chapterNum, status: 'save-failed', words: finalWords, stamp, detail: 'Read-back verification failed' });
+          }
+        } catch (saveErr) {
+          console.error('[CRITIC-FIX] Ch.' + chapterNum + ' SAVE THREW:', saveErr.message);
+          chapterSaves.push({ chapterNumber: chapterNum, status: 'save-failed', words: finalWords, stamp, detail: saveErr.message });
+        }
       }
 
       // Update the in-memory entry
@@ -289,4 +371,4 @@ export {
   countWords,
 };
 
-console.log('[SURGICAL-FIX] v1 loaded');
+console.log('[SURGICAL-FIX] v2 loaded — real save path active');
