@@ -4,11 +4,13 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import path from 'path'
+import serverStorePlugin from './vite-server-store-plugin.js'
 
 export default defineConfig({
   logLevel: 'error',
   plugins: [
     react(),
+    serverStorePlugin(),
   ],
   resolve: {
     alias: {
