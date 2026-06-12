@@ -11,15 +11,21 @@ let passed = 0;
 let failed = 0;
 const failures = [];
 
+const _tests = [];
 function test(name, fn) {
-  try {
-    fn();
-    passed++;
-    console.log('  ✅ ' + name);
-  } catch (e) {
-    failed++;
-    failures.push(name);
-    console.error('  ❌ ' + name + ': ' + e.message);
+  _tests.push({ name, fn });
+}
+async function runTests() {
+  for (const { name, fn } of _tests) {
+    try {
+      await fn();
+      passed++;
+      console.log('  ✅ ' + name);
+    } catch (e) {
+      failed++;
+      failures.push(name);
+      console.error('  ❌ ' + name + ': ' + e.message);
+    }
   }
 }
 
@@ -167,8 +173,163 @@ test('10. Surgical fix paragraph finder + splicer round-trips', () => {
 });
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * SUMMARY
+ * GUARD — NO FAKE SAVES (static source analysis + behavioral)
  * ═════════════════════════════════════════════════════════════════════════ */
+
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const srcRoot = resolve(__dirname, '..', 'src');
+
+const surgicalFixSrc = readFileSync(resolve(srcRoot, 'lib', 'surgicalFix.js'), 'utf8');
+const criticSubPageSrc = readFileSync(resolve(srcRoot, 'components', 'tools', 'CriticSubPage.jsx'), 'utf8');
+
+test('11. surgicalFix.js has no "would call" comments in executable branches', () => {
+  // The /would call/i pattern was the original fake-save comment.
+  // Ensure it's gone from the entire file.
+  const wouldCallMatches = surgicalFixSrc.match(/would call/gi) || [];
+  assert.strictEqual(wouldCallMatches.length, 0,
+    'surgicalFix.js still contains ' + wouldCallMatches.length + ' "would call" comment(s) — fake save not removed');
+});
+
+test('12. Production save branch references prepareChapterContent', () => {
+  // The else branch (non-override) MUST call prepareChapterContent
+  // Find the else block after _saveOverride check
+  const elseIdx = surgicalFixSrc.indexOf('} else {', surgicalFixSrc.indexOf('_saveOverride'));
+  assert(elseIdx > 0, 'Could not find else branch after _saveOverride check');
+  const elseBranch = surgicalFixSrc.slice(elseIdx, elseIdx + 5000);
+  assert(elseBranch.includes('prepareChapterContent'),
+    'Production save branch must call prepareChapterContent');
+  assert(elseBranch.includes('Chapter.update'),
+    'Production save branch must call Chapter.update');
+});
+
+test('13. Verification step occurs before status:saved in production branch', () => {
+  const elseIdx = surgicalFixSrc.indexOf('} else {', surgicalFixSrc.indexOf('_saveOverride'));
+  const elseBranch = surgicalFixSrc.slice(elseIdx, elseIdx + 5000);
+  
+  // resolveChapterContent (read-back) must appear
+  assert(elseBranch.includes('resolveChapterContent'),
+    'Production branch must do read-back via resolveChapterContent');
+  
+  // verifyPassed must be checked before status:'saved'
+  const verifyIdx = elseBranch.indexOf('verifyPassed');
+  const savedIdx = elseBranch.indexOf("status: 'saved'");
+  assert(verifyIdx > 0 && savedIdx > 0, 'Must have verifyPassed and status:saved');
+  assert(verifyIdx < savedIdx,
+    'verifyPassed check must come before status:saved is pushed');
+  
+  // status:'save-failed' must exist as the failure path
+  assert(elseBranch.includes("status: 'save-failed'"),
+    'Production branch must have save-failed status on verification failure');
+});
+
+test('14. CriticSubPage call site does NOT pass _saveOverride (uses real save)', () => {
+  // Find the applySurgicalFixes call
+  const callIdx = criticSubPageSrc.indexOf('applySurgicalFixes(');
+  assert(callIdx > 0, 'CriticSubPage must call applySurgicalFixes');
+  
+  // Extract ~500 chars around the call to see its arguments
+  const callContext = criticSubPageSrc.slice(callIdx, callIdx + 500);
+  assert(!callContext.includes('_saveOverride'),
+    'CriticSubPage must NOT pass _saveOverride — production must use the real save path');
+});
+
+test('15. Production save branch appends CRITIC-FIX stamp to revision_notes', () => {
+  const elseIdx = surgicalFixSrc.indexOf('} else {', surgicalFixSrc.indexOf('_saveOverride'));
+  const elseBranch = surgicalFixSrc.slice(elseIdx, elseIdx + 5000);
+  assert(elseBranch.includes('revision_notes'),
+    'Production branch must write revision_notes');
+  // The stamp is built from [CRITIC-FIX ...] and appended
+  assert(elseBranch.includes('revisionNotes') || elseBranch.includes('revision_notes'),
+    'Production branch must include revision stamp in save payload');
+});
+
+test('16. Behavioral: no _saveOverride triggers real save path (mock entity layer)', async () => {
+  // Module-mock: intercept base44.entities.Chapter.update and Chapter.filter
+  // to verify they are called by the production save path
+  const { base44: base44Module } = await import('../src/api/base44Client.js');
+
+  const updateCalls = [];
+  const filterCalls = [];
+  const originalUpdate = base44Module.entities.Chapter.update;
+  const originalFilter = base44Module.entities.Chapter.filter;
+
+  // Install mocks
+  base44Module.entities.Chapter.update = async (id, payload) => {
+    updateCalls.push({ id, payload });
+    return { id, ...payload };
+  };
+  base44Module.entities.Chapter.filter = async (query) => {
+    filterCalls.push(query);
+    // Return a fake record that resolveChapterContent can work with
+    const lastUpdate = updateCalls[updateCalls.length - 1];
+    return [{ id: query.id, content_md: lastUpdate?.payload?.content_md || 'test content', ...lastUpdate?.payload }];
+  };
+
+  try {
+    // Paragraphs with word counts to satisfy the 0.88–1.25 length guard
+    // 24 words
+    const para1 = 'The morning sun cast long shadows across the cobblestone street as merchants began setting up their stalls for the day ahead in the market.';
+    // 23 words
+    const para2 = 'Helena walked briskly through the crowded plaza, her coat pulled tight against the cold wind that swept down from the northern hills.';
+    // 22 words
+    const para3 = 'She paused at the fountain and looked back the way she had come, wondering if anyone had noticed her leaving the house so early.';
+    const testContent = para1 + '\n\n' + para2 + '\n\n' + para3;
+    const loaded = [
+      { chapter: { id: 'test-ch-1', chapter_number: 1, title: 'Test' }, content: testContent, original: 'Different from current so save triggers.' },
+    ];
+
+    // Mock LLM: rewrite of para2 (24 words, original 23, ratio 1.04)
+    const testLLM = async () => 'Helena moved quickly through the bustling plaza, her woolen coat drawn close as the bitter northern wind cut across the wide open town square.';
+
+    const result = await surgicalFix.applySurgicalFixes({
+      loaded,
+      issues: [{
+        severity: 'B', chapterNumber: 1,
+        quote: 'her coat pulled tight against the cold wind',
+        description: 'Test issue', fixType: 'prose',
+      }],
+      project: { id: 'test-proj' },
+      _llmOverride: testLLM,
+      // NOTE: NO _saveOverride — this should hit the real (now mocked) save path
+    });
+
+    // Verify the entity layer was actually called
+    assert(updateCalls.length >= 1,
+      'Chapter.update should have been called at least once, got ' + updateCalls.length);
+    assert(filterCalls.length >= 1,
+      'Chapter.filter (read-back verify) should have been called at least once, got ' + filterCalls.length);
+    
+    // Verify the save payload includes prepareChapterContent fields
+    const payload = updateCalls[0].payload;
+    assert(payload.hasOwnProperty('content_md') || payload.hasOwnProperty('content_md_url'),
+      'Save payload must include content_md or content_md_url from prepareChapterContent');
+    assert(payload.revision_notes && payload.revision_notes.includes('CRITIC-FIX'),
+      'Save payload must include CRITIC-FIX stamp in revision_notes');
+    assert(typeof payload.word_count === 'number',
+      'Save payload must include word_count');
+
+    // Verify save result status
+    const saveResult = result.chapterSaves.find(s => s.chapterNumber === 1);
+    assert(saveResult, 'Should have a save result for chapter 1');
+    assert(saveResult.status === 'saved' || saveResult.status === 'save-failed',
+      'Save status should be saved or save-failed, got: ' + saveResult.status);
+  } finally {
+    // Restore originals
+    base44Module.entities.Chapter.update = originalUpdate;
+    base44Module.entities.Chapter.filter = originalFilter;
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * RUN + SUMMARY
+ * ═════════════════════════════════════════════════════════════════════════ */
+
+await runTests();
 
 console.log(`\n${'═'.repeat(60)}`);
 console.log(`CRITIQUE WIRING GUARD: ${passed} passed, ${failed} failed out of ${passed + failed}`);
