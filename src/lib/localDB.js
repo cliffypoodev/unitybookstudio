@@ -1,6 +1,10 @@
 // src/lib/localDB.js
-// IndexedDB-backed entity store for Unity Book Studio
-// Replaces Base44 cloud entities with local persistent storage.
+// Server-backed entity store for Unity Book Studio.
+// Replaces IndexedDB with fetch() to the Vite server-store plugin
+// so all devices share the same data.
+//
+// The old IndexedDB code is preserved in the `idb` namespace
+// for one-time migration (Step 3).
 
 const DB_NAME = 'UnityBookStudio';
 const DB_VERSION = 1;
@@ -12,9 +16,14 @@ const ENTITY_STORES = [
   '_FileStore',  // local file storage (replaces GitHub)
 ];
 
+// ══════════════════════════════════════════════════════════════════════════
+// LEGACY IndexedDB CODE — kept for migration reads only. NOT used at runtime.
+// ══════════════════════════════════════════════════════════════════════════
+
 let _db = null;
 
 function openDB() {
+  if (typeof indexedDB === 'undefined') return Promise.reject(new Error('No IndexedDB'));
   if (_db) return Promise.resolve(_db);
 
   return new Promise((resolve, reject) => {
@@ -38,13 +47,60 @@ function openDB() {
   });
 }
 
-function generateId() {
-  return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+async function idbTxStore(storeName, mode = 'readonly') {
+  const db = await openDB();
+  const tx = db.transaction(storeName, mode);
+  return tx.objectStore(storeName);
 }
 
-function nowISO() {
-  return new Date().toISOString();
+async function idbGetAllFromStore(storeName) {
+  const store = await idbTxStore(storeName);
+  return new Promise((resolve, reject) => {
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
 }
+
+/** Read all data from IndexedDB — used for migration ONLY */
+export async function idbExportAllData() {
+  const dump = {};
+  for (const name of ENTITY_STORES) {
+    try {
+      dump[name] = await idbGetAllFromStore(name);
+    } catch {
+      dump[name] = [];
+    }
+  }
+  return dump;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// SERVER ADAPTER — all runtime operations go through fetch()
+// ══════════════════════════════════════════════════════════════════════════
+
+const API_BASE = '/api/store';
+
+async function serverFetch(entityName, action, options = {}) {
+  const { id, body, method } = options;
+  const idSuffix = id ? `/${encodeURIComponent(id)}` : '';
+  const url = `${API_BASE}/${entityName}/${action}${idSuffix}`;
+
+  const fetchOptions = { method: method || (body ? 'POST' : 'GET') };
+  if (body) {
+    fetchOptions.headers = { 'Content-Type': 'application/json' };
+    fetchOptions.body = JSON.stringify(body);
+  }
+
+  const resp = await fetch(url, fetchOptions);
+  if (!resp.ok) {
+    const errBody = await resp.json().catch(() => ({}));
+    throw new Error(errBody.error || `Server store error: ${resp.status}`);
+  }
+  return resp.json();
+}
+
+// ── Helpers (still used by some callers) ────────────────────────────────
 
 function matchesFilter(record, query) {
   if (!query || typeof query !== 'object') return true;
@@ -74,62 +130,12 @@ function sortRecords(records, sortField) {
   });
 }
 
-async function txStore(storeName, mode = 'readonly') {
-  const db = await openDB();
-  const tx = db.transaction(storeName, mode);
-  return tx.objectStore(storeName);
-}
-
-async function getAllFromStore(storeName) {
-  const store = await txStore(storeName);
-  return new Promise((resolve, reject) => {
-    const req = store.getAll();
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function getByKey(storeName, key) {
-  const store = await txStore(storeName);
-  return new Promise((resolve, reject) => {
-    const req = store.get(key);
-    req.onsuccess = () => resolve(req.result || null);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function putRecord(storeName, record) {
-  const store = await txStore(storeName, 'readwrite');
-  return new Promise((resolve, reject) => {
-    const req = store.put(record);
-    req.onsuccess = () => resolve(record);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function deleteByKey(storeName, key) {
-  const store = await txStore(storeName, 'readwrite');
-  return new Promise((resolve, reject) => {
-    const req = store.delete(key);
-    req.onsuccess = () => resolve();
-    req.onerror = () => reject(req.error);
-  });
-}
-
-// ── Entity API (mirrors Base44 SDK) ──
+// ── Entity API (mirrors Base44 SDK) — now via server ────────────────────
 
 function createEntityProxy(entityName) {
   return {
     async create(data) {
-      const now = nowISO();
-      const record = {
-        ...data,
-        id: generateId(),
-        created_date: now,
-        updated_date: now,
-        created_by: 'local@unitybookstudio.app',
-      };
-      await putRecord(entityName, record);
+      const record = await serverFetch(entityName, 'create', { body: data });
       console.log(`[LOCAL-DB] ${entityName}.create → id:${record.id}`);
       return record;
     },
@@ -145,38 +151,25 @@ function createEntityProxy(entityName) {
     },
 
     async get(id) {
-      const record = await getByKey(entityName, id);
-      if (!record) throw new Error(`${entityName} with id ${id} not found`);
-      return record;
+      return serverFetch(entityName, 'get', { id });
     },
 
     async filter(query, sortField, limit) {
-      const all = await getAllFromStore(entityName);
-      let results = all.filter(r => matchesFilter(r, query));
-      results = sortRecords(results, sortField);
-      if (limit && limit > 0) results = results.slice(0, limit);
-      return results;
+      return serverFetch(entityName, 'filter', {
+        body: { query, sort: sortField, limit },
+      });
     },
 
     async list() {
-      return getAllFromStore(entityName);
+      return serverFetch(entityName, 'list');
     },
 
     async update(id, fields) {
-      const existing = await getByKey(entityName, id);
-      if (!existing) throw new Error(`${entityName} with id ${id} not found`);
-      const updated = {
-        ...existing,
-        ...fields,
-        id, // preserve original id
-        updated_date: nowISO(),
-      };
-      await putRecord(entityName, updated);
-      return updated;
+      return serverFetch(entityName, 'update', { id, body: fields });
     },
 
     async delete(id) {
-      await deleteByKey(entityName, id);
+      await serverFetch(entityName, 'delete', { id, method: 'DELETE' });
       console.log(`[LOCAL-DB] ${entityName}.delete → id:${id}`);
     },
   };
@@ -185,22 +178,25 @@ function createEntityProxy(entityName) {
 // ── File Storage (replaces GitHub) ──
 
 export async function storeFile(key, content) {
-  const record = {
-    id: key,
-    content,
-    created_date: nowISO(),
-    updated_date: nowISO(),
-    created_by: 'local',
-  };
-  await putRecord('_FileStore', record);
+  await serverFetch('_FileStore', 'create', {
+    body: {
+      id: key,
+      content,
+      created_by: 'local',
+    },
+  });
   return `local://${key}`;
 }
 
 export async function retrieveFile(key) {
   // Handle local:// URLs
   const cleanKey = key.replace(/^local:\/\//, '');
-  const record = await getByKey('_FileStore', cleanKey);
-  return record?.content || null;
+  try {
+    const record = await serverFetch('_FileStore', 'get', { id: cleanKey });
+    return record?.content || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function isLocalFileUrl(url) {
@@ -225,7 +221,7 @@ export const entities = {
 export async function exportAllData() {
   const dump = {};
   for (const name of ENTITY_STORES) {
-    dump[name] = await getAllFromStore(name);
+    dump[name] = await serverFetch(name, 'list');
   }
   return dump;
 }
@@ -234,19 +230,18 @@ export async function importAllData(dump) {
   for (const [name, records] of Object.entries(dump)) {
     if (!ENTITY_STORES.includes(name)) continue;
     for (const record of records) {
-      await putRecord(name, record);
+      // Use create with the record's existing id/dates to preserve them
+      await serverFetch(name, 'create', { body: record });
     }
   }
 }
 
 export async function clearAllData() {
   for (const name of ENTITY_STORES) {
-    const store = await txStore(name, 'readwrite');
-    await new Promise((resolve, reject) => {
-      const req = store.clear();
-      req.onsuccess = () => resolve();
-      req.onerror = () => reject(req.error);
-    });
+    const all = await serverFetch(name, 'list');
+    for (const record of all) {
+      await serverFetch(name, 'delete', { id: record.id, method: 'DELETE' });
+    }
   }
 }
 
