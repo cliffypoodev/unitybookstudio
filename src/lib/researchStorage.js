@@ -3,6 +3,7 @@
  * Mirrors the same upload-then-URL pattern used in chapterStorage.js.
  */
 import { base44 } from '@/api/base44Client';
+import { retrieveFile } from '@/lib/localDB';
 
 const MAX_INLINE_SIZE = 10000;
 
@@ -77,18 +78,27 @@ export async function resolveResearchContent(project) {
 
   // Prefer URL — it has the most recently saved full version
   if (project.research_md_url) {
-    try {
-      // Use the local base44Client proxy instead of direct fetch (CSP blocks direct).
-      const response = await base44.functions.invoke('fetchFromGitHub', {
-        url: project.research_md_url,
-        file_url: project.research_md_url,
-        raw_url: project.research_md_url,
-      });
-      const data = response?.data || response || {};
-      const text = data?.content || data?.result?.content || '';
-      if (text && text.length > 50) return text;
-    } catch (e) {
-      console.warn('[RESEARCH-STORAGE] Failed to fetch research_md_url:', e?.message);
+    if (project.research_md_url.startsWith('local://')) {
+      try {
+        const text = await retrieveFile(project.research_md_url);
+        if (text && text.length > 50) return text;
+      } catch (e) {
+        console.warn('[RESEARCH-STORAGE] Failed to fetch local research_md_url:', e?.message);
+      }
+    } else {
+      try {
+        // Use the local base44Client proxy instead of direct fetch (CSP blocks direct).
+        const response = await base44.functions.invoke('fetchFromGitHub', {
+          url: project.research_md_url,
+          file_url: project.research_md_url,
+          raw_url: project.research_md_url,
+        });
+        const data = response?.data || response || {};
+        const text = data?.content || data?.result?.content || '';
+        if (text && text.length > 50) return text;
+      } catch (e) {
+        console.warn('[RESEARCH-STORAGE] Failed to fetch remote research_md_url:', e?.message);
+      }
     }
   }
 
@@ -133,11 +143,15 @@ export async function checkResearchIntegrity(project) {
   // URL exists, and inline text is a stub. We MUST be able to resolve the URL.
   let fetchedText = '';
   try {
-    const response = await base44.functions.invoke('fetchFromGitHub', {
-      url: url, file_url: url, raw_url: url,
-    });
-    const data = response?.data || response || {};
-    fetchedText = data?.content || data?.result?.content || '';
+    if (url.startsWith('local://')) {
+      fetchedText = await retrieveFile(url) || '';
+    } else {
+      const response = await base44.functions.invoke('fetchFromGitHub', {
+        url: url, file_url: url, raw_url: url,
+      });
+      const data = response?.data || response || {};
+      fetchedText = data?.content || data?.result?.content || '';
+    }
   } catch (e) {
     console.warn('[RESEARCH-STORAGE] Integrity check failed to fetch research_md_url:', e?.message);
   }

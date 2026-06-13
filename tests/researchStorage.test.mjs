@@ -33,15 +33,22 @@ async function main() {
         }
         if (fnName === 'fetchFromGitHub') {
           if (params.url.includes('404')) throw new Error('404 Not Found');
-          if (params.url.includes('local://mock')) return { data: { content: 'Mocked full external content fetched. It needs to be longer than fifty characters to pass the validation.' } };
+          if (params.url.includes('http')) return { data: { content: 'Mocked full external HTTP content fetched. It needs to be longer than fifty characters to pass the validation.' } };
           return { data: { content: null } };
         }
       }
     }
   };
 
+  const mockRetrieveFile = async (key) => {
+    if (key.includes('404')) return null;
+    if (key.startsWith('local://mock')) return 'Mocked local content fetched via retrieveFile directly. It needs to be longer than fifty characters to pass the validation.';
+    return null;
+  };
+
   const context = vm.createContext({
     base44: mockBase44,
+    retrieveFile: mockRetrieveFile,
     console: {
       log: () => {},
       warn: () => {},
@@ -51,7 +58,6 @@ async function main() {
 
   vm.runInContext(strippedCode, context);
 
-  // Grab the functions from the context
   const { prepareResearchContent, resolveResearchContent, checkResearchIntegrity } = context;
 
   await runTest('prepareResearchContent: inline if small', async () => {
@@ -74,10 +80,16 @@ async function main() {
     assert.strictEqual(res.research_md_url, '');
   });
 
-  await runTest('resolveResearchContent: fetches via base44', async () => {
+  await runTest('resolveResearchContent: fetches local:// via retrieveFile', async () => {
     const project = { research_md_url: 'local://mock/123', research_md: 'fallback' };
     const text = await resolveResearchContent(project);
-    assert.strictEqual(text, 'Mocked full external content fetched. It needs to be longer than fifty characters to pass the validation.');
+    assert.strictEqual(text, 'Mocked local content fetched via retrieveFile directly. It needs to be longer than fifty characters to pass the validation.');
+  });
+
+  await runTest('resolveResearchContent: fetches http via base44', async () => {
+    const project = { research_md_url: 'http://example.com/123', research_md: 'fallback' };
+    const text = await resolveResearchContent(project);
+    assert.strictEqual(text, 'Mocked full external HTTP content fetched. It needs to be longer than fifty characters to pass the validation.');
   });
 
   await runTest('resolveResearchContent: falls back to inline on fetch failure', async () => {
@@ -95,10 +107,10 @@ async function main() {
     assert.strictEqual(res.isTruncated, true);
   });
 
-  await runTest('checkResearchIntegrity: does not flag if fallback is full text', async () => {
+  await runTest('checkResearchIntegrity: does not flag healthy local:// content', async () => {
     const project = { 
-      research_md_url: 'http://example.com/404', 
-      research_md: 'a'.repeat(1000) // Longer than 600, no marker
+      research_md_url: 'local://mock/123', 
+      research_md: 'preview text\n\n[Full research stored externally]' 
     };
     const res = await checkResearchIntegrity(project);
     assert.strictEqual(res.isTruncated, false);
