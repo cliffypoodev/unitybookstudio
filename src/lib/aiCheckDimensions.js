@@ -74,9 +74,8 @@ const EMOTIONAL_TELLS = [
  * ═════════════════════════════════════════════════════════════════════════ */
 
 function scoreSlopDensity(text) {
-  const slopCounts = countAISlopPatterns(text);
-  const density = scoreAISlopDensity(text);
-  const total = Object.values(slopCounts).reduce((a, b) => a + b, 0);
+  const { total, density: rawDensity } = countAISlopPatterns(text);
+  const densityResult = scoreAISlopDensity(text);
   const wc = countWords(text);
   const per1k = wc > 0 ? (total / wc) * 1000 : 0;
 
@@ -86,8 +85,8 @@ function scoreSlopDensity(text) {
   return {
     score,
     label: 'Slop Density',
-    detail: `${total} AI-slop patterns (${per1k.toFixed(1)}/1K words). Severity: ${density?.severity || 'low'}.`,
-    raw: { totalPatterns: total, per1k: Math.round(per1k * 10) / 10, severity: density?.severity },
+    detail: `${total} AI-slop patterns (${per1k.toFixed(1)}/1K words). Severity: ${densityResult?.severity || 'low'}.`,
+    raw: { totalPatterns: total, per1k: Math.round(per1k * 10) / 10, severity: densityResult?.severity },
   };
 }
 
