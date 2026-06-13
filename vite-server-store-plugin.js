@@ -29,6 +29,7 @@ const ENTITY_STORES = [
   'NovelProject', 'Chapter', 'SeriesBible', 'AuthorStyle',
   'CoverArtGallery', 'PromptCatalog', 'ProjectFolder',
   'BookProject', '_FileStore', '_MigrationMeta',
+  'PublishingAsset',
 ];
 
 // ── In-memory cache + disk I/O ──────────────────────────────────────────

@@ -27,6 +27,7 @@ import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 
 import SourceSelector from '@/components/tools/SourceSelector';
 import UploadZone from '@/components/tools/UploadZone';
+import { buildDimensionReport } from '@/lib/aiCheckDimensions';
 
 const AI_DETECT_VERSION = 'ProofreadSubPage-ai-detect-humanizer-v2';
 console.log('[AI-DETECT] Loaded', AI_DETECT_VERSION);
@@ -760,6 +761,7 @@ function HumanizePanel({ selected, project, onClose }) {
 
     try {
       const response = await invokeLLMWithRetry({
+        task_type: 'proofread',
         model: 'gemini_3_flash',
         fallback_model: 'deepseek/deepseek-chat-v3-0324',
         temperature: 0.35,
@@ -903,6 +905,7 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
   const [sentenceAnalysis, setSentenceAnalysis] = useState(null);
   const [selectedHumanize, setSelectedHumanize] = useState(null);
   const [lastScanMeta, setLastScanMeta] = useState(null);
+  const [dimensionReport, setDimensionReport] = useState(null);
 
   const isBusy = !!busyLabel || scanning;
 
@@ -961,6 +964,7 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
     setSentenceAnalysis(null);
     setSelectedHumanize(null);
     setLastScanMeta(null);
+    setDimensionReport(null);
   };
 
   const loadChaptersToScan = async () => {
@@ -1017,6 +1021,12 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
       const perChapter = chaptersToScan.map((c) => analyzeChapter(c.body, c.title)).filter(Boolean);
       setChapterStats(perChapter);
 
+      setProgress('Phase 1b: five-dimension AI-check…');
+      console.log('[AI-DETECT] ═══ PHASE 1b: DIMENSION REPORT ═══');
+      const dimReport = buildDimensionReport(fullText);
+      setDimensionReport(dimReport);
+      console.log('[AI-DETECT] Dimension composite:', dimReport.compositeScore, dimReport.dimensions.map(d => `${d.label}=${d.score}`).join(', '));
+
       setProgress('Phase 2: sentence heatmap analysis…');
       console.log('[AI-DETECT] ═══ PHASE 2: SENTENCE HEATMAP ═══');
 
@@ -1049,6 +1059,7 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
             ?.sort((a, b) => b.score - a.score) || [];
 
           const response = await invokeLLMWithRetry({
+            task_type: 'critique',
             model: 'gemini_3_flash',
             fallback_model: 'deepseek/deepseek-chat-v3-0324',
             temperature: 0.1,
@@ -1173,6 +1184,15 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
       lines.push('');
     }
 
+    if (dimensionReport?.dimensions?.length) {
+      lines.push('Five-Dimension AI Score:');
+      lines.push(`Composite: ${dimensionReport.compositeScore}%`);
+      for (const dim of dimensionReport.dimensions) {
+        lines.push(`- ${dim.label}: ${dim.score}/100 — ${dim.detail}`);
+      }
+      lines.push('');
+    }
+
     if (sentenceAnalysis?.worstSentences?.length) {
       lines.push('Worst Sentence-Level Risks:');
       for (const row of sentenceAnalysis.worstSentences.slice(0, 25)) {
@@ -1195,7 +1215,7 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
     }
 
     return lines.join('\n');
-  }, [combinedScore, geminiAverage, heatmapAverage, lastScanMeta, overallStats, project, sentenceAnalysis, source, totalSignals, geminiResults]);
+  }, [combinedScore, dimensionReport, geminiAverage, heatmapAverage, lastScanMeta, overallStats, project, sentenceAnalysis, source, totalSignals, geminiResults]);
 
   const band = getBand(combinedScore || 0);
 
@@ -1305,6 +1325,36 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
                 actual={overallStats.tripletDensity > 3 ? 'ai' : overallStats.tripletDensity > 1 ? 'borderline' : 'human'} />
               <div className="mt-2 pt-2 border-t border-border/30 text-xs text-muted-foreground">
                 {overallStats.totalWords.toLocaleString()} words · {overallStats.totalSentences.toLocaleString()} sentences · {overallStats.uniqueWordCount.toLocaleString()} unique words · {overallStats.aiVocabCount} AI-signature words
+              </div>
+            </div>
+          )}
+
+          {dimensionReport?.dimensions?.length > 0 && (
+            <div className="rounded-2xl border border-border/60 bg-card/80 p-4">
+              <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" /> Five-Dimension AI Score
+                <span className="ml-auto text-lg font-bold">{dimensionReport.compositeScore}%</span>
+              </h3>
+              <div className="space-y-3">
+                {dimensionReport.dimensions.map((dim) => {
+                  const barColor = dim.score > 60 ? 'bg-red-500' : dim.score > 30 ? 'bg-amber-500' : 'bg-emerald-500';
+                  const labelColor = dim.score > 60 ? 'text-red-600 dark:text-red-400' : dim.score > 30 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400';
+                  return (
+                    <div key={dim.key}>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-xs font-semibold text-foreground">{dim.label}</span>
+                        <span className={`text-xs font-bold ${labelColor}`}>{dim.score}</span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-secondary/60 overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${dim.score}%` }} />
+                      </div>
+                      <p className="mt-1 text-[10px] text-muted-foreground leading-4">{dim.detail}</p>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 pt-2 border-t border-border/30 text-[10px] text-muted-foreground">
+                Deterministic analysis — no LLM calls. Composite: weighted average of 5 dimensions. 0 = human, 100 = AI.
               </div>
             </div>
           )}

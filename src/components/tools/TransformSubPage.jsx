@@ -38,6 +38,7 @@ import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { loadManuscriptChapters } from '@/lib/manuscriptLoader';
 import SourceSelector from '@/components/tools/SourceSelector';
+import SavedAssetsPanel, { savePublishingAsset } from '@/components/tools/SavedAssetsPanel';
 import UploadZone from '@/components/tools/UploadZone';
 
 const TRANSFORM_STUDIO_VERSION = 'TransformSubPage-conversion-studio-ui-v3';
@@ -495,6 +496,7 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
   const [expandedChapters, setExpandedChapters] = useState(new Set());
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [assetRefreshKey, setAssetRefreshKey] = useState(0);
 
   const projectType = useMemo(() => {
     if (source === 'upload') return 'fiction';
@@ -681,6 +683,7 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
         const prompt = getTransformPrompt(formatId, chapter.content, fullText, projectType);
 
         const response = await invokeLLMWithRetry({
+          task_type: 'transform',
           prompt,
           model: pickModel('transform'),
           fallback_model: pickFallbackModel('transform'),
@@ -724,6 +727,7 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
           const prompt = getTransformPrompt(format.id, null, fullText, projectType);
 
           const response = await invokeLLMWithRetry({
+            task_type: 'transform',
             prompt,
             model: pickModel('transform'),
             fallback_model: pickFallbackModel('transform'),
@@ -737,6 +741,15 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
 
           setBookResult({ status: 'success', text: text.trim() });
           toast.success(`${format.label} generated (${countWords(text).toLocaleString()} words)`);
+
+          if (source === 'project' && project?.id) {
+            savePublishingAsset({
+              projectId: project.id,
+              kind: 'transform_' + format.id,
+              label: format.label,
+              content: text.trim(),
+            }).then(() => setAssetRefreshKey((k) => k + 1));
+          }
         } catch (err) {
           console.error('[TRANSFORM] Book-level failed:', err);
           setBookResult({
@@ -1422,6 +1435,13 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
             </div>
           )}
         </div>
+      )}
+      {source === 'project' && project?.id && (
+        <SavedAssetsPanel
+          projectId={project.id}
+          kinds={visibleFormats.map((f) => 'transform_' + f.id)}
+          refreshKey={assetRefreshKey}
+        />
       )}
     </div>
   );

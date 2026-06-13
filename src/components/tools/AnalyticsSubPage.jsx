@@ -323,6 +323,7 @@ export default function AnalyticsSubPage({ project, chapters }) {
       const title = source === 'project' ? project?.title : 'Uploaded Manuscript';
       const genre = source === 'project' ? project?.genre : 'Fiction';
       const result = await invokeLLMWithRetry({
+        task_type: 'analytics',
         prompt: `Analyze emotional arc. For each chapter, sentiment score -5 to +5. Return JSON: {chapters: [{chapter, score, label}]}.\n\n${summaries}\n\nTitle: ${title}\nGenre: ${genre}`,
         response_json_schema: { type: 'object', properties: { chapters: { type: 'array', items: { type: 'object', properties: { chapter: { type: 'number' }, score: { type: 'number' }, label: { type: 'string' } } } } } },
         model: pickModel('analytics'),
