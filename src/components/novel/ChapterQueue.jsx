@@ -1,9 +1,10 @@
 import React from 'react';
-import { ChevronRight, Loader2, PenLine, Square, Tags, AlertTriangle } from 'lucide-react';
+import { ChevronRight, Loader2, PenLine, Square, Tags, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FICTION_PROSE_MODELS, normalizeModelId } from '@/lib/modelRouting';
 import { isGenericChapterTitle } from '@/lib/chapterMetadataRepair';
+import { isBodyChapter } from '@/lib/bibliographyGenerator';
 
 const CHAPTER_QUEUE_VERSION = 'ChapterQueue-metadata-repair-v2';
 
@@ -32,8 +33,10 @@ export default function ChapterQueue({
   chapterProgress = {},
   onStop,
   onRepairMetadata,
+  onRedraftAllFresh,
 }) {
   const safeChapters = Array.isArray(chapters) ? chapters : [];
+  const bodyChapters = safeChapters.filter(isBodyChapter);
   const undrafted = safeChapters.filter((c) => c.status === 'planned' || c.status === 'beats_ready' || c.status === 'error').length;
   const metadataIssueCount = safeChapters.filter(chapterNeedsMetadata).length;
 
@@ -79,6 +82,22 @@ export default function ChapterQueue({
                 <><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Drafting…</>
               ) : (
                 <><PenLine className="mr-1 h-3 w-3" /> Draft All ({undrafted})</>
+              )}
+            </Button>
+          )}
+
+          {onRedraftAllFresh && bodyChapters.length > 0 && (
+            <Button 
+              onClick={onRedraftAllFresh} 
+              disabled={!!busyLabel} 
+              size="sm" 
+              variant="outline" 
+              className="rounded-full px-3 text-[10px] h-7 border-blue-400 text-blue-700 hover:text-blue-800 dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-900/30"
+            >
+              {busyLabel && busyLabel.includes('Re-drafting') ? (
+                <><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Re-drafting…</>
+              ) : (
+                <><RefreshCw className="mr-1 h-3 w-3" /> Re-draft All (fresh)</>
               )}
             </Button>
           )}

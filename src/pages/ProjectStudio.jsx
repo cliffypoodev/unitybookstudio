@@ -3527,6 +3527,144 @@ For each banned name, provide a culturally appropriate, original replacement nam
     }
   };
 
+  const handleRedraftAllFresh = async () => {
+    if (!project || busyLabel) return;
+    const ok = confirm('Re-draft ALL chapters from scratch? This regenerates every chapter (current text is snapshotted for undo).');
+    if (!ok) return;
+
+    captureSnapshot('Re-draft All Fresh');
+    stopRequestedRef.current = false;
+
+    let freshChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+    const remaining = freshChapters
+      .filter((ch) => isBodyChapter(ch))
+      .sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
+
+    if (!remaining.length) {
+      toast.info('No body chapters found to re-draft.');
+      return;
+    }
+
+    const isAnthologyMode = project.project_type === 'anthology';
+    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isParallelMode = isAnthologyMode || isNonfictionMode;
+    const total = remaining.length;
+    const failures = [];
+    const useFastDraftAll = true;
+
+    console.log(`[REDRAFT ALL] Mode: ${isParallelMode ? 'parallel mode (anthology/nonfiction)' : 'sequential continuity-safe mode (fiction/novel)'}`);
+    console.log('[REDRAFT ALL] Batch generation mode: DRAFT-ONLY. Polish is handled by Fix Manuscript afterward.');
+    console.log(`[REDRAFT ALL] Chapters to draft:`, remaining.map(c => ({ id: c.id, num: c.chapter_number })));
+
+    const seed = {};
+    for (const ch of remaining) seed[ch.id] = 'queued…';
+    setChapterProgress(seed);
+
+    setBusyLabel(isParallelMode
+      ? `Re-drafting ${total} chapters in controlled parallel…`
+      : `Sequentially re-drafting ${total} chapters…`);
+
+    try {
+      if (isParallelMode) {
+        const laneLimit = isNonfictionMode ? NONFICTION_DRAFT_LANE_LIMIT : (isAnthologyMode ? ANTHOLOGY_DRAFT_LANE_LIMIT : PARALLEL_DRAFT_LANE_LIMIT);
+        console.log(`[REDRAFT ALL] Controlled parallel mode active: launching ${remaining.length} chapter(s) through ${laneLimit} lane(s)`);
+
+        const results = await runParallelDraftPool(remaining, async (chapter) => {
+          const onProgress = (label) => {
+            const safeLabel = formatProgressLabel(label);
+            console.log(`[REDRAFT-CH-${chapter.chapter_number}] onProgress fired:`, label, '→', safeLabel);
+            setChapterProgress((prev) => ({ ...prev, [chapter.id]: safeLabel }));
+          };
+
+          try {
+            return await draftChapter(chapter, false, chapterProseModels[chapter.id] || undefined, onProgress, {
+              fastDraftOnly: useFastDraftAll,
+            });
+          } finally {
+            console.log(`[REDRAFT-CH-${chapter.chapter_number}] Finally: clearing from chapterProgress`);
+            setChapterProgress((prev) => {
+              const next = { ...prev };
+              delete next[chapter.id];
+              return next;
+            });
+          }
+        }, { limit: laneLimit });
+
+        for (const r of results) {
+          if (r.status === 'rejected') {
+            failures.push({ chapter: r.chapter.chapter_number, error: r.reason?.message || 'Unknown error' });
+            console.error(`[REDRAFT ALL] Ch.${r.chapter.chapter_number} failed:`, r.reason);
+          }
+        }
+
+        console.log(`[REDRAFT ALL] Complete: ${results.filter(r => r.status === 'fulfilled').length}/${remaining.length} parallel succeeded, ${failures.length} failed`);
+      } else {
+        // Fiction/novel mode: fully sequential.
+        for (let ci = 0; ci < remaining.length; ci++) {
+          if (stopRequestedRef.current) break;
+
+          const chapter = remaining[ci];
+          setBusyLabel(`Sequential re-draft: chapter ${chapter.chapter_number} (${ci + 1}/${remaining.length})…`);
+
+          const onProgress = (label) => {
+            const safeLabel = formatProgressLabel(label);
+            setChapterProgress((prev) => ({ ...prev, [chapter.id]: safeLabel }));
+          };
+
+          try {
+            const draftResult = await draftChapter(chapter, false, chapterProseModels[chapter.id] || undefined, onProgress, {
+              fastDraftOnly: useFastDraftAll,
+            });
+
+            if (draftResult?.content) {
+              chapter.content_md = draftResult.content;
+              chapter.__freshDraftContent = draftResult.content;
+            }
+
+            freshChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+          } catch (e) {
+            console.error(`[REDRAFT ALL] Ch.${chapter.chapter_number} failed:`, e);
+            failures.push({ chapter: chapter.chapter_number, error: e?.message || 'Unknown error' });
+          } finally {
+            setChapterProgress((prev) => {
+              const next = { ...prev };
+              delete next[chapter.id];
+              return next;
+            });
+            try { await refreshAll(); } catch {}
+          }
+        }
+      }
+
+      const finalChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+      const _draftAllPayload = protectedProjectUpdate({
+        chapter_count: finalChapters.filter((c) => c.status === 'drafted' || c.status === 'reviewed').length,
+        status: 'ready',
+      });
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _draftAllPayload));
+    } finally {
+      stopRequestedRef.current = false;
+      setChapterProgress({});
+      if (failures.length) {
+        setBusyLabel(`Done — ${failures.length} failed: ${failures.map(f => 'Ch.' + f.chapter).join(', ')}`);
+      } else {
+        setBusyLabel('');
+      }
+    }
+    await refreshAll();
+
+    // ── Draft integrity report: read chapters back from DB, not in-memory ──
+    try {
+      const integrityReport = await computeDraftIntegrityReport(projectId, isBodyChapter);
+      setDraftIntegrityReport(integrityReport);
+      if (integrityReport.emptyChapterNumbers.length > 0) {
+        console.warn(`[DRAFT-INTEGRITY] ${integrityReport.emptyChapterNumbers.length} chapters have empty/sub-100-word content after Re-draft All Fresh`);
+      }
+    } catch (integrityErr) {
+      console.error('[DRAFT-INTEGRITY] Failed to compute integrity report:', integrityErr);
+    }
+  };
+
   const handleStop = () => {
     stopRequestedRef.current = true;
   };
@@ -5033,7 +5171,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                     </div>
                   )}
                   <div className="min-h-0 flex-1">
-                    <ChapterQueue chapters={chapters} selectedChapterId={selectedChapter?.id} onSelect={setSelectedChapterId} onDraftAll={handleDraftAll} busyLabel={busyLabel} chapterProgress={chapterProgress} onStop={handleStop} onRepairMetadata={handleRepairChapterMetadata} />
+                    <ChapterQueue chapters={chapters} selectedChapterId={selectedChapter?.id} onSelect={setSelectedChapterId} onDraftAll={handleDraftAll} onRedraftAllFresh={handleRedraftAllFresh} busyLabel={busyLabel} chapterProgress={chapterProgress} onStop={handleStop} onRepairMetadata={handleRepairChapterMetadata} />
                   </div>
                 </div>
               ),
