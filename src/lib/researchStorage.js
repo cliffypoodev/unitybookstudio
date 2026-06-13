@@ -35,7 +35,8 @@ async function uploadViaGitHub(content, projectId) {
 
 /**
  * Prepares research_md for saving to a NovelProject entity.
- * If small enough, saves inline. If too large, uploads to GitHub and returns the URL.
+ * If small enough, saves inline. If too large, uploads via GitHub/local store and returns the URL.
+ * CRITICAL: Always preserves the FULL text inline as a fallback to avoid silent 500-char truncations.
  *
  * @param {string} content - The research markdown content
  * @param {string} [projectId] - Project ID for organizing files
@@ -46,19 +47,21 @@ export async function prepareResearchContent(content, projectId) {
     return { research_md: content || '', research_md_url: '' };
   }
 
-  // Content is too large — upload to GitHub
+  // Content is too large — upload to local/GitHub store
   const result = await uploadViaGitHub(content, projectId);
   if (result?.file_url) {
     return {
-      research_md: content.slice(0, 500) + '\n\n[Full research stored externally]',
+      // Correctness beats inline-size optimization. Store the full text inline.
+      // Do NOT reduce research_md to a 500-char stub that becomes a silent fallback.
+      research_md: content,
       research_md_url: result.file_url,
     };
   }
 
-  // GitHub upload failed — truncate as last resort
-  console.warn('[RESEARCH-STORAGE] Upload failed. Truncating to ' + MAX_INLINE_SIZE + ' chars.');
+  // GitHub/local upload failed — store full text inline rather than a truncated preview
+  console.warn('[RESEARCH-STORAGE] Upload failed. Storing FULL text inline anyway.');
   return {
-    research_md: content.slice(0, MAX_INLINE_SIZE),
+    research_md: content,
     research_md_url: '',
   };
 }
@@ -100,4 +103,53 @@ export async function resolveResearchContent(project) {
  */
 export function projectHasResearch(project) {
   return !!(project?.research_md || project?.research_md_url);
+}
+
+/**
+ * Detects if a project suffers from the truncated-research bug (a dead URL + truncated inline fallback).
+ * Existing projects (like Juneteenth) have a dead research_md_url and a truncated research_md.
+ * Returns { isTruncated: boolean, reason: string }
+ */
+export async function checkResearchIntegrity(project) {
+  if (!project) return { isTruncated: false, reason: '' };
+
+  const url = project.research_md_url;
+  const inline = project.research_md || '';
+
+  if (!url) return { isTruncated: false, reason: '' }; // No URL -> relies purely on inline
+
+  // It has a URL. Check if inline is clearly truncated.
+  // The old code stored the first 500 chars + '\n\n[Full research stored externally]'
+  const hasTruncationMarker = inline.includes('[Full research stored externally]');
+  const isSuspiciouslyShort = inline.length > 0 && inline.length < 600;
+
+  // Only run the fetch check if the inline content actually looks truncated.
+  // If the inline content is long (e.g. 50,000 chars), then even if the URL is dead,
+  // we have the full text, so we're safe.
+  if (!hasTruncationMarker && !isSuspiciouslyShort) {
+    return { isTruncated: false, reason: '' };
+  }
+
+  // URL exists, and inline text is a stub. We MUST be able to resolve the URL.
+  let fetchedText = '';
+  try {
+    const response = await base44.functions.invoke('fetchFromGitHub', {
+      url: url, file_url: url, raw_url: url,
+    });
+    const data = response?.data || response || {};
+    fetchedText = data?.content || data?.result?.content || '';
+  } catch (e) {
+    console.warn('[RESEARCH-STORAGE] Integrity check failed to fetch research_md_url:', e?.message);
+  }
+
+  if (fetchedText && fetchedText.length > 50) {
+    return { isTruncated: false, reason: '' }; // URL resolves perfectly
+  }
+
+  // 💥 URL is dead/empty AND the fallback is a truncated stub.
+  console.error(`[RESEARCH-STORAGE] ERROR: Project ${project.id || 'unknown'} has an unresolvable research URL (${url}) AND a truncated inline fallback. Nonfiction drafts will be low quality until research is re-run.`);
+  return { 
+    isTruncated: true, 
+    reason: 'External research URL is unresolvable and the local fallback is a truncated preview stub.' 
+  };
 }
