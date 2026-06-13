@@ -14,6 +14,7 @@ const ENTITY_STORES = [
   'CoverArtGallery', 'PromptCatalog', 'ProjectFolder',
   'BookProject', // legacy alias
   '_FileStore',  // local file storage (replaces GitHub)
+  'PublishingAsset', // saved tool outputs (blurbs, titles, transforms, etc.)
 ];
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -214,6 +215,7 @@ export const entities = {
   PromptCatalog: createEntityProxy('PromptCatalog'),
   ProjectFolder: createEntityProxy('ProjectFolder'),
   BookProject: createEntityProxy('BookProject'),
+  PublishingAsset: createEntityProxy('PublishingAsset'),
 };
 
 // ── Database Utilities ──

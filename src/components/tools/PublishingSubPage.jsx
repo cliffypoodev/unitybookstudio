@@ -24,6 +24,7 @@ import { runWithNetworkRetry } from '@/lib/requestRetry';
 import SourceSelector from '@/components/tools/SourceSelector';
 import UploadZone from '@/components/tools/UploadZone';
 import QueryTrackerSection from '@/components/tools/QueryTrackerSection';
+import SavedAssetsPanel, { savePublishingAsset } from '@/components/tools/SavedAssetsPanel';
 import {
   PUB_SECTIONS,
   FIELD_MAP,
@@ -142,6 +143,7 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
   const [packageData, setPackageData] = useState({});
   const [generating, setGenerating] = useState({});
   const [saving, setSaving] = useState({});
+  const [assetRefreshKey, setAssetRefreshKey] = useState(0);
   const [expandedSections, setExpandedSections] = useState(() => {
     const out = {};
     for (const sec of PUB_SECTIONS) out[sec.id] = true;
@@ -332,6 +334,15 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
 
         updateItem(itemId, value);
         toast.success(`${item.label} generated`);
+
+        if (source === 'project' && project?.id) {
+          savePublishingAsset({
+            projectId: project.id,
+            kind: itemId,
+            label: item.label,
+            content: typeof value === 'string' ? value : JSON.stringify(value, null, 2),
+          }).then(() => setAssetRefreshKey((k) => k + 1));
+        }
       } catch (err) {
         console.error(`[PUBLISHING] Generation failed for ${itemId}:`, err);
         toast.error(`Failed to generate ${item.label}: ${err?.message || 'Unknown error'}`);
@@ -536,6 +547,7 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
             source={source}
             parsed={parsed}
             isNF={isNF}
+            onAssetSaved={() => setAssetRefreshKey((k) => k + 1)}
           />
 
           <PenNameGenerator
@@ -544,7 +556,15 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
             source={source}
             parsed={parsed}
             isNF={isNF}
+            onAssetSaved={() => setAssetRefreshKey((k) => k + 1)}
           />
+
+          {source === 'project' && project?.id && (
+            <SavedAssetsPanel
+              projectId={project.id}
+              refreshKey={assetRefreshKey}
+            />
+          )}
 
           <div className="flex items-center justify-between flex-wrap gap-2 rounded-2xl border border-border/70 bg-card/80 p-3">
             <div>
