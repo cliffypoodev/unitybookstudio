@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import ChapterQueue from '@/components/novel/ChapterQueue';
+import DraftIntegrityBanner from '@/components/novel/DraftIntegrityBanner';
 import OutlineEditor from '@/components/novel/OutlineEditor';
 import ExportTab from '@/components/publishing/ExportTab';
 import ReviewChapterList from '@/components/review/ReviewChapterList';
@@ -35,6 +36,7 @@ import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup } from '@/lib/chapterStorage';
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
+import { computeDraftIntegrityReport } from '@/lib/draftIntegrityReport';
 import { clearRichContentFields } from '@/lib/richContentStorage';
 import { runQualityScan } from '@/lib/qualityScan';
 import { mechanicalScore } from '@/lib/mechanicalScore';
@@ -1576,6 +1578,7 @@ export default function ProjectStudio() {
   const undoSnapshotRef = React.useRef(null);
   const [isUndoing, setIsUndoing] = React.useState(false);
   const [undoSnapshot, setUndoSnapshot] = React.useState(null);
+  const [draftIntegrityReport, setDraftIntegrityReport] = React.useState(null);
 
   const captureSnapshot = (label) => {
     const snap = {
@@ -3499,10 +3502,109 @@ For each banned name, provide a culturally appropriate, original replacement nam
       }
     }
     await refreshAll();
+
+    // ── Draft integrity report: read chapters back from DB, not in-memory ──
+    try {
+      const integrityReport = await computeDraftIntegrityReport(projectId, isBodyChapter);
+      setDraftIntegrityReport(integrityReport);
+      if (integrityReport.emptyChapterNumbers.length > 0) {
+        console.warn(`[DRAFT-INTEGRITY] ${integrityReport.emptyChapterNumbers.length} chapters have empty/sub-100-word content after Draft All`);
+      }
+    } catch (integrityErr) {
+      console.error('[DRAFT-INTEGRITY] Failed to compute integrity report:', integrityErr);
+    }
   };
 
   const handleStop = () => {
     stopRequestedRef.current = true;
+  };
+
+  // ── Re-draft only the empty/failed chapters from the integrity report ──
+  const handleRedraftEmpty = async () => {
+    if (!project || busyLabel || !draftIntegrityReport) return;
+    const emptyIds = new Set(draftIntegrityReport.emptyChapterIds || []);
+    if (!emptyIds.size) return;
+
+    captureSnapshot('Re-draft empty chapters');
+    stopRequestedRef.current = false;
+    setDraftIntegrityReport(null); // clear the banner during re-draft
+
+    // Fetch fresh chapters from DB — not in-memory state
+    const freshChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+    const remaining = freshChapters
+      .filter((ch) => emptyIds.has(ch.id) && isBodyChapter(ch))
+      .sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
+
+    if (!remaining.length) {
+      toast.info('No empty chapters found to re-draft.');
+      return;
+    }
+
+    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isAnthologyMode = project.project_type === 'anthology';
+    const isParallelMode = isAnthologyMode || isNonfictionMode;
+    const failures = [];
+    const total = remaining.length;
+
+    const seed = {};
+    for (const ch of remaining) seed[ch.id] = 'queued…';
+    setChapterProgress(seed);
+
+    setBusyLabel(`Re-drafting ${total} empty chapter(s)…`);
+
+    try {
+      if (isParallelMode) {
+        const laneLimit = isNonfictionMode ? NONFICTION_DRAFT_LANE_LIMIT : (isAnthologyMode ? ANTHOLOGY_DRAFT_LANE_LIMIT : PARALLEL_DRAFT_LANE_LIMIT);
+        const results = await runParallelDraftPool(remaining, async (chapter) => {
+          const onProgress = (label) => {
+            const safeLabel = formatProgressLabel(label);
+            setChapterProgress((prev) => ({ ...prev, [chapter.id]: safeLabel }));
+          };
+          try {
+            return await draftChapter(chapter, false, chapterProseModels[chapter.id] || undefined, onProgress, { fastDraftOnly: true });
+          } finally {
+            setChapterProgress((prev) => { const next = { ...prev }; delete next[chapter.id]; return next; });
+          }
+        }, { limit: laneLimit });
+
+        for (const r of results) {
+          if (r.status === 'rejected') {
+            failures.push({ chapter: r.chapter.chapter_number, error: r.reason?.message || 'Unknown error' });
+          }
+        }
+      } else {
+        for (let ci = 0; ci < remaining.length; ci++) {
+          if (stopRequestedRef.current) break;
+          const chapter = remaining[ci];
+          setBusyLabel(`Re-drafting empty Ch.${chapter.chapter_number} (${ci + 1}/${total})…`);
+          const onProgress = (label) => {
+            const safeLabel = formatProgressLabel(label);
+            setChapterProgress((prev) => ({ ...prev, [chapter.id]: safeLabel }));
+          };
+          try {
+            await draftChapter(chapter, false, chapterProseModels[chapter.id] || undefined, onProgress, { fastDraftOnly: true });
+          } catch (e) {
+            failures.push({ chapter: chapter.chapter_number, error: e?.message || 'Unknown error' });
+          } finally {
+            setChapterProgress((prev) => { const next = { ...prev }; delete next[chapter.id]; return next; });
+          }
+        }
+      }
+    } finally {
+      stopRequestedRef.current = false;
+      setChapterProgress({});
+      setBusyLabel('');
+    }
+
+    await refreshAll();
+
+    // Re-compute integrity report after re-draft
+    try {
+      const report = await computeDraftIntegrityReport(projectId, isBodyChapter);
+      setDraftIntegrityReport(report);
+    } catch (err) {
+      console.error('[DRAFT-INTEGRITY] Re-draft integrity report failed:', err);
+    }
   };
 
   const handleRewriteSelected = async () => {
@@ -4896,6 +4998,14 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                       Draft All and Rewrite All generate and save chapters. Run Fix Manuscript/Polish afterward for cleanup.
                     </p>
                   </div>
+                  {draftIntegrityReport && (
+                    <DraftIntegrityBanner
+                      report={draftIntegrityReport}
+                      onRedraftEmpty={handleRedraftEmpty}
+                      onDismiss={() => setDraftIntegrityReport(null)}
+                      busyLabel={busyLabel}
+                    />
+                  )}
                   <div className="min-h-0 flex-1">
                     <ChapterQueue chapters={chapters} selectedChapterId={selectedChapter?.id} onSelect={setSelectedChapterId} onDraftAll={handleDraftAll} busyLabel={busyLabel} chapterProgress={chapterProgress} onStop={handleStop} onRepairMetadata={handleRepairChapterMetadata} />
                   </div>
