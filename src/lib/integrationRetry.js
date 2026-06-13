@@ -5,6 +5,38 @@ import { resolveWritingModel, normalizeWritingModel, logWritingModelUsage, isWri
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Find the largest balanced { ... } span in a string.
+ * Returns the substring or null if no balanced pair exists.
+ */
+function findLargestBalancedJson(text) {
+  let best = null;
+  let bestLen = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== '{') continue;
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    for (let j = i; j < text.length; j++) {
+      const ch = text[j];
+      if (escape) { escape = false; continue; }
+      if (ch === '\\') { if (inString) escape = true; continue; }
+      if (ch === '"') { inString = !inString; continue; }
+      if (inString) continue;
+      if (ch === '{') depth++;
+      else if (ch === '}') {
+        depth--;
+        if (depth === 0) {
+          const span = text.slice(i, j + 1);
+          if (span.length > bestLen) { best = span; bestLen = span.length; }
+          break;
+        }
+      }
+    }
+  }
+  return best;
+}
+
 function attemptJsonSalvage(raw) {
   if (!raw || typeof raw !== 'string') return null;
   let s = raw.trim();
@@ -14,9 +46,30 @@ function attemptJsonSalvage(raw) {
   s = s.replace(/<\/think>/gi, '');                 // orphaned </think> tags
   s = s.trim();
   s = s.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '');
+
+  // ── Guard: pure preamble with no JSON at all → return null so retry fires ──
+  if (s.indexOf('{') === -1) {
+    console.warn('[JSON-SALVAGE] No opening brace found — pure preamble, returning null');
+    return null;
+  }
+
+  // ── Preamble stripping: prefer the largest balanced {...} span ──
+  // If the first '{' is embedded in a prose sentence (text before it contains
+  // sentence-like words), find the largest balanced JSON object instead of
+  // the naive first-to-last slice which can capture preamble fragments.
   const firstBrace = s.indexOf('{');
   const lastBrace = s.lastIndexOf('}');
-  if (firstBrace !== -1 && lastBrace > firstBrace) s = s.slice(firstBrace, lastBrace + 1);
+  const textBeforeFirstBrace = s.slice(0, firstBrace).trim();
+  const hasProseBeforeBrace = textBeforeFirstBrace.length > 10 && /[a-zA-Z]{3,}/.test(textBeforeFirstBrace);
+
+  let candidate;
+  if (hasProseBeforeBrace) {
+    // Prose before the first brace — likely preamble. Find the largest balanced JSON.
+    const largest = findLargestBalancedJson(s);
+    candidate = largest || (firstBrace !== -1 && lastBrace > firstBrace ? s.slice(firstBrace, lastBrace + 1) : s);
+  } else {
+    candidate = firstBrace !== -1 && lastBrace > firstBrace ? s.slice(firstBrace, lastBrace + 1) : s;
+  }
 
   const fixStringValues = (str) => str.replace(/"((?:[^"\\]|\\.)*)"/gs, (match, inner) => {
     return '"' + inner.replace(/(?<!\\)\n/g, '\\n').replace(/(?<!\\)\r/g, '\\r').replace(/(?<!\\)\t/g, '\\t') + '"';
@@ -30,17 +83,25 @@ function attemptJsonSalvage(raw) {
     return f;
   };
 
-  const attempts = [
-    () => JSON.parse(s),
-    () => JSON.parse(s.replace(/,\s*([}\]])/g, '$1')),
-    () => JSON.parse(fixStringValues(s).replace(/,\s*([}\]])/g, '$1')),
-    () => JSON.parse(closeTruncated(fixStringValues(s).replace(/,\s*([}\]])/g, '$1'))),
-    () => { let c = s.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, ''); c = fixStringValues(c).replace(/,\s*([}\]])/g, '$1'); return JSON.parse(closeTruncated(c)); },
-    () => { let n = s.replace(/[^\x20-\x7e\n\r\t]/g, ''); n = fixStringValues(n).replace(/,\s*([}\]])/g, '$1'); return JSON.parse(closeTruncated(n)); },
-  ];
-  for (const attempt of attempts) { try { return attempt(); } catch {} }
+  // Try parsing the candidate first, then fall back to the simple first-to-last slice
+  const candidates = [candidate];
+  const simpleSlice = firstBrace !== -1 && lastBrace > firstBrace ? s.slice(firstBrace, lastBrace + 1) : null;
+  if (simpleSlice && simpleSlice !== candidate) candidates.push(simpleSlice);
+
+  for (const c of candidates) {
+    const attempts = [
+      () => JSON.parse(c),
+      () => JSON.parse(c.replace(/,\s*([}\]])/g, '$1')),
+      () => JSON.parse(fixStringValues(c).replace(/,\s*([}\]])/g, '$1')),
+      () => JSON.parse(closeTruncated(fixStringValues(c).replace(/,\s*([}\]])/g, '$1'))),
+      () => { let x = c.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, ''); x = fixStringValues(x).replace(/,\s*([}\]])/g, '$1'); return JSON.parse(closeTruncated(x)); },
+      () => { let n = c.replace(/[^\x20-\x7e\n\r\t]/g, ''); n = fixStringValues(n).replace(/,\s*([}\]])/g, '$1'); return JSON.parse(closeTruncated(n)); },
+    ];
+    for (const attempt of attempts) { try { return attempt(); } catch {} }
+  }
   return null;
 }
+
 
 function isRetryableError(error) {
   const message = error?.message || '';
