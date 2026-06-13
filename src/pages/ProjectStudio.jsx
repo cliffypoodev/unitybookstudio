@@ -59,7 +59,7 @@ import { runAiDetectionResistance } from '@/lib/aiDetectionResist';
 import { runAntiDetectionPolish } from '@/lib/antiDetectionPolish';
 import { isAnthologyProject, buildAnthologyBiblePrompt, anthologyBibleSchema, parseAnthologyBible, storiesToChapterPlans, buildAnthologyStoryContext } from '@/lib/anthologyEngine';
 import { generateAnthologyOutlinesBatched, rebuildAnthologyOutlineMd, hasInvalidAnthologyStories } from '@/lib/anthologyBatchOutline';
-import { resolveResearchContent, prepareResearchContent } from '@/lib/researchStorage';
+import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity } from '@/lib/researchStorage';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
@@ -1579,6 +1579,7 @@ export default function ProjectStudio() {
   const [isUndoing, setIsUndoing] = React.useState(false);
   const [undoSnapshot, setUndoSnapshot] = React.useState(null);
   const [draftIntegrityReport, setDraftIntegrityReport] = React.useState(null);
+  const [researchIntegrityError, setResearchIntegrityError] = React.useState(null);
 
   const captureSnapshot = (label) => {
     const snap = {
@@ -1745,6 +1746,17 @@ export default function ProjectStudio() {
     resolveAllFoundationFields(project).then((resolved) => {
       setDocDrafts((prev) => { const next = { ...prev }; for (const [k, v] of Object.entries(resolved)) { if (v && v.length > (prev[k] || '').length) next[k] = v; } return next; });
     }).catch(() => {});
+    
+    if (project.research_md_url || project.research_md) {
+      checkResearchIntegrity(project).then(({ isTruncated, reason }) => {
+        if (isTruncated) {
+          setResearchIntegrityError(reason);
+        } else {
+          setResearchIntegrityError(null);
+        }
+      });
+    }
+
     if (project.research_md_url) { resolveResearchContent(project).then((c) => { if (c && c.length > (project.research_md || '').length) setDocDrafts((p) => ({ ...p, research_md: c })); }).catch(() => {}); }
     setSettingsDrafts(PROJECT_SETTING_FIELDS.reduce((acc, f) => ({ ...acc, [f]: project[f] ?? createInitialProjectSettings(project.book_type || 'fiction')[f] ?? '' }), createInitialProjectSettings(project.book_type || 'fiction')));
     if (project.seed_concept_url) { resolveSeedConcept(project).then((full) => { if (full) setSettingsDrafts((p) => ({ ...p, seed_concept: full })); }).catch(() => {}); }
@@ -5005,6 +5017,20 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                       onDismiss={() => setDraftIntegrityReport(null)}
                       busyLabel={busyLabel}
                     />
+                  )}
+                  {researchIntegrityError && (
+                    <div className="rounded-2xl border border-red-200/70 bg-red-50/70 p-3 text-xs leading-5 text-red-950">
+                      <div className="font-semibold text-red-700">Research Integrity Warning</div>
+                      <p className="mt-1 text-red-900/80">
+                        {researchIntegrityError} Nonfiction chapters will draft with fact-free filler until you go to <strong>Setup &gt; Research</strong> and generate or upload your research again.
+                      </p>
+                      <button 
+                        onClick={() => setResearchIntegrityError(null)} 
+                        className="mt-2 text-[10px] font-medium text-red-700 hover:text-red-900 underline"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
                   )}
                   <div className="min-h-0 flex-1">
                     <ChapterQueue chapters={chapters} selectedChapterId={selectedChapter?.id} onSelect={setSelectedChapterId} onDraftAll={handleDraftAll} busyLabel={busyLabel} chapterProgress={chapterProgress} onStop={handleStop} onRepairMetadata={handleRepairChapterMetadata} />
