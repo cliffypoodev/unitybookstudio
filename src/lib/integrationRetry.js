@@ -264,3 +264,6 @@ export async function generateImageWithRetry(payload, maxAttempts = 2) {
   }
   throw lastError;
 }
+
+// Exported for testing
+export { attemptJsonSalvage as _attemptJsonSalvage, isRetryableError as _isRetryableError };
