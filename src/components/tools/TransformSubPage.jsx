@@ -40,9 +40,9 @@ import { loadManuscriptChapters } from '@/lib/manuscriptLoader';
 import SourceSelector from '@/components/tools/SourceSelector';
 import SavedAssetsPanel, { savePublishingAsset } from '@/components/tools/SavedAssetsPanel';
 import UploadZone from '@/components/tools/UploadZone';
+import { runParallelDraftPool } from '@/lib/parallelDraftPool';
 
 const TRANSFORM_STUDIO_VERSION = 'TransformSubPage-conversion-studio-ui-v3';
-const PARALLEL_BATCH_SIZE = 4;
 
 console.log('[TRANSFORM-STUDIO] Loaded', TRANSFORM_STUDIO_VERSION);
 
@@ -401,6 +401,36 @@ const FORMAT_PREVIEW_META = {
     why: 'Condenses the manuscript into a fast high-level briefing.',
     output: 'Overview, premise/thesis, key points, strengths, risks, use cases, next steps, and bullet summary.',
     bestFor: 'Agents, editors, collaborators, grant panels, internal review, and quick handoffs.',
+  },
+  fullcastscript: {
+    why: 'Converts each chapter into a multi-voice performance script with narrator bridges.',
+    output: 'Cast list, character voice assignments, narrator direction, SFX cues, and performance notes.',
+    bestFor: 'Full-cast audiobook production, fiction podcast production, and dramatic reading.',
+  },
+  podcastepisode: {
+    why: 'Splits the manuscript into episodic segments with natural cliffhanger breaks.',
+    output: 'Episode plan with intro hook, segment breaks, cliffhanger endings, and outro teaser for next episode.',
+    bestFor: 'Serial podcast adaptation, newsletter serialization, and Substack chapter drops.',
+  },
+  graphicnovelpanel: {
+    why: 'Translates prose into page-by-page panel descriptions for artists.',
+    output: 'Panel-by-panel script with page layout, camera angle, caption text, dialogue balloons, and color notes.',
+    bestFor: 'Graphic novel production, comic artist briefs, and visual adaptation.',
+  },
+  blogserialpack: {
+    why: 'Repackages the manuscript into SEO-optimized blog installments.',
+    output: 'Blog series with SEO titles, meta descriptions, excerpt hooks, internal links, and CTA per post.',
+    bestFor: 'Content marketing, author website traffic, and newsletter-to-blog funnels.',
+  },
+  translationprep: {
+    why: 'Creates a translator-ready reference sheet for each chapter.',
+    output: 'Idioms, cultural references, wordplay, proper nouns, tone notes, and untranslatable passages flagged.',
+    bestFor: 'Translation project setup, foreign-rights packages, and multilingual publishing.',
+  },
+  readermagnet: {
+    why: 'Extracts or generates a compelling free preview to use as a lead magnet.',
+    output: 'Polished excerpt or standalone prequel scene with hook opening, cliffhanger ending, and CTA.',
+    bestFor: 'Newsletter signup incentives, BookFunnel giveaways, and reader acquisition.',
   },
 };
 
@@ -773,40 +803,47 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
       }
       setChapterResults(initialResults);
 
-      setBusyLabel?.(`Transforming ${total} chapters (${PARALLEL_BATCH_SIZE} at a time)…`);
+      setBusyLabel?.(`Transforming ${total} chapters (4-lane pool)…`);
 
       let completed = 0;
       let failed = 0;
       const startTime = Date.now();
 
-      for (let batchStart = 0; batchStart < total; batchStart += PARALLEL_BATCH_SIZE) {
-        const batchEnd = Math.min(batchStart + PARALLEL_BATCH_SIZE, total);
-        setBusyLabel?.(`Transforming chapters ${batchStart + 1}–${batchEnd} of ${total}…`);
+      const poolResults = await runParallelDraftPool(
+        workingChapters,
+        async (chapter, currentIndex, laneIndex) => {
+          const result = await runSingleChapter(chapter, format.id);
 
-        const batchPromises = [];
+          setChapterResults((prev) => ({
+            ...prev,
+            [currentIndex]: result,
+          }));
 
-        for (let i = batchStart; i < batchEnd; i += 1) {
-          const chapter = workingChapters[i];
-          const chIdx = i;
+          if (result.status === 'success') completed += 1;
+          else failed += 1;
 
-          batchPromises.push(
-            runSingleChapter(chapter, format.id).then((result) => {
-              setChapterResults((prev) => ({
-                ...prev,
-                [chIdx]: result,
-              }));
+          setChapterProgress({ completed, total, failed });
+          setBusyLabel?.(`Transforming chapters… ${completed + failed}/${total}`);
 
-              if (result.status === 'success') completed += 1;
-              else failed += 1;
+          return result;
+        },
+        { limit: 4 },
+      );
 
-              setChapterProgress({ completed, total, failed });
+      // Auto-save all successful chapter results as a combined PublishingAsset
+      if (source === 'project' && project?.id) {
+        const successTexts = poolResults
+          .filter((r) => r?.status === 'fulfilled' && r.value?.status === 'success')
+          .map((r, i) => `## Chapter ${i + 1}\n\n${r.value.text}`);
 
-              return { chIdx, result };
-            })
-          );
+        if (successTexts.length > 0) {
+          savePublishingAsset({
+            projectId: project.id,
+            kind: 'transform_' + format.id,
+            label: `${format.label} (${successTexts.length} chapters)`,
+            content: successTexts.join('\n\n---\n\n'),
+          }).then(() => setAssetRefreshKey((k) => k + 1));
         }
-
-        await Promise.allSettled(batchPromises);
       }
 
       setBusyLabel?.('');
@@ -845,19 +882,19 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
     let newCompleted = 0;
     let newFailed = 0;
 
-    for (let batchStart = 0; batchStart < failedIndices.length; batchStart += PARALLEL_BATCH_SIZE) {
-      const batch = failedIndices.slice(batchStart, batchStart + PARALLEL_BATCH_SIZE);
+    const retryResults = await runParallelDraftPool(
+      failedIndices.map((idx) => ({ idx, chapter: workingChapters[idx] })),
+      async (item) => {
+        const result = await runSingleChapter(item.chapter, targetFormat);
+        setChapterResults((prev) => ({ ...prev, [item.idx]: result }));
 
-      await Promise.allSettled(
-        batch.map(async (chIdx) => {
-          const result = await runSingleChapter(workingChapters[chIdx], targetFormat);
-          setChapterResults((prev) => ({ ...prev, [chIdx]: result }));
+        if (result.status === 'success') newCompleted += 1;
+        else newFailed += 1;
 
-          if (result.status === 'success') newCompleted += 1;
-          else newFailed += 1;
-        })
-      );
-    }
+        return result;
+      },
+      { limit: 4 },
+    );
 
     setBusyLabel?.('');
 

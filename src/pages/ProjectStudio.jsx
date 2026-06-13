@@ -60,6 +60,7 @@ import { resolveResearchContent, prepareResearchContent } from '@/lib/researchSt
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
+import { runParallelDraftPool, PARALLEL_DRAFT_LANE_LIMIT } from '@/lib/parallelDraftPool';
 import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminationDetector } from '@/lib/anthologyPolishChecks';
 import { runDialogueTagCaps } from '@/lib/dialogueTagPolish';
 import { runChatGPTVocabCaps, runTransitionWordCaps } from '@/lib/chatgptPatternPolish';
@@ -1250,7 +1251,7 @@ function appendCleanBlock(existing, block) {
 
 
 const SCENE_BEATS_ENTITY_CHAR_LIMIT = 6500;
-const PARALLEL_DRAFT_LANE_LIMIT = 4;
+
 const NONFICTION_DRAFT_LANE_LIMIT = 4;
 const ANTHOLOGY_DRAFT_LANE_LIMIT = 4;
 const REWRITE_DRAFT_LANE_LIMIT = 1;
@@ -1447,29 +1448,6 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
   return JSON.stringify(bare, null, 2);
 }
 
-async function runParallelDraftPool(items, worker, options = {}) {
-  const limit = Math.max(1, Math.min(Math.max(1, Number(options.limit || PARALLEL_DRAFT_LANE_LIMIT) || PARALLEL_DRAFT_LANE_LIMIT), Math.max(1, items.length)));
-  const results = new Array(items.length);
-  let cursor = 0;
-
-  async function runLane(laneIndex) {
-    while (cursor < items.length) {
-      const currentIndex = cursor;
-      cursor += 1;
-      const item = items[currentIndex];
-
-      try {
-        const value = await worker(item, currentIndex, laneIndex);
-        results[currentIndex] = { status: 'fulfilled', value, chapter: item };
-      } catch (reason) {
-        results[currentIndex] = { status: 'rejected', reason, chapter: item };
-      }
-    }
-  }
-
-  await Promise.all(Array.from({ length: limit }, (_, index) => runLane(index)));
-  return results;
-}
 
 function buildNameHygieneEnhancedProject(project) {
   const nameBlock = GLOBAL_NAME_HYGIENE_PROMPT_BLOCK;

@@ -540,6 +540,62 @@ export const TRANSFORM_FORMATS = [
     perChapter: false,
     worksForNonfiction: true,
   },
+
+  // ── NEW TRANSFORM FORMATS v3 ──────────────────────────────────────────────
+  {
+    id: 'fullcastscript',
+    label: 'Full-Cast Audiobook Script',
+    emoji: '🎭',
+    category: 'audio',
+    description: 'Multi-voice performance script with character voice assignments, narrator bridges, and SFX cues.',
+    perChapter: true,
+    worksForNonfiction: false,
+  },
+  {
+    id: 'podcastepisode',
+    label: 'Podcast / Serial Episode Breakdown',
+    emoji: '🎙️',
+    category: 'audio',
+    description: 'Cliffhanger-aware episode splits with intro hooks, segment breaks, and outro teasers.',
+    perChapter: false,
+    worksForNonfiction: true,
+  },
+  {
+    id: 'graphicnovelpanel',
+    label: 'Graphic-Novel Panel Script',
+    emoji: '🖼️',
+    category: 'visual',
+    description: 'Page/panel/caption/balloon format with camera angles, color mood, and artist direction.',
+    perChapter: true,
+    worksForNonfiction: false,
+  },
+  {
+    id: 'blogserialpack',
+    label: 'Blog Serialization Pack',
+    emoji: '📝',
+    category: 'repurpose',
+    description: 'SEO-titled installments with meta descriptions, excerpt hooks, and reader CTAs.',
+    perChapter: false,
+    worksForNonfiction: true,
+  },
+  {
+    id: 'translationprep',
+    label: 'Translation Prep Sheet',
+    emoji: '🌐',
+    category: 'publishing',
+    description: 'Idiom/cultural reference/wordplay flags with tone notes for translators.',
+    perChapter: true,
+    worksForNonfiction: true,
+  },
+  {
+    id: 'readermagnet',
+    label: 'Reader Magnet / Free Preview',
+    emoji: '🧲',
+    category: 'marketing',
+    description: 'Compelling free preview excerpt or standalone prequel scene for lead generation.',
+    perChapter: false,
+    worksForNonfiction: true,
+  },
 ];
 
 /**
@@ -2576,6 +2632,220 @@ FULL MANUSCRIPT:
 ${src}
 
 Output ONLY the executive summary. No commentary.`;
+
+    /* =========================================================================
+     * NEW FORMATS v3
+     * ====================================================================== */
+
+    case 'fullcastscript':
+      return `You are a professional audio-drama script adapter converting a prose chapter into a full-cast audiobook script.
+
+FORMAT RULES:
+- Open with a CAST LIST naming every character who speaks, plus NARRATOR.
+- For each character, note their VOICE PROFILE: age range, accent if any, emotional baseline, vocal texture (e.g. "gravelly baritone", "bright alto").
+- Convert all prose into either NARRATOR lines (description, action, internal thought) or CHARACTER DIALOGUE lines.
+- Prefix each line: NARRATOR: / CHARACTER_NAME: with performance direction in [brackets].
+- Add [SFX: description] where environmental or action sounds occur.
+- Add [MUSIC CUE: mood/tempo] at major emotional transitions.
+- Add [PAUSE: 1-beat] or [PAUSE: 2-beat] for dramatic timing.
+- Add [WHISPER], [SHOUT], [SOTTO VOCE], [BREAKING], etc. as inline voice direction.
+- Include page-turn / section transitions: [TRANSITION: scene shift].
+- End with ESTIMATED NARRATION TIME at 150 wpm.
+
+OUTPUT STRUCTURE:
+## CAST LIST
+[characters + voice profiles]
+
+## SCENE [n]
+[Formatted script lines]
+
+## PRODUCTION NOTES
+[Any special recording requirements]
+
+SOURCE CHAPTER:
+${src}
+
+Output ONLY the full-cast script. No commentary.`;
+
+    case 'podcastepisode':
+      return `You are a narrative podcast producer breaking a book manuscript into an episodic serial format.
+
+FORMAT RULES:
+- Analyze the full manuscript and identify 8-12 natural episode break points.
+- Each episode should be 15-25 minutes of listening (2,200-3,700 words spoken at 150 wpm).
+- Break at CLIFFHANGERS — every episode must end on tension, a question, or a revelation.
+- Each episode needs: COLD OPEN (hook from mid-action), INTRO ("Previously on…" + title card), BODY SEGMENTS (2-3 per episode), and OUTRO (teaser for next episode).
+- Flag where HOST COMMENTARY could be inserted (context, background, thematic reflection).
+- Note SOUND DESIGN opportunities: ambience, music beds, SFX stings.
+- Include series-level metadata: series title suggestions, target audience, comparable podcasts.
+
+OUTPUT STRUCTURE:
+## SERIES OVERVIEW
+[Title ideas, premise, episode count, target listener, comparable shows]
+
+## EPISODE [n]: [Title]
+### Cold Open
+[Hook excerpt — in medias res or provocative line]
+### Previously On…
+[1-2 sentence recap if not Ep 1]
+### Segment 1: [label]
+[Content outline + approximate word count]
+### Segment 2: [label]
+[Content outline]
+### Cliffhanger Ending
+[Exact line or moment to cut on]
+### Next Episode Teaser
+[1-2 sentence preview]
+### Sound Design Notes
+[Ambience, music, SFX ideas]
+
+FULL MANUSCRIPT:
+${src}
+
+Output ONLY the episode breakdown. No commentary.`;
+
+    case 'graphicnovelpanel':
+      return `You are a professional graphic novel scriptwriter adapting a prose chapter into panel-by-panel visual script format.
+
+FORMAT RULES:
+- Convert prose into PAGES (target 18-24 pages per chapter).
+- Each page has 3-6 PANELS.
+- For each panel specify: PANEL SIZE (full, half, third, quarter, splash), CAMERA ANGLE (wide, medium, close-up, bird's eye, worm's eye), ACTION (what is physically happening), CAPTION (narrator text if any), DIALOGUE (speech balloons with character name), SFX (sound effect lettering), and COLOR/MOOD (palette and lighting).
+- Use SPLASH PAGES for major revelations or action climaxes.
+- Control PAGE TURNS — the last panel on a right-hand page should create anticipation.
+- Include GUTTER NOTES for panel transitions (smash cut, dissolve, time skip).
+- Balance dialogue and visual storytelling — comics show more than they tell.
+
+OUTPUT STRUCTURE:
+## PAGE [n]
+### Panel [n] — [size]
+**Camera:** [angle/framing]
+**Action:** [description]
+**Caption:** [narrator text or empty]
+**Dialogue:**
+- CHARACTER: "text"
+**SFX:** [if any]
+**Color/Mood:** [palette note]
+
+### Panel [n+1] — [size]
+…
+
+**PAGE TURN NOTE:** [anticipation hook]
+
+SOURCE CHAPTER:
+${src}
+
+Output ONLY the panel script. No commentary.`;
+
+    case 'blogserialpack':
+      return `You are a content strategist converting a book manuscript into a serialized blog post series optimized for SEO and reader engagement.
+
+FORMAT RULES:
+- Break the manuscript into 8-15 standalone blog posts.
+- Each post should work independently (a new reader can start anywhere) while rewarding serial readers.
+- For each post provide: SEO TITLE (60 chars max, keyword-rich), META DESCRIPTION (155 chars max), EXCERPT HOOK (2-3 sentences that pull the reader in), BODY (800-1,500 words adapted from the manuscript — not just copy-pasted), INTERNAL LINKS (reference to other posts in the series), CTA (newsletter signup, book purchase, next post).
+- Include KEYWORD TARGETS per post (2-3 long-tail keywords).
+- Add SOCIAL SHARE COPY: a ready-to-post tweet/thread hook per post.
+- The first post should be the strongest hook. The last post should drive to the book purchase.
+- Adapt tone for web reading: shorter paragraphs, subheadings, bold key phrases.
+
+OUTPUT STRUCTURE:
+## SERIES OVERVIEW
+[Series title, target keywords, publishing cadence recommendation]
+
+## POST [n]: [SEO Title]
+**Meta Description:** [155 chars max]
+**Keywords:** [2-3 targets]
+**Excerpt Hook:** [2-3 sentences]
+**Body:**
+[Adapted content]
+**Internal Links:** [references to other posts]
+**CTA:** [action item]
+**Social Share:** [tweet-length hook]
+
+FULL MANUSCRIPT:
+${src}
+
+Output ONLY the blog serialization pack. No commentary.`;
+
+    case 'translationprep':
+      return `You are a professional translation coordinator preparing a chapter-level reference sheet for literary translators.
+
+FORMAT RULES:
+- Identify every IDIOM, COLLOQUIALISM, and SLANG expression. For each, provide: the exact phrase, its meaning in context, and a suggested translation approach (literal, functional equivalent, or cultural substitution).
+- Flag all CULTURAL REFERENCES (holidays, institutions, foods, brands, media references) with brief context notes.
+- List all WORDPLAY, PUNS, and DOUBLE MEANINGS with the intended effect noted.
+- Catalog all PROPER NOUNS: character names (with pronunciation guide), place names, organization names. Note which are real vs fictional.
+- Note the REGISTER/TONE of each scene: formal, casual, intimate, comedic, tense, etc.
+- Flag UNTRANSLATABLE PASSAGES and suggest approaches (footnote, adaptation, omission with note).
+- Note any DIALECT or ACCENT rendering in the original and how it functions narratively.
+- Include CHAPTER SUMMARY (3-4 sentences) for translator context.
+
+OUTPUT STRUCTURE:
+## CHAPTER SUMMARY
+[3-4 sentence overview]
+
+## PROPER NOUNS
+| Name | Type | Pronunciation | Real/Fictional | Notes |
+
+## IDIOMS & COLLOQUIALISMS
+| Phrase | Meaning | Suggested Approach |
+
+## CULTURAL REFERENCES
+| Reference | Context | Notes |
+
+## WORDPLAY & PUNS
+| Passage | Intended Effect | Suggested Approach |
+
+## TONE MAP
+[Scene-by-scene register notes]
+
+## UNTRANSLATABLE PASSAGES
+[Flagged sections with approaches]
+
+## DIALECT NOTES
+[Any accent/dialect rendering]
+
+SOURCE CHAPTER:
+${src}
+
+Output ONLY the translation prep sheet. No commentary.`;
+
+    case 'readermagnet':
+      return `You are a book marketing strategist creating a compelling reader magnet (free preview) from a manuscript.
+
+FORMAT RULES:
+- Create a STANDALONE reading experience of 2,000-4,000 words.
+- Option A: Extract and polish the strongest opening chapters (if they hook immediately).
+- Option B: Write a prequel scene that introduces the protagonist before the book's events.
+- Option C: Extract a self-contained dramatic sequence from mid-book that works without full context.
+- Choose whichever option creates the most compelling free sample.
+- The excerpt MUST end on a cliffhanger or irresistible question that drives the reader to buy the full book.
+- Add a CTA SECTION at the end: "[BOOK TITLE] is available now. [Purchase link placeholder]"
+- Include a brief AUTHOR NOTE (2-3 sentences, warm and personal).
+- Polish the prose for standalone readability — add any minimal context needed.
+- For nonfiction: extract the single most actionable/surprising chapter and add a "This is just one of [X] strategies in [BOOK TITLE]" CTA.
+
+OUTPUT STRUCTURE:
+## [Title of the Reader Magnet]
+
+[Polished excerpt or prequel scene]
+
+---
+
+## About This Preview
+[Author note — 2-3 sentences]
+
+## Continue Reading
+[CTA with purchase link placeholder]
+
+## Why This Excerpt
+[1-2 sentence note to the author explaining why this passage was chosen]
+
+FULL MANUSCRIPT:
+${src}
+
+Output ONLY the reader magnet content. No commentary.`;
 
     default:
       return '';
