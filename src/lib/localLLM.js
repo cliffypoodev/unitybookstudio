@@ -22,6 +22,15 @@ export const AGENT_TEMPERATURES = {
   polisher:         0.3,
 };
 
+// Context window size sent to Ollama via options.num_ctx on every request.
+// Ollama reloads the model with this context size per-request.
+export const AGENT_NUM_CTX = 16384;
+
+// Per-agent overrides (optional). Agents not listed use AGENT_NUM_CTX.
+export const AGENT_NUM_CTX_OVERRIDES = {
+  // e.g. researcher: 8192,
+};
+
 const AGENT_SYSTEM_PROMPTS = {
   ghostwriter: '',
   ghostwriter_nsfw: '',
@@ -31,7 +40,7 @@ const AGENT_SYSTEM_PROMPTS = {
   polisher: '',
 };
 
-export async function callOllama({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null }) {
+export async function callOllama({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null, numCtx = AGENT_NUM_CTX }) {
   const messages = [];
   if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
 
@@ -46,7 +55,7 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
     response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages, stream: false, options: { temperature, num_predict: maxTokens } }),
+      body: JSON.stringify({ model, messages, stream: false, options: { temperature, num_predict: maxTokens, num_ctx: numCtx } }),
       signal: AbortSignal.timeout(1200000),
     });
   } catch (fetchErr) {
@@ -108,10 +117,11 @@ export async function callAgent({ prompt, taskType = 'prose', project = null, te
   const resolvedModel = model || AGENT_MODELS[agentKey];
   const resolvedTemp = temperature ?? AGENT_TEMPERATURES[agentKey] ?? 0.7;
   const systemPrompt = systemPromptOverride || AGENT_SYSTEM_PROMPTS[agentKey] || '';
+  const numCtx = AGENT_NUM_CTX_OVERRIDES[agentKey] ?? AGENT_NUM_CTX;
 
-  console.log(`[LOCAL-LLM] Agent: ${agentKey} | Model: ${resolvedModel} | Temp: ${resolvedTemp} | Task: ${taskType}`);
+  console.log(`[LOCAL-LLM] Agent: ${agentKey} | Model: ${resolvedModel} | Temp: ${resolvedTemp} | Ctx: ${numCtx} | Task: ${taskType}`);
 
-  return callOllama({ model: resolvedModel, prompt, systemPrompt, temperature: resolvedTemp, maxTokens, jsonSchema });
+  return callOllama({ model: resolvedModel, prompt, systemPrompt, temperature: resolvedTemp, maxTokens, jsonSchema, numCtx });
 }
 
 export async function checkOllamaHealth() {
