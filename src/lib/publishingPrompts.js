@@ -1,3 +1,5 @@
+import { buildManuscriptEvidenceReport } from '@/lib/manuscriptEvidence';
+
 /**
  * Publishing Prompts Library
  *
@@ -63,6 +65,8 @@ export const FIELD_MAP = {
   launch_checklist:  { field: 'launch_checklist' },   // JSON array of {id, label, done}
   series_bible:      { field: 'publishing_package', key: 'series_bible' },
   title_brainstorm:  { field: 'publishing_package', key: 'title_brainstorm' },
+  backmatter_pack:   { field: 'publishing_package', key: 'backmatter_pack' },
+  copyright_page:    { field: 'publishing_package', key: 'copyright_page' },
   isbn_ebook:        { field: 'isbn_ebook' },
   isbn_paperback:    { field: 'isbn_paperback' },
   isbn_hardcover:    { field: 'isbn_hardcover' },
@@ -115,7 +119,7 @@ export const PUB_SECTIONS = [
  * Gemini handles long prompts fine but shorter contexts improve result
  * adherence to the format instructions that follow.
  */
-export function buildProjectContext(project, chapters = [], mode = 'project', uploadSample = null) {
+export function buildProjectContext(project, chapters = [], mode = 'project', uploadSample = null, evidenceReport = null) {
   if (mode === 'upload' && uploadSample) {
     return uploadSample;
   }
@@ -138,7 +142,96 @@ export function buildProjectContext(project, chapters = [], mode = 'project', up
   const wordCount = chapters.reduce((s, c) => s + (c.word_count || 0), 0);
   parts.push(`Word Count: ~${wordCount.toLocaleString()}`);
 
+  // If an evidence report is supplied, inject key metrics as grounding data
+  if (evidenceReport && evidenceReport.manuscript) {
+    const m = evidenceReport.manuscript;
+    parts.push(`\n--- MANUSCRIPT EVIDENCE (deterministic analysis) ---`);
+    parts.push(`Total Words: ${m.totalWords.toLocaleString()}`);
+    parts.push(`Chapters Analyzed: ${m.chapterCount}`);
+    parts.push(`Type-Token Ratio: ${m.ttr}`);
+    if (m.pacingCurve && m.pacingCurve.length > 0) {
+      const avg = Math.round(m.pacingCurve.reduce((a, b) => a + b, 0) / m.pacingCurve.length);
+      const min = Math.min(...m.pacingCurve);
+      const max = Math.max(...m.pacingCurve);
+      parts.push(`Avg Chapter Length: ${avg} words (range: ${min}–${max})`);
+    }
+    if (m.dialogueRatioCurve && m.dialogueRatioCurve.length > 0) {
+      const avg = Math.round(m.dialogueRatioCurve.reduce((a, b) => a + b, 0) / m.dialogueRatioCurve.length * 10000) / 100;
+      parts.push(`Avg Dialogue Ratio: ${avg}%`);
+    }
+    if (m.slopScoreCurve && m.slopScoreCurve.length > 0) {
+      const avg = Math.round(m.slopScoreCurve.reduce((a, b) => a + b, 0) / m.slopScoreCurve.length * 100) / 100;
+      parts.push(`Avg Slop Density: ${avg}`);
+    }
+    parts.push(`IMPORTANT: Every claim in your output must be supported by the material above. Do not invent characters, plot points, arguments, or evidence not present in the manuscript.`);
+  }
+
   return parts.join('\n');
+}
+
+/**
+ * Deterministic proper-noun post-check.
+ * Scans LLM-generated copy for capitalized multi-word names that do NOT appear
+ * in the project's canonical character/world data. Returns an array of
+ * suspicious nouns the author should verify.
+ *
+ * @param {string} generatedText — the LLM output to check
+ * @param {object} project — the project record
+ * @returns {string[]} suspicious proper nouns not found in project data
+ */
+export function checkProperNouns(generatedText, project) {
+  if (!generatedText || !project) return [];
+
+  // Build a set of known proper nouns from project metadata
+  const knownNames = new Set();
+  const sources = [
+    project.title,
+    project.author_name,
+    project.series_name,
+    project.characters_md,
+    project.world_md,
+    project.outline_md,
+    project.seed_concept,
+  ].filter(Boolean);
+
+  for (const src of sources) {
+    // Extract capitalized words (2+ chars) from known project data
+    const matches = String(src).match(/\b[A-Z][a-z]{1,}(?:\s+[A-Z][a-z]{1,})*\b/g);
+    if (matches) {
+      for (const m of matches) knownNames.add(m.toLowerCase());
+    }
+  }
+
+  // Common English words that are capitalized at sentence starts — skip these
+  const SKIP = new Set([
+    'the', 'this', 'that', 'these', 'those', 'there', 'their', 'they', 'then',
+    'than', 'what', 'when', 'where', 'which', 'while', 'with', 'from', 'into',
+    'after', 'before', 'about', 'through', 'during', 'between', 'under',
+    'around', 'against', 'along', 'chapter', 'scene', 'part', 'section',
+    'book', 'page', 'and', 'but', 'not', 'was', 'were', 'has', 'had',
+    'have', 'been', 'would', 'could', 'should', 'will', 'can', 'did',
+    'does', 'just', 'still', 'even', 'back', 'down', 'over', 'like',
+    'also', 'very', 'much', 'more', 'most', 'some', 'only', 'other',
+    'each', 'every', 'both', 'many', 'such', 'well', 'here', 'now',
+    'how', 'all', 'any', 'new', 'old', 'first', 'last', 'next', 'good',
+    'perfect', 'readers', 'fans', 'amazon', 'kindle', 'isbn',
+  ]);
+
+  // Extract capitalized multi-word names from generated text
+  const found = generatedText.match(/\b[A-Z][a-z]{1,}(?:\s+[A-Z][a-z]{1,})*\b/g) || [];
+  const suspicious = new Set();
+
+  for (const name of found) {
+    const lower = name.toLowerCase();
+    if (SKIP.has(lower)) continue;
+    if (lower.split(/\s+/).every(w => SKIP.has(w))) continue;
+    if (knownNames.has(lower)) continue;
+    // Skip single common words
+    if (lower.split(/\s+/).length === 1 && lower.length < 4) continue;
+    suspicious.add(name);
+  }
+
+  return [...suspicious];
 }
 
 /* =============================================================================
@@ -966,6 +1059,69 @@ Titles should be:
 
 BOOK DETAILS:
 ${ctx}`,
+  },
+
+  {
+    id: 'backmatter_pack',
+    label: 'Back-Matter Pack',
+    emoji: '📋',
+    description: 'Also-by page, author note, acknowledgments, and reading group guide — ready for the back of the book.',
+    section: 'launch',
+    outputKind: 'text',
+    buildPrompt: (ctx, nf) => nf
+      ? `You are a nonfiction book production specialist generating back-matter pages. Produce four sections, each with the exact header shown.
+
+=== ALSO BY [AUTHOR NAME] ===
+List 3-5 plausible previous/upcoming titles based on the author's expertise and voice (or use real titles if any appear in the BOOK DETAILS). Format as a simple list with titles in italics.
+
+=== AUTHOR'S NOTE (300-400 words) ===
+A personal, reflective note about why the author wrote this book, what surprised them in the research, and what they hope readers take away. Write in first person, conversational tone.
+
+=== ACKNOWLEDGMENTS (200-300 words) ===
+Template acknowledgments with [bracketed placeholders] for specific names. Include: research collaborators, archivists/librarians, editor, agent, family, early readers, and the reader.
+
+=== READING GROUP GUIDE (8-10 questions) ===
+Discussion questions for book clubs and classroom use. Mix: 3 comprehension, 3 application, 2 debate/opinion. Each question should reference a specific chapter or argument.
+
+BOOK DETAILS:
+${ctx}
+
+Output ONLY the four sections with their === HEADERS ===. No commentary.`
+      : `You are a fiction book production specialist generating back-matter pages. Produce four sections, each with the exact header shown.
+
+=== ALSO BY [AUTHOR NAME] ===
+List 3-5 plausible previous/upcoming titles based on the genre and voice (or use real titles if any appear in the BOOK DETAILS). Format as a simple list with titles in italics.
+
+=== AUTHOR'S NOTE (300-400 words) ===
+A personal note about what inspired the story, what the author wants readers to know, and what's coming next. First person, warm, no spoilers.
+
+=== ACKNOWLEDGMENTS (200-300 words) ===
+Template acknowledgments with [bracketed placeholders] for specific names. Include: writing group, beta readers, editor, agent, cover designer, family, and the reader.
+
+=== READING GROUP GUIDE (8-10 questions) ===
+Discussion questions for book clubs. Mix: 3 character, 3 thematic, 2 what-if/debate. Each question should reference a specific scene or character.
+
+BOOK DETAILS:
+${ctx}
+
+Output ONLY the four sections with their === HEADERS ===. No commentary.`,
+  },
+
+  {
+    id: 'copyright_page',
+    label: 'Copyright Page',
+    emoji: '©️',
+    description: 'KDP-ready copyright/legal front matter generated from project metadata (no LLM needed).',
+    section: 'kdp',
+    outputKind: 'text',
+    buildPrompt: (ctx, nf) => `Generate a professional copyright page for this book.
+
+BOOK DETAILS:
+${ctx}
+
+Include: title, copyright year, author name, all-rights-reserved notice, fiction disclaimer (if fiction) or sources note (if nonfiction), ISBN placeholder, publisher name, edition, and country of printing.
+
+Output ONLY the copyright page text. No commentary.`,
   },
 ];
 
