@@ -681,6 +681,7 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
         const prompt = getTransformPrompt(formatId, chapter.content, fullText, projectType);
 
         const response = await invokeLLMWithRetry({
+          task_type: 'transform',
           prompt,
           model: pickModel('transform'),
           fallback_model: pickFallbackModel('transform'),
@@ -724,6 +725,7 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
           const prompt = getTransformPrompt(format.id, null, fullText, projectType);
 
           const response = await invokeLLMWithRetry({
+            task_type: 'transform',
             prompt,
             model: pickModel('transform'),
             fallback_model: pickFallbackModel('transform'),

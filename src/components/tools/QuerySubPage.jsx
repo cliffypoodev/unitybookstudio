@@ -53,7 +53,7 @@ export default function QuerySubPage({ project, chapters }) {
       series_bible: `Create a series bible document for this book as Book 1 of a potential series. Include:\n1) Series concept and arc\n2) Recurring characters and their trajectories\n3) Unresolved threads for future volumes\n4) World-building elements to maintain\n5) Tone and voice consistency notes\n6) Potential Book 2-3 premises\n\n${context}`,
     };
     try {
-      const result = await invokeLLMWithRetry({ prompt: prompts[id], model: pickModel('publishing'), fallback_model: pickFallbackModel('publishing') });
+      const result = await invokeLLMWithRetry({ prompt: prompts[id], model: pickModel('publishing'), fallback_model: pickFallbackModel('publishing'), task_type: 'publishing' });
       const text = typeof result === 'string' ? result : result?.text || result?.data || '';
       setResults((p) => ({ ...p, [id]: text }));
     } finally {

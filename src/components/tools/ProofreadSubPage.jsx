@@ -760,6 +760,7 @@ function HumanizePanel({ selected, project, onClose }) {
 
     try {
       const response = await invokeLLMWithRetry({
+        task_type: 'proofread',
         model: 'gemini_3_flash',
         fallback_model: 'deepseek/deepseek-chat-v3-0324',
         temperature: 0.35,
@@ -1049,6 +1050,7 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
             ?.sort((a, b) => b.score - a.score) || [];
 
           const response = await invokeLLMWithRetry({
+            task_type: 'critique',
             model: 'gemini_3_flash',
             fallback_model: 'deepseek/deepseek-chat-v3-0324',
             temperature: 0.1,

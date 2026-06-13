@@ -315,6 +315,7 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
           opts.response_json_schema = item.schema;
         }
 
+        opts.task_type = 'publishing';
         const raw = await invokeLLMWithRetry(opts);
 
         let value;
@@ -1073,6 +1074,7 @@ function TitleGenerator({ project, chapters, source, parsed, isNF }) {
 - Favor contradiction, menace, emotional voltage, strange objects, loaded places, or unforgettable phrases.`;
 
       const response = await invokeLLMWithRetry({
+        task_type: 'prose',
         model: pickModel('creative'),
         fallback_model: pickFallbackModel('creative'),
         temperature: 1.18,
@@ -1373,6 +1375,7 @@ function PenNameGenerator({ project, chapters, source, parsed, isNF }) {
 - Avoid names that sound too obviously generated.`;
 
       const response = await invokeLLMWithRetry({
+        task_type: 'publishing',
         model: pickModel('creative'),
         fallback_model: pickFallbackModel('creative'),
         temperature: 1.08,
