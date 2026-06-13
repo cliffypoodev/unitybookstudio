@@ -13,6 +13,7 @@ import { parseDocxFile } from '@/lib/docxParser';
 import SourceSelector from '@/components/tools/SourceSelector';
 import UploadZone from '@/components/tools/UploadZone';
 import { runForensicAnalysis, MARKER_LABELS } from '@/lib/forensicAnalytics';
+import { buildManuscriptEvidenceReport } from '@/lib/manuscriptEvidence';
 
 function fleschKincaid(text) {
   const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 3);
@@ -189,6 +190,7 @@ export default function AnalyticsSubPage({ project, chapters }) {
   // NEW: forensic analysis state
   const [forensic, setForensic] = useState(null);
   const [forensicLoading, setForensicLoading] = useState(false);
+  const [evidenceReport, setEvidenceReport] = useState(null);
 
   const handleFileSelect = async (file) => {
     if (!file) return;
@@ -282,6 +284,17 @@ export default function AnalyticsSubPage({ project, chapters }) {
     };
 
     setReport({ chapterData, sentenceBuckets: buckets, globalCharacters: characterFrequency(allText), characterDepth: charDepth, allText, aggregates });
+    // Build deterministic evidence report from the loaded chapters
+    try {
+      const loaded = chapterData.map((c, i) => ({
+        chapter: { chapter_number: c.num, title: c.title },
+        content: c.content,
+      }));
+      const evidence = buildManuscriptEvidenceReport(loaded, project);
+      setEvidenceReport(evidence);
+    } catch (err) {
+      console.warn('[ANALYTICS] Evidence report failed:', err);
+    }
     setLoading(false);
   };
 
@@ -587,6 +600,58 @@ export default function AnalyticsSubPage({ project, chapters }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
+
+          {evidenceReport && evidenceReport.manuscript.slopScoreCurve && (
+            <div className="rounded-2xl border border-border/70 bg-card/80 p-4 backdrop-blur-sm">
+              <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
+                <h3 className="font-display text-lg">Slop Density Curve (Evidence Engine)</h3>
+                <SummaryRow
+                  primary={{
+                    label: 'Avg Slop',
+                    value: (evidenceReport.manuscript.slopScoreCurve.reduce((a, b) => a + b, 0) / evidenceReport.manuscript.slopScoreCurve.length).toFixed(2),
+                    unit: 'per 1k words',
+                    color: (evidenceReport.manuscript.slopScoreCurve.reduce((a, b) => a + b, 0) / evidenceReport.manuscript.slopScoreCurve.length) > 3 ? '#c0392b' : '#6B8F71',
+                  }}
+                  extras={[
+                    { label: 'TTR', value: evidenceReport.manuscript.ttr },
+                    { label: 'Chapters', value: evidenceReport.manuscript.chapterCount },
+                  ]}
+                />
+              </div>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={evidenceReport.manuscript.slopScoreCurve.map((s, i) => ({ name: `Ch.${i + 1}`, slop: s }))}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="slop" stroke="#c0392b" strokeWidth={2} name="Slop/1k" dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {evidenceReport && evidenceReport.manuscript.dialogueRatioCurve && (
+            <div className="rounded-2xl border border-border/70 bg-card/80 p-4 backdrop-blur-sm">
+              <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
+                <h3 className="font-display text-lg">Dialogue Balance Curve (Evidence Engine)</h3>
+                <SummaryRow
+                  primary={{
+                    label: 'Avg Dialogue',
+                    value: `${(evidenceReport.manuscript.dialogueRatioCurve.reduce((a, b) => a + b, 0) / evidenceReport.manuscript.dialogueRatioCurve.length * 100).toFixed(1)}%`,
+                  }}
+                />
+              </div>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={evidenceReport.manuscript.dialogueRatioCurve.map((d, i) => ({ name: `Ch.${i + 1}`, dialogue: Math.round(d * 100) }))}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                  <Tooltip />
+                  <Bar dataKey="dialogue" name="Dialogue %" fill="#6B8F71" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
 
           <div className="rounded-2xl border border-border/70 bg-card/80 p-4 backdrop-blur-sm">
             <h3 className="font-display text-lg mb-3">Character Mentions</h3>
