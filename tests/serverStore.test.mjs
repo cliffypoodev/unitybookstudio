@@ -277,6 +277,83 @@ try {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+ * CONCURRENCY STRESS TEST
+ *
+ * Fire 20 simultaneous create + update calls against the SAME entity file.
+ * Before the per-entity mutex fix, interleaved read-modify-writeFileSync
+ * would cause last-write-wins data loss and this test would FAIL.
+ * ═════════════════════════════════════════════════════════════════════════ */
+
+console.log('\n--- Concurrency Stress ---\n');
+
+await startServer();
+
+try {
+  const CONCURRENCY_COUNT = 20;
+  const CONCURRENCY_ENTITY = 'BookProject';
+
+  await test('20. 20 simultaneous creates to same entity — all survive', async () => {
+    // Fire 20 creates in parallel
+    const createPromises = Array.from({ length: CONCURRENCY_COUNT }, (_, i) =>
+      api('POST', `/api/store/${CONCURRENCY_ENTITY}/create`, {
+        id: `conc-create-${i}`,
+        title: `Concurrent Book ${i}`,
+        genre: 'concurrency-test',
+      })
+    );
+    const results = await Promise.all(createPromises);
+
+    // All should succeed
+    for (let i = 0; i < CONCURRENCY_COUNT; i++) {
+      assert.strictEqual(results[i].status, 201, `Create ${i} should return 201, got ${results[i].status}`);
+    }
+
+    // List and verify all 20 records exist
+    const { data: allRecords } = await api('POST', `/api/store/${CONCURRENCY_ENTITY}/filter`, {
+      query: { genre: 'concurrency-test' },
+    });
+    assert.strictEqual(
+      allRecords.length, CONCURRENCY_COUNT,
+      `Expected ${CONCURRENCY_COUNT} records, found ${allRecords.length} — data loss detected!`
+    );
+  });
+
+  await test('21. 20 simultaneous updates to same entity — all persist', async () => {
+    // Fire 20 updates in parallel (each updating a different record)
+    const updatePromises = Array.from({ length: CONCURRENCY_COUNT }, (_, i) =>
+      api('POST', `/api/store/${CONCURRENCY_ENTITY}/update/conc-create-${i}`, {
+        word_count: 1000 + i,
+        title: `Updated Concurrent Book ${i}`,
+      })
+    );
+    const results = await Promise.all(updatePromises);
+
+    // All should succeed
+    for (let i = 0; i < CONCURRENCY_COUNT; i++) {
+      assert.strictEqual(results[i].status, 200, `Update ${i} should return 200, got ${results[i].status}`);
+    }
+
+    // Verify each record has its unique word_count
+    for (let i = 0; i < CONCURRENCY_COUNT; i++) {
+      const { data } = await api('GET', `/api/store/${CONCURRENCY_ENTITY}/get/conc-create-${i}`);
+      assert.strictEqual(data.word_count, 1000 + i,
+        `Record ${i}: expected word_count ${1000 + i}, got ${data.word_count} — update lost!`);
+      assert.strictEqual(data.title, `Updated Concurrent Book ${i}`,
+        `Record ${i}: title not updated`);
+    }
+  });
+
+  // Clean up
+  for (let i = 0; i < CONCURRENCY_COUNT; i++) {
+    await api('DELETE', `/api/store/${CONCURRENCY_ENTITY}/delete/conc-create-${i}`);
+  }
+
+} finally {
+  cleanTestRecords();
+  await stopServer();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
  * STATIC GUARDS
  * ═════════════════════════════════════════════════════════════════════════ */
 
