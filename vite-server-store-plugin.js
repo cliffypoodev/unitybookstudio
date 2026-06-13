@@ -13,7 +13,9 @@
  *   POST   /:entity/update/:id    → update record (body: fields to merge)
  *   DELETE /:entity/delete/:id    → delete record
  *
- * Single-user, last-write-wins. Every write flushes to disk before responding.
+ * Mutations are serialized per-entity via an async mutex queue so that
+ * concurrent read-modify-write cycles never interleave. Writes are
+ * atomic: data is flushed to a .tmp file then renamed over the target.
  */
 
 import fs from 'node:fs';
@@ -31,6 +33,43 @@ const ENTITY_STORES = [
   'BookProject', '_FileStore', '_MigrationMeta',
   'PublishingAsset',
 ];
+
+// ── Per-entity async mutex ──────────────────────────────────────────────
+// Each entity gets its own queue so mutations to different entities can
+// still run concurrently (e.g. Chapter and _FileStore in parallel), but
+// mutations to the SAME entity file are strictly serialized.
+
+const entityLocks = {};
+
+/**
+ * Acquire a per-entity mutex. Returns a release function.
+ * While the lock is held, all other callers for the same entity wait
+ * in FIFO order.
+ */
+function acquireEntityLock(entityName) {
+  if (!entityLocks[entityName]) {
+    entityLocks[entityName] = { queue: [], locked: false };
+  }
+  const lock = entityLocks[entityName];
+
+  return new Promise((resolve) => {
+    const tryAcquire = () => {
+      if (!lock.locked) {
+        lock.locked = true;
+        resolve(() => {
+          lock.locked = false;
+          if (lock.queue.length > 0) {
+            const next = lock.queue.shift();
+            next();
+          }
+        });
+      } else {
+        lock.queue.push(tryAcquire);
+      }
+    };
+    tryAcquire();
+  });
+}
 
 // ── In-memory cache + disk I/O ──────────────────────────────────────────
 
@@ -64,10 +103,18 @@ function loadStore(entityName) {
   return cache[entityName];
 }
 
+/**
+ * Atomic flush: write to a .tmp sibling then rename over the target.
+ * fs.renameSync is atomic on POSIX when src and dst are on the same
+ * filesystem, so a crash mid-write leaves either the old file or the
+ * new file — never a partial/corrupt file.
+ */
 function flushStore(entityName) {
   ensureDataDir();
   const filePath = entityFilePath(entityName);
-  fs.writeFileSync(filePath, JSON.stringify(cache[entityName] || [], null, 2), 'utf8');
+  const tmpPath = filePath + '.tmp';
+  fs.writeFileSync(tmpPath, JSON.stringify(cache[entityName] || [], null, 2), 'utf8');
+  fs.renameSync(tmpPath, filePath);
 }
 
 function generateId() {
@@ -147,32 +194,46 @@ async function handleRequest(req, res) {
     return sendError(res, `Unknown entity: ${entity}`, 404);
   }
 
-  const store = loadStore(entity);
+  // Read-only actions — no lock needed, serve directly from cache
+  if (action === 'list' || action === 'filter' || action === 'get') {
+    const store = loadStore(entity);
+    try {
+      switch (action) {
+        case 'list': {
+          sendJSON(res, store);
+          break;
+        }
+        case 'filter': {
+          const body = await readBody(req);
+          let results = store.filter(r => matchesFilter(r, body.query));
+          results = sortRecords(results, body.sort);
+          if (body.limit && body.limit > 0) results = results.slice(0, body.limit);
+          sendJSON(res, results);
+          break;
+        }
+        case 'get': {
+          if (!id) return sendError(res, 'Missing id');
+          const record = store.find(r => r.id === id);
+          if (!record) return sendError(res, `${entity} with id ${id} not found`, 404);
+          sendJSON(res, record);
+          break;
+        }
+      }
+    } catch (err) {
+      console.error(`[SERVER-STORE] Error in ${entity}/${action}:`, err);
+      sendError(res, err.message, 500);
+    }
+    return;
+  }
 
+  // Mutating actions — serialize through per-entity mutex
+  const release = await acquireEntityLock(entity);
   try {
+    // Re-read store under lock (cache is authoritative since all mutations
+    // hold the lock, but loadStore is cheap — just returns cache ref)
+    const store = loadStore(entity);
+
     switch (action) {
-      case 'list': {
-        sendJSON(res, store);
-        break;
-      }
-
-      case 'filter': {
-        const body = await readBody(req);
-        let results = store.filter(r => matchesFilter(r, body.query));
-        results = sortRecords(results, body.sort);
-        if (body.limit && body.limit > 0) results = results.slice(0, body.limit);
-        sendJSON(res, results);
-        break;
-      }
-
-      case 'get': {
-        if (!id) return sendError(res, 'Missing id');
-        const record = store.find(r => r.id === id);
-        if (!record) return sendError(res, `${entity} with id ${id} not found`, 404);
-        sendJSON(res, record);
-        break;
-      }
-
       case 'create': {
         const data = await readBody(req);
         const now = nowISO();
@@ -191,9 +252,9 @@ async function handleRequest(req, res) {
       }
 
       case 'update': {
-        if (!id) return sendError(res, 'Missing id');
+        if (!id) { release(); return sendError(res, 'Missing id'); }
         const idx = store.findIndex(r => r.id === id);
-        if (idx < 0) return sendError(res, `${entity} with id ${id} not found`, 404);
+        if (idx < 0) { release(); return sendError(res, `${entity} with id ${id} not found`, 404); }
         const fields = await readBody(req);
         const updated = {
           ...store[idx],
@@ -209,9 +270,9 @@ async function handleRequest(req, res) {
       }
 
       case 'delete': {
-        if (!id) return sendError(res, 'Missing id');
+        if (!id) { release(); return sendError(res, 'Missing id'); }
         const delIdx = store.findIndex(r => r.id === id);
-        if (delIdx < 0) return sendError(res, `${entity} with id ${id} not found`, 404);
+        if (delIdx < 0) { release(); return sendError(res, `${entity} with id ${id} not found`, 404); }
         store.splice(delIdx, 1);
         cache[entity] = store;
         flushStore(entity);
@@ -225,6 +286,8 @@ async function handleRequest(req, res) {
   } catch (err) {
     console.error(`[SERVER-STORE] Error in ${entity}/${action}:`, err);
     sendError(res, err.message, 500);
+  } finally {
+    release();
   }
 }
 

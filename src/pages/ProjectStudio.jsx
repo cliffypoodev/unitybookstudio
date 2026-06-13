@@ -34,6 +34,7 @@ import { COMPACT_CRAFT_RULES, COMPACT_ANTI_SLOP } from '@/lib/craftCompact';
 import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup } from '@/lib/chapterStorage';
+import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
 import { clearRichContentFields } from '@/lib/richContentStorage';
 import { runQualityScan } from '@/lib/qualityScan';
 import { mechanicalScore } from '@/lib/mechanicalScore';
@@ -2932,7 +2933,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
 
       const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
 
-      await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+      const nfSavePayload = {
         title: chapter.title,
         ...clearRichContentFields(),
         content_md_fallback_present: true,
@@ -2948,7 +2949,16 @@ For each banned name, provide a culturally appropriate, original replacement nam
         status: chapterStatus,
         drafted_with_model: sceneResult.actualModelUsed || proseModelOverride || '',
         draft_all_mode: fastDraftOnly ? 'fast' : 'standard',
-      }));
+      };
+      const nfVerify = await verifiedChapterSave({
+        chapterId: chapter.id,
+        savePayload: nfSavePayload,
+        writtenContent: chapterContent,
+        chapterNumber: chapter.chapter_number,
+      });
+      if (!nfVerify.ok) {
+        throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${nfVerify.reason}`);
+      }
 
       if (chapter.id === selectedChapterId) {
         setChapterDraft(chapterContent);
@@ -3060,7 +3070,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
 
       const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
 
-      await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+      const fastSavePayload = {
         title: chapter.title,
         ...clearRichContentFields(),
         content_md_fallback_present: true,
@@ -3076,7 +3086,16 @@ For each banned name, provide a culturally appropriate, original replacement nam
         status: chapterStatus,
         drafted_with_model: sceneResult.actualModelUsed || proseModelOverride || '',
         draft_all_mode: 'fast',
-      }));
+      };
+      const fastVerify = await verifiedChapterSave({
+        chapterId: chapter.id,
+        savePayload: fastSavePayload,
+        writtenContent: chapterContent,
+        chapterNumber: chapter.chapter_number,
+      });
+      if (!fastVerify.ok) {
+        throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${fastVerify.reason}`);
+      }
 
       if (chapter.id === selectedChapterId) {
         setChapterDraft(chapterContent);
@@ -3235,7 +3254,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
     pipelineSnapshot(chapter.id, '8-final-save', chapterContent);
     const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
 
-    await runWithNetworkRetry(() => base44.entities.Chapter.update(chapter.id, {
+    const stdSavePayload = {
       title: chapter.title,
       ...clearRichContentFields(),
       content_md_fallback_present: true,
@@ -3250,7 +3269,16 @@ For each banned name, provide a culturally appropriate, original replacement nam
       quality_scan: qualityScan,
       status: chapterStatus,
       drafted_with_model: sceneResult.actualModelUsed || proseModelOverride || '',
-    }));
+    };
+    const stdVerify = await verifiedChapterSave({
+      chapterId: chapter.id,
+      savePayload: stdSavePayload,
+      writtenContent: chapterContent,
+      chapterNumber: chapter.chapter_number,
+    });
+    if (!stdVerify.ok) {
+      throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${stdVerify.reason}`);
+    }
 
     // Immediately update the draft textarea if this is the selected chapter
     if (chapter.id === selectedChapterId) {
