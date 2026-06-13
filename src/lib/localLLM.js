@@ -51,11 +51,19 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   messages.push({ role: 'user', content: userContent });
 
   let response;
+  const requestBody = { model, messages, stream: false, options: { temperature, num_predict: maxTokens, num_ctx: numCtx } };
+
+  // When a JSON schema is requested, tell Ollama to constrain output to JSON tokens only.
+  // This suppresses reasoning preamble and leaked system-prompt text from thinking models.
+  if (jsonSchema) {
+    requestBody.format = 'json';
+  }
+
   try {
     response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages, stream: false, options: { temperature, num_predict: maxTokens, num_ctx: numCtx } }),
+      body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(1200000),
     });
   } catch (fetchErr) {

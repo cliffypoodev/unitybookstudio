@@ -5,6 +5,38 @@ import { resolveWritingModel, normalizeWritingModel, logWritingModelUsage, isWri
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Find the largest balanced { ... } span in a string.
+ * Returns the substring or null if no balanced pair exists.
+ */
+function findLargestBalancedJson(text) {
+  let best = null;
+  let bestLen = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== '{') continue;
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    for (let j = i; j < text.length; j++) {
+      const ch = text[j];
+      if (escape) { escape = false; continue; }
+      if (ch === '\\') { if (inString) escape = true; continue; }
+      if (ch === '"') { inString = !inString; continue; }
+      if (inString) continue;
+      if (ch === '{') depth++;
+      else if (ch === '}') {
+        depth--;
+        if (depth === 0) {
+          const span = text.slice(i, j + 1);
+          if (span.length > bestLen) { best = span; bestLen = span.length; }
+          break;
+        }
+      }
+    }
+  }
+  return best;
+}
+
 function attemptJsonSalvage(raw) {
   if (!raw || typeof raw !== 'string') return null;
   let s = raw.trim();
@@ -14,9 +46,30 @@ function attemptJsonSalvage(raw) {
   s = s.replace(/<\/think>/gi, '');                 // orphaned </think> tags
   s = s.trim();
   s = s.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '');
+
+  // ── Guard: pure preamble with no JSON at all → return null so retry fires ──
+  if (s.indexOf('{') === -1) {
+    console.warn('[JSON-SALVAGE] No opening brace found — pure preamble, returning null');
+    return null;
+  }
+
+  // ── Preamble stripping: prefer the largest balanced {...} span ──
+  // If the first '{' is embedded in a prose sentence (text before it contains
+  // sentence-like words), find the largest balanced JSON object instead of
+  // the naive first-to-last slice which can capture preamble fragments.
   const firstBrace = s.indexOf('{');
   const lastBrace = s.lastIndexOf('}');
-  if (firstBrace !== -1 && lastBrace > firstBrace) s = s.slice(firstBrace, lastBrace + 1);
+  const textBeforeFirstBrace = s.slice(0, firstBrace).trim();
+  const hasProseBeforeBrace = textBeforeFirstBrace.length > 10 && /[a-zA-Z]{3,}/.test(textBeforeFirstBrace);
+
+  let candidate;
+  if (hasProseBeforeBrace) {
+    // Prose before the first brace — likely preamble. Find the largest balanced JSON.
+    const largest = findLargestBalancedJson(s);
+    candidate = largest || (firstBrace !== -1 && lastBrace > firstBrace ? s.slice(firstBrace, lastBrace + 1) : s);
+  } else {
+    candidate = firstBrace !== -1 && lastBrace > firstBrace ? s.slice(firstBrace, lastBrace + 1) : s;
+  }
 
   const fixStringValues = (str) => str.replace(/"((?:[^"\\]|\\.)*)"/gs, (match, inner) => {
     return '"' + inner.replace(/(?<!\\)\n/g, '\\n').replace(/(?<!\\)\r/g, '\\r').replace(/(?<!\\)\t/g, '\\t') + '"';
@@ -30,23 +83,31 @@ function attemptJsonSalvage(raw) {
     return f;
   };
 
-  const attempts = [
-    () => JSON.parse(s),
-    () => JSON.parse(s.replace(/,\s*([}\]])/g, '$1')),
-    () => JSON.parse(fixStringValues(s).replace(/,\s*([}\]])/g, '$1')),
-    () => JSON.parse(closeTruncated(fixStringValues(s).replace(/,\s*([}\]])/g, '$1'))),
-    () => { let c = s.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, ''); c = fixStringValues(c).replace(/,\s*([}\]])/g, '$1'); return JSON.parse(closeTruncated(c)); },
-    () => { let n = s.replace(/[^\x20-\x7e\n\r\t]/g, ''); n = fixStringValues(n).replace(/,\s*([}\]])/g, '$1'); return JSON.parse(closeTruncated(n)); },
-  ];
-  for (const attempt of attempts) { try { return attempt(); } catch {} }
+  // Try parsing the candidate first, then fall back to the simple first-to-last slice
+  const candidates = [candidate];
+  const simpleSlice = firstBrace !== -1 && lastBrace > firstBrace ? s.slice(firstBrace, lastBrace + 1) : null;
+  if (simpleSlice && simpleSlice !== candidate) candidates.push(simpleSlice);
+
+  for (const c of candidates) {
+    const attempts = [
+      () => JSON.parse(c),
+      () => JSON.parse(c.replace(/,\s*([}\]])/g, '$1')),
+      () => JSON.parse(fixStringValues(c).replace(/,\s*([}\]])/g, '$1')),
+      () => JSON.parse(closeTruncated(fixStringValues(c).replace(/,\s*([}\]])/g, '$1'))),
+      () => { let x = c.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, ''); x = fixStringValues(x).replace(/,\s*([}\]])/g, '$1'); return JSON.parse(closeTruncated(x)); },
+      () => { let n = c.replace(/[^\x20-\x7e\n\r\t]/g, ''); n = fixStringValues(n).replace(/,\s*([}\]])/g, '$1'); return JSON.parse(closeTruncated(n)); },
+    ];
+    for (const attempt of attempts) { try { return attempt(); } catch {} }
+  }
   return null;
 }
+
 
 function isRetryableError(error) {
   const message = error?.message || '';
   const status = error?.response?.status || error?.status;
   if (status === 403 || /not have access/i.test(message) || /auth_required/i.test(message)) return false;
-  return /network error/i.test(message) || /timeout/i.test(message) || /Cannot reach Ollama/i.test(message) || /rate limit/i.test(message) || /abort/i.test(message) || status === 429 || status === 502 || status === 503 || status === 504 || (status >= 500 && status < 600);
+  return /network error/i.test(message) || /timeout/i.test(message) || /Cannot reach Ollama/i.test(message) || /rate limit/i.test(message) || /abort/i.test(message) || status === 422 || status === 429 || status === 502 || status === 503 || status === 504 || (status >= 500 && status < 600);
 }
 
 function shouldForcePrimaryWritingModel(payload = {}) {
@@ -69,6 +130,10 @@ function inferTaskType(payload) {
   if (payload.model === 'gemini_3_flash') return 'critique';
   return 'prose';
 }
+
+// JSON-parse retry: short backoff suitable for local models (no 20-second waits).
+const JSON_RETRY_MAX = 3;
+const JSON_RETRY_DELAYS = [500, 1500, 3000];
 
 export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
   const RETRY_DELAYS = [5000, 10000, 20000];
@@ -98,7 +163,7 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const rawText = await callAgent({
+      const callParams = {
         prompt: payload.prompt,
         taskType,
         model: resolvedModel,
@@ -106,16 +171,33 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
         temperature: payload.temperature,
         maxTokens,
         jsonSchema: payload.response_json_schema || null,
-      });
+      };
 
       if (payload.response_json_schema) {
-        const parsed = attemptJsonSalvage(rawText);
-        if (parsed) return parsed;
-        console.error('[LOCAL-LLM] JSON parse failed. Raw (first 500):', rawText.substring(0, 500));
-        const err = new Error('LLM response was not valid JSON');
-        err.status = 422; err.response = { status: 422 };
-        throw err;
+        // ── JSON-parse retry loop: re-call the model on malformed responses ──
+        let jsonLastError;
+        for (let jsonAttempt = 1; jsonAttempt <= JSON_RETRY_MAX; jsonAttempt++) {
+          const rawText = await callAgent(callParams);
+          const parsed = attemptJsonSalvage(rawText);
+          if (parsed) return parsed;
+
+          console.warn(`[LLM-JSON-RETRY] JSON salvage failed (attempt ${jsonAttempt}/${JSON_RETRY_MAX}). Raw (first 300): ${(rawText || '').substring(0, 300)}`);
+          jsonLastError = new Error('LLM response was not valid JSON');
+          jsonLastError.status = 422;
+          jsonLastError.response = { status: 422 };
+
+          if (jsonAttempt < JSON_RETRY_MAX) {
+            const jsonDelay = JSON_RETRY_DELAYS[jsonAttempt - 1] || 1500;
+            console.log(`[LLM-JSON-RETRY] Retrying JSON call in ${jsonDelay}ms...`);
+            await wait(jsonDelay);
+          }
+        }
+        // All JSON attempts exhausted — throw so outer loop can retry (or propagate)
+        throw jsonLastError;
       }
+
+      // Non-JSON (prose) path — no JSON retry needed
+      const rawText = await callAgent(callParams);
       return rawText;
     } catch (error) {
       lastError = error;
@@ -127,6 +209,7 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
   }
   throw lastError;
 }
+
 
 export async function invokeLLMForResearch(payload) {
   const maxAttempts = 2;
@@ -181,3 +264,6 @@ export async function generateImageWithRetry(payload, maxAttempts = 2) {
   }
   throw lastError;
 }
+
+// Exported for testing
+export { attemptJsonSalvage as _attemptJsonSalvage, isRetryableError as _isRetryableError };
