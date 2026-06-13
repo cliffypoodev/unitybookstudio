@@ -46,7 +46,7 @@ function isRetryableError(error) {
   const message = error?.message || '';
   const status = error?.response?.status || error?.status;
   if (status === 403 || /not have access/i.test(message) || /auth_required/i.test(message)) return false;
-  return /network error/i.test(message) || /timeout/i.test(message) || /Cannot reach Ollama/i.test(message) || /rate limit/i.test(message) || /abort/i.test(message) || status === 429 || status === 502 || status === 503 || status === 504 || (status >= 500 && status < 600);
+  return /network error/i.test(message) || /timeout/i.test(message) || /Cannot reach Ollama/i.test(message) || /rate limit/i.test(message) || /abort/i.test(message) || status === 422 || status === 429 || status === 502 || status === 503 || status === 504 || (status >= 500 && status < 600);
 }
 
 function shouldForcePrimaryWritingModel(payload = {}) {
@@ -69,6 +69,10 @@ function inferTaskType(payload) {
   if (payload.model === 'gemini_3_flash') return 'critique';
   return 'prose';
 }
+
+// JSON-parse retry: short backoff suitable for local models (no 20-second waits).
+const JSON_RETRY_MAX = 3;
+const JSON_RETRY_DELAYS = [500, 1500, 3000];
 
 export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
   const RETRY_DELAYS = [5000, 10000, 20000];
@@ -98,7 +102,7 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const rawText = await callAgent({
+      const callParams = {
         prompt: payload.prompt,
         taskType,
         model: resolvedModel,
@@ -106,16 +110,33 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
         temperature: payload.temperature,
         maxTokens,
         jsonSchema: payload.response_json_schema || null,
-      });
+      };
 
       if (payload.response_json_schema) {
-        const parsed = attemptJsonSalvage(rawText);
-        if (parsed) return parsed;
-        console.error('[LOCAL-LLM] JSON parse failed. Raw (first 500):', rawText.substring(0, 500));
-        const err = new Error('LLM response was not valid JSON');
-        err.status = 422; err.response = { status: 422 };
-        throw err;
+        // ── JSON-parse retry loop: re-call the model on malformed responses ──
+        let jsonLastError;
+        for (let jsonAttempt = 1; jsonAttempt <= JSON_RETRY_MAX; jsonAttempt++) {
+          const rawText = await callAgent(callParams);
+          const parsed = attemptJsonSalvage(rawText);
+          if (parsed) return parsed;
+
+          console.warn(`[LLM-JSON-RETRY] JSON salvage failed (attempt ${jsonAttempt}/${JSON_RETRY_MAX}). Raw (first 300): ${(rawText || '').substring(0, 300)}`);
+          jsonLastError = new Error('LLM response was not valid JSON');
+          jsonLastError.status = 422;
+          jsonLastError.response = { status: 422 };
+
+          if (jsonAttempt < JSON_RETRY_MAX) {
+            const jsonDelay = JSON_RETRY_DELAYS[jsonAttempt - 1] || 1500;
+            console.log(`[LLM-JSON-RETRY] Retrying JSON call in ${jsonDelay}ms...`);
+            await wait(jsonDelay);
+          }
+        }
+        // All JSON attempts exhausted — throw so outer loop can retry (or propagate)
+        throw jsonLastError;
       }
+
+      // Non-JSON (prose) path — no JSON retry needed
+      const rawText = await callAgent(callParams);
       return rawText;
     } catch (error) {
       lastError = error;
@@ -127,6 +148,7 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
   }
   throw lastError;
 }
+
 
 export async function invokeLLMForResearch(payload) {
   const maxAttempts = 2;
