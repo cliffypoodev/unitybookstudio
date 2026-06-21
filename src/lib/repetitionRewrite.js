@@ -10,33 +10,98 @@ async function getCallAgent() {
   return _callAgent;
 }
 
+// Capitalized words that are almost always sentence-opening artifacts, not facts.
+// Used to (a) normalize proper-noun phrases before the fact check, and
+// (b) strip leading filler so "The National Archives" and "National Archives"
+// are treated as the same fact.
+const LEADING_STOPWORDS = new Set([
+  'the', 'a', 'an', 'in', 'on', 'by', 'at', 'for', 'from', 'when', 'while',
+  'and', 'but', 'as', 'of', 'to', 'with', 'after', 'before', 'during',
+  'through', 'across', 'over', 'under', 'since', 'until', 'because',
+  'this', 'that', 'these', 'those', 'his', 'her', 'their', 'its', 'our',
+  'your', 'my', 'they', 'it', 'he', 'she', 'we', 'i', 'if', 'so', 'yet',
+  'then', 'there', 'here', 'what', 'which', 'who', 'whom', 'whose',
+  'where', 'how', 'why', 'no', 'not', 'nor', 'though', 'although', 'even'
+]);
+
+// Shared opening-normalizer so the detector and the global stats agree exactly.
+function normalizeOpening(words) {
+  return words.join(' ').toLowerCase().replace(/[.,!?;:"'()[\]{}]/g, '');
+}
+
+/**
+ * Builds a manuscript-wide table of paragraph openings.
+ * Pass ALL chapter texts; any opening used >= threshold times across the whole
+ * book is marked "overused" so it can be flagged even when it appears only once
+ * inside a given chapter (the cross-chapter repetition the per-chapter detector
+ * is blind to).
+ *
+ * @param {string[]} chapterTexts
+ * @param {number} threshold
+ * @returns {{counts: Map<string, number>, overused: Set<string>}}
+ */
+export function buildGlobalOpeningStats(chapterTexts, threshold = 3) {
+  const counts = new Map();
+  for (const text of (chapterTexts || [])) {
+    if (!text || typeof text !== 'string') continue;
+    const paragraphs = text.split(/(?:\r?\n\s*){2,}/).filter(p => p.trim().length > 0);
+    for (const p of paragraphs) {
+      const words = p.trim().split(/\s+/).slice(0, 4);
+      if (words.length < 4) continue;
+      const opening = normalizeOpening(words);
+      counts.set(opening, (counts.get(opening) || 0) + 1);
+    }
+  }
+  const overused = new Set();
+  for (const [opening, c] of counts) {
+    if (c >= threshold) overused.add(opening);
+  }
+  return { counts, overused };
+}
+
 /**
  * Detects repetition patterns:
  * (A) Repeated paragraph openings (first 4 words)
- * (B) Cadence tics (escalating fragments with 'was', 3+ '. And' fragments, or 'X was real. And Y was real')
+ *     - within this chapter (any opening seen 2+ times), AND
+ *     - across the whole manuscript (if globalOverused is supplied, the FIRST
+ *       occurrence in this chapter is also flagged when the opening is overused
+ *       book-wide).
+ * (B) Cadence tics (escalating fragments with 'was', 3+ '. And' fragments, or
+ *     'X was real. And Y was real')
  *
  * @param {string} chapterText - The chapter text to analyze
+ * @param {Set<string>|null} globalOverused - optional manuscript-wide overused openings
  * @returns {Object} flags
  */
-export function detectRepetition(chapterText) {
+export function detectRepetition(chapterText, globalOverused = null) {
   const flags = { openings: [], cadence: [], hasFlags: false };
   if (!chapterText || typeof chapterText !== 'string') return flags;
 
+  const hasGlobal = globalOverused && typeof globalOverused.has === 'function';
   const paragraphs = chapterText.split(/(?:\r?\n\s*){2,}/).filter(p => p.trim().length > 0);
   const openingMap = new Map();
 
   for (let i = 0; i < paragraphs.length; i++) {
     const pText = paragraphs[i].trim();
     if (!pText) continue;
-    
+
     // (A) REPEATED PARAGRAPH OPENINGS
     const words = pText.split(/\s+/).slice(0, 4);
     if (words.length >= 4) {
-      const opening = words.join(' ').toLowerCase().replace(/[.,!?;:"'()[\]{}]/g, '');
-      if (!openingMap.has(opening)) {
+      const opening = normalizeOpening(words);
+      const seenInChapter = openingMap.has(opening);
+      const overusedGlobally = hasGlobal && globalOverused.has(opening);
+
+      if (!seenInChapter) {
         openingMap.set(opening, i);
+        // First time in THIS chapter, but if it's a book-wide offender, flag it
+        // so cross-chapter repetition gets varied too.
+        if (overusedGlobally) {
+          flags.openings.push({ paragraphIndex: i, opening, paragraphText: pText, scope: 'manuscript' });
+          flags.hasFlags = true;
+        }
       } else {
-        flags.openings.push({ paragraphIndex: i, opening, paragraphText: pText });
+        flags.openings.push({ paragraphIndex: i, opening, paragraphText: pText, scope: 'chapter' });
         flags.hasFlags = true;
       }
     }
@@ -44,9 +109,7 @@ export function detectRepetition(chapterText) {
     // (B) CADENCE TIC
     let hasCadence = false;
 
-    // Pattern 1: Escalating fragment pattern
-    // / (\b\w+\b)[^.]{0,40}\bwas\b[^.]{0,40}\1\b /i
-    // We restrict to words >= 4 chars and exclude common stopwords to be conservative.
+    // Pattern 1: Escalating fragment pattern (word ... was ... same word)
     const escalatingMatch = pText.match(/(\b[a-zA-Z]{4,}\b)[^.]{0,40}\bwas\b[^.]{0,40}\1\b/i);
     if (escalatingMatch) {
       const word = escalatingMatch[1].toLowerCase();
@@ -76,17 +139,42 @@ export function detectRepetition(chapterText) {
   return flags;
 }
 
+// Extract proper-noun "cores" robust to opening variation:
+// strips leading capitalized filler so "The National Archives" -> "national archives".
+function coreProperNouns(text) {
+  const raw = text.match(/\b[A-Z][A-Za-z.&'’-]*(?:\s+[A-Z][A-Za-z.&'’-]*)+\b/g) || [];
+  const out = new Set();
+  for (const phrase of raw) {
+    let parts = phrase.split(/\s+/);
+    while (parts.length > 1 && LEADING_STOPWORDS.has(parts[0].toLowerCase())) {
+      parts.shift();
+    }
+    // Keep only if something meaningful remains (not all filler).
+    if (parts.some(w => !LEADING_STOPWORDS.has(w.toLowerCase()))) {
+      out.add(parts.join(' ').toLowerCase());
+    }
+  }
+  return out;
+}
+
 /**
  * Rewrites flagged repetition spots using the LLM.
+ *
+ * @param {Object} args
+ * @param {string} args.chapterText
+ * @param {Object} args.chapter
+ * @param {Object} args.project
+ * @param {Function|null} args.callLLM
+ * @param {Set<string>|null} args.globalOverused - manuscript-wide overused openings
  */
-export async function rewriteFlaggedSpots({ chapterText, chapter, project, callLLM = null }) {
-  // 1. Run detection
-  const detection = detectRepetition(chapterText);
+export async function rewriteFlaggedSpots({ chapterText, chapter, project, callLLM = null, globalOverused = null }) {
+  // 1. Run detection (manuscript-aware if globalOverused supplied)
+  const detection = detectRepetition(chapterText, globalOverused);
   if (!detection.hasFlags) {
     return { ok: true, changed: false, text: chapterText, flags: detection };
   }
 
-  // 3. Build prompt
+  // 2. Build prompt
   let flaggedTextList = '';
   detection.openings.forEach((o, i) => {
     flaggedTextList += `[Opening Repetition ${i + 1}]:\n${o.paragraphText}\n\n`;
@@ -95,11 +183,11 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     flaggedTextList += `[Cadence Repetition ${i + 1}]:\n${c.sentence}\n\n`;
   });
 
-  const prompt = `CHAPTER TEXT:\n${chapterText}\n\n---\nFLAGGED SENTENCES TO REWRITE:\n${flaggedTextList.trim()}`;
+  const prompt = `CHAPTER TEXT:\n${chapterText}\n\n---\nFLAGGED SENTENCES TO REWRITE:\n${flaggedTextList.trim()}\n\n/no_think`;
 
   const systemPrompt = `You are a line editor fixing repetition in investigative nonfiction. You will be given specific sentences that repeat openings or rhythms. Rewrite ONLY those sentences to vary their opening words and break repetitive cadence. CRITICAL RULES: Change ZERO facts. Preserve every name, date, place, document title, and number EXACTLY as written. Do not add information. Do not remove information. Do not merge or split paragraphs. Return the full chapter text with only the flagged sentences rewritten, nothing else — no preamble, no labels, no commentary.`;
 
-  // 4. Call LLM
+  // 3. Call LLM
   let _callFn = callLLM;
   if (!_callFn) {
     const agent = await getCallAgent();
@@ -124,7 +212,8 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     raw = raw?.text || raw?.content || String(raw || '');
   }
 
-  // 6. Strip leading commentary lines
+  // Strip any Qwen think block that slipped through, then leading commentary lines.
+  raw = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
   raw = raw.split('\n').filter(line => {
     const lower = line.trim().toLowerCase();
     if (lower.startsWith('here is') || lower.startsWith('here are') || lower.startsWith('rewritten:') || lower.startsWith('sure,') || lower.startsWith('certainly')) {
@@ -133,32 +222,36 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     return true;
   }).join('\n').trim();
 
-  // 5. Fact-preservation check
-  function extractTokens(text) {
-    // Extract capitalized multi-word proper nouns
-    const properNouns = text.match(/\b[A-Z][A-Za-z]*(?:\s+[A-Z][A-Za-z]*)+\b/g) || [];
-    // Extract 4-digit years
-    const years = text.match(/\b[12]\d{3}\b/g) || [];
-    return { properNouns: new Set(properNouns), years: new Set(years) };
-  }
+  // 4. Fact-preservation check — TOLERANT of opening variation, still catches real drops.
+  //    Nouns: compare proper-noun "cores" by substring containment so dropping a
+  //    leading "The"/"In"/"By" (the rewriter's whole job) is NOT a false alarm,
+  //    but actually deleting "Granger" or "Galveston" still is.
+  const rewriteLower = raw.toLowerCase();
+  const originalNouns = coreProperNouns(chapterText);
+  const missingNouns = [...originalNouns].filter(core => !rewriteLower.includes(core));
 
-  const originalTokens = extractTokens(chapterText);
-  const rewrittenTokens = extractTokens(raw);
+  //    Years: substring match so "1970" survives inside "1970s" (the harmonization
+  //    that previously tripped a false alarm), while a genuinely dropped year fails.
+  const originalYears = [...new Set(chapterText.match(/\b[12]\d{3}\b/g) || [])];
+  const missingYears = originalYears.filter(y => !rewriteLower.includes(y));
 
-  const missingNouns = [...originalTokens.properNouns].filter(n => !rewrittenTokens.properNouns.has(n));
-  const missingYears = [...originalTokens.years].filter(y => !rewrittenTokens.years.has(y));
+  //    Length sanity: reject suspicious truncation (silent loss of half a chapter).
+  const tooShort = raw.trim().length < chapterText.trim().length * 0.7;
 
-  if (missingNouns.length > 0 || missingYears.length > 0) {
-    const missing = [...missingNouns, ...missingYears].join(', ');
-    return { 
-      ok: false, 
-      changed: false, 
-      text: chapterText, 
-      reason: `fact-preservation check failed: ${missing}`, 
-      flags: detection 
+  if (missingNouns.length > 0 || missingYears.length > 0 || tooShort) {
+    const reasonParts = [];
+    if (missingNouns.length) reasonParts.push(`nouns: ${missingNouns.join(', ')}`);
+    if (missingYears.length) reasonParts.push(`years: ${missingYears.join(', ')}`);
+    if (tooShort) reasonParts.push('output too short (possible truncation)');
+    return {
+      ok: false,
+      changed: false,
+      text: chapterText,
+      reason: `fact/length check failed — ${reasonParts.join('; ')}`,
+      flags: detection
     };
   }
 
-  // 7. On success
+  // 5. On success
   return { ok: true, changed: true, text: raw, flags: detection };
 }
