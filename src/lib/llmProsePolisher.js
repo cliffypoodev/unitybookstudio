@@ -64,6 +64,32 @@ FORBIDDEN OUTPUT:
 - Do not start your response with "Here is the polished chapter" or similar preamble.
 - Output finished fiction prose ONLY.`;
 
+export const PROSE_POLISHER_NONFICTION_SYSTEM_PROMPT = `You are a meticulous nonfiction line editor polishing one chapter of an investigative nonfiction book. Polish the prose to publishable quality WITHOUT altering the facts.
+
+ABSOLUTE FACTUAL DISCIPLINE (HIGHEST PRIORITY):
+- You may lightly rephrase for flow, but you must NEVER introduce a new fact, name, person, date, place, quotation, document, statistic, or causal claim that is not already present in the text.
+- Never invent or embellish detail. If a sentence is vague, tighten its wording — do not add specifics to fill it.
+- Never strengthen a claim beyond what the original text states (do not turn "suggests" into "proves").
+- Preserve every real proper name, date, and source citation exactly as written.
+
+REPETITION (CRITICAL FOR THIS BOOK):
+- This draft repeats certain phrases and ideas across paragraphs (e.g. recurring "ledgers," "waiting to unleash its message," restating the same two-year-gap point). Identify repeated images, phrases, and restated points and consolidate or vary them so each paragraph advances the argument instead of recycling it.
+- When the same fact is stated more than once, keep the strongest instance and cut or recast the rest — without dropping any unique information.
+
+AUTHOR VOICE:
+- Honor the project's author-voice direction: favor concrete documented detail over generic atmosphere, specific named sources over vague phrasing, and a grounded, measured cadence. Reduce generic "the geography conspired" / "the will of those in power" filler in favor of specific, sourced observation already supported by the text.
+
+MECHANICS:
+- Fix all grammar, punctuation, and spelling errors. Make punctuation publishable (American style).
+- Remove stray artifacts, orphaned fragments, leaked tokens, and malformed lines (e.g. a lone "ed", "= 1", or a sentence that begins mid-clause after a period).
+- Improve sentence rhythm and clarity. Vary sentence openings.
+
+LENGTH:
+- Cut only redundancy. Retain at least 85% of the original word count. Do not delete whole paragraphs of unique content.
+
+FORBIDDEN OUTPUT:
+- No notes, critique, analysis, headings, bullet points, or preamble. Do not start with "Here is the polished chapter." Output finished nonfiction prose ONLY.`;
+
 /**
  * Build a genre-conditional polisher system prompt.
  * Uses getAntiChatbotRulesForProject to pick the right polish rules
@@ -73,9 +99,13 @@ FORBIDDEN OUTPUT:
  * @returns {string} The complete system prompt
  */
 export function buildPolisherSystemPrompt(project) {
-  const { polisherRules } = getAntiChatbotRulesForProject(project);
-  const base = PROSE_POLISHER_SYSTEM_PROMPT.replace(POLISHER_ANTI_CHATBOT_RULES, polisherRules);
-  return base;
+  const { polisherRules, profileKey } = getAntiChatbotRulesForProject(project);
+  const isNonfiction = profileKey === 'nonfiction' || profileKey === 'business_guide' || profileKey === 'training_manual';
+  const baseTemplate = isNonfiction ? PROSE_POLISHER_NONFICTION_SYSTEM_PROMPT : PROSE_POLISHER_SYSTEM_PROMPT;
+  if (baseTemplate.includes(POLISHER_ANTI_CHATBOT_RULES)) {
+    return baseTemplate.replace(POLISHER_ANTI_CHATBOT_RULES, polisherRules);
+  }
+  return baseTemplate + '\n\n' + polisherRules;
 }
 
 // ─── GUARDRAIL PATTERNS ────────────────────────────────────────────────────
@@ -232,8 +262,7 @@ export async function polishChapterWithLLM({
   const userPrompt = [
     'Polish this chapter conservatively.',
     '',
-    `Chapter Number: ${chapterNumber}`,
-    `Chapter Title: ${chapterTitle}`,
+    chapterTitle ? `This is Chapter ${chapterNumber}, titled "${chapterTitle}". Do not repeat this line in your output.` : '',
     projectContext ? `\nProject Context:\n${projectContext}\n` : '',
     'Chapter Text:',
     chapterText,
@@ -280,6 +309,16 @@ export async function polishChapterWithLLM({
   if (typeof raw !== 'string') {
     raw = raw?.text || raw?.content || String(raw || '');
   }
+
+  function stripLeakedChapterLabels(text) {
+    return text.split('\n').filter(line => {
+      if (/^\s*#*\s*Chapter Number:\s*\d+\s*$/i.test(line)) return false;
+      if (/^\s*#*\s*Chapter Title:\s*.*$/i.test(line)) return false;
+      return true;
+    }).join('\n');
+  }
+
+  raw = stripLeakedChapterLabels(raw);
 
   console.log(`${logPrefix}: LLM returned ${raw.length} chars`);
 

@@ -11,6 +11,8 @@ import ExportTab from '@/components/publishing/ExportTab';
 import ReviewChapterList from '@/components/review/ReviewChapterList';
 import ManuscriptDashboard from '@/components/review/ManuscriptDashboard';
 
+import { searchWeb } from '@/lib/localLLM';
+
 import HomeDashboard from '@/components/novel/HomeDashboard';
 import StudioOverview from '@/components/novel/StudioOverview';
 import FoundationTab from '@/components/notebook/FoundationTab';
@@ -2353,33 +2355,143 @@ export default function ProjectStudio() {
       return;
     }
 
-    setBusyLabel('Deep research — gathering verified facts…');
+    const SEARCH_BRIDGE = 'http://127.0.0.1:8899';
+
+    // Derive a clean search subject from the brief (title/first line), not the whole document.
+    const rawTitle = (project.title || '').trim();
+    const firstLine = (topic.split('\n').find((l) => l.trim().length > 0) || topic).trim();
+    let subject = (rawTitle || firstLine)
+      .replace(/^(author|book title|title)\s*[:\-]?\s*/i, '')
+      .replace(/[*_#>]/g, '')
+      .replace(/["“”']/g, '')
+      .split(/[:\-—]/)[0]
+      .trim()
+      .slice(0, 80);
+    if (!subject) subject = firstLine.slice(0, 80);
+
+    // Call the local bridge for search; never throw to the UI.
+    const bridgeSearch = async (query, n = 6) => {
+      try {
+        const r = await fetch(`${SEARCH_BRIDGE}/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, n }),
+        });
+        if (!r.ok) return [];
+        const j = await r.json();
+        return Array.isArray(j?.results) ? j.results : [];
+      } catch {
+        return [];
+      }
+    };
+
+    // Call the local bridge to FETCH + extract page text (deep content, not snippets).
+    const bridgeFetch = async (url) => {
+      try {
+        const r = await fetch(`${SEARCH_BRIDGE}/fetch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        if (!r.ok) return '';
+        const j = await r.json();
+        return typeof j?.text === 'string' ? j.text : '';
+      } catch {
+        return '';
+      }
+    };
 
     try {
+      setBusyLabel('Deep research — searching sources…');
+
+      // Multi-angle search: facets give each topic a richer, more varied source pool.
+      const queries = [
+        subject,
+        `${subject} primary sources documents`,
+        `${subject} key people figures`,
+        `${subject} timeline dates events`,
+        `${subject} historical context`,
+      ];
+
+      const seen = new Set();
+      const hits = [];
+      for (const q of queries) {
+        const results = await bridgeSearch(q, 6);
+        for (const res of results) {
+          if (res?.url && !seen.has(res.url)) {
+            seen.add(res.url);
+            hits.push(res);
+          }
+        }
+        await new Promise((r) => setTimeout(r, 300));
+      }
+
+      if (!hits.length) {
+        toast.error('Search bridge returned no results. Is it running on :8899?');
+        setBusyLabel('');
+        return;
+      }
+
+      // Fetch full page text for the top sources (deep content for grounding).
+      setBusyLabel('Deep research — reading sources…');
+      const TOP_TO_FETCH = 6;
+      const pages = [];
+      for (const h of hits.slice(0, TOP_TO_FETCH)) {
+        const text = await bridgeFetch(h.url);
+        pages.push({
+          title: h.title || 'Untitled',
+          url: h.url,
+          snippet: h.snippet || '',
+          content: text ? text.slice(0, 4000) : '',
+        });
+        await new Promise((r) => setTimeout(r, 300));
+      }
+
+      // Build the grounding block: real sources only, full content where available.
+      const groundingBlock = [
+        'REAL WEB SEARCH RESULTS — YOUR ONLY ALLOWED SOURCES.',
+        'Use ONLY the facts, names, dates, quotations, and documents found below.',
+        'Cite the specific URL for every documented claim. If a needed fact is not',
+        'present here, mark it UNVERIFIED. Do not invent sources, names, dates, or',
+        'documents. Forbidden filler: "the available accounts", "archival summaries reveal".',
+        '',
+        pages.map((p, i) => {
+          const body = p.content || p.snippet || '(no extract available)';
+          return `[${i + 1}] ${p.title}\nURL: ${p.url}\n${body}`;
+        }).join('\n\n---\n\n'),
+        '',
+        'Additional source links (snippets only):',
+        hits.slice(TOP_TO_FETCH).map((h, i) => `[${TOP_TO_FETCH + i + 1}] ${h.title} — ${h.url}\n${h.snippet || ''}`).join('\n\n'),
+        '',
+        'END OF ALLOWED SOURCES.',
+      ].join('\n');
+
+      setBusyLabel('Deep research — verifying & structuring facts…');
       const result = await invokeResearchLLM({
-        prompt: `You are a deep-dive research assistant for an investigative nonfiction book.
+        prompt: `${groundingBlock}
+
+You are a deep-dive research assistant for an investigative nonfiction book.
 
 MISSION:
-Research the following topic thoroughly enough to support a credible nonfiction manuscript. Return ONLY verified, documented, source-aware research scaffolding. Do not invent facts, names, events, dates, documents, or sources.
+Using ONLY the real sources above, produce verified, documented, source-aware research scaffolding. Do not invent facts, names, events, dates, documents, or sources. Every entity you list must trace to one of the sources above; attach the source URL it came from. If something is not supported by the sources above, either omit it or mark it UNVERIFIED.
 
 TOPIC:
 ${topic}
 
 RESEARCH REQUIREMENTS:
-- Identify real people, institutions, timelines, public records, official documents, archival trails, court records, memoirs, biographies, newspaper accounts, academic sources, interviews, testimony, and other source categories where applicable.
+- Extract real people, institutions, timelines, public records, official documents, archival trails, court records, newspaper accounts, and academic sources that appear in the sources above.
 - Separate documented facts from disputed claims.
-- Include competing narratives when the historical/public record is contested.
-- Mark uncertain or source-dependent claims clearly.
-- Prefer source TYPES and document trails over vague web-summary language.
-- This result will be saved into the project's Story Bible > Research field and used for drafting, bibliography, and source planning.
+- Include competing narratives only where the supplied sources actually contest each other.
+- For each item, set source_types / sources to the real URL(s) above, or "UNVERIFIED" if not supported.
+- This result is saved into the project's Story Bible > Research field and used for drafting and bibliography.
 
-Return a structured JSON with:
-- key_figures: array of real people with {name, role, dates_active, documented_actions, source_types}
-- key_events: array of real incidents with {event, date, description, sources}
-- institutions: array of organizations with {name, role, period}
-- timeline: array of chronological events with {date, event}
-- primary_sources: array of documentation types with {source_type, description, availability}
-- competing_narratives: array with {official_story, evidence_counter, key_evidence}`,
+Return structured JSON:
+- key_figures: array of {name, role, dates_active, documented_actions, source_types}
+- key_events: array of {event, date, description, sources}
+- institutions: array of {name, role, period}
+- timeline: array of {date, event}
+- primary_sources: array of {source_type, description, availability}
+- competing_narratives: array of {official_story, evidence_counter, key_evidence}`,
         response_json_schema: researchSchema,
       });
 
@@ -2399,7 +2511,7 @@ Return a structured JSON with:
         ...researchFields,
       }));
 
-      toast.success('Deep research saved to Story Bible > Research.');
+      toast.success(`Deep research saved — ${pages.filter((p) => p.content).length} sources read, ${hits.length} found.`);
       await refreshAll();
     } catch (error) {
       console.error('[RESEARCH] Deep research failed:', error);

@@ -2,7 +2,26 @@
 // Unity Book Studio — Local LLM Engine
 // Sends all LLM calls to a local Ollama server.
 
-const OLLAMA_BASE_URL = 'http://127.0.0.1:11434';
+const LLAMA_BASE_URL = 'http://127.0.0.1:8080';
+
+const SEARCH_BRIDGE_URL = 'http://127.0.0.1:8899/search';
+
+export async function searchWeb(query, n = 5) {
+  try {
+    const res = await fetch(SEARCH_BRIDGE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, n }),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.results) ? data.results : [];
+  } catch (e) {
+    console.warn('[SEARCH-BRIDGE] search failed:', e?.message || e);
+    return [];
+  }
+}
 
 export const AGENT_MODELS = {
   ghostwriter:      'ghostwriter',
@@ -24,7 +43,7 @@ export const AGENT_TEMPERATURES = {
 
 // Context window size sent to Ollama via options.num_ctx on every request.
 // Ollama reloads the model with this context size per-request.
-export const AGENT_NUM_CTX = 16384;
+export const AGENT_NUM_CTX = 32768;
 
 // Per-agent overrides (optional). Agents not listed use AGENT_NUM_CTX.
 export const AGENT_NUM_CTX_OVERRIDES = {
@@ -48,19 +67,21 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   if (jsonSchema) {
     userContent += '\n\nRespond ONLY with valid JSON matching this schema. No markdown fences. No preamble. Just the JSON object.\n\nSchema:\n' + JSON.stringify(jsonSchema, null, 2);
   }
+  // Suppress Qwen3 thinking mode so we get answer text in content, not reasoning_content.
+  userContent += ' /no_think';
   messages.push({ role: 'user', content: userContent });
 
+  const requestBody = {
+    model,
+    messages,
+    stream: false,
+    temperature,
+    max_tokens: maxTokens,
+  };
+
   let response;
-  const requestBody = { model, messages, stream: false, options: { temperature, num_predict: maxTokens, num_ctx: numCtx } };
-
-  // When a JSON schema is requested, tell Ollama to constrain output to JSON tokens only.
-  // This suppresses reasoning preamble and leaked system-prompt text from thinking models.
-  if (jsonSchema) {
-    requestBody.format = 'json';
-  }
-
   try {
-    response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+    response = await fetch(`${LLAMA_BASE_URL}/v1/chat/completions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
@@ -69,16 +90,16 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   } catch (fetchErr) {
     const isTimeout = fetchErr?.name === 'TimeoutError' || fetchErr?.name === 'AbortError';
     const err = new Error(isTimeout
-      ? 'Ollama request timed out after 20 minutes.'
-      : `Cannot reach Ollama at ${OLLAMA_BASE_URL}. Is Ollama running? Error: ${fetchErr?.message || 'unknown'}`);
+      ? 'llama serve request timed out after 20 minutes.'
+      : `Cannot reach llama serve at ${LLAMA_BASE_URL}. Is it running? Error: ${fetchErr?.message || 'unknown'}`);
     err.status = isTimeout ? 504 : 503;
     err.response = { status: err.status };
     throw err;
   }
 
   if (!response.ok) {
-    let errMessage = `Ollama returned HTTP ${response.status}`;
-    try { const errBody = await response.json(); errMessage = errBody?.error || errMessage; } catch {}
+    let errMessage = `llama serve returned HTTP ${response.status}`;
+    try { const errBody = await response.json(); errMessage = errBody?.error?.message || errBody?.error || errMessage; } catch {}
     const err = new Error(errMessage);
     err.status = response.status;
     err.response = { status: response.status };
@@ -86,10 +107,9 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   }
 
   const data = await response.json();
-  let text = data?.message?.content || '';
+  let text = data?.choices?.[0]?.message?.content || '';
 
-  // Strip thinking-model artifacts (QwQ, DeepSeek-R1, etc.)
-  // These models emit <think>...</think> blocks and \boxed{} before the real output.
+  // Safety net: strip any thinking-model artifacts if they leak through.
   text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
   text = text.replace(/<\/think>/gi, '');
   text = text.replace(/\\boxed\{[^}]*\}/g, '');
@@ -134,12 +154,12 @@ export async function callAgent({ prompt, taskType = 'prose', project = null, te
 
 export async function checkOllamaHealth() {
   try {
-    const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`, { signal: AbortSignal.timeout(5000) });
+    const response = await fetch(`${LLAMA_BASE_URL}/v1/models`, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) return { healthy: false, error: `HTTP ${response.status}` };
     const data = await response.json();
-    const models = (data.models || []).map(m => m.name);
+    const models = (data.data || data.models || []).map(m => m.id || m.name);
     return { healthy: true, models, hasGhostwriter: models.some(m => m.includes(AGENT_MODELS.ghostwriter)), hasNSFW: models.some(m => m.includes(AGENT_MODELS.ghostwriter_nsfw)) };
   } catch (err) {
-    return { healthy: false, error: err?.message || 'Cannot reach Ollama' };
+    return { healthy: false, error: err?.message || 'Cannot reach llama serve' };
   }
 }

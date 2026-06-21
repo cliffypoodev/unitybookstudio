@@ -425,6 +425,26 @@ export const foundationSchema = {
     canon_md: { type: 'string' },
     voice_md: { type: 'string' },
     mystery_md: { type: 'string' },
+    canon_cast: {
+      type: 'array',
+      description: 'Locked per-character records. Downstream agents read THESE, not characters_md prose.',
+      items: {
+        type: 'object',
+        properties: {
+          canonical_name: { type: 'string' },
+          role: { type: 'string', description: 'protagonist | antagonist | love_interest | ally | foil | minor' },
+          archetype: { type: 'string', description: 'Specific named archetype. Must be distinct from every other character.' },
+          physical_signature: { type: 'string' },
+          props: { type: 'array', items: { type: 'string' }, description: 'Named objects this character owns/carries. Specific names only.' },
+          voice_fingerprint: { type: 'string' },
+          wound: { type: 'string' },
+          want: { type: 'string' },
+          need: { type: 'string' },
+          lie: { type: 'string' },
+        },
+        required: ['canonical_name', 'role', 'archetype', 'props'],
+      },
+    },
     twists: {
       type: 'array',
       description: 'Plot twists with clues, reveals, and foreshadowing rules.',
@@ -460,7 +480,7 @@ export const foundationSchema = {
       }
     }
   },
-  required: ['title', 'tagline', 'author_name', 'world_md', 'characters_md', 'outline_md', 'canon_md', 'voice_md', 'mystery_md', 'chapters']
+  required: ['title', 'tagline', 'author_name', 'world_md', 'characters_md', 'outline_md', 'canon_md', 'voice_md', 'mystery_md', 'canon_cast', 'chapters']
 };
 
 export const chapterSchema = {
@@ -507,13 +527,15 @@ export const sceneBeatSchema = {
           scene_goal: { type: 'string' },
           pov_character: { type: 'string' },
           setting: { type: 'string' },
+          characters_present: { type: 'array', items: { type: 'string' }, description: 'canonical_name of every character in the scene. ONLY names from canon_cast.' },
+          props_present: { type: 'array', items: { type: 'string' }, description: 'Named props appearing/used in the scene, drawn from canon_cast prop lists.' },
           conflict: { type: 'string' },
           emotional_arc: { type: 'string' },
           tension_level: { type: 'number' },
           exit_hook: { type: 'string' },
           intimacy_level: { type: 'number', description: 'Optional 0-4. 0=none, 1=tension/flirting, 2=partial physical contact, 3=explicit sexual content, 4=intensely explicit. Only include when the scene involves romantic/sexual content.' },
         },
-        required: ['scene_number', 'scene_goal', 'conflict', 'emotional_arc', 'tension_level'],
+        required: ['scene_number', 'scene_goal', 'characters_present', 'conflict', 'emotional_arc', 'tension_level'],
       },
     },
   },
@@ -845,7 +867,16 @@ export function buildProjectContextHeader(spec) {
 }
 
 // Detailed voice dossiers for custom original author voices
-const CUSTOM_VOICE_DOSSIERS = {
+export const CUSTOM_VOICE_DOSSIERS = {
+  'Erik Larson': `AUTHOR VOICE: Erik Larson — Narrative Nonfiction / Historical Suspense.
+TONE: Cinematic, immersive, and quietly ominous. True events told with the tension of a thriller, but never sensationalized. The dread comes from knowing what's coming while the people on the page do not.
+PROSE MECHANICS: Clean, controlled, journalistic sentences that carry vivid specificity. Build scenes from documented detail — weather, dates, rooms, objects, what a person ate or wore — drawn only from the record. Favor concrete nouns and active verbs over interpretation. Let facts accumulate into atmosphere; do not editorialize.
+STRUCTURE: Parallel timelines and braided storylines that converge. Short, scene-driven sections that end on a quiet hook pulling the reader forward. Foreshadow with real, sourced detail rather than authorial hinting.
+SENSORY FOCUS: The texture of a specific time and place — the light, the smell of a city, the sound of a machine, the weight of period objects. Ground every abstraction in a physical, documented particular.
+SOURCING DISCIPLINE: Every scene rests on the historical record — letters, diaries, transcripts, news accounts, official documents. Reconstruct only what sources support. When a fact is uncertain or unknown, say so plainly; never invent dialogue, interiority, or events to fill a gap.
+CHARACTER LENS: Treat real historical figures as full people — render their choices, ambitions, and blind spots through documented action, not speculation about their feelings.
+ANTI-TROPES: No purple prose, no melodrama, no invented suspense. Do not use vague authority phrases like "the record suggests" or "historians believe" as filler — name the actual source or state the uncertainty. Never let style outrun the evidence.`,
+
   'Arina Cheskey': `AUTHOR VOICE: Arina Cheskey — Industrial Horror / Psychological Survival Thriller.
 TONE: Visceral, suffocating, bleak, and grounded entirely in physical reality.
 PROSE MECHANICS: Use short, jagged, claustrophobic sentences. Strip away all romanticized or poetic language. The setting is not just a backdrop; it is an active antagonist.
@@ -917,7 +948,7 @@ DIALOGUE STYLE: Banter between people who should be terrified. Pop culture refer
 ENDING RULE: End scenes with someone saying exactly the wrong thing to exactly the wrong entity.`,
 };
 
-function buildAuthorVoiceInstruction(project) {
+export function buildAuthorVoiceInstruction(project) {
   // Check for custom voice dossier first
   if (project.author_voice && CUSTOM_VOICE_DOSSIERS[project.author_voice]) {
     return CUSTOM_VOICE_DOSSIERS[project.author_voice];
@@ -1040,6 +1071,26 @@ export const expandFoundationSchema = {
     canon_md: { type: 'string' },
     voice_md: { type: 'string' },
     mystery_md: { type: 'string' },
+    canon_cast: {
+      type: 'array',
+      description: 'Locked per-character records. Downstream agents read THESE, not characters_md prose.',
+      items: {
+        type: 'object',
+        properties: {
+          canonical_name: { type: 'string' },
+          role: { type: 'string', description: 'protagonist | antagonist | love_interest | ally | foil | minor' },
+          archetype: { type: 'string', description: 'Specific named archetype. Must be distinct from every other character.' },
+          physical_signature: { type: 'string' },
+          props: { type: 'array', items: { type: 'string' }, description: 'Named objects this character owns/carries. Specific names only.' },
+          voice_fingerprint: { type: 'string' },
+          wound: { type: 'string' },
+          want: { type: 'string' },
+          need: { type: 'string' },
+          lie: { type: 'string' },
+        },
+        required: ['canonical_name', 'role', 'archetype', 'props'],
+      },
+    },
     twists: {
       type: 'array',
       description: 'Plot twists with clues, reveals, and foreshadowing rules. Generate exactly the number specified.',
@@ -1077,7 +1128,7 @@ export const expandFoundationSchema = {
       },
     },
   },
-  required: ['world_md', 'characters_md', 'outline_md', 'canon_md', 'voice_md', 'mystery_md', 'chapters'],
+  required: ['world_md', 'characters_md', 'outline_md', 'canon_md', 'voice_md', 'mystery_md', 'canon_cast', 'chapters'],
 };
 
 export function buildExpandFoundationPrompt(seedConcept, settings, options = {}) {

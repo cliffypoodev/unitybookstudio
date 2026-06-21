@@ -11,7 +11,7 @@
 
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
-import { buildProjectContextHeader, unwrapIntegrationResult, countWords } from '@/lib/autonovel';
+import { buildProjectContextHeader, unwrapIntegrationResult, countWords, buildAuthorVoiceInstruction } from '@/lib/autonovel';
 import { isNonfictionProject } from '@/lib/manuscriptStats';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildPovTenseBlock } from '@/lib/povTense';
@@ -186,11 +186,27 @@ function extractProtagonistName(project) {
   return singleName ? singleName[1] : 'the protagonist';
 }
 
-function quickSceneEval(proseInput, spec, targetWords) {
+function quickSceneEval(proseInput, spec, targetWords, project = {}) {
   const prose = extractTextFromLLMResult(proseInput);
   const words = prose.trim().split(/\s+/).filter(Boolean);
   const blockingIssues = [];
   const warnings = [];
+
+  // SEVERE (nonfiction): invented names not present in research → blocking, retry
+  if (project?.book_type === 'nonfiction') {
+    try {
+      const { compositeNames } = labelCompositeCharacters(prose, project, spec?.chapter);
+      if (Array.isArray(compositeNames) && compositeNames.length > 0) {
+        blockingIssues.push(`Fabricated entities not found in the research: ${compositeNames.join(', ')}. Rewrite using ONLY people, organizations, quotes, and documents that appear in the supplied research. Do not invent names, dispatches, or quotations.`);
+      }
+    } catch (e) { /* detector unavailable — do not block */ }
+  }
+
+  // SEVERE: degenerate non-Latin output (model loop) → blocking, force retry
+  const cjkMatches = prose.match(/[\u3400-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]/g);
+  if (cjkMatches && cjkMatches.length > 10) {
+    blockingIssues.push(`Degenerate output: ${cjkMatches.length} non-Latin (CJK) characters detected. Rewrite the section as clean English prose only.`);
+  }
 
   // SEVERE: empty or stub output → blocking
   if (words.length < targetWords * 0.5 && words.length < 300) {
@@ -272,7 +288,8 @@ function buildAuthorVoiceCompact(project) {
   const parts = [];
 
   if (project?.author_voice && project.author_voice !== 'Custom / None') {
-    parts.push(`VOICE: Write in the style of ${project.author_voice}. Match their sentence rhythm, dialogue approach, and emotional register.`);
+    const dossier = buildAuthorVoiceInstruction(project);
+    parts.push(dossier);   // full craft fingerprint when a dossier exists; falls back to the generic line otherwise
   }
 
   if (project?.author_voice_notes) {
@@ -284,6 +301,18 @@ function buildAuthorVoiceCompact(project) {
   }
 
   return parts.join('\n\n');
+}
+
+function buildAuthorVoiceReminder(project) {
+  let reminder = '';
+  if (project?.author_voice && project.author_voice !== 'Custom / None') {
+    reminder = `VOICE LOCK (APPLY NOW AS YOU WRITE): Render this section in the voice of ${project.author_voice}. Honor the PROSE MECHANICS, SENSORY FOCUS, and ANTI-TROPES defined earlier — concrete documented detail over mood, specific named sources over vague phrasing, and absolutely no invented people, quotes, or events. If a fact is not in the supplied research, leave it out rather than dramatize it.`;
+  }
+  if (project?.book_type === 'nonfiction') {
+    const nfRule = `SOURCE FIDELITY (NONFICTION, ABSOLUTE): Use ONLY the proper names, titles, organizations, dates, quotations, and documents that appear verbatim in the supplied research/source pack. You may NOT introduce any named person, officer, clerk, letter, dispatch, or quoted line that is not in that material. If the research does not name someone, write around it ("a Union officer," "a shipping clerk") — never invent a name or a quote. Inventing a source is a critical failure.`;
+    reminder = reminder ? `${reminder}\n\n${nfRule}` : nfRule;
+  }
+  return reminder;
 }
 
 function getEffectiveContentSettings(project = {}) {
@@ -642,15 +671,15 @@ function buildPreviousContextBlock({
     parts.push(
       `PRIOR CHAPTER SUMMARIES:\n${priorChapterSummaries
         .map((s, i) => {
-          if (typeof s === 'string') return `Chapter ${i + 1}: ${compact(sanitizeNonfictionContextScarTissue(s), 900)}`;
-          return `Chapter ${s.chapter_number || s.number || i + 1}: ${compact(sanitizeNonfictionContextScarTissue(s.beat_summary || s.summary || s.title || JSON.stringify(s)), 900)}`;
+          if (typeof s === 'string') return `Chapter ${i + 1}: ${compact(sanitizeNonfictionContextScarTissue(s), 400)}`;
+          return `Chapter ${s.chapter_number || s.number || i + 1}: ${compact(sanitizeNonfictionContextScarTissue(s.beat_summary || s.summary || s.title || JSON.stringify(s)), 400)}`;
         })
         .join('\n\n')}`
     );
   }
 
   if (rollingContext) {
-    parts.push(`ROLLING CONTINUITY CONTEXT:\n${compact(sanitizeNonfictionContextScarTissue(rollingContext), 3000)}`);
+    parts.push(`ROLLING CONTINUITY CONTEXT:\n${compact(sanitizeNonfictionContextScarTissue(rollingContext), 2000)}`);
   }
 
   if (previousChapterEnding) {
@@ -662,7 +691,7 @@ function buildPreviousContextBlock({
   }
 
   if (accumulatedProse) {
-    parts.push(`PROSE ALREADY WRITTEN IN THIS CHAPTER:\n${compact(sanitizeNonfictionContextScarTissue(accumulatedProse), 5000)}`);
+    parts.push(`PROSE ALREADY WRITTEN IN THIS CHAPTER:\n${compact(sanitizeNonfictionContextScarTissue(accumulatedProse), 2500)}`);
   }
 
   return parts.join('\n\n');
@@ -824,12 +853,35 @@ function buildChapterContextBlock(project, chapter) {
 ${compact(chapter?.summary || chapter?.plan || chapter?.outline || chapter?.beats_md || chapter?.beat_summary || chapter?.description || '', 4000)}`;
 }
 
+function buildCanonCastBlock(project) {
+  let cast = project?.canon_cast;
+  if (typeof cast === 'string') { try { cast = JSON.parse(cast); } catch { cast = null; } }
+  if (!Array.isArray(cast) || !cast.length) return '';
+  const lines = cast.map((c) => {
+    const props = Array.isArray(c.props) && c.props.length ? c.props.join(', ') : '—';
+    return `- ${c.canonical_name} (${c.role || 'character'}${c.archetype ? ', ' + c.archetype : ''})\n` +
+           `  Physical: ${c.physical_signature || '—'}\n` +
+           `  Voice: ${c.voice_fingerprint || '—'}\n` +
+           `  Props: ${props}`;
+  }).join('\n');
+  return `CANON CAST — LOCKED IDENTITIES (USE THESE EXACT NAMES):
+These are the ONLY character names. Do not rename, invent, or substitute. Keep each
+character's physical signature and voice consistent every time they appear. Props
+listed are real named objects — when one appears, name it exactly; never let a
+listed prop silently vanish.
+${lines}`;
+}
+
 function buildFoundationBlock(project) {
   const parts = [];
 
   if (project?.seed_concept) parts.push(`PROJECT BRAIN / SEED CONCEPT:\n${compact(sanitizeNonfictionContextScarTissue(project.seed_concept), 3000)}`);
   if (project?.world_md) parts.push(`WORLD / SETTING:\n${compact(sanitizeNonfictionContextScarTissue(project.world_md), 3000)}`);
   if (project?.characters_md) parts.push(`CHARACTERS:\n${compact(sanitizeNonfictionContextScarTissue(project.characters_md), 3000)}`);
+
+  const canonBlock = buildCanonCastBlock(project);
+  if (canonBlock) parts.push(canonBlock);
+
   if (project?.outline_md) parts.push(`BOOK OUTLINE:\n${compact(sanitizeNonfictionContextScarTissue(project.outline_md), 4000)}`);
   if (project?.canon_md) parts.push(`CANON / CONTINUITY:\n${compact(sanitizeNonfictionContextScarTissue(project.canon_md), 3000)}`);
   if (project?.voice_md) parts.push(`VOICE NOTES:\n${compact(sanitizeNonfictionContextScarTissue(project.voice_md), 2000)}`);
@@ -1160,6 +1212,7 @@ function buildFictionPrompt({
   const noSlopBlock = buildNoSlopBlock(project);
   const manuscriptPurityBlock = buildManuscriptPurityBlock(project);
   const sceneContinuityExpansionBlock = buildSceneContinuityExpansionBlock({ accumulatedProse, spec, targetWords });
+  const authorVoiceReminder = buildAuthorVoiceReminder(project);
   const outputRules = buildOutputRules(project, targetWords);
   const eroticaBlocks = buildEroticaAuthorityBlocks(project);
   const fanfictionEroticaBridgeBlock = buildFanfictionEroticaBridgeBlock(project);
@@ -1207,6 +1260,7 @@ function buildFictionPrompt({
     noSlopBlock,
     craftRules,
     MANDATORY_ENFORCEMENT_BLOCK,
+    authorVoiceReminder,
     outputRules,
   ]
     .filter(Boolean)
@@ -1266,13 +1320,13 @@ function buildNonfictionPrompt({
   });
   const nonfictionPublicationQualityBlock = buildNonfictionPublicationQualityBlock({ chapter, spec, accumulatedProse });
   const citationBibliographyDisciplineBlock = buildCitationBibliographyDisciplineBlock(project, relevantResearch);
+  const authorVoiceReminder = buildAuthorVoiceReminder(project);
 
   return [
     `You are the nonfiction prose engine for a professional book-writing app. Write disciplined investigative/historical nonfiction manuscript prose using only the supplied project material and research.`,
     nonfictionPerspectiveFirewall,
     projectHeader,
     genreBlock,
-    setupConstraints,
     povTenseBlock,
     readingLevelBlock,
     contentLimitsBlock,
@@ -1283,20 +1337,22 @@ function buildNonfictionPrompt({
     anthologyContext,
     foundationBlock,
     researchBlock,
-    previousContextBlock,
-    continuationGuardBlock,
-    nonfictionSectionNonOverlapBlock,
-    nonfictionPublicationQualityBlock,
-    citationBibliographyDisciplineBlock,
-    chapterContextBlock,
-    projectContinuityLockBlock,
-    canonNameLockBlock,
-    anthologyVarietyBlock,
-    sceneSpecBlock,
     NONFICTION_HARD_RULES,
     NONFICTION_NARRATIVE_CRAFT,
     ANTI_DETECTION_PROSE_RULES_NF,
     MANDATORY_ENFORCEMENT_BLOCK,
+    citationBibliographyDisciplineBlock,
+    nonfictionPublicationQualityBlock,
+    chapterContextBlock,
+    projectContinuityLockBlock,
+    canonNameLockBlock,
+    anthologyVarietyBlock,
+    setupConstraints,
+    previousContextBlock,
+    continuationGuardBlock,
+    nonfictionSectionNonOverlapBlock,
+    sceneSpecBlock,
+    authorVoiceReminder,
     outputRules,
   ]
     .filter(Boolean)
@@ -1614,6 +1670,11 @@ function lightCleanSceneOutput(rawResult) {
   if (prose && !['.', '!', '?', '"', '\u201D', '\u2019', '\u2014'].includes(lastChar)) {
     prose = prose + '.';
   }
+
+  // Safety net: remove any CJK character runs that should never appear in English prose
+  prose = prose.replace(/[\u3400-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\uFF00-\uFFEF]{1,}/g, '');
+  // collapse any doubled spaces / blank lines left behind
+  prose = prose.replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 
   return prose;
 }
@@ -1936,9 +1997,21 @@ function getAnthologyContext(project, chapter) {
   }
 }
 
+function buildSceneCastBlock(spec) {
+  const present = Array.isArray(spec?.characters_present) ? spec.characters_present.filter(Boolean) : [];
+  const props = Array.isArray(spec?.props_present) ? spec.props_present.filter(Boolean) : [];
+  if (!present.length && !props.length) return '';
+  const lines = [];
+  if (present.length) lines.push(`Characters in THIS scene (only these, by their canon names): ${present.join(', ')}`);
+  if (props.length) lines.push(`Props in play THIS scene (carry them, name them exactly): ${props.join(', ')}`);
+  return `THIS SCENE — CAST & PROPS:\n${lines.join('\n')}`;
+}
+
 function buildScenePrompt(args) {
   const isNF = isNonfictionProject(args.project) || isNonfictionAnthology(args.project);
-  return isNF ? buildNonfictionPrompt(args) : buildFictionPrompt(args);
+  const base = isNF ? buildNonfictionPrompt(args) : buildFictionPrompt(args);
+  const sceneCast = buildSceneCastBlock(args.spec || args);
+  return sceneCast ? `${sceneCast}\n\n${base}` : base;
 }
 
 async function generateSceneWithRepair({
@@ -1965,7 +2038,7 @@ async function generateSceneWithRepair({
   });
 
   let prose = lightCleanSceneOutput(result);
-  let evalResult = quickSceneEval(prose, spec, targetWords);
+  let evalResult = quickSceneEval(prose, spec, targetWords, project);
 
   if (!evalResult.hasBlockingIssue) {
     return {
@@ -1995,7 +2068,7 @@ async function generateSceneWithRepair({
   });
 
   prose = lightCleanSceneOutput(result);
-  evalResult = quickSceneEval(prose, spec, targetWords);
+  evalResult = quickSceneEval(prose, spec, targetWords, project);
 
   return {
     prose,

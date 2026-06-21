@@ -193,6 +193,7 @@ RULES:
   const result = await invokeLLMForResearch({
     prompt: researchPrompt,
     response_json_schema: researchSchema,
+    searchQueries: [topic.fictional_element, topic.real_world_basis].filter(Boolean),
     model: pickModel('fiction_research'),
     fallback_model: 'gemini_3_flash',
     temperature: 0,

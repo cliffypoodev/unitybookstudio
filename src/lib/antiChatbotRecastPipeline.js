@@ -180,6 +180,8 @@ NONFICTION AUTHORITY RECAST:
 - Preserve ALL citation-like references, parenthetical attributions, and data sources exactly as written
 - Do NOT add fictional texture, scene dramatization, sensory overload, or literary devices
 - Do NOT add emotional language or narrative urgency to analytical sections
+- Remove flourish and lingering-mystery endings: if a paragraph or section ends on a comment about mystery, secrecy, or the passage of time ("questions that lingered," "long after the curtain had fallen," "in the margins of history," "the truth may never be known") instead of on a fact, end it on the concrete documented fact or the specific open question already present a sentence or two earlier. Cutting the flourish is rewording the close, not removing content.
+- Remove decorative metaphor the draft left behind: this is not only "do not ADD" literary texture — also strip extended or stacked metaphors (architecture, theater and curtains, weaving and tapestry, tides and shoals, webs, shadows and light) and decorative words (labyrinthine, tapestry, opulent, ethereal, palpable, shrouded, tantalizing, "polished veneer," sprawling, relentless) by rewording into plain fact. The fact stays; the metaphor goes. When unsure whether a phrase is decoration or a load-bearing fact, keep it.
 - The goal is PRECISION and AUTHORITY — let the facts carry the weight`;
 
 

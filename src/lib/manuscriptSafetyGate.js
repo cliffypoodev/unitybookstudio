@@ -406,6 +406,17 @@ const MALFORMED_CANARIES = [
       if (/,\s*$/.test(before) || /\.\s*$/.test(before)) {
         return false; // sentence-initial or clause-initial — might be valid
       }
+      // Compound subject: "X and <Proper> were" — the proper noun is the second
+      // item of a plural subject, so "were" is correct. e.g. "Post and the Chicago Tribune were"
+      if (/\band(?:\s+the)?\s*$/i.test(before)) {
+        return false;
+      }
+      // Plural head-noun earlier in the clause governs "were", with the proper noun
+      // only inside a modifier. e.g. "the lines between Washington and Texas were"
+      // Look for a plural common noun + a connecting preposition before the proper noun.
+      if (/\b(lines|routes|records|ledgers|papers|newspapers|troops|forces|men|operators|wires|messages|reports|dispatches|documents|states|courts|roads|ports)\b[^.?!]*\b(?:between|from|of|in|across|along|to|and)\s+[A-Za-z]*\s*$/i.test(before)) {
+        return false;
+      }
       return true; // likely a real error
     },
   },
@@ -520,7 +531,8 @@ export function runManuscriptSafetyGate(text, options = {}) {
   // Malformed grammar: warn or manual review
   if (malformed.hasMalformed) {
     if (recommendedAction === 'PASS') {
-      recommendedAction = malformed.matches.length >= 3 ? 'REJECT_MANUAL_REVIEW' : 'WARN_ONLY';
+      const strictMatches = malformed.matches.filter(m => m.name !== 'Singular proper noun + were');
+      recommendedAction = strictMatches.length >= 3 ? 'REJECT_MANUAL_REVIEW' : 'WARN_ONLY';
     }
     reasons.push(`Malformed grammar (${malformed.matches.length}): ${malformed.matches.map(m => '"' + m.phrase + '"').join(', ')}`);
   }

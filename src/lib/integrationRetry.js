@@ -1,6 +1,6 @@
 // src/lib/integrationRetry.js — FULL REPLACEMENT for local Ollama
 
-import { callAgent, callOllama, AGENT_MODELS, resolveAgent } from '@/lib/localLLM';
+import { callAgent, callOllama, AGENT_MODELS, resolveAgent, searchWeb } from '@/lib/localLLM';
 import { resolveWritingModel, normalizeWritingModel, logWritingModelUsage, isWritingTask } from '@/lib/writingModel';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -210,14 +210,47 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
   throw lastError;
 }
 
+function buildGroundingBlock(resultsByQuery) {
+  const lines = [
+    '=== REAL WEB SEARCH RESULTS — YOUR ONLY ALLOWED SOURCES ===',
+    'Use ONLY the results below. Every URL you cite MUST be one of these exact URLs.',
+    'If a fact is not supported by these results, do NOT present it as verified —',
+    'mark it UNVERIFIED or omit it. Invent nothing. Never output a URL not listed here.',
+    '',
+  ];
+  let i = 1;
+  for (const { query, results } of resultsByQuery) {
+    lines.push(`SEARCH: ${query}`);
+    if (!results.length) lines.push('  (no results)');
+    for (const r of results) {
+      lines.push(`  [${i}] ${r.title}`, `      URL: ${r.url}`, `      ${r.snippet}`);
+      i++;
+    }
+    lines.push('');
+  }
+  lines.push('=== END SEARCH RESULTS ===', '');
+  return lines.join('\n');
+}
 
 export async function invokeLLMForResearch(payload) {
   const maxAttempts = 2;
   let lastError;
-  if (payload.add_context_from_internet) console.warn('[LOCAL-LLM] Web search requested for research but not available locally.');
+  let prompt = payload.prompt;
+
+  const queries = Array.isArray(payload.searchQueries)
+    ? payload.searchQueries.filter(Boolean) : [];
+  if (queries.length) {
+    const resultsByQuery = [];
+    for (const q of queries) {
+      resultsByQuery.push({ query: q, results: await searchWeb(q, 5) });
+      await wait(300);
+    }
+    prompt = buildGroundingBlock(resultsByQuery) + '\n' + prompt;
+  }
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const rawText = await callAgent({ prompt: payload.prompt, taskType: 'research', temperature: 0.3, maxTokens: normalizeMaxTokens(payload.max_tokens), jsonSchema: payload.response_json_schema || null });
+      const rawText = await callAgent({ prompt, taskType: 'research', temperature: 0.3, maxTokens: normalizeMaxTokens(payload.max_tokens), jsonSchema: payload.response_json_schema || null });
       if (payload.response_json_schema) { const parsed = attemptJsonSalvage(rawText); if (parsed) return parsed; throw new Error('Research LLM response was not valid JSON'); }
       return rawText;
     } catch (error) { lastError = error; if (!isRetryableError(error) || attempt === maxAttempts) break; await wait(3000); }
@@ -227,10 +260,22 @@ export async function invokeLLMForResearch(payload) {
 
 export async function invokeResearchLLM(payload, maxAttempts = 3) {
   let lastError;
-  if (payload.add_context_from_internet) console.warn('[LOCAL-LLM] Gemini web search not available locally. Using Researcher agent.');
+  let prompt = payload.prompt;
+
+  const queries = Array.isArray(payload.searchQueries)
+    ? payload.searchQueries.filter(Boolean) : [];
+  if (queries.length) {
+    const resultsByQuery = [];
+    for (const q of queries) {
+      resultsByQuery.push({ query: q, results: await searchWeb(q, 5) });
+      await wait(300);
+    }
+    prompt = buildGroundingBlock(resultsByQuery) + '\n' + prompt;
+  }
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const rawText = await callAgent({ prompt: payload.prompt, taskType: 'research', temperature: 0.3, maxTokens: 8192, jsonSchema: payload.response_json_schema || null });
+      const rawText = await callAgent({ prompt, taskType: 'research', temperature: 0.3, maxTokens: 8192, jsonSchema: payload.response_json_schema || null });
       if (payload.response_json_schema) { const parsed = attemptJsonSalvage(rawText); if (parsed) return parsed; throw new Error('Research response was not valid JSON'); }
       return rawText;
     } catch (error) {

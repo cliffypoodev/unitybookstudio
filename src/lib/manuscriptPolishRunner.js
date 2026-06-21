@@ -41,6 +41,7 @@ import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminati
   from './anthologyPolishChecks.js';
 import { isAnthologyProject } from './anthologyEngine.js';
 import { isComedyProject } from './manuscriptStats.js';
+import { rewriteFlaggedSpots } from './repetitionRewrite.js';
 
 // ── Per-chapter modules (operate on single text strings) ──
 import { runDeterministicGrammarRepair, runProsePolishQualityGate,
@@ -242,6 +243,25 @@ export async function runManuscriptPolishPipeline({
     repFixed = nfCoreStats.repFixed || 0;
   }
 
+  let repetitionRewritten = 0;
+  if (mode === 'nonfiction' && allowLLM) {
+    onProgress('Polish (NF): Rewriting repeated openings/cadence…');
+    for (const f of loaded) {                          // SEQUENTIAL — one chapter at a time, never Promise.all
+      try {
+        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project });
+        if (r.ok && r.changed) {
+          f.content = r.text;                            // updates in-memory; existing save loop persists it
+          repetitionRewritten++;
+          changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition openings/cadence rewritten`);
+        } else if (!r.ok) {
+          changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition rewrite skipped (${r.reason})`);
+        }
+      } catch (e) {
+        changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition rewrite error (${e.message})`);
+      }
+    }
+  }
+
   // B4: Dialogue tag caps + coping mechanism caps + broken sentence fixes (fiction-only)
   if (mode !== 'nonfiction') {
     const dialogueTagResult = isAnthology
@@ -388,44 +408,60 @@ export async function runManuscriptPolishPipeline({
 
   if (allowLLM) {
     if (mode === 'nonfiction') {
-      // ── NF Mode: Anti-chatbot recast pipeline (heading/citation safe) ──
-      onProgress('Polish (NF): Running anti-chatbot recast pipeline…');
+      // ── NF Mode: real LLM prose polish (uses the nonfiction polisher prompt) ──
+      onProgress('Polish (NF): Running LLM prose polisher…');
+      const briefContext = project
+        ? `${project.title || ''} — Nonfiction${project.author_voice ? `, voice: ${project.author_voice}` : ''}`
+        : '';
+
       for (let i = 0; i < loaded.length; i++) {
         const f = loaded[i];
         const chNum = f.chapter?.chapter_number || (i + 1);
-        onProgress(`Polish (NF): Anti-chatbot recast Ch.${chNum} (${i + 1}/${loaded.length})…`);
+        const chTitle = f.chapter?.title || `Chapter ${chNum}`;
+        onProgress(`Polish (NF): LLM polishing Ch.${chNum} (${i + 1}/${loaded.length})…`);
+
         const preLLMContent = f.content;
         const preLLMSlop = runAISlopReductionPass(preLLMContent, {});
         const preLLMSlopTotal = preLLMSlop.beforeTotal || 0;
+        const wordsBefore = (f.content || '').split(/\s+/).length;
 
         try {
-          const recastResult = await runAntiChatbotRecastPipeline(f.content, project, {
-            recastMode: 'conservative',
-            chapterNumber: chNum,
-          });
-          if (recastResult && recastResult.text && recastResult.text !== f.content) {
-            // Slop regression check
-            const postSlop = runAISlopReductionPass(recastResult.text, {});
-            const postSlopTotal = postSlop.beforeTotal || 0;
-            if (postSlopTotal > preLLMSlopTotal + 2) {
+          const llmResult = _llmOverride
+            ? await _llmOverride({ chapterText: f.content, chapterNumber: chNum })
+            : await polishChapterWithLLM({
+                chapterText: f.content,
+                chapterTitle: chTitle,
+                chapterNumber: chNum,
+                projectContext: briefContext,
+                project,
+                timeoutMs: 600000,
+              });
+
+          if (llmResult.ok) {
+            const postLLMSlop = runAISlopReductionPass(llmResult.text, {});
+            const postLLMSlopTotal = postLLMSlop.beforeTotal || 0;
+            if (postLLMSlopTotal > preLLMSlopTotal + 2) {
               llmFallbackCount++;
-              llmPolishLog.push({ chapter: chNum, ok: false, error: `NF recast slop regression (${preLLMSlopTotal} → ${postSlopTotal})`, fallback: true });
-              changes.push(`Ch.${chNum}: NF recast REVERTED — slop regression`);
+              llmPolishLog.push({ chapter: chNum, ok: false, error: `slop regression (${preLLMSlopTotal} → ${postLLMSlopTotal})`, fallback: true });
+              changes.push(`Ch.${chNum}: NF LLM polish REVERTED — slop regression`);
             } else {
-              f.content = recastResult.text;
+              f.content = llmResult.text;
               llmPolishCount++;
-              changes.push(`Ch.${chNum}: NF anti-chatbot recast applied (${recastResult.report?.chunksRecast || 0} chunks)`);
+              const wordsAfter = (llmResult.text || '').split(/\s+/).length;
+              changes.push(`Ch.${chNum}: NF LLM polished (${wordsBefore} → ${wordsAfter} words)`);
             }
           } else {
-            llmPolishLog.push({ chapter: chNum, ok: true, skipped: true });
+            llmFallbackCount++;
+            llmPolishLog.push({ chapter: chNum, ok: false, error: llmResult.error, fallback: true });
+            changes.push(`Ch.${chNum}: NF LLM polish fallback — ${llmResult.error || 'unknown'}`);
           }
         } catch (err) {
           llmFallbackCount++;
           llmPolishLog.push({ chapter: chNum, ok: false, error: err?.message, fallback: true });
-          changes.push(`Ch.${chNum}: NF recast error — ${err?.message}`);
+          changes.push(`Ch.${chNum}: NF LLM polish error — ${err?.message}`);
         }
       }
-      changes.push(`NF Anti-Chatbot Recast: ${llmPolishCount} recasted, ${llmFallbackCount} fallback.`);
+      changes.push(`NF LLM Polish: ${llmPolishCount} polished, ${llmFallbackCount} fallback.`);
     } else {
       // ── Fiction Mode: LLM prose polish ──
       onProgress('Polish: Running LLM prose polisher…');
@@ -619,6 +655,7 @@ export async function runManuscriptPolishPipeline({
       dialogFillerFixed,
       stackingFixed,
       repFixed,
+      repetitionRewritten,
       externalPatternsFixed,
       vocabCapped,
       quotesFixed,
