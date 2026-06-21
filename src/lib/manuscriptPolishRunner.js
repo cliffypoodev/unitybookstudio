@@ -41,7 +41,7 @@ import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminati
   from './anthologyPolishChecks.js';
 import { isAnthologyProject } from './anthologyEngine.js';
 import { isComedyProject } from './manuscriptStats.js';
-import { rewriteFlaggedSpots } from './repetitionRewrite.js';
+import { rewriteFlaggedSpots, buildGlobalOpeningStats } from './repetitionRewrite.js';
 
 // ── Per-chapter modules (operate on single text strings) ──
 import { runDeterministicGrammarRepair, runProsePolishQualityGate,
@@ -246,9 +246,12 @@ export async function runManuscriptPolishPipeline({
   let repetitionRewritten = 0;
   if (mode === 'nonfiction' && allowLLM) {
     onProgress('Polish (NF): Rewriting repeated openings/cadence…');
+    // Build manuscript-wide opening frequency table so repeated openings ACROSS
+    // chapters (not just within one chapter) get flagged and varied.
+    const { overused: globalOverused } = buildGlobalOpeningStats(loaded.map(f => f.content));
     for (const f of loaded) {                          // SEQUENTIAL — one chapter at a time, never Promise.all
       try {
-        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project });
+        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused });
         if (r.ok && r.changed) {
           f.content = r.text;                            // updates in-memory; existing save loop persists it
           repetitionRewritten++;
