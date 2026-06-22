@@ -249,9 +249,16 @@ export async function runManuscriptPolishPipeline({
     // Build manuscript-wide opening frequency table so repeated openings ACROSS
     // chapters (not just within one chapter) get flagged and varied.
     const { overused: globalOverused } = buildGlobalOpeningStats(loaded.map(f => f.content));
+    console.log(`[REP] globalOverused=${globalOverused.size} sample=[${[...globalOverused].slice(0,6).join(' | ')}]`);
+    for (const _f of loaded) {
+      const _p = String(_f.content || '').split(/\n\n+/).filter(Boolean).length;
+      const _l = String(_f.content || '').split(/\n+/).filter(Boolean).length;
+      console.log(`[REP] Ch.${_f.chapter?.chapter_number ?? '?'} paras(blankline)=${_p} lines(singlenl)=${_l}`);
+    }
     for (const f of loaded) {                          // SEQUENTIAL — one chapter at a time, never Promise.all
       try {
         const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused });
+        console.log(`[REP] Ch.${f.chapter?.chapter_number ?? '?'} flagged=${r.flags?.openings?.length ?? 0} cadence=${r.flags?.cadence?.length ?? 0} ok=${r.ok} changed=${r.changed}${r.reason ? ' reason=' + r.reason : ''}`);
         if (r.ok && r.changed) {
           f.content = r.text;                            // updates in-memory; existing save loop persists it
           repetitionRewritten++;
