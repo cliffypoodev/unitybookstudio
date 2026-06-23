@@ -43,7 +43,17 @@ export const COMPACT_ANTI_SLOP = '';
 export const ANTI_DETECTION_PROSE_RULES = '';
 export const ANTI_DETECTION_PROSE_RULES_NF = '';
 export const NONFICTION_HARD_RULES = '';
-export const NONFICTION_NARRATIVE_CRAFT = '';
+export const NONFICTION_NARRATIVE_CRAFT = `=== NONFICTION NARRATIVE CRAFT ===
+0. AUTHOR VOICE GOVERNS: These rules SERVE the selected AUTHOR VOICE dossier. Where any beat-mode or craft instruction conflicts with the AUTHOR VOICE, the AUTHOR VOICE wins. Apply that voice's PROSE MECHANICS, SENSORY FOCUS, and ANTI-TROPES to every paragraph of this section.
+1. SCENE, NOT SUMMARY: Render events through a specific person in a specific place at a specific moment, built only from the supplied record. Do not narrate from nowhere. Put the reader in the room before you explain anything.
+2. DOCUMENTS ARE OBJECTS, NOT ENTRIES: Introduce a letter, dispatch, ledger, order, or report as a physical thing someone writes, reads, signs, files, hides, or destroys — never as a catalogue line such as "The [archive] holds [document], which shows...". Show the document doing work in the world.
+3. VARY EVERY ENTRANCE: Never introduce two consecutive sources, paragraphs, or sections with the same construction. If the previous paragraph opened by naming an institution or a record, this one must NOT. Rotate openings among: a person, an action, a date, a place, a consequence, a concrete sensory detail.
+4. LET FACTS CARRY WEIGHT: Significance is shown, never announced. Delete editorializing tags such as "this would become one of the most important...", "in a turning point...", "what happened next would change everything." State the documented detail and stop; trust the reader to feel its weight.
+5. NO VAGUE-AUTHORITY FILLER: Do not use "the evidence suggests," "the record indicates," "historians believe," "it is likely," or "sources say" as connective tissue. Name the specific source, or state the uncertainty in plain words ("no surviving record explains why").
+6. CONCRETE OVER ABSTRACT: Prefer a dated, named, physical particular to a thematic abstraction. Replace figures like "the silence of the record" with the actual gap in the actual named document.
+7. SENTENCE AND PARAGRAPH VARIETY: Vary sentence length and shape. Do NOT run the antithesis tic ("not just X but Y") or stacked anaphora ("They do not speak of... They do not speak of...") as a default rhythm. Use such devices at most once per section, and only where genuinely earned.
+8. EVIDENCE DISCIPLINE: Build only on supplied research. Never invent a name, quote, date, or event to make a scene land. A missing fact is written around in neutral wording, never fabricated.
+=== END NONFICTION NARRATIVE CRAFT ===`;
 
 
 // ── Comedy rules: kept here (genre-specific, not universal) ──

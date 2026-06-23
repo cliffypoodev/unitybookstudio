@@ -528,9 +528,11 @@ ${getComedyBeatInstruction(style)}`;
 
   if (style.includes('investigative') || style.includes('nonfiction')) {
     return `${base}
-- Use narrative nonfiction discipline: specific facts, chronology, clean transitions, evidentiary caution.
-- Avoid invented dialogue or unsupported claims.
-- Build scenes around documents, witnesses, institutions, timelines, consequences.`;
+- This beat mode SERVES the AUTHOR VOICE and the NONFICTION NARRATIVE CRAFT rules. Where anything here conflicts with them, they win.
+- Dramatize through scene: a specific person, place, and moment drawn from the record — not a survey of documents and institutions.
+- Introduce each source as something someone does (writes, reads, signs, withholds, destroys); vary how every source enters and never repeat the same framing twice in a row.
+- Let facts imply significance; never announce importance. No vague-authority filler such as "the evidence suggests" or "historians believe."
+- Keep evidentiary caution: specific facts, real chronology, no invented dialogue or unsupported claims.`;
   }
 
   if (style.includes('psychological')) {
