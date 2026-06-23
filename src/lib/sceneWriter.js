@@ -471,7 +471,8 @@ function buildBeatStyleBlock(project) {
 
   if (!style) return '';
 
-  const base = `SELECTED BEAT / PROSE MODE: ${project.scene_beat_style || project.beat_style}`;
+  const base = `SELECTED BEAT / PROSE MODE: ${project.scene_beat_style || project.beat_style}
+- This beat mode SERVES the selected AUTHOR VOICE. Where any instruction in this mode conflicts with the AUTHOR VOICE's TONE, PACING, ENDING RULE, or ANTI-TROPES, the AUTHOR VOICE wins.`;
 
   if (isComedyBeatStyle(style)) {
     return `${base}

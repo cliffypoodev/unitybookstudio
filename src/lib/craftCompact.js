@@ -26,13 +26,14 @@ export { getAntiChatbotRulesForProject };
 
 export const COMPACT_CRAFT_RULES = `
 === SCENE CRAFT RULES ===
+0. AUTHOR VOICE GOVERNS: These rules SERVE the selected AUTHOR VOICE / persona dossier. Where any craft rule below conflicts with the AUTHOR VOICE's TONE, PROSE MECHANICS, ENDING RULE, or ANTI-TROPES, the AUTHOR VOICE wins.
 1. Show, don't tell. Replace "She felt angry" with action: "She slammed the folder on the desk."
 2. Dialogue must reveal character or advance plot. Cut small talk unless it's subtext.
 3. One POV per scene. No head-hopping.
 4. Vary sentence length. Follow a long sentence with a short one. Monotonous rhythm = AI detection.
 5. Sensory details: at least 2 senses per scene (not just visual).
 6. Avoid filter verbs: "She saw", "He felt", "She noticed", "He realized". Go direct.
-7. End chapters on tension, revelation, or decision. Never end on resolution.
+7. End each chapter on the beat the selected AUTHOR VOICE and BEAT STYLE call for — tension, revelation, or decision for thrillers and suspense; warmth, hope, or earned calm for romance, faith, cozy, and feel-good genres. Match the ending to the book's promise, not a single default.
 8. Beats > tags. "She crossed her arms" > "she said angrily."
 9. Specificity over generality. "A 1987 Ford Ranger" > "an old truck."
 10. Cut adverbs from dialogue tags. "Quietly" "angrily" "softly" — the dialogue should do this work.
