@@ -266,6 +266,29 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
 
   const systemPrompt = isNonfiction ? nonfictionSystemPrompt : fictionSystemPrompt;
 
+  // Call the model on a small chunk and clean its output. Used for both whole small
+  // paragraphs and individual sentences inside oversized blocks.
+  async function callAndClean(textIn) {
+    let rw = '';
+    try {
+      rw = await _callFn('PARAGRAPH:\n' + textIn + '\n\n/no_think', systemPrompt);
+    } catch (err) {
+      return '';
+    }
+    if (typeof rw !== 'string') rw = rw?.text || rw?.content || String(rw || '');
+    rw = rw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    rw = rw.split('\n').filter(line => {
+      const l = line.trim().toLowerCase();
+      return !(l.startsWith('here is') || l.startsWith('here are') || l.startsWith('rewritten') || l.startsWith('sure,') || l.startsWith('certainly') || l.startsWith('paragraph:'));
+    }).join('\n').trim();
+    return rw;
+  }
+
+  // Largest paragraph we send to the model whole. Bigger blocks (e.g. a chapter written
+  // as one block) are rewritten sentence-by-sentence so the local model never receives a
+  // chunk big enough to truncate — the failure that silently dropped half-chapters.
+  const MAX_WHOLE_PARA_WORDS = 120;
+
   let rewritten = 0;
   let attempted = 0;
   let skipped = 0;
@@ -301,41 +324,65 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
 
     if (!flaggedOpening && !flaggedCadence && !flaggedBeat) continue;
 
-    attempted++;
+    const segWordCount = trimmed.split(/\s+/).length;
 
-    let rw = '';
-    try {
-      rw = await _callFn(`PARAGRAPH:\n${trimmed}\n\n/no_think`, systemPrompt);
-    } catch (err) {
-      skipped++;
+    // ── LARGE BLOCK: rewrite only the offending sentences, one at a time ──
+    if (segWordCount > MAX_WHOLE_PARA_WORDS) {
+      const sentences = trimmed.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [trimmed];
+      let segChanged = false;
+      for (let s = 0; s < sentences.length; s++) {
+        if (attempted >= maxRewrites) break;
+        const sent = sentences[s];
+        const sentTrim = sent.trim();
+        if (sentTrim.split(/\s+/).length < 4) continue;
+        const lowerSent = sentTrim.toLowerCase();
+        const beatsInSent = beatsHere.filter(b => lowerSent.includes(b));
+        // In big blocks the scattered problem is overused beats; rewrite those sentences only.
+        if (!beatsInSent.length) continue;
+        attempted++;
+        const rwSent = await callAndClean(sentTrim);
+        if (!rwSent) { skipped++; continue; }
+        // Sentence-level length sanity: reject truncation/runaway.
+        if (rwSent.length < sentTrim.length * 0.6 || rwSent.length > sentTrim.length * 1.8) { skipped++; continue; }
+        if (isNonfiction) {
+          if (!factsPreserved(sentTrim, rwSent)) { skipped++; continue; }
+        } else {
+          if (!noInventedProperNouns(sentTrim, rwSent)) { skipped++; continue; }
+        }
+        // Require the overused beat to actually drop in this sentence.
+        let reduced = false;
+        for (const beat of beatsInSent) {
+          if (countBeat(rwSent, beat) < countBeat(sentTrim, beat)) { reduced = true; break; }
+        }
+        if (!reduced) { skipped++; continue; }
+        const sLead = sent.match(/^\s*/)[0];
+        const sTrail = sent.match(/\s*$/)[0];
+        sentences[s] = sLead + rwSent + sTrail;
+        rewritten++;
+        segChanged = true;
+      }
+      if (segChanged) {
+        const lead = seg.match(/^\s*/)[0];
+        const trail = seg.match(/\s*$/)[0];
+        segments[i] = lead + sentences.join('') + trail;
+      }
       continue;
     }
-    if (typeof rw !== 'string') rw = rw?.text || rw?.content || String(rw || '');
-    rw = rw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-    rw = rw.split('\n').filter(line => {
-      const l = line.trim().toLowerCase();
-      return !(l.startsWith('here is') || l.startsWith('here are') || l.startsWith('rewritten') || l.startsWith('sure,') || l.startsWith('certainly') || l.startsWith('paragraph:'));
-    }).join('\n').trim();
 
+    // ── NORMAL PARAGRAPH: rewrite the whole thing (original behavior) ──
+    attempted++;
+    const rw = await callAndClean(trimmed);
     if (!rw) { skipped++; continue; }
-
     // Per-paragraph length sanity (catch truncation/runaway).
     if (rw.length < trimmed.length * 0.5 || rw.length > trimmed.length * 2.2) { skipped++; continue; }
-
-    // Guard depends on mode: nonfiction locks facts; fiction blocks invented names.
     if (isNonfiction) {
       if (!factsPreserved(trimmed, rw)) { skipped++; continue; }
     } else {
       if (!noInventedProperNouns(trimmed, rw)) { skipped++; continue; }
     }
-
-    // If the ONLY problem was the opening and the model didn't change it, skip.
     const newWords = rw.split(/\s+/).slice(0, 4);
     const newOpening = newWords.length >= 4 ? normalizeOpening(newWords) : null;
     if (flaggedOpening && !flaggedCadence && !flaggedBeat && newOpening === opening) { skipped++; continue; }
-
-    // If the ONLY problem was an action beat, require the beat count to drop;
-    // otherwise the rewrite didn't actually help — skip rather than churn.
     if (flaggedBeat && !flaggedOpening && !flaggedCadence) {
       let reduced = false;
       for (const beat of beatsHere) {
@@ -343,8 +390,6 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
       }
       if (!reduced) { skipped++; continue; }
     }
-
-    // Accept: swap the paragraph back in, preserving its surrounding whitespace.
     const lead = seg.match(/^\s*/)[0];
     const trail = seg.match(/\s*$/)[0];
     segments[i] = lead + rw + trail;
