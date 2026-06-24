@@ -308,6 +308,15 @@ export async function runManuscriptPolishPipeline({
       }
       console.log('[NAME-HYGIENE] auto-renaming banned names: ' + JSON.stringify(autoMap));
       for (const f of loaded) {
+        // Titles are metadata (not body content); rename banned names there too so a chapter
+        // heading like "Elias's Final Words" stays consistent with the renamed body prose.
+        if (f.chapter && f.chapter.title) {
+          const tr = applyApprovedNameReplacementMap(f.chapter.title, autoMap);
+          if (tr.changed) {
+            changes.push('Ch.' + (f.chapter?.chapter_number || '?') + ': title renamed -> ' + tr.text);
+            f.chapter.title = tr.text;
+          }
+        }
         const r = applyApprovedNameReplacementMap(f.content, autoMap);
         if (r.changed) {
           f.content = r.text;

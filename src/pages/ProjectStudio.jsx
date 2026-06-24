@@ -4374,6 +4374,7 @@ For each banned name, provide a culturally appropriate, original replacement nam
             ...contentFields,
             ...backupFields,
             word_count: countWords(f.content),
+            ...(f.chapter.title ? { title: f.chapter.title } : {}),  // Persist name-hygiene title rename
           };
           await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, savePayload));
           f.chapter = { ...f.chapter, ...savePayload };
