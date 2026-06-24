@@ -260,9 +260,9 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     });
   }
 
-  const nonfictionSystemPrompt = \`You are a line editor reducing repetition in investigative nonfiction. You will receive ONE paragraph. Rewrite it so it does NOT begin with the same opening words it currently has, and so any repetitive sentence rhythm is broken. Keep the same length, meaning, and tone. CRITICAL: change ZERO facts — preserve every name, date, place, number, and document title EXACTLY as written. Do not add or remove information. Return ONLY the rewritten paragraph — no preamble, no labels, no commentary.\`;
+  const nonfictionSystemPrompt = `You are a line editor reducing repetition in investigative nonfiction. You will receive ONE paragraph. Rewrite it so it does NOT begin with the same opening words it currently has, and so any repetitive sentence rhythm is broken. Keep the same length, meaning, and tone. CRITICAL: change ZERO facts — preserve every name, date, place, number, and document title EXACTLY as written. Do not add or remove information. Return ONLY the rewritten paragraph — no preamble, no labels, no commentary.`;
 
-  const fictionSystemPrompt = \`You are a line editor improving a novel's prose. You will receive ONE paragraph. Rewrite it to remove mechanical repetition: do not begin with the same opening words, break any monotonous sentence rhythm, and vary any overused physical action beats (for example "he turned", "he reached", "he stepped", "he looked up"). Keep the SAME events, meaning, tone, narrative voice, and sensory/bodily detail, and roughly the same length. Convey the same actions with fresh, varied wording — do NOT delete an action, and do NOT add new characters, events, dialogue, places, or facts. Return ONLY the rewritten paragraph — no preamble, no labels, no commentary.\`;
+  const fictionSystemPrompt = `You are a line editor improving a novel's prose. You will receive ONE paragraph. Rewrite it to remove mechanical repetition: do not begin with the same opening words, break any monotonous sentence rhythm, and vary any overused physical action beats (for example "he turned", "he reached", "he stepped", "he looked up"). Keep the SAME events, meaning, tone, narrative voice, and sensory/bodily detail, and roughly the same length. Convey the same actions with fresh, varied wording — do NOT delete an action, and do NOT add new characters, events, dialogue, places, or facts. Return ONLY the rewritten paragraph — no preamble, no labels, no commentary.`;
 
   const systemPrompt = isNonfiction ? nonfictionSystemPrompt : fictionSystemPrompt;
 
@@ -277,7 +277,7 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     const trimmed = seg.trim();
 
     // Flag status for this paragraph.
-    const words = trimmed.split(/\\s+/).slice(0, 4);
+    const words = trimmed.split(/\s+/).slice(0, 4);
     let flaggedOpening = false;
     let opening = null;
     if (words.length >= 4) {
@@ -305,17 +305,17 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
 
     let rw = '';
     try {
-      rw = await _callFn(\`PARAGRAPH:\\n\${trimmed}\\n\\n/no_think\`, systemPrompt);
+      rw = await _callFn(`PARAGRAPH:\n${trimmed}\n\n/no_think`, systemPrompt);
     } catch (err) {
       skipped++;
       continue;
     }
     if (typeof rw !== 'string') rw = rw?.text || rw?.content || String(rw || '');
-    rw = rw.replace(/<think>[\\s\\S]*?<\\/think>/gi, '').trim();
-    rw = rw.split('\\n').filter(line => {
+    rw = rw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    rw = rw.split('\n').filter(line => {
       const l = line.trim().toLowerCase();
       return !(l.startsWith('here is') || l.startsWith('here are') || l.startsWith('rewritten') || l.startsWith('sure,') || l.startsWith('certainly') || l.startsWith('paragraph:'));
-    }).join('\\n').trim();
+    }).join('\n').trim();
 
     if (!rw) { skipped++; continue; }
 
@@ -330,7 +330,7 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     }
 
     // If the ONLY problem was the opening and the model didn't change it, skip.
-    const newWords = rw.split(/\\s+/).slice(0, 4);
+    const newWords = rw.split(/\s+/).slice(0, 4);
     const newOpening = newWords.length >= 4 ? normalizeOpening(newWords) : null;
     if (flaggedOpening && !flaggedCadence && !flaggedBeat && newOpening === opening) { skipped++; continue; }
 
@@ -345,8 +345,8 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     }
 
     // Accept: swap the paragraph back in, preserving its surrounding whitespace.
-    const lead = seg.match(/^\\s*/)[0];
-    const trail = seg.match(/\\s*$/)[0];
+    const lead = seg.match(/^\s*/)[0];
+    const trail = seg.match(/\s*$/)[0];
     segments[i] = lead + rw + trail;
     if (newOpening) seenOpenings.add(newOpening);
     rewritten++;
