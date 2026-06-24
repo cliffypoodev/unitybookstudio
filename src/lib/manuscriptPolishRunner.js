@@ -42,6 +42,7 @@ import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminati
 import { isAnthologyProject } from './anthologyEngine.js';
 import { isComedyProject } from './manuscriptStats.js';
 import { rewriteFlaggedSpots, buildGlobalOpeningStats, buildGlobalActionBeatStats } from './repetitionRewrite.js';
+import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from './nameHygieneRules.js';
 
 // ── Per-chapter modules (operate on single text strings) ──
 import { runDeterministicGrammarRepair, runProsePolishQualityGate,
@@ -288,6 +289,32 @@ export async function runManuscriptPolishPipeline({
         }
       } catch (e) {
         changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition rewrite error (${e.message})`);
+      }
+    }
+  }
+
+  // B3.5: Banned AI-slop character-name auto-rename (FICTION ONLY — nonfiction names are real people)
+  if (mode !== 'nonfiction') {
+    const fullText = loaded.map(f => String(f.content || '')).join('\n');
+    const present = getAllBlockedNames().filter(n => countNameOccurrences(fullText, n) > 0);
+    if (present.length) {
+      const used = new Set(present.map(n => n.toLowerCase()));
+      const autoMap = {};
+      for (const name of present) {
+        const sugg = getReplacementSuggestionsForName(name);
+        const pick = sugg.find(s => !used.has(s.toLowerCase()) && countNameOccurrences(fullText, s) === 0) || sugg[0];
+        autoMap[name] = pick;
+        used.add(pick.toLowerCase());
+      }
+      console.log('[NAME-HYGIENE] auto-renaming banned names: ' + JSON.stringify(autoMap));
+      for (const f of loaded) {
+        const r = applyApprovedNameReplacementMap(f.content, autoMap);
+        if (r.changed) {
+          f.content = r.text;
+          for (const a of r.applied) {
+            changes.push('Ch.' + (f.chapter?.chapter_number || '?') + ': banned name "' + a.from + '" -> "' + a.to + '" (' + a.count + ')');
+          }
+        }
       }
     }
   }

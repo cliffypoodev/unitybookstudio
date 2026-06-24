@@ -53,6 +53,7 @@ export const TIER_1_ALWAYS_BANNED_AI_NAMES = [
   "Silas",
 
   "Elias",
+  "Vane",
   "Orin",
   "Mireille",
   "Lucien",
@@ -332,6 +333,7 @@ export const DEFAULT_NAME_REPLACEMENT_SUGGESTIONS = Object.freeze({
   Thorne: ["Harris", "Reed", "Grant", "Clark", "Wade", "Bennett"],
   Silas: ["Nolan", "Dean", "Russell", "Joel", "Graham", "Simon"],
   Elias: ["Nolan", "Grant", "Evan", "Simon", "Arthur", "Darren"],
+  Vane: ["Hale", "Cole", "Reed", "Brandt", "Crane", "Marsh"],
   Orin: ["Owen", "Dean", "Wade", "Paul", "Glen", "Victor"],
   Mireille: ["Mara", "Miriam", "Claire", "Vera", "Helen", "Naomi"],
   Lucien: ["Julian", "Victor", "Martin", "Simon", "Graham", "Warren"],
