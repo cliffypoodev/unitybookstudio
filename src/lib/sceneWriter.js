@@ -1078,7 +1078,9 @@ ABSOLUTE PROSE RULES:
 - Do not repeat the same metaphor in different words.
 - Do not restate the chapter premise after it is established.
 - Do not use fake escalation where the prose says stakes rise but nothing changes.
-- Specific physical detail beats abstract emotion.`;
+- Specific physical detail beats abstract emotion.
+- VARY ACTION CHOREOGRAPHY: do not lean on the same physical beat ("he turned", "he reached", "he stepped", "he looked up", "he nodded"). No single movement verb may become the default within a scene. Rotate how characters move, and cut beats that do not change the scene.
+- MODULATE RHYTHM WITHIN THE VOICE: even when the selected AUTHOR VOICE is clipped, jagged, or staccato, do NOT let every sentence land at the same short length. Break runs of uniform fragments with an occasional longer sentence so the short ones keep their punch. A strong voice still varies its tempo — uniform sentence length reads as machine cadence. This rule refines the voice; it does not replace its identity.`;
 }
 
 

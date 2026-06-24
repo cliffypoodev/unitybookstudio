@@ -41,7 +41,7 @@ import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminati
   from './anthologyPolishChecks.js';
 import { isAnthologyProject } from './anthologyEngine.js';
 import { isComedyProject } from './manuscriptStats.js';
-import { rewriteFlaggedSpots, buildGlobalOpeningStats } from './repetitionRewrite.js';
+import { rewriteFlaggedSpots, buildGlobalOpeningStats, buildGlobalActionBeatStats } from './repetitionRewrite.js';
 
 // ── Per-chapter modules (operate on single text strings) ──
 import { runDeterministicGrammarRepair, runProsePolishQualityGate,
@@ -257,7 +257,7 @@ export async function runManuscriptPolishPipeline({
     }
     for (const f of loaded) {                          // SEQUENTIAL — one chapter at a time, never Promise.all
       try {
-        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused });
+        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused, mode: 'nonfiction' });
         console.log(`[REP] Ch.${f.chapter?.chapter_number ?? '?'} flagged=${r.flags?.openings?.length ?? 0} cadence=${r.flags?.cadence?.length ?? 0} ok=${r.ok} changed=${r.changed}${r.reason ? ' reason=' + r.reason : ''}`);
         if (r.ok && r.changed) {
           f.content = r.text;                            // updates in-memory; existing save loop persists it
@@ -265,6 +265,26 @@ export async function runManuscriptPolishPipeline({
           changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition openings/cadence rewritten`);
         } else if (!r.ok) {
           changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition rewrite skipped (${r.reason})`);
+        }
+      } catch (e) {
+        changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition rewrite error (${e.message})`);
+      }
+    }
+  }
+
+  if (mode !== 'nonfiction' && allowLLM) {
+    onProgress('Polish: Rewriting repeated openings/beats…');
+    const { overused: globalOverused } = buildGlobalOpeningStats(loaded.map(f => f.content));
+    const { overused: globalActionBeats, minCount } = buildGlobalActionBeatStats(loaded.map(f => f.content));
+    console.log(`[REP-FIC] openings=${globalOverused.size} actionBeats=${globalActionBeats.size} (minCount=${minCount}) sample=[${[...globalActionBeats].slice(0,6).join(' | ')}]`);
+    for (const f of loaded) {                          // SEQUENTIAL — one chapter at a time, never Promise.all
+      try {
+        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused, globalActionBeats, mode: 'fiction', maxRewrites: 24 });
+        console.log(`[REP-FIC] Ch.${f.chapter?.chapter_number ?? '?'} openings=${r.flags?.openings?.length ?? 0} beats=${r.flags?.actionBeats?.length ?? 0} cadence=${r.flags?.cadence?.length ?? 0} changed=${r.changed} rewritten=${r.stats?.rewritten ?? 0}`);
+        if (r.ok && r.changed) {
+          f.content = r.text;
+          repetitionRewritten++;
+          changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition openings/beats/cadence rewritten`);
         }
       } catch (e) {
         changes.push(`Ch.${f.chapter?.chapter_number || '?'}: repetition rewrite error (${e.message})`);

@@ -60,6 +60,17 @@ function factsPreserved(original, rewrite) {
   return true;
 }
 
+// Fiction guard: the rewrite must not INVENT a proper noun (new character/place)
+// that wasn't in the original paragraph. Looser than factsPreserved (fiction has
+// no facts to lock) but still blocks fabrication of names.
+function noInventedProperNouns(original, rewrite) {
+  const ol = original.toLowerCase();
+  for (const n of coreProperNouns(rewrite)) {
+    if (!ol.includes(n)) return false;
+  }
+  return true;
+}
+
 // Cadence tic detector for one paragraph.
 function hasCadenceTic(pText) {
   const escalatingMatch = pText.match(/(\b[a-zA-Z]{4,}\b)[^.]{0,40}\bwas\b[^.]{0,40}\1\b/i);
@@ -71,6 +82,51 @@ function hasCadenceTic(pText) {
   if (((pText.match(/(?:^|[.?!]\s+)And\b/g) || []).length) >= 3) return true;
   if (/\bwas\b[^.?!]{0,20}\b(real|true|fake|wrong|right)[.?!]\s*(?:And\s+)?[^.?!]{0,20}\bwas\b[^.?!]{0,20}\1\b/i.test(pText)) return true;
   return false;
+}
+
+// ── ACTION-BEAT REPETITION (fiction "he turned / he reached / he stepped" crutch) ──
+// Movement and gesture verbs that turn into choreography crutches when one exact
+// phrase recurs across a whole manuscript. Detection is book-wide; the rewrite
+// varies the wording without deleting the action (so motifs like a recurring
+// cough survive — they are just phrased differently each time).
+const ACTION_BEAT_VERBS = 'turned|nodded|shrugged|sighed|stepped|paused|frowned|smiled|grinned|blinked|swallowed|glanced|stared|looked|reached|grabbed|gasped|flinched|exhaled|inhaled|breathed|coughed|froze|stiffened|trembled|shuddered|winced|crouched|knelt|gripped';
+function actionBeatRegex() {
+  return new RegExp('\\b(he|she|they|i)\\s+(' + ACTION_BEAT_VERBS + ')(\\s+(?:back|up|down|away|again|around|toward|over|out))?', 'gi');
+}
+function normalizeBeat(s) {
+  return s.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+function countBeat(text, beat) {
+  const re = new RegExp('\\b' + beat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+  return (text.match(re) || []).length;
+}
+
+/**
+ * Manuscript-wide table of overused action beats. A beat phrase is "overused"
+ * when it appears at least `floor` times AND at a rate of at least `ratePer1k`
+ * occurrences per 1,000 words across the whole book — so the threshold scales
+ * with manuscript length (a 90k novel needs more hits to flag than a 37k one).
+ */
+export function buildGlobalActionBeatStats(chapterTexts, { ratePer1k = 0.4, floor = 6 } = {}) {
+  const counts = new Map();
+  let totalWords = 0;
+  const re = actionBeatRegex();
+  for (const text of (chapterTexts || [])) {
+    if (!text || typeof text !== 'string') continue;
+    totalWords += (text.match(/\b[\w']+\b/g) || []).length;
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      const phrase = normalizeBeat(m[0]);
+      counts.set(phrase, (counts.get(phrase) || 0) + 1);
+    }
+  }
+  const minCount = Math.max(floor, Math.round((ratePer1k * totalWords) / 1000));
+  const overused = new Set();
+  for (const [phrase, c] of counts) {
+    if (c >= minCount) overused.add(phrase);
+  }
+  return { counts, overused, minCount, totalWords };
 }
 
 /**
@@ -96,14 +152,16 @@ export function buildGlobalOpeningStats(chapterTexts, threshold = 3) {
 }
 
 /**
- * Detects repeated openings (within chapter + manuscript-wide) and cadence tics.
- * Returns flag lists; used for reporting/logging.
+ * Detects repeated openings (within chapter + manuscript-wide), cadence tics,
+ * and overused action beats (manuscript-wide). Returns flag lists; used for
+ * reporting/logging and to drive the rewrite pass.
  */
-export function detectRepetition(chapterText, globalOverused = null) {
-  const flags = { openings: [], cadence: [], hasFlags: false };
+export function detectRepetition(chapterText, globalOverused = null, globalActionBeats = null) {
+  const flags = { openings: [], cadence: [], actionBeats: [], hasFlags: false };
   if (!chapterText || typeof chapterText !== 'string') return flags;
 
   const hasGlobal = globalOverused && typeof globalOverused.has === 'function';
+  const hasBeats = globalActionBeats && typeof globalActionBeats.has === 'function';
   const paragraphs = chapterText.split(/(?:\r?\n\s*){2,}/).filter(p => p.trim().length > 0);
   const openingMap = new Map();
 
@@ -132,6 +190,17 @@ export function detectRepetition(chapterText, globalOverused = null) {
       flags.cadence.push({ sentence: pText });
       flags.hasFlags = true;
     }
+
+    if (hasBeats) {
+      const lower = pText.toLowerCase();
+      for (const beat of globalActionBeats) {
+        if (lower.includes(beat)) {
+          flags.actionBeats.push({ paragraphIndex: i, beat, paragraphText: pText });
+          flags.hasFlags = true;
+          break; // one flag per paragraph is enough to trigger a rewrite
+        }
+      }
+    }
   }
 
   return flags;
@@ -146,20 +215,26 @@ export function detectRepetition(chapterText, globalOverused = null) {
  * was asked to echo back a whole 4,000-word chapter and returned a truncated one
  * (which the length guard then correctly rejected, producing zero changes).
  *
+ * mode: 'nonfiction' uses the fact-preserving prompt + fact guard (unchanged).
+ *       'fiction' uses a prose-variety prompt that also breaks overused action
+ *       beats, guarded so it cannot invent characters/places.
+ *
  * @param {Object} args
  * @param {string} args.chapterText
  * @param {Object} args.chapter
  * @param {Object} args.project
- * @param {Function|null} args.callLLM   - optional (p, systemPrompt) => string
+ * @param {Function|null} args.callLLM
  * @param {Set<string>|null} args.globalOverused
- * @param {number} args.maxRewrites      - cap per chapter (runtime guard)
+ * @param {Set<string>|null} args.globalActionBeats
+ * @param {string} args.mode               - 'fiction' | 'nonfiction'
+ * @param {number} args.maxRewrites        - cap per chapter (runtime guard)
  */
-export async function rewriteFlaggedSpots({ chapterText, chapter, project, callLLM = null, globalOverused = null, maxRewrites = 14 }) {
+export async function rewriteFlaggedSpots({ chapterText, chapter, project, callLLM = null, globalOverused = null, globalActionBeats = null, mode = 'fiction', maxRewrites = 14 }) {
   if (!chapterText || typeof chapterText !== 'string') {
-    return { ok: true, changed: false, text: chapterText, flags: { openings: [], cadence: [], hasFlags: false }, stats: { rewritten: 0, attempted: 0, skipped: 0 } };
+    return { ok: true, changed: false, text: chapterText, flags: { openings: [], cadence: [], actionBeats: [], hasFlags: false }, stats: { rewritten: 0, attempted: 0, skipped: 0 } };
   }
 
-  const detection = detectRepetition(chapterText, globalOverused);
+  const detection = detectRepetition(chapterText, globalOverused, globalActionBeats);
   if (!detection.hasFlags) {
     return { ok: true, changed: false, text: chapterText, flags: detection, stats: { rewritten: 0, attempted: 0, skipped: 0 } };
   }
@@ -167,6 +242,8 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
   // Split into paragraphs AND separators so we can rejoin with exact whitespace.
   const segments = chapterText.split(/(\n{2,})/);
   const hasGlobal = globalOverused && typeof globalOverused.has === 'function';
+  const hasBeats = globalActionBeats && typeof globalActionBeats.has === 'function';
+  const isNonfiction = mode === 'nonfiction';
   const seenOpenings = new Set();
 
   // Resolve the LLM caller (small, focused, single-paragraph call).
@@ -183,7 +260,11 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     });
   }
 
-  const systemPrompt = `You are a line editor reducing repetition in investigative nonfiction. You will receive ONE paragraph. Rewrite it so it does NOT begin with the same opening words it currently has, and so any repetitive sentence rhythm is broken. Keep the same length, meaning, and tone. CRITICAL: change ZERO facts — preserve every name, date, place, number, and document title EXACTLY as written. Do not add or remove information. Return ONLY the rewritten paragraph — no preamble, no labels, no commentary.`;
+  const nonfictionSystemPrompt = \`You are a line editor reducing repetition in investigative nonfiction. You will receive ONE paragraph. Rewrite it so it does NOT begin with the same opening words it currently has, and so any repetitive sentence rhythm is broken. Keep the same length, meaning, and tone. CRITICAL: change ZERO facts — preserve every name, date, place, number, and document title EXACTLY as written. Do not add or remove information. Return ONLY the rewritten paragraph — no preamble, no labels, no commentary.\`;
+
+  const fictionSystemPrompt = \`You are a line editor improving a novel's prose. You will receive ONE paragraph. Rewrite it to remove mechanical repetition: do not begin with the same opening words, break any monotonous sentence rhythm, and vary any overused physical action beats (for example "he turned", "he reached", "he stepped", "he looked up"). Keep the SAME events, meaning, tone, narrative voice, and sensory/bodily detail, and roughly the same length. Convey the same actions with fresh, varied wording — do NOT delete an action, and do NOT add new characters, events, dialogue, places, or facts. Return ONLY the rewritten paragraph — no preamble, no labels, no commentary.\`;
+
+  const systemPrompt = isNonfiction ? nonfictionSystemPrompt : fictionSystemPrompt;
 
   let rewritten = 0;
   let attempted = 0;
@@ -196,7 +277,7 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
     const trimmed = seg.trim();
 
     // Flag status for this paragraph.
-    const words = trimmed.split(/\s+/).slice(0, 4);
+    const words = trimmed.split(/\\s+/).slice(0, 4);
     let flaggedOpening = false;
     let opening = null;
     if (words.length >= 4) {
@@ -207,40 +288,65 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
       seenOpenings.add(opening);
     }
     const flaggedCadence = hasCadenceTic(trimmed);
-    if (!flaggedOpening && !flaggedCadence) continue;
+
+    // Action-beat flag (fiction): does this paragraph contain an overused beat?
+    let flaggedBeat = false;
+    const beatsHere = [];
+    if (hasBeats) {
+      const lower = trimmed.toLowerCase();
+      for (const beat of globalActionBeats) {
+        if (lower.includes(beat)) { flaggedBeat = true; beatsHere.push(beat); }
+      }
+    }
+
+    if (!flaggedOpening && !flaggedCadence && !flaggedBeat) continue;
 
     attempted++;
 
     let rw = '';
     try {
-      rw = await _callFn(`PARAGRAPH:\n${trimmed}\n\n/no_think`, systemPrompt);
+      rw = await _callFn(\`PARAGRAPH:\\n\${trimmed}\\n\\n/no_think\`, systemPrompt);
     } catch (err) {
       skipped++;
       continue;
     }
     if (typeof rw !== 'string') rw = rw?.text || rw?.content || String(rw || '');
-    rw = rw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-    rw = rw.split('\n').filter(line => {
+    rw = rw.replace(/<think>[\\s\\S]*?<\\/think>/gi, '').trim();
+    rw = rw.split('\\n').filter(line => {
       const l = line.trim().toLowerCase();
       return !(l.startsWith('here is') || l.startsWith('here are') || l.startsWith('rewritten') || l.startsWith('sure,') || l.startsWith('certainly') || l.startsWith('paragraph:'));
-    }).join('\n').trim();
+    }).join('\\n').trim();
 
     if (!rw) { skipped++; continue; }
 
     // Per-paragraph length sanity (catch truncation/runaway).
     if (rw.length < trimmed.length * 0.5 || rw.length > trimmed.length * 2.2) { skipped++; continue; }
 
-    // Boundary-safe fact guard on just this paragraph.
-    if (!factsPreserved(trimmed, rw)) { skipped++; continue; }
+    // Guard depends on mode: nonfiction locks facts; fiction blocks invented names.
+    if (isNonfiction) {
+      if (!factsPreserved(trimmed, rw)) { skipped++; continue; }
+    } else {
+      if (!noInventedProperNouns(trimmed, rw)) { skipped++; continue; }
+    }
 
-    // If the opening was the problem and the model didn't actually change it, skip.
-    const newWords = rw.split(/\s+/).slice(0, 4);
+    // If the ONLY problem was the opening and the model didn't change it, skip.
+    const newWords = rw.split(/\\s+/).slice(0, 4);
     const newOpening = newWords.length >= 4 ? normalizeOpening(newWords) : null;
-    if (flaggedOpening && !flaggedCadence && newOpening === opening) { skipped++; continue; }
+    if (flaggedOpening && !flaggedCadence && !flaggedBeat && newOpening === opening) { skipped++; continue; }
+
+    // If the ONLY problem was an action beat, require the beat count to drop;
+    // otherwise the rewrite didn't actually help — skip rather than churn.
+    if (flaggedBeat && !flaggedOpening && !flaggedCadence) {
+      let reduced = false;
+      for (const beat of beatsHere) {
+        if (countBeat(rw, beat) < countBeat(trimmed, beat)) { reduced = true; break; }
+      }
+      if (!reduced) { skipped++; continue; }
+    }
 
     // Accept: swap the paragraph back in, preserving its surrounding whitespace.
-    const lead = seg.match(/^\s*/)[0];
-    const trail = seg.match(/\s*$/)[0];
+    const lead = seg.match(/^\\s*/)[0];
+    const trail = seg.match(/\\s*$/)[0];
     segments[i] = lead + rw + trail;
     if (newOpening) seenOpenings.add(newOpening);
     rewritten++;
