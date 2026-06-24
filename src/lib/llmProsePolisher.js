@@ -254,61 +254,17 @@ export async function polishChapterWithLLM({
   callLLM = null,
 }) {
   const wordsBefore = countWords(chapterText);
-  const logPrefix = `[LLM-POLISH] Ch.${chapterNumber}`;
+  const logPrefix = '[LLM-POLISH] Ch.' + chapterNumber;
+  console.log(logPrefix + ': Starting LLM prose polish (' + wordsBefore + ' words, chunked)');
 
-  console.log(`${logPrefix}: Starting LLM prose polish (${wordsBefore} words)`);
+  const systemPrompt = buildPolisherSystemPrompt(project);
 
-  // ── Build user prompt ──
-  const userPrompt = [
-    'Polish this chapter conservatively.',
-    '',
-    chapterTitle ? `This is Chapter ${chapterNumber}, titled "${chapterTitle}". Do not repeat this line in your output.` : '',
-    projectContext ? `\nProject Context:\n${projectContext}\n` : '',
-    'Chapter Text:',
-    chapterText,
-    '',
-    'Return only the polished chapter prose.',
-  ].join('\n');
-
-  // ── Call LLM ──
-  const llmCallFn = callLLM || (async (prompt, systemPrompt) => {
+  // Per-chunk caller: small input, small output. We NEVER send a whole chapter, so the
+  // local model cannot truncate a long chapter to ~900 words (the bug that drove reversions).
+  const callOne = callLLM || (async (prompt, sysP, maxTokens) => {
     const agent = await getCallAgent();
-    return agent({
-      prompt,
-      taskType: 'polish',
-      project,
-      temperature: 0.3,
-      maxTokens: Math.max(8192, Math.ceil(chapterText.length / 3)),
-      systemPromptOverride: systemPrompt,
-    });
+    return agent({ prompt, taskType: 'polish', project, temperature: 0.3, maxTokens, systemPromptOverride: sysP });
   });
-
-  let raw;
-  try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('LLM polish timed out after ' + Math.round(timeoutMs / 1000) + 's')), timeoutMs)
-    );
-
-    raw = await Promise.race([
-      llmCallFn(userPrompt, buildPolisherSystemPrompt(project)),
-      timeoutPromise,
-    ]);
-  } catch (err) {
-    console.error(`${logPrefix}: LLM call failed:`, err?.message || err);
-    return {
-      ok: false,
-      text: chapterText,
-      raw: '',
-      wordDelta: 0,
-      warnings: [],
-      error: `LLM call failed: ${err?.message || 'unknown error'}`,
-    };
-  }
-
-  // Handle non-string responses
-  if (typeof raw !== 'string') {
-    raw = raw?.text || raw?.content || String(raw || '');
-  }
 
   function stripLeakedChapterLabels(text) {
     return text.split('\n').filter(line => {
@@ -318,33 +274,98 @@ export async function polishChapterWithLLM({
     }).join('\n');
   }
 
-  raw = stripLeakedChapterLabels(raw);
+  function cleanChunkOutput(raw) {
+    if (typeof raw !== 'string') raw = raw?.text || raw?.content || String(raw || '');
+    raw = stripLeakedChapterLabels(raw).replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    raw = raw.split('\n').filter(line => {
+      const l = line.trim().toLowerCase();
+      return !(l.startsWith('here is') || l.startsWith('here are') || l.startsWith('polished') || l.startsWith('sure,') || l.startsWith('certainly') || l.startsWith('passage:') || l.startsWith('chapter text:'));
+    }).join('\n').trim();
+    return raw;
+  }
 
-  console.log(`${logPrefix}: LLM returned ${raw.length} chars`);
+  // Polish ONE small chunk; return the polished text, or the original chunk on any problem.
+  async function polishChunk(chunkText) {
+    const trimmed = chunkText.trim();
+    if (countWords(trimmed) < 5) return chunkText;
+    const userPrompt = [
+      'Polish this passage conservatively. Keep the same meaning, voice, events, and roughly the same length. Do not add or remove content.',
+      '',
+      'Passage:',
+      trimmed,
+      '',
+      'Return only the polished passage.',
+    ].join('\n');
+    const maxTokens = Math.max(512, Math.ceil(trimmed.length / 2));
+    let raw;
+    let timer = null;
+    try {
+      const timeoutPromise = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('chunk timeout')), timeoutMs); });
+      raw = await Promise.race([callOne(userPrompt, systemPrompt, maxTokens), timeoutPromise]);
+    } catch (err) {
+      if (timer) clearTimeout(timer);
+      return chunkText;
+    }
+    if (timer) clearTimeout(timer);
+    const cleaned = cleanChunkOutput(raw);
+    if (!cleaned || cleaned.length < 20) return chunkText;
+    const wb = countWords(trimmed);
+    const wa = countWords(cleaned);
+    const ratio = wb > 0 ? wa / wb : 0;
+    if (ratio < 0.8 || ratio > 1.25) return chunkText; // truncation/runaway -> keep original
+    if (/\b(as an ai|i cannot|here'?s the|the user wants|chapter number:)/i.test(cleaned)) return chunkText;
+    const lead = chunkText.match(/^\s*/)[0];
+    const trail = chunkText.match(/\s*$/)[0];
+    return lead + cleaned + trail;
+  }
 
-  // ── Validate output ──
-  const validation = validatePolisherOutput(raw, chapterText, chapterTitle);
+  // Chunk the chapter and polish each piece sequentially.
+  const MAX_CHUNK_WORDS = 150;
+  const segments = chapterText.split(/(\n{2,})/); // even = paragraphs, odd = separators
+  for (let i = 0; i < segments.length; i += 2) {
+    const seg = segments[i];
+    if (!seg || !seg.trim()) continue;
+    const segWords = seg.trim().split(/\s+/).length;
+    if (segWords <= MAX_CHUNK_WORDS) {
+      segments[i] = await polishChunk(seg);
+    } else {
+      // Oversized paragraph (a chapter written as one block): split into sentence windows.
+      const sentences = seg.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [seg];
+      const windows = [];
+      let buf = '';
+      let bufWords = 0;
+      for (const s of sentences) {
+        const sw = s.trim().split(/\s+/).length;
+        if (bufWords + sw > MAX_CHUNK_WORDS && buf) { windows.push(buf); buf = ''; bufWords = 0; }
+        buf += s;
+        bufWords += sw;
+      }
+      if (buf) windows.push(buf);
+      let rebuilt = '';
+      for (const w of windows) rebuilt += await polishChunk(w);
+      segments[i] = rebuilt;
+    }
+  }
 
+  const assembled = segments.join('');
+
+  // Final whole-chapter safety net. With per-chunk length guards this should pass; if the
+  // assembled text somehow drifts too far, validatePolisherOutput returns the original.
+  const validation = validatePolisherOutput(assembled, chapterText, chapterTitle);
   const wordsAfter = countWords(validation.text);
   const wordDelta = wordsAfter - wordsBefore;
   const deltaPct = wordsBefore > 0 ? Math.round((wordDelta / wordsBefore) * 100) : 0;
-
   if (validation.ok) {
-    console.log(`${logPrefix}: ✅ PASS (${wordsBefore} → ${wordsAfter} words, ${deltaPct > 0 ? '+' : ''}${deltaPct}%)`);
+    console.log(logPrefix + ': PASS (' + wordsBefore + ' -> ' + wordsAfter + ' words, ' + (deltaPct > 0 ? '+' : '') + deltaPct + '%)');
   } else {
-    console.warn(`${logPrefix}: ❌ REJECTED — ${validation.error}`);
+    console.warn(logPrefix + ': REJECTED -- ' + validation.error);
   }
-
-  if (validation.warnings.length > 0) {
-    for (const w of validation.warnings) {
-      console.warn(`${logPrefix}: ⚠️ ${w}`);
-    }
-  }
+  for (const w of validation.warnings) console.warn(logPrefix + ': ' + w);
 
   return {
     ok: validation.ok,
     text: validation.text,
-    raw: typeof raw === 'string' ? raw : String(raw || ''),
+    raw: assembled,
     wordDelta,
     warnings: validation.warnings,
     error: validation.error,
