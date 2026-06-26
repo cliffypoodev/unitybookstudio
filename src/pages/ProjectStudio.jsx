@@ -2434,7 +2434,7 @@ export default function ProjectStudio() {
 
       // Fetch full page text for the top sources (deep content for grounding).
       setBusyLabel('Deep research — reading sources…');
-      const TOP_TO_FETCH = 6;
+      const TOP_TO_FETCH = 10;
       const pages = [];
       for (const h of hits.slice(0, TOP_TO_FETCH)) {
         const text = await bridgeFetch(h.url);
@@ -2442,7 +2442,7 @@ export default function ProjectStudio() {
           title: h.title || 'Untitled',
           url: h.url,
           snippet: h.snippet || '',
-          content: text ? text.slice(0, 4000) : '',
+          content: text ? text.slice(0, 6000) : '',
         });
         await new Promise((r) => setTimeout(r, 300));
       }
@@ -2479,6 +2479,7 @@ TOPIC:
 ${topic}
 
 RESEARCH REQUIREMENTS:
+- Be COMPREHENSIVE. Extract EVERY documented person, event, institution, date, public record, official document, archival trail, court record, newspaper account, and academic source that appears anywhere in the sources above, including the snippet-only links. Do not stop at a handful; aim for thorough coverage (for example 12+ key figures and 12+ events when the sources support them). A richer, more specific scaffold makes a better book, but every single entry must still trace to a real source above or be marked UNVERIFIED.
 - Extract real people, institutions, timelines, public records, official documents, archival trails, court records, newspaper accounts, and academic sources that appear in the sources above.
 - Separate documented facts from disputed claims.
 - Include competing narratives only where the supplied sources actually contest each other.
@@ -2498,7 +2499,7 @@ Return structured JSON:
       const data = result && typeof result === 'object' ? result : {};
       setResearchData(data);
 
-      const researchMd = formatNonfictionResearchMarkdown(data, topic);
+      const researchMd = formatNonfictionResearchMarkdown(data, subject);
       const researchFields = await prepareResearchContent(researchMd, project.id);
 
       setDocDrafts((current) => ({
