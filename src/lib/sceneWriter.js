@@ -2251,25 +2251,36 @@ export async function generateChapterSceneByScene({
     pipelineSnapshot(chapter?.id, `0-prompt-scene-${i + 1}`, prompt);
     lastScenePrompt = prompt;
 
-    const generated = await generateSceneWithRepair({
-      project,
-      spec,
-      prompt,
-      model,
-      fallbackModel,
-      disableFallbacks,
-      targetWords: sceneTarget,
-      temperature: isNF ? 0.55 : 0.72,
-      maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
-    });
+    // Re-roll on empty prose instead of failing the whole chapter. The local model
+    // intermittently returns an empty (or think-only) response on large late-chapter prompts;
+    // a single empty return should not discard an otherwise-good chapter. Nudge temperature up
+    // slightly each retry to break a deterministic empty.
+    let generated = null;
+    let sceneProse = '';
+    const MAX_EMPTY_REROLLS = 3;
+    for (let attempt = 1; attempt <= MAX_EMPTY_REROLLS; attempt++) {
+      generated = await generateSceneWithRepair({
+        project,
+        spec,
+        prompt,
+        model,
+        fallbackModel,
+        disableFallbacks,
+        targetWords: sceneTarget,
+        temperature: (isNF ? 0.55 : 0.72) + (attempt - 1) * 0.05,
+        maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+      });
+      sceneProse = lightCleanSceneOutput(generated.prose);
+      if (sceneProse) break;
+      console.warn('[sceneWriter] Scene ' + (spec.sceneNumber || i + 1) + ' returned empty prose (attempt ' + attempt + '/' + MAX_EMPTY_REROLLS + ') — re-rolling.');
+    }
 
     // 0a: Raw LLM output BEFORE any cleaning
-    pipelineSnapshot(chapter?.id, `0a-scene-${i + 1}-raw-llm-output`, String(generated.prose || ''));
-    let sceneProse = lightCleanSceneOutput(generated.prose);
+    pipelineSnapshot(chapter?.id, `0a-scene-${i + 1}-raw-llm-output`, String(generated?.prose || ''));
     pipelineSnapshot(chapter?.id, `0b-scene-${i + 1}-after-lightClean`, sceneProse);
 
     if (!sceneProse) {
-      throw new Error(`Scene ${spec.sceneNumber || i + 1} returned empty prose.`);
+      throw new Error('Scene ' + (spec.sceneNumber || i + 1) + ' returned empty prose after ' + MAX_EMPTY_REROLLS + ' attempts.');
     }
 
     const duplicateCheck = detectLikelySceneRestart(sceneProse, accumulatedProse, spec, i);
