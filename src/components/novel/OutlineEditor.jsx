@@ -406,7 +406,7 @@ export default function OutlineEditor({
   onStop,
   onRestoreOriginal,
 }) {
-  const writingModel = getWritingModelInfo();
+  const writingModel = getWritingModelInfo(project);
   const hasDraftContent = chapterHasContent(chapter) || !!chapterDraft;
   const undrafted = (chapters || []).filter((c) => c.status === 'planned' || c.status === 'beats_ready').length;
 
