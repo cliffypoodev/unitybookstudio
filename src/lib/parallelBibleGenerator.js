@@ -15,6 +15,7 @@ import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
 import { unwrapIntegrationResult } from '@/lib/autonovel';
+import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from '@/lib/nameHygieneRules';
 
 console.log('[BIBLE-PARALLEL] loaded: RECOVERY v3 strict investigative nonfiction + no fake interviews/personas');
 
@@ -600,7 +601,7 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
     outlineResult = normalizeNonfictionFoundation(outlineResult, settings, seedConcept);
   }
 
-  const outlineMd = outlineResult?.outline_md || '';
+  let outlineMd = outlineResult?.outline_md || '';
   let chapters = Array.isArray(outlineResult?.chapters) ? outlineResult.chapters : [];
 
   console.log('[BIBLE-PARALLEL] Batch 2 done in', Math.round((Date.now() - t2) / 1000), 's. Canon:', canonMd.length, '| Mystery:', mysteryMd.length, '| Outline:', outlineMd.length, '| Chapters:', chapters.length);
@@ -643,6 +644,39 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
     twistsMd = parseTwistsToMd(twistsResult?.twists);
 
     console.log('[BIBLE-PARALLEL] Batch 3 done in', Math.round((Date.now() - t3) / 1000), 's. Twists:', twistsMd.length);
+  }
+
+  // ── GENERATION-TIME NAME GATE (fiction only) ──
+  // Catch banned AI-slop names in the bible BEFORE any chapter is drafted from it, so the book
+  // is written with grounded names from the start (no post-hoc rename churn). Nonfiction names
+  // are real, documented people — never auto-rename them.
+  if (isFiction) {
+    const blockedNames = getAllBlockedNames();
+    const presentNames = blockedNames.filter((n) => countNameOccurrences(charactersMd, n) > 0);
+    if (presentNames.length) {
+      const usedNames = new Set(presentNames.map((n) => n.toLowerCase()));
+      const nameMap = {};
+      for (const nm of presentNames) {
+        const sugg = getReplacementSuggestionsForName(nm);
+        const pick = sugg.find((s) => !usedNames.has(s.toLowerCase()) && countNameOccurrences(charactersMd, s) === 0) || sugg[0];
+        nameMap[nm] = pick;
+        usedNames.add(pick.toLowerCase());
+      }
+      console.log('[BIBLE-PARALLEL] name gate auto-renaming banned names: ' + JSON.stringify(nameMap));
+      const fixNames = (s) => (s ? applyApprovedNameReplacementMap(s, nameMap).text : s);
+      worldMd = fixNames(worldMd);
+      charactersMd = fixNames(charactersMd);
+      voiceMd = fixNames(voiceMd);
+      canonMd = fixNames(canonMd);
+      mysteryMd = fixNames(mysteryMd);
+      outlineMd = fixNames(outlineMd);
+      twistsMd = fixNames(twistsMd);
+      chapters = chapters.map((ch) => ({
+        ...ch,
+        title: fixNames(ch.title),
+        beat_summary: fixNames(ch.beat_summary),
+      }));
+    }
   }
 
   const totalTime = Math.round((Date.now() - t1) / 1000);
