@@ -38,7 +38,13 @@ export function isAdultCreativeTask(task) { return ['prose','prose_continuation'
 export function shouldDisableFallbacks() { return true; }
 export function shouldDisableCreativeFallbacks() { return true; }
 export function buildFallbackControls() { return { fallback_model: null, fallback_models: [], disable_fallbacks: true, use_gemini_fallback: false, use_openai_fallback: false }; }
-export function pickModel() { return PRIMARY_WRITING_MODEL; }
+const NONFICTION_INSTRUCT_MODEL = 'qwen3-30b-a3b';
+export function pickModel(task = '', settings = null) {
+  // Nonfiction foundation/outline drafts on an instruction-following model that respects the
+  // supplied research, not the creative ghostwriter which fabricates evidence to dramatize.
+  if (settings && String(settings.book_type || '').toLowerCase() === 'nonfiction') return NONFICTION_INSTRUCT_MODEL;
+  return PRIMARY_WRITING_MODEL;
+}
 export function pickFallbackModel() { return null; }
 
 const SETUP_PROTECTED_FIELDS = ['title','tagline','book_type','project_type','genre','subgenre','target_audience','content_lane','project_format','rights_mode','commercial_use_allowed','genre_group','market_category','fandom_name','source_universe','canon_mode','fanfic_posting_target','canon_characters','canon_boundary','pov_mode','tense','protagonist_pronouns','beat_style','scene_beat_style','nf_structure_mode','author_name','author_voice','author_voice_notes','author_style_id','series_bible_id','series_name','series_number','language_intensity','spice_level','violence_level','erotica_register','reading_level','chapter_target','chapter_length_preset','chapter_length_target','target_chapter_words','total_word_target','seed_concept','num_twists','twist_intensity','twist_count','story_arc','anthology_theme','anthology_theme_type','anthology_story_length','anthology_variety','default_prose_model'];

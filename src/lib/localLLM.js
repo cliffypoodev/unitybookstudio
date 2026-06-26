@@ -30,6 +30,7 @@ export const AGENT_MODELS = {
   researcher:       'researcher',
   critic:           'publishing-critic',
   polisher:         'prose-polisher',
+  nonfiction_writer: 'qwen3-30b-a3b',
 };
 
 export const AGENT_TEMPERATURES = {
@@ -39,6 +40,7 @@ export const AGENT_TEMPERATURES = {
   researcher:       0.3,
   critic:           0.4,
   polisher:         0.3,
+  nonfiction_writer: 0.4,
 };
 
 // Context window size sent to Ollama via options.num_ctx on every request.
@@ -57,6 +59,7 @@ const AGENT_SYSTEM_PROMPTS = {
   researcher: '',
   critic: '',
   polisher: '',
+  nonfiction_writer: '',
 };
 
 export async function callOllama({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null, numCtx = AGENT_NUM_CTX }) {
@@ -125,6 +128,13 @@ export function resolveAgent(taskType, project = null) {
     /erotic|erotica|smut|bdsm|explicit/i.test(project.genre || '') ||
     /erotic|erotica|smut|bdsm|explicit/i.test(project.subgenre || '')
   );
+
+  // Nonfiction routes its fact-critical tasks (prose + foundation/outline) to an
+  // instruction-following model that honors source fidelity, instead of the creative
+  // ghostwriter, which invents documents and evidence to make the prose compelling.
+  const isNonfiction = project && String(project.book_type || '').toLowerCase() === 'nonfiction';
+  if (isNonfiction && ['prose', 'prose_continuation', 'draft', 'chapter', 'scene', 'rewrite', 'manuscript', 'foundation', 'chapter_plan', 'outline', 'beats', 'bibliography'].includes(t))
+    return 'nonfiction_writer';
 
   if (['prose', 'prose_continuation', 'draft', 'chapter', 'scene', 'rewrite', 'manuscript'].includes(t))
     return isNSFW ? 'ghostwriter_nsfw' : 'ghostwriter';
