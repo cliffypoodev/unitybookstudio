@@ -115,6 +115,42 @@ export function scanNonfictionIntegrity(text, project, chapterNumber) {
 }
 
 /**
+ * Scan nonfiction prose for fabrication risk: sentences that ASSERT a specific document,
+ * archival discovery, named source reveal, or conclusive proof. These are surfaced for human
+ * verification, NOT auto-failed — the scanner cannot know truth, only that a claim asserts
+ * specific evidence that must be checked against real sources before publishing. This catches
+ * confident fabrication written as plain prose (e.g. "In 1974 a researcher uncovered ledgers...")
+ * that the marker-based scans above miss because nothing inserted a flag.
+ */
+export function scanNonfictionFabricationRisk(text, project, chapterNumber) {
+  const warnings = [];
+  if (!text || project?.book_type !== 'nonfiction') return warnings;
+
+  const sentences = String(text).split(/(?<=[.!?])\s+/);
+  const docNoun = /\b(ledgers?|manifests?|dispatch(?:es)?|diary|diaries|journals?|transcripts?|regist(?:ry|ers?)|archives?|documents?|tapes?|recordings?|letters?|memos?|records?|files?|correspondence|logs?|telegrams?|affidavits?|depositions?)\b/i;
+  const discoveryVerb = /\b(uncovered|discovered|unearthed|stumbled (?:upon|across|onto)|came to light|surfaced|recovered|located|brought to light|long[- ]forgotten|tucked (?:away|between)|overlooked for)\b/i;
+  const datedDiscovery = /\bin\s+(1[6-9]\d{2}|20\d{2})\b[^.?!]{0,80}\b(uncovered|discovered|unearthed|stumbled|surfaced|found|came to light)\b/i;
+  const namedSource = /\b(?:a|an|the|one)\s+(?:young\s+|veteran\s+)?(researcher|historian|archivist|scholar|investigator|graduate student|clerk)\b[^.?!]{0,80}\b(uncovered|discovered|found|stumbled|noticed|realized)\b/i;
+  const certainty = /\b(smoking gun|breakthrough|conclusive(?:ly)?|irrefutabl[ey]|definitive(?:ly)? proof|proves (?:that|the|beyond)|undeniabl[ey]|the evidence (?:shows|proves) (?:conclusively|definitively))\b/i;
+
+  const flagged = [];
+  for (const s of sentences) {
+    const sentence = s.trim();
+    if (!sentence) continue;
+    const hit = (discoveryVerb.test(sentence) && docNoun.test(sentence)) || datedDiscovery.test(sentence) || namedSource.test(sentence) || certainty.test(sentence);
+    if (hit) flagged.push(sentence.length > 160 ? sentence.slice(0, 157) + '...' : sentence);
+  }
+
+  if (flagged.length > 0) {
+    const shown = flagged.slice(0, 8).map(function (f, i) { return '  ' + (i + 1) + '. ' + f; }).join('\n');
+    const more = flagged.length > 8 ? '\n  ...and ' + (flagged.length - 8) + ' more.' : '';
+    warnings.push('Fabrication risk (Ch ' + chapterNumber + '): ' + flagged.length + ' sentence(s) assert a specific document, discovery, or proof. VERIFY each against a real source before publishing — the model can invent evidence that reads as documented:\n' + shown + more);
+  }
+
+  return warnings;
+}
+
+/**
  * Run all quality scans and return a combined warning string for the quality_scan field.
  */
 export function runQualityScan(text, project, chapterNumber, characterNames = []) {
@@ -122,6 +158,7 @@ export function runQualityScan(text, project, chapterNumber, characterNames = []
     ...scanWordRepetition(text, chapterNumber, characterNames),
     ...scanPovDrift(text, project, chapterNumber),
     ...scanNonfictionIntegrity(text, project, chapterNumber),
+    ...scanNonfictionFabricationRisk(text, project, chapterNumber),
   ];
 
   return warnings.length ? warnings.join('\n') : '';

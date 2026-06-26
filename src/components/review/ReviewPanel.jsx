@@ -66,7 +66,7 @@ export default function ReviewPanel({ chapter, reviewData, onScan, busyLabel }) 
       )}
 
       {/* Nonfiction integrity warnings (composites, FOIA, unverified stats) */}
-      {chapter.quality_scan && chapter.quality_scan.match(/Unlabeled Composites|Unverified Statistics/) && (
+      {chapter.quality_scan && chapter.quality_scan.match(/Unlabeled Composites|Unverified Statistics|Fabrication risk/) && (
         <div className="rounded-[1.25rem] border border-orange-300/50 bg-orange-50/70 p-4">
           <div className="flex items-center gap-2 mb-2">
             <ShieldAlert className="h-4 w-4 text-orange-600 shrink-0" />
@@ -74,7 +74,7 @@ export default function ReviewPanel({ chapter, reviewData, onScan, busyLabel }) 
           </div>
           <div className="space-y-1">
             {chapter.quality_scan.split('\n').filter(Boolean)
-              .filter(w => w.startsWith('Unlabeled Composites') || w.startsWith('Unverified Statistics') || w.startsWith('Source Anachronisms'))
+              .filter(w => w.startsWith('Unlabeled Composites') || w.startsWith('Unverified Statistics') || w.startsWith('Source Anachronisms') || w.startsWith('Fabrication risk'))
               .map((warning, idx) => (
                 <p key={idx} className="text-sm leading-6 text-orange-800">{warning}</p>
               ))}
@@ -91,7 +91,7 @@ export default function ReviewPanel({ chapter, reviewData, onScan, busyLabel }) 
           </div>
           <div className="space-y-1">
             {chapter.quality_scan.split('\n').filter(Boolean)
-              .filter(w => !w.startsWith('Unlabeled Composites') && !w.startsWith('Unverified Statistics') && !w.startsWith('Source Anachronisms'))
+              .filter(w => !w.startsWith('Unlabeled Composites') && !w.startsWith('Unverified Statistics') && !w.startsWith('Source Anachronisms') && !w.startsWith('Fabrication risk'))
               .map((warning, idx) => (
                 <p key={idx} className="text-sm leading-6 text-yellow-800">{warning}</p>
               ))}
