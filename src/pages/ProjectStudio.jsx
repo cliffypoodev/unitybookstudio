@@ -2424,6 +2424,26 @@ export default function ProjectStudio() {
         `${subject} historical context social political`,
       ];
 
+      // Thesis bias: pull the specific named entities out of the book's own brief
+      // (places, people, documents the author actually wrote about) and chase those
+      // directly, so research follows the book's real angle, not just the generic
+      // topic. Falls back gracefully when the brief names nothing specific.
+      const STOP = new Set(['the','this','that','these','those','and','but','some','many','most','when','while','after','before','during','although','however','their','there','they','his','her','our','your','its','it','is','was','were','chapter','book','volume','part','section']);
+      const focusTerms = Array.from(
+        new Set(
+          (topic.match(/\b[A-Z][a-zA-Z'.]+(?:\s+[A-Z][a-zA-Z'.]+){0,3}\b/g) || [])
+            .map((s) => s.trim())
+            .filter((s) => {
+              const first = s.split(/\s+/)[0].toLowerCase();
+              return s.length >= 4 && !STOP.has(first) && s.toLowerCase() !== subject.toLowerCase();
+            })
+        )
+      ).slice(0, 4);
+      for (const t of focusTerms) {
+        queries.push(`${subject} ${t}`);
+        queries.push(`${t} primary sources records testimony`);
+      }
+
       const seen = new Set();
       const hits = [];
       for (const q of queries) {
@@ -2490,12 +2510,18 @@ export default function ProjectStudio() {
         primary_sources: new Set(),
         competing_narratives: new Set(),
       };
+      const stripTitles = (name) =>
+        (name || '')
+          .replace(/^(president|union major general|confederate general|union general|major general|brigadier general|lieutenant general|maj\.? gen\.?|lt\.? gen\.?|general|gen\.?|colonel|col\.?|captain|capt\.?|lieutenant|lt\.?|sergeant|sgt\.?|major|maj\.?|reverend|rev\.?|honorable|hon\.?|dr\.?|mr\.?|mrs\.?|ms\.?|sir|the)\s+/gi, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .toLowerCase();
       const dedupeKeyFor = (bucket, item) => {
-        if (bucket === 'key_figures') return (item.name || '').trim().toLowerCase();
+        if (bucket === 'key_figures') return stripTitles(item.name);
         if (bucket === 'key_events') return (item.event || '').trim().toLowerCase();
-        if (bucket === 'institutions') return (item.name || '').trim().toLowerCase();
+        if (bucket === 'institutions') return stripTitles(item.name);
         if (bucket === 'timeline') return ((item.date || '') + '|' + (item.event || '')).trim().toLowerCase();
-        if (bucket === 'primary_sources') return ((item.source_type || '') + '|' + (item.description || '')).trim().toLowerCase();
+        if (bucket === 'primary_sources') return (item.source_type || '').trim().toLowerCase();
         if (bucket === 'competing_narratives') return (item.official_story || '').trim().toLowerCase();
         return JSON.stringify(item).toLowerCase();
       };
