@@ -2370,7 +2370,7 @@ export default function ProjectStudio() {
     if (!subject) subject = firstLine.slice(0, 80);
 
     // Call the local bridge for search; never throw to the UI.
-    const bridgeSearch = async (query, n = 6) => {
+    const bridgeSearch = async (query, n = 8) => {
       try {
         const r = await fetch(`${SEARCH_BRIDGE}/search`, {
           method: 'POST',
@@ -2404,19 +2404,30 @@ export default function ProjectStudio() {
     try {
       setBusyLabel('Deep research — searching sources…');
 
-      // Multi-angle search: facets give each topic a richer, more varied source pool.
+      // Multi-angle search across the kinds of real, citable material that historical
+      // nonfiction actually has — named witnesses, archives, primary documents,
+      // newspapers, court/government records — so the source pool is deep, not thin.
       const queries = [
         subject,
+        `${subject} history`,
         `${subject} primary sources documents`,
-        `${subject} key people figures`,
+        `${subject} archival records collection`,
+        `${subject} named people figures`,
+        `${subject} eyewitness testimony accounts`,
+        `${subject} firsthand narratives survivors`,
         `${subject} timeline dates events`,
-        `${subject} historical context`,
+        `${subject} official government records`,
+        `${subject} court records legal proceedings`,
+        `${subject} newspaper coverage period press`,
+        `${subject} letters correspondence diaries`,
+        `${subject} academic research scholarship`,
+        `${subject} historical context social political`,
       ];
 
       const seen = new Set();
       const hits = [];
       for (const q of queries) {
-        const results = await bridgeSearch(q, 6);
+        const results = await bridgeSearch(q, 8);
         for (const res of results) {
           if (res?.url && !seen.has(res.url)) {
             seen.add(res.url);
@@ -2432,11 +2443,13 @@ export default function ProjectStudio() {
         return;
       }
 
-      // Fetch full page text for the top sources (deep content for grounding).
-      setBusyLabel('Deep research — reading sources…');
-      const TOP_TO_FETCH = 10;
+      // Fetch full page text for many sources (deep content for grounding).
+      const TOP_TO_FETCH = 24;
       const pages = [];
-      for (const h of hits.slice(0, TOP_TO_FETCH)) {
+      const toFetch = hits.slice(0, TOP_TO_FETCH);
+      for (let i = 0; i < toFetch.length; i++) {
+        const h = toFetch[i];
+        setBusyLabel(`Deep research — reading sources ${i + 1}/${toFetch.length}…`);
         const text = await bridgeFetch(h.url);
         pages.push({
           title: h.title || 'Untitled',
@@ -2447,44 +2460,93 @@ export default function ProjectStudio() {
         await new Promise((r) => setTimeout(r, 300));
       }
 
-      // Build the grounding block: real sources only, full content where available.
-      const groundingBlock = [
-        'REAL WEB SEARCH RESULTS — YOUR ONLY ALLOWED SOURCES.',
-        'Use ONLY the facts, names, dates, quotations, and documents found below.',
-        'Cite the specific URL for every documented claim. If a needed fact is not',
-        'present here, mark it UNVERIFIED. Do not invent sources, names, dates, or',
-        'documents. Forbidden filler: "the available accounts", "archival summaries reveal".',
-        '',
-        pages.map((p, i) => {
-          const body = p.content || p.snippet || '(no extract available)';
-          return `[${i + 1}] ${p.title}\nURL: ${p.url}\n${body}`;
-        }).join('\n\n---\n\n'),
-        '',
-        'Additional source links (snippets only):',
-        hits.slice(TOP_TO_FETCH).map((h, i) => `[${TOP_TO_FETCH + i + 1}] ${h.title} — ${h.url}\n${h.snippet || ''}`).join('\n\n'),
-        '',
-        'END OF ALLOWED SOURCES.',
-      ].join('\n');
+      // Only pages we pulled real text from go to extraction; fall back to all if none.
+      const richPages = pages.filter((p) => p.content);
+      const extractionPages = richPages.length ? richPages : pages;
 
-      setBusyLabel('Deep research — verifying & structuring facts…');
-      const result = await invokeResearchLLM({
-        prompt: `${groundingBlock}
+      // Extract in BATCHES. One capped LLM call over everything can only emit a
+      // handful of facts no matter how much we feed it — that is why research came
+      // back thin. Small batches each get their own output budget, so real facts
+      // accumulate into a deep record. Sequential loop only (never Promise.all).
+      const BATCH_SIZE = 5;
+      const batches = [];
+      for (let i = 0; i < extractionPages.length; i += BATCH_SIZE) {
+        batches.push(extractionPages.slice(i, i + BATCH_SIZE));
+      }
+
+      const merged = {
+        key_figures: [],
+        key_events: [],
+        institutions: [],
+        timeline: [],
+        primary_sources: [],
+        competing_narratives: [],
+      };
+      const seenKeys = {
+        key_figures: new Set(),
+        key_events: new Set(),
+        institutions: new Set(),
+        timeline: new Set(),
+        primary_sources: new Set(),
+        competing_narratives: new Set(),
+      };
+      const dedupeKeyFor = (bucket, item) => {
+        if (bucket === 'key_figures') return (item.name || '').trim().toLowerCase();
+        if (bucket === 'key_events') return (item.event || '').trim().toLowerCase();
+        if (bucket === 'institutions') return (item.name || '').trim().toLowerCase();
+        if (bucket === 'timeline') return ((item.date || '') + '|' + (item.event || '')).trim().toLowerCase();
+        if (bucket === 'primary_sources') return ((item.source_type || '') + '|' + (item.description || '')).trim().toLowerCase();
+        if (bucket === 'competing_narratives') return (item.official_story || '').trim().toLowerCase();
+        return JSON.stringify(item).toLowerCase();
+      };
+      const mergeBucket = (bucket, arr) => {
+        if (!Array.isArray(arr)) return;
+        for (const item of arr) {
+          if (!item || typeof item !== 'object') continue;
+          const k = dedupeKeyFor(bucket, item);
+          if (!k || seenKeys[bucket].has(k)) continue;
+          seenKeys[bucket].add(k);
+          merged[bucket].push(item);
+        }
+      };
+
+      for (let b = 0; b < batches.length; b++) {
+        setBusyLabel(`Deep research — extracting facts (batch ${b + 1}/${batches.length})…`);
+        const batch = batches[b];
+
+        const groundingBlock = [
+          'REAL WEB SEARCH RESULTS — YOUR ONLY ALLOWED SOURCES.',
+          'Use ONLY the facts, names, dates, quotations, and documents found below.',
+          'Cite the specific URL for every documented claim. If a needed fact is not',
+          'present here, mark it UNVERIFIED. Do not invent sources, names, dates, or',
+          'documents. Forbidden filler: "the available accounts", "archival summaries reveal".',
+          '',
+          batch.map((p, i) => {
+            const body = p.content || p.snippet || '(no extract available)';
+            return `[${i + 1}] ${p.title}\nURL: ${p.url}\n${body}`;
+          }).join('\n\n---\n\n'),
+          '',
+          'END OF ALLOWED SOURCES.',
+        ].join('\n');
+
+        try {
+          const partial = await invokeResearchLLM({
+            prompt: `${groundingBlock}
 
 You are a deep-dive research assistant for an investigative nonfiction book.
 
 MISSION:
-Using ONLY the real sources above, produce verified, documented, source-aware research scaffolding. Do not invent facts, names, events, dates, documents, or sources. Every entity you list must trace to one of the sources above; attach the source URL it came from. If something is not supported by the sources above, either omit it or mark it UNVERIFIED.
+Using ONLY the real sources above, extract verified, documented, source-aware facts. Do not invent facts, names, events, dates, documents, or sources. Every entity you list must trace to one of the sources above; attach the source URL it came from. If something is not supported by the sources above, omit it. Do NOT invent entries to reach any target number — if these sources contain only a few real facts, return only those few. Volume comes from real sources, never from padding.
 
 TOPIC:
 ${topic}
 
-RESEARCH REQUIREMENTS:
-- Be COMPREHENSIVE. Extract EVERY documented person, event, institution, date, public record, official document, archival trail, court record, newspaper account, and academic source that appears anywhere in the sources above, including the snippet-only links. Do not stop at a handful; aim for thorough coverage (for example 12+ key figures and 12+ events when the sources support them). A richer, more specific scaffold makes a better book, but every single entry must still trace to a real source above or be marked UNVERIFIED.
-- Extract real people, institutions, timelines, public records, official documents, archival trails, court records, newspaper accounts, and academic sources that appear in the sources above.
+EXTRACTION RULES:
+- Extract EVERY real, documented person, event, institution, date, public record, official document, archival trail, court record, newspaper account, and academic source that actually appears in THESE sources.
+- Pull specific named people and specific documents wherever the sources name them — these are the backbone of an honest forensic chapter.
 - Separate documented facts from disputed claims.
-- Include competing narratives only where the supplied sources actually contest each other.
-- For each item, set source_types / sources to the real URL(s) above, or "UNVERIFIED" if not supported.
-- This result is saved into the project's Story Bible > Research field and used for drafting and bibliography.
+- Include competing narratives only where these sources actually contest each other.
+- For each item, set source_types / sources to the real URL(s) above.
 
 Return structured JSON:
 - key_figures: array of {name, role, dates_active, documented_actions, source_types}
@@ -2493,10 +2555,25 @@ Return structured JSON:
 - timeline: array of {date, event}
 - primary_sources: array of {source_type, description, availability}
 - competing_narratives: array of {official_story, evidence_counter, key_evidence}`,
-        response_json_schema: researchSchema,
-      });
+            response_json_schema: researchSchema,
+          });
 
-      const data = result && typeof result === 'object' ? result : {};
+          if (partial && typeof partial === 'object') {
+            mergeBucket('key_figures', partial.key_figures);
+            mergeBucket('key_events', partial.key_events);
+            mergeBucket('institutions', partial.institutions);
+            mergeBucket('timeline', partial.timeline);
+            mergeBucket('primary_sources', partial.primary_sources);
+            mergeBucket('competing_narratives', partial.competing_narratives);
+          }
+        } catch (batchErr) {
+          console.warn('[RESEARCH] batch ' + (b + 1) + '/' + batches.length + ' failed, skipping: ' + (batchErr?.message || batchErr));
+        }
+
+        await new Promise((r) => setTimeout(r, 400));
+      }
+
+      const data = merged;
       setResearchData(data);
 
       const researchMd = formatNonfictionResearchMarkdown(data, subject);
@@ -2512,7 +2589,9 @@ Return structured JSON:
         ...researchFields,
       }));
 
-      toast.success(`Deep research saved — ${pages.filter((p) => p.content).length} sources read, ${hits.length} found.`);
+      const figs = (data.key_figures || []).length;
+      const evs = (data.key_events || []).length;
+      toast.success(`Deep research saved — ${pages.filter((p) => p.content).length} sources read, ${figs} figures, ${evs} events.`);
       await refreshAll();
     } catch (error) {
       console.error('[RESEARCH] Deep research failed:', error);
