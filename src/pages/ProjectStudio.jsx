@@ -2247,6 +2247,7 @@ export default function ProjectStudio() {
         if (item.dates_active) lines.push(`**Dates active:** ${item.dates_active}`);
         if (item.documented_actions) lines.push(`**Documented actions:** ${item.documented_actions}`);
         if (item.source_types) lines.push(`**Source types:** ${item.source_types}`);
+        if (item.quote) lines.push(`**In their words:** "${item.quote}"`);
         lines.push('');
       });
     } else {
@@ -2336,7 +2337,7 @@ export default function ProjectStudio() {
   const researchSchema = {
     type: 'object',
     properties: {
-      key_figures: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, role: { type: 'string' }, dates_active: { type: 'string' }, documented_actions: { type: 'string' }, source_types: { type: 'string' } } } },
+      key_figures: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, role: { type: 'string' }, dates_active: { type: 'string' }, documented_actions: { type: 'string' }, source_types: { type: 'string' }, quote: { type: 'string' } } } },
       key_events: { type: 'array', items: { type: 'object', properties: { event: { type: 'string' }, date: { type: 'string' }, description: { type: 'string' }, sources: { type: 'string' } } } },
       institutions: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, role: { type: 'string' }, period: { type: 'string' } } } },
       timeline: { type: 'array', items: { type: 'object', properties: { date: { type: 'string' }, event: { type: 'string' } } } },
@@ -2536,6 +2537,10 @@ export default function ProjectStudio() {
         }
       };
 
+      const quoteRule = (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative')
+        ? '- VERBATIM QUOTE: For each person drawn from first-person testimony, also capture ONE short verbatim quote (about 5-25 words) of their own words from the source text, copied EXACTLY as written — preserve the original or dialect spelling, do NOT modernize or paraphrase. Put it in the "quote" field. If the source gives no usable first-person words for that person, leave "quote" empty. Never fabricate or paraphrase a quote.'
+        : '- Do NOT include verbatim quotes. Leave the "quote" field empty for every figure; record only who each person was and what they documented or described.';
+
       for (let b = 0; b < batches.length; b++) {
         setBusyLabel(`Deep research — extracting facts (batch ${b + 1}/${batches.length})…`);
         const batch = batches[b];
@@ -2570,12 +2575,14 @@ ${topic}
 EXTRACTION RULES:
 - Extract EVERY real, documented person, event, institution, date, public record, official document, archival trail, court record, newspaper account, and academic source that actually appears in THESE sources.
 - Pull specific named people and specific documents wherever the sources name them — these are the backbone of an honest forensic chapter.
+- TESTIMONY & FIRST-PERSON SOURCES: When a source contains first-person testimony, oral-history interviews, depositions, letters, diaries, or named-interviewee material (for example WPA / Federal Writers' Project slave narratives, oral histories, witness statements), treat EVERY named individual in it as a real, documented person and add them to key_figures — even when the only documented facts are their name, what they described or experienced, and where or when it was recorded. Use that source's own URL. A person named in such a record IS documented; do not skip them for lacking a formal title or office. Record names as written in the source; if a name is clearly garbled by scanning, keep the most legible form and do not change it into a different name.
 - Separate documented facts from disputed claims.
 - Include competing narratives only where these sources actually contest each other.
 - For each item, set source_types / sources to the real URL(s) above.
+${quoteRule}
 
 Return structured JSON:
-- key_figures: array of {name, role, dates_active, documented_actions, source_types}
+- key_figures: array of {name, role, dates_active, documented_actions, source_types, quote}
 - key_events: array of {event, date, description, sources}
 - institutions: array of {name, role, period}
 - timeline: array of {date, event}
