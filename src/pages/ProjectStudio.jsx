@@ -2445,6 +2445,23 @@ export default function ProjectStudio() {
         queries.push(`${t} primary sources records testimony`);
       }
 
+      // Archive bias for forensic/narrative books: add angles that target real
+      // primary testimony (oral histories, interviews, archival collections),
+      // built from the book's own focus terms, so named-witness material surfaces.
+      if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
+        const archiveAngles = [
+          `${subject} oral history interview transcript`,
+          `${subject} firsthand testimony eyewitness account`,
+          `${subject} archival collection primary documents`,
+          `${subject} interviews narratives survivors`,
+        ];
+        for (const t of focusTerms) {
+          archiveAngles.push(`${t} oral history testimony`);
+          archiveAngles.push(`${t} archival records interview`);
+        }
+        for (const q of archiveAngles) queries.push(q);
+      }
+
       const seen = new Set();
       const hits = [];
       for (const q of queries) {
@@ -2467,7 +2484,15 @@ export default function ProjectStudio() {
       // Fetch full page text for many sources (deep content for grounding).
       const TOP_TO_FETCH = 24;
       const pages = [];
-      const toFetch = hits.slice(0, TOP_TO_FETCH);
+      // For forensic/narrative books, fetch real archive items first so primary
+      // testimony always survives into the fetched set instead of being crowded
+      // out by glossier web pages.
+      let ordered = hits;
+      if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
+        const isArchive = (h) => /loc\.gov|archives\.gov|gutenberg\.org|\.edu\//i.test(h.url || '');
+        ordered = [...hits.filter(isArchive), ...hits.filter((h) => !isArchive(h))];
+      }
+      const toFetch = ordered.slice(0, TOP_TO_FETCH);
       for (let i = 0; i < toFetch.length; i++) {
         const h = toFetch[i];
         setBusyLabel(`Deep research — reading sources ${i + 1}/${toFetch.length}…`);
