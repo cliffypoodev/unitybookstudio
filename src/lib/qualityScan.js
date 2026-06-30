@@ -122,6 +122,63 @@ export function scanNonfictionIntegrity(text, project, chapterNumber) {
  * confident fabrication written as plain prose (e.g. "In 1974 a researcher uncovered ledgers...")
  * that the marker-based scans above miss because nothing inserted a flag.
  */
+// Cross-checks drafted prose against the project's research: flags direct
+// quotes, titled officials, and named documents that do NOT appear in the
+// research. Returns { clean, violations:[{type, snippet, detail}] }. Heuristic
+// but tuned to catch invented quotes/officials/documents while sparing real
+// sourced people. Consumed by the scene-writer's blocking-retry check.
+export function crossCheckResearchFabrication(text, project) {
+  if (!text || !project || project.book_type !== 'nonfiction') return { clean: true, violations: [] };
+  const researchRaw = typeof project.research_data === 'string'
+    ? project.research_data
+    : (project.research_data ? JSON.stringify(project.research_data) : '');
+  if (!researchRaw || researchRaw.length < 50) return { clean: true, violations: [] };
+  const norm = (s) => (s || '').toLowerCase().replace(/[\u2018\u2019\u2032`]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, ' ').trim();
+  const hay = norm(researchRaw + ' ' + (project.world_md || '') + ' ' + (project.characters_md || '') + ' ' + (project.outline_md || '') + ' ' + (project.canon_md || ''));
+  const violations = [];
+  const seen = new Set();
+  const add = (type, snippet, detail) => {
+    const k = type + '|' + snippet.toLowerCase().slice(0, 60);
+    if (seen.has(k)) return;
+    seen.add(k);
+    violations.push({ type, snippet: snippet.slice(0, 90), detail });
+  };
+  // 1) Direct quotes not present in research (possible invented quotation)
+  const quoteRe = /["\u201c]([^"\u201d\n\r]{25,240})["\u201d]/g;
+  let qm;
+  while ((qm = quoteRe.exec(text)) !== null) {
+    const q = qm[1].trim();
+    const words = norm(q).split(' ').filter(Boolean);
+    if (words.length < 5 || !/[a-z]/i.test(q)) continue;
+    const head = words.slice(0, 6).join(' ');
+    const tail = words.slice(-6).join(' ');
+    if (!hay.includes(head) && !hay.includes(tail)) add('quote', q, 'quotation not found in research');
+  }
+  // 2) Titled officials presented as sources/actors, not in research
+  const KNOWN = new Set(['lincoln', 'granger', 'gordon granger', 'abraham lincoln']);
+  const titleRe = /\b(Major General|Brigadier General|General|Judge|Governor|Colonel|Captain|Lieutenant|Senator|Secretary|President)\s+([A-Z][a-zA-Z.'-]+(?:\s+[A-Z][a-zA-Z.'-]+){0,2})/g;
+  let tm;
+  while ((tm = titleRe.exec(text)) !== null) {
+    const name = norm(tm[2]).replace(/[.'-]+$/, '');
+    const last = name.split(' ').pop();
+    if (KNOWN.has(name) || KNOWN.has(last)) continue;
+    if (!hay.includes(name) && !hay.includes(last)) add('person', (tm[1] + ' ' + tm[2]).replace(/[.'-]+$/, ''), 'named official not found in research');
+  }
+  // 3) Named documents (ProperNoun + doc-noun) not traceable to research
+  const DOC = '(ledger|dispatch|telegram|memorandum|memo|injunction|gazette|courthouse|logbook|register|deed|manifest)';
+  const docRe = new RegExp("((?:[A-Z][a-zA-Z.&'-]+\\s+){1,4})" + DOC + "\\b", 'g');
+  let dm;
+  const GEO = new Set(['county', 'court', 'state', 'texas', 'union', 'federal', 'galveston', 'general', 'order']);
+  while ((dm = docRe.exec(text)) !== null) {
+    const owner = dm[1].trim();
+    const on = norm(owner);
+    const toks = on.split(' ').filter((w) => w.length > 3 && !GEO.has(w));
+    if (toks.length === 0) continue;
+    if (!hay.includes(on) && !toks.some((t) => hay.includes(t))) add('document', dm[0].trim(), 'named document not traceable to research');
+  }
+  return { clean: violations.length === 0, violations };
+}
+
 export function scanNonfictionFabricationRisk(text, project, chapterNumber) {
   const warnings = [];
   if (!text || project?.book_type !== 'nonfiction') return warnings;

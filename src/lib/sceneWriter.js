@@ -18,6 +18,7 @@ import { buildPovTenseBlock } from '@/lib/povTense';
 import { cleanGeneratedProse } from '@/lib/proseQuality';
 import { snapshot as pipelineSnapshot } from '@/lib/pipelineDiag';
 import { labelCompositeCharacters, fixFoiaAnachronisms, flagUnverifiedStats } from '@/lib/postClean';
+import { crossCheckResearchFabrication } from '@/lib/qualityScan';
 import { base44 } from '@/api/base44Client';
 import {
   COMPACT_CRAFT_RULES,
@@ -198,6 +199,19 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
       const { compositeNames } = labelCompositeCharacters(prose, project, spec?.chapter);
       if (Array.isArray(compositeNames) && compositeNames.length > 0) {
         blockingIssues.push(`Fabricated entities not found in the research: ${compositeNames.join(', ')}. Rewrite using ONLY people, organizations, quotes, and documents that appear in the supplied research. Do not invent names, dispatches, or quotations.`);
+      }
+    } catch (e) { /* detector unavailable — do not block */ }
+    // Widen the net: catch invented QUOTES, titled OFFICIALS, and DOCUMENTS that
+    // are not in the research (the composite-name check above misses these).
+    try {
+      const fab = crossCheckResearchFabrication(prose, project);
+      if (!fab.clean) {
+        const quotes = fab.violations.filter((v) => v.type === 'quote').map((v) => `"${v.snippet}"`);
+        const others = fab.violations.filter((v) => v.type !== 'quote').map((v) => v.snippet);
+        const parts = [];
+        if (others.length) parts.push(`named sources not in the research: ${others.join('; ')}`);
+        if (quotes.length) parts.push(`quotations not in the research: ${quotes.join('; ')}`);
+        blockingIssues.push(`Unsourced material detected — ${parts.join(' | ')}. Rewrite this section using ONLY people, titles, organizations, documents, and quotations that appear in the supplied research. Do not invent or paraphrase a quote, official, dispatch, ledger, court order, or newspaper. Where the record is silent, say so plainly instead of inventing detail.`);
       }
     } catch (e) { /* detector unavailable — do not block */ }
   }
