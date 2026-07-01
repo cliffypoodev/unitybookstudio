@@ -2121,6 +2121,53 @@ async function generateSceneWithRepair({
 // Removes whole sentences containing fabricated material (quotes, officials,
 // documents) the model refused to drop during repair. Targeted by the exact
 // snippets crossCheckResearchFabrication returned. Nonfiction backstop.
+// One LLM pass over the whole assembled chapter: returns exact sentences that
+// cite a document, record, dispatch, or institutional source NOT present in the
+// research. Catches unquoted references (e.g. "Department of the Gulf records")
+// that the regex detector cannot. Fails safe (returns [] on any error).
+async function semanticSourceCheck(prose, project) {
+  if (!prose || !project || project.book_type !== 'nonfiction') return [];
+  const research = typeof project.research_data === 'string'
+    ? project.research_data
+    : (project.research_data ? JSON.stringify(project.research_data) : '');
+  if (!research || research.length < 50) return [];
+  const prompt = [
+    'You are a fact-checker verifying a nonfiction chapter against its ONLY permitted research.',
+    'Return a JSON array (and NOTHING else) of the EXACT sentences from the CHAPTER that assert a specific document, record, ledger, dispatch, telegram, court record, report, letter, statistic, or named institutional source that does NOT appear in the RESEARCH.',
+    'Include a sentence ONLY if it presents such a source as real and that source is absent from the research. Do NOT include general historical statements, analysis, or sentences that already say the record is silent/unknown. Copy each flagged sentence VERBATIM from the chapter.',
+    'If nothing qualifies, return [].',
+    '',
+    '=== RESEARCH (the only permitted sources) ===',
+    research.slice(0, 12000),
+    '',
+    '=== CHAPTER ===',
+    prose.slice(0, 16000),
+    '',
+    'JSON array of unsupported-source sentences:',
+  ].join('\n');
+  try {
+    const result = await invokeLLMWithRetry({
+      prompt,
+      model: pickProseModel(project),
+      disable_fallbacks: false,
+      use_gemini_fallback: true,
+      use_openai_fallback: true,
+      temperature: 0.1,
+      max_tokens: 1500,
+    });
+    const raw = extractTextFromLLMResult(result) || '';
+    const m = raw.match(/\[[\s\S]*\]/);
+    if (!m) return [];
+    const arr = JSON.parse(m[0]);
+    if (!Array.isArray(arr)) return [];
+    return arr.filter((s) => typeof s === 'string' && s.trim().length > 12)
+              .map((s) => ({ type: 'semantic', snippet: s.trim() }));
+  } catch (e) {
+    console.warn('[SEMANTIC-CHECK] skipped (failed safely):', e?.message || e);
+    return [];
+  }
+}
+
 function stripFabricatedSentences(prose, violations) {
   if (!prose || !Array.isArray(violations) || violations.length === 0) return prose;
   const needles = violations
@@ -2128,13 +2175,20 @@ function stripFabricatedSentences(prose, violations) {
     .filter((n) => n.length >= 8)
     .map((n) => n.slice(0, 45));
   if (!needles.length) return prose;
-  const sentences = prose.match(/[^.!?]*[.!?]+[\s"']*|[^.!?]+$/g) || [prose];
+  // Protect common abbreviations so we don't split mid-sentence (D. C., Gen., etc.).
+  const ABBR = /\b(D\.\s?C|U\.\s?S|Gen|Maj|Brig|Col|Capt|Lt|Sgt|Gov|Sec|Dr|Mr|Mrs|Ms|St|Mt|Jr|Sr|No|vs|etc|a\.m|p\.m)\.(?=\s|$)/gi;
+  const PROT = '\u0001'; // placeholder for the protected period
+  let work = prose.replace(ABBR, (m) => m.replace('.', PROT));
+  // Split on sentence-ending punctuation followed by whitespace/quote + capital or end.
+  const sentences = work.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [work];
   const kept = sentences.filter((s) => {
-    const sl = s.toLowerCase();
+    const sl = s.replace(new RegExp(PROT, 'g'), '.').toLowerCase();
     return !needles.some((n) => sl.includes(n));
   });
-  const out = kept.join('').replace(/[ \t]{2,}/g, ' ').replace(/\s+([.,;:])/g, '$1').trim();
-  return out.length > 0 ? out : prose;
+  let out = kept.join('').replace(new RegExp(PROT, 'g'), '.');
+  out = out.replace(/[ \t]{2,}/g, ' ').replace(/\s+([.,;:])/g, '$1').replace(/\n{3,}/g, '\n\n').trim();
+  // Guard: if stripping removed almost everything, keep the original rather than ship a stub.
+  return out.length > Math.min(120, prose.length * 0.25) ? out : prose;
 }
 
 function parseScenesFromChapter(chapter, providedScenes, isNF) {
@@ -2443,6 +2497,20 @@ export async function generateChapterSceneByScene({
   if (quoteRepair.text !== finalProse) {
     console.warn('[QUOTE-REPAIR] Cleaned generated chapter quotes before return:', quoteRepair.fixes);
     finalProse = quoteRepair.text;
+  }
+
+  // Semantic source verification (nonfiction): one model pass over the whole
+  // chapter catches unquoted invented sources the regex missed; strip them cleanly.
+  if (project?.book_type === 'nonfiction') {
+    try {
+      const semanticFlags = await semanticSourceCheck(finalProse, project);
+      if (semanticFlags.length) {
+        console.warn('[SEMANTIC-CHECK] Unsupported sources flagged:', semanticFlags.map((f) => f.snippet.slice(0, 80)));
+        const beforeSem = finalProse;
+        finalProse = stripFabricatedSentences(finalProse, semanticFlags);
+        if (finalProse !== beforeSem) console.warn('[SEMANTIC-CHECK] Stripped', semanticFlags.length, 'unsupported-source sentence(s).');
+      }
+    } catch (e) { /* semantic pass unavailable — ship regex-gated prose */ }
   }
   pipelineSnapshot(chapter?.id, '0e-after-sceneWriter-cleanup', finalProse);
 
