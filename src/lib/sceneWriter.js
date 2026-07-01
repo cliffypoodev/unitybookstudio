@@ -2067,33 +2067,74 @@ async function generateSceneWithRepair({
     };
   }
 
-  const repairPrompt = buildRepairPrompt({
-    originalPrompt: prompt,
-    brokenProse: prose,
-    issues: evalResult.issues,
-    targetWords,
-  });
+  // Repair up to 3 times. Each pass rewrites the section to remove flagged
+  // material (fabricated quotes/officials/documents, tense drift, stubs).
+  const MAX_REPAIRS = 3;
+  let repairAttempt = 0;
+  while (evalResult.hasBlockingIssue && repairAttempt < MAX_REPAIRS) {
+    repairAttempt++;
+    const repairPrompt = buildRepairPrompt({
+      originalPrompt: prompt,
+      brokenProse: prose,
+      issues: evalResult.issues,
+      targetWords,
+    });
+    result = await invokeLLMWithRetry({
+      prompt: repairPrompt,
+      model,
+      fallback_model: fallbackModel,
+      fallback_models: fallbackModel ? [fallbackModel] : [],
+      disable_fallbacks: disableFallbacks,
+      use_gemini_fallback: !disableFallbacks,
+      use_openai_fallback: !disableFallbacks,
+      temperature: Math.max(0.4, temperature - 0.1 * repairAttempt),
+      max_tokens: maxTokens,
+    });
+    prose = lightCleanSceneOutput(result);
+    evalResult = quickSceneEval(prose, spec, targetWords, project);
+  }
 
-  result = await invokeLLMWithRetry({
-    prompt: repairPrompt,
-    model,
-    fallback_model: fallbackModel,
-    fallback_models: fallbackModel ? [fallbackModel] : [],
-    disable_fallbacks: disableFallbacks,
-    use_gemini_fallback: !disableFallbacks,
-    use_openai_fallback: !disableFallbacks,
-    temperature: Math.max(0.45, temperature - 0.1),
-    max_tokens: maxTokens,
-  });
-
-  prose = lightCleanSceneOutput(result);
-  evalResult = quickSceneEval(prose, spec, targetWords, project);
+  // Backstop (nonfiction): if fabricated sources survived every repair, physically
+  // strip the offending sentences rather than ship them. A clean gap in the prose
+  // is always better than a convincing invented document or quote.
+  let stripped = false;
+  if (project?.book_type === 'nonfiction') {
+    try {
+      const fab = crossCheckResearchFabrication(prose, project);
+      if (!fab.clean) {
+        const before = prose;
+        prose = stripFabricatedSentences(prose, fab.violations);
+        stripped = prose !== before;
+        if (stripped) evalResult = quickSceneEval(prose, spec, targetWords, project);
+      }
+    } catch (e) { /* strip unavailable — ship best repair */ }
+  }
 
   return {
     prose,
-    repaired: true,
+    repaired: repairAttempt > 0,
+    stripped,
     issues: evalResult.issues,
   };
+}
+
+// Removes whole sentences containing fabricated material (quotes, officials,
+// documents) the model refused to drop during repair. Targeted by the exact
+// snippets crossCheckResearchFabrication returned. Nonfiction backstop.
+function stripFabricatedSentences(prose, violations) {
+  if (!prose || !Array.isArray(violations) || violations.length === 0) return prose;
+  const needles = violations
+    .map((v) => (v && v.snippet ? String(v.snippet).toLowerCase().trim() : ''))
+    .filter((n) => n.length >= 8)
+    .map((n) => n.slice(0, 45));
+  if (!needles.length) return prose;
+  const sentences = prose.match(/[^.!?]*[.!?]+[\s"']*|[^.!?]+$/g) || [prose];
+  const kept = sentences.filter((s) => {
+    const sl = s.toLowerCase();
+    return !needles.some((n) => sl.includes(n));
+  });
+  const out = kept.join('').replace(/[ \t]{2,}/g, ' ').replace(/\s+([.,;:])/g, '$1').trim();
+  return out.length > 0 ? out : prose;
 }
 
 function parseScenesFromChapter(chapter, providedScenes, isNF) {

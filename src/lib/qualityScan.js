@@ -165,7 +165,7 @@ export function crossCheckResearchFabrication(text, project) {
     if (!hay.includes(name) && !hay.includes(last)) add('person', (tm[1] + ' ' + tm[2]).replace(/[.'-]+$/, ''), 'named official not found in research');
   }
   // 3) Named documents (ProperNoun + doc-noun) not traceable to research
-  const DOC = '(ledger|dispatch|telegram|memorandum|memo|injunction|gazette|courthouse|logbook|register|deed|manifest)';
+  const DOC = '(ledger|dispatch|telegram|telegraph|transcript|memorandum|memo|injunction|gazette|courthouse|logbook|register|deed|manifest)';
   const docRe = new RegExp("((?:[A-Z][a-zA-Z.&'-]+\\s+){1,4})" + DOC + "\\b", 'g');
   let dm;
   const GEO = new Set(['county', 'court', 'state', 'texas', 'union', 'federal', 'galveston', 'general', 'order']);
