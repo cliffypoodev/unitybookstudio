@@ -2168,6 +2168,54 @@ async function semanticSourceCheck(prose, project) {
   }
 }
 
+// Deterministic source check (no model judgment): flags sentences that cite a
+// named record/report/dispatch/archive/analysis/bureau/etc. whose name is NOT in
+// the research, plus any percentage statistic absent from the research. Catches
+// invented institutional sources (e.g. "Department of the Gulf records") that a
+// model-based check waves through.
+function deterministicSourceCheck(prose, project) {
+  if (!prose || !project || project.book_type !== 'nonfiction') return [];
+  const research = typeof project.research_data === 'string'
+    ? project.research_data
+    : (project.research_data ? JSON.stringify(project.research_data) : '');
+  if (!research || research.length < 50) return [];
+  const norm = (s) => (s || '').toLowerCase().replace(/[\u2018\u2019\u2032`]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, ' ').trim();
+  const hay = norm(research + ' ' + (project.world_md || '') + ' ' + (project.characters_md || '') + ' ' + (project.outline_md || '') + ' ' + (project.canon_md || ''));
+  const SKIP = new Set(['of', 'the', 'and', 'for', 'de', 'du', 'a', 'an', 'to', 'county', 'court', 'state', 'texas', 'union', 'army', 'confederate', 'federal', 'national', 'united', 'states', 'city', 'war', 'general', 'order']);
+  const violations = [];
+  const seen = new Set();
+  const add = (s) => {
+    const k = s.toLowerCase().slice(0, 60);
+    if (seen.has(k)) return;
+    seen.add(k);
+    violations.push({ type: 'source', snippet: s.trim().slice(0, 120), detail: 'source/statistic not in research' });
+  };
+  const sentences = prose.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [prose];
+  const SRC = /\b([A-Z][A-Za-z.&'\u2019-]+(?:\s+(?:of|the|and|de|du|for|[A-Z][A-Za-z.&'\u2019-]+|\d{2,4}))*)\s+(records?|reports?|dispatch(?:es)?|archives?|analysis|ledgers?|logs?|logbooks?|correspondence|manifests?|registers?|transcripts?|bureau|gazette|telegrams?)\b/g;
+  for (const s of sentences) {
+    let hit = false;
+    let m;
+    SRC.lastIndex = 0;
+    while ((m = SRC.exec(s)) !== null) {
+      const owner = norm(m[1]);
+      const dist = owner.split(' ').filter((w) => w.length > 3 && !SKIP.has(w) && !/^\d+$/.test(w));
+      if (dist.length === 0) continue;
+      const phrase = dist.join(' ');
+      const allPresent = dist.every((t) => hay.includes(t));
+      if (!hay.includes(phrase) && !allPresent) { hit = true; break; }
+    }
+    if (!hit) {
+      const st = s.match(/\b(\d{1,3})\s?(?:%|percent)\b/i);
+      if (st) {
+        const n = st[1];
+        if (!hay.includes(n + '%') && !hay.includes(n + ' percent') && !hay.includes(n + 'percent')) hit = true;
+      }
+    }
+    if (hit) add(s);
+  }
+  return violations;
+}
+
 function stripFabricatedSentences(prose, violations) {
   if (!prose || !Array.isArray(violations) || violations.length === 0) return prose;
   const needles = violations
@@ -2503,7 +2551,7 @@ export async function generateChapterSceneByScene({
   // chapter catches unquoted invented sources the regex missed; strip them cleanly.
   if (project?.book_type === 'nonfiction') {
     try {
-      const semanticFlags = await semanticSourceCheck(finalProse, project);
+      const semanticFlags = deterministicSourceCheck(finalProse, project);
       if (semanticFlags.length) {
         console.warn('[SEMANTIC-CHECK] Unsupported sources flagged:', semanticFlags.map((f) => f.snippet.slice(0, 80)));
         const beforeSem = finalProse;
