@@ -2204,7 +2204,7 @@ function deterministicSourceCheck(prose, project) {
     violations.push({ type: 'source', snippet: s.trim().slice(0, 120), detail: 'source/statistic not in research' });
   };
   const sentences = prose.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [prose];
-  const NOUN = "([Rr]ecords?|[Rr]eports?|[Dd]ispatch(?:es)?|[Dd]ocuments?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle)";
+  const NOUN = "([Rr]ecords?|[Rr]eports?|[Oo]rders?|[Dd]ispatch(?:es)?|[Dd]ocuments?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle)";
   const SRC = new RegExp("\\b([A-Z][A-Za-z.&'\u2019-]+(?:\\s+(?:of|the|and|de|du|for|[A-Z][A-Za-z.&'\u2019-]+|\\d{2,4}))*)\\s+(?:[a-z][a-z'\u2019-]+\\s+){0,2}" + NOUN + "\\b", 'g');
   for (const s of sentences) {
     let hit = false;

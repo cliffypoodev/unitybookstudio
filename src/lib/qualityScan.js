@@ -134,7 +134,11 @@ export function crossCheckResearchFabrication(text, project) {
     : (project.research_data ? JSON.stringify(project.research_data) : '');
   if (!researchRaw || researchRaw.length < 50) return { clean: true, violations: [] };
   const norm = (s) => (s || '').toLowerCase().replace(/[\u2018\u2019\u2032`]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, ' ').trim();
-  const hay = norm(researchRaw + ' ' + (project.world_md || '') + ' ' + (project.characters_md || '') + ' ' + (project.outline_md || '') + ' ' + (project.canon_md || ''));
+  // RESEARCH ONLY — the bible (world/characters/outline/canon) is AI-generated
+  // and can carry invented quotes/sources, which would whitelist the exact
+  // fabrications this gate exists to catch. Legitimate material traces to the
+  // research anyway, since the bible is generated from it.
+  const hay = norm(researchRaw);
   const violations = [];
   const seen = new Set();
   const add = (type, snippet, detail) => {
