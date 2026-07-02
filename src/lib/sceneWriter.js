@@ -2168,11 +2168,14 @@ async function semanticSourceCheck(prose, project) {
   }
 }
 
-// Deterministic source check (no model judgment): flags sentences that cite a
-// named record/report/dispatch/archive/analysis/bureau/etc. whose name is NOT in
-// the research, plus any percentage statistic absent from the research. Catches
-// invented institutional sources (e.g. "Department of the Gulf records") that a
-// model-based check waves through.
+// Deterministic source check v2 (no model judgment). Flags sentences that cite:
+//  (a) a proper-name source (capitalized: "Galveston Daily News", "Freedmen's
+//      Bureau") whose full name is NOT in the research;
+//  (b) a generic source claim ("X records/reports/dispatches") whose owner's
+//      distinctive words are NOT in the research;
+//  (c) a percentage statistic absent from the research.
+// Checks RESEARCH ONLY — not the AI-generated bible, which could carry the same
+// invented sources and whitelist them. Flagged sentences are stripped.
 function deterministicSourceCheck(prose, project) {
   if (!prose || !project || project.book_type !== 'nonfiction') return [];
   const research = typeof project.research_data === 'string'
@@ -2180,7 +2183,7 @@ function deterministicSourceCheck(prose, project) {
     : (project.research_data ? JSON.stringify(project.research_data) : '');
   if (!research || research.length < 50) return [];
   const norm = (s) => (s || '').toLowerCase().replace(/[\u2018\u2019\u2032`]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, ' ').trim();
-  const hay = norm(research + ' ' + (project.world_md || '') + ' ' + (project.characters_md || '') + ' ' + (project.outline_md || '') + ' ' + (project.canon_md || ''));
+  const hay = norm(research);
   const SKIP = new Set(['of', 'the', 'and', 'for', 'de', 'du', 'a', 'an', 'to', 'county', 'court', 'state', 'texas', 'union', 'army', 'confederate', 'federal', 'national', 'united', 'states', 'city', 'war', 'general', 'order']);
   const violations = [];
   const seen = new Set();
@@ -2191,24 +2194,32 @@ function deterministicSourceCheck(prose, project) {
     violations.push({ type: 'source', snippet: s.trim().slice(0, 120), detail: 'source/statistic not in research' });
   };
   const sentences = prose.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [prose];
-  const SRC = /\b([A-Z][A-Za-z.&'\u2019-]+(?:\s+(?:of|the|and|de|du|for|[A-Z][A-Za-z.&'\u2019-]+|\d{2,4}))*)\s+(records?|reports?|dispatch(?:es)?|archives?|analysis|ledgers?|logs?|logbooks?|correspondence|manifests?|registers?|transcripts?|bureau|gazette|telegrams?)\b/g;
+  const NOUN = "([Rr]ecords?|[Rr]eports?|[Dd]ispatch(?:es)?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle)";
+  const SRC = new RegExp("\\b([A-Z][A-Za-z.&'\u2019-]+(?:\\s+(?:of|the|and|de|du|for|[A-Z][A-Za-z.&'\u2019-]+|\\d{2,4}))*)\\s+" + NOUN + "\\b", 'g');
   for (const s of sentences) {
     let hit = false;
     let m;
     SRC.lastIndex = 0;
     while ((m = SRC.exec(s)) !== null) {
       const owner = norm(m[1]);
+      const noun = m[2];
+      if (/^[A-Z]/.test(noun)) {
+        // Proper-name source: the full name must appear in the research.
+        const fullName = norm(m[1].replace(/^The\s+/i, '') + ' ' + noun);
+        if (!hay.includes(fullName)) { hit = true; break; }
+        continue;
+      }
+      // Generic source noun: owner's distinctive words must be in the research.
       const dist = owner.split(' ').filter((w) => w.length > 3 && !SKIP.has(w) && !/^\d+$/.test(w));
       if (dist.length === 0) continue;
       const phrase = dist.join(' ');
-      const allPresent = dist.every((t) => hay.includes(t));
-      if (!hay.includes(phrase) && !allPresent) { hit = true; break; }
+      if (!hay.includes(phrase) && !dist.every((t) => hay.includes(t))) { hit = true; break; }
     }
     if (!hit) {
       const st = s.match(/\b(\d{1,3})\s?(?:%|percent)\b/i);
       if (st) {
         const n = st[1];
-        if (!hay.includes(n + '%') && !hay.includes(n + ' percent') && !hay.includes(n + 'percent')) hit = true;
+        if (!hay.includes(n + '%') && !hay.includes(n + ' percent')) hit = true;
       }
     }
     if (hit) add(s);
