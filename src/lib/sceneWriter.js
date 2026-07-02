@@ -214,6 +214,16 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
         blockingIssues.push(`Unsourced material detected — ${parts.join(' | ')}. Rewrite this section using ONLY people, titles, organizations, documents, and quotations that appear in the supplied research. Do not invent or paraphrase a quote, official, dispatch, ledger, court order, or newspaper. Where the record is silent, say so plainly instead of inventing detail.`);
       }
     } catch (e) { /* detector unavailable — do not block */ }
+    // Deterministic source check at section level (rewrite-first): invented
+    // sources get rewritten IN CONTEXT here via the existing repair loop; the
+    // end-of-chapter strip stays as last resort, so hard cuts — and the
+    // orphaned references they leave behind — become rare.
+    try {
+      const srcFlags = deterministicSourceCheck(prose, project);
+      if (srcFlags.length > 0) {
+        blockingIssues.push(`Sources cited that are NOT in the research: ${srcFlags.map((v) => v.snippet).join(' | ')}. Rewrite this section citing ONLY sources named in the supplied research. Do not cite any archive, record, report, log, document, newspaper, or statistic that is not in the research — where no source exists, state plainly that the record is silent. Also remove or rewrite any sentence that refers back to a source you are removing.`);
+      }
+    } catch (e) { /* detector unavailable — do not block */ }
   }
 
   // SEVERE: degenerate non-Latin output (model loop) → blocking, force retry
@@ -2194,8 +2204,8 @@ function deterministicSourceCheck(prose, project) {
     violations.push({ type: 'source', snippet: s.trim().slice(0, 120), detail: 'source/statistic not in research' });
   };
   const sentences = prose.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [prose];
-  const NOUN = "([Rr]ecords?|[Rr]eports?|[Dd]ispatch(?:es)?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle)";
-  const SRC = new RegExp("\\b([A-Z][A-Za-z.&'\u2019-]+(?:\\s+(?:of|the|and|de|du|for|[A-Z][A-Za-z.&'\u2019-]+|\\d{2,4}))*)\\s+" + NOUN + "\\b", 'g');
+  const NOUN = "([Rr]ecords?|[Rr]eports?|[Dd]ispatch(?:es)?|[Dd]ocuments?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle)";
+  const SRC = new RegExp("\\b([A-Z][A-Za-z.&'\u2019-]+(?:\\s+(?:of|the|and|de|du|for|[A-Z][A-Za-z.&'\u2019-]+|\\d{2,4}))*)\\s+(?:[a-z][a-z'\u2019-]+\\s+){0,2}" + NOUN + "\\b", 'g');
   for (const s of sentences) {
     let hit = false;
     let m;
