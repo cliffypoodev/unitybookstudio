@@ -2310,6 +2310,20 @@ export default function ProjectStudio() {
       lines.push('');
     }
 
+    const keyDocuments = safeArray(data?.key_documents);
+    if (keyDocuments.length) {
+      lines.push('## Key Documents (verbatim excerpts)');
+      keyDocuments.forEach((item) => {
+        lines.push(`### ${item.name || 'Document'}`);
+        if (item.date) lines.push(`**Date:** ${item.date}`);
+        if (item.issuer) lines.push(`**Issued by:** ${item.issuer}`);
+        if (item.verbatim_excerpt) lines.push(`**In its own words:** "${item.verbatim_excerpt}"`);
+        if (item.significance) lines.push(`**Significance:** ${item.significance}`);
+        if (item.source) lines.push(`**Source:** ${item.source}`);
+        lines.push('');
+      });
+    }
+
     lines.push('## Competing Narratives / Evidence Tensions');
     const narratives = safeArray(data?.competing_narratives);
     if (narratives.length) {
@@ -2342,6 +2356,7 @@ export default function ProjectStudio() {
       institutions: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, role: { type: 'string' }, period: { type: 'string' } } } },
       timeline: { type: 'array', items: { type: 'object', properties: { date: { type: 'string' }, event: { type: 'string' } } } },
       primary_sources: { type: 'array', items: { type: 'object', properties: { source_type: { type: 'string' }, description: { type: 'string' }, availability: { type: 'string' } } } },
+      key_documents: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, date: { type: 'string' }, issuer: { type: 'string' }, verbatim_excerpt: { type: 'string' }, significance: { type: 'string' }, source: { type: 'string' } } } },
       competing_narratives: { type: 'array', items: { type: 'object', properties: { official_story: { type: 'string' }, evidence_counter: { type: 'string' }, key_evidence: { type: 'string' } } } },
     },
     required: ['key_figures', 'key_events', 'institutions', 'timeline', 'primary_sources', 'competing_narratives'],
@@ -2454,6 +2469,7 @@ export default function ProjectStudio() {
           `${subject} firsthand testimony eyewitness account`,
           `${subject} archival collection primary documents`,
           `${subject} interviews narratives survivors`,
+          `${subject} proclamation order official full text`,
         ];
         for (const t of focusTerms) {
           archiveAngles.push(`${t} oral history testimony`);
@@ -2527,6 +2543,7 @@ export default function ProjectStudio() {
         timeline: [],
         primary_sources: [],
         competing_narratives: [],
+        key_documents: [],
       };
       const seenKeys = {
         key_figures: new Set(),
@@ -2535,6 +2552,7 @@ export default function ProjectStudio() {
         timeline: new Set(),
         primary_sources: new Set(),
         competing_narratives: new Set(),
+        key_documents: new Set(),
       };
       const stripTitles = (name) =>
         (name || '')
@@ -2549,6 +2567,7 @@ export default function ProjectStudio() {
         if (bucket === 'timeline') return ((item.date || '') + '|' + (item.event || '')).trim().toLowerCase();
         if (bucket === 'primary_sources') return (item.source_type || '').trim().toLowerCase();
         if (bucket === 'competing_narratives') return (item.official_story || '').trim().toLowerCase();
+        if (bucket === 'key_documents') return ((item.name || '') + '|' + (item.date || '')).trim().toLowerCase();
         return JSON.stringify(item).toLowerCase();
       };
       const mergeBucket = (bucket, arr) => {
@@ -2601,6 +2620,7 @@ EXTRACTION RULES:
 - Extract EVERY real, documented person, event, institution, date, public record, official document, archival trail, court record, newspaper account, and academic source that actually appears in THESE sources.
 - Pull specific named people and specific documents wherever the sources name them — these are the backbone of an honest forensic chapter.
 - TESTIMONY & FIRST-PERSON SOURCES: When a source contains first-person testimony, oral-history interviews, depositions, letters, diaries, or named-interviewee material (for example WPA / Federal Writers' Project slave narratives, oral histories, witness statements), treat EVERY named individual in it as a real, documented person and add them to key_figures — even when the only documented facts are their name, what they described or experienced, and where or when it was recorded. Use that source's own URL. A person named in such a record IS documented; do not skip them for lacking a formal title or office. Record names as written in the source; if a name is clearly garbled by scanning, keep the most legible form and do not change it into a different name.
+- DOCUMENT GROUNDING (key_documents): When a source contains the text of a foundational or official document — a proclamation, executive order, military order, statute, treaty, court ruling, or similar — add it to key_documents with its name, date, and issuer, and capture a short VERBATIM excerpt (roughly 30-90 words) of its OPERATIVE language, copied EXACTLY as written. Prioritize clauses that define scope: lists of states, places, or people; effective dates; who is bound and who is exempt. Never paraphrase inside verbatim_excerpt, never trim a list of places down to a summary, and leave verbatim_excerpt empty if the document's actual text is not present in these sources. These excerpts are the book's legal and factual ground truth.
 - Separate documented facts from disputed claims.
 - Include competing narratives only where these sources actually contest each other.
 - For each item, set source_types / sources to the real URL(s) above.
@@ -2612,6 +2632,7 @@ Return structured JSON:
 - institutions: array of {name, role, period}
 - timeline: array of {date, event}
 - primary_sources: array of {source_type, description, availability}
+- key_documents: array of {name, date, issuer, verbatim_excerpt, significance, source}
 - competing_narratives: array of {official_story, evidence_counter, key_evidence}`,
             response_json_schema: researchSchema,
           });
@@ -2623,6 +2644,7 @@ Return structured JSON:
             mergeBucket('timeline', partial.timeline);
             mergeBucket('primary_sources', partial.primary_sources);
             mergeBucket('competing_narratives', partial.competing_narratives);
+            mergeBucket('key_documents', partial.key_documents);
           }
         } catch (batchErr) {
           console.warn('[RESEARCH] batch ' + (b + 1) + '/' + batches.length + ' failed, skipping: ' + (batchErr?.message || batchErr));
