@@ -2600,16 +2600,29 @@ export async function generateChapterSceneByScene({
     finalProse = quoteRepair.text;
   }
 
-  // Semantic source verification (nonfiction): one model pass over the whole
-  // chapter catches unquoted invented sources the regex missed; strip them cleanly.
+  // Semantic source verification (nonfiction): one MODEL pass over the whole
+  // chapter (semanticSourceCheck — previously defined but never wired) catches
+  // unquoted invented sources; the deterministic check runs as a second net.
+  // Anything stripped is followed by a quote re-balance, because removing a
+  // sentence can orphan quotation marks.
   if (project?.book_type === 'nonfiction') {
     try {
-      const semanticFlags = deterministicSourceCheck(finalProse, project);
-      if (semanticFlags.length) {
-        console.warn('[SEMANTIC-CHECK] Unsupported sources flagged:', semanticFlags.map((f) => f.snippet.slice(0, 80)));
+      let semanticFlags = [];
+      try { semanticFlags = await semanticSourceCheck(finalProse, project); } catch (e) { semanticFlags = []; }
+      const deterministicFlags = deterministicSourceCheck(finalProse, project);
+      const allFlags = [...semanticFlags, ...deterministicFlags];
+      if (allFlags.length) {
+        console.warn('[SEMANTIC-CHECK] Unsupported sources flagged:', allFlags.map((f) => f.snippet.slice(0, 80)));
         const beforeSem = finalProse;
-        finalProse = stripFabricatedSentences(finalProse, semanticFlags);
-        if (finalProse !== beforeSem) console.warn('[SEMANTIC-CHECK] Stripped', semanticFlags.length, 'unsupported-source sentence(s).');
+        finalProse = stripFabricatedSentences(finalProse, allFlags);
+        if (finalProse !== beforeSem) {
+          console.warn('[SEMANTIC-CHECK] Stripped', allFlags.length, 'unsupported-source sentence(s).');
+          const postStripQuotes = repairChapterQuotes(finalProse);
+          if (postStripQuotes.text !== finalProse) {
+            console.warn('[SEMANTIC-CHECK] Re-balanced quotes after strip:', postStripQuotes.fixes);
+            finalProse = postStripQuotes.text;
+          }
+        }
       }
     } catch (e) { /* semantic pass unavailable — ship regex-gated prose */ }
   }
