@@ -333,7 +333,13 @@ function buildAuthorVoiceReminder(project) {
     reminder = `VOICE LOCK (APPLY NOW AS YOU WRITE): Render this section in the voice of ${project.author_voice}. Honor the PROSE MECHANICS, SENSORY FOCUS, and ANTI-TROPES defined earlier — concrete documented detail over mood, specific named sources over vague phrasing, and absolutely no invented people, quotes, or events. If a fact is not in the supplied research, leave it out rather than dramatize it.`;
   }
   if (project?.book_type === 'nonfiction') {
-    const nfRule = `SOURCE FIDELITY (NONFICTION, ABSOLUTE): Use ONLY the proper names, titles, organizations, dates, quotations, and documents that appear verbatim in the supplied research/source pack. You may NOT introduce any named person, officer, clerk, letter, dispatch, or quoted line that is not in that material. If the research does not name someone, write around it ("a Union officer," "a shipping clerk") — never invent a name or a quote. Inventing a source is a critical failure.`;
+    const nfRule = `SOURCE FIDELITY (NONFICTION, ABSOLUTE): Use ONLY the proper names, titles, organizations, dates, quotations, and documents that appear verbatim in the supplied research/source pack. You may NOT introduce any named person, officer, clerk, letter, dispatch, or quoted line that is not in that material. If the research does not name someone, write around it ("a Union officer," "a shipping clerk") — never invent a name or a quote. Inventing a source is a critical failure.
+
+ENTITY DISCIPLINE: Never merge facts about two different named people, plantations, holdings, or documents. Every claim about a person must trace to research text about THAT person. If the research describes two people with separate facts, they remain two people with separate facts — do not transfer a number, size, action, or date from one to the other, and never present a difference between two sources' subjects as a "discrepancy" in one subject.
+
+CHRONOLOGY & SEASON DISCIPLINE: Never infer agricultural, seasonal, or logistical timing that the research does not state. Do not claim a harvest, planting, or season was beginning or ending on a given date unless the research says so, and never build a causal argument on inferred timing.
+
+QUOTE & THESIS DISCIPLINE: Each verbatim quotation may appear at most ONCE in the chapter — never reuse a quote as a refrain or callback. Attribute arguments to their sources; the chapter's own narrating voice must not repeatedly assert OR repeatedly deny the book's thesis. State what the record shows, what named parties claimed, and move forward — at most one passage per chapter about what sources do not say.`;
     reminder = reminder ? `${reminder}\n\n${nfRule}` : nfRule;
   }
   return reminder;
