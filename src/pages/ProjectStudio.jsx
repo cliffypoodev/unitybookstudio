@@ -2606,7 +2606,8 @@ export default function ProjectStudio() {
       };
 
       const quoteRule = (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative')
-        ? '- VERBATIM QUOTE: For each person drawn from first-person testimony, also capture ONE short verbatim quote (about 5-25 words) of their own words from the source text, copied EXACTLY as written — preserve the original or dialect spelling, do NOT modernize or paraphrase. Put it in the "quote" field. If the source gives no usable first-person words for that person, leave "quote" empty. Never fabricate or paraphrase a quote.'
+        ? '- VERBATIM QUOTE: For each person drawn from first-person testimony, also capture ONE short verbatim quote (about 5-25 words) of their own words from the source text, copied EXACTLY as written — preserve the original or dialect spelling, do NOT modernize or paraphrase. Put it in the "quote" field. If the source gives no usable first-person words for that person, leave "quote" empty. Never fabricate or paraphrase a quote.\\n' +
+          '- DATES DISCIPLINE: For dates_active, use ONLY years or dates that appear in the source text for that person (e.g., a stated birth year, or the interview year). If the source states no dates for that person, write "UNVERIFIED". NEVER infer, estimate, or invent birth or death years. A quote belongs to exactly ONE person — the narrator whose own section contains it. NEVER assign the same quote to more than one person; if you cannot tell whose section a quote belongs to, leave "quote" empty for all uncertain people.'
         : '- Do NOT include verbatim quotes. Leave the "quote" field empty for every figure; record only who each person was and what they documented or described.';
 
       for (let b = 0; b < batches.length; b++) {
@@ -2692,6 +2693,21 @@ Return structured JSON:
         research_data: JSON.stringify(data),
         ...researchFields,
       }));
+
+      // EXTRACTION INTEGRITY: a verbatim quote belongs to exactly one narrator. If the
+      // extractor assigned the same quote to multiple people, only the first keeps it —
+      // a misattributed witness quote in nonfiction is as bad as a fabricated one.
+      const seenQuotes = new Set();
+      for (const f of data.key_figures || []) {
+        const q = (f.quote || '').trim().toLowerCase().replace(/\s+/g, ' ');
+        if (!q) continue;
+        if (seenQuotes.has(q)) {
+          console.warn('[RESEARCH-INTEGRITY] duplicate quote blanked for', f.name);
+          f.quote = '';
+        } else {
+          seenQuotes.add(q);
+        }
+      }
 
       const figs = (data.key_figures || []).length;
       const evs = (data.key_events || []).length;
