@@ -490,6 +490,26 @@ export function labelCompositeCharacters(text, project, chapter) {
     return true;
   });
 
+  // Initial-form names ("William S. Pease") — invisible to the First-Last regex.
+  const initialNames = [...new Set(text.match(/\b[A-Z][a-z]+ [A-Z]\. [A-Z][a-z]+\b/g) || [])];
+  for (const name of initialNames) {
+    if (NON_NAME_PROPER_NOUNS.has(name)) continue;
+    const known = [...knownNames].some((k) => name.includes(k) || k.includes(name));
+    if (!known && !unknownNames.includes(name)) unknownNames.push(name);
+  }
+  // Recurring single-name actors ("Nelson") — flag lone capitalized names that
+  // recur mid-sentence 4+ times and trace to nothing in the research.
+  const midSentence = text.match(/(?<=[a-z,;:'"\u201d\u2019] )([A-Z][a-z]{2,})\b/g) || [];
+  const singleCounts = {};
+  for (const w of midSentence) singleCounts[w] = (singleCounts[w] || 0) + 1;
+  for (const [w, count] of Object.entries(singleCounts)) {
+    if (count < 4) continue;
+    if (NON_NAME_PROPER_NOUNS.has(w)) continue;
+    const known = [...knownNames].some((k) => k.includes(w) || w.includes(k));
+    const partOfFull = uniqueProseNames.some((n) => n.includes(w));
+    if (!known && !partOfFull && !unknownNames.includes(w)) unknownNames.push(w);
+  }
+
   if (unknownNames.length > 0) {
     console.log('[NF] Possible composite names detected (not in known sources): ' + unknownNames.join(', '));
   }
