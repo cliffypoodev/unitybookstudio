@@ -2243,7 +2243,7 @@ function deterministicSourceCheck(prose, project) {
     violations.push({ type: 'source', snippet: s.trim().slice(0, 120), detail: 'source/statistic not in research' });
   };
   const sentences = splitSentencesSafe(prose);
-  const NOUN = "([Rr]ecords?|[Rr]eports?|[Oo]rders?|[Dd]ispatch(?:es)?|[Dd]ocuments?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle|Picayune|Tribune|Times|Post|Examiner|Courier|Sentinel|Statesman|Advocate|Enquirer|Observer|Banner|Star|Sun|Press)";
+  const NOUN = "([Rr]ecords?|[Rr]eports?|[Oo]rders?|[Dd]ispatch(?:es)?|[Dd]ocuments?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Dd]epartments?|[Cc]ommands?|[Dd]ivisions?|[Hh]eadquarters|Army|Navy|[Oo]ffice|[Aa]dministration|[Cc]ommissions?|[Cc]ommittees?|[Dd]eployments?|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle|Picayune|Tribune|Times|Post|Examiner|Courier|Sentinel|Statesman|Advocate|Enquirer|Observer|Banner|Star|Sun|Press)";
   const SRC = new RegExp("\\b([A-Z][A-Za-z.&'\u2019-]+(?:\\s+(?:of|the|and|de|du|for|[A-Z][A-Za-z.&'\u2019-]+|\\d{2,4}))*)\\s+(?:[a-z][a-z'\u2019-]+\\s+){0,2}" + NOUN + "\\b", 'g');
   // Lowercase-owner source claims the old check never examined:
   // "the shipping ledgers", "the plantation records", "the court documents"
@@ -2279,6 +2279,16 @@ function deterministicSourceCheck(prose, project) {
       USS.lastIndex = 0;
       while ((m = USS.exec(s)) !== null) {
         if (!inHay('uss ' + m[1])) { hit = true; break; }
+      }
+    }
+    if (!hit) {
+      // GATEFIX-15: "documented/recorded in <x> records" source claims must trace
+      // to the research like any other citation.
+      const INSRC = /\b(?:documented|recorded|reported|reflected|confirmed|shown)\s+in\s+((?:[a-z][a-z-]+\s+){0,3}(?:records|archives|documents|reports|files|deployments|registers|dispatches))\b/g;
+      let m5;
+      INSRC.lastIndex = 0;
+      while ((m5 = INSRC.exec(s)) !== null) {
+        if (!inHay(m5[1])) { hit = true; break; }
       }
     }
     if (!hit) {
