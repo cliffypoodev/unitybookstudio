@@ -2218,6 +2218,54 @@ function dedupeRepeatedSentences(prose) {
   return kept.join('');
 }
 
+// GATEFIX-16: a verbatim quotation may appear at most ONCE per chapter. The local
+// models reuse witness quotes as refrains with varied framing, so exact-sentence
+// dedupe never sees them. Collapse by QUOTE CONTENT: keep the sentence containing
+// the first occurrence; drop later sentences that repeat the same quote (>=4 words).
+function dedupeRepeatedQuotes(prose) {
+  if (!prose) return prose;
+  const normQ = (s) => (s || '').toLowerCase().replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const QUOTE_RE = /[\u201c"]([^\u201c\u201d"]{10,400})[\u201d"]/g;
+  const sentences = splitSentencesSafe(prose);
+  const seen = new Set();
+  const kept = [];
+  let removed = 0;
+  for (const s of sentences) {
+    let drop = false;
+    const local = [];
+    let m;
+    QUOTE_RE.lastIndex = 0;
+    while ((m = QUOTE_RE.exec(s)) !== null) {
+      const q = normQ(m[1]);
+      if (q.split(' ').filter(Boolean).length < 4) continue;
+      if (seen.has(q)) { drop = true; break; }
+      local.push(q);
+    }
+    if (drop) { removed++; continue; }
+    for (const q of local) seen.add(q);
+    kept.push(s);
+  }
+  if (removed) console.warn('[DEDUPE-QUOTES] Removed', removed, 'sentence(s) repeating an earlier verbatim quote.');
+  return kept.join('');
+}
+
+// GATEFIX-16: detection-only alarm for phrase-tic families the dedupers cannot fix.
+// Feeds the human review checklist; does not modify prose.
+function repetitionAlarm(prose) {
+  if (!prose) return 0;
+  const bare = String(prose).replace(/[\u201c"][^\u201c\u201d"]*[\u201d"]/g, ' ');
+  const words = bare.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim().split(' ');
+  const seen = new Map();
+  const flagged = new Set();
+  for (let i = 0; i + 8 <= words.length; i++) {
+    const g = words.slice(i, i + 8).join(' ');
+    if (seen.has(g)) { if (i - seen.get(g) >= 8) flagged.add(g); }
+    else seen.set(g, i);
+  }
+  if (flagged.size) console.warn('[REPETITION]', flagged.size, 'repeated 8-word phrase families remain in this chapter.');
+  return flagged.size;
+}
+
 function deterministicSourceCheck(prose, project) {
   if (!prose || !project || project.book_type !== 'nonfiction') return [];
   const research = typeof project.research_data === 'string'
@@ -2629,6 +2677,8 @@ export async function generateChapterSceneByScene({
     finalProse = quoteRepair.text;
   }
   finalProse = dedupeRepeatedSentences(finalProse);
+  finalProse = dedupeRepeatedQuotes(finalProse);
+  repetitionAlarm(finalProse);
 
   // Semantic source verification (nonfiction): one MODEL pass over the whole
   // chapter (semanticSourceCheck — previously defined but never wired) catches
