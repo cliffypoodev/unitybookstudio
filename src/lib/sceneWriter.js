@@ -2207,7 +2207,14 @@ function deterministicSourceCheck(prose, project) {
   if (!research || research.length < 50) return [];
   const norm = (s) => (s || '').toLowerCase().replace(/[\u2018\u2019\u2032`]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, ' ').trim();
   const hay = norm(research);
-  const SKIP = new Set(['of', 'the', 'and', 'for', 'de', 'du', 'a', 'an', 'to', 'county', 'court', 'state', 'texas', 'union', 'army', 'confederate', 'federal', 'national', 'united', 'states', 'city', 'war', 'general', 'order']);
+  const inHay = (p) => {
+    const q = norm(p);
+    if (!q) return true;
+    if (hay.includes(q)) return true;
+    // singular/plural tolerance on the final word
+    const alt = q.endsWith('s') ? q.slice(0, -1) : q + 's';
+    return hay.includes(alt);
+  };
   const violations = [];
   const seen = new Set();
   const add = (s) => {
@@ -2216,27 +2223,44 @@ function deterministicSourceCheck(prose, project) {
     seen.add(k);
     violations.push({ type: 'source', snippet: s.trim().slice(0, 120), detail: 'source/statistic not in research' });
   };
-  const sentences = prose.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [prose];
-  const NOUN = "([Rr]ecords?|[Rr]eports?|[Oo]rders?|[Dd]ispatch(?:es)?|[Dd]ocuments?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle)";
+  const sentences = splitSentencesSafe(prose);
+  const NOUN = "([Rr]ecords?|[Rr]eports?|[Oo]rders?|[Dd]ispatch(?:es)?|[Dd]ocuments?|[Aa]rchives?|[Aa]nalysis|[Ll]edgers?|[Ll]ogs?|[Ll]ogbooks?|[Cc]orrespondence|[Mm]anifests?|[Rr]egisters?|[Tt]ranscripts?|[Bb]ureau|[Gg]azette|[Tt]elegrams?|[Tt]elegraph|[Nn]ews(?:paper)?|[Jj]ournal|[Hh]erald|[Cc]hronicle|Picayune|Tribune|Times|Post|Examiner|Courier|Sentinel|Statesman|Advocate|Enquirer|Observer|Banner|Star|Sun|Press)";
   const SRC = new RegExp("\\b([A-Z][A-Za-z.&'\u2019-]+(?:\\s+(?:of|the|and|de|du|for|[A-Z][A-Za-z.&'\u2019-]+|\\d{2,4}))*)\\s+(?:[a-z][a-z'\u2019-]+\\s+){0,2}" + NOUN + "\\b", 'g');
+  // Lowercase-owner source claims the old check never examined:
+  // "the shipping ledgers", "the plantation records", "the court documents"
+  const LOWSRC = /\bthe\s+((?:[a-z][a-z-]+\s+){1,2})(records|ledgers|dispatch(?:es)?|documents|logs?|manifests?|registers?|transcripts?)\b/g;
+  const FILLER = new Set(['same', 'available', 'historical', 'own', 'other', 'these', 'those', 'existing', 'surviving', 'official', 'public', 'written']);
+  const USS = /\bUSS\s+([A-Z][A-Za-z-]+)/g;
   for (const s of sentences) {
     let hit = false;
     let m;
     SRC.lastIndex = 0;
     while ((m = SRC.exec(s)) !== null) {
-      const owner = norm(m[1]);
       const noun = m[2];
       if (/^[A-Z]/.test(noun)) {
         // Proper-name source: the full name must appear in the research.
-        const fullName = norm(m[1].replace(/^The\s+/i, '') + ' ' + noun);
-        if (!hay.includes(fullName)) { hit = true; break; }
+        const fullName = m[1].replace(/^The\s+/i, '') + ' ' + noun;
+        if (!inHay(fullName)) { hit = true; break; }
         continue;
       }
-      // Generic source noun: owner's distinctive words must be in the research.
-      const dist = owner.split(' ').filter((w) => w.length > 3 && !SKIP.has(w) && !/^\d+$/.test(w));
-      if (dist.length === 0) continue;
-      const phrase = dist.join(' ');
-      if (!hay.includes(phrase) && !dist.every((t) => hay.includes(t))) { hit = true; break; }
+      // Generic source claim: the FULL cited phrase must trace to the research.
+      // (Owner-token matching allowed "Galveston shipping ledgers" through because
+      // "galveston" appears in any research on this topic.)
+      if (!inHay(m[0])) { hit = true; break; }
+    }
+    if (!hit) {
+      LOWSRC.lastIndex = 0;
+      while ((m = LOWSRC.exec(s)) !== null) {
+        const ownerWords = m[1].trim().split(/\s+/).filter((w) => !FILLER.has(w));
+        if (ownerWords.length === 0) continue;
+        if (!inHay(ownerWords.join(' ') + ' ' + m[2])) { hit = true; break; }
+      }
+    }
+    if (!hit) {
+      USS.lastIndex = 0;
+      while ((m = USS.exec(s)) !== null) {
+        if (!inHay('uss ' + m[1])) { hit = true; break; }
+      }
     }
     if (!hit) {
       const st = s.match(/\b(\d{1,3})\s?(?:%|percent)\b/i);
