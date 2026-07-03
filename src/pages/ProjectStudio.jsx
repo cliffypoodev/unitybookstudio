@@ -2538,11 +2538,27 @@ export default function ProjectStudio() {
       // handful of facts no matter how much we feed it — that is why research came
       // back thin. Small batches each get their own output budget, so real facts
       // accumulate into a deep record. Sequential loop only (never Promise.all).
-      const BATCH_SIZE = 5;
+      // Batch by CHARACTER BUDGET, not page count. Four 15K corpus volumes in one
+      // fixed-count batch overflowed the researcher model's context and silently
+      // destroyed every witness extraction in that batch (root cause of three
+      // consecutive briefs losing all Texas testimony). A large page now gets a
+      // batch to itself, which also gives dense primary sources the model's full
+      // extraction budget. Max 5 pages per batch still applies.
+      const BATCH_CHAR_BUDGET = 20000;
       const batches = [];
-      for (let i = 0; i < extractionPages.length; i += BATCH_SIZE) {
-        batches.push(extractionPages.slice(i, i + BATCH_SIZE));
+      let current = [];
+      let currentChars = 0;
+      for (const p of extractionPages) {
+        const size = (p.content || p.snippet || '').length;
+        if (current.length && (currentChars + size > BATCH_CHAR_BUDGET || current.length >= 5)) {
+          batches.push(current);
+          current = [];
+          currentChars = 0;
+        }
+        current.push(p);
+        currentChars += size;
       }
+      if (current.length) batches.push(current);
 
       const merged = {
         key_figures: [],
