@@ -2709,22 +2709,36 @@ Return structured JSON:
         }
       }
 
-      // QUOTE VERBATIM GUARD: every witness quote must exist verbatim in the fetched
-      // source pages. Punctuation and curly-apostrophe variance is normalized away on
-      // both sides, then a substring match is required. A "verbatim" quote that cannot
-      // be located in the sources is a factual defect and is blanked, never shipped.
+      // QUOTE VERBATIM GUARD v2 — ATTRIBUTION BINDING (GATEFIX-13): a witness quote
+      // must exist verbatim on at least one fetched page that ALSO names that witness.
+      // A quote that exists somewhere in the run but never on a page mentioning its
+      // speaker is a misattribution (real words, wrong mouth) and is blanked exactly
+      // like a fabricated quote. This guard fails SAFE: an honestly-empty quote beats
+      // a wrongly-attributed one.
       const normQuote = (s) => (s || '')
         .toLowerCase()
         .replace(/[\u2018\u2019']/g, '')
         .replace(/[^a-z0-9 ]+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
-      const sourceHay = normQuote(pages.map((p) => p.content || '').join(' \n '));
+      const normPages = (pages || []).map((p) => normQuote(p.content || ''));
       for (const f of data.key_figures || []) {
         const q = normQuote(f.quote);
         if (!q || q.split(' ').length < 4) continue;
-        if (!sourceHay.includes(q)) {
+        const nameTokens = normQuote(f.name).split(' ').filter((t) => t.length >= 3);
+        const nameKey = nameTokens.length ? nameTokens[nameTokens.length - 1] : '';
+        let foundAnywhere = false;
+        let foundWithName = false;
+        for (const pg of normPages) {
+          if (!pg.includes(q)) continue;
+          foundAnywhere = true;
+          if (!nameKey || pg.includes(nameKey)) { foundWithName = true; break; }
+        }
+        if (!foundAnywhere) {
           console.warn('[RESEARCH-INTEGRITY] quote not found verbatim in sources — blanked for', f.name);
+          f.quote = '';
+        } else if (!foundWithName) {
+          console.warn('[RESEARCH-INTEGRITY] quote not attributable — no source page contains both the quote and', f.name, '— blanked');
           f.quote = '';
         }
       }
