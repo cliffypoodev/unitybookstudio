@@ -2199,6 +2199,25 @@ function splitSentencesSafe(text) {
   return parts.map((s) => s.split(PROT).join('.'));
 }
 
+// Removes exact duplicate sentences (10+ words) — chapter-wide tics the local
+// models bake in at drafting time. Keeps the first occurrence only.
+function dedupeRepeatedSentences(prose) {
+  if (!prose) return prose;
+  const sentences = splitSentencesSafe(prose);
+  const seen = new Set();
+  const kept = [];
+  let removed = 0;
+  for (const s of sentences) {
+    const key = s.toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
+    const wc = key.split(' ').filter(Boolean).length;
+    if (wc >= 10 && seen.has(key)) { removed++; continue; }
+    if (wc >= 10) seen.add(key);
+    kept.push(s);
+  }
+  if (removed) console.warn('[DEDUPE] Removed', removed, 'exact duplicate sentence(s).');
+  return kept.join('');
+}
+
 function deterministicSourceCheck(prose, project) {
   if (!prose || !project || project.book_type !== 'nonfiction') return [];
   const research = typeof project.research_data === 'string'
@@ -2599,6 +2618,7 @@ export async function generateChapterSceneByScene({
     console.warn('[QUOTE-REPAIR] Cleaned generated chapter quotes before return:', quoteRepair.fixes);
     finalProse = quoteRepair.text;
   }
+  finalProse = dedupeRepeatedSentences(finalProse);
 
   // Semantic source verification (nonfiction): one MODEL pass over the whole
   // chapter (semanticSourceCheck — previously defined but never wired) catches
