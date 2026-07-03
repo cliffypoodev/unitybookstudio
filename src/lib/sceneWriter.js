@@ -2186,6 +2186,19 @@ async function semanticSourceCheck(prose, project) {
 //  (c) a percentage statistic absent from the research.
 // Checks RESEARCH ONLY — not the AI-generated bible, which could carry the same
 // invented sources and whitelist them. Flagged sentences are stripped.
+// Sentence splitter that will not break on rank abbreviations or single-letter
+// name initials ("Major William S. Pease"). Shared by the source check and the
+// fabrication strip so flagged snippets and removed sentences align 1:1.
+function splitSentencesSafe(text) {
+  const PROT = '\u0001';
+  const ABBR = /\b(D\.\s?C|U\.\s?S|Gen|Maj|Brig|Col|Capt|Lt|Sgt|Gov|Sec|Dr|Mr|Mrs|Ms|St|Mt|Jr|Sr|No|vs|etc|a\.m|p\.m)\.(?=\s|$)/gi;
+  let work = String(text || '').replace(ABBR, (m) => m.replace('.', PROT));
+  // Single-letter initials followed by a capitalized word: "William S. Pease"
+  work = work.replace(/\b([A-Z])\.(?=\s+[A-Z])/g, '$1' + PROT);
+  const parts = work.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [work];
+  return parts.map((s) => s.split(PROT).join('.'));
+}
+
 function deterministicSourceCheck(prose, project) {
   if (!prose || !project || project.book_type !== 'nonfiction') return [];
   const research = typeof project.research_data === 'string'
@@ -2244,17 +2257,12 @@ function stripFabricatedSentences(prose, violations) {
     .filter((n) => n.length >= 8)
     .map((n) => n.slice(0, 45));
   if (!needles.length) return prose;
-  // Protect common abbreviations so we don't split mid-sentence (D. C., Gen., etc.).
-  const ABBR = /\b(D\.\s?C|U\.\s?S|Gen|Maj|Brig|Col|Capt|Lt|Sgt|Gov|Sec|Dr|Mr|Mrs|Ms|St|Mt|Jr|Sr|No|vs|etc|a\.m|p\.m)\.(?=\s|$)/gi;
-  const PROT = '\u0001'; // placeholder for the protected period
-  let work = prose.replace(ABBR, (m) => m.replace('.', PROT));
-  // Split on sentence-ending punctuation followed by whitespace/quote + capital or end.
-  const sentences = work.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [work];
+  const sentences = splitSentencesSafe(prose);
   const kept = sentences.filter((s) => {
-    const sl = s.replace(new RegExp(PROT, 'g'), '.').toLowerCase();
+    const sl = s.toLowerCase();
     return !needles.some((n) => sl.includes(n));
   });
-  let out = kept.join('').replace(new RegExp(PROT, 'g'), '.');
+  let out = kept.join('');
   out = out.replace(/[ \t]{2,}/g, ' ').replace(/\s+([.,;:])/g, '$1').replace(/\n{3,}/g, '\n\n').trim();
   // Guard: if stripping removed almost everything, keep the original rather than ship a stub.
   return out.length > Math.min(120, prose.length * 0.25) ? out : prose;
