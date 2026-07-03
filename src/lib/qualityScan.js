@@ -160,7 +160,7 @@ export function crossCheckResearchFabrication(text, project) {
   }
   // 2) Titled officials presented as sources/actors, not in research
   const KNOWN = new Set(['lincoln', 'granger', 'gordon granger', 'abraham lincoln']);
-  const titleRe = /\b(Major General|Brigadier General|General|Judge|Governor|Colonel|Captain|Lieutenant|Senator|Secretary|President)\s+([A-Z][a-zA-Z.'-]+(?:\s+[A-Z][a-zA-Z.'-]+){0,2})/g;
+  const titleRe = /\b(Major General|Brigadier General|Lieutenant General|Lieutenant Colonel|General|Major|Colonel|Commodore|Admiral|Commander|Captain|Lieutenant|Sergeant|Corporal|Judge|Governor|Senator|Secretary|President|Reverend|Sheriff|Marshal)\s+([A-Z][a-zA-Z.'-]+(?:\s+[A-Z][a-zA-Z.'-]+){0,2})/g;
   let tm;
   while ((tm = titleRe.exec(text)) !== null) {
     const name = norm(tm[2]).replace(/[.'-]+$/, '');
