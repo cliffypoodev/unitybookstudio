@@ -211,7 +211,7 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
         const parts = [];
         if (others.length) parts.push(`named sources not in the research: ${others.join('; ')}`);
         if (quotes.length) parts.push(`quotations not in the research: ${quotes.join('; ')}`);
-        blockingIssues.push(`Unsourced material detected — ${parts.join(' | ')}. Rewrite this section using ONLY people, titles, organizations, documents, and quotations that appear in the supplied research. Do not invent or paraphrase a quote, official, dispatch, ledger, court order, or newspaper. Where the record is silent, say so plainly instead of inventing detail.`);
+        blockingIssues.push(`Unsourced material detected — ${parts.join(' | ')}. Rewrite this section using ONLY people, titles, organizations, documents, and quotations that appear in the supplied research. Do not invent or paraphrase a quote, official, dispatch, ledger, court order, or newspaper. If the research contains no source for a claim, OMIT the claim entirely — do not write about silences, gaps, or what the record does not show.`);
       }
     } catch (e) { /* detector unavailable — do not block */ }
     // Deterministic source check at section level (rewrite-first): invented
@@ -221,7 +221,7 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
     try {
       const srcFlags = deterministicSourceCheck(prose, project);
       if (srcFlags.length > 0) {
-        blockingIssues.push(`Sources cited that are NOT in the research: ${srcFlags.map((v) => v.snippet).join(' | ')}. Rewrite this section citing ONLY sources named in the supplied research. Do not cite any archive, record, report, log, document, newspaper, or statistic that is not in the research — where no source exists, state plainly that the record is silent. Also remove or rewrite any sentence that refers back to a source you are removing.`);
+        blockingIssues.push(`Sources cited that are NOT in the research: ${srcFlags.map((v) => v.snippet).join(' | ')}. Rewrite this section citing ONLY sources named in the supplied research. Do not cite any archive, record, report, log, document, newspaper, or statistic that is not in the research — where no source exists, omit the claim entirely (do not narrate silences or gaps in the record). Also remove or rewrite any sentence that refers back to a source you are removing.`);
       }
     } catch (e) { /* detector unavailable — do not block */ }
   }
