@@ -2505,7 +2505,7 @@ export default function ProjectStudio() {
       // out by glossier web pages.
       let ordered = hits;
       if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
-        const isArchive = (h) => /loc\.gov|archives\.gov|gutenberg\.org|\.edu\//i.test(h.url || '');
+        const isArchive = (h) => /loc\.gov|archives\.gov|gutenberg\.org|hathitrust\.org|chroniclingamerica/i.test(h.url || '');
         ordered = [...hits.filter(isArchive), ...hits.filter((h) => !isArchive(h))];
       }
       const toFetch = ordered.slice(0, TOP_TO_FETCH);
@@ -2524,7 +2524,15 @@ export default function ProjectStudio() {
 
       // Only pages we pulled real text from go to extraction; fall back to all if none.
       const richPages = pages.filter((p) => p.content);
-      const extractionPages = richPages.length ? richPages : pages;
+      // RESEARCH FLOOR GUARD: never ship a starved brief. A thin brief silently
+      // starves the writer, and a starved writer fabricates (proven root cause
+      // of the failed Chapter 1 draft). Abort loudly instead.
+      if (richPages.length < 8) {
+        toast.error(`Deep research aborted: only ${richPages.length} source page(s) returned real text (minimum 8). Check the search bridge, then retry.`);
+        setBusyLabel('');
+        return;
+      }
+      const extractionPages = richPages;
 
       // Extract in BATCHES. One capped LLM call over everything can only emit a
       // handful of facts no matter how much we feed it — that is why research came
