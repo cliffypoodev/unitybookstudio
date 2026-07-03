@@ -148,12 +148,12 @@ export function crossCheckResearchFabrication(text, project) {
     violations.push({ type, snippet: snippet.slice(0, 90), detail });
   };
   // 1) Direct quotes not present in research (possible invented quotation)
-  const quoteRe = /["\u201c]([^"\u201d\n\r]{25,240})["\u201d]/g;
+  const quoteRe = /["\u201c]([^"\u201d\n\r]{12,300})["\u201d]/g;
   let qm;
   while ((qm = quoteRe.exec(text)) !== null) {
     const q = qm[1].trim();
     const words = norm(q).split(' ').filter(Boolean);
-    if (words.length < 5 || !/[a-z]/i.test(q)) continue;
+    if (words.length < 3 || !/[a-z]/i.test(q)) continue;
     const head = words.slice(0, 6).join(' ');
     const tail = words.slice(-6).join(' ');
     if (!hay.includes(head) && !hay.includes(tail)) add('quote', q, 'quotation not found in research');
