@@ -2709,6 +2709,26 @@ Return structured JSON:
         }
       }
 
+      // QUOTE VERBATIM GUARD: every witness quote must exist verbatim in the fetched
+      // source pages. Punctuation and curly-apostrophe variance is normalized away on
+      // both sides, then a substring match is required. A "verbatim" quote that cannot
+      // be located in the sources is a factual defect and is blanked, never shipped.
+      const normQuote = (s) => (s || '')
+        .toLowerCase()
+        .replace(/[\u2018\u2019']/g, '')
+        .replace(/[^a-z0-9 ]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const sourceHay = normQuote(pages.map((p) => p.content || '').join(' \n '));
+      for (const f of data.key_figures || []) {
+        const q = normQuote(f.quote);
+        if (!q || q.split(' ').length < 4) continue;
+        if (!sourceHay.includes(q)) {
+          console.warn('[RESEARCH-INTEGRITY] quote not found verbatim in sources — blanked for', f.name);
+          f.quote = '';
+        }
+      }
+
       const figs = (data.key_figures || []).length;
       const evs = (data.key_events || []).length;
       toast.success(`Deep research saved — ${pages.filter((p) => p.content).length} sources read, ${figs} figures, ${evs} events.`);
