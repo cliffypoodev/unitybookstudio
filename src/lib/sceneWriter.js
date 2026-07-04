@@ -339,7 +339,11 @@ ENTITY DISCIPLINE: Never merge facts about two different named people, plantatio
 
 CHRONOLOGY & SEASON DISCIPLINE: Never infer agricultural, seasonal, or logistical timing that the research does not state. Do not claim a harvest, planting, or season was beginning or ending on a given date unless the research says so, and never build a causal argument on inferred timing.
 
-QUOTE & THESIS DISCIPLINE: Each verbatim quotation may appear at most ONCE in the chapter — never reuse a quote as a refrain or callback. Attribute arguments to their sources; the chapter's own narrating voice must not repeatedly assert OR repeatedly deny the book's thesis. State what the record shows, what named parties claimed, and move forward — at most one passage per chapter about what sources do not say.`;
+QUOTE & THESIS DISCIPLINE: Each verbatim quotation may appear at most ONCE in the chapter — never reuse a quote as a refrain or callback. Attribute arguments to their sources; the chapter's own narrating voice must not repeatedly assert OR repeatedly deny the book's thesis. State what the record shows, what named parties claimed, and move forward — at most one passage per chapter about what sources do not say.
+
+META DISCIPLINE: The book's narrating voice must NEVER mention "the research," "the supplied research," "the provided materials," "the research pack," or "the sources provided." Write "the record," "the sources," "the archives," or name the specific collection. The reader must never see the machinery.
+
+SOURCE-LABEL FIDELITY: Cite each narrator's collection exactly as the research states it for THAT narrator. Never label a narrator with a Texas volume (mesn161-164) unless the research lists that volume as their source. A narrator from another state's collection may appear ONLY with their true origin stated plainly (for example, "a Georgia narrator recorded by the same project") and only as comparison — never woven in as a Texas witness. Never attribute physical or textual details to a document (times of day, ink, specific clauses) unless the research states them.`;
     reminder = reminder ? `${reminder}\n\n${nfRule}` : nfRule;
   }
   return reminder;
