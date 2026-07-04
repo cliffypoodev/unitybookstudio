@@ -2198,7 +2198,10 @@ async function semanticSourceCheck(prose, project) {
 function splitSentencesSafe(text) {
   const PROT = '\u0001';
   const ABBR = /\b(D\.\s?C|U\.\s?S|Gen|Maj|Brig|Col|Capt|Lt|Sgt|Gov|Sec|Dr|Mr|Mrs|Ms|St|Mt|Jr|Sr|No|vs|etc|a\.m|p\.m)\.(?=\s|$)/gi;
-  let work = String(text || '').replace(ABBR, (m) => m.replace('.', PROT));
+  // GATEFIX-22: protect dotted domain names (archives.gov, loc.gov, blogs.loc.gov) so a
+  // mid-domain split can never strand a "gov." stump after a sentence strip.
+  let work = String(text || '').replace(/\b((?:[a-z0-9-]+\.)+(?:gov|com|org|net|edu|io))\b/gi, (m) => m.split('.').join(PROT));
+  work = work.replace(ABBR, (m) => m.replace('.', PROT));
   // Single-letter initials followed by a capitalized word: "William S. Pease"
   work = work.replace(/\b([A-Z])\.(?=\s+[A-Z])/g, '$1' + PROT);
   const parts = work.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [work];
@@ -2216,7 +2219,7 @@ function dedupeRepeatedSentences(prose) {
   for (const s of sentences) {
     const key = s.toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
     const wc = key.split(' ').filter(Boolean).length;
-    if (wc >= 10 && seen.has(key)) { removed++; continue; }
+    if (wc >= 8 && seen.has(key)) { removed++; continue; }
     if (wc >= 10) seen.add(key);
     kept.push(s);
   }
@@ -2244,7 +2247,9 @@ function dedupeRepeatedQuotes(prose) {
     while ((m = QUOTE_RE.exec(s)) !== null) {
       const q = normQ(m[1]);
       if (q.split(' ').filter(Boolean).length < 4) continue;
-      if (seen.has(q)) { drop = true; break; }
+      let dupHit = seen.has(q);
+      if (!dupHit) { for (const sq of seen) { if (sq.includes(q) || q.includes(sq)) { dupHit = true; break; } } }
+      if (dupHit) { drop = true; break; }
       local.push(q);
     }
     if (drop) { removed++; continue; }
