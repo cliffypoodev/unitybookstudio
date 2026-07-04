@@ -690,6 +690,35 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
     }
   }
 
+  // GATEFIX-21: BIBLE QUOTE GUARD (deterministic, nonfiction only). Any quoted span in a
+  // foundation field, chapter title, or beat summary that is not found verbatim in the
+  // research is stripped. Same normalization as the research-layer verbatim guard.
+  // Fails safe: no quote beats a fabricated one. Known limitation: single-quoted spans
+  // containing internal apostrophes cannot be safely matched and are left to the prompt bans.
+  if (!isFiction) {
+    const normQ = (s) => (s || '').toLowerCase().replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const researchNorm = normQ(getResearchText(settings));
+    const QUOTE_RE = /[\u201c]([^\u201c\u201d]{10,400})[\u201d]|"([^"]{10,400})"|(?:^|[\s(:—-])'([^']{12,400})'(?=$|[\s).,;:!?])/g;
+    const stripUnverifiedQuotes = (text) => {
+      if (!text || !researchNorm) return text;
+      return text.replace(QUOTE_RE, (match, g1, g2, g3) => {
+        const inner = g1 || g2 || g3 || '';
+        const q = normQ(inner);
+        if (q.split(' ').filter(Boolean).length < 4) return match;
+        if (researchNorm.includes(q)) return match;
+        console.warn('[BIBLE-GUARD] unverified quote stripped from bible:', inner.slice(0, 60));
+        return g3 ? match.charAt(0) : '';
+      });
+    };
+    worldMd = stripUnverifiedQuotes(worldMd);
+    charactersMd = stripUnverifiedQuotes(charactersMd);
+    voiceMd = stripUnverifiedQuotes(voiceMd);
+    canonMd = stripUnverifiedQuotes(canonMd);
+    mysteryMd = stripUnverifiedQuotes(mysteryMd);
+    outlineMd = stripUnverifiedQuotes(outlineMd);
+    chapters = chapters.map((ch) => ({ ...ch, title: stripUnverifiedQuotes(ch.title), beat_summary: stripUnverifiedQuotes(ch.beat_summary) }));
+  }
+
   const totalTime = Math.round((Date.now() - t1) / 1000);
   console.log('[BIBLE-PARALLEL] Total bible generation:', totalTime, 's');
 
