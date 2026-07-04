@@ -934,7 +934,7 @@ function buildResearchBlock(project, relevantResearch) {
   const parts = [];
 
   if (relevantResearch) {
-    parts.push(`RELEVANT RESEARCH / CHAPTER SOURCE PACK:\n${compact(sanitizeNonfictionContextScarTissue(relevantResearch), 6500)}`);
+    parts.push(`ALLOWED FACTS — CLOSED WORLD. The material below plus the story bible is the ONLY permitted source of names, dates, numbers, places, quotations, and documents. Any factual atom not present here must NOT appear in your prose — omit the claim entirely rather than supply a fact from memory:\n${compact(sanitizeNonfictionContextScarTissue(relevantResearch), 6500)}`);
   }
 
   if (project?.research_md) {
