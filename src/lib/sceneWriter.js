@@ -272,6 +272,9 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
     /\b(?:first|second|third|fourth|final)\s+twist\b/i,
     /\b(?:inciting incident|midpoint|all is lost|dark night of the soul|break into two|break into three|plot point|pinch point|chapter hook|exit hook|story beat|scene beat|beat label|chapter function|narrative function)\b/i,
     /\b(?:the lesson|the theme|the reveal)\s+(?:was|is)\b/i,
+    /\b(?:supplied|provided)\s+(?:research|materials?|sources?|documents?)\b/i,
+    /\bresearch\s+pack\b/i,
+    /\bthe\s+research\s+(?:contains|offers|provides|does\s+not\s+contain|shows\s+no)\b/i,
   ];
 
   for (const rx of leakPatterns) {
@@ -345,7 +348,9 @@ QUOTE & THESIS DISCIPLINE: Each verbatim quotation may appear at most ONCE in th
 
 META DISCIPLINE: The book's narrating voice must NEVER mention "the research," "the supplied research," "the provided materials," "the research pack," or "the sources provided." Write "the record," "the sources," "the archives," or name the specific collection. The reader must never see the machinery.
 
-SOURCE-LABEL FIDELITY: Cite each narrator's collection exactly as the research states it for THAT narrator. Never label a narrator with a Texas volume (mesn161-164) unless the research lists that volume as their source. A narrator from another state's collection may appear ONLY with their true origin stated plainly (for example, "a Georgia narrator recorded by the same project") and only as comparison — never woven in as a Texas witness. Never attribute physical or textual details to a document (times of day, ink, specific clauses) unless the research states them.`;
+SOURCE-LABEL FIDELITY: Cite each narrator's collection exactly as the research states it for THAT narrator. Never label a narrator with a Texas volume (mesn161-164) unless the research lists that volume as their source. A narrator from another state's collection may appear ONLY with their true origin stated plainly (for example, "a Georgia narrator recorded by the same project") and only as comparison — never woven in as a Texas witness. Never attribute physical or textual details to a document (times of day, ink, specific clauses) unless the research states them.
+
+TESTIMONY CONTENT DISCIPLINE: Never characterize what a witness's testimony "describes," "notes," "recalls," or "shows" beyond that witness's documented_actions and quote in the research. If a witness's research quote is empty, you may state their documented role and actions only — you may NOT describe, summarize, or imply the content of their words at all. Never attach one witness's quote, quote fragment, or subject matter to a different witness.`;
     reminder = reminder ? `${reminder}\n\n${nfRule}` : nfRule;
   }
   return reminder;
@@ -2420,7 +2425,7 @@ function deterministicSourceCheck(prose, project) {
     if (!hit) {
       // GATEFIX-15: "documented/recorded in <x> records" source claims must trace
       // to the research like any other citation.
-      const INSRC = /\b(?:documented|recorded|reported|reflected|confirmed|shown)\s+in\s+((?:[a-z][a-z-]+\s+){0,3}(?:records|archives|documents|reports|files|deployments|registers|dispatches))\b/g;
+      const INSRC = /\b(?:documented|recorded|reported|reflected|confirmed|shown|archived|preserved)\s+in\s+((?:[a-z][a-z-]+\s+){0,3}(?:records|archives|documents|reports|files|deployments|registers|dispatches|correspondence|letters|telegrams|timelines?|logs))\b/g;
       let m5;
       INSRC.lastIndex = 0;
       while ((m5 = INSRC.exec(s)) !== null) {
