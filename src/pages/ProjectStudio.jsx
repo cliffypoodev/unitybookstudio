@@ -2143,6 +2143,7 @@ export default function ProjectStudio() {
     const settings = unwrapIntegrationResult(settingsResponse);
     if (!settings || !settings.title) {
       console.warn('[FOUNDATION] Settings analysis returned empty or invalid result. Aborting expand.');
+      toast.error('Story bible build aborted — settings analysis returned nothing. Nothing was saved.');
       setBusyLabel('');
       return;
     }
@@ -2172,7 +2173,7 @@ export default function ProjectStudio() {
     };
 
     // Step 2: Foundation generation — parallel batches
-    setBusyLabel('Step 2/2 — Building story bible (parallel)…');
+    setBusyLabel('Step 2/2 — Building story bible (sequential — several minutes on local models)…');
     const foundation = await generateBibleParallel(
       _resolvedSeed,
       { ...newSettings, book_type: bookType, research_data: project.research_data },
@@ -2208,6 +2209,9 @@ export default function ProjectStudio() {
     await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _safeExpandPayload));
     setBusyLabel('Foundation: Creating chapters…');
     await clearAndCreateChapters(plannedChapters, userChapterTarget, project.id, newDocs.outline_md);
+    } catch (err) {
+      console.error('[FOUNDATION] Story bible build FAILED — nothing was saved:', err);
+      toast.error(`Story bible build failed — nothing was saved. ${err?.message || err}`);
     } finally { setBusyLabel(''); }
     await refreshAll();
   };
