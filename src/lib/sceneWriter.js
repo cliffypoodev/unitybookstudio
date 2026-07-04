@@ -2201,7 +2201,7 @@ async function semanticSourceCheck(prose, project) {
 // fabrication strip so flagged snippets and removed sentences align 1:1.
 function splitSentencesSafe(text) {
   const PROT = '\u0001';
-  const ABBR = /\b(D\.\s?C|U\.\s?S|Gen|Maj|Brig|Col|Capt|Lt|Sgt|Gov|Sec|Dr|Mr|Mrs|Ms|St|Mt|Jr|Sr|No|vs|etc|a\.m|p\.m)\.(?=\s|$)/gi;
+  const ABBR = /(?<!\u0001)\b(D\.\s?C|U\.\s?S|Gen|Maj|Brig|Col|Capt|Lt|Sgt|Gov|Sec|Dr|Mr|Mrs|Ms|St|Mt|Jr|Sr|No|vs|etc|a\.m|p\.m)\.(?=\s|$)/gi;
   // GATEFIX-22: protect dotted domain names (archives.gov, loc.gov, blogs.loc.gov) so a
   // mid-domain split can never strand a "gov." stump after a sentence strip.
   let work = String(text || '').replace(/\b((?:[a-z0-9-]+\.)+(?:gov|com|org|net|edu|io))\b/gi, (m) => m.split('.').join(PROT));
@@ -2224,7 +2224,7 @@ function dedupeRepeatedSentences(prose) {
     const key = s.toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
     const wc = key.split(' ').filter(Boolean).length;
     if (wc >= 8 && seen.has(key)) { removed++; continue; }
-    if (wc >= 10) seen.add(key);
+    if (wc >= 8) seen.add(key);
     kept.push(s);
   }
   if (removed) console.warn('[DEDUPE] Removed', removed, 'exact duplicate sentence(s).');
