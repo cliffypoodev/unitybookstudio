@@ -62,7 +62,9 @@ ${seedConcept}`;
 }
 
 function buildStrictNonfictionRules(settings = {}) {
-  const research = clipText(getResearchText(settings), 4500);
+  // GATEFIX-20: 4500 starved the bible prompts of most of the research (timeline,
+  // primary sources, key-document excerpts, later figures) and invention filled the gap.
+  const research = clipText(getResearchText(settings), 12000);
   return `
 === STRICT INVESTIGATIVE NONFICTION RULES ===
 This is nonfiction. Do NOT structure the book as a fictional quest starring the author.
@@ -73,6 +75,9 @@ ABSOLUTE BANS:
 - Do NOT create fake archivists, developers, witnesses, survivors, guards, inmates, lawyers, historians, family members, or officials.
 - Do NOT invent named people unless the name appears in the seed concept or supplied research/source material.
 - Do NOT invent exact archival objects: redacted memos, logbooks, master keys, internal notes, work rosters, personal letters, coroner entries, fire reports, blueprints, or quotations.
+- QUOTE DISCIPLINE (ABSOLUTE): Any quotation you write — in any field, chapter title, or beat summary — must be copied VERBATIM from the supplied research/source material. If the research provides no quote for a person or document, write WITHOUT a quote. Never compose, paraphrase, reconstruct, or "typify" a quote. A person whose research quote is empty stays unquoted.
+- EVIDENCE DISCIPLINE: Do NOT invent statistics, counts, percentages, report excerpts, textbook excerpts, ledger entries, archive notes, newspaper lines, flag or artifact descriptions, discovery events, or scholarly citations (author + year + title). If it is not in the supplied research, it does not appear.
+- ROLE FIDELITY: Every named person's role, actions, and dates must match the supplied research exactly. Never assign a person the opposite of their documented action (a person documented as ANNOUNCING freedom is never described as concealing it). Where the research is silent on intent or motive, say the record is silent.
 - Do NOT use "composite" people as if they are real.
 - Do NOT imply the author personally obtained, saw, interviewed, visited, or handled anything unless the seed/research explicitly says so.
 - Do NOT solve an unresolved case by inventing missing records.
@@ -394,6 +399,7 @@ For each chapter title and beat_summary:
 - Do not title chapters around invented names.
 - If the project involves a legend or disputed claim, outline chapters around: public record, oral tradition, physical site, source gaps, competing explanations, aftermath, memory, and responsible conclusion.
 - The outline can be dramatic, but the drama must come from documented uncertainty and historical stakes, not invented fieldwork.
+- Beat summaries must NOT end on a quoted "resolution" unless that exact quote exists verbatim in the supplied research. A beat with no documented quote ends on the documented event or the documented gap — never on an invented line.
 === END NONFICTION CHAPTER OUTLINE FORMAT ===`;
 
   return `${constraintBlock}\n${nonfictionRules}\nYou are a world-class ${isFiction ? 'story architect' : 'investigative nonfiction book architect'}. Generate ONLY the chapter outline for this book.
