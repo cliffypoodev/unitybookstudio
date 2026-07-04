@@ -2131,6 +2131,15 @@ async function generateSceneWithRepair({
   // is always better than a convincing invented document or quote.
   let stripped = false;
   if (project?.book_type === 'nonfiction') {
+    // ARCH-1B: deterministic closed-world strip runs FIRST and never depends on an LLM.
+    try {
+      const cw = closedWorldCheck(prose, project);
+      if (cw.length) {
+        const beforeCw = prose;
+        prose = stripFabricatedSentences(prose, cw);
+        if (prose !== beforeCw) { stripped = true; evalResult = quickSceneEval(prose, spec, targetWords, project); }
+      }
+    } catch (e) { /* closed-world unavailable — continue */ }
     try {
       const fab = crossCheckResearchFabrication(prose, project);
       if (!fab.clean) {
@@ -2291,6 +2300,58 @@ function repetitionAlarm(prose) {
   }
   if (flagged.size) console.warn('[REPETITION]', flagged.size, 'repeated 8-word phrase families remain in this chapter.');
   return flagged.size;
+}
+
+// ARCH-1B: CLOSED-WORLD CHECK (nonfiction). Every proper-noun phrase, month-year date,
+// year, and significant number in the prose must exist in the project's evidence
+// (research_data + seed + all bible fields). One principle replaces the per-shape regex
+// arms race: a fact is in the evidence or it does not ship. Atoms inside verified quotes
+// pass automatically (a verbatim quote is a substring of the evidence by definition).
+// Violations reuse the existing strip machinery ({ snippet } = the offending sentence).
+function closedWorldCheck(prose, project) {
+  try {
+    if (!prose || !project) return [];
+    const normCW = (s) => String(s || '').toLowerCase().replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const EV = ' ' + normCW([project.research_data, project.seed_concept, project.world_md, project.characters_md, project.canon_md, project.mystery_md, project.outline_md, project.voice_md].filter(Boolean).join(' ')) + ' ';
+    if (EV.trim().length < 200) return [];
+    const MONTHS = 'january february march april may june july august september october november december';
+    const STOP = new Set(('the this that these those his her their its it in on at by for no yet but and a an or nor when where while so as if to from with of not never ' + MONTHS + ' monday tuesday wednesday thursday friday saturday sunday').split(' '));
+    const inEV = (raw) => {
+      let n = normCW(raw).replace(/^(major general|brigadier general|general|colonel|major|captain|lieutenant|reverend|president|governor|mr|mrs|ms|dr|aunt|the|a|an)\s+/, '');
+      if (!n || STOP.has(n)) return true;
+      if (EV.includes(' ' + n + ' ') || EV.includes(n)) return true;
+      const alt = n.endsWith('s') ? n.slice(0, -1) : n + 's';
+      return EV.includes(' ' + alt + ' ') || EV.includes(alt);
+    };
+    const sentences = splitSentencesSafe(prose);
+    const out = [];
+    const MRE = new RegExp('\\b(' + MONTHS.split(' ').join('|') + ')\\s+(?:\\d{1,2},?\\s+)?(1[6-9]\\d\\d|20\\d\\d)\\b', 'gi');
+    for (const s of sentences) {
+      const bad = [];
+      const pre = /(?:[A-Z][\w.'\u2019-]*)(?:\s+(?:of|the|and|No\.|[A-Z][\w.'\u2019-]*))*/g;
+      let m;
+      while (!bad.length && (m = pre.exec(s)) !== null) {
+        const ph = m[0].trim();
+        const isSentInitial = m.index === 0 || /[.!?\u201D"]\s*$/.test(s.slice(0, m.index));
+        const words = ph.split(/\s+/).filter((w) => !/^(of|the|and)$/i.test(w));
+        if (words.length === 1 && (isSentInitial || STOP.has(normCW(words[0])))) continue;
+        if (!inEV(ph)) bad.push(ph);
+      }
+      MRE.lastIndex = 0;
+      while (!bad.length && (m = MRE.exec(s)) !== null) { if (!inEV(m[0])) bad.push(m[0]); }
+      const YRE = /\b(1[6-9]\d\d|20\d\d)s?\b/g;
+      let ym;
+      while (!bad.length && (ym = YRE.exec(s)) !== null) { if (!inEV(ym[1])) bad.push(ym[1]); }
+      const NRE = /\b\d{1,3}(?:,\d{3})+\b|\b\d{3,}\b/g;
+      let nm;
+      while (!bad.length && (nm = NRE.exec(s)) !== null) { if (!/^(1[6-9]\d\d|20\d\d)$/.test(nm[0]) && !inEV(nm[0])) bad.push(nm[0]); }
+      if (bad.length) {
+        console.warn('[CLOSED-WORLD] atom not in evidence:', bad[0], '— sentence flagged.');
+        out.push({ type: 'closed-world', snippet: s.trim() });
+      }
+    }
+    return out;
+  } catch (e) { return []; }
 }
 
 function deterministicSourceCheck(prose, project) {
