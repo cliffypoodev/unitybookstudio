@@ -281,10 +281,12 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
     }
   }
 
-  // MINOR: missing final punctuation → warning + auto-patch, NOT blocking
+  // GATEFIX-25: after lightCleanSceneOutput trims truncated tails, an ending that still
+  // lacks terminal punctuation means no complete sentence exists — that is a truncated
+  // generation and must go through the repair loop, never ship. Em-dash is NOT terminal.
   const lastChar = prose.trim().slice(-1);
-  if (prose && !['.', '!', '?', '"', '\u201D', '\u2019', '\u2014'].includes(lastChar)) {
-    warnings.push('Scene ends without terminal punctuation — auto-patched.');
+  if (prose && !['.', '!', '?', '"', '\u201D'].includes(lastChar)) {
+    blockingIssues.push('Scene ends mid-sentence (generation truncated) — regenerate this section.');
   }
 
   const allIssues = [...blockingIssues, ...warnings];
@@ -1704,10 +1706,20 @@ function lightCleanSceneOutput(rawResult) {
     .replace(/[ \t]+$/gm, '')
     .trim();
 
-  // Auto-patch missing final punctuation (minor issue, not a rewrite trigger).
+  // GATEFIX-25: an ending without terminal punctuation means the model was cut off
+  // mid-sentence. Never dress the stump with a period — trim back to the last complete
+  // sentence and log what was dropped. If no complete sentence exists at all, append a
+  // period as a last resort so downstream checks still run (the eval will block it).
   const lastChar = prose.slice(-1);
-  if (prose && !['.', '!', '?', '"', '\u201D', '\u2019', '\u2014'].includes(lastChar)) {
-    prose = prose + '.';
+  if (prose && !['.', '!', '?', '"', '\u201D'].includes(lastChar)) {
+    const cutMatch = prose.match(/[\s\S]*[.!?]["\u201D\u2019)\]]*(?=\s|$)/);
+    if (cutMatch && cutMatch[0].trim().length > 0) {
+      const dropped = prose.slice(cutMatch[0].length).trim();
+      if (dropped) console.warn('[TRUNCATION] dropped incomplete trailing fragment:', dropped.slice(0, 80));
+      prose = cutMatch[0].trimEnd();
+    } else {
+      prose = prose + '.';
+    }
   }
 
   // Safety net: remove any CJK character runs that should never appear in English prose
