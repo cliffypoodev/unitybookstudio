@@ -562,11 +562,14 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
   console.log('[BIBLE-PARALLEL] Starting Batch 1 (world + people/stakeholders + voice)');
   const t1 = Date.now();
 
-  const [worldResult, charsResult, voiceResult] = await Promise.all([
-    callLLM(buildWorldPrompt(seedConcept, settings, nameBlock), singleFieldSchema('world_md')),
-    callLLM(buildCharactersPrompt(seedConcept, settings, nameBlock), singleFieldSchema('characters_md')),
-    callLLM(buildVoicePrompt(seedConcept, settings), singleFieldSchema('voice_md')),
-  ]);
+  // GATEFIX-18: SEQUENTIAL — one local LLM call at a time (M1 constraint).
+  // Promise.all here fired 3 concurrent requests and broke the local server.
+  onProgress?.('Bible: world (1/6)…');
+  const worldResult = await callLLM(buildWorldPrompt(seedConcept, settings, nameBlock), singleFieldSchema('world_md'));
+  onProgress?.('Bible: people (2/6)…');
+  const charsResult = await callLLM(buildCharactersPrompt(seedConcept, settings, nameBlock), singleFieldSchema('characters_md'));
+  onProgress?.('Bible: voice (3/6)…');
+  const voiceResult = await callLLM(buildVoicePrompt(seedConcept, settings), singleFieldSchema('voice_md'));
 
   let worldMd = worldResult?.world_md || '';
   let charactersMd = charsResult?.characters_md || '';
@@ -585,11 +588,13 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
   console.log('[BIBLE-PARALLEL] Starting Batch 2 (canon + mystery/investigation + outline)');
   const t2 = Date.now();
 
-  const [canonResult, mysteryResult, outlineResultRaw] = await Promise.all([
-    callLLM(buildCanonPrompt(seedConcept, settings, worldMd), singleFieldSchema('canon_md')),
-    callLLM(buildMysteryPrompt(seedConcept, settings, charactersMd), singleFieldSchema('mystery_md')),
-    callLLM(buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd), outlineSchema, { max_tokens: 16384 }),
-  ]);
+  // GATEFIX-18: SEQUENTIAL — one local LLM call at a time (M1 constraint).
+  onProgress?.('Bible: canon (4/6)…');
+  const canonResult = await callLLM(buildCanonPrompt(seedConcept, settings, worldMd), singleFieldSchema('canon_md'));
+  onProgress?.('Bible: investigation path (5/6)…');
+  const mysteryResult = await callLLM(buildMysteryPrompt(seedConcept, settings, charactersMd), singleFieldSchema('mystery_md'));
+  onProgress?.('Bible: outline (6/6)…');
+  const outlineResultRaw = await callLLM(buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd), outlineSchema, { max_tokens: 16384 });
 
   let canonMd = canonResult?.canon_md || '';
   let mysteryMd = mysteryResult?.mystery_md || '';
