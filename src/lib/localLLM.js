@@ -30,7 +30,7 @@ export const AGENT_MODELS = {
   researcher:        'phi4',                                             // factual gathering
   critic:            'deepseek-r1-14b',                                  // QA/critique (faster R1)
   polisher:          'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K_XL', // faithful line edits
-  nonfiction_writer: 'qwen3-30b-a3b',                                    // nonfiction prose + foundation (UNCHANGED)
+  nonfiction_writer: 'deepseek-r1-32b',                                  // MODELFIX-1: dense 32B for grounded nonfiction prose
 };
 
 export const AGENT_TEMPERATURES = {
