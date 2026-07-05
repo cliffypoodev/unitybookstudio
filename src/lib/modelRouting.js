@@ -38,7 +38,7 @@ export function isAdultCreativeTask(task) { return ['prose','prose_continuation'
 export function shouldDisableFallbacks() { return true; }
 export function shouldDisableCreativeFallbacks() { return true; }
 export function buildFallbackControls() { return { fallback_model: null, fallback_models: [], disable_fallbacks: true, use_gemini_fallback: false, use_openai_fallback: false }; }
-const NONFICTION_INSTRUCT_MODEL = 'deepseek-r1-32b'; // MODELFIX-1
+const NONFICTION_INSTRUCT_MODEL = 'HauhauCS/Qwen3.6-27B-Uncensored-HauhauCS-Aggressive:Q5_K_P'; // MODELFIX-3
 export function pickModel(task = '', settings = null) {
   // Nonfiction foundation/outline drafts on an instruction-following model that respects the
   // supplied research, not the creative ghostwriter which fabricates evidence to dramatize.
