@@ -74,12 +74,18 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   userContent += ' /no_think';
   messages.push({ role: 'user', content: userContent });
 
+  // MODELFIX-2: reasoning models (DeepSeek-R1 family) spend chain-of-thought tokens
+  // from the same max_tokens budget as the answer. Grant thinking headroom so the
+  // prose share stays intact; the <think> block is stripped by the safety net below.
+  const isReasoningModel = /deepseek-r1/i.test(String(model || ''));
+  const effectiveMaxTokens = isReasoningModel ? maxTokens + 4096 : maxTokens;
+
   const requestBody = {
     model,
     messages,
     stream: false,
     temperature,
-    max_tokens: maxTokens,
+    max_tokens: effectiveMaxTokens,
   };
 
   let response;
