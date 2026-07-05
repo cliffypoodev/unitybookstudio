@@ -275,6 +275,12 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
     /\b(?:supplied|provided)\s+(?:research|materials?|sources?|documents?)\b/i,
     /\bresearch\s+pack\b/i,
     /\bthe\s+research\s+(?:contains|offers|provides|does\s+not\s+contain|shows\s+no)\b/i,
+    // SCAFFOLDFIX-1: chapter-scaffold essay meta — the writer narrating the book's structure.
+    /\bthis\s+(?:chapter|section|book)\b/i,
+    /\bin\s+conclusion\b/i,
+    /\bas\s+we\s+(?:transition|move\s+forward|delve|examine|explore)\b/i,
+    /\bsets?\s+the\s+stage\b/i,
+    /\blays?\s+the\s+groundwork\b/i,
   ];
 
   for (const rx of leakPatterns) {
@@ -350,7 +356,8 @@ META DISCIPLINE: The book's narrating voice must NEVER mention "the research," "
 
 SOURCE-LABEL FIDELITY: Cite each narrator's collection exactly as the research states it for THAT narrator. Never label a narrator with a Texas volume (mesn161-164) unless the research lists that volume as their source. A narrator from another state's collection may appear ONLY with their true origin stated plainly (for example, "a Georgia narrator recorded by the same project") and only as comparison — never woven in as a Texas witness. Never attribute physical or textual details to a document (times of day, ink, specific clauses) unless the research states them.
 
-TESTIMONY CONTENT DISCIPLINE: Never characterize what a witness's testimony "describes," "notes," "recalls," or "shows" beyond that witness's documented_actions and quote in the research. If a witness's research quote is empty, you may state their documented role and actions only — you may NOT describe, summarize, or imply the content of their words at all. Never attach one witness's quote, quote fragment, or subject matter to a different witness.`;
+TESTIMONY CONTENT DISCIPLINE: Never characterize what a witness's testimony "describes," "notes," "recalls," or "shows" beyond that witness's documented_actions and quote in the research. If a witness's research quote is empty, you may state their documented role and actions only — you may NOT describe, summarize, or imply the content of their words at all. Never attach one witness's quote, quote fragment, or subject matter to a different witness.
+SCENE CONTINUITY DISCIPLINE: You are writing ONE continuous chapter, not standalone essays. Never write "this chapter", "this section", "this book", "in conclusion", "as we transition", "as we move forward", "as we delve", or "sets the stage". Never open a scene by re-introducing the chapter's subject or close a scene by summarizing it. Do not restate facts, dates, or thesis claims already established earlier in the chapter. Pick up where the prior prose left off and advance the account with NEW material from the evidence.`;
     reminder = reminder ? `${reminder}\n\n${nfRule}` : nfRule;
   }
   return reminder;
@@ -2145,6 +2152,26 @@ async function generateSceneWithRepair({
         if (prose !== beforeCw) { stripped = true; evalResult = quickSceneEval(prose, spec, targetWords, project); }
       }
     } catch (e) { /* closed-world unavailable — continue */ }
+    // SCAFFOLDFIX-1: scaffold/meta sentences that survived every repair are stripped, never shipped.
+    try {
+      const SCAFFOLD_STRIP_RX = [
+        /\bthis\s+(?:chapter|section|book)\b/i,
+        /\bin\s+conclusion\b/i,
+        /\bas\s+we\s+(?:transition|move\s+forward|delve|examine|explore)\b/i,
+        /\bsets?\s+the\s+stage\b/i,
+        /\blays?\s+the\s+groundwork\b/i,
+        /\b(?:supplied|provided)\s+(?:research|materials?|sources?|documents?)\b/i,
+        /\bthe\s+research\s+(?:contains|offers|provides|does\s+not\s+contain|shows\s+no)\b/i,
+      ];
+      const scaffoldParts = prose.split(/(?<=[.!?"\u201D])\s+/);
+      const scaffoldKept = scaffoldParts.filter(s => !SCAFFOLD_STRIP_RX.some(rx => rx.test(s)));
+      if (scaffoldKept.length !== scaffoldParts.length) {
+        console.warn(`[SCAFFOLD-STRIP] Removed ${scaffoldParts.length - scaffoldKept.length} scaffold/meta sentence(s).`);
+        prose = scaffoldKept.join(' ');
+        stripped = true;
+        evalResult = quickSceneEval(prose, spec, targetWords, project);
+      }
+    } catch (e) { /* scaffold strip unavailable — continue */ }
     try {
       const fab = crossCheckResearchFabrication(prose, project);
       if (!fab.clean) {
