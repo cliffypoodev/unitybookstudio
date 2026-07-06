@@ -2612,7 +2612,10 @@ export async function generateChapterSceneByScene({
   const anthologyContext = getAnthologyContext(project, chapter);
   const allProjectChapters = Array.isArray(project?.__chapters) ? project.__chapters : [];
 
-  let accumulatedProse = chapterExistingText(chapter);
+  // DRAFTFIX-1: a draft always starts empty. The UI promises that re-drafting
+  // overwrites current content; seeding from the saved chapter made every
+  // redraft append onto the prior draft (stacked-drafts bug, proven 2026-07-06).
+  let accumulatedProse = '';
   const generatedScenes = [];
   const repairReports = [];
   let lastScenePrompt = '';
