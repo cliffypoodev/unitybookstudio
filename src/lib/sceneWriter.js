@@ -2367,7 +2367,13 @@ function closedWorldCheck(prose, project) {
         const isSentInitial = m.index === 0 || /[.!?\u201D"]\s*$/.test(s.slice(0, m.index));
         const words = ph.split(/\s+/).filter((w) => !/^(of|the|and)$/i.test(w));
         if (words.length === 1 && (isSentInitial || STOP.has(normCW(words[0])))) continue;
-        if (!inEV(ph)) bad.push(ph);
+        if (!inEV(ph)) {
+          // Conjunction split: "Galveston and Houston" is two verified atoms,
+          // not one compound name. If the joint phrase is not in evidence,
+          // every "and"-separated segment must be — otherwise flag.
+          const segs = ph.split(/\s+and\s+/i);
+          if (segs.length < 2 || !segs.every((seg) => inEV(seg))) bad.push(ph);
+        }
       }
       MRE.lastIndex = 0;
       while (!bad.length && (m = MRE.exec(s)) !== null) { if (!inEV(m[0])) bad.push(m[0]); }
