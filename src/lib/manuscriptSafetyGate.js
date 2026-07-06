@@ -397,6 +397,11 @@ const MALFORMED_CANARIES = [
     validate: (match, text) => {
       const idx = text.lastIndexOf(match[0], match.index + match[0].length);
       const before = text.substring(Math.max(0, idx - 60), idx).toLowerCase();
+      // Prepositional object, not subject: "the people in <Place> were" --
+      // a proper noun following a preposition cannot be the subject of "were".
+      if (/\b(?:in|of|at|from|to|into|across|near|around|through|between|along|within|throughout|outside|beyond|under|over|toward|towards|upon|against|behind|beside|among|amongst)\s+$/i.test(before)) {
+        return false;
+      }
       // Subjunctive markers: "if X were", "as if X were", "as though X were",
       // "though X were", "wish/wished X were", "like X were", "whether X were"
       if (/\b(?:if|as if|as though|though|even if|even though|wish|wished|wishing|like|whether|suppose|supposing|imagine|imagined|lest)\s+$/i.test(before)) {
