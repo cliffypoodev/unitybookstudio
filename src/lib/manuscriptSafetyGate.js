@@ -536,7 +536,7 @@ export function runManuscriptSafetyGate(text, options = {}) {
   // Malformed grammar: warn or manual review
   if (malformed.hasMalformed) {
     if (recommendedAction === 'PASS') {
-      const strictMatches = malformed.matches.filter(m => m.name !== 'Singular proper noun + were');
+      const strictMatches = malformed.matches.filter(m => m.phrase !== 'Singular proper noun + were');
       recommendedAction = strictMatches.length >= 3 ? 'REJECT_MANUAL_REVIEW' : 'WARN_ONLY';
     }
     reasons.push(`Malformed grammar (${malformed.matches.length}): ${malformed.matches.map(m => '"' + m.phrase + '"').join(', ')}`);
