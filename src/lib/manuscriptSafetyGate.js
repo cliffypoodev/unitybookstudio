@@ -372,6 +372,7 @@ export function detectProjectContamination(text, options = {}) {
 
 const MALFORMED_CANARIES = [
   { pattern: /\bfrom to the\b/gi, name: 'from to the' },
+  { pattern: /\b(?:a|an) to the\b/g, name: 'dropped word: a/an to the' },
   { pattern: /\bgaze from to\b/gi, name: 'gaze from to' },
   { pattern: /\blooked at;/gi, name: 'looked at;' },
   { pattern: /\bfixed on,/gi, name: 'fixed on,' },
