@@ -77,7 +77,7 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   // MODELFIX-2: reasoning models (DeepSeek-R1 family) spend chain-of-thought tokens
   // from the same max_tokens budget as the answer. Grant thinking headroom so the
   // prose share stays intact; the <think> block is stripped by the safety net below.
-  const isReasoningModel = /deepseek-r1/i.test(String(model || ''));
+  const isReasoningModel = /deepseek-r1|qwen3/i.test(String(model || '')); // MODELFIX-4: Qwen3 family thinks too
   const effectiveMaxTokens = isReasoningModel ? maxTokens + 4096 : maxTokens;
 
   const requestBody = {
@@ -86,6 +86,9 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
     stream: false,
     temperature,
     max_tokens: effectiveMaxTokens,
+    // MODELFIX-4: hard-disable hybrid thinking at the chat-template level.
+    // Qwen3 templates honor enable_thinking:false; other templates ignore the kwarg.
+    chat_template_kwargs: { enable_thinking: false },
   };
 
   let response;
