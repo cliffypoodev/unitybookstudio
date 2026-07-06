@@ -279,8 +279,9 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
     /\bthis\s+(?:chapter|section|book)\b/i,
     /\bin\s+conclusion\b/i,
     /\bas\s+we\s+(?:transition|move\s+forward|delve|examine|explore)\b/i,
-    /\bsets?\s+the\s+stage\b/i,
-    /\blays?\s+the\s+groundwork\b/i,
+    /\bset(?:s|ting)?\s+the\s+stage\b/i,
+    /\blay(?:s|ing)?\s+the\s+groundwork\b/i,
+    /\bthe\s+(?:next|following|previous|preceding)\s+chapter\s+(?:will|examines?|explores?|traces?|turns?|looks?|delves?|investigates?|reconstructs?|details?|covers?|addresses?|considers?|shows?)\b/i,
   ];
 
   for (const rx of leakPatterns) {
@@ -2158,8 +2159,9 @@ async function generateSceneWithRepair({
         /\bthis\s+(?:chapter|section|book)\b/i,
         /\bin\s+conclusion\b/i,
         /\bas\s+we\s+(?:transition|move\s+forward|delve|examine|explore)\b/i,
-        /\bsets?\s+the\s+stage\b/i,
-        /\blays?\s+the\s+groundwork\b/i,
+        /\bset(?:s|ting)?\s+the\s+stage\b/i,
+        /\blay(?:s|ing)?\s+the\s+groundwork\b/i,
+        /\bthe\s+(?:next|following|previous|preceding)\s+chapter\s+(?:will|examines?|explores?|traces?|turns?|looks?|delves?|investigates?|reconstructs?|details?|covers?|addresses?|considers?|shows?)\b/i,
         /\b(?:supplied|provided)\s+(?:research|materials?|sources?|documents?)\b/i,
         /\bthe\s+research\s+(?:contains|offers|provides|does\s+not\s+contain|shows\s+no)\b/i,
       ];
