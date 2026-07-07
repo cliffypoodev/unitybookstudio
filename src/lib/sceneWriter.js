@@ -2365,8 +2365,17 @@ function closedWorldCheck(prose, project) {
       const pre = /(?:[A-Z][\w.'\u2019-]*)(?:\s+(?:of|the|and|No\.|[A-Z][\w.'\u2019-]*))*/g;
       let m;
       while (!bad.length && (m = pre.exec(s)) !== null) {
-        const ph = m[0].trim();
+        let ph = m[0].trim();
         const isSentInitial = m.index === 0 || /[.!?\u201D"]\s*$/.test(s.slice(0, m.index));
+        if (isSentInitial) {
+          // GATEFIX-28: a sentence-initial capitalized function word ("When", "But",
+          // "For", "If", "While", "In", ...) glues onto the proper noun that follows.
+          // Drop leading stopword tokens before checking the phrase against evidence.
+          const toks = ph.split(/\s+/);
+          while (toks.length && STOP.has(normCW(toks[0]))) toks.shift();
+          ph = toks.join(' ');
+          if (!ph) continue;
+        }
         const words = ph.split(/\s+/).filter((w) => !/^(of|the|and)$/i.test(w));
         if (words.length === 1 && (isSentInitial || STOP.has(normCW(words[0])))) continue;
         if (!inEV(ph)) {
