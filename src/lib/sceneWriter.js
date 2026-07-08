@@ -47,6 +47,7 @@ import {
 import { buildPacingBlock } from '@/lib/pacingModulation';
 import { getRelevantResearch } from '@/lib/fictionResearch';
 import { researchCoverageCheck } from '@/lib/researchCoverage';
+import { excludeForeignQuotes } from '@/lib/quoteLedger';
 import { getTwistContextForChapter, getAnthologyTwistBlock } from '@/lib/plotTwists';
 import { resolveResearchContent } from '@/lib/researchStorage';
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
@@ -1880,7 +1881,19 @@ async function getProjectResearchText(project, chapter) {
     const beatText = extractTextFromLLMResult(beatSource);
     const relevant = getRelevantResearch(resolved, chapterNumber, beatText);
 
-    return [resolved, relevant].filter(Boolean).join('\n\n');
+    let combined = [resolved, relevant].filter(Boolean).join('\n\n');
+    // ARCH2-4a: a verbatim witness quote has exactly one home chapter (derived
+    // from the outline). Foreign-homed quotes are excised from this chapter's
+    // research block so the writer references the testimony without re-quoting.
+    try {
+      const allChapters = await base44.entities.Chapter.filter({ project_id: project.id });
+      const ex = excludeForeignQuotes(combined, project, allChapters, chapterNumber);
+      if (ex.excluded.length) {
+        console.warn('[QUOTE-LEDGER] ch' + chapterNumber + ': excised ' + ex.excluded.length + ' foreign-homed quote(s): ' + ex.excluded.join(' | '));
+      }
+      combined = ex.text;
+    } catch (qlErr) { /* fail-open: drafting continues with unfiltered research */ }
+    return combined;
   } catch (error) {
     console.warn('[sceneWriter] Research resolution failed safely; drafting will continue without injected research:', error);
     return '';
