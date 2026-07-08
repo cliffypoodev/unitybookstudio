@@ -46,6 +46,7 @@ import {
 } from '@/lib/chapterCohesion';
 import { buildPacingBlock } from '@/lib/pacingModulation';
 import { getRelevantResearch } from '@/lib/fictionResearch';
+import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { getTwistContextForChapter, getAnthologyTwistBlock } from '@/lib/plotTwists';
 import { resolveResearchContent } from '@/lib/researchStorage';
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
@@ -2603,6 +2604,12 @@ export async function generateChapterSceneByScene({
       report: beatPreflight.report,
     });
   }
+
+  // ARCH2-1: advisory research-coverage report — logs only, never blocks or mutates.
+  try {
+    const cov = researchCoverageCheck(chapter, project);
+    if (cov) console.warn('[COVERAGE] ch' + (chapter?.chapter_number || '?') + ': ' + cov.coverage + '% of ' + cov.total + ' beat atoms in evidence' + (cov.missingCount ? ' — MISSING: ' + cov.missing.join(' | ') : ''));
+  } catch (covErr) { /* advisory only — drafting continues regardless */ }
 
   const normalizedScenes = normalizeSceneSpecs(beatPreflight?.beats || parsedScenes, chapterTarget);
 
