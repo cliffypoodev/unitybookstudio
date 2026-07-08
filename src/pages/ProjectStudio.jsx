@@ -62,6 +62,7 @@ import { runAntiDetectionPolish } from '@/lib/antiDetectionPolish';
 import { isAnthologyProject, buildAnthologyBiblePrompt, anthologyBibleSchema, parseAnthologyBible, storiesToChapterPlans, buildAnthologyStoryContext } from '@/lib/anthologyEngine';
 import { generateAnthologyOutlinesBatched, rebuildAnthologyOutlineMd, hasInvalidAnthologyStories } from '@/lib/anthologyBatchOutline';
 import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity } from '@/lib/researchStorage';
+import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
@@ -2366,121 +2367,43 @@ export default function ProjectStudio() {
     required: ['key_figures', 'key_events', 'institutions', 'timeline', 'primary_sources', 'competing_narratives'],
   };
 
-  const handleResearch = async () => {
-    if (!project) return;
+  const SEARCH_BRIDGE = 'http://127.0.0.1:8899';
 
-    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
-    if (!topic.trim()) {
-      toast.error('Add a seed concept/topic before running deep research.');
-      return;
+  // Call the local bridge for search; never throw to the UI.
+  const bridgeSearch = async (query, n = 8) => {
+    try {
+      const r = await fetch(`${SEARCH_BRIDGE}/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, n }),
+      });
+      if (!r.ok) return [];
+      const j = await r.json();
+      return Array.isArray(j?.results) ? j.results : [];
+    } catch {
+      return [];
     }
+  };
 
-    const SEARCH_BRIDGE = 'http://127.0.0.1:8899';
+  // Call the local bridge to FETCH + extract page text (deep content, not snippets).
+  const bridgeFetch = async (url) => {
+    try {
+      const r = await fetch(`${SEARCH_BRIDGE}/fetch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      if (!r.ok) return '';
+      const j = await r.json();
+      return typeof j?.text === 'string' ? j.text : '';
+    } catch {
+      return '';
+    }
+  };
 
-    // Derive a clean search subject from the brief (title/first line), not the whole document.
-    const rawTitle = (project.title || '').trim();
-    const firstLine = (topic.split('\n').find((l) => l.trim().length > 0) || topic).trim();
-    let subject = (rawTitle || firstLine)
-      .replace(/^(author|book title|title)\s*[:\-]?\s*/i, '')
-      .replace(/[*_#>]/g, '')
-      .replace(/["“”']/g, '')
-      .split(/[:\-—]/)[0]
-      .trim()
-      .slice(0, 80);
-    if (!subject) subject = firstLine.slice(0, 80);
-
-    // Call the local bridge for search; never throw to the UI.
-    const bridgeSearch = async (query, n = 8) => {
-      try {
-        const r = await fetch(`${SEARCH_BRIDGE}/search`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, n }),
-        });
-        if (!r.ok) return [];
-        const j = await r.json();
-        return Array.isArray(j?.results) ? j.results : [];
-      } catch {
-        return [];
-      }
-    };
-
-    // Call the local bridge to FETCH + extract page text (deep content, not snippets).
-    const bridgeFetch = async (url) => {
-      try {
-        const r = await fetch(`${SEARCH_BRIDGE}/fetch`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url }),
-        });
-        if (!r.ok) return '';
-        const j = await r.json();
-        return typeof j?.text === 'string' ? j.text : '';
-      } catch {
-        return '';
-      }
-    };
-
+  const executeResearchPipeline = async (queries, subject, topic, appendToExisting = false) => {
     try {
       setBusyLabel('Deep research — searching sources…');
-
-      // Multi-angle search across the kinds of real, citable material that historical
-      // nonfiction actually has — named witnesses, archives, primary documents,
-      // newspapers, court/government records — so the source pool is deep, not thin.
-      const queries = [
-        subject,
-        `${subject} history`,
-        `${subject} primary sources documents`,
-        `${subject} archival records collection`,
-        `${subject} named people figures`,
-        `${subject} eyewitness testimony accounts`,
-        `${subject} firsthand narratives survivors`,
-        `${subject} timeline dates events`,
-        `${subject} official government records`,
-        `${subject} court records legal proceedings`,
-        `${subject} newspaper coverage period press`,
-        `${subject} letters correspondence diaries`,
-        `${subject} academic research scholarship`,
-        `${subject} historical context social political`,
-      ];
-
-      // Thesis bias: pull the specific named entities out of the book's own brief
-      // (places, people, documents the author actually wrote about) and chase those
-      // directly, so research follows the book's real angle, not just the generic
-      // topic. Falls back gracefully when the brief names nothing specific.
-      const STOP = new Set(['the','this','that','these','those','and','but','some','many','most','when','while','after','before','during','although','however','their','there','they','his','her','our','your','its','it','is','was','were','chapter','book','volume','part','section']);
-      const focusTerms = Array.from(
-        new Set(
-          (topic.match(/\b[A-Z][a-zA-Z'.]+(?:\s+[A-Z][a-zA-Z'.]+){0,3}\b/g) || [])
-            .map((s) => s.trim())
-            .filter((s) => {
-              const first = s.split(/\s+/)[0].toLowerCase();
-              return s.length >= 4 && !STOP.has(first) && s.toLowerCase() !== subject.toLowerCase();
-            })
-        )
-      ).slice(0, 4);
-      for (const t of focusTerms) {
-        queries.push(`${subject} ${t}`);
-        queries.push(`${t} primary sources records testimony`);
-      }
-
-      // Archive bias for forensic/narrative books: add angles that target real
-      // primary testimony (oral histories, interviews, archival collections),
-      // built from the book's own focus terms, so named-witness material surfaces.
-      if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
-        const archiveAngles = [
-          `${subject} oral history interview transcript`,
-          `${subject} firsthand testimony eyewitness account`,
-          `${subject} archival collection primary documents`,
-          `${subject} interviews narratives survivors`,
-          `${subject} proclamation order official full text`,
-        ];
-        for (const t of focusTerms) {
-          archiveAngles.push(`${t} oral history testimony`);
-          archiveAngles.push(`${t} archival records interview`);
-        }
-        for (const q of archiveAngles) queries.push(q);
-      }
 
       const seen = new Set();
       const hits = [];
@@ -2564,7 +2487,7 @@ export default function ProjectStudio() {
       }
       if (current.length) batches.push(current);
 
-      const merged = {
+      let merged = {
         key_figures: [],
         key_events: [],
         institutions: [],
@@ -2573,6 +2496,23 @@ export default function ProjectStudio() {
         competing_narratives: [],
         key_documents: [],
       };
+      
+      let existingObj = null;
+      if (appendToExisting) {
+        try {
+          existingObj = JSON.parse(project.research_data || '{}');
+          merged = {
+            key_figures: existingObj.key_figures || [],
+            key_events: existingObj.key_events || [],
+            institutions: existingObj.institutions || [],
+            timeline: existingObj.timeline || [],
+            primary_sources: existingObj.primary_sources || [],
+            competing_narratives: existingObj.competing_narratives || [],
+            key_documents: existingObj.key_documents || [],
+          };
+        } catch { }
+      }
+
       const seenKeys = {
         key_figures: new Set(),
         key_events: new Set(),
@@ -2598,6 +2538,26 @@ export default function ProjectStudio() {
         if (bucket === 'key_documents') return ((item.name || '') + '|' + (item.date || '')).trim().toLowerCase();
         return JSON.stringify(item).toLowerCase();
       };
+
+      // Seed seenKeys with existing data so we don't duplicate
+      if (appendToExisting) {
+        Object.keys(merged).forEach(bucket => {
+          if (Array.isArray(merged[bucket])) {
+            merged[bucket].forEach(item => {
+               if (item && typeof item === 'object') {
+                  const k = dedupeKeyFor(bucket, item);
+                  if (k) seenKeys[bucket].add(k);
+               }
+            });
+          }
+        });
+      }
+
+      // ARCH2-3: integrity guards below must only judge figures ADDED in this
+      // run. Pre-existing figures were verified against their own run's pages,
+      // which are not in this run's fetch set — re-judging them wipes good quotes.
+      const preExistingFigKeys = new Set(seenKeys.key_figures);
+
       const mergeBucket = (bucket, arr) => {
         if (!Array.isArray(arr)) return;
         for (const item of arr) {
@@ -2610,7 +2570,7 @@ export default function ProjectStudio() {
       };
 
       const quoteRule = (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative')
-        ? '- VERBATIM QUOTE: For each person drawn from first-person testimony, also capture ONE short verbatim quote (about 5-25 words) of their own words from the source text, copied EXACTLY as written — preserve the original or dialect spelling, do NOT modernize or paraphrase. Put it in the "quote" field. If the source gives no usable first-person words for that person, leave "quote" empty. Never fabricate or paraphrase a quote.\\n' +
+        ? '- VERBATIM QUOTE: For each person drawn from first-person testimony, also capture ONE short verbatim quote (about 5-25 words) of their own words from the source text, copied EXACTLY as written — preserve the original or dialect spelling, do NOT modernize or paraphrase. Put it in the "quote" field. If the source gives no usable first-person words for that person, leave "quote" empty. Never fabricate or paraphrase a quote.\n' +
           '- DATES DISCIPLINE: For dates_active, use ONLY years or dates that appear in the source text for that person (e.g., a stated birth year, or the interview year). If the source states no dates for that person, write "UNVERIFIED". NEVER infer, estimate, or invent birth or death years. A quote belongs to exactly ONE person — the narrator whose own section contains it. NEVER assign the same quote to more than one person; if you cannot tell whose section a quote belongs to, leave "quote" empty for all uncertain people.'
         : '- Do NOT include verbatim quotes. Leave the "quote" field empty for every figure; record only who each person was and what they documented or described.';
 
@@ -2698,7 +2658,7 @@ Return structured JSON:
         research_data: JSON.stringify(data),
         ...researchFields,
       }));
-
+      
       // EXTRACTION INTEGRITY: a verbatim quote belongs to exactly one narrator. If the
       // extractor assigned the same quote to multiple people, only the first keeps it —
       // a misattributed witness quote in nonfiction is as bad as a fabricated one.
@@ -2706,6 +2666,7 @@ Return structured JSON:
       for (const f of data.key_figures || []) {
         const q = (f.quote || '').trim().toLowerCase().replace(/\s+/g, ' ');
         if (!q) continue;
+        if (preExistingFigKeys.has(stripTitles(f.name))) { seenQuotes.add(q); continue; }
         if (seenQuotes.has(q)) {
           console.warn('[RESEARCH-INTEGRITY] duplicate quote blanked for', f.name);
           f.quote = '';
@@ -2722,12 +2683,13 @@ Return structured JSON:
       // a wrongly-attributed one.
       const normQuote = (s) => (s || '')
         .toLowerCase()
-        .replace(/[\u2018\u2019']/g, '')
+        .replace(/[‘’']/g, '')
         .replace(/[^a-z0-9 ]+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
       const normPages = (pages || []).map((p) => normQuote(p.content || ''));
       for (const f of data.key_figures || []) {
+        if (preExistingFigKeys.has(stripTitles(f.name))) continue;
         const q = normQuote(f.quote);
         if (!q || q.split(' ').length < 4) continue;
         const nameTokens = normQuote(f.name).split(' ').filter((t) => t.length >= 3);
@@ -2758,6 +2720,121 @@ Return structured JSON:
     } finally {
       setBusyLabel('');
     }
+  };
+
+  const handleResearch = async () => {
+    if (!project) return;
+
+    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
+    if (!topic.trim()) {
+      toast.error('Add a seed concept/topic before running deep research.');
+      return;
+    }
+
+    // Derive a clean search subject from the brief (title/first line), not the whole document.
+    const rawTitle = (project.title || '').trim();
+    const firstLine = (topic.split('\n').find((l) => l.trim().length > 0) || topic).trim();
+    let subject = (rawTitle || firstLine)
+      .replace(/^(author|book title|title)\s*[:\-]?\s*/i, '')
+      .replace(/[*_#>]/g, '')
+      .replace(/["“”']/g, '')
+      .split(/[:\-—]/)[0]
+      .trim()
+      .slice(0, 80);
+    if (!subject) subject = firstLine.slice(0, 80);
+
+    const queries = [
+      subject,
+      `${subject} history`,
+      `${subject} primary sources documents`,
+      `${subject} archival records collection`,
+      `${subject} named people figures`,
+      `${subject} eyewitness testimony accounts`,
+      `${subject} firsthand narratives survivors`,
+      `${subject} timeline dates events`,
+      `${subject} official government records`,
+      `${subject} court records legal proceedings`,
+      `${subject} newspaper coverage period press`,
+      `${subject} letters correspondence diaries`,
+      `${subject} academic research scholarship`,
+      `${subject} historical context social political`,
+    ];
+
+    const STOP = new Set(['the','this','that','these','those','and','but','some','many','most','when','while','after','before','during','although','however','their','there','they','his','her','our','your','its','it','is','was','were','chapter','book','volume','part','section']);
+    const focusTerms = Array.from(
+      new Set(
+        (topic.match(/\b[A-Z][a-zA-Z'.]+(?:\s+[A-Z][a-zA-Z'.]+){0,3}\b/g) || [])
+          .map((s) => s.trim())
+          .filter((s) => {
+            const first = s.split(/\s+/)[0].toLowerCase();
+            return s.length >= 4 && !STOP.has(first) && s.toLowerCase() !== subject.toLowerCase();
+          })
+      )
+    ).slice(0, 4);
+    for (const t of focusTerms) {
+      queries.push(`${subject} ${t}`);
+      queries.push(`${t} primary sources records testimony`);
+    }
+
+    if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
+      const archiveAngles = [
+        `${subject} oral history interview transcript`,
+        `${subject} firsthand testimony eyewitness account`,
+        `${subject} archival collection primary documents`,
+        `${subject} interviews narratives survivors`,
+        `${subject} proclamation order official full text`,
+      ];
+      for (const t of focusTerms) {
+        archiveAngles.push(`${t} oral history testimony`);
+        archiveAngles.push(`${t} archival records interview`);
+      }
+      for (const q of archiveAngles) queries.push(q);
+    }
+
+    await executeResearchPipeline(queries, subject, topic, false);
+  };
+
+  const handleOutlineResearch = async () => {
+    if (!project) return;
+    
+    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
+    if (!topic.trim()) {
+      toast.error('Add a seed concept/topic before running outline research.');
+      return;
+    }
+
+    const rawTitle = (project.title || '').trim();
+    const firstLine = (topic.split('\n').find((l) => l.trim().length > 0) || topic).trim();
+    let subject = (rawTitle || firstLine)
+      .replace(/^(author|book title|title)\s*[:\-]?\s*/i, '')
+      .replace(/[*_#>]/g, '')
+      .replace(/["“”']/g, '')
+      .split(/[:\-—]/)[0]
+      .trim()
+      .slice(0, 80);
+    if (!subject) subject = firstLine.slice(0, 80);
+
+    const missingTopics = new Set();
+    const activeChapters = [...chapters].sort((a, b) => a.chapter_number - b.chapter_number);
+    for (const ch of activeChapters) {
+      const cov = researchCoverageCheck(ch, project);
+      if (cov && cov.missingCount > 0) {
+        for (const m of cov.missing) missingTopics.add(m);
+      }
+    }
+    
+    if (missingTopics.size === 0) {
+      toast.success('Outline is already fully covered by existing research data.');
+      return;
+    }
+    
+    const queries = [];
+    for (const m of missingTopics) {
+      queries.push(`${subject} ${m}`);
+      if (queries.length > 20) break; // cap to 20 queries so we don't spam the bridge
+    }
+
+    await executeResearchPipeline(queries, subject, topic, true);
   };
 
   const handleSaveResearch = async (newData) => {
@@ -5456,6 +5533,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                   lastSaved={docsAutoSave.lastSaved}
                   researchData={researchData}
                   onResearch={handleResearch}
+                  onOutlineResearch={handleOutlineResearch}
                   onReResearch={handleResearch}
                   onResearchChange={handleSaveResearch}
                   onGenerateCopyright={handleGenerateCopyright}
@@ -5480,6 +5558,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                   lastSaved={docsAutoSave.lastSaved}
                   researchData={researchData}
                   onResearch={handleResearch}
+                  onOutlineResearch={handleOutlineResearch}
                   onReResearch={handleResearch}
                   onResearchChange={handleSaveResearch}
                   onGenerateCopyright={handleGenerateCopyright}

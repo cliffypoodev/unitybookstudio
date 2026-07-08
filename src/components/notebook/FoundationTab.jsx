@@ -44,6 +44,7 @@ export default function FoundationTab({
   lastSaved,
   researchData,
   onResearch,
+  onOutlineResearch,
   onReResearch,
   onResearchChange,
   onGenerateCopyright,
@@ -117,6 +118,7 @@ export default function FoundationTab({
           <ResearchSection
             researchData={researchData}
             onResearch={onResearch}
+            onOutlineResearch={onOutlineResearch}
             onReResearch={onReResearch}
             onResearchChange={onResearchChange}
             busyLabel={busyLabel}
