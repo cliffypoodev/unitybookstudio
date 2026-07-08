@@ -53,13 +53,17 @@ export function researchCoverageCheck(chapter, project) {
     const beatText = [chapter.title, chapter.beat_summary, chapter.scene_beats, chapter.beats, chapter.summary, chapter.description, sb]
       .map((v) => (typeof v === 'string' ? v : ''))
       .filter(Boolean)
-      .join(' ');
+      .join('. ');
     if (beatText.trim().length < 40) return null;
 
     const atoms = new Set();
-    const pre = /(?:[A-Z][\w.'’-]*)(?:\s+(?:of|the|and|No\.|[A-Z][\w.'’-]*))*/g;
+    // ARCH2-1B: extract per sentence segment so phrases can never glue across
+    // a sentence boundary ("...Proclamation. Establish the..." is two segments).
+    const segments = beatText.split(/[.!?;:]+\s*/);
+    const pre = /(?:[A-Z][\w'’-]*)(?:\s+(?:of|the|and|No\.|[A-Z][\w'’-]*))*/g;
     let m;
-    while ((m = pre.exec(beatText)) !== null) {
+    for (const segText of segments) {
+    while ((m = pre.exec(segText)) !== null) {
       const toks = m[0].trim().split(/\s+/);
       while (toks.length && (STOP.has(normCW(toks[0])) || BEAT_VERBS.has(normCW(toks[0])))) toks.shift();
       if (!toks.length) continue;
@@ -71,6 +75,7 @@ export function researchCoverageCheck(chapter, project) {
         const st = seg.trim().replace(/^(?:Its|Their|His|Her)\s+/i, '');
         if (st && !STOP.has(normCW(st)) && !BEAT_VERBS.has(normCW(st))) atoms.add(st);
       }
+    }
     }
     const MRE = new RegExp('\\b(' + MONTHS.split(' ').join('|') + ')\\s+(?:\\d{1,2},?\\s+)?(1[6-9]\\d\\d|20\\d\\d)\\b', 'gi');
     while ((m = MRE.exec(beatText)) !== null) atoms.add(m[0]);
