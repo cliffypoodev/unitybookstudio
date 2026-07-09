@@ -3,6 +3,7 @@ import { Sparkles, Loader2, RefreshCw, Download, FileText, Search } from 'lucide
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { recastBannedVocabulary } from '@/lib/aiSlopReduction';
 import { resolveChapterContent, chapterHasContent } from '@/lib/chapterStorage';
 import { isBodyChapter } from '@/lib/bibliographyGenerator';
 import { calculateManuscriptStats, calculateManuscriptStatsNonfiction, detectHighFreqPhrases, isNonfictionProject, isComedyProject } from '@/lib/manuscriptStats';
@@ -370,17 +371,15 @@ Return ONLY the fixed version of the FLAGGED TEXT. No explanation, no quotes aro
       // STEP 2: Banned words
       console.warn('[POLISH] STEP 2: Banned words...');
       setBusyLabel('Polish: Removing banned words…');
-      const bannedWords = ['shimmering','luminous','tapestry','intricate','meticulously','insatiable','palpable','unmistakable','undeniable','relentless','sprawling','labyrinthine','opulent','resplendent','ethereal','visceral','cacophony','crescendo','juxtaposition','myriad','plethora','testament','harbinger','paradigm','dichotomy','multifaceted','aforementioned','nonetheless','furthermore','henceforth','commence','utilize','endeavor','pertaining'];
+      // POLISHFIX-1: banned words are RECAST to synonyms, never deleted.
+      // Deleting left dropped-word artifacts ("a testament to" -> "a  to").
       let bannedRemoved = 0;
-      for (const word of bannedWords) {
-        const rx = new RegExp('\\b' + word + '\\b', 'gi');
-        for (const f of loaded) {
-          const matches = f.content.match(rx);
-          if (matches && matches.length > 0) {
-            f.content = f.content.replace(rx, '');
-            bannedRemoved += matches.length;
-            changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': removed "' + word + '" x' + matches.length);
-          }
+      for (const f of loaded) {
+        const recast = recastBannedVocabulary(f.content);
+        if (recast.recasts.length > 0) {
+          f.content = recast.text;
+          bannedRemoved += recast.recasts.length;
+          changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': recast ' + recast.recasts.length + ' banned word(s)');
         }
       }
 

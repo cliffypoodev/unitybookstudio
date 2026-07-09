@@ -3,6 +3,7 @@ import { Sparkles, FileText, Loader2, RefreshCw, Download, BookOpen } from 'luci
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { recastBannedVocabulary } from '@/lib/aiSlopReduction';
 import { calculateManuscriptStats, calculateManuscriptStatsNonfiction, detectHighFreqPhrases } from '@/lib/manuscriptStats';
 import { mechanicalScore } from '@/lib/mechanicalScore';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
@@ -120,17 +121,14 @@ export default function UploadPolishView({ parsed, setParsed, busyLabel, setBusy
 
     const changes = [];
 
-    // Step 1: Remove banned words
+    // POLISHFIX-1: banned words are RECAST to synonyms, never deleted.
     let bannedRemoved = 0;
-    for (const word of BANNED_WORDS) {
-      const rx = new RegExp('\\b' + word + '\\b', 'gi');
-      for (const f of loaded) {
-        const matches = f.content.match(rx);
-        if (matches && matches.length > 0) {
-          f.content = f.content.replace(rx, '');
-          bannedRemoved += matches.length;
-          changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': removed "' + word + '" x' + matches.length);
-        }
+    for (const f of loaded) {
+      const recast = recastBannedVocabulary(f.content);
+      if (recast.recasts.length > 0) {
+        f.content = recast.text;
+        bannedRemoved += recast.recasts.length;
+        changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': recast ' + recast.recasts.length + ' banned word(s)');
       }
     }
     setBusyLabel(`Polish: Removed ${bannedRemoved} banned words. Cleaning…`);
