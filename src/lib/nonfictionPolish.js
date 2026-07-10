@@ -13,6 +13,7 @@ import { runExternalAiPatternFix } from '@/lib/externalAiPatterns';
 import { fixHangingQuotes } from '@/lib/quoteFixPolish';
 import { runAiDetectionResistance } from '@/lib/aiDetectionResist';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
+import { recastBannedVocabulary } from '@/lib/aiSlopReduction';
 import { fixVoicePatterns } from '@/lib/voicePatternPolish';
 import { runDialogueTagCaps } from '@/lib/dialogueTagPolish';
 import { runPunctuationCleanup, runSpellingFixes, runBrokenSentenceFixes, runCopingMechanismCaps, runDialoguePunctuationFix, runDialogueFillerFix, runEmDashReducer, runProgressiveReducer } from '@/lib/punctuationPolish';
@@ -465,18 +466,28 @@ export async function runNonfictionPolish({ loaded, onProgress, project }) {
   const disclaimersRemoved = disclaimerResult.totalRemoved;
   const compositeFixed = disclaimerResult.totalRemoved; // backward compat
 
-  // STEP 1: Banned words
-  onProgress?.('Polish (NF): Removing banned words…');
+  // STEP 1: Banned words — POLISHFIX-2.
+  // Nouns/adjectives are RECAST to synonyms via the shared recaster (deleting
+  // them left dropped-word artifacts: "a testament to" -> "a  to"). Pure
+  // discourse adverbs are DELETED with sentence hygiene (a synonym would just
+  // be another AI-tell adverb).
+  onProgress?.('Polish (NF): Recasting banned words…');
+  const NF_DISCOURSE_ADVERBS = ['arguably', 'interestingly', 'remarkably', 'notably', 'undoubtedly', 'unquestionably'];
   let bannedRemoved = 0;
-  for (const word of NF_BANNED_WORDS) {
-    const rx = new RegExp('\\b' + word + '\\b', 'gi');
-    for (const f of loaded) {
-      const matches = f.content.match(rx);
-      if (matches && matches.length > 0) {
-        f.content = f.content.replace(rx, '');
-        bannedRemoved += matches.length;
-        changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': removed "' + word + '" x' + matches.length);
-      }
+  for (const f of loaded) {
+    let chFixed = 0;
+    const recast = recastBannedVocabulary(f.content);
+    if (recast.recasts.length > 0) {
+      f.content = recast.text;
+      chFixed += recast.recasts.length;
+    }
+    for (const w of NF_DISCOURSE_ADVERBS) {
+      f.content = f.content.replace(new RegExp('(^|[.!?]\\s+)' + w + ',?\\s+([a-z])', 'gi'), (m, pre, ch) => { chFixed++; return pre + ch.toUpperCase(); });
+      f.content = f.content.replace(new RegExp('\\s+' + w + '\\b,?', 'gi'), () => { chFixed++; return ''; });
+    }
+    if (chFixed > 0) {
+      bannedRemoved += chFixed;
+      changes.push('Ch.' + (f.chapter.chapter_number || '?') + ': recast/cleaned ' + chFixed + ' banned word(s)');
     }
   }
 
