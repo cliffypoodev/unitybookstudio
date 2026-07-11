@@ -13,6 +13,7 @@
  */
 
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
+import { buildClosedWorldBibliography, verifyBibliographyUrls } from '@/lib/closedWorldBibliography';
 import { resolveChapterContent, chapterHasContent, prepareChapterContent } from '@/lib/chapterStorage';
 import { resolveResearchContent } from '@/lib/researchStorage';
 import { base44 } from '@/api/base44Client';
@@ -488,94 +489,30 @@ async function loadProjectResearchText(project = {}) {
 export async function generateBibliography({ project, chapters, onProgress }) {
   if (!project) throw new Error('Project is required to generate bibliography.');
 
-  onProgress?.('Bibliography: Loading manuscript and source notes…');
-  const manuscriptText = await loadManuscriptText(chapters, onProgress);
-  const researchText = await loadProjectResearchText(project);
-  const domain = detectProjectDomain(project, manuscriptText, researchText);
-  const topics = detectTopics(`${manuscriptText}\n\n${researchText}`);
-  const authoritativeSources = buildAuthoritativeSourceBlock(topics, domain, manuscriptText);
+  // BIBFIX-1: the bibliography is built deterministically from the project's
+  // own verified research (closed world). No LLM composes citations, and no
+  // canned domain source lists are injected. The chapters parameter is kept
+  // for call-site compatibility.
+  onProgress?.('Bibliography: building closed-world source list from project research…');
 
-  onProgress?.(`Bibliography: Rebuilding project-relevant source list (${domain})…`);
+  const result = buildClosedWorldBibliography(project);
 
-  const prompt = buildBibliographyPrompt({
-    project,
-    domain,
-    topics,
-    manuscriptText,
-    researchText,
-    authoritativeSources,
-  });
-
-  let modelText = '';
-
-  try {
-    const response = await invokeLLMWithRetry({
-    task_type: 'research',
-      prompt,
-      model: 'openai_gpt5',
-      fallback_model: 'anthropic/claude-sonnet-4-20250514',
-      temperature: 0.05,
-      max_tokens: 14000,
-    });
-
-    modelText = typeof response === 'string'
-      ? response
-      : response?.text || response?.content || String(response || '');
-  } catch (error) {
-    console.warn('[BIBLIOGRAPHY] LLM bibliography generation failed; using deterministic fallback:', error?.message || error);
-  }
-
-  let cleanModelText = sanitizeBibliographyText(modelText, domain);
-  let count = credibleEntryCount(cleanModelText, domain);
-
-  if (count < SOURCE_ENTRY_MINIMUM) {
-    const fallback = buildFallbackBibliography({ project, domain, manuscriptText, researchText });
-    const mergedEntries = unique([
-      ...splitPossibleSourceEntries(cleanModelText),
-      ...splitPossibleSourceEntries(fallback),
-    ]).filter((entry) => !isBadEntry(entry, domain));
-
-    cleanModelText = [
-      'Bibliography',
-      '',
-      ...mergedEntries,
-    ].join('\n\n').trim();
-    count = credibleEntryCount(cleanModelText, domain);
-  }
-
-  let finalText = cleanModelText
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/\*([^*]+)\*/g, '$1')
-    .replace(/^[-•]\s+/gm, '')
-    .replace(/^\d+\.\s+/gm, '')
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/^#+\s+/gm, '')
-    .replace(/\n{4,}/g, '\n\n\n')
-    .trim();
-
-  finalText = sanitizeBibliographyText(finalText, domain);
-
-  if (!/^Bibliography\b/i.test(finalText)) {
-    finalText = `Bibliography\n\n${finalText}`;
-  }
-
-  const finalCount = credibleEntryCount(finalText, domain);
-
-  if (finalCount < 4) {
+  if (result.entryCount < 4) {
     throw new Error(
-      `Bibliography rebuild produced only ${finalCount} credible project-relevant source entries. Add verified source notes/research for this project, then regenerate.`
+      `Bibliography build found only ${result.entryCount} verifiable source entries in project research. Run deep research or Research Outline Gaps to deepen the source base, then regenerate.`
     );
   }
 
-  if (domain !== 'finance' && FINANCE_CONTAMINATION_RE.test(finalText)) {
-    throw new Error('Bibliography rebuild still contains finance/investing contamination. Regenerate after clearing the existing bibliography chapter.');
+  const urlCheck = verifyBibliographyUrls(result.text, project);
+  if (!urlCheck.ok) {
+    throw new Error('Bibliography integrity check failed — URL(s) not present in project research: ' + urlCheck.violations.join(', '));
   }
 
-  if (PLACEHOLDER_RE.test(finalText)) {
-    throw new Error('Bibliography rebuild still contains source placeholders. Add verified source data or remove the placeholder entries.');
+  if (PLACEHOLDER_RE.test(result.text)) {
+    throw new Error('Bibliography contains placeholder text. Clean the research data and regenerate.');
   }
 
-  return finalText;
+  return result.text;
 }
 
 export async function saveBibliographyChapter({ project, chapters, bibText }) {
