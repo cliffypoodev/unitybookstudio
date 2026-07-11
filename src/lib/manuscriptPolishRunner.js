@@ -30,6 +30,7 @@ import { runVocabCaps, runSentenceStarterVariation } from './vocabCaps.js';
 import { runDialogueTagCaps } from './dialogueTagPolish.js';
 import { runChatGPTVocabCaps, runTransitionWordCaps } from './chatgptPatternPolish.js';
 import { runStackedClauseVariation } from './sentencePatternPolish.js';
+import { runAntithesisCap } from './antithesisCap.js';
 import { runAntiDetectionPolish } from './antiDetectionPolish.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
@@ -199,6 +200,12 @@ export async function runManuscriptPolishPipeline({
     changes.push(...dialogFillerResult.changes);
     dialogFillerFixed = dialogFillerResult.dialogFillerFixed || 0;
   }
+
+  // A6.5: ARCH2-4b-c — antithesis ("not X but Y") density cap. Keeps the
+  // first two per chapter, deterministically inverts later SAFE copula shapes
+  // ("was not X but Y" → "was Y, not X"), leaves everything else untouched.
+  const antithesisResult = runAntithesisCap(loaded, onProgress);
+  changes.push(...antithesisResult.changes);
 
   // A7: Stacked clause variation
   const stackingResult = runStackedClauseVariation(loaded, onProgress);
