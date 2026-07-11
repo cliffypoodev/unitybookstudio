@@ -483,7 +483,7 @@ export async function runNonfictionPolish({ loaded, onProgress, project }) {
     }
     for (const w of NF_DISCOURSE_ADVERBS) {
       f.content = f.content.replace(new RegExp('(^|[.!?]\\s+)' + w + ',?\\s+([a-z])', 'gi'), (m, pre, ch) => { chFixed++; return pre + ch.toUpperCase(); });
-      f.content = f.content.replace(new RegExp('\\s+' + w + '\\b,?', 'gi'), () => { chFixed++; return ''; });
+      f.content = f.content.replace(new RegExp(',?\\s+' + w + '\\b,?', 'gi'), () => { chFixed++; return ''; });
     }
     if (chFixed > 0) {
       bannedRemoved += chFixed;

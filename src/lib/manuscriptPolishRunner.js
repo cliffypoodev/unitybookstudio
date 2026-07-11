@@ -605,6 +605,32 @@ export async function runManuscriptPolishPipeline({
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // PHASE D2: Final vocabulary sweep — POLISHFIX-3.
+  // The LLM stages above (rewriteFlaggedSpots, polishChapterWithLLM) run after
+  // the early deterministic vocabulary steps and reintroduce banned vocabulary
+  // (29 "testament" instances survived a full-book polish). The deterministic
+  // recast therefore runs again here, after every LLM stage, as the true last
+  // mutating step.
+  // ══════════════════════════════════════════════════════════════════════════
+  onProgress('Polish: Final vocabulary sweep…');
+  let finalVocabFixed = 0;
+  const FINAL_NF_ADVERBS = ['arguably', 'interestingly', 'remarkably', 'notably', 'undoubtedly', 'unquestionably'];
+  for (const f of loaded) {
+    const finalRecast = recastBannedVocabulary(f.content || '');
+    if (finalRecast.recasts.length > 0) {
+      f.content = finalRecast.text;
+      finalVocabFixed += finalRecast.recasts.length;
+    }
+    if (mode === 'nonfiction') {
+      for (const w of FINAL_NF_ADVERBS) {
+        f.content = f.content.replace(new RegExp('(^|[.!?]\\s+)' + w + ',?\\s+([a-z])', 'gi'), (m, pre, ch) => { finalVocabFixed++; return pre + ch.toUpperCase(); });
+        f.content = f.content.replace(new RegExp(',?\\s+' + w + '\\b,?', 'gi'), () => { finalVocabFixed++; return ''; });
+      }
+    }
+  }
+  if (finalVocabFixed > 0) changes.push('Final vocabulary sweep: ' + finalVocabFixed + ' banned word(s) recast/cleaned after LLM stages.');
+
+  // ══════════════════════════════════════════════════════════════════════════
   // PHASE E: Quality gate + improvement scoring
   // ══════════════════════════════════════════════════════════════════════════
   onProgress('Polish: Running post-polish quality gate…');
