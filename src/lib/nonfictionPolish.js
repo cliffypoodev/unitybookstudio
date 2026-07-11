@@ -12,7 +12,7 @@ import { calculateManuscriptStatsNonfiction } from '@/lib/manuscriptStats';
 import { runExternalAiPatternFix } from '@/lib/externalAiPatterns';
 import { fixHangingQuotes } from '@/lib/quoteFixPolish';
 import { runAiDetectionResistance } from '@/lib/aiDetectionResist';
-import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
+import { runVocabCaps, runSentenceStarterVariationNF } from '@/lib/vocabCaps';
 import { recastBannedVocabulary } from '@/lib/aiSlopReduction';
 import { fixVoicePatterns } from '@/lib/voicePatternPolish';
 import { runDialogueTagCaps } from '@/lib/dialogueTagPolish';
@@ -798,8 +798,9 @@ export async function runNonfictionPolish({ loaded, onProgress, project }) {
   const stackingResult = runStackedClauseVariation(loaded, onProgress);
   changes.push(...stackingResult.changes);
 
-  // STEP 8: Sentence starter variation
-  const starterResult = runSentenceStarterVariation(loaded, onProgress);
+  // STEP 8: Sentence starter variation (ARCH2-4b-d: NF-safe variant — the
+  // fiction pass swaps articles on factual nouns, corrupting referents)
+  const starterResult = runSentenceStarterVariationNF(loaded, onProgress);
   changes.push(...starterResult.changes);
 
   // STEP 8b: Anti-AI Detection (triplets, parallel sentences, staccato, rhythm symmetry)

@@ -82,7 +82,8 @@ AUTHOR VOICE:
 MECHANICS:
 - Fix all grammar, punctuation, and spelling errors. Make punctuation publishable (American style).
 - Remove stray artifacts, orphaned fragments, leaked tokens, and malformed lines (e.g. a lone "ed", "= 1", or a sentence that begins mid-clause after a period).
-- Improve sentence rhythm and clarity. Vary sentence openings.
+- Improve sentence rhythm and clarity.
+- SENTENCE OPENINGS (CRITICAL FOR THIS BOOK): far too many sentences begin with "The". In your output no more than one sentence in five may begin with "The". Rework openings by fronting adverbial or prepositional phrases already present in the sentence, using pronouns whose referent is unambiguous, or restructuring the sentence — NEVER by swapping "the" for "a"/"one"/"that" in a way that changes what the phrase refers to.
 
 LENGTH:
 - Cut only redundancy. Retain at least 85% of the original word count. Do not delete whole paragraphs of unique content.

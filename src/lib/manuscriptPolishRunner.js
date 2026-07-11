@@ -26,7 +26,7 @@ import { runPunctuationCleanup, runSpellingFixes, runBrokenSentenceFixes,
 import { runCapitalizationHygiene } from './capitalizationPolish.js';
 import { fixVoicePatterns } from './voicePatternPolish.js';
 import { runExternalAiPatternFix } from './externalAiPatterns.js';
-import { runVocabCaps, runSentenceStarterVariation } from './vocabCaps.js';
+import { runVocabCaps, runSentenceStarterVariation, runSentenceStarterVariationNF } from './vocabCaps.js';
 import { runDialogueTagCaps } from './dialogueTagPolish.js';
 import { runChatGPTVocabCaps, runTransitionWordCaps } from './chatgptPatternPolish.js';
 import { runStackedClauseVariation } from './sentencePatternPolish.js';
@@ -375,7 +375,12 @@ export async function runManuscriptPolishPipeline({
     ? runPerChapter(loaded, (l, prog) => runAntiDetectionPolish(l, prog, { project }), [onProgress])
     : runAntiDetectionPolish(loaded, onProgress, { project });
   changes.push(...antiDetect.changes);
-  const starterResult = runSentenceStarterVariation(loaded, onProgress);
+  // ARCH2-4b-d: nonfiction routes to the referent-preserving NF variant —
+  // the fiction pass swaps articles (The→A/One/That) on its noun list, which
+  // corrupts factual referents in nonfiction prose.
+  const starterResult = mode === 'nonfiction'
+    ? runSentenceStarterVariationNF(loaded, onProgress)
+    : runSentenceStarterVariation(loaded, onProgress);
   changes.push(...starterResult.changes);
   const aiResist = runAiDetectionResistance(loaded, onProgress);
   changes.push(...aiResist.changes);

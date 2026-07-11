@@ -182,6 +182,124 @@ export function runVocabCaps(loaded, onProgress, options = {}) {
  * Mutates loaded[].content in place.
  * Returns { startersFixed, changes }
  */
+const NF_MONTHS = 'January|February|March|April|May|June|July|August|September|October|November|December';
+const NF_TEMPORAL_HEAD = new RegExp('^(?:the\\s+)?(?:early|late|mid)?[- ]?(?:' + NF_MONTHS + '|spring|summer|autumn|fall|winter|1[6-9]\\d\\d|20\\d\\d)\\b', 'i');
+
+function nfSplitSentences(paragraph) {
+  return paragraph.match(/[^.!?]+[.!?]+[”"')\]]*\s*|[^.!?]+$/g) || [paragraph];
+}
+
+/**
+ * ARCH2-4b-d: sentence-starter variation for nonfiction.
+ * Strategies, in order of application per chapter until the target is met:
+ *  S1  Temporal fronting — a trailing "in/on/by/during/after/before <date>"
+ *      adverbial moves to the front: "The order arrived on June 19, 1865."
+ *      → "On June 19, 1865, the order arrived." Dates/seasons/years only —
+ *      temporal PPs are always adjuncts, so meaning cannot change.
+ *  S2  Anaphoric demonstrative — "The <noun>" becomes "That <noun>" ONLY
+ *      when the immediately preceding sentence already contains <noun>, so
+ *      the referent stays pinned. Capped per chapter to avoid a new tic.
+ *  S3  Adjacent join — two consecutive short "The …" sentences join with
+ *      ", and the". Grammatical by construction; capped per paragraph.
+ * The pass never touches text inside quotation marks.
+ */
+export function runSentenceStarterVariationNF(loaded, onProgress, { targetPct = 14, triggerPct = 16 } = {}) {
+  onProgress?.('Polish (NF): Varying sentence starters…');
+  const changes = [];
+  let totalFixed = 0;
+
+  for (const f of loaded) {
+    const chNum = f.chapter?.chapter_number || '?';
+    const content = String(f.content || '');
+    const allS = content.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 10);
+    const totalSentences = allS.length;
+    if (totalSentences < 20) continue;
+    const theCount = allS.filter((s) => /^\s*The\s/.test(s)).length;
+    const currentPct = (theCount / totalSentences) * 100;
+    if (currentPct <= triggerPct) continue;
+    let toFix = theCount - Math.round(totalSentences * (targetPct / 100));
+    if (toFix <= 0) continue;
+
+    let fixed = 0;
+    let demonstratives = 0;
+    const paragraphs = content.split(/(\n{2,})/);
+
+    for (let pi = 0; pi < paragraphs.length && fixed < toFix; pi += 2) {
+      const para = paragraphs[pi];
+      if (!para || !para.trim()) continue;
+      if ((para.match(/["“”]/g) || []).length > 0 && (para.match(/["“”]/g) || []).length % 2 === 1) continue; // malformed quoting — leave alone
+      const sentences = nfSplitSentences(para);
+      let joinedThisPara = false;
+      let changed = false;
+
+      for (let si = 0; si < sentences.length && fixed < toFix; si++) {
+        const sent = sentences[si];
+        const trimmed = sent.trim();
+        if (!/^The\s/.test(trimmed)) continue;
+        if (/["“”]/.test(trimmed)) continue;              // sentence carries a quote — hands off
+
+        // ── S1: temporal fronting ──
+        const m = trimmed.match(/^The\s+(.{8,120}?)\s+(in|on|by|during|after|before)\s+((?:the\s+)?[\w’',\- ]{3,40}?)([.;])$/);
+        if (m && NF_TEMPORAL_HEAD.test(m[3])) {
+          const prep = m[2].charAt(0).toUpperCase() + m[2].slice(1);
+          const lead = sent.match(/^\s*/)[0];
+          const trail = sent.match(/\s*$/)[0];
+          sentences[si] = lead + prep + ' ' + m[3] + ', the ' + m[1] + m[4] + trail;
+          fixed++; totalFixed++; changed = true;
+          continue;
+        }
+
+        // ── S2: anaphoric demonstrative (capped at 4 per chapter) ──
+        if (demonstratives < 4 && si > 0) {
+          const nounM = trimmed.match(/^The\s+([a-z][\w’'-]*)\s/);
+          if (nounM) {
+            const noun = nounM[1];
+            const prev = sentences[si - 1].toLowerCase();
+            if (noun.length >= 4 && prev.includes(' ' + noun.toLowerCase())) {
+              const lead = sent.match(/^\s*/)[0];
+              const trail = sent.match(/\s*$/)[0];
+              sentences[si] = lead + 'That ' + trimmed.slice(4) + trail;
+              fixed++; totalFixed++; demonstratives++; changed = true;
+              continue;
+            }
+          }
+        }
+
+        // ── S3: adjacent join (max 1 per paragraph) ──
+        if (!joinedThisPara && si > 0) {
+          const prevTrim = sentences[si - 1].trim();
+          if (/^The\s/.test(prevTrim) && /[.]$/.test(prevTrim) && !/["“”]/.test(prevTrim)
+              && !/, and /.test(prevTrim) && !/, and /.test(trimmed)
+              && !/\b(?:No|Mr|Mrs|Ms|Dr|Gen|Col|Capt|Lt|St|Rev|Jr|Sr|vs|etc)\.\s*$/.test(prevTrim)) {
+            const wPrev = prevTrim.split(/\s+/).length;
+            const wCur = trimmed.split(/\s+/).length;
+            if (wPrev + wCur <= 32 && wPrev >= 6 && wCur >= 6) {
+              const lead = sentences[si - 1].match(/^\s*/)[0];
+              const trail = sent.match(/\s*$/)[0];
+              const joined = prevTrim.slice(0, -1) + ', and the ' + trimmed.slice(4);
+              sentences[si - 1] = lead + joined + trail;
+              sentences[si] = '';
+              fixed++; totalFixed++; joinedThisPara = true; changed = true;
+              continue;
+            }
+          }
+        }
+      }
+      if (changed) paragraphs[pi] = sentences.join('');
+    }
+
+    if (fixed > 0) {
+      f.content = paragraphs.join('');
+      const newS = f.content.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 10);
+      const newPct = (newS.filter((s) => /^\s*The\s/.test(s)).length / newS.length) * 100;
+      changes.push('Ch.' + chNum + ': NF "The" starters ' + currentPct.toFixed(0) + '% → ' + newPct.toFixed(0) + '% (' + fixed + ' changed)');
+    }
+  }
+
+  if (totalFixed > 0) console.log('[POLISH][NF-STARTERS] varied ' + totalFixed + ' "The" starters (referent-preserving)');
+  return { changes, startersFixed: totalFixed };
+}
+
 export function runSentenceStarterVariation(loaded, onProgress) {
   onProgress?.('Polish: Varying sentence starters…');
   const changes = [];
