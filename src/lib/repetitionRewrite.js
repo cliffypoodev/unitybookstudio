@@ -206,6 +206,66 @@ export function detectRepetition(chapterText, globalOverused = null, globalActio
   return flags;
 }
 
+// Blank out quoted spans so witness testimony (handled by the quote ledger)
+// never counts as narrative repetition. Curly quotes are directional; straight
+// quotes pair up within a paragraph line.
+function blankQuotedSpans(text) {
+  let out = String(text || '').replace(/“[^”\n]{0,900}”/g, (m) => ' '.repeat(m.length));
+  out = out.replace(/"[^"\n]{0,900}"/g, (m) => ' '.repeat(m.length));
+  return out;
+}
+
+/**
+ * Manuscript-wide table of repeated cross-chapter narrative phrases.
+ * A phrase is flagged when the SAME literal run of `size` words (lowercased)
+ * appears in at least `minChapters` different chapters, outside quotation
+ * marks. Overlapping windows of one longer repeat collapse to their first
+ * window. Ranked by chapter spread then count, capped at `cap` so the
+ * downstream per-paragraph rewrite stays bounded.
+ */
+export function buildCrossChapterPhraseStats(chapterTexts, { size = 8, minChapters = 2, cap = 48 } = {}) {
+  const seen = new Map(); // phrase -> { chapters:Set<number>, count, firstChapter, firstIdx }
+  const texts = (chapterTexts || []).map((t) => blankQuotedSpans(String(t || '').toLowerCase()));
+
+  for (let c = 0; c < texts.length; c++) {
+    const text = texts[c];
+    const tokens = [];
+    const re = /[a-z0-9][a-z0-9’'-]*/g;
+    let m;
+    while ((m = re.exec(text)) !== null) tokens.push({ w: m[0], start: m.index, end: m.index + m[0].length });
+    for (let i = 0; i + size <= tokens.length; i++) {
+      const phrase = text.slice(tokens[i].start, tokens[i + size - 1].end);
+      if (phrase.includes('\n')) continue;                 // stay within a paragraph
+      let rec = seen.get(phrase);
+      if (!rec) { rec = { chapters: new Set(), count: 0, firstChapter: c, firstIdx: tokens[i].start }; seen.set(phrase, rec); }
+      rec.chapters.add(c);
+      rec.count++;
+    }
+  }
+
+  // candidates repeated across chapters
+  const candidates = [];
+  for (const [phrase, rec] of seen) {
+    if (rec.chapters.size >= minChapters) candidates.push({ phrase, spread: rec.chapters.size, count: rec.count, firstChapter: rec.firstChapter, firstIdx: rec.firstIdx });
+  }
+  // collapse overlapping windows of the same repeat: sort by first occurrence
+  // position; drop a candidate whose first occurrence overlaps the previous
+  // kept candidate's window in the same chapter.
+  candidates.sort((a, b) => a.firstChapter - b.firstChapter || a.firstIdx - b.firstIdx);
+  const kept = [];
+  let lastCh = -1; let lastEnd = -1;
+  for (const cand of candidates) {
+    const start = cand.firstIdx;
+    const end = start + cand.phrase.length;
+    if (cand.firstChapter === lastCh && start < lastEnd) { lastEnd = Math.max(lastEnd, end); continue; }
+    kept.push(cand);
+    lastCh = cand.firstChapter; lastEnd = end;
+  }
+  kept.sort((a, b) => b.spread - a.spread || b.count - a.count);
+  const overused = new Set(kept.slice(0, cap).map((k) => k.phrase));
+  return { overused, familiesFound: kept.length, candidates: kept };
+}
+
 /**
  * Rewrites repeated spots ONE PARAGRAPH AT A TIME.
  *

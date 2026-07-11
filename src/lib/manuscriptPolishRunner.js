@@ -41,7 +41,7 @@ import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminati
   from './anthologyPolishChecks.js';
 import { isAnthologyProject } from './anthologyEngine.js';
 import { isComedyProject } from './manuscriptStats.js';
-import { rewriteFlaggedSpots, buildGlobalOpeningStats, buildGlobalActionBeatStats } from './repetitionRewrite.js';
+import { rewriteFlaggedSpots, buildGlobalOpeningStats, buildGlobalActionBeatStats, buildCrossChapterPhraseStats } from './repetitionRewrite.js';
 import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from './nameHygieneRules.js';
 
 // ── Per-chapter modules (operate on single text strings) ──
@@ -251,6 +251,11 @@ export async function runManuscriptPolishPipeline({
     // chapters (not just within one chapter) get flagged and varied.
     const { overused: globalOverused } = buildGlobalOpeningStats(loaded.map(f => f.content));
     console.log(`[REP] globalOverused=${globalOverused.size} sample=[${[...globalOverused].slice(0,6).join(' | ')}]`);
+    // ARCH2-4b-b: cross-chapter narrative phrase families (8+ words repeated
+    // in 2+ chapters outside quotation marks) feed the same guarded
+    // per-paragraph rewrite as overused openings.
+    const { overused: crossPhrases, familiesFound } = buildCrossChapterPhraseStats(loaded.map(f => f.content));
+    console.log(`[XREP] cross-chapter families=${familiesFound} flagged=${crossPhrases.size} sample=[${[...crossPhrases].slice(0,4).join(' | ')}]`);
     for (const _f of loaded) {
       const _p = String(_f.content || '').split(/\n\n+/).filter(Boolean).length;
       const _l = String(_f.content || '').split(/\n+/).filter(Boolean).length;
@@ -258,7 +263,7 @@ export async function runManuscriptPolishPipeline({
     }
     for (const f of loaded) {                          // SEQUENTIAL — one chapter at a time, never Promise.all
       try {
-        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused, mode: 'nonfiction' });
+        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused, globalActionBeats: crossPhrases, mode: 'nonfiction', maxRewrites: 18 });
         console.log(`[REP] Ch.${f.chapter?.chapter_number ?? '?'} flagged=${r.flags?.openings?.length ?? 0} cadence=${r.flags?.cadence?.length ?? 0} ok=${r.ok} changed=${r.changed}${r.reason ? ' reason=' + r.reason : ''}`);
         if (r.ok && r.changed) {
           f.content = r.text;                            // updates in-memory; existing save loop persists it
