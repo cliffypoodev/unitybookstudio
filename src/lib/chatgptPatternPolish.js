@@ -608,7 +608,13 @@ export function runAiPhraseCapper(loaded, onProgress) {
     for (const f of loaded) {
       if (removed >= excess) break;
 
-      f.content = f.content.replace(entry.rx, (match) => {
+      f.content = f.content.replace(entry.rx, (match, offset) => {
+        // FICTIONFIX-1: never delete a phrase that STARTS a sentence — the
+        // deletion beheads it ("A wave of applause followed." → " applause
+        // followed."), leaving lowercase orphans. Sentence-initial hits are
+        // kept and do not consume the cap.
+        const pre = f.content.slice(Math.max(0, offset - 6), offset);
+        if (offset === 0 || /(?:^|[.!?…])[”"']?\s*$/.test(pre) || /\n\s*$/.test(pre)) return match;
         globalKeep++;
         if (globalKeep <= entry.cap) return match; // keep first N
         if (removed >= excess) return match;

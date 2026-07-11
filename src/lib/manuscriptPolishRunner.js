@@ -31,6 +31,7 @@ import { runDialogueTagCaps } from './dialogueTagPolish.js';
 import { runChatGPTVocabCaps, runTransitionWordCaps } from './chatgptPatternPolish.js';
 import { runStackedClauseVariation } from './sentencePatternPolish.js';
 import { runAntithesisCap } from './antithesisCap.js';
+import { runSentenceCaseRepair } from './sentenceCaseRepair.js';
 import { runAntiDetectionPolish } from './antiDetectionPolish.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
@@ -171,11 +172,18 @@ export async function runManuscriptPolishPipeline({
   } catch (qcErr) { console.warn('[QUOTE-CONSOLIDATION] skipped:', qcErr?.message); }
 
   // A2: Anthology-specific checks (fiction-only)
+  // FICTIONFIX-1: body-language dedupe was anthology-gated, so plain novels
+  // never ran it (Songbird blind test: stomach beats INCREASED under polish).
+  // It is book-agnostic — run it for ALL fiction. Vocab bans + contamination
+  // remain anthology-only.
   let anthologyStats = { bodyLangFixed: 0, anthVocabFixed: 0, contaminationFixed: 0, genreVocabFixed: 0 };
-  if (mode !== 'nonfiction' && isAnthology) {
-    onProgress('Polish: Anthology-specific checks…');
+  if (mode !== 'nonfiction') {
+    onProgress('Polish: Cross-chapter body-language dedupe…');
     const bodyResult = await runCrossChapterBodyLanguageDedup(loaded, onProgress);
     changes.push(...bodyResult.changes); anthologyStats.bodyLangFixed = bodyResult.bodyLangFixed || 0;
+  }
+  if (mode !== 'nonfiction' && isAnthology) {
+    onProgress('Polish: Anthology-specific checks…');
     const anthVocabResult = await runAnthologyVocabBans(loaded, onProgress);
     changes.push(...anthVocabResult.changes); anthologyStats.anthVocabFixed = anthVocabResult.anthVocabFixed || 0;
     const contamResult = await runContaminationDetector(loaded, onProgress, project);
@@ -310,9 +318,14 @@ export async function runManuscriptPolishPipeline({
     const { overused: globalOverused } = buildGlobalOpeningStats(loaded.map(f => f.content));
     const { overused: globalActionBeats, minCount } = buildGlobalActionBeatStats(loaded.map(f => f.content));
     console.log(`[REP-FIC] openings=${globalOverused.size} actionBeats=${globalActionBeats.size} (minCount=${minCount}) sample=[${[...globalActionBeats].slice(0,6).join(' | ')}]`);
+    // FICTIONFIX-1: cross-chapter narrative phrase families (ARCH2-4B-B) now
+    // feed the fiction rewrite too, merged into the action-beat set.
+    const { overused: ficCrossPhrases, familiesFound: ficFamilies } = buildCrossChapterPhraseStats(loaded.map(f => f.content));
+    const beatsPlusPhrases = new Set([...globalActionBeats, ...ficCrossPhrases]);
+    console.log(`[XREP-FIC] cross-chapter families=${ficFamilies} flagged=${ficCrossPhrases.size}`);
     for (const f of loaded) {                          // SEQUENTIAL — one chapter at a time, never Promise.all
       try {
-        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused, globalActionBeats, mode: 'fiction', maxRewrites: 24 });
+        const r = await rewriteFlaggedSpots({ chapterText: f.content, chapter: f.chapter, project, globalOverused, globalActionBeats: beatsPlusPhrases, mode: 'fiction', maxRewrites: 24 });
         console.log(`[REP-FIC] Ch.${f.chapter?.chapter_number ?? '?'} openings=${r.flags?.openings?.length ?? 0} beats=${r.flags?.actionBeats?.length ?? 0} cadence=${r.flags?.cadence?.length ?? 0} changed=${r.changed} rewritten=${r.stats?.rewritten ?? 0}`);
         if (r.ok && r.changed) {
           f.content = r.text;
@@ -668,6 +681,14 @@ export async function runManuscriptPolishPipeline({
   if (finalVocabFixed > 0) changes.push('Final vocabulary sweep: ' + finalVocabFixed + ' banned word(s) recast/cleaned after LLM stages.');
 
   // ══════════════════════════════════════════════════════════════════════════
+  // PHASE D3: FICTIONFIX-1 — sentence-case + spacing healer. Several passes
+  // (phrase deletions, triplet reduction, paragraph merging, LLM splices) can
+  // leave a sentence starting lowercase, a beheaded fragment, doubled spaces,
+  // or a missing space after a closing quote. Heal the CLASS here, after every
+  // mutating stage, instead of patching each producer.
+  const caseRepair = runSentenceCaseRepair(loaded, onProgress);
+  changes.push(...caseRepair.changes);
+
   // PHASE E: Quality gate + improvement scoring
   // ══════════════════════════════════════════════════════════════════════════
   onProgress('Polish: Running post-polish quality gate…');

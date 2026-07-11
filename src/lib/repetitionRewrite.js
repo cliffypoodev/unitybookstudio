@@ -80,6 +80,10 @@ function hasCadenceTic(pText) {
     if (!skipList.includes(word)) return true;
   }
   if (((pText.match(/(?:^|[.?!]\s+)And\b/g) || []).length) >= 3) return true;
+  // FICTIONFIX-1: "It was" opener and "seemed to" pile-ups read as machine
+  // cadence — two or more in one paragraph flags it for the guarded rewrite.
+  if (((pText.match(/(?:^|[.?!]\s+|[.?!]["”]\s+)It was\b/g) || []).length) >= 2) return true;
+  if (((pText.match(/\bseemed to\b/gi) || []).length) >= 2) return true;
   if (/\bwas\b[^.?!]{0,20}\b(real|true|fake|wrong|right)[.?!]\s*(?:And\s+)?[^.?!]{0,20}\bwas\b[^.?!]{0,20}\1\b/i.test(pText)) return true;
   return false;
 }
@@ -341,6 +345,11 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
       const l = line.trim().toLowerCase();
       return !(l.startsWith('here is') || l.startsWith('here are') || l.startsWith('rewritten') || l.startsWith('sure,') || l.startsWith('certainly') || l.startsWith('paragraph:'));
     }).join('\n').trim();
+    // FICTIONFIX-1: LLM splices must be case-clean. A rewrite that begins
+    // lowercase is capitalized; one that contains a fresh mid-text lowercase
+    // sentence start is rejected (returns '' → caller skips, original kept).
+    if (/^[a-z]/.test(rw)) rw = rw.charAt(0).toUpperCase() + rw.slice(1);
+    if (/(?<!\.\.)[.!?]\s+[a-z]/.test(rw)) return '';
     return rw;
   }
 
