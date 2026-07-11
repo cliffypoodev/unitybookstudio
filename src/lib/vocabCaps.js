@@ -360,21 +360,16 @@ export function runSentenceStarterVariation(loaded, onProgress) {
         if (wasMatch && DROPPABLE_SUBJECTS.test(wasMatch[1])) {
           // "The door was heavy" → no good simple inversion. Skip "was [adj]" — too risky.
           // "The scanner beeped" → hard to restructure mechanically.
-          // Best safe option: replace "The" with a demonstrative or possessive
-          const alternatives = ['That ', 'A ', 'One ', 'Its ', 'This '];
-          const alt = alternatives[fixed % alternatives.length];
-          fixed++;
-          startersFixed++;
-          return match.replace('The ', alt);
+          // FICTIONFIX-2: article swaps corrupt referents ("The clock
+          // ticked" → "One clock ticked" — Songbird blind test, 27 wounds).
+          // Swapping is disabled; safe variation lives in the NF-safe pass.
+          return match;
         }
 
-        // Strategy 3: For any other "The [noun]" pattern, cycle through alternatives
+        // Strategy 3 removed (FICTIONFIX-2): article cycling corrupted
+        // referents. The NF-safe pass handles "The" reduction for all modes.
         if (DROPPABLE_SUBJECTS.test(firstWord)) {
-          const alternatives = ['A ', 'One ', 'That '];
-          const alt = alternatives[fixed % alternatives.length];
-          fixed++;
-          startersFixed++;
-          return match.replace('The ', alt);
+          return match;
         }
 
         return match;

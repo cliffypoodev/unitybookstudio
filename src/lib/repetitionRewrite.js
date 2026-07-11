@@ -84,6 +84,14 @@ function hasCadenceTic(pText) {
   // cadence — two or more in one paragraph flags it for the guarded rewrite.
   if (((pText.match(/(?:^|[.?!]\s+|[.?!]["”]\s+)It was\b/g) || []).length) >= 2) return true;
   if (((pText.match(/\bseemed to\b/gi) || []).length) >= 2) return true;
+  // FICTIONFIX-2: broken shapes no deterministic repair can fix — route the
+  // paragraph to the guarded rewrite. Headless article+adjective sentences
+  // ("Yet the different now."), recast echoes ("The chill remained merely
+  // chill."), and dropped-subject sentences ("Had forgotten this existed." —
+  // code must not guess pronouns; the model sees the whole paragraph).
+  if (/(?:^|[.!?]\s+)(?:Yet|But|And|Still)?,?\s*(?:the|a|an)\s+(?:different|same|other|only|rest)\s+(?:now|then|here|there)\s*[.!?]/i.test(pText)) return true;
+  if (/\b[Tt]he\s+(\w{3,})\s+(?:was|remained|seemed|stayed)\s+(?:merely|simply|just|plain|only)\s+\1\b/.test(pText)) return true;
+  if (/(?:^|[.!?]["”]?\s+)Had(?:n['’]t)?\s+(?:\w+ed|forgotten|known|seen|been|made|taken|given|found|lost|kept|thought|heard|felt|gone|come|become|begun|held|meant|brought|caught|worn|written|told|paid|built|sent|spent|hidden|chosen|broken|spoken|driven|eaten|fallen|risen|grown|thrown|drawn|shown|flown|torn|sworn|understood|done|said|read|left|run|met|led|won|stood|sat|never|always|already|almost)\b/.test(pText)) return true;
   if (/\bwas\b[^.?!]{0,20}\b(real|true|fake|wrong|right)[.?!]\s*(?:And\s+)?[^.?!]{0,20}\bwas\b[^.?!]{0,20}\1\b/i.test(pText)) return true;
   return false;
 }

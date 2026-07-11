@@ -31,7 +31,7 @@ import { runDialogueTagCaps } from './dialogueTagPolish.js';
 import { runChatGPTVocabCaps, runTransitionWordCaps } from './chatgptPatternPolish.js';
 import { runStackedClauseVariation } from './sentencePatternPolish.js';
 import { runAntithesisCap } from './antithesisCap.js';
-import { runSentenceCaseRepair } from './sentenceCaseRepair.js';
+import { runSentenceCaseRepair, healProseWounds } from './sentenceCaseRepair.js';
 import { runAntiDetectionPolish } from './antiDetectionPolish.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
@@ -408,11 +408,14 @@ export async function runManuscriptPolishPipeline({
     ? runPerChapter(loaded, (l, prog) => runAntiDetectionPolish(l, prog, { project }), [onProgress])
     : runAntiDetectionPolish(loaded, onProgress, { project });
   changes.push(...antiDetect.changes);
-  // ARCH2-4b-d: nonfiction routes to the referent-preserving NF variant —
-  // the fiction pass swaps articles (The→A/One/That) on its noun list, which
-  // corrupts factual referents in nonfiction prose.
+  // FICTIONFIX-2: the referent-preserving starter pass runs for ALL modes —
+  // article swaps corrupted fiction referents too (Songbird blind test). The
+  // legacy fiction pass still runs for fiction, but its swap strategies are
+  // disabled; it now only caps "It was" and pronoun openers.
+  const starterResultSafe = runSentenceStarterVariationNF(loaded, onProgress);
+  changes.push(...starterResultSafe.changes);
   const starterResult = mode === 'nonfiction'
-    ? runSentenceStarterVariationNF(loaded, onProgress)
+    ? { changes: [] }
     : runSentenceStarterVariation(loaded, onProgress);
   changes.push(...starterResult.changes);
   const aiResist = runAiDetectionResistance(loaded, onProgress);
@@ -688,6 +691,9 @@ export async function runManuscriptPolishPipeline({
   // mutating stage, instead of patching each producer.
   const caseRepair = runSentenceCaseRepair(loaded, onProgress);
   changes.push(...caseRepair.changes);
+  // FICTIONFIX-2: heal article-swap wounds and verb jams left by older passes
+  const woundRepair = healProseWounds(loaded, onProgress);
+  changes.push(...woundRepair.changes);
 
   // PHASE E: Quality gate + improvement scoring
   // ══════════════════════════════════════════════════════════════════════════
@@ -784,6 +790,14 @@ export async function runManuscriptPolishPipeline({
   }
   if (contentLossReverts > 0) {
     changes.push(`Content loss guard: ${contentLossReverts} chapter(s) reverted to pre-pipeline content.`);
+    // FICTIONFIX-2: reverted chapters carry PRE-pipeline text, including any
+    // damage the healers already fixed once this run — heal them again so a
+    // revert can never reintroduce mechanical wounds. Both healers are
+    // idempotent and deterministic.
+    const revertCaseRepair = runSentenceCaseRepair(loaded, onProgress);
+    changes.push(...revertCaseRepair.changes);
+    const revertWoundRepair = healProseWounds(loaded, onProgress);
+    changes.push(...revertWoundRepair.changes);
   }
 
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);

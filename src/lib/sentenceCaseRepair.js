@@ -56,4 +56,60 @@ export function runSentenceCaseRepair(loaded, onProgress) {
   return { changes, caps, spaces };
 }
 
-console.log('[SENTENCE-CASE-REPAIR] FICTIONFIX-1 loaded: case + spacing healer');
+// The exact noun vocabulary the old fiction starter pass swapped articles on —
+// healing is bounded to the same list, so it can only reverse the pass's own
+// damage class, never rewrite an author's genuine phrasing.
+const SWAP_NOUNS = 'door|light|lights|sound|noise|air|room|floor|wall|walls|ceiling|sky|ground|voice|machine|screen|city|building|world|system|corridor|hallway|tunnel|space|place|water|fire|darkness|silence|crowd|clock|bell|wind|rain|storm|fog|mist|sun|moon|path|road|street|field|forest|night|day|morning|evening|pain|fear|anger|rage|truth|thought|memory|image|idea|question|answer|problem|effect|result|impact|surface|metal|stone|concrete|glass';
+const SWAP_VERBS = 'was|were|had|did|ticked|tapped|opened|closed|slid|hung|sat|stood|lay|came|went|fell|rose|filled|held|pressed|smelled|felt|seemed|remained|grew|turned|changed|stopped|began|carried|drifted|spread|settled|shifted|stretched|waited|persisted|deepened|faded|blared|echoed|hummed';
+
+// Verb-jam pairs ("turned walked") — first verb + second verb with the
+// conjunction eaten by a deletion pass. Bounded lists; ambiguous pairs
+// (turned left) are excluded.
+const JAM_V1 = 'turned|stood|rose|paused|stopped|smiled|nodded|laughed|sighed|shrugged|straightened';
+const JAM_V2 = 'walked|reached|stepped|moved|crossed|picked|pulled|pushed|opened|closed|looked|spoke|started|began|headed|collected';
+
+export function healProseWounds(loaded, onProgress) {
+  onProgress?.('Polish: Healing prose wounds…');
+  const changes = [];
+  let swaps = 0, jams = 0;
+  const swapRx = new RegExp('(^|[.!?]["”]?\\s+)(One|Its)\\s+(' + SWAP_NOUNS + ')(\\s+(?:' + SWAP_VERBS + '))\\b', 'g');
+  const jamRx = new RegExp('\\b(' + JAM_V1 + ')\\s+(' + JAM_V2 + ')\\b', 'g');
+
+  for (const f of loaded) {
+    const chNum = f.chapter?.chapter_number || '?';
+    let t = String(f.content || '');
+    let n1 = 0, n2 = 0, n3 = 0;
+
+    // 1) article-swap wounds: "One clock ticked" / "Its sound was" → "The …"
+    //    guard: keep genuine enumeration ("One door opened; the other…") —
+    //    checked only within the SAME sentence, and only for "One".
+    t = t.replace(swapRx, (m, pre, art, noun, tail, offset) => {
+      if (art === 'One') {
+        const rest = t.slice(offset + m.length);
+        const sentEnd = rest.search(/[.!?]/);
+        const sameSentence = sentEnd === -1 ? rest.slice(0, 160) : rest.slice(0, sentEnd);
+        if (/\bother\b/.test(sameSentence)) return m;            // real "one … the other"
+      }
+      n1++; return pre + 'The ' + noun + tail;
+    });
+
+    // 2) verb jams: "turned walked" → "turned and walked"
+    t = t.replace(jamRx, (m, v1, v2) => { n2++; return v1 + ' and ' + v2; });
+
+    // NOTE: dropped-subject sentences ("Had forgotten this picture existed.")
+    // are NOT healed deterministically — choosing the pronoun requires real
+    // context (nearest-pronoun guessing inserted wrong subjects in testing).
+    // They are FLAGGED via hasBrokenShape and repaired by the guarded LLM
+    // rewrite, which sees the whole paragraph.
+
+    if (n1 + n2 > 0) {
+      f.content = t;
+      swaps += n1; jams += n2;
+      changes.push('Ch.' + chNum + ': prose wounds healed (articles ' + n1 + ', verb jams ' + n2 + ')');
+    }
+  }
+  if (swaps + jams > 0) console.log('[PROSE-WOUNDS] articles=' + swaps + ' verbJams=' + jams);
+  return { changes, swaps, jams };
+}
+
+console.log('[SENTENCE-CASE-REPAIR] FICTIONFIX-2 loaded: case/spacing healer + prose-wound repair');
