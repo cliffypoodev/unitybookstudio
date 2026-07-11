@@ -1,4 +1,5 @@
 // prosePolishQualityGate.js — deterministic post-polish validator
+import { detectMalformedGrammar as detectMalformedShared } from './manuscriptSafetyGate.js';
 // No LLM calls, no async, no network. Pure regex-based detection & repair.
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -203,7 +204,14 @@ function countSlop(text) {
  * @returns {{ ok, malformed, quoteIssues, dialogueIssues, slopCounts, recommendedAction }}
  */
 export function runProsePolishQualityGate(text, options = {}) {
-  const malformed = detectMalformedGrammar(text);
+  // SAVEFIX-1: measure with the SHARED, fixed detector (SAFETYFIX-1/2/3 +
+  // GATEFIX validators live there). Only STRICT matches may block a save —
+  // the proper-noun-were canary is advisory by design and false-positives
+  // on legitimate prose ("the people in Texas were"), which caused polish
+  // results to be silently reverted for whole books.
+  const sharedMalformed = detectMalformedShared(text);
+  const strictMatches = sharedMalformed.matches.filter((m) => m.phrase !== 'Singular proper noun + were');
+  const malformed = { count: strictMatches.length, matches: sharedMalformed.matches, strictMatches };
   const quoteIssues = detectQuoteIssues(text);
   const slopCounts = countSlop(text);
 
