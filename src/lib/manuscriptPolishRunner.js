@@ -43,6 +43,7 @@ import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminati
 import { isAnthologyProject } from './anthologyEngine.js';
 import { isComedyProject } from './manuscriptStats.js';
 import { rewriteFlaggedSpots, buildGlobalOpeningStats, buildGlobalActionBeatStats, buildCrossChapterPhraseStats } from './repetitionRewrite.js';
+import { buildQuoteLedger, consolidateForeignQuotes } from './quoteLedger.js';
 import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from './nameHygieneRules.js';
 
 // ── Per-chapter modules (operate on single text strings) ──
@@ -149,6 +150,25 @@ export async function runManuscriptPolishPipeline({
   if (bannedRecastCount > 0) {
     changes.push(`Banned vocabulary: recast ${bannedRecastCount} word(s) with synonyms (no deletions).`);
   }
+
+  // A1.5: ARCH2-4b-a — witness-quote consolidation. A research quote may be
+  // printed inside quotation marks in exactly ONE chapter (beat-derived home,
+  // else manuscript first-use), exactly once. Narrated references are never
+  // touched. Fail-safe: oversized spans are flagged for manual review, not cut.
+  onProgress('Polish: Consolidating witness quotes…');
+  try {
+    const beatHomes = new Map();
+    for (const e of buildQuoteLedger(project, loaded.map((x) => x.chapter))) {
+      if (e.home !== null && !beatHomes.has(e.norm)) beatHomes.set(e.norm, e.home);
+    }
+    const qc = consolidateForeignQuotes(loaded, project, beatHomes);
+    changes.push(...qc.changes);
+    for (const fl of qc.flagged) changes.push('QUOTE-CONSOLIDATION FLAG: ' + fl);
+    if (qc.removed > 0) {
+      changes.push('Quote consolidation: removed ' + qc.removed + ' foreign-homed quote occurrence(s).');
+    }
+    console.log('[QUOTE-CONSOLIDATION] removed=' + qc.removed + ' flagged=' + qc.flagged.length);
+  } catch (qcErr) { console.warn('[QUOTE-CONSOLIDATION] skipped:', qcErr?.message); }
 
   // A2: Anthology-specific checks (fiction-only)
   let anthologyStats = { bodyLangFixed: 0, anthVocabFixed: 0, contaminationFixed: 0, genreVocabFixed: 0 };

@@ -2089,7 +2089,19 @@ function buildScenePrompt(args) {
   const isNF = isNonfictionProject(args.project) || isNonfictionAnthology(args.project);
   const base = isNF ? buildNonfictionPrompt(args) : buildFictionPrompt(args);
   const sceneCast = buildSceneCastBlock(args.spec || args);
-  return sceneCast ? `${sceneCast}\n\n${base}` : base;
+  let out = sceneCast ? `${sceneCast}\n\n${base}` : base;
+  // ARCH2-4b-a: foreign-homed witness quotes must not reach the model through
+  // ANY prompt channel (bible fields, beats, rolling context) — not only the
+  // research block. Home-chapter quotes and unhomed quotes pass through
+  // untouched; with no chapter list the ledger derives nothing and this is a
+  // no-op (fail-open).
+  try {
+    const chNum = getChapterNumber(args.chapter);
+    const ex = excludeForeignQuotes(out, args.project, args.chapters || [], chNum);
+    if (ex.excluded.length) console.warn('[QUOTE-LEDGER] ch' + chNum + ' prompt-level excision: ' + ex.excluded.join(' | '));
+    out = ex.text;
+  } catch (qpErr) { /* fail-open: prompt goes out unfiltered */ }
+  return out;
 }
 
 async function generateSceneWithRepair({
