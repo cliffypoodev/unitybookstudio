@@ -2,6 +2,7 @@
 
 import { callAgent, callOllama, AGENT_MODELS, resolveAgent, searchWeb } from '@/lib/localLLM';
 import { resolveWritingModel, normalizeWritingModel, logWritingModelUsage, isWritingTask } from '@/lib/writingModel';
+import { normalizeModelId } from '@/lib/modelRouting'; // MODELFIX-4
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -152,7 +153,10 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
   // Guard: if the caller passed the primary writing model (ghostwriter) as an explicit
   // model, but the task_type resolves to a non-ghostwriter agent (critic, polisher, etc.),
   // drop the model override so callAgent uses the agent's own model from AGENT_MODELS.
-  let resolvedModel = payload.model || null;
+  // MODELFIX-4: map legacy cloud aliases (openai_gpt5, gemini_3_flash, deepseek/*)
+  // to the local primary model BEFORE the drop-guard, so no unknown model string
+  // ever reaches llama.cpp (it returns 400 and the call silently fails).
+  let resolvedModel = normalizeModelId(payload.model) || null;
   if (resolvedModel) {
     const agentKey = resolveAgent(taskType, payload._project || payload.project || null);
     const agentModel = AGENT_MODELS[agentKey];
