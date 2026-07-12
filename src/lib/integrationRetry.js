@@ -127,7 +127,9 @@ function normalizeMaxTokens(requested) {
 function inferTaskType(payload) {
   if (payload.task_type) return payload.task_type;
   if (payload.task) return payload.task;
-  if (payload.model === 'gemini_3_flash') return 'critique';
+  // CHATFIX-1: 'gemini_3_flash' was the floating brainstorm's legacy tag — it
+  // is CHAT, not critique (the old mapping ran the chat on the reasoning critic).
+  if (payload.model === 'gemini_3_flash') return 'chat';
   return 'prose';
 }
 

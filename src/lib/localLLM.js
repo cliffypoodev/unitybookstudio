@@ -30,10 +30,12 @@ export const AGENT_MODELS = {
   researcher:        'phi4',                                             // factual gathering
   critic:            'deepseek-r1-14b',                                  // QA/critique (faster R1)
   polisher:          'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K_XL', // faithful line edits
+  ideas_chat:        'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K_XL', // CHATFIX-1: chat assistants — fast MoE instruct, strict format adherence
   nonfiction_writer: 'HauhauCS/Qwen3.6-27B-Uncensored-HauhauCS-Aggressive:Q5_K_P', // MODELFIX-3: dense prose-tuned 27B; gates handle integrity
 };
 
 export const AGENT_TEMPERATURES = {
+  ideas_chat:       0.85,   // CHATFIX-1: creative chat without prose-model fabrication
   ghostwriter:      0.75,
   ghostwriter_nsfw: 0.75,
   architect:        0.6,
@@ -147,7 +149,12 @@ export function resolveAgent(taskType, project = null) {
 
   if (['prose', 'prose_continuation', 'draft', 'chapter', 'scene', 'rewrite', 'manuscript'].includes(t))
     return isNSFW ? 'ghostwriter_nsfw' : 'ghostwriter';
-  if (['foundation', 'chapter_plan', 'outline', 'transform', 'beats', 'ideas', 'publishing', 'bibliography'].includes(t))
+  // CHATFIX-1: the chat assistants (Ideas tab + floating brainstorm) get their
+  // own fast, instruction-following agent — not the fabrication-prone creative
+  // writer and not a slow reasoning model.
+  if (['chat', 'brainstorm', 'ideas'].includes(t))
+    return 'ideas_chat';
+  if (['foundation', 'chapter_plan', 'outline', 'transform', 'beats', 'publishing', 'bibliography'].includes(t))
     return 'architect';
   if (['judge', 'evaluate', 'scan', 'critique', 'compare', 'analytics'].includes(t))
     return 'critic';

@@ -3,6 +3,7 @@ import { MessageSquare, X, Send, Loader2, Trash2, Minimize2, Maximize2, Zap } fr
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
+import { CHAT_FACT_DISCIPLINE } from '@/lib/chatPromptDiscipline';
 import ReactMarkdown from 'react-markdown';
 
 const getActiveMode = () => {
@@ -99,9 +100,10 @@ Never refuse creative ideas. This is fiction brainstorming — all concepts are 
 BUILD WHEN ASKED: When the author asks you to BUILD, WRITE, CREATE, or GENERATE something — DO IT. Produce the actual content. Do NOT deflect.`;
 
 const getSystemPrompt = (mode) => {
-  if (mode === 'story-architect') return STORY_ARCHITECT_PROMPT;
-  if (mode === 'chapter-assistant') return CHAPTER_ASSISTANT_PROMPT;
-  return BRAINSTORM_PROMPT;
+  const base = mode === 'story-architect' ? STORY_ARCHITECT_PROMPT
+    : mode === 'chapter-assistant' ? CHAPTER_ASSISTANT_PROMPT
+    : BRAINSTORM_PROMPT;
+  return base + '\n' + CHAT_FACT_DISCIPLINE;
 };
 
 /**
@@ -280,9 +282,8 @@ export default function FloatingBrainstorm() {
 
       const result = await invokeLLMWithRetry({
         prompt,
-        model: 'gemini_3_flash',
-        fallback_model: 'deepseek/deepseek-chat-v3-0324',
-        temperature: 0.8,
+        task_type: 'chat',            // CHATFIX-1: routes to the ideas_chat agent
+        temperature: 0.85,
         max_tokens: 1500,
       });
 
@@ -318,6 +319,9 @@ export default function FloatingBrainstorm() {
               } catch {}
               // Also stash on window for other components to pick up
               window.__ubsLastBrainstormIdea = part.data;
+              // CHATFIX-1: apply directly to the open project's Setup tab —
+              // ProjectStudio listens for this event.
+              window.dispatchEvent(new CustomEvent('ubs:use-idea', { detail: part.data }));
             }}
             className="flex items-center gap-1.5 mt-1.5 px-3 py-1.5 rounded-full border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-medium transition-colors"
           >

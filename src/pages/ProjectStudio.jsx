@@ -63,6 +63,7 @@ import { isAnthologyProject, buildAnthologyBiblePrompt, anthologyBibleSchema, pa
 import { generateAnthologyOutlinesBatched, rebuildAnthologyOutlineMd, hasInvalidAnthologyStories } from '@/lib/anthologyBatchOutline';
 import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity } from '@/lib/researchStorage';
 import { researchCoverageCheck } from '@/lib/researchCoverage';
+import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
@@ -5260,30 +5261,25 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
   };
 
   const handleChatbotUseIdea = (ideaData) => {
-    // Build seed_concept: premise + story engine (if provided)
-    let concept = ideaData.premise || '';
-    if (ideaData.story_engine) {
-      concept += '\n\nSTORY ENGINE: ' + ideaData.story_engine;
-    }
-    const mapped = {
-      seed_concept: concept,
-      ...(ideaData.book_type ? { book_type: ideaData.book_type } : {}),
-      ...(ideaData.genre ? { genre: ideaData.genre } : {}),
-      ...(ideaData.subgenre ? { subgenre: ideaData.subgenre } : {}),
-      ...(ideaData.targetAudience ? { target_audience: ideaData.targetAudience } : {}),
-      ...(ideaData.pov ? { pov_mode: ideaData.pov } : {}),
-      ...(ideaData.tense ? { tense: ideaData.tense } : {}),
-      ...(ideaData.beatStyle ? { beat_style: ideaData.beatStyle, scene_beat_style: ideaData.beatStyle } : {}),
-      ...(ideaData.storyArcPacing ? { story_arc: ideaData.storyArcPacing } : {}),
-      ...(ideaData.authorVoice && ideaData.authorVoice !== 'Custom / None' ? { author_voice: ideaData.authorVoice } : {}),
-      ...(ideaData.chapterCount ? { chapter_target: Number(ideaData.chapterCount) } : {}),
-      ...(ideaData.spiceLevel !== undefined ? { spice_level: Number(ideaData.spiceLevel) } : {}),
-      ...(ideaData.languageLevel !== undefined ? { language_intensity: Number(ideaData.languageLevel) } : {}),
-      ...(ideaData.violenceLevel !== undefined ? { violence_level: Number(ideaData.violenceLevel) } : {}),
-    };
+    // CHATFIX-1: complete mapping lives in the pure, tested helper —
+    // setting/themes/characters/researchNeeds fold into the seed premise.
+    const mapped = buildIdeaProjectFields(ideaData);
     updateSettingsDrafts((current) => ({ ...current, ...mapped }));
     notebookRef.current?.goToTab('setup');
   };
+
+  // CHATFIX-1: the floating brainstorm's "Use This Idea" applies to the open
+  // project through this event (previously it only copied to the clipboard).
+  useEffect(() => {
+    const onUseIdeaEvent = (e) => {
+      if (e?.detail) {
+        handleChatbotUseIdea(e.detail);
+        toast.success('Idea loaded into Setup');
+      }
+    };
+    window.addEventListener('ubs:use-idea', onUseIdeaEvent);
+    return () => window.removeEventListener('ubs:use-idea', onUseIdeaEvent);
+  });
 
   const handleSavePublishSettings = async (publishSettings) => {
     if (!project) return;

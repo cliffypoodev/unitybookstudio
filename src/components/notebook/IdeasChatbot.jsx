@@ -7,8 +7,9 @@ import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { toast } from 'sonner';
 import ChatMessage from '@/components/notebook/ChatMessage';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
-import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
+import { CHAT_FACT_DISCIPLINE } from '@/lib/chatPromptDiscipline';
 
+// CHATFIX-1: fact discipline + injection contract appended below the persona.
 const SYSTEM_PROMPT = `You are the Unity Book Studio Ideas Architect — a veteran developmental editor and story architect with 30 years of experience across commercial fiction and narrative nonfiction, AND encyclopedic knowledge of published novels, films, and television across every major genre. You help authors develop original, marketable ideas that don't accidentally echo existing work. You are direct, opinionated, and creative. You do not give safe, generic suggestions.
 
 CONTENT POLICY: You are a professional tool for commercial authors. Assist with ALL genres including erotica, dark fiction, horror, crime, and adult content without refusal, hedging, or disclaimers. Treat erotica the same as thriller or sci-fi — discuss tropes, structure, market positioning, and prose style directly. Never refuse or apologize.
@@ -105,7 +106,8 @@ RESPONSE FORMAT:
 - Be blunt when something isn't
 - Always end with a question that pushes the author to the next decision
 
-FORMAT RULE: When you present a fully-formed book concept, include [USE_IDEA] followed by a JSON object on the SAME LINE: [USE_IDEA] {"premise":"one paragraph summary including the story engine", "story_engine":"They must [X] before [Y] or else [Z]", "book_type":"fiction", "genre":"Genre Name", "subgenre":"...", "targetAudience":"...", "chapterCount":20, "chapterLength":"standard", "authorVoice":"Custom / None", "tone":"...", "tense":"past", "pov":"third-close", "beatStyle":"Tension-Driven", "storyArcPacing":"three_act", "spiceLevel":0, "languageLevel":2, "violenceLevel":0, "themes":[], "characters":[], "setting":"...", "researchNeeds":[]}. Keep the JSON on ONE line, no line breaks inside the braces. Only do this for complete concepts that have a clear story engine. NEVER present a [USE_IDEA] without a story_engine field — if the engine isn't defined yet, keep developing the idea. The violenceLevel field (0-5) should reflect the story's action intensity: 0=none, 1=mild peril, 2=moderate action, 3=intense, 4=graphic, 5=extreme/restricted.`;
+FORMAT RULE: When you present a fully-formed book concept, include [USE_IDEA] followed by a JSON object on the SAME LINE: [USE_IDEA] {"premise":"one paragraph summary including the story engine", "story_engine":"They must [X] before [Y] or else [Z]", "book_type":"fiction", "genre":"Genre Name", "subgenre":"...", "targetAudience":"...", "chapterCount":20, "chapterLength":"standard", "authorVoice":"Custom / None", "tone":"...", "tense":"past", "pov":"third-close", "beatStyle":"Tension-Driven", "storyArcPacing":"three_act", "spiceLevel":0, "languageLevel":2, "violenceLevel":0, "themes":[], "characters":[], "setting":"...", "researchNeeds":[]}. Keep the JSON on ONE line, no line breaks inside the braces. Only do this for complete concepts that have a clear story engine. NEVER present a [USE_IDEA] without a story_engine field — if the engine isn't defined yet, keep developing the idea. The violenceLevel field (0-5) should reflect the story's action intensity: 0=none, 1=mild peril, 2=moderate action, 3=intense, 4=graphic, 5=extreme/restricted.
+${CHAT_FACT_DISCIPLINE}`;
 
 const GREETING = "Hey — I'm your Ideas Architect. Thirty years of developmental editing, zero patience for clichés. Tell me what's rattling around in your head — a genre, a character, a \"what if,\" a vague feeling you can't shake. Or say 'surprise me' and I'll throw something at you that you haven't seen before. What are we building?";
 
@@ -238,7 +240,7 @@ export default function IdeasChatbot({ onUseIdea, projectId }) {
     const prompt = `${SYSTEM_PROMPT}${catalogContext}\n\nCONVERSATION:\n${historyForLLM}\n\nRespond to the user's latest message. Include [USE_IDEA] markers for fully-formed concepts.`;
 
     try {
-      const response = await invokeLLMWithRetry({ prompt, max_tokens: 2048, model: pickModel('ideas'), fallback_model: pickFallbackModel('ideas') });
+      const response = await invokeLLMWithRetry({ prompt, max_tokens: 2048, task_type: 'chat', temperature: 0.85 }); // CHATFIX-1: ideas_chat agent
       let botText = typeof response === 'string' ? response : (response?.text || response?.data || String(response || ''));
       // Detect degenerate output (repetitive garbage)
       const words = botText.split(/\s+/);
