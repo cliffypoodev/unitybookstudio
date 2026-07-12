@@ -5270,7 +5270,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
 
   // CHATFIX-1: the floating brainstorm's "Use This Idea" applies to the open
   // project through this event (previously it only copied to the clipboard).
-  useEffect(() => {
+  React.useEffect(() => {
     const onUseIdeaEvent = (e) => {
       if (e?.detail) {
         handleChatbotUseIdea(e.detail);
