@@ -15,21 +15,27 @@ const DEFAULT_NEVER_NAME = new Set([
   'God','Lord','Christ','Jesus','Navy','Army','Committee','Congress','President','Federal','Theatre',
 ]);
 
+// GUARDFIX-1: only unambiguous foreign-universe compounds. Common English words
+// ('synthetic', 'conduits', 'laptop', 'biometric', 'airship', ...) false-positived
+// on ordinary fiction (a rope's synthetic fibers blocked an adventure chapter).
 const HARD_FOREIGN_TECH_TERMS = [
-  'data-sliver','data sliver','holoscreen','hologram','holographic','synth-leather','neural interface',
-  'interface crown','feedback loop integrity','auxiliary power conduit','conduits','aethereal conduit',
-  'tracker pinged','tracking chip','encrypted drive','encryption chip','password prompt','raw storage',
-  'flechette pistol','charge cell','transit pod','airship','server rack','wireframe','biometric',
+  'data-sliver','data sliver','holoscreen','synth-leather','neural interface',
+  'interface crown','feedback loop integrity','auxiliary power conduit','aethereal conduit',
+  'tracker pinged','tracking chip','encrypted drive','encryption chip',
+  'flechette pistol','charge cell','transit pod','server rack',
   'cybernetic','cybernetics','null-space','technopathic','quietus','perennial solutions',
-  'winter gala','grey room','safehouse','procurement routes','data chip','motherboard','laptop',
-  'synthetic','neural template','recursive pattern','containment cell','observation window',
+  'grey room','procurement routes','data chip',
+  'neural template','recursive pattern','containment cell',
 ];
 
+// GUARDFIX-1: multiword/rare terms only. Single common words ('asset', 'objective',
+// 'pistol', 'stun', 'tracker', ...) are legitimate vocabulary in thrillers, crime,
+// and period adventure; they tripled-scored on historical-looking projects and
+// blocked clean chapters.
 const MODERN_SPY_HEIST_TERMS = [
   'lockpick','ventilation shaft','service corridor','janitor’s closet','janitor\'s closet','scanner plate',
-  'fingerprint','blueprints','secure container','data chip','burner phone','burner','safehouse',
-  'handler','asset','objective','payload','tracker','decoy','dead drop','surveillance',
-  'flechette','pistol','stun','sub-basement','freight tunnel','security grid',
+  'secure container','data chip','burner phone','dead drop',
+  'flechette','sub-basement','freight tunnel','security grid',
 ];
 
 const COMMON_FOREIGN_EXAMPLE_NAMES = [
@@ -181,27 +187,36 @@ function projectLooksTechSpeculative(project = {}) {
 }
 
 function findTermHits(text = '', terms = []) {
+  // GUARDFIX-1: whole-word/phrase matches only. Substring matching flagged
+  // 'stunned' as 'stun' and 'assets' as 'asset'.
   const lower = String(text || '').toLowerCase();
-  return terms.filter(term => lower.includes(term.toLowerCase()));
+  return terms.filter(term => new RegExp('\\b' + escapeRx(term.toLowerCase()) + '\\b').test(lower));
 }
 
-function paragraphNameHits(paragraph = '', allowedNames = new Set()) {
+function paragraphNameHits(paragraph = '', allowedNames = new Set(), fullText = '') {
+  // GUARDFIX-1: a capitalized token is a NAME candidate only if its lowercase
+  // form never appears in the chapter. Sentence-initial ordinary words ('Her',
+  // 'One', 'Snow', 'Then', 'Were') were scored as unknown foreign names.
   const names = extractNameCandidates(paragraph);
+  const corpus = String(fullText || paragraph || '');
   const unknown = [];
   for (const name of names.keys()) {
-    if (!allowedNames.has(name) && !DEFAULT_NEVER_NAME.has(name)) unknown.push(name);
+    if (allowedNames.has(name) || DEFAULT_NEVER_NAME.has(name)) continue;
+    const lowerForm = new RegExp('(^|[^A-Za-z’\'-])' + escapeRx(name.toLowerCase()) + '([^A-Za-z’\'-]|$)');
+    if (lowerForm.test(corpus)) continue;
+    unknown.push(name);
   }
   return [...new Set(unknown)];
 }
 
-function scoreParagraph(paragraph, allowedNames, project = {}) {
+function scoreParagraph(paragraph, allowedNames, project = {}, fullText = '') {
   const hardTechHits = findTermHits(paragraph, HARD_FOREIGN_TECH_TERMS);
   const heistHits = findTermHits(paragraph, MODERN_SPY_HEIST_TERMS);
   const knownForeignNames = COMMON_FOREIGN_EXAMPLE_NAMES.filter(name => {
     if (allowedNames.has(name)) return false;
     return new RegExp('\\b' + escapeRx(name) + '\\b').test(paragraph);
   });
-  const unknownNames = paragraphNameHits(paragraph, allowedNames)
+  const unknownNames = paragraphNameHits(paragraph, allowedNames, fullText)
     .filter(n => !knownForeignNames.includes(n));
 
   const historical = projectLooksHistoricalOrLiterary(project);
@@ -227,7 +242,8 @@ function scoreParagraph(paragraph, allowedNames, project = {}) {
 }
 
 function findForeignBlock(paragraphs, allowedNames, project) {
-  const scored = paragraphs.map((p, i) => ({ index: i, paragraph: p, words: countWords(p), ...scoreParagraph(p, allowedNames, project) }));
+  const fullText = paragraphs.join('\n\n');
+  const scored = paragraphs.map((p, i) => ({ index: i, paragraph: p, words: countWords(p), ...scoreParagraph(p, allowedNames, project, fullText) }));
 
   for (let i = 0; i < scored.length; i += 1) {
     const current = scored[i];
