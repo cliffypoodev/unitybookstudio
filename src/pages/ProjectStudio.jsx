@@ -2368,7 +2368,7 @@ export default function ProjectStudio() {
     required: ['key_figures', 'key_events', 'institutions', 'timeline', 'primary_sources', 'competing_narratives'],
   };
 
-  const SEARCH_BRIDGE = 'http://127.0.0.1:8899';
+  const SEARCH_BRIDGE = '/search-bridge'; // NETFIX-1: proxied same-origin
 
   // Call the local bridge for search; never throw to the UI.
   const bridgeSearch = async (query, n = 8) => {

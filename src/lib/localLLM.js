@@ -2,9 +2,11 @@
 // Unity Book Studio — Local LLM Engine
 // Sends all LLM calls to a local Ollama server.
 
-const LLAMA_BASE_URL = 'http://127.0.0.1:8080';
+// NETFIX-1: same-origin path proxied by vite to the Studio's llama.cpp —
+// works identically on localhost and on remote devices over Tailscale.
+const LLAMA_BASE_URL = '/llama';
 
-const SEARCH_BRIDGE_URL = 'http://127.0.0.1:8899/search';
+const SEARCH_BRIDGE_URL = '/search-bridge/search';
 
 export async function searchWeb(query, n = 5) {
   try {

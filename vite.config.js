@@ -24,11 +24,25 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: true, // Listen on all network interfaces
     port: 5180,
     strictPort: true,
     proxy: {
       // Proxy ComfyUI API requests to avoid CORS in browser
       // Browser hits localhost:5180/comfyui-api/... → forwarded to 127.0.0.1:8000/...
+      // NETFIX-1: proxy the local llama.cpp + search bridge through the dev
+      // server, so remote devices (Tailscale/LAN) reach the Studio's models via
+      // the origin they already talk to. Same-origin => CSP-clean everywhere.
+      '/llama': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/llama/, ''),
+      },
+      '/search-bridge': {
+        target: 'http://127.0.0.1:8899',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/search-bridge/, ''),
+      },
       '/comfyui-api': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
