@@ -14,7 +14,7 @@ import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
-import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, buildOutlineDedupeRetryAppendix } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-1
+import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, findOutlineOffenders, buildOutlineChapterRepairPrompt, spliceOutlineChapters, rebuildOutlineMd } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-2
 import { unwrapIntegrationResult } from '@/lib/autonovel';
 import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from '@/lib/nameHygieneRules';
 
@@ -643,32 +643,42 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
     chapters = chapters.slice(0, targetCount).map((chapter, index) => normalizeNonfictionChapter(chapter, index, settings, seedConcept));
   }
 
-  // ── OUTLINEFIX-1: cross-chapter distinctness gate (fiction only) ──
-  // The scene-beat normalizer dedupes WITHIN a chapter; nothing checked the
-  // outline ACROSS chapters, so padded outlines re-ran the same events with
-  // recycled titles (Final X / X Continues / X — Aftermath). Deterministic
-  // gate, ONE constrained retry, then fail-safe: a blocked bible beats a
-  // duplicated 25-chapter draft.
+  // -- OUTLINEFIX-2: cross-chapter distinctness with targeted repair (fiction only) --
+  // The user's chapter count is honored, period. When the deterministic gate
+  // flags re-run chapters we do NOT re-roll the outline and NEVER hard-fail:
+  // we replace ONLY the offending chapters with new escalating material,
+  // splice, and re-check - up to 3 rounds, then accept best effort loudly.
   if (isFiction && chapters.length > 1) {
     let dupe = analyzeOutlineDuplication(chapters);
-    if (dupe.critical) {
-      console.warn('[OUTLINE-DEDUPE] Outline failed distinctness gate:', dupe.issues.slice(0, 8).join(' | '));
-      onProgress?.('Bible: outline repeats events — regenerating with distinctness constraints…');
-      const retryPrompt = buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd) + buildOutlineDedupeRetryAppendix(dupe, targetCount);
-      const retryRaw = await callLLM(retryPrompt, outlineSchema, { max_tokens: 16384 });
-      const retryChapters = Array.isArray(retryRaw?.chapters) ? retryRaw.chapters.slice(0, targetCount).map((ch, idx) => ({ ...ch, chapter_number: idx + 1 })) : [];
-      const retryDupe = retryChapters.length > 1 ? analyzeOutlineDuplication(retryChapters) : { ok: false, critical: true, pairs: dupe.pairs, issues: ['retry returned no chapters'] };
-      console.log('[OUTLINE-DEDUPE] Retry:', retryChapters.length, 'chapters,', retryDupe.pairs.length, 'flagged pair(s) vs', dupe.pairs.length, 'before');
-      if (retryChapters.length >= Math.min(chapters.length, targetCount) && retryDupe.pairs.length < dupe.pairs.length) {
-        chapters = retryChapters;
-        outlineMd = retryRaw?.outline_md || outlineMd;
-        dupe = retryDupe;
+    let outlineChanged = false;
+    let round = 0;
+    while (dupe.critical && round < 3) {
+      round += 1;
+      const offenders = findOutlineOffenders(dupe);
+      console.warn('[OUTLINE-DEDUPE] Round ' + round + ': replacing ' + offenders.length + ' duplicated chapter(s): ' + offenders.join(', ') + ' | ' + dupe.issues.slice(0, 4).join(' | '));
+      onProgress?.('Bible: outline repeats events - replacing ' + offenders.length + ' chapter(s), round ' + round + '/3...');
+      const repairRaw = await callLLM(
+        buildOutlineChapterRepairPrompt(chapters, offenders, targetCount),
+        outlineSchema,
+        { max_tokens: 16384 }
+      );
+      const splice = spliceOutlineChapters(chapters, Array.isArray(repairRaw?.chapters) ? repairRaw.chapters : [], offenders);
+      if (!splice.replaced.length) {
+        console.warn('[OUTLINE-DEDUPE] Round ' + round + ' produced no usable replacements; stopping repair loop.');
+        break;
       }
-      if (dupe.critical) {
-        throw new Error('Outline failed the distinctness gate twice — the model could not produce ' + targetCount + ' distinct chapters for this premise. Lower the chapter count or expand the premise, then regenerate. Repeated: ' + dupe.issues.slice(0, 5).join(' | '));
-      }
-      console.log('[OUTLINE-DEDUPE] Retry outline accepted.');
+      console.log('[OUTLINE-DEDUPE] Round ' + round + ' replaced chapters: ' + splice.replaced.join(', '));
+      chapters = splice.chapters;
+      outlineChanged = true;
+      dupe = analyzeOutlineDuplication(chapters);
     }
+    if (dupe.critical) {
+      console.warn('[OUTLINE-DEDUPE] Accepting best-effort outline with remaining issues after ' + round + ' round(s): ' + dupe.issues.slice(0, 6).join(' | '));
+      onProgress?.('Bible: WARNING - outline still repeats some events after repair. Review the outline before drafting.');
+    } else if (outlineChanged) {
+      console.log('[OUTLINE-DEDUPE] Outline converged to distinct chapters after targeted repair.');
+    }
+    if (outlineChanged) outlineMd = rebuildOutlineMd(chapters);
   }
 
   // ── BATCH 3: twists (needs outline) — fiction only ──

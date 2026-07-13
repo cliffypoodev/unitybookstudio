@@ -1,16 +1,22 @@
 // =============================================================
-// outlineDedupeGate.js — OUTLINEFIX-1: cross-chapter outline distinctness gate.
+// outlineDedupeGate.js - OUTLINEFIX-1/2: cross-chapter outline distinctness.
 //
 // Failure mode: asked for N chapters, the architect produces the real story
-// in ~half of them, then pads the rest by re-running the same events with
-// recycled titles (Final X, X Continues, X Revisited, X — Aftermath). The
-// scene-beat normalizer only dedupes WITHIN a chapter; nothing checked the
-// outline ACROSS chapters. This gate does, deterministically. Fiction only —
-// nonfiction fallback templates repeat by design.
+// in about half of them, then pads the rest by re-running the same events
+// with recycled titles (Final X, X Continues, X Revisited, X - Aftermath).
+// The scene-beat normalizer only dedupes WITHIN a chapter; this gate checks
+// ACROSS chapters. Fiction only - nonfiction templates repeat by design.
+//
+// OUTLINEFIX-2 contract: the user's chapter count is honored, period. When
+// duplicates are found we do NOT re-roll the whole outline (that wastes the
+// good chapters) and we NEVER hard-fail. We deterministically identify the
+// offending chapters, ask the model to replace ONLY those with new escalating
+// material, splice, and re-check - up to 3 rounds, then accept best effort
+// with a loud warning.
+//
+// ASCII-only source on purpose: instruction channels strip exotic codepoints.
 // =============================================================
 
-// Words that signal a re-run rather than a new event when they appear in
-// titles. 'aftermath'/'revisited'/'continues' are recap markers even once.
 const RECAP_MARKERS = ['aftermath', 'revisited', 'continues', 'continued', 'redux', 'reprise'];
 const RECYCLE_WORDS = ['final', 'last', 'first', 'begins', 'ends', 'closes', 'again', 'return', 'returns', ...RECAP_MARKERS];
 const STOPWORDS = new Set(['the', 'a', 'an', 'of', 'and', 'or', 'in', 'on', 'to', 'at', 'for', 'with', 'from', 'into', 'part', 'chapter']);
@@ -18,15 +24,17 @@ const STOPWORDS = new Set(['the', 'a', 'an', 'of', 'and', 'or', 'in', 'on', 'to'
 function titleWords(title = '') {
   return String(title || '')
     .toLowerCase()
-    .replace(/^chapter\s+\d+\s*[:.—-]?\s*/i, '')
+    .replace(/^chapter\s+\d+\s*[:.\u2014-]?\s*/i, '')
+    .replace(/[\u2018\u2019]/g, "'")
     .replace(/[^a-z0-9\s'-]/g, ' ')
     .split(/\s+/)
-    .filter(w => w && !STOPWORDS.has(w));
+    .filter(w => w.length > 1 && !STOPWORDS.has(w));
 }
 
 function contentWords(text = '') {
   return String(text || '')
     .toLowerCase()
+    .replace(/[\u2018\u2019]/g, "'")
     .replace(/[^a-z0-9\s'-]/g, ' ')
     .split(/\s+/)
     .filter(w => w.length > 3 && !STOPWORDS.has(w));
@@ -48,7 +56,7 @@ function shingles(words, k = 6) {
 
 /**
  * Deterministic outline distinctness analysis.
- * Returns { ok, issues[], pairs[] } — pairs are flagged chapter couples.
+ * Returns { ok, critical, issues[], pairs[] }.
  */
 export function analyzeOutlineDuplication(chapters = []) {
   const issues = [];
@@ -62,30 +70,38 @@ export function analyzeOutlineDuplication(chapters = []) {
   }));
 
   let hardIssues = 0;
+  const offenderNums = new Set();
 
-  // 1) Recap markers in any title — critical even once.
+  // 1) Recap markers in any title - critical even once.
   for (const c of chs) {
     const hit = c.tw.find(w => RECAP_MARKERS.includes(w));
-    if (hit) { issues.push(`Ch.${c.n} title "${c.title}" uses recap marker "${hit}"`); hardIssues += 1; }
+    if (hit) { issues.push(`Ch.${c.n} title "${c.title}" uses recap marker "${hit}"`); hardIssues += 1; offenderNums.add(c.n); }
   }
 
-  // 2) A recycle word in 2+ titles is critical; an ordinary word in 3+ titles
-  //    is a soft warning (could be a legitimate motif).
+  // 2) A recycle word in 2+ titles is critical (every use after the first is
+  //    an offender); an ordinary word in 3+ titles is a soft warning.
   const wordUse = new Map();
   for (const c of chs) for (const w of new Set(c.tw)) {
     if (!wordUse.has(w)) wordUse.set(w, []);
     wordUse.get(w).push(c.n);
   }
   for (const [w, where] of wordUse.entries()) {
-    if (RECYCLE_WORDS.includes(w) && where.length >= 2) { issues.push(`title word "${w}" recycled across chapters ${where.join(', ')}`); hardIssues += 1; }
-    else if (where.length >= 3) issues.push(`title word "${w}" recycled across chapters ${where.join(', ')}`);
+    if (RECYCLE_WORDS.includes(w) && where.length >= 2) {
+      issues.push(`title word "${w}" recycled across chapters ${where.join(', ')}`);
+      hardIssues += 1;
+      for (const n of where.slice(1)) offenderNums.add(n);
+    } else if (where.length >= 3) {
+      issues.push(`title word "${w}" recycled across chapters ${where.join(', ')}`);
+    }
   }
 
-  // Document-frequency filter: words that appear in half the summaries
-  // (protagonist names, setting nouns) are not evidence of duplication.
+  // Document-frequency filter: words in half the summaries (protagonist
+  // names, setting nouns) are not evidence of duplication.
   const df = new Map();
   for (const c of chs) for (const w of new Set(c.sw)) df.set(w, (df.get(w) || 0) + 1);
-  const dfCap = Math.max(2, Math.ceil(chs.length * 0.5));
+  // Floor of 3: in very small outlines a word shared by the two duplicated
+  // summaries would otherwise look 'common' and erase its own evidence.
+  const dfCap = Math.max(3, Math.ceil(chs.length * 0.5));
   for (const c of chs) c.swRare = c.sw.filter(w => (df.get(w) || 0) < dfCap);
 
   // 3) Pairwise: identical title cores, or high title/summary overlap.
@@ -111,6 +127,7 @@ export function analyzeOutlineDuplication(chapters = []) {
       if (reasons.length) {
         pairs.push({ a: a.n, b: b.n, reasons });
         issues.push(`Ch.${a.n} "${a.title}" vs Ch.${b.n} "${b.title}": ${reasons.join(' + ')}`);
+        offenderNums.add(b.n);
       }
     }
   }
@@ -120,25 +137,83 @@ export function analyzeOutlineDuplication(chapters = []) {
     critical: pairs.length > 0 || hardIssues > 0,
     issues,
     pairs,
+    offenderNums: [...offenderNums].sort((x, y) => x - y),
   };
 }
 
 /**
+ * OUTLINEFIX-2: deterministic offender list - the chapters to replace.
+ * For every duplicate pair the LATER chapter is the re-run; recap-marker
+ * titles and second-plus uses of a recycle word are offenders directly.
+ */
+export function findOutlineOffenders(analysis) {
+  return [...(analysis?.offenderNums || [])];
+}
+
+/**
+ * OUTLINEFIX-2: targeted repair prompt - replace ONLY the offending chapters
+ * with new escalating material. Generic; nothing book-specific.
+ */
+export function buildOutlineChapterRepairPrompt(chapters, offenderNums, chapterCount) {
+  const keepList = chapters
+    .map(c => `Ch.${c.chapter_number}${offenderNums.includes(Number(c.chapter_number)) ? ' [REPLACE]' : ''}: ${c.title} - ${String(c.beat_summary || '').slice(0, 220)}`)
+    .join('\n');
+  return `You are a world-class story architect. The chapter outline below contains chapters that RE-RUN events already covered by other chapters. You must REPLACE ONLY the chapters marked [REPLACE], keeping every other chapter exactly as it is.
+
+CURRENT OUTLINE (${chapterCount} chapters):
+${keepList}
+
+REPLACEMENT REQUIREMENTS - for EACH chapter marked [REPLACE]:
+- Invent a NEW development that appears nowhere else in the outline: a new complication, a new antagonist move, a new revelation, a new cost, a subplot escalation, or a hard reversal.
+- It must fit the continuity between its neighboring chapters and escalate toward the single ending in chapter ${chapterCount}.
+- The story ends EXACTLY ONCE, in chapter ${chapterCount}. No aftermath, epilogue, or wind-down chapters anywhere else.
+- TITLE RULES: never use "Final", "Last", "Aftermath", "Revisited", "Continues", or "Part" in a title. Do not reuse a meaningful word from any other chapter title. Vary constructions - titles should be evocative and oblique, not literal event labels.
+- beat_summary must state the chapter's new development in concrete, specific terms (who, what changes, what it costs).
+
+Return JSON only: { "chapters": [ ... ] } containing EXACTLY ${offenderNums.length} items, one for each replaced chapter number: ${offenderNums.join(', ')}. Each item: {chapter_number, title, beat_summary}.`;
+}
+
+/**
+ * OUTLINEFIX-2: splice replacements into the outline. Only offender numbers
+ * are replaceable; replacements must have a real title and summary. Returns
+ * { chapters, replaced } - replaced lists the chapter numbers actually used.
+ */
+export function spliceOutlineChapters(chapters, replacements, offenderNums) {
+  const byNum = new Map();
+  for (const r of (replacements || [])) {
+    const n = Number(r?.chapter_number);
+    if (!offenderNums.includes(n)) continue;
+    if (!String(r?.title || '').trim() || String(r?.beat_summary || '').trim().length < 30) continue;
+    byNum.set(n, { chapter_number: n, title: String(r.title).trim(), beat_summary: String(r.beat_summary).trim() });
+  }
+  const out = chapters.map(c => byNum.get(Number(c.chapter_number)) || c);
+  return { chapters: out, replaced: [...byNum.keys()].sort((a, b) => a - b) };
+}
+
+/** OUTLINEFIX-2: regenerate outline_md from chapters after any splice. */
+export function rebuildOutlineMd(chapters) {
+  return (chapters || [])
+    .map(c => `## Chapter ${c.chapter_number}: ${c.title}\n${c.beat_summary || ''}`)
+    .join('\n\n');
+}
+
+/**
  * Hard rules appended to every fiction outline/repair prompt so the first
- * attempt is already constrained. Generic — nothing book-specific.
+ * attempt is already constrained. Generic - nothing book-specific.
  */
 export function buildOutlineDistinctnessRules(chapterCount) {
   return `
 === CHAPTER DISTINCTNESS ENFORCEMENT ===
 - Every chapter must contain a NEW event that permanently changes the situation. NEVER re-run an event type already used in an earlier chapter (no second identical disaster, no second return to a location already used as its own chapter, no re-fought confrontation).
 - The story ends EXACTLY ONCE, in chapter ${chapterCount}. Do not resolve the story in an earlier chapter and then continue. No epilogue-style chapters before ${chapterCount}.
-- If the premise cannot fill ${chapterCount} distinct chapters, ADD new complications, subplots, and reversals mid-story. Do not pad by repeating.
-- TITLE RULES: never use "Final", "Last", "Aftermath", "Revisited", "Continues", or "Part" in a title. No meaningful word may appear in more than two titles. Vary constructions — do not make every title "The X" or "The X of Y". Titles should be evocative and oblique, not literal event labels.
+- STRETCH RULE: the premise MUST fill all ${chapterCount} chapters with distinct material. Plan at least two subplot threads (for example: a relationship under strain, a rival agenda, a secret with a timer, a resource crisis) and braid them between main-plot chapters. Deepen the middle with complications, reversals, betrayals, discoveries, and costs. Every chapter's beat_summary must state its new development. Padding by repetition is forbidden; stretching by invention is required.
+- TITLE RULES: never use "Final", "Last", "Aftermath", "Revisited", "Continues", or "Part" in a title. No meaningful word may appear in more than two chapter titles. Vary constructions - do not make every title "The X" or "The X of Y". Titles should be evocative and oblique, not literal event labels.
 === END CHAPTER DISTINCTNESS ENFORCEMENT ===`;
 }
 
 /**
  * Retry appendix listing exactly what was wrong with the rejected outline.
+ * (Kept for compatibility; OUTLINEFIX-2 prefers targeted chapter repair.)
  */
 export function buildOutlineDedupeRetryAppendix(analysis, chapterCount) {
   const lines = (analysis?.issues || []).slice(0, 12).map(s => `- ${s}`).join('\n');
@@ -150,4 +225,4 @@ Produce a COMPLETELY revised set of ${chapterCount} chapters that fixes every fa
 === END REJECTION NOTICE ===`;
 }
 
-console.log('[OUTLINE-DEDUPE] OUTLINEFIX-1 loaded: cross-chapter outline distinctness gate');
+console.log('[OUTLINE-DEDUPE] OUTLINEFIX-2 loaded: distinctness gate + targeted chapter repair loop');

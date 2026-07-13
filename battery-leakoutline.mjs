@@ -77,13 +77,40 @@ const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) fail
   check('O5 rules + retry appendix are generic (no book specifics)', !/margot|avalanche|sky-iron/i.test(buildOutlineDistinctnessRules(25)) && buildOutlineDedupeRetryAppendix(rb, 25).includes('REJECTED'));
 }
 
-/* \u2500\u2500 OUTLINEFIX-1: wiring \u2500\u2500 */
+/* -- OUTLINEFIX-2: wiring -- */
 {
   const pb = fs.readFileSync(process.cwd() + '/src/lib/parallelBibleGenerator.js', 'utf8');
-  check('O6 gate wired after repair, fiction-only, critical-keyed', pb.includes('if (isFiction && chapters.length > 1)') && pb.includes('if (dupe.critical) {') && pb.includes('buildOutlineDedupeRetryAppendix(dupe, targetCount)'));
-  check('O7 fail-safe throw when retry still critical', pb.includes('Outline failed the distinctness gate twice'));
-  check('O8 distinctness rules in main outline prompt (fiction only)', pb.includes('${isFiction ? buildOutlineDistinctnessRules(chapterCount) : \'\'}'));
+  check('O6 repair loop wired, fiction-only, critical-keyed', pb.includes('if (isFiction && chapters.length > 1)') && pb.includes('while (dupe.critical && round < 3)') && pb.includes('buildOutlineChapterRepairPrompt(chapters, offenders, targetCount)'));
+  check('O7 never hard-fails: best-effort acceptance, no throw', pb.includes('Accepting best-effort outline') && !pb.includes('Outline failed the distinctness gate twice'));
+  check('O8 distinctness rules in main outline prompt (fiction only)', pb.includes("${isFiction ? buildOutlineDistinctnessRules(chapterCount) : ''}"));
   check('O9 repair prompt bans padding re-runs', pb.includes('NEVER pad by re-running events'));
+  check('O13 outline_md rebuilt after any splice', pb.includes('outlineMd = rebuildOutlineMd(chapters)'));
+}
+
+/* -- OUTLINEFIX-2: repair machinery (pure) -- */
+{
+  const { analyzeOutlineDuplication, findOutlineOffenders, buildOutlineChapterRepairPrompt, spliceOutlineChapters, rebuildOutlineMd } = await import(process.cwd() + '/src/lib/outlineDedupeGate.js');
+  const chs = [
+    { chapter_number: 1, title: 'The Approach', beat_summary: 'The team assembles at the trailhead and the guide hides her debt while inventorying supplies and people for the climb ahead.' },
+    { chapter_number: 2, title: 'Whiteout', beat_summary: 'An avalanche buries the supply sled and the investors demand retreat while the leader pushes on, splitting the expedition in two.' },
+    { chapter_number: 3, title: 'The Approach Revisited', beat_summary: 'They assemble again at the trailhead, checking supplies and people once more before climbing.' },
+    { chapter_number: 4, title: 'Second Snow', beat_summary: 'Another avalanche buries the camp; the team again demands retreat while the leader pushes on, splitting the group once more.' },
+  ];
+  const an = analyzeOutlineDuplication(chs);
+  const off = findOutlineOffenders(an);
+  check('O10 offenders are the later re-run chapters', an.critical === true && off.includes(3) && off.includes(4) && !off.includes(1) && !off.includes(2));
+  const prompt = buildOutlineChapterRepairPrompt(chs, off, 4);
+  check('O11 repair prompt marks only offenders and keeps the rest', prompt.includes('Ch.3 [REPLACE]') && prompt.includes('Ch.4 [REPLACE]') && !prompt.includes('Ch.1 [REPLACE]') && prompt.includes('REPLACE ONLY'));
+  const sp = spliceOutlineChapters(chs, [
+    { chapter_number: 3, title: 'The Wire Cutter', beat_summary: 'A saboteur severs the radio line and the guide discovers the expedition was never meant to report back; she hides the cut wire and starts watching everyone.' },
+    { chapter_number: 4, title: 'Iron Fever', beat_summary: 'The doctor reveals the mineral sickness spreading through the porters; the guide must choose who carries the lighter loads, making her first enemy.' },
+    { chapter_number: 1, title: 'HACK', beat_summary: 'should be ignored - not an offender chapter at all here' },
+    { chapter_number: 4, title: '', beat_summary: 'no title so this replacement is rejected' },
+  ], off);
+  check('O12 splice replaces only valid offender chapters', sp.replaced.length === 2 && sp.chapters[0].title === 'The Approach' && sp.chapters[2].title === 'The Wire Cutter' && sp.chapters[3].title === 'Iron Fever');
+  const after = analyzeOutlineDuplication(sp.chapters);
+  check('O14 outline converges after splice', after.critical === false);
+  check('O15 rebuilt outline_md covers every chapter', (rebuildOutlineMd(sp.chapters).match(/## Chapter /g) || []).length === 4);
 }
 
 console.log(failures === 0 ? 'BATTERY: ALL PASS' : 'BATTERY: ' + failures + ' FAILURE(S)');
