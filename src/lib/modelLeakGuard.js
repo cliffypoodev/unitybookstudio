@@ -15,7 +15,7 @@ const CONTROL_TOKEN_RX = /(?:\s*\/no_?think\b)|(?:\s*\/think\b)|(?:<think>[\s\S]
 
 // CJK unified + extension A, kana, katakana phonetic ext, Hangul,
 // CJK symbols/punctuation, fullwidth/halfwidth forms.
-const NON_LATIN_RUN_RX = /[㐀-䶿一-鿿-ヿㇰ-ㇿ가-　-〿-]+/g;
+const NON_LATIN_RUN_RX = /[㐀-䶿一-鿿ぁ-ヿㇰ-ㇿ가-힣　-〿-]+/g;
 
 const TERMINALS = new Set(['.', '!', '?', '…', '"', '”', '’', ')', ']']);
 

@@ -14,6 +14,7 @@ import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
+import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, buildOutlineDedupeRetryAppendix } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-1
 import { unwrapIntegrationResult } from '@/lib/autonovel';
 import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from '@/lib/nameHygieneRules';
 
@@ -424,6 +425,7 @@ The user has configured ${chapterCount} chapters and EVERY SINGLE ONE must be pr
 If you run out of output space, prioritize completing the chapters array over the outline_md text.
 Number them sequentially from 1 through ${chapterCount}.
 === END CHAPTER COUNT ENFORCEMENT ===
+${isFiction ? buildOutlineDistinctnessRules(chapterCount) : ''}
 
 Return JSON only: { "outline_md": "...", "chapters": [...] }`;
 }
@@ -461,7 +463,7 @@ Generate:
 - chapters: Array of EXACTLY ${toNumber - fromNumber + 1} items, numbered ${fromNumber} through ${toNumber}. Each with {chapter_number, title, beat_summary}.
 
 ${isFiction
-    ? `The new chapters must continue the story arc naturally from where chapter ${fromNumber - 1} left off, building toward a satisfying conclusion.`
+    ? `The new chapters must continue the story arc naturally from where chapter ${fromNumber - 1} left off, building toward a satisfying conclusion. NEVER pad by re-running events from the existing chapters: no repeated disaster of a type already used, no return to a location already used as its own chapter, no "Aftermath"/"Revisited"/"Continues" chapters, and the story must end exactly once, in chapter ${toNumber}.${buildOutlineDistinctnessRules(toNumber)}`
     : 'The new chapters must continue the investigative nonfiction structure. Do not invent interviews, author fieldwork, named witnesses, fake documents, fake archival discoveries, or solved-case evidence.'}
 
 Return JSON only: { "outline_md": "...", "chapters": [...] }`;
@@ -639,6 +641,34 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
 
   if (!isFiction) {
     chapters = chapters.slice(0, targetCount).map((chapter, index) => normalizeNonfictionChapter(chapter, index, settings, seedConcept));
+  }
+
+  // ── OUTLINEFIX-1: cross-chapter distinctness gate (fiction only) ──
+  // The scene-beat normalizer dedupes WITHIN a chapter; nothing checked the
+  // outline ACROSS chapters, so padded outlines re-ran the same events with
+  // recycled titles (Final X / X Continues / X — Aftermath). Deterministic
+  // gate, ONE constrained retry, then fail-safe: a blocked bible beats a
+  // duplicated 25-chapter draft.
+  if (isFiction && chapters.length > 1) {
+    let dupe = analyzeOutlineDuplication(chapters);
+    if (dupe.critical) {
+      console.warn('[OUTLINE-DEDUPE] Outline failed distinctness gate:', dupe.issues.slice(0, 8).join(' | '));
+      onProgress?.('Bible: outline repeats events — regenerating with distinctness constraints…');
+      const retryPrompt = buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd) + buildOutlineDedupeRetryAppendix(dupe, targetCount);
+      const retryRaw = await callLLM(retryPrompt, outlineSchema, { max_tokens: 16384 });
+      const retryChapters = Array.isArray(retryRaw?.chapters) ? retryRaw.chapters.slice(0, targetCount).map((ch, idx) => ({ ...ch, chapter_number: idx + 1 })) : [];
+      const retryDupe = retryChapters.length > 1 ? analyzeOutlineDuplication(retryChapters) : { ok: false, critical: true, pairs: dupe.pairs, issues: ['retry returned no chapters'] };
+      console.log('[OUTLINE-DEDUPE] Retry:', retryChapters.length, 'chapters,', retryDupe.pairs.length, 'flagged pair(s) vs', dupe.pairs.length, 'before');
+      if (retryChapters.length >= Math.min(chapters.length, targetCount) && retryDupe.pairs.length < dupe.pairs.length) {
+        chapters = retryChapters;
+        outlineMd = retryRaw?.outline_md || outlineMd;
+        dupe = retryDupe;
+      }
+      if (dupe.critical) {
+        throw new Error('Outline failed the distinctness gate twice — the model could not produce ' + targetCount + ' distinct chapters for this premise. Lower the chapter count or expand the premise, then regenerate. Repeated: ' + dupe.issues.slice(0, 5).join(' | '));
+      }
+      console.log('[OUTLINE-DEDUPE] Retry outline accepted.');
+    }
   }
 
   // ── BATCH 3: twists (needs outline) — fiction only ──
