@@ -19,6 +19,7 @@
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { shouldUppercaseAfterPunct } from '@/lib/safeUppercase';
+import { scrubModelLeaks } from '@/lib/modelLeakGuard'; // LEAKFIX-1
 
 const POST_DRAFT_CLEANUP_VERSION = 'MICRO-COPYEDIT v4 HARD-SURVIVOR FINAL PASS - 2026-05-02';
 
@@ -2248,7 +2249,10 @@ function buildSurvivorWarning(text) {
  * @param {object} options
  */
 export async function postDraftCleanup(text, project = {}, chapterNumber = '', onProgress, options = {}) {
-  const initialText = normalizeText(text);
+  // LEAKFIX-1: kill model control tokens + non-Latin drift before every other
+  // pass. Covers continuation and judge-revision output, which never re-enter
+  // the scene-level light clean.
+  const initialText = scrubModelLeaks(normalizeText(text), `Ch.${chapterNumber}`).text;
 
   console.log(`[POST-DRAFT] postDraftCleanup() called: ${POST_DRAFT_CLEANUP_VERSION}`, {
     chapterNumber,

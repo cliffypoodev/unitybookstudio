@@ -17,6 +17,7 @@ import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildPovTenseBlock } from '@/lib/povTense';
 import { cleanGeneratedProse } from '@/lib/proseQuality';
 import { snapshot as pipelineSnapshot } from '@/lib/pipelineDiag';
+import { scrubModelLeaks } from '@/lib/modelLeakGuard'; // LEAKFIX-1
 import { labelCompositeCharacters, fixFoiaAnachronisms, flagUnverifiedStats } from '@/lib/postClean';
 import { crossCheckResearchFabrication } from '@/lib/qualityScan';
 import { base44 } from '@/api/base44Client';
@@ -1721,6 +1722,11 @@ function lightCleanSceneOutput(rawResult) {
     .replace(/[ \t]+$/gm, '')
     .trim();
 
+  // LEAKFIX-1: strip model control tokens (/nothink, <think> blocks, <|...|>)
+  // and non-Latin language drift BEFORE the truncation check, so a trailing
+  // leak never masks or triggers the trailing-trim logic.
+  prose = scrubModelLeaks(prose, 'scene').text;
+
   // GATEFIX-25: an ending without terminal punctuation means the model was cut off
   // mid-sentence. Never dress the stump with a period — trim back to the last complete
   // sentence and log what was dropped. If no complete sentence exists at all, append a
@@ -1737,10 +1743,8 @@ function lightCleanSceneOutput(rawResult) {
     }
   }
 
-  // Safety net: remove any CJK character runs that should never appear in English prose
-  prose = prose.replace(/[\u3400-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\uFF00-\uFFEF]{1,}/g, '');
-  // collapse any doubled spaces / blank lines left behind
-  prose = prose.replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  // LEAKFIX-1: CJK handling moved to scrubModelLeaks above (which also removes
+  // the beheaded English lead-in a drift run leaves behind).
 
   return prose;
 }

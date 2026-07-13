@@ -32,6 +32,7 @@ import { runChatGPTVocabCaps, runTransitionWordCaps } from './chatgptPatternPoli
 import { runStackedClauseVariation } from './sentencePatternPolish.js';
 import { runAntithesisCap } from './antithesisCap.js';
 import { runSentenceCaseRepair, healProseWounds } from './sentenceCaseRepair.js';
+import { scrubModelLeaks } from './modelLeakGuard.js'; // LEAKFIX-1
 import { runAntiDetectionPolish } from './antiDetectionPolish.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
@@ -121,6 +122,18 @@ export async function runManuscriptPolishPipeline({
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE A: Manuscript-level pre-pass (cross-chapter deterministic)
   // ══════════════════════════════════════════════════════════════════════════
+
+  // A-LEAK (LEAKFIX-1): scrub model control tokens (/nothink, <think>, <|...|>)
+  // and non-Latin language drift from every chapter FIRST, so re-polishing a
+  // damaged manuscript heals both leak classes.
+  onProgress('Polish: Scrubbing model leaks…');
+  for (const f of loaded) {
+    const leak = scrubModelLeaks(f.content, `Ch.${f.chapter?.chapter_number || '?'}`);
+    if (leak.changes.length) {
+      f.content = leak.text;
+      changes.push(`Ch.${f.chapter?.chapter_number || '?'}: ${leak.changes.join('; ')}`);
+    }
+  }
 
   // A0: Legacy artifact healing (baked-in corruption from pre-merge pipeline)
   onProgress('Polish: Healing legacy artifacts…');
