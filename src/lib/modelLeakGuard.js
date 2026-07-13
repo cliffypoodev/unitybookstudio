@@ -1,5 +1,5 @@
 // =============================================================
-// modelLeakGuard.js — LEAKFIX-1: deterministic model-leak scrubber.
+// modelLeakGuard.js - LEAKFIX-1: deterministic model-leak scrubber.
 //
 // Two leak classes observed in shipped manuscripts:
 //   1. Control tokens: Qwen-style '/nothink' / '/think' soft switches and
@@ -15,9 +15,11 @@ const CONTROL_TOKEN_RX = /(?:\s*\/no_?think\b)|(?:\s*\/think\b)|(?:<think>[\s\S]
 
 // CJK unified + extension A, kana, katakana phonetic ext, Hangul,
 // CJK symbols/punctuation, fullwidth/halfwidth forms.
-const NON_LATIN_RUN_RX = /[㐀-䶿一-鿿ぁ-ヿㇰ-ㇿ가-힣　-〿-]+/g;
+// ASCII-only escapes on purpose: raw exotic literals get stripped by paste
+// channels (LEAKFIX-1B post-mortem). Never replace these with literal chars.
+const NON_LATIN_RUN_RX = /[\u3400-\u4DBF\u4E00-\u9FFF\u3040-\u30FF\u31F0-\u31FF\uAC00-\uD7AF\u3000-\u303F\uFF00-\uFFEF]+/g;
 
-const TERMINALS = new Set(['.', '!', '?', '…', '"', '”', '’', ')', ']']);
+const TERMINALS = new Set(['.', '!', '?', '\u2026', '"', '\u201D', '\u2019', ')', ']']);
 
 export function stripModelControlTokens(text = '') {
   let removed = 0;
