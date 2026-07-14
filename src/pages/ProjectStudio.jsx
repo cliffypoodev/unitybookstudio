@@ -3049,134 +3049,16 @@ Return structured JSON:
   }, [chapters, project, projectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGenerateFoundation = async () => {
-    if (!project) return;
-    captureSnapshot('Foundation');
-
-    // Force save settings before generation to eliminate auto-save race condition
-    const _fnSave = { ...settingsDrafts }; if (!_fnSave.series_number && _fnSave.series_number !== 0) delete _fnSave.series_number; else _fnSave.series_number = Number(_fnSave.series_number); delete _fnSave.num_twists; delete _fnSave.twist_count; delete _fnSave.twist_intensity;
-    if (_fnSave.seed_concept) { const sc = await prepareSeedConcept(_fnSave.seed_concept, project.id); _fnSave.seed_concept = sc.seed_concept; _fnSave.seed_concept_url = sc.seed_concept_url; }
-    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _fnSave));
-    const _fnResolvedSeed = await resolveSeedConcept({ ...project, seed_concept: settingsDrafts.seed_concept || project.seed_concept, seed_concept_url: _fnSave.seed_concept_url || project.seed_concept_url });
-    if (isAnthologyProject(project) || settingsDrafts?.project_type === 'anthology') {
-      await runAnthologyFoundationBuild(_fnResolvedSeed, 'Regenerate Foundation');
-      return;
-    }
-
-    setBusyLabel('Generating foundation…');
-    try {
-    const _fnUsed = await getUsedCharacterNames(project.id);
-    const _fnBlock = [
-      buildNameExclusionBlock([...new Set([...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._fnUsed])]),
-      GLOBAL_NAME_HYGIENE_PROMPT_BLOCK,
-    ].filter(Boolean).join('\n\n');
-    const foundationResponse = await invokeLLMWithRetry({
-      task_type: 'foundation',
-      prompt: buildFoundationPrompt({ ...project, seed_concept: _fnResolvedSeed }, { nameExclusionBlock: _fnBlock }),
-      response_json_schema: foundationSchema,
-      model: pickModel('foundation', project),
-      spec: project,
-      fallback_model: pickFallbackModel('foundation', project),
-      max_tokens: 16384,
-    });
-    const foundation = unwrapIntegrationResult(foundationResponse);
-    let plannedChapters = Array.isArray(foundation?.chapters) ? foundation.chapters : [];
-
-    // Post-generation: check for banned AI names that slipped through
-    if (foundation.characters_md) {
-      const { checkForBannedNames } = await import('@/lib/nameRegistry');
-      const allBanned = [...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._fnUsed];
-      const found = checkForBannedNames(foundation.characters_md, allBanned);
-      if (found.length > 0) {
-        console.warn('[FOUNDATION] Banned names detected:', found.join(', '), '— requesting replacements');
-        setBusyLabel(`Replacing ${found.length} AI-generic names…`);
-        try {
-          const renameResult = await invokeLLMWithRetry({
-            task_type: 'foundation',
-            model: 'gemini_3_flash',
-            temperature: 0.7,
-            max_tokens: 500,
-            prompt: `The following character names are banned because they are AI-generic defaults: ${found.join(', ')}
-
-This book is: ${project.genre || 'fiction'}, set in: ${(foundation.world_md || '').substring(0, 300)}
-
-For each banned name, provide a culturally appropriate, original replacement name that fits the setting. Return JSON only:
-{"replacements":{"${found[0]}":"NewName"${found.length > 1 ? ', ...' : ''}}}`,
-          });
-          let renameText = typeof renameResult === 'string' ? renameResult : (renameResult?.text || '');
-          renameText = renameText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-          try {
-            const parsed = JSON.parse(renameText);
-            const replacements = parsed.replacements || parsed;
-            for (const [oldName, newName] of Object.entries(replacements)) {
-              if (!newName || typeof newName !== 'string') continue;
-              const rx = new RegExp('\\b' + oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
-              if (foundation.characters_md) foundation.characters_md = foundation.characters_md.replace(rx, newName);
-              if (foundation.world_md) foundation.world_md = foundation.world_md.replace(rx, newName);
-              if (foundation.outline_md) foundation.outline_md = foundation.outline_md.replace(rx, newName);
-              if (foundation.canon_md) foundation.canon_md = foundation.canon_md.replace(rx, newName);
-              if (foundation.mystery_md) foundation.mystery_md = foundation.mystery_md.replace(rx, newName);
-              if (foundation.voice_md) foundation.voice_md = foundation.voice_md.replace(rx, newName);
-              if (plannedChapters) {
-                for (const ch of plannedChapters) {
-                  if (ch.title) ch.title = ch.title.replace(rx, newName);
-                  if (ch.beat_summary) ch.beat_summary = ch.beat_summary.replace(rx, newName);
-                }
-              }
-              console.log(`[FOUNDATION] Replaced "${oldName}" → "${newName}"`);
-            }
-            toast.success(`Replaced ${Object.keys(replacements).length} AI-generic name(s)`);
-          } catch (e) { console.warn('[FOUNDATION] Failed to parse name replacements:', e.message); }
-        } catch (e) { console.warn('[FOUNDATION] Name replacement LLM call failed:', e.message); }
-      }
-    }
-
-    const foundationProject = { ...project, ...foundation, seed_concept: _fnResolvedSeed };
-
-    if (!plannedChapters.length) {
-      const chapterPlanResponse = await invokeLLMWithRetry({
-        task_type: 'outline',
-        prompt: buildChapterPlanPrompt(foundationProject),
-        response_json_schema: chapterPlanSchema,
-        model: pickModel('chapter_plan', project),
-        spec: project,
-        fallback_model: pickFallbackModel('chapter_plan', project),
-        max_tokens: 16384,
-      });
-      const chapterPlan = unwrapIntegrationResult(chapterPlanResponse);
-      plannedChapters = Array.isArray(chapterPlan?.chapters) ? chapterPlan.chapters : [];
-    }
-
-    const userFoundationChapterTarget = Number(project.chapter_target) || 20;
-    const userFoundationChapterLength = Number(project.chapter_length_target || project.target_chapter_words) || 3500;
-    plannedChapters = await repairTruncatedChapters({ plannedChapters, targetCount: userFoundationChapterTarget, project, outlineMd: foundation.outline_md, onProgress: (label) => setBusyLabel(formatProgressLabel(label)) });
-    // Extract twists from foundation response
-    const fnTwistsMd = parseTwistsToMd(foundation.twists);
-
-    const foundationSavePayload = foundationSafeUpdate(enforceChapterCount({
-      title: foundation.title || project.title,
-      tagline: foundation.tagline || project.tagline,
-      current_focus: foundation.current_focus,
-      foundation_score: foundation.foundation_score, lore_score: foundation.lore_score,
-      world_md: foundation.world_md, characters_md: foundation.characters_md,
-      outline_md: foundation.outline_md, canon_md: foundation.canon_md,
-      voice_md: foundation.voice_md, mystery_md: foundation.mystery_md,
-      twists_md: fnTwistsMd,
-      phase: 'drafting', status: 'ready',
-      iteration: (project.iteration || 0) + 1,
-    }, userFoundationChapterTarget), project);
-    // Belt-and-suspenders: never let AI overwrite twist settings
-    delete foundationSavePayload.num_twists;
-    delete foundationSavePayload.twist_count;
-    delete foundationSavePayload.twist_intensity;
-    delete foundationSavePayload.twists;
-    const _safeFnPayload = await prepareFoundationPayload(foundationSavePayload);
-    await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _safeFnPayload));
-    setBusyLabel('Foundation: Creating chapters…');
-    await clearAndCreateChapters(plannedChapters, userFoundationChapterTarget, project.id, foundation.outline_md);
-    } finally {
-      setBusyLabel('');
-    }
-    await refreshAll();
+    // BIBLEROUTE-1: single bible entrypoint. This button used to run a LEGACY
+    // one-shot foundation builder - one LLM call returning all seven bible
+    // docs plus every chapter in a single JSON. Result: stub-length fields
+    // (world/canon/voice under 500 chars, no token budget for more) and a
+    // complete bypass of the gated pipeline (batch generation, outline
+    // distinctness gate + targeted repair, leak scrub, name gate). All bible
+    // building now routes through the same gated flow as Setup's Build Story
+    // Bible; handleExpand also saves settings, resolves the seed, and
+    // branches anthology projects itself.
+    await handleExpand();
   };
 
   const generateSceneBeats = async (chapter, allChapters) => {
