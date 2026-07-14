@@ -17,6 +17,7 @@ import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildPovTenseBlock } from '@/lib/povTense';
 import { cleanGeneratedProse } from '@/lib/proseQuality';
 import { snapshot as pipelineSnapshot } from '@/lib/pipelineDiag';
+import { runDialogueMechanicsPass } from '@/lib/dialogueMechanicsRepair'; // DIALOGUEFIX-1
 import { scrubModelLeaks } from '@/lib/modelLeakGuard'; // LEAKFIX-1
 import { labelCompositeCharacters, fixFoiaAnachronisms, flagUnverifiedStats } from '@/lib/postClean';
 import { crossCheckResearchFabrication } from '@/lib/qualityScan';
@@ -2323,30 +2324,35 @@ function dedupeRepeatedSentences(prose) {
 function dedupeRepeatedQuotes(prose) {
   if (!prose) return prose;
   const normQ = (s) => (s || '').toLowerCase().replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  // QUOTEDEDUPE-1: scan the WHOLE prose for quote spans instead of scanning
+  // per-sentence. Multi-sentence quotes ("One step. One breath.") straddle the
+  // sentence splitter, so the old per-sentence regex never saw opener and
+  // closer together and repeated dialogue survived.
   const QUOTE_RE = /[\u201c"]([^\u201c\u201d"]{10,400})[\u201d"]/g;
   const sentences = splitSentencesSafe(prose);
-  const seen = new Set();
-  const kept = [];
-  let removed = 0;
-  for (const s of sentences) {
-    let drop = false;
-    const local = [];
-    let m;
-    QUOTE_RE.lastIndex = 0;
-    while ((m = QUOTE_RE.exec(s)) !== null) {
-      const q = normQ(m[1]);
-      if (q.split(' ').filter(Boolean).length < 4) continue;
-      let dupHit = seen.has(q);
-      if (!dupHit) { for (const sq of seen) { if (sq.includes(q) || q.includes(sq)) { dupHit = true; break; } } }
-      if (dupHit) { drop = true; break; }
-      local.push(q);
+  const offs = [];
+  let pos = 0;
+  for (const s of sentences) { offs.push(pos); pos += s.length; }
+  const seen = [];
+  const dropIdx = new Set();
+  let m;
+  while ((m = QUOTE_RE.exec(prose)) !== null) {
+    const q = normQ(m[1]);
+    if (q.split(' ').filter(Boolean).length < 4) continue;
+    const dup = seen.some((sq) => sq === q || sq.includes(q) || q.includes(sq));
+    if (dup) {
+      for (let i = 0; i < sentences.length; i += 1) {
+        const a = offs[i];
+        const b = offs[i] + sentences[i].length;
+        if (a < QUOTE_RE.lastIndex && b > m.index) dropIdx.add(i);
+      }
+    } else {
+      seen.push(q);
     }
-    if (drop) { removed++; continue; }
-    for (const q of local) seen.add(q);
-    kept.push(s);
   }
-  if (removed) console.warn('[DEDUPE-QUOTES] Removed', removed, 'sentence(s) repeating an earlier verbatim quote.');
-  return kept.join('');
+  if (!dropIdx.size) return prose;
+  console.warn('[DEDUPE-QUOTES] Removed', dropIdx.size, 'sentence(s) repeating an earlier verbatim quote.');
+  return sentences.filter((_, i) => !dropIdx.has(i)).join('');
 }
 
 // GATEFIX-16: detection-only alarm for phrase-tic families the dedupers cannot fix.
@@ -2852,6 +2858,15 @@ export async function generateChapterSceneByScene({
     console.warn('[QUOTE-REPAIR] Cleaned generated chapter quotes before return:', quoteRepair.fixes);
     finalProse = quoteRepair.text;
   }
+  // DIALOGUEFIX-1: heal missing opening quotes BEFORE the dedupers. Orphaned
+  // dialogue is invisible to quote-content dedupe until it is properly quoted,
+  // and the module previously ran only in polish and pre-export - never here.
+  const dmDraft = runDialogueMechanicsPass(finalProse, { stage: 'draft-final' });
+  if (dmDraft.text !== finalProse) {
+    console.warn('[DIALOGUE-MECHANICS-REPAIR] Draft-time repairs: ' + (dmDraft.repairs?.length || 0) + ' verb-tag, ' + (dmDraft.orphanRepaired || 0) + ' orphan-closer');
+    finalProse = dmDraft.text;
+  }
+
   finalProse = dedupeRepeatedSentences(finalProse);
   finalProse = dedupeRepeatedQuotes(finalProse);
   repetitionAlarm(finalProse);

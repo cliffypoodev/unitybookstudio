@@ -159,5 +159,35 @@ const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) fail
   check('F4 all five fields guarded with single retry then throw', ['world_md','characters_md','voice_md','canon_md','mystery_md'].every(f => pb.includes("fieldGuardRetry('" + f + "'")) && pb.includes('Nothing was saved - run Build Story Bible again.'));
 }
 
+/* -- DIALOGUEFIX-1 + QUOTEDEDUPE-1 -- */
+{
+  const { runDialogueMechanicsPass } = await import(process.cwd() + '/src/lib/dialogueMechanicsRepair.js');
+  const t1 = 'He placed a hand on the ledger. \u201cOptimism is a resource, Margot. Don\u2019t waste it on meteorology.\u201d Optimism is dead weight.\u201d Margot dropped the rope into a crate.';
+  const r1 = runDialogueMechanicsPass(t1, {});
+  check('D1 orphan closer after action beat healed', r1.orphanRepaired === 1 && r1.text.includes('\u201d \u201cOptimism is dead weight.\u201d Margot dropped'));
+  const t2 = 'Margot faced him. The charter pays for my silence.\u201d Margot turned to face him.';
+  const r2 = runDialogueMechanicsPass(t2, {});
+  check('D2 ambiguous narration-prefix orphan flagged, never guessed', r2.orphanRepaired === 0 && r2.orphanFlagged >= 1 && r2.text === t2);
+  const clean = 'Margot said, \u201cHold the line.\u201d He nodded. \u201cGood.\u201d They climbed on in silence.';
+  check('D3 clean dialogue is a no-op', runDialogueMechanicsPass(clean, {}).text === clean);
+  const sw = fs.readFileSync(process.cwd() + '/src/lib/sceneWriter.js', 'utf8');
+  check('D4 draft path heals dialogue BEFORE quote dedupe', sw.includes("runDialogueMechanicsPass(finalProse, { stage: 'draft-final' })") && sw.indexOf("stage: 'draft-final'") < sw.indexOf('finalProse = dedupeRepeatedQuotes(finalProse);'));
+  const dm = fs.readFileSync(process.cwd() + '/src/lib/dialogueMechanicsRepair.js', 'utf8');
+  check('D5 module version bumped', dm.includes('dialogue-mechanics-repair-v1.1.0-orphan-closer'));
+}
+{
+  // QUOTEDEDUPE-1 functional: extract the private functions and run them.
+  const src = fs.readFileSync(process.cwd() + '/src/lib/sceneWriter.js', 'utf8');
+  const grab = (name) => { const i = src.indexOf('function ' + name); const j = src.indexOf('\n}\n', i) + 3; return src.slice(i, j); };
+  const tmp = '/tmp/battery-dedupelib.mjs';
+  fs.writeFileSync(tmp, grab('splitSentencesSafe') + '\n' + grab('dedupeRepeatedQuotes') + '\nexport { dedupeRepeatedQuotes };\n');
+  const { dedupeRepeatedQuotes } = await import(tmp);
+  const t = 'A. \u201cOptimism is a resource, Margot. Don\u2019t waste it on meteorology.\u201d B ran for an hour after that exchange had ended. C. \u201cOptimism is a resource, Margot. Don\u2019t waste it on meteorology. Or mechanics.\u201d D dropped the harness onto the table again.';
+  const out = dedupeRepeatedQuotes(t);
+  check('D6 multi-sentence quote repeats collapse (containment)', (out.match(/Optimism is a resource/g) || []).length === 1 && out.includes('B ran for an hour'));
+  const ok = '\u201cHold the line tonight, all of you,\u201d she said. \u201cDifferent words entirely in this one,\u201d he replied without turning around.';
+  check('D7 distinct quotes untouched', dedupeRepeatedQuotes(ok) === ok);
+}
+
 console.log(failures === 0 ? 'BATTERY: ALL PASS' : 'BATTERY: ' + failures + ' FAILURE(S)');
 process.exit(failures === 0 ? 0 : 1);

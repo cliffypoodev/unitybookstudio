@@ -18,7 +18,7 @@
  *   - VERSION
  */
 
-export const VERSION = 'dialogue-mechanics-repair-v1.0.0';
+export const VERSION = 'dialogue-mechanics-repair-v1.1.0-orphan-closer';
 console.log(`[DIALOGUE-MECHANICS-REPAIR] Loaded ${VERSION}`);
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -506,6 +506,57 @@ function countSentenceBoundaries(line, startIdx, endIdx) {
  *   improved: boolean
  * }}
  */
+// ─── DIALOGUEFIX-1: structural orphan-closer healer ─────────────────────────
+// The verb-based detector above only recognizes dialogue followed by a speech
+// verb ("Margot snapped"). Most real damage is dialogue followed by an ACTION
+// beat ("Margot dropped the rope"). The reliable signal is structural: a
+// closing curly quote whose span back to the previous quote boundary contains
+// no opening quote is speech missing its opener. Verb-agnostic, curly-only
+// (straight quotes are ambiguous), plausibility-capped.
+export function repairOrphanClosers(text) {
+  const src = String(text || '');
+  if (!src.includes('\u201d')) return { text: src, repaired: 0, flagged: 0 };
+  let repaired = 0;
+  let flagged = 0;
+  const out = [];
+  for (const para of src.split('\n')) {
+    if (!para.includes('\u201d')) { out.push(para); continue; }
+    let fixed = '';
+    let cursor = 0;
+    while (true) {
+      const close = para.indexOf('\u201d', cursor);
+      if (close === -1) { fixed += para.slice(cursor); break; }
+      const span = para.slice(cursor, close);
+      if (span.includes('\u201c')) {
+        fixed += para.slice(cursor, close + 1);
+        cursor = close + 1;
+        continue;
+      }
+      // Span closes speech but contains no opener. Only heal the unambiguous
+      // shape: leading whitespace + ONE sentence that starts with a capital
+      // and ends at the closer. Multi-sentence spans are ambiguous (narration
+      // may precede the speech) - flag, never guess.
+      const ws = (span.match(/^\s*/) || [''])[0];
+      const core = span.slice(ws.length);
+      const singleSentence = !/[.!?]\u2019?\s+[A-Z\u201c]/.test(core.trimEnd().replace(/[.!?,]$/, ''));
+      const plausible = core.length >= 4 && core.length <= 300 && /^[A-Z\u2018]/.test(core) && /[.!?,]$/.test(core.trimEnd());
+      if (!plausible || !singleSentence) {
+        if (core.length >= 4) { flagged += 1; }
+        fixed += para.slice(cursor, close + 1);
+        cursor = close + 1;
+        continue;
+      }
+      fixed += ws + '\u201c' + core + '\u201d';
+      repaired += 1;
+      cursor = close + 1;
+    }
+    out.push(fixed);
+  }
+  if (repaired) console.log('[DIALOGUE-MECHANICS-REPAIR] Orphan-closer healer inserted ' + repaired + ' missing opening quote(s)');
+  if (flagged) console.warn('[DIALOGUE-MECHANICS-REPAIR] ' + flagged + ' ambiguous orphan closer(s) left for review');
+  return { text: out.join('\n'), repaired, flagged };
+}
+
 export function runDialogueMechanicsPass(text, options = {}) {
   if (!text || typeof text !== 'string') {
     return {
@@ -538,13 +589,19 @@ export function runDialogueMechanicsPass(text, options = {}) {
     `${repairResult.repairs.length} repaired, ${repairResult.manualReview.length} flagged for review`
   );
 
+  // DIALOGUEFIX-1: structural pass catches orphans the verb detector misses
+  // (dialogue followed by action beats instead of speech verbs).
+  const orphan = repairOrphanClosers(repairResult.text);
+
   return {
-    text: repairResult.text,
+    text: orphan.text,
     repairs: repairResult.repairs,
+    orphanRepaired: orphan.repaired,
+    orphanFlagged: orphan.flagged,
     manualReview: repairResult.manualReview,
     beforeCount,
     afterCount,
-    improved,
+    improved: improved || orphan.repaired > 0,
   };
 }
 
