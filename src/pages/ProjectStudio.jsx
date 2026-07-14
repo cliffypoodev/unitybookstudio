@@ -3816,15 +3816,33 @@ For each banned name, provide a culturally appropriate, original replacement nam
     }
   };
 
+  // ARCH2-5B: coverage gate. Fiction: advisory console log only - fiction beat
+  // atoms (character names, moods, chapter titles) are not researchable facts
+  // and a hard block made fiction undraftable. Nonfiction: show the gaps and
+  // let the operator decide - real chapters run 70-95% coverage, so blocking
+  // at missingCount > 0 would stop every draft; the banner's Auto-Research
+  // Gaps button remains the primary path to close real gaps first.
+  const coverageGateAllowsDrafting = (chaptersToCheck, label) => {
+    const isNonfictionMode = project?.book_type === 'nonfiction' || project?.project_type === 'nonfiction';
+    const gaps = [];
+    for (const ch of chaptersToCheck) {
+      const cov = researchCoverageCheck(ch, project);
+      if (cov && cov.missingCount > 0) gaps.push({ n: ch.chapter_number, missing: cov.missing.slice(0, 4), count: cov.missingCount });
+    }
+    if (!gaps.length) return true;
+    if (!isNonfictionMode) {
+      console.log('[RESEARCH-COVERAGE] advisory (' + label + '): ' + gaps.map(g => 'Ch.' + g.n + ' missing ' + g.count + ' atom(s)').join(', '));
+      return true;
+    }
+    const detail = gaps.slice(0, 6).map(g => 'Ch.' + g.n + ': ' + g.missing.join(', ')).join('\n');
+    return confirmDestructiveChapterAction(label + ': ' + gaps.length + ' chapter(s) have outline topics missing from the research.\n\n' + detail + '\n\nRecommended: use Auto-Research Gaps first. Draft anyway? (The writer may invent unsupported facts for the missing topics.)');
+  };
+
   const handleDraftSelected = async () => {
     if (!project || !selectedChapter || busyLabel) return;
 
-    // ARCH2-5: Blocking coverage check
-    const cov = researchCoverageCheck(selectedChapter, project);
-    if (cov && cov.missingCount > 0) {
-      toast.error(`Draft blocked: Chapter ${selectedChapter.chapter_number} has unsupported outline topics. Please add research or revise the outline.`);
-      return;
-    }
+    // ARCH2-5B: fiction advisory / nonfiction operator-confirmed gate
+    if (!coverageGateAllowsDrafting([selectedChapter], 'Draft')) return;
 
     const persistedContent = chapterHasPersistedManuscriptContent(selectedChapter);
     const unsavedEditorContent = !persistedContent && chapterDraft?.trim().length > 0;
@@ -3864,14 +3882,8 @@ For each banned name, provide a culturally appropriate, original replacement nam
       .filter((ch) => !chapterHasPersistedManuscriptContent(ch))
       .sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
 
-    // ARCH2-5: Blocking coverage check
-    for (const ch of remaining) {
-      const cov = researchCoverageCheck(ch, project);
-      if (cov && cov.missingCount > 0) {
-        toast.error(`Draft All blocked: Chapter ${ch.chapter_number} has unsupported outline topics. Please add research or revise the outline.`);
-        return;
-      }
-    }
+    // ARCH2-5B: fiction advisory / nonfiction operator-confirmed gate
+    if (!coverageGateAllowsDrafting(remaining, 'Draft All')) return;
 
     if (skippedWithContent.length) {
       toast.info(`Draft All skipped ${skippedWithContent.length} chapter(s) that already contain manuscript text. Use Rewrite for drafted chapters.`);
@@ -4021,14 +4033,8 @@ For each banned name, provide a culturally appropriate, original replacement nam
       .filter((ch) => isBodyChapter(ch))
       .sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
 
-    // ARCH2-5: Blocking coverage check
-    for (const ch of remaining) {
-      const cov = researchCoverageCheck(ch, project);
-      if (cov && cov.missingCount > 0) {
-        toast.error(`Re-draft All blocked: Chapter ${ch.chapter_number} has unsupported outline topics. Please add research or revise the outline.`);
-        return;
-      }
-    }
+    // ARCH2-5B: fiction advisory / nonfiction operator-confirmed gate
+    if (!coverageGateAllowsDrafting(remaining, 'Re-draft All')) return;
 
     if (!remaining.length) {
       toast.info('No body chapters found to re-draft.');
@@ -5662,7 +5668,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                     <div className="rounded-2xl border border-red-200/70 bg-red-50/70 p-3 text-xs leading-5 text-red-950">
                       <div className="font-semibold text-red-700">Incomplete Research Coverage</div>
                       <p className="mt-1 text-red-900/80">
-                        <strong>Drafting is blocked.</strong> The outline introduces {researchCoverageVerdict.missingCount} topics across {researchCoverageVerdict.chaptersCount} chapters that are missing from your research data.
+                        <strong>Research gaps detected.</strong> The outline introduces {researchCoverageVerdict.missingCount} topics across {researchCoverageVerdict.chaptersCount} chapters that are missing from your research data.
                       </p>
                       <ul className="mt-2 list-disc pl-4 text-[11px] text-red-800 space-y-0.5">
                         {researchCoverageVerdict.missing.slice(0, 5).map((topic, i) => (
