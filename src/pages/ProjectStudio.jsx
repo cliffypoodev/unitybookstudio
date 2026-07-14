@@ -3819,6 +3819,13 @@ For each banned name, provide a culturally appropriate, original replacement nam
   const handleDraftSelected = async () => {
     if (!project || !selectedChapter || busyLabel) return;
 
+    // ARCH2-5: Blocking coverage check
+    const cov = researchCoverageCheck(selectedChapter, project);
+    if (cov && cov.missingCount > 0) {
+      toast.error(`Draft blocked: Chapter ${selectedChapter.chapter_number} has unsupported outline topics. Please add research or revise the outline.`);
+      return;
+    }
+
     const persistedContent = chapterHasPersistedManuscriptContent(selectedChapter);
     const unsavedEditorContent = !persistedContent && chapterDraft?.trim().length > 0;
 
@@ -3856,6 +3863,15 @@ For each banned name, provide a culturally appropriate, original replacement nam
     const remaining = draftableCandidates
       .filter((ch) => !chapterHasPersistedManuscriptContent(ch))
       .sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
+
+    // ARCH2-5: Blocking coverage check
+    for (const ch of remaining) {
+      const cov = researchCoverageCheck(ch, project);
+      if (cov && cov.missingCount > 0) {
+        toast.error(`Draft All blocked: Chapter ${ch.chapter_number} has unsupported outline topics. Please add research or revise the outline.`);
+        return;
+      }
+    }
 
     if (skippedWithContent.length) {
       toast.info(`Draft All skipped ${skippedWithContent.length} chapter(s) that already contain manuscript text. Use Rewrite for drafted chapters.`);
@@ -4004,6 +4020,15 @@ For each banned name, provide a culturally appropriate, original replacement nam
     const remaining = freshChapters
       .filter((ch) => isBodyChapter(ch))
       .sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
+
+    // ARCH2-5: Blocking coverage check
+    for (const ch of remaining) {
+      const cov = researchCoverageCheck(ch, project);
+      if (cov && cov.missingCount > 0) {
+        toast.error(`Re-draft All blocked: Chapter ${ch.chapter_number} has unsupported outline topics. Please add research or revise the outline.`);
+        return;
+      }
+    }
 
     if (!remaining.length) {
       toast.info('No body chapters found to re-draft.');
