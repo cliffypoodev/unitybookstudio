@@ -1527,7 +1527,8 @@ const PROJECT_SETTING_FIELDS = [
   'reading_level',
   'language_intensity',
   'spice_level',
-  'erotica_register',
+  'violence_level', // SETUPFIX-1: was missing - project sync rebuilt drafts without it, so the next autosave wiped the user's saved value back to 0
+  'erotica_register', // SETUPFIX-1: was missing - project sync rebuilt drafts without it, so the next autosave wiped the user's saved value back to 0
 
   // Length targets
   'chapter_target',
