@@ -149,5 +149,15 @@ const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) fail
   check('L15 every bible field scrubbed before return', ['world','characters','voice','canon','mystery','outline','twists'].every(f => pb.includes("scrubField(" + f + "Md, '" + f + "')")));
 }
 
+/* -- FIELDGUARD-1: bible field floors -- */
+{
+  const { BIBLE_FIELD_FLOORS, fieldLengthOk, buildFieldRetryAppendix } = await import(process.cwd() + '/src/lib/bibleFieldGuard.js');
+  check('F1 floors cover the five bible documents', ['world_md','characters_md','voice_md','canon_md','mystery_md'].every(f => BIBLE_FIELD_FLOORS[f] >= 400));
+  check('F2 empty and stub fields fail the floor', fieldLengthOk('characters_md', '') === false && fieldLengthOk('characters_md', 'Not generated') === false && fieldLengthOk('world_md', 'x'.repeat(1300)) === true);
+  check('F3 retry appendix is generic and demands completeness', (() => { const a = buildFieldRetryAppendix('characters_md', 1200); return a.includes('LENGTH ENFORCEMENT') && a.includes('characters_md') && !/margot|godsfang|juneteenth/i.test(a); })());
+  const pb = fs.readFileSync(process.cwd() + '/src/lib/parallelBibleGenerator.js', 'utf8');
+  check('F4 all five fields guarded with single retry then throw', ['world_md','characters_md','voice_md','canon_md','mystery_md'].every(f => pb.includes("fieldGuardRetry('" + f + "'")) && pb.includes('Nothing was saved - run Build Story Bible again.'));
+}
+
 console.log(failures === 0 ? 'BATTERY: ALL PASS' : 'BATTERY: ' + failures + ' FAILURE(S)');
 process.exit(failures === 0 ? 0 : 1);

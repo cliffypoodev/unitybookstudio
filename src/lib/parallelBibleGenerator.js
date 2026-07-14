@@ -16,6 +16,7 @@ import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
 import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, findOutlineOffenders, buildOutlineChapterRepairPrompt, spliceOutlineChapters, rebuildOutlineMd } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-2/3
 import { scrubModelLeaks, scrubOutlineChapters } from '@/lib/modelLeakGuard'; // LEAKFIX-2
+import { BIBLE_FIELD_FLOORS, fieldLengthOk, buildFieldRetryAppendix } from '@/lib/bibleFieldGuard'; // FIELDGUARD-1
 import { unwrapIntegrationResult } from '@/lib/autonovel';
 import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from '@/lib/nameHygieneRules';
 
@@ -584,6 +585,28 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
   let charactersMd = charsResult?.characters_md || '';
   let voiceMd = voiceResult?.voice_md || '';
 
+  // FIELDGUARD-1: a field below its floor gets ONE retry with an explicit
+  // length demand; still short -> throw. The catch in the caller surfaces
+  // the standard "nothing was saved" toast. An empty characters_md must
+  // never reach the store silently again.
+  const fieldGuardRetry = async (field, current, promptBuilder) => {
+    if (fieldLengthOk(field, current)) return current;
+    const floor = BIBLE_FIELD_FLOORS[field];
+    console.warn('[FIELD-GUARD] ' + field + ' came back ' + String(current || '').trim().length + ' chars (floor ' + floor + '). Retrying once...');
+    onProgress?.('Bible: ' + field + ' too short - regenerating...');
+    const retryResult = await callLLM(promptBuilder() + buildFieldRetryAppendix(field, floor), singleFieldSchema(field));
+    const retryText = retryResult?.[field] || '';
+    if (fieldLengthOk(field, retryText)) {
+      console.log('[FIELD-GUARD] ' + field + ' retry succeeded: ' + String(retryText).trim().length + ' chars');
+      return retryText;
+    }
+    throw new Error("Bible field '" + field + "' came back " + String(retryText || current || '').trim().length + ' chars after a retry (needs ' + floor + '+). Nothing was saved - run Build Story Bible again.');
+  };
+
+  worldMd = await fieldGuardRetry('world_md', worldMd, () => buildWorldPrompt(seedConcept, settings, nameBlock));
+  charactersMd = await fieldGuardRetry('characters_md', charactersMd, () => buildCharactersPrompt(seedConcept, settings, nameBlock));
+  voiceMd = await fieldGuardRetry('voice_md', voiceMd, () => buildVoicePrompt(seedConcept, settings));
+
   if (!isFiction) {
     worldMd = stripNonfictionScarTissue(worldMd);
     charactersMd = stripNonfictionScarTissue(charactersMd);
@@ -608,6 +631,10 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
   let canonMd = canonResult?.canon_md || '';
   let mysteryMd = mysteryResult?.mystery_md || '';
   let outlineResult = outlineResultRaw || {};
+
+  // FIELDGUARD-1: same floors for the batch-2 documents.
+  canonMd = await fieldGuardRetry('canon_md', canonMd, () => buildCanonPrompt(seedConcept, settings, worldMd));
+  mysteryMd = await fieldGuardRetry('mystery_md', mysteryMd, () => buildMysteryPrompt(seedConcept, settings, charactersMd));
 
   if (!isFiction) {
     canonMd = stripNonfictionScarTissue(canonMd);
