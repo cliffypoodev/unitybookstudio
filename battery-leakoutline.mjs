@@ -3,7 +3,7 @@ import fs from 'fs';
 let failures = 0;
 const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) failures++; };
 
-/* \u2500\u2500 LEAKFIX-1: modelLeakGuard (pure) \u2500\u2500 */
+/* ── LEAKFIX-1: modelLeakGuard (pure) ── */
 {
   const { stripModelControlTokens, stripNonLatinDrift, scrubModelLeaks } = await import(process.cwd() + '/src/lib/modelLeakGuard.js');
   const t1 = 'She did not reach for the book. Not yet. /nothink /nothink Margot stood still.';
@@ -12,25 +12,25 @@ const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) fail
   const t2 = 'A plan formed. /think Wait. <think>internal chain of thought</think> He moved. <|im_end|>';
   const r2 = stripModelControlTokens(t2);
   check('L2 /think + <think> block + <|special|> stripped', !/\/think|<think>|<\|/.test(r2.text) && r2.text.includes('He moved.'));
-  const t3 = 'Jessup\u2019s head hung back. His mouth hung open, a\u65E0\u58F0\u7684\u5C16\u53EB\u51DD\u56FA\u5728\u7A7A\u4E2D\u3002\u78C1\u529B\u573A\u5B8C\u6210\u4E86\u5B83\u7684\u5DE5\u4F5C\u3002\n\nShe sliced.';
+  const t3 = 'Jessup’s head hung back. His mouth hung open, a无声的尖叫凝固在空中。磁力场完成了它的工作。\n\nShe sliced.';
   const r3 = stripNonLatinDrift(t3);
   check('L3 CJK run removed', !/[\u4E00-\u9FFF]/.test(r3.text));
-  check('L4 beheaded lead-in removed with it', !r3.text.includes('His mouth hung open') && r3.text.includes('Jessup\u2019s head hung back.') && r3.text.includes('She sliced.'));
+  check('L4 beheaded lead-in removed with it', !r3.text.includes('His mouth hung open') && r3.text.includes('Jessup’s head hung back.') && r3.text.includes('She sliced.'));
   const clean = 'A normal paragraph. With two sentences.\n\nAnother paragraph follows here.';
   check('L5 clean text is a byte-identical no-op', scrubModelLeaks(clean).text === clean);
-  const t5 = 'The storm eased at dawn.\n\n\u98A8\u304C\u6B62\u3093\u3060\u3002\u5F7C\u5973\u306F\u7ACB\u3061\u4E0A\u304C\u3063\u305F\u3002\n\nMargot checked the ropes.';
+  const t5 = 'The storm eased at dawn.\n\n風が止んだ。彼女は立ち上がった。\n\nMargot checked the ropes.';
   const r5 = stripNonLatinDrift(t5);
   check('L6 standalone foreign paragraph removed, neighbors intact', !/[\u3040-\u30FF\u4E00-\u9FFF]/.test(r5.text) && r5.text.includes('storm eased') && r5.text.includes('checked the ropes'));
   // LEAKFIX-1B regression guards: Antigravity once rewrote the drift regex and
   // left a literal '-' in the character class, shredding every hyphenated word.
-  const t6 = 'The well-known climber checked his ice-axe. Then he moved on \u2014 slowly.';
+  const t6 = 'The well-known climber checked his ice-axe. Then he moved on — slowly.';
   check('L11 hyphenated words and em-dashes untouched', scrubModelLeaks(t6).text === t6);
-  const t7 = 'He nodded. \u5F7C\u306F\u53EB\u3093\u3060\uFF01 The rope held.';
+  const t7 = 'He nodded. 彼は叫んだ！ The rope held.';
   const r7 = stripNonLatinDrift(t7);
   check('L12 fullwidth punctuation removed with its drift run', !/[\uFF01-\uFF5D]/.test(r7.text) && r7.text.includes('He nodded.') && r7.text.includes('The rope held.'));
 }
 
-/* \u2500\u2500 LEAKFIX-1: wiring \u2500\u2500 */
+/* ── LEAKFIX-1: wiring ── */
 {
   const sw = fs.readFileSync(process.cwd() + '/src/lib/sceneWriter.js', 'utf8');
   check('L7 sceneWriter scrubs before truncation check', sw.includes("scrubModelLeaks(prose, 'scene')") && sw.indexOf("scrubModelLeaks(prose") < sw.indexOf('GATEFIX-25: an ending without terminal punctuation'));
@@ -41,10 +41,10 @@ const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) fail
   check('L10 polish runner scrubs every chapter pre-A0', mp.includes('A-LEAK (LEAKFIX-1)') && mp.indexOf('A-LEAK (LEAKFIX-1)') < mp.indexOf('A0: Legacy artifact healing'));
 }
 
-/* \u2500\u2500 OUTLINEFIX-1: gate (pure) \u2500\u2500 */
+/* ── OUTLINEFIX-1: gate (pure) ── */
 {
   const { analyzeOutlineDuplication, buildOutlineDistinctnessRules, buildOutlineDedupeRetryAppendix } = await import(process.cwd() + '/src/lib/outlineDedupeGate.js');
-  const fnTitles = ['The Weight of the World','The First Cut','The Ledger Begins','The Charnel Approach','The First Avalanche','The Cut Rope','The Ghost of J. Harris','The Mutiny','The Descent Begins',"The Stone Mother's Wound",'The Final Reckoning','The Ledger Closes','The Open Road','The Legacy of the Godsfang','The Final Avalanche','The Last Outpost Revisited','The Ghosts of the Past','The Final Cut','The Open Road Continues','The Final Ledger','The Final Descent','The Final Reckoning \u2014 Aftermath','The Final Avalanche \u2014 Aftermath','The Last Outpost Revisited \u2014 Aftermath','The Open Road \u2014 Aftermath'];
+  const fnTitles = ['The Weight of the World','The First Cut','The Ledger Begins','The Charnel Approach','The First Avalanche','The Cut Rope','The Ghost of J. Harris','The Mutiny','The Descent Begins',"The Stone Mother's Wound",'The Final Reckoning','The Ledger Closes','The Open Road','The Legacy of the Godsfang','The Final Avalanche','The Last Outpost Revisited','The Ghosts of the Past','The Final Cut','The Open Road Continues','The Final Ledger','The Final Descent','The Final Reckoning — Aftermath','The Final Avalanche — Aftermath','The Last Outpost Revisited — Aftermath','The Open Road — Aftermath'];
   const bad = fnTitles.map((t,i)=>({chapter_number:i+1,title:t,beat_summary:''}));
   const rb = analyzeOutlineDuplication(bad);
   check('O1 the real False North outline is flagged critical', rb.critical === true && rb.pairs.length >= 10);
@@ -80,7 +80,7 @@ const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) fail
 /* -- OUTLINEFIX-2: wiring -- */
 {
   const pb = fs.readFileSync(process.cwd() + '/src/lib/parallelBibleGenerator.js', 'utf8');
-  check('O6 repair loop wired, fiction-only, critical-keyed', pb.includes('if (isFiction && chapters.length > 1)') && pb.includes('while (dupe.critical && round < 3)') && pb.includes('buildOutlineChapterRepairPrompt(chapters, offenders, targetCount)'));
+  check('O6 repair loop wired, fiction-only, gutted-aware', pb.includes('if (isFiction && chapters.length > 1)') && pb.includes('while ((dupe.critical || forced.length) && round < 3)') && pb.includes('buildOutlineChapterRepairPrompt(chapters, offenders, targetCount, { charactersMd, canonMd, soft: dupe.soft })'));
   check('O7 never hard-fails: best-effort acceptance, no throw', pb.includes('Accepting best-effort outline') && !pb.includes('Outline failed the distinctness gate twice'));
   check('O8 distinctness rules in main outline prompt (fiction only)', pb.includes("${isFiction ? buildOutlineDistinctnessRules(chapterCount) : ''}"));
   check('O9 repair prompt bans padding re-runs', pb.includes('NEVER pad by re-running events'));
@@ -111,6 +111,42 @@ const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) fail
   const after = analyzeOutlineDuplication(sp.chapters);
   check('O14 outline converges after splice', after.critical === false);
   check('O15 rebuilt outline_md covers every chapter', (rebuildOutlineMd(sp.chapters).match(/## Chapter /g) || []).length === 4);
+}
+
+/* -- OUTLINEFIX-3: ending shapes, verbatim phrases, advisories -- */
+{
+  const { analyzeOutlineDuplication, buildOutlineChapterRepairPrompt } = await import(process.cwd() + '/src/lib/outlineDedupeGate.js');
+  const dbl = [
+    { chapter_number: 13, title: 'The Turn', beat_summary: 'Margot accepts she cannot save everyone, leading to a moment of grace and hard self-knowledge on the ridge.' },
+    { chapter_number: 14, title: 'The Give-Back', beat_summary: 'Declan abandons his sample, and the survivors reach the lowlands, choosing the open road.' },
+    { chapter_number: 15, title: 'The Long Walk', beat_summary: 'Margot and Calder leave civilization behind, symbolizing their break from the past.' },
+    { chapter_number: 16, title: 'Iron Debts', beat_summary: 'A creditor from the outpost tracks the survivors and demands payment in sky-iron they no longer carry.' },
+    { chapter_number: 17, title: 'The Road Ahead', beat_summary: 'Margot and Calder emerge changed and embrace the uncertainty of the future, symbolizing their break from the past.' },
+  ];
+  const an = analyzeOutlineDuplication(dbl);
+  check('O16 ending shapes before the finale flagged as offenders', an.critical === true && an.offenderNums.includes(14) && an.offenderNums.includes(15) && !an.offenderNums.includes(17));
+  check('O17 verbatim 5-word phrase across summaries is critical', an.pairs.some(p => p.b === 17 && p.reasons.some(r => r.includes('verbatim 5-word phrase'))));
+  const two = [
+    { chapter_number: 1, title: 'The Outpost Ledger', beat_summary: 'Margot reviews expedition gear at the outpost, clashes with Declan over weight, and discovers an unmapped cairn.' },
+    { chapter_number: 2, title: 'The Storm Price', beat_summary: 'A reckless night march kills the lead porter in a brutal storm and Margot finds an unmapped cairn.' },
+  ];
+  const two2 = analyzeOutlineDuplication(two);
+  check('O18 repeated event mention is a soft advisory, not a block', two2.critical === false && (two2.soft || []).some(x => x.includes('unmapped cairn')));
+  const prompt = buildOutlineChapterRepairPrompt(dbl, [14, 15], 17, { charactersMd: 'Margot Hayes: guide haunted by her brother Finn.', canonMd: 'Sky-iron disrupts compasses.', soft: two2.soft });
+  check('O19 repair prompt carries canon, chronology, no-retcon, advisories', prompt.includes('STORY BIBLE (established canon') && prompt.includes('CHRONOLOGY') && prompt.includes('NO RETCONS') && prompt.includes('ADVISORY') && prompt.includes('unmapped cairn'));
+}
+
+/* -- LEAKFIX-2: outline + bible field scrubbing -- */
+{
+  const { scrubOutlineChapters } = await import(process.cwd() + '/src/lib/modelLeakGuard.js');
+  const r = scrubOutlineChapters([
+    { chapter_number: 18, title: 'The裂痕的呼唤', beat_summary: 'Calder faces a moral dilemma that tests his loyalty to Margot in a way that changes both of them.' },
+    { chapter_number: 19, title: 'The Price of Survival', beat_summary: 'Margot must sacrifice resources, threatening the team fragile unity in the high passes tonight.' },
+  ]);
+  check('L13 drift-gutted chapter title reported for replacement', r.gutted.length === 1 && r.gutted[0] === 18 && r.chapters[1].title === 'The Price of Survival');
+  const pb = fs.readFileSync(process.cwd() + '/src/lib/parallelBibleGenerator.js', 'utf8');
+  check('L14 outline chapters scrubbed + gutted forced into repair', pb.includes('scrubOutlineChapters(chapters)') && pb.includes('let forced = scrub0.gutted'));
+  check('L15 every bible field scrubbed before return', ['world','characters','voice','canon','mystery','outline','twists'].every(f => pb.includes("scrubField(" + f + "Md, '" + f + "')")));
 }
 
 console.log(failures === 0 ? 'BATTERY: ALL PASS' : 'BATTERY: ' + failures + ' FAILURE(S)');

@@ -644,26 +644,31 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
     chapters = chapters.slice(0, targetCount).map((chapter, index) => normalizeNonfictionChapter(chapter, index, settings, seedConcept));
   }
 
-  // -- OUTLINEFIX-2: cross-chapter distinctness with targeted repair (fiction only) --
-  // The user's chapter count is honored, period. When the deterministic gate
-  // flags re-run chapters we do NOT re-roll the outline and NEVER hard-fail:
-  // we replace ONLY the offending chapters with new escalating material,
-  // splice, and re-check - up to 3 rounds, then accept best effort loudly.
+  // -- OUTLINEFIX-2/3 + LEAKFIX-2: scrub, then converge to distinct chapters --
+  // 1) Scrub model leaks from every chapter title/summary; chapters gutted by
+  //    the scrub (e.g. a CJK title) are forced into the repair loop.
+  // 2) Distinctness gate with targeted repair: keep good chapters, replace
+  //    only offenders, re-check - up to 3 rounds, never hard-fail.
   if (isFiction && chapters.length > 1) {
+    const scrub0 = scrubOutlineChapters(chapters);
+    chapters = scrub0.chapters;
+    let forced = scrub0.gutted;
+    let outlineChanged = scrub0.changed;
     let dupe = analyzeOutlineDuplication(chapters);
-    let outlineChanged = false;
     let round = 0;
-    while (dupe.critical && round < 3) {
+    while ((dupe.critical || forced.length) && round < 3) {
       round += 1;
-      const offenders = findOutlineOffenders(dupe);
-      console.warn('[OUTLINE-DEDUPE] Round ' + round + ': replacing ' + offenders.length + ' duplicated chapter(s): ' + offenders.join(', ') + ' | ' + dupe.issues.slice(0, 4).join(' | '));
-      onProgress?.('Bible: outline repeats events - replacing ' + offenders.length + ' chapter(s), round ' + round + '/3...');
+      const offenders = [...new Set([...findOutlineOffenders(dupe), ...forced])].sort((x, y) => x - y);
+      console.warn('[OUTLINE-DEDUPE] Round ' + round + ': replacing ' + offenders.length + ' chapter(s): ' + offenders.join(', ') + ' | ' + dupe.issues.slice(0, 4).join(' | '));
+      onProgress?.('Bible: outline needs repair - replacing ' + offenders.length + ' chapter(s), round ' + round + '/3...');
       const repairRaw = await callLLM(
-        buildOutlineChapterRepairPrompt(chapters, offenders, targetCount),
+        buildOutlineChapterRepairPrompt(chapters, offenders, targetCount, { charactersMd, canonMd, soft: dupe.soft }),
         outlineSchema,
         { max_tokens: 16384 }
       );
-      const splice = spliceOutlineChapters(chapters, Array.isArray(repairRaw?.chapters) ? repairRaw.chapters : [], offenders);
+      const scrubR = scrubOutlineChapters(Array.isArray(repairRaw?.chapters) ? repairRaw.chapters : []);
+      const usable = scrubR.chapters.filter(ch => !scrubR.gutted.includes(Number(ch.chapter_number)));
+      const splice = spliceOutlineChapters(chapters, usable, offenders);
       if (!splice.replaced.length) {
         console.warn('[OUTLINE-DEDUPE] Round ' + round + ' produced no usable replacements; stopping repair loop.');
         break;
@@ -671,11 +676,12 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
       console.log('[OUTLINE-DEDUPE] Round ' + round + ' replaced chapters: ' + splice.replaced.join(', '));
       chapters = splice.chapters;
       outlineChanged = true;
+      forced = forced.filter(n => !splice.replaced.includes(n));
       dupe = analyzeOutlineDuplication(chapters);
     }
-    if (dupe.critical) {
+    if (dupe.critical || forced.length) {
       console.warn('[OUTLINE-DEDUPE] Accepting best-effort outline with remaining issues after ' + round + ' round(s): ' + dupe.issues.slice(0, 6).join(' | '));
-      onProgress?.('Bible: WARNING - outline still repeats some events after repair. Review the outline before drafting.');
+      onProgress?.('Bible: WARNING - outline still has issues after repair. Review the outline before drafting.');
     } else if (outlineChanged) {
       console.log('[OUTLINE-DEDUPE] Outline converged to distinct chapters after targeted repair.');
     }

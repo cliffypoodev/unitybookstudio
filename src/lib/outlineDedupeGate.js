@@ -21,6 +21,17 @@ const RECAP_MARKERS = ['aftermath', 'revisited', 'continues', 'continued', 'redu
 const RECYCLE_WORDS = ['final', 'last', 'first', 'begins', 'ends', 'closes', 'again', 'return', 'returns', ...RECAP_MARKERS];
 const STOPWORDS = new Set(['the', 'a', 'an', 'of', 'and', 'or', 'in', 'on', 'to', 'at', 'for', 'with', 'from', 'into', 'part', 'chapter']);
 
+// OUTLINEFIX-3: wrap-up language that belongs ONLY in the final chapter.
+// A summary matching any of these before the finale means the story ended
+// early (the "double ending" disease).
+const ENDING_SHAPES = [
+  /\bopen road\b/, /\bleav\w+ civilization\b/, /\bleav\w+ the mountains?\b/,
+  /\bemerg\w+ from the mountains?\b/, /\breach\w* the (?:lowlands|valley)\b/,
+  /\bforever changed\b/, /\bembrac\w+ the (?:uncertainty|future|unknown)\b/,
+  /\bbreak from the past\b/, /\bnew beginning\b/, /\bepilogue\b/, /\baftermath\b/,
+  /\bwalk\w* away\b/, /\bstory ends\b/, /\bfinal farewell\b/, /\bpart ways\b/,
+];
+
 function titleWords(title = '') {
   return String(title || '')
     .toLowerCase()
@@ -60,6 +71,7 @@ function shingles(words, k = 6) {
  */
 export function analyzeOutlineDuplication(chapters = []) {
   const issues = [];
+  const soft = [];
   const pairs = [];
   const chs = (chapters || []).map((c, i) => ({
     n: Number(c.chapter_number) || i + 1,
@@ -67,6 +79,7 @@ export function analyzeOutlineDuplication(chapters = []) {
     tw: titleWords(c.title),
     core: titleWords(c.title).filter(w => !RECYCLE_WORDS.includes(w)),
     sw: contentWords(c.beat_summary || c.summary || ''),
+    raw: String(c.beat_summary || c.summary || '').toLowerCase().replace(/[^a-z0-9\s'-]/g, ' ').split(/\s+/).filter(Boolean),
   }));
 
   let hardIssues = 0;
@@ -76,6 +89,17 @@ export function analyzeOutlineDuplication(chapters = []) {
   for (const c of chs) {
     const hit = c.tw.find(w => RECAP_MARKERS.includes(w));
     if (hit) { issues.push(`Ch.${c.n} title "${c.title}" uses recap marker "${hit}"`); hardIssues += 1; offenderNums.add(c.n); }
+  }
+
+  // 1b) OUTLINEFIX-3: ending shapes before the finale are critical - the
+  //     story must end exactly once, in the last chapter.
+  const lastN = chs.length ? Math.max(...chs.map(c => c.n)) : 0;
+  const endingOffenders = new Set();
+  for (const c of chs) {
+    if (c.n >= lastN) continue;
+    const summaryLower = c.raw.join(' ');
+    const hit = ENDING_SHAPES.find(rx => rx.test(summaryLower));
+    if (hit) { issues.push(`Ch.${c.n} "${c.title}" ends the story early (wrap-up language: ${String(hit).slice(1, 40)}...)`); hardIssues += 1; offenderNums.add(c.n); endingOffenders.add(c.n); }
   }
 
   // 2) A recycle word in 2+ titles is critical (every use after the first is
@@ -110,6 +134,14 @@ export function analyzeOutlineDuplication(chapters = []) {
       const a = chs[i]; const b = chs[j];
       const reasons = [];
       if (a.core.length && b.core.length && jaccard(a.core, b.core) >= 0.5) reasons.push('near-duplicate titles');
+      // OUTLINEFIX-3: a verbatim 5-word run shared by two summaries is the
+      // same event regardless of summary length ("symbolizing their break
+      // from the past" appearing twice).
+      {
+        const raw5 = (w) => { const o = new Set(); for (let x = 0; x + 5 <= w.length; x += 1) o.add(w.slice(x, x + 5).join(' ')); return o; };
+        const sharedRaw = [...raw5(a.raw)].filter(x => raw5(b.raw).has(x)).length;
+        if (sharedRaw >= 1) reasons.push('summaries share a verbatim 5-word phrase');
+      }
       if (a.swRare.length >= 10 && b.swRare.length >= 10) {
         if (jaccard(a.swRare, b.swRare) >= 0.5) reasons.push('summaries describe the same event');
         else {
@@ -124,10 +156,20 @@ export function analyzeOutlineDuplication(chapters = []) {
           }
         }
       }
+      if (!reasons.length && a.swRare.length >= 4 && b.swRare.length >= 4) {
+        // OUTLINEFIX-3: short summaries evade the main checks; a shared rare
+        // word pairing there is an advisory for the repair prompt, not a block.
+        const bg = (w) => { const o = new Set(); for (let x = 0; x + 1 < w.length; x += 1) o.add(w[x] + ' ' + w[x + 1]); return o; };
+        const sharedBg = [...bg(a.swRare)].filter(x => bg(b.swRare).has(x));
+        if (sharedBg.length >= 1) soft.push(`Ch.${a.n} and Ch.${b.n} both mention "${sharedBg[0]}" - make sure this event happens only once`);
+      }
       if (reasons.length) {
         pairs.push({ a: a.n, b: b.n, reasons });
         issues.push(`Ch.${a.n} "${a.title}" vs Ch.${b.n} "${b.title}": ${reasons.join(' + ')}`);
-        offenderNums.add(b.n);
+        // The later chapter is the re-run - unless the later chapter is the
+        // finale AND its partner is an early-ending offender: the finale owns
+        // the wrap-up, so the early ending is the one replaced.
+        offenderNums.add(b.n === lastN && endingOffenders.has(a.n) ? a.n : b.n);
       }
     }
   }
@@ -136,6 +178,7 @@ export function analyzeOutlineDuplication(chapters = []) {
     ok: pairs.length === 0 && issues.length === 0,
     critical: pairs.length > 0 || hardIssues > 0,
     issues,
+    soft,
     pairs,
     offenderNums: [...offenderNums].sort((x, y) => x - y),
   };
@@ -154,21 +197,29 @@ export function findOutlineOffenders(analysis) {
  * OUTLINEFIX-2: targeted repair prompt - replace ONLY the offending chapters
  * with new escalating material. Generic; nothing book-specific.
  */
-export function buildOutlineChapterRepairPrompt(chapters, offenderNums, chapterCount) {
+export function buildOutlineChapterRepairPrompt(chapters, offenderNums, chapterCount, context = {}) {
   const keepList = chapters
     .map(c => `Ch.${c.chapter_number}${offenderNums.includes(Number(c.chapter_number)) ? ' [REPLACE]' : ''}: ${c.title} - ${String(c.beat_summary || '').slice(0, 220)}`)
     .join('\n');
-  return `You are a world-class story architect. The chapter outline below contains chapters that RE-RUN events already covered by other chapters. You must REPLACE ONLY the chapters marked [REPLACE], keeping every other chapter exactly as it is.
-
+  const clip = (t, n) => String(t || '').slice(0, n);
+  const canonBlock = (context.charactersMd || context.canonMd)
+    ? `\nSTORY BIBLE (established canon - replacements must NEVER contradict this):\n${clip(context.charactersMd, 1600)}\n${clip(context.canonMd, 1600)}\n`
+    : '';
+  const advisories = (context.soft && context.soft.length)
+    ? `\nADVISORY - also resolve these while replacing (events that appear more than once):\n${context.soft.slice(0, 8).map(x => '- ' + x).join('\n')}\n`
+    : '';
+  return `You are a world-class story architect. The chapter outline below contains chapters that RE-RUN events already covered by other chapters, end the story before the final chapter, or lost their content. You must REPLACE ONLY the chapters marked [REPLACE], keeping every other chapter exactly as it is.
+${canonBlock}
 CURRENT OUTLINE (${chapterCount} chapters):
 ${keepList}
-
+${advisories}
 REPLACEMENT REQUIREMENTS - for EACH chapter marked [REPLACE]:
 - Invent a NEW development that appears nowhere else in the outline: a new complication, a new antagonist move, a new revelation, a new cost, a subplot escalation, or a hard reversal.
-- It must fit the continuity between its neighboring chapters and escalate toward the single ending in chapter ${chapterCount}.
-- The story ends EXACTLY ONCE, in chapter ${chapterCount}. No aftermath, epilogue, or wind-down chapters anywhere else.
-- TITLE RULES: never use "Final", "Last", "Aftermath", "Revisited", "Continues", or "Part" in a title. Do not reuse a meaningful word from any other chapter title. Vary constructions - titles should be evocative and oblique, not literal event labels.
-- beat_summary must state the chapter's new development in concrete, specific terms (who, what changes, what it costs).
+- CHRONOLOGY: the replacement must fit its exact position in the timeline. Respect where the characters ARE at that point (do not return them to a location the story has already left, do not use characters who are dead or gone by then).
+- NO RETCONS: never contradict the story bible above. Never invent secret pasts, hidden allegiances, conspiracies, rival teams, ambushes, or communications channels that the bible does not establish. Deepen what exists instead of bolting on new machinery.
+- The story ends EXACTLY ONCE, in chapter ${chapterCount}. No wrap-up language (open road, forever changed, embracing the future, breaking from the past) in any chapter before ${chapterCount}. No aftermath, epilogue, or wind-down chapters anywhere else.
+- TITLE RULES: never use "Final", "Last", "Aftermath", "Revisited", "Continues", or "Part" in a title. Do not reuse a meaningful word from any other chapter title. Vary constructions - titles should be evocative and oblique, not literal event labels. English only.
+- beat_summary must state the chapter's new development in concrete, specific terms (who, what changes, what it costs). English only.
 
 Return JSON only: { "chapters": [ ... ] } containing EXACTLY ${offenderNums.length} items, one for each replaced chapter number: ${offenderNums.join(', ')}. Each item: {chapter_number, title, beat_summary}.`;
 }
@@ -208,6 +259,7 @@ export function buildOutlineDistinctnessRules(chapterCount) {
 - The story ends EXACTLY ONCE, in chapter ${chapterCount}. Do not resolve the story in an earlier chapter and then continue. No epilogue-style chapters before ${chapterCount}.
 - STRETCH RULE: the premise MUST fill all ${chapterCount} chapters with distinct material. Plan at least two subplot threads (for example: a relationship under strain, a rival agenda, a secret with a timer, a resource crisis) and braid them between main-plot chapters. Deepen the middle with complications, reversals, betrayals, discoveries, and costs. Every chapter's beat_summary must state its new development. Padding by repetition is forbidden; stretching by invention is required.
 - TITLE RULES: never use "Final", "Last", "Aftermath", "Revisited", "Continues", or "Part" in a title. No meaningful word may appear in more than two chapter titles. Vary constructions - do not make every title "The X" or "The X of Y". Titles should be evocative and oblique, not literal event labels.
+- WRAP-UP LANGUAGE (the open road, forever changed, embracing the future, breaking from the past, aftermath, epilogue) may appear ONLY in the final chapter's summary. English only in every title and summary.
 === END CHAPTER DISTINCTNESS ENFORCEMENT ===`;
 }
 
