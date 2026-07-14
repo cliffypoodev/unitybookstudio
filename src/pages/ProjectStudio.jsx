@@ -57,6 +57,7 @@ import { clearAndCreateChapters } from '@/lib/chapterCreator';
 import { repairTruncatedChapters } from '@/lib/chapterRepair';
 import { runExternalAiPatternFix } from '@/lib/externalAiPatterns';
 import { fixHangingQuotes, repairChapterQuotes } from '@/lib/quoteFixPolish';
+import { runDialogueMechanicsPass as runDialogueMechanicsFinal } from '@/lib/dialogueMechanicsRepair'; // DIALOGUEFIX-2
 import { runAiDetectionResistance } from '@/lib/aiDetectionResist';
 import { runAntiDetectionPolish } from '@/lib/antiDetectionPolish';
 import { isAnthologyProject, buildAnthologyBiblePrompt, anthologyBibleSchema, parseAnthologyBible, storiesToChapterPlans, buildAnthologyStoryContext } from '@/lib/anthologyEngine';
@@ -3240,6 +3241,16 @@ Return structured JSON:
         chapterContent = draftQuoteRepair.text;
       }
 
+      // DIALOGUEFIX-2: true-last dialogue heal. Every stage between the scene
+      // writer and this save (LLM copyedit, artifact repair, quote balancing)
+      // has re-broken opening quotes at least once. Heal the class here, at
+      // the final mutating step, exactly like sentence-case repair in polish.
+      const dmFinalNf = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save' });
+      if (dmFinalNf.text !== chapterContent) {
+        console.warn('[DIALOGUE-MECHANICS-REPAIR] Pre-save repairs Ch.' + (chapter.chapter_number || '?') + ': ' + (dmFinalNf.repairs?.length || 0) + ' verb-tag, ' + (dmFinalNf.orphanRepaired || 0) + ' orphan-closer');
+        chapterContent = dmFinalNf.text;
+      }
+
       wordCount = countWords(chapterContent);
       const isStub = wordCount < 200;
       const chapterStatus = isStub ? 'error' : 'drafted';
@@ -3606,6 +3617,13 @@ Return structured JSON:
     if (draftQuoteRepair.text !== chapterContent) {
       console.warn('[QUOTE-REPAIR] Repaired draft Ch.' + (chapter.chapter_number || '?') + ' before save:', draftQuoteRepair.fixes);
       chapterContent = draftQuoteRepair.text;
+    }
+
+    // DIALOGUEFIX-2: true-last dialogue heal before save (see NF site above).
+    const dmFinal = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save' });
+    if (dmFinal.text !== chapterContent) {
+      console.warn('[DIALOGUE-MECHANICS-REPAIR] Pre-save repairs Ch.' + (chapter.chapter_number || '?') + ': ' + (dmFinal.repairs?.length || 0) + ' verb-tag, ' + (dmFinal.orphanRepaired || 0) + ' orphan-closer');
+      chapterContent = dmFinal.text;
     }
     pipelineSnapshot(chapter.id, '7-after-quote-repair', chapterContent);
 

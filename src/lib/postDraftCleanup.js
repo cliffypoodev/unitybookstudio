@@ -870,6 +870,20 @@ function validateEditedText(originalText, editedText, options = {}) {
     };
   }
 
+  // DIALOGUEFIX-2: the copyedit model must not change quotation structure. A
+  // drafted chapter arrives here with healed, balanced dialogue; one polish
+  // call stripped 17 opening quotes and passed the old checks. If the edit
+  // makes the smart-quote imbalance worse, reject it and keep the input.
+  const qCount = (t, ch) => (t.match(new RegExp(ch, 'g')) || []).length;
+  const inImbalance = Math.abs(qCount(original, '\u201c') - qCount(original, '\u201d'));
+  const outImbalance = Math.abs(qCount(edited, '\u201c') - qCount(edited, '\u201d'));
+  if (outImbalance > inImbalance + 1) {
+    return {
+      ok: false,
+      reason: `edited output broke quote balance (imbalance ${inImbalance} -> ${outImbalance})`,
+    };
+  }
+
   if (/^(sure|here|okay|certainly)[,!.:\s]/i.test(edited.slice(0, 40))) {
     return {
       ok: false,

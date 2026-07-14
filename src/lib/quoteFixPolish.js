@@ -96,7 +96,9 @@ function fixV5ActionSwallowClusters(text = '') {
   // Keep the action OUTSIDE quotes. Do not attempt stylistic rewriting.
   const rescueSwallowedCluster = (source) => {
     let fixed = source;
-    const subjectNames = 'He|She|he|she|Iris|Pauline|Langston|Cross|Clara|Cora|Duke|Sol|Strauss|James|Michael';
+    // DIALOGUEFIX-2: generalized - any capitalized word before a speech verb
+    // is a subject. The old list hardcoded character names from earlier books.
+    const subjectNames = 'He|She|he|she|[A-Z][a-z]+';
     const actionStarts = 'said it|said the words?|said the word|said it like|said it without|said it as|said the name|said the sentence|said the last word|said this|spoke|asked it';
     const rx = new RegExp('"([^"\\n]{2,260}?)\\s+(' + subjectNames + ')\\s+((?:' + actionStarts + ')[^"\\n]{0,420}?)\\."\\s*"?([^"\\n]{2,320})[.!?]\"+', 'gi');
     fixed = fixed.replace(rx, (_m, speech, who, action, nextSpeech) => {
@@ -139,7 +141,7 @@ function fixV5ActionSwallowClusters(text = '') {
 
   out = rescueSwallowedCluster(out);
 
-  const subject = '(He|She|Iris|Pauline|Langston|Cross|Clara|Cora|Duke|Sol|Strauss|James|Michael|Langston)';
+  const subject = '(He|She|[A-Z][a-z]+)'; // DIALOGUEFIX-2: generalized
   const actionLead = '(?:said it|said the words?|said the word|spoke|asked it|continued|replied)';
 
   // v5 damage pattern:
@@ -205,14 +207,18 @@ function balanceParagraphEdges(p = '') {
     // their opener and kept only the closer: Thank you." / I doubt that."
     // Rescue short, speech-like lines; strip only when it looks like narration.
     const noTerminal = t.replace(/"\s*$/, '').trim();
-    const speechLike = noTerminal.length <= 140
-      && /^(Thank you|Thanks|No|Yes|Good|Fine|Of course|Whatever|I doubt that|I’m|I'm|Aren’t|Aren't|Miss |Mr\.|Mrs\.|Pauline|Iris|Langston|Cross|Clara|Cora|Duke|Sol|What|Why|How|When|Where|Who|Please|Listen|Look)\b/i.test(noTerminal);
+    // DIALOGUEFIX-2: the old heuristic keyed on a hardcoded list of character
+    // names from earlier books (book specifics in code) and STRIPPED the
+    // closing quote from any line that missed the list. Shape-based instead:
+    // a short line starting with a capital and ending in sentence punctuation
+    // is speech - wrap it. Never delete quotation marks to force balance.
+    const speechLike = noTerminal.length <= 140 && /^[A-Z\u2018']/.test(noTerminal) && /[.!?,]$/.test(noTerminal);
     if (speechLike) {
       t = '"' + noTerminal + '"';
+      fixes += 1;
     } else {
-      t = noTerminal;
+      unresolved = true;
     }
-    fixes += 1;
   } else {
     unresolved = true;
   }
@@ -281,10 +287,6 @@ function stabilizeKnownOddDialogue(text = '') {
   out = out.replace(/(\bHe asked if you were involved in ‘political activity\.’ I said your politics were in your music\. Which was true\. It was also none of his business)\.”/g, '$1.');
   out = out.replace(/(\bHe said the sound wasn’t a sound\. It was the air turning inside out\. The light was like the sun falling into the bay\. Then the heat\. A wall of it\. It blew out the windows of the barracks, showered him with glass)\.”/g, '$1.');
 
-  // Known stage-direction orphan cluster.
-  out = out.replace(/Pauline said, “The prosecution’s final question\. The one,”\s+Cora asked\.\s+It’s still wrong\.“/g,
-    'Pauline said, “The prosecution’s final question. The one Clara asks. It’s still wrong.”');
-
   // Climax/open-dialogue survivors: close short, obviously spoken fragments.
   out = out.replace(/“And the others\?/g, '“And the others?”');
   out = out.replace(/“Your husband is with them\./g, '“Your husband is with them.”');
@@ -322,7 +324,7 @@ function postSmartCleanup(text = '') {
 
   // Preserve required spacing after closing quotes.
   out = out.replace(/([,]”)\s*(he|she)\b/g, '$1 $2')
-    .replace(/([.!?]”)\s*(He|She|Iris|Pauline|Langston|Cross|Clara|Duke|Sol)\b/g, '$1 $2');
+    .replace(/([.!?]”)\s*(He|She|[A-Z][a-z]+)\b/g, '$1 $2'); // DIALOGUEFIX-2: generalized
 
   // Tidy quote adjacency.
   out = out

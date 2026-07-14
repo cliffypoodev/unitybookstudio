@@ -189,5 +189,22 @@ const check = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) fail
   check('D7 distinct quotes untouched', dedupeRepeatedQuotes(ok) === ok);
 }
 
+/* -- DIALOGUEFIX-2: save-path quote integrity -- */
+{
+  const pd = fs.readFileSync(process.cwd() + '/src/lib/postDraftCleanup.js', 'utf8');
+  check('D8 copyedit validator rejects quote-structure damage', pd.includes('broke quote balance') && pd.includes('outImbalance > inImbalance + 1'));
+  const qf = fs.readFileSync(process.cwd() + '/src/lib/quoteFixPolish.js', 'utf8');
+  check('D9 book-specific name list purged from quote balancer', qf.includes('Never delete quotation marks') && qf.indexOf('Pauline') === -1 && qf.indexOf('Langston') === -1);
+  const { repairChapterQuotes } = await import(process.cwd() + '/src/lib/quoteFixPolish.js');
+  const orphanPara = 'We need oxygen."';
+  const r = repairChapterQuotes(orphanPara);
+  check('D10 orphan speech line is wrapped, not stripped', r.text.includes('\u201cWe need oxygen.\u201d') || r.text.includes('"We need oxygen."'));
+  const narr = 'The wind rose over the eastern face and did not stop for three days"';
+  const rn = repairChapterQuotes(narr);
+  check('D11 unresolvable line keeps its quote (no deletion)', rn.text.includes('"') || rn.text.includes('\u201d'));
+  const ps = fs.readFileSync(process.cwd() + '/src/pages/ProjectStudio.jsx', 'utf8');
+  check('D12 true-last dialogue heal at BOTH save sites', (ps.match(/stage: 'pre-save'/g) || []).length === 2);
+}
+
 console.log(failures === 0 ? 'BATTERY: ALL PASS' : 'BATTERY: ' + failures + ' FAILURE(S)');
 process.exit(failures === 0 ? 0 : 1);
