@@ -1585,6 +1585,7 @@ export default function ProjectStudio() {
   const [undoSnapshot, setUndoSnapshot] = React.useState(null);
   const [draftIntegrityReport, setDraftIntegrityReport] = React.useState(null);
   const [researchIntegrityError, setResearchIntegrityError] = React.useState(null);
+  const [researchCoverageVerdict, setResearchCoverageVerdict] = React.useState(null);
 
   const captureSnapshot = (label) => {
     const snap = {
@@ -1778,6 +1779,40 @@ export default function ProjectStudio() {
       setSelectedChapterId(chapters[0].id);
     }
   }, [chapters, selectedChapterId]);
+
+  React.useEffect(() => {
+    if (!project || !chapters || chapters.length === 0) {
+      setResearchCoverageVerdict(null);
+      return;
+    }
+    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    if (!isNonfictionMode) {
+      setResearchCoverageVerdict(null);
+      return;
+    }
+
+    const missingTopics = new Set();
+    let chaptersWithGapsCount = 0;
+
+    for (const ch of chapters) {
+      if (!isBodyChapter(ch)) continue;
+      const cov = researchCoverageCheck(ch, project);
+      if (cov && cov.missingCount > 0) {
+        chaptersWithGapsCount++;
+        for (const m of cov.missing) missingTopics.add(m);
+      }
+    }
+
+    if (missingTopics.size > 0) {
+      setResearchCoverageVerdict({
+        missingCount: missingTopics.size,
+        chaptersCount: chaptersWithGapsCount,
+        missing: Array.from(missingTopics)
+      });
+    } else {
+      setResearchCoverageVerdict(null);
+    }
+  }, [project, chapters]);
 
   // Load chapter content when the selected chapter changes or its data updates
   const selectedChapterUpdatedAt = selectedChapter?.updated_date;
@@ -5596,6 +5631,30 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                       >
                         Dismiss
                       </button>
+                    </div>
+                  )}
+                  {researchCoverageVerdict && !researchIntegrityError && (
+                    <div className="rounded-2xl border border-red-200/70 bg-red-50/70 p-3 text-xs leading-5 text-red-950">
+                      <div className="font-semibold text-red-700">Incomplete Research Coverage</div>
+                      <p className="mt-1 text-red-900/80">
+                        <strong>Drafting is blocked.</strong> The outline introduces {researchCoverageVerdict.missingCount} topics across {researchCoverageVerdict.chaptersCount} chapters that are missing from your research data.
+                      </p>
+                      <ul className="mt-2 list-disc pl-4 text-[11px] text-red-800 space-y-0.5">
+                        {researchCoverageVerdict.missing.slice(0, 5).map((topic, i) => (
+                          <li key={i}>{topic}</li>
+                        ))}
+                        {researchCoverageVerdict.missingCount > 5 && (
+                          <li>...and {researchCoverageVerdict.missingCount - 5} more</li>
+                        )}
+                      </ul>
+                      <div className="mt-3 flex gap-2">
+                        <button 
+                          onClick={handleOutlineResearch} 
+                          className="px-2.5 py-1 rounded-md bg-red-600 text-white text-[10px] font-medium hover:bg-red-700"
+                        >
+                          Auto-Research Gaps
+                        </button>
+                      </div>
                     </div>
                   )}
                   <div className="min-h-0 flex-1">
