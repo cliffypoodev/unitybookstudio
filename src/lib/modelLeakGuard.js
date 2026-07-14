@@ -100,4 +100,26 @@ function collapse(t) {
     .trim();
 }
 
+/**
+ * LEAKFIX-2: scrub outline chapters (titles + beat summaries). A drift run in
+ * a short title usually guts it ("The<CJK>" becomes "The" or ""), so chapters
+ * whose title or summary no longer carries content are reported as gutted -
+ * the outline repair loop replaces them with fresh material.
+ */
+export function scrubOutlineChapters(chapters = []) {
+  const out = [];
+  const gutted = [];
+  let changed = false;
+  for (const ch of (chapters || [])) {
+    const n = Number(ch?.chapter_number) || out.length + 1;
+    const title = scrubModelLeaks(String(ch?.title || ''), 'outline-title Ch.' + n).text.trim();
+    const summary = scrubModelLeaks(String(ch?.beat_summary || ch?.summary || ''), 'outline-summary Ch.' + n).text.trim();
+    if (title !== String(ch?.title || '').trim() || summary !== String(ch?.beat_summary || ch?.summary || '').trim()) changed = true;
+    if (title.replace(/[^A-Za-z0-9]/g, '').length < 3 || summary.length < 30) gutted.push(n);
+    out.push({ ...ch, chapter_number: n, title, beat_summary: summary });
+  }
+  if (gutted.length) console.warn('[LEAK-GUARD] outline chapters gutted by leak scrub (will be replaced): ' + gutted.join(', '));
+  return { chapters: out, gutted, changed };
+}
+
 console.log('[LEAK-GUARD] LEAKFIX-1 loaded: control-token + non-Latin drift scrubber');

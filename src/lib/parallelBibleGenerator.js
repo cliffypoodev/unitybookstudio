@@ -14,7 +14,8 @@ import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
-import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, findOutlineOffenders, buildOutlineChapterRepairPrompt, spliceOutlineChapters, rebuildOutlineMd } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-2
+import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, findOutlineOffenders, buildOutlineChapterRepairPrompt, spliceOutlineChapters, rebuildOutlineMd } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-2/3
+import { scrubModelLeaks, scrubOutlineChapters } from '@/lib/modelLeakGuard'; // LEAKFIX-2
 import { unwrapIntegrationResult } from '@/lib/autonovel';
 import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from '@/lib/nameHygieneRules';
 
@@ -758,6 +759,18 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
     outlineMd = stripUnverifiedQuotes(outlineMd);
     chapters = chapters.map((ch) => ({ ...ch, title: stripUnverifiedQuotes(ch.title), beat_summary: stripUnverifiedQuotes(ch.beat_summary) }));
   }
+
+  // LEAKFIX-2: scrub model leaks (control tokens, non-Latin drift) from every
+  // bible field. The prose pipeline is already guarded; the bible was not -
+  // a Chinese chapter title shipped in a story bible report.
+  const scrubField = (txt, label) => scrubModelLeaks(txt, 'bible-' + label).text;
+  worldMd = scrubField(worldMd, 'world');
+  charactersMd = scrubField(charactersMd, 'characters');
+  voiceMd = scrubField(voiceMd, 'voice');
+  canonMd = scrubField(canonMd, 'canon');
+  mysteryMd = scrubField(mysteryMd, 'mystery');
+  outlineMd = scrubField(outlineMd, 'outline');
+  twistsMd = scrubField(twistsMd, 'twists');
 
   const totalTime = Math.round((Date.now() - t1) / 1000);
   console.log('[BIBLE-PARALLEL] Total bible generation:', totalTime, 's');
