@@ -1,6 +1,7 @@
 import { runManuscriptPolishPipeline } from '../src/lib/manuscriptPolishRunner.js';
 import { runAntiDetectionPolish } from '../src/lib/antiDetectionPolish.js';
 import { verifySaveParagraphMatch, countRangeRemovals, sumQuarantineRemovals } from '../src/lib/structureUtils.js';
+import { detectModelControlTokens } from '../src/lib/modelLeakGuard.js';
 
 let failures = 0;
 function check(name, condition) {
@@ -137,6 +138,26 @@ And another paragraph. That is fine.`;
   const verifyCalls = (psContent.match(/verifySaveParagraphMatch\(f\.content,\s*verifyContent\)/g) || []).length;
   check('verifySaveParagraphMatch is called in both fiction and nonfiction save paths', verifyCalls >= 2);
   check('Nonfiction mismatch records expected and actual counts in saveFailures', psContent.includes('reason: \'paragraph count mismatch\'') && psContent.includes('expectedLen: matchResult.expected, actualLen: matchResult.actual'));
+
+  console.log('--- Testing LEAKFIX-2B Pipeline Scrubbing ---');
+  const leakChapterOriginal = 'Legitimate paragraph 1.\n\n/nothink /nothink\n\nLegitimate paragraph 2 has /nothink inline.\n\nLegitimate paragraph 3.';
+  let loadedLeakPipeline = [
+    { chapter: { chapter_number: 1, id: 'leak1' }, original: leakChapterOriginal, content: leakChapterOriginal }
+  ];
+
+  let resultLeak = await runManuscriptPolishPipeline({
+    loaded: loadedLeakPipeline,
+    project: { genre: 'Fiction' },
+    allowLLM: false
+  });
+
+  const finalContent = loadedLeakPipeline[0].content;
+  const leaksLeft = detectModelControlTokens(finalContent);
+
+  check('Every recognized token is removed', !finalContent.includes('/nothink') && leaksLeft.length === 0);
+  check('Legitimate prose remains', finalContent.includes('Legitimate paragraph 1') && finalContent.includes('Legitimate paragraph 2 has') && finalContent.includes('inline.') && finalContent.includes('Legitimate paragraph 3'));
+  check('Exactly one token-only paragraph removal is explicitly accepted', resultLeak.structureViolations.some(v => v.stage === 'Initial Model Leaks Scrub' && v.action === 'ACCEPTED' && v.allowedRemovals === 1));
+  check('Stats report the correct token count and paragraph-removal count', resultLeak.changes.some(c => c.includes('removed 3 model control token(s); removed 1 token-only paragraph(s)')));
 
   if (failures > 0) {
     console.error(`\nFAILED ${failures} tests.`);

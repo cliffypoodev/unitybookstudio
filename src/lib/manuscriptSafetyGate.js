@@ -1,5 +1,6 @@
 // =============================================================
 // manuscriptSafetyGate.js — Unified manuscript safety gate v1
+import { detectModelControlTokens } from './modelLeakGuard.js';
 //
 // Shared safety module for the three active UI paths:
 //   1. Draft/Rewrite → draftChapter() save path
@@ -185,6 +186,18 @@ export function detectProcessLeaks(text, options = {}) {
         searchFrom = idx + phraseLower.length;
       }
     }
+  }
+
+  // Detect raw model control tokens (LEAKFIX-2B)
+  const controlTokens = detectModelControlTokens(text);
+  for (const ct of controlTokens) {
+    matches.push({
+      phrase: ct.token,
+      index: ct.index,
+      snippet: ct.snippet,
+      severity: 'critical',
+      type: 'model-control-token'
+    });
   }
 
   return {

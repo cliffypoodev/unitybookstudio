@@ -284,6 +284,30 @@ Action Plan:
   assert(result.matches.some(m => m.phrase === 'Action Plan:'), 'Matches Action Plan:');
 }
 
+// ── TEST 13: Raw model control tokens (LEAKFIX-2B) ───────────────
+
+console.log('\n── TEST 13: Raw model control tokens (LEAKFIX-2B) ──');
+{
+  const tokens = ['/nothink', '/no_think', '<think>reasoning</think>', '<|im_end|>'];
+  for (const token of tokens) {
+    const text = `The wind howled through the canyon.\n\n${token}\n\nThey pushed forward.`;
+    const result = detectProcessLeaks(text);
+    assert(result.hasLeak === true, `Detects raw token: ${token}`);
+    assert(result.matches.some(m => m.type === 'model-control-token'), `Token ${token} classified as model-control-token`);
+    assert(result.matches.some(m => m.severity === 'critical'), `Token ${token} is critical`);
+
+    const gate = runManuscriptSafetyGate(text, { stage: 'pre-polish' });
+    assert(gate.ok === false, `Gate rejects token: ${token}`);
+    assert(gate.recommendedAction === 'REJECT_REGENERATE', `Gate recommends REJECT_REGENERATE for token: ${token}`);
+  }
+
+  const normalText = 'I think we should leave. She was thinking about the implications.';
+  const normalResult = detectProcessLeaks(normalText);
+  assert(normalResult.hasLeak === false, 'Ordinary prose "think" is not flagged');
+  const normalGate = runManuscriptSafetyGate(normalText, { stage: 'pre-polish' });
+  assert(normalGate.ok === true, 'Gate passes ordinary prose "think"');
+}
+
 // ── SUMMARY ──────────────────────────────────────────────────────
 
 console.log(`\n${'='.repeat(50)}`);

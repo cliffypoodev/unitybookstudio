@@ -208,6 +208,25 @@ console.log('\n── REGRESSION 7: False North excerpt does not block export �
   assert(report.hardFailures.length === 0, 'No hard failures for False North excerpt');
 }
 
+// ── REGRESSION 8: Live export blocks raw model control tokens ──
+
+console.log('\n── REGRESSION 8: Live export blocks raw model control tokens ──');
+{
+  const text = `${CLEAN_CHAPTER_1}\n\n/nothink\n\n${CLEAN_CHAPTER_3}`;
+
+  const resolvedChapters = [
+    { chapter_number: 1, title: 'Contaminated', content_md: text, __exportResolved: true },
+  ];
+
+  const report = await runPreExportSafetyGate(resolvedChapters, {
+    project: { project_type: 'anthology', genre: 'literary fiction' },
+  });
+
+  assert(report.blocked === true, 'Export BLOCKED by raw model control token');
+  assert(report.hardFailures.length === 1, 'Exactly 1 hard failure');
+  assert(report.hardFailures[0]?.processLeakCount > 0, `processLeakCount > 0 (got: ${report.hardFailures[0]?.processLeakCount})`);
+}
+
 // ── SUMMARY ──
 
 console.log(`\n${'='.repeat(60)}`);
