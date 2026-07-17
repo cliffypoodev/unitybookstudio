@@ -741,7 +741,7 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
         end: duplicate.end,
         words: duplicate.words,
         score,
-        reason: `near-exact alternate draft duplicate of paragraphs ${primary.start + 1}-${primary.end} (score ${score.toFixed(2)}); signals tags=${sharedTags.join('|') || 'none'}, names=${nameSignal.toFixed(2)}, anchor=${anchorSignal.toFixed(2)}, marker=${markerSignal.toFixed(2)}`, 
+        reason: `near-exact alternate draft duplicate of paragraphs ${primary.start + 1}-${primary.end} (score ${score.toFixed(2)}); signals tags=${sharedTags.join('|') || 'none'}, names=${nameSignal.toFixed(2)}, anchor=${anchorSignal.toFixed(2)}, marker=${markerSignal.toFixed(2)}`,
         sharedTags,
         preview: blockPreview(duplicate),
       });
@@ -986,6 +986,9 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
   const items = normalizeLoadedArray(loaded);
   const report = makeEmptyReport(options);
   report.scannedChapters = items.length;
+  report.allowedRemovals = {};
+
+  const countParagraphs = (text) => String(text || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
 
   if (typeof onProgress === 'function') {
     onProgress('Scene Duplicate Sweep: scanning chapters for alternate-draft blocks...');
@@ -993,10 +996,15 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
 
   items.forEach((item, index) => {
     const chapterNo = chapterNumber(item, index);
+    const chapterId = item.chapter?.id || index;
 
     const quarantine = applyStrandedAlternateDraftQuarantine(item.content || '');
     let preSweepQuarantineWords = 0;
     if (quarantine.text !== String(item.content || '')) {
+      const pReduction = countParagraphs(item.content) - countParagraphs(quarantine.text);
+      if (pReduction > 0) {
+        report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + pReduction;
+      }
       preSweepQuarantineWords = countWords(item.content || '') - countWords(quarantine.text);
       item.content = quarantine.text;
       report.changedChapters.add(chapterNo);
@@ -1061,6 +1069,10 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
 
       if (cleaned && newWordCount >= originalWordCount * (1 - options.maxRemovalRatioPerChapter)) {
         item.content = cleaned;
+        const pReduction = countParagraphs(originalText) - countParagraphs(cleaned);
+        if (pReduction > 0) {
+          report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + pReduction;
+        }
         row.blocksRemoved = removals.length;
         row.wordsRemoved = wordsRemoved;
         row.removals = removals;
@@ -1753,7 +1765,7 @@ export default function ProjectStudio() {
     resolveAllFoundationFields(project).then((resolved) => {
       setDocDrafts((prev) => { const next = { ...prev }; for (const [k, v] of Object.entries(resolved)) { if (v && v.length > (prev[k] || '').length) next[k] = v; } return next; });
     }).catch(() => {});
-    
+
     if (project.research_md_url || project.research_md) {
       checkResearchIntegrity(project).then(({ isTruncated, reason }) => {
         if (isTruncated) {
@@ -2534,7 +2546,7 @@ export default function ProjectStudio() {
         competing_narratives: [],
         key_documents: [],
       };
-      
+
       let existingObj = null;
       if (appendToExisting) {
         try {
@@ -2696,7 +2708,7 @@ Return structured JSON:
         research_data: JSON.stringify(data),
         ...researchFields,
       }));
-      
+
       // EXTRACTION INTEGRITY: a verbatim quote belongs to exactly one narrator. If the
       // extractor assigned the same quote to multiple people, only the first keeps it —
       // a misattributed witness quote in nonfiction is as bad as a fabricated one.
@@ -2834,7 +2846,7 @@ Return structured JSON:
 
   const handleOutlineResearch = async () => {
     if (!project) return;
-    
+
     const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
     if (!topic.trim()) {
       toast.error('Add a seed concept/topic before running outline research.');
@@ -2860,12 +2872,12 @@ Return structured JSON:
         for (const m of cov.missing) missingTopics.add(m);
       }
     }
-    
+
     if (missingTopics.size === 0) {
       toast.success('Outline is already fully covered by existing research data.');
       return;
     }
-    
+
     const queries = [];
     for (const m of missingTopics) {
       queries.push(`${subject} ${m}`);
@@ -4628,6 +4640,16 @@ Return structured JSON:
 
       const changes = [...pipelineResult.changes];
       const ps = pipelineResult.stats || {};
+      const structViolations = pipelineResult.structureViolations || [];
+      window.__UBS_LAST_STRUCTURE_VIOLATIONS = structViolations;
+
+      for (const v of structViolations) {
+        if (v.action === 'REVERTED') {
+          changes.push(`🚫 Ch.${v.chapter}: ${v.stage} reverted for unauthorized structure reduction (${v.before} -> ${v.attemptedAfter} paragraphs).`);
+        } else if (v.action === 'ACCEPTED') {
+          changes.push(`✓ Ch.${v.chapter}: ${v.stage} explicitly authorized paragraph reduction (${v.before} -> ${v.attemptedAfter} paragraphs).`);
+        }
+      }
 
       // ── SAVE LOOP (same architecture as fiction handler) ──
       let savedCount = 0;
@@ -4670,7 +4692,7 @@ Return structured JSON:
       }
 
       const afterStats = calculateManuscriptStatsNonfiction(loaded.map(f => f.content).join('\n\n'));
-      setPolishResults({ before: beforeStats, after: afterStats, changes, timestamp: new Date().toISOString() });
+      setPolishResults({ before: beforeStats, after: afterStats, changes, structureViolations: structViolations, timestamp: new Date().toISOString() });
 
       // ── REFERENCE INTEGRITY GATE (post-NF-polish) ──
       setBusyLabel('Polish (NF): Running reference integrity check…');
@@ -4838,6 +4860,17 @@ Return structured JSON:
 
     // Merge pipeline results into local scope variables used by the save/toast logic
     changes.push(...pipelineResult.changes);
+    const structViolations = pipelineResult.structureViolations || [];
+    window.__UBS_LAST_STRUCTURE_VIOLATIONS = structViolations;
+
+    for (const v of structViolations) {
+      if (v.action === 'REVERTED') {
+        changes.push(`🚫 Ch.${v.chapter}: ${v.stage} reverted for unauthorized structure reduction (${v.before} -> ${v.attemptedAfter} paragraphs).`);
+      } else if (v.action === 'ACCEPTED') {
+        changes.push(`✓ Ch.${v.chapter}: ${v.stage} explicitly authorized paragraph reduction (${v.before} -> ${v.attemptedAfter} paragraphs).`);
+      }
+    }
+
     const anthologyStats = pipelineResult.anthologyStats || { bodyLangFixed: 0, anthVocabFixed: 0, contaminationFixed: 0, genreVocabFixed: 0 };
     const ps = pipelineResult.stats || {};
     const missingNounWarnings = []; // Now handled inside pipeline; no inline capHygiene warnings
@@ -4952,7 +4985,13 @@ Return structured JSON:
             const verifyStructure = runSceneDuplicateSweep.applyStrandedAlternateDraftQuarantine(String(verifyContent || ''));
             const verifyStillDirty = verifyStructure.text !== String(verifyContent || '');
 
-            if (diffPct > 0.05) {
+            const expectedPCount = String(f.content || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
+            const verifyPCount = String(verifyContent || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
+
+            if (expectedPCount !== verifyPCount) {
+               console.warn(`[POLISH-VERIFY] Ch.${chNum} PARAGRAPH COUNT MISMATCH: expected ${expectedPCount}, got ${verifyPCount}`);
+               saveFailures.push({ chNum, expectedLen: expectedPCount, actualLen: verifyPCount, reason: 'paragraph count mismatch' });
+            } else if (diffPct > 0.05) {
               console.warn('[POLISH-VERIFY] Ch.' + chNum + ' SAVE MISMATCH: expected ' + expectedLen + ' chars, got ' + verifyLen + ' (' + Math.round(diffPct * 100) + '% off).');
               saveFailures.push({ chNum, expectedLen, actualLen: verifyLen, reason: 'length mismatch' });
             } else if (punctDrift > 3) {
@@ -5556,8 +5595,8 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                       <p className="mt-1 text-red-900/80">
                         {researchIntegrityError} Nonfiction chapters will draft with fact-free filler until you go to <strong>Setup &gt; Research</strong> and generate or upload your research again.
                       </p>
-                      <button 
-                        onClick={() => setResearchIntegrityError(null)} 
+                      <button
+                        onClick={() => setResearchIntegrityError(null)}
                         className="mt-2 text-[10px] font-medium text-red-700 hover:text-red-900 underline"
                       >
                         Dismiss
@@ -5579,8 +5618,8 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                         )}
                       </ul>
                       <div className="mt-3 flex gap-2">
-                        <button 
-                          onClick={handleOutlineResearch} 
+                        <button
+                          onClick={handleOutlineResearch}
                           className="px-2.5 py-1 rounded-md bg-red-600 text-white text-[10px] font-medium hover:bg-red-700"
                         >
                           Auto-Research Gaps

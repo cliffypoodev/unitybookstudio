@@ -124,32 +124,47 @@ export async function runManuscriptPolishPipeline({
     return String(text || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
   }
   const __snapshots = new Map();
+  function getChapterKey(f, index) {
+    return (f.chapter && f.chapter.id) ? f.chapter.id : index;
+  }
   function checkpoint() {
-    for (const f of loaded) {
+    for (let i = 0; i < loaded.length; i++) {
+      const f = loaded[i];
+      const key = getChapterKey(f, i);
       const chNum = f.chapter?.chapter_number || '?';
-      __snapshots.set(chNum, { text: f.content, pCount: countParagraphs(f.content) });
+      __snapshots.set(key, { text: f.content, pCount: countParagraphs(f.content), chNum });
     }
   }
   function verifyInvariant(stageName, allowedRemovals = {}) {
-    for (const f of loaded) {
-      const chNum = f.chapter?.chapter_number || '?';
-      const snap = __snapshots.get(chNum);
+    for (let i = 0; i < loaded.length; i++) {
+      const f = loaded[i];
+      const key = getChapterKey(f, i);
+      const snap = __snapshots.get(key);
       if (!snap) continue;
       const afterCount = countParagraphs(f.content);
       const reduction = snap.pCount - afterCount;
       if (reduction > 0) {
-        const expected = allowedRemovals[chNum] || 0;
+        const expected = allowedRemovals[key] || 0;
         if (reduction !== expected) {
-          console.warn(`[STRUCTURE-GUARD] ${stageName} Ch.${chNum}: count reduced ${snap.pCount} -> ${afterCount} (allowed: ${expected}). REVERTED.`);
+          console.warn(`[STRUCTURE-GUARD] ${stageName} Ch.${snap.chNum}: count reduced ${snap.pCount} -> ${afterCount} (allowed: ${expected}). REVERTED.`);
           structureViolations.push({
             stage: stageName,
-            chapter: chNum,
+            chapter: snap.chNum,
             before: snap.pCount,
             attemptedAfter: afterCount,
             allowedRemovals: expected,
             action: 'REVERTED'
           });
           f.content = snap.text;
+        } else {
+          structureViolations.push({
+            stage: stageName,
+            chapter: snap.chNum,
+            before: snap.pCount,
+            attemptedAfter: afterCount,
+            allowedRemovals: expected,
+            action: 'ACCEPTED'
+          });
         }
       }
     }
@@ -783,8 +798,11 @@ export async function runManuscriptPolishPipeline({
   onProgress('Polish: Running post-polish quality gate…');
   const gateFailures = [];
   const improvementReports = [];
+  const qualityGateAllowances = {};
 
-  for (const f of loaded) {
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const key = getChapterKey(f, i);
     const chNum = f.chapter?.chapter_number || '?';
 
     // Improvement scoring
@@ -821,12 +839,19 @@ export async function runManuscriptPolishPipeline({
           changes.push(`⚠️ Ch.${chNum}: saved with partial repairs. Manual review needed.`);
         } else {
           // No improvement or slop regression — revert
-          f.content = f.original;
+          const beforeWc = countParagraphs(f.content);
+          f.content = f.original || f.content;
+          const afterWc = countParagraphs(f.original || f.content);
+          if (beforeWc > afterWc) {
+            qualityGateAllowances[key] = beforeWc - afterWc;
+          }
           changes.push(`🚫 Ch.${chNum}: polish BLOCKED — reverting to original.`);
         }
       }
     }
   }
+
+  verifyInvariant('Quality Gate Revert', qualityGateAllowances);
 
   if (gateFailures.length === 0) {
     changes.push('Post-polish gate: all chapters PASS.');
@@ -857,7 +882,10 @@ export async function runManuscriptPolishPipeline({
   // PHASE F: Global per-chapter content loss guard (backstop)
   // ══════════════════════════════════════════════════════════════════════════
   let contentLossReverts = 0;
-  for (const f of loaded) {
+  const contentLossAllowances = {};
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const key = getChapterKey(f, i);
     const chNum = f.chapter?.chapter_number || '?';
     const originalWc = originalWordCounts.get(chNum) || 0;
     if (originalWc < 50) continue; // skip trivially short chapters
@@ -866,11 +894,18 @@ export async function runManuscriptPolishPipeline({
     if (retainedRatio < 0.85) {
       const lossPct = Math.round((1 - retainedRatio) * 100);
       console.warn(`[POLISH-RUNNER] Ch.${chNum}: GLOBAL LOSS GUARD — final ${finalWc} words is ${lossPct}% below original ${originalWc} words. REVERTING.`);
+      const beforeWc = countParagraphs(f.content);
       f.content = f.original || f.content;
+      const afterWc = countParagraphs(f.original || f.content);
+      if (beforeWc > afterWc) {
+        contentLossAllowances[key] = beforeWc - afterWc;
+      }
       contentLossReverts++;
       changes.push(`Ch.${chNum} REVERTED — total content loss ${lossPct}% exceeded safety limit; flagged for manual review`);
     }
   }
+  verifyInvariant('Global Content Loss Guard', contentLossAllowances);
+
   if (contentLossReverts > 0) {
     changes.push(`Content loss guard: ${contentLossReverts} chapter(s) reverted to pre-pipeline content.`);
     // FICTIONFIX-2: reverted chapters carry PRE-pipeline text, including any
@@ -879,8 +914,11 @@ export async function runManuscriptPolishPipeline({
     // idempotent and deterministic.
     const revertCaseRepair = runSentenceCaseRepair(loaded, onProgress);
     changes.push(...revertCaseRepair.changes);
+    verifyInvariant('Post-Restore Sentence Case Repair');
+
     const revertWoundRepair = healProseWounds(loaded, onProgress);
     changes.push(...revertWoundRepair.changes);
+    verifyInvariant('Post-Restore Wound Repair');
   }
 
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
