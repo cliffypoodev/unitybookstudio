@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { countParagraphs, verifySaveParagraphMatch, countRangeRemovals, sumQuarantineRemovals } from '../lib/structureUtils.js';
 import { base44 } from '@/api/base44Client';
 import ChapterQueue from '@/components/novel/ChapterQueue';
 import DraftIntegrityBanner from '@/components/novel/DraftIntegrityBanner';
@@ -783,7 +784,7 @@ function removeRangeByRegex(source, startRe, endRe, reason, changes, options = {
   const maxRatio = options.maxRatio || 0.45;
   if (removedWords > beforeWords * maxRatio) return text;
 
-  changes.push({ reason, words: removedWords, preview: removed.replace(/\s+/g, ' ').trim().slice(0, 180) });
+  changes.push({ reason, words: removedWords, preview: removed.replace(/\s+/g, ' ').trim().slice(0, 180), paragraphsRemoved: countParagraphs(removed) });
   return `${text.slice(0, start).trim()}\n\n${text.slice(end).trim()}`.replace(/\n{4,}/g, '\n\n\n').trim();
 }
 
@@ -999,7 +1000,7 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
     const quarantine = applyStrandedAlternateDraftQuarantine(item.content || '');
     let preSweepQuarantineWords = 0;
     if (quarantine.text !== String(item.content || '')) {
-      const paragraphsRemoved = quarantine.changes.reduce((sum, ch) => sum + countParagraphs(ch.removedText || ch.text || ''), 0);
+      const paragraphsRemoved = sumQuarantineRemovals(quarantine.changes);
       if (paragraphsRemoved > 0) {
         report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + paragraphsRemoved;
       }
@@ -1068,10 +1069,7 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
       if (cleaned && newWordCount >= originalWordCount * (1 - options.maxRemovalRatioPerChapter)) {
         item.content = cleaned;
         // Calculate explicitly removed paragraphs by summing the range sizes
-        const paragraphsRemoved = removals.reduce((sum, r) => {
-          if (Array.isArray(r)) return sum + (r[1] - r[0] + 1);
-          return sum + 1;
-        }, 0);
+        const paragraphsRemoved = countRangeRemovals(removals);
         if (paragraphsRemoved > 0) {
           report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + paragraphsRemoved;
         }
@@ -4687,6 +4685,21 @@ Return structured JSON:
           await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, savePayload));
           f.chapter = { ...f.chapter, ...savePayload };
           savedCount++;
+
+          try {
+            const verifyRecord = (await base44.entities.Chapter.filter({ id: f.chapter.id }))?.[0];
+            if (!verifyRecord) {
+              saveFailures.push({ chNum, expectedLen: 0, actualLen: 0, reason: 'paragraph count mismatch (missing read-back)' });
+            } else {
+              const verifyContent = await resolveChapterContent(verifyRecord);
+              const matchResult = verifySaveParagraphMatch(f.content, verifyContent);
+              if (!matchResult.ok) {
+                saveFailures.push({ chNum, expectedLen: matchResult.expected, actualLen: matchResult.actual, reason: 'paragraph count mismatch' });
+              }
+            }
+          } catch (readErr) {
+            saveFailures.push({ chNum, expectedLen: 0, actualLen: 0, reason: 'paragraph count mismatch (read-back exception)' });
+          }
         } catch (saveErr) {
           console.error('[POLISH-NF] Ch.' + chNum + ' SAVE THREW:', saveErr.message);
           saveFailures.push({ chNum, error: saveErr.message });
@@ -4715,7 +4728,7 @@ Return structured JSON:
 
       const nfCoreStats = ps.nfCore || {};
       const report = `NF Polish v2: ${savedCount} saved, ${unchangedCount} unchanged | Banned: -${ps.bannedRecastCount || 0} | Cap: ${ps.capFixed || 0} | Voice: ${ps.voiceFixed || 0} | Reps: ${nfCoreStats.repFixed || 0} | Scaffolds: ${nfCoreStats.scaffoldsRemoved || 0} | Disclaimers: ${nfCoreStats.disclaimersRemoved || 0} | Grammar(NF): ${nfCoreStats.grammarFixed || 0} | Spelling: ${nfCoreStats.spellingFixed || 0} | Vocab: ${ps.vocabCapped || 0} | Quotes: ${ps.quotesFixed || 0} | ExtAI: ${ps.externalPatternsFixed || 0}
-` + changes.join('\n') + (saveFailures.length > 0 ? '\n\n\ud83d\udea8 SAVE FAILED for ' + saveFailures.length + ' chapter(s).' : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n\u2705 Re-export to get the updated manuscript.' : '');
+` + changes.join('\n') + (saveFailures.length > 0 ? '\n\n\ud83d\udea8 SAVE FAILED for ' + saveFailures.length + ' chapter(s): ' + saveFailures.map(sf => sf.reason?.includes('paragraph count mismatch') ? `Ch.${sf.chNum} (${sf.reason}: expected ${sf.expectedLen}, got ${sf.actualLen})` : `Ch.${sf.chNum} (${sf.reason})`).join(', ') : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n\u2705 Re-export to get the updated manuscript.' : '');
       toast.info(report, { duration: 30000 });
     } catch (err) {
       console.error('[POLISH-NF] FATAL:', err);
@@ -4987,12 +5000,11 @@ Return structured JSON:
             const verifyStructure = runSceneDuplicateSweep.applyStrandedAlternateDraftQuarantine(String(verifyContent || ''));
             const verifyStillDirty = verifyStructure.text !== String(verifyContent || '');
 
-            const expectedPCount = String(f.content || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
-            const verifyPCount = String(verifyContent || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
+            const matchResult = verifySaveParagraphMatch(f.content, verifyContent);
 
-            if (expectedPCount !== verifyPCount) {
-               console.warn(`[POLISH-VERIFY] Ch.${chNum} PARAGRAPH COUNT MISMATCH: expected ${expectedPCount}, got ${verifyPCount}`);
-               saveFailures.push({ chNum, expectedLen: expectedPCount, actualLen: verifyPCount, reason: 'paragraph count mismatch' });
+            if (!matchResult.ok) {
+               console.warn(`[POLISH-VERIFY] Ch.${chNum} PARAGRAPH COUNT MISMATCH: expected ${matchResult.expected}, got ${matchResult.actual}`);
+               saveFailures.push({ chNum, expectedLen: matchResult.expected, actualLen: matchResult.actual, reason: 'paragraph count mismatch' });
             } else if (diffPct > 0.05) {
               console.warn('[POLISH-VERIFY] Ch.' + chNum + ' SAVE MISMATCH: expected ' + expectedLen + ' chars, got ' + verifyLen + ' (' + Math.round(diffPct * 100) + '% off).');
               saveFailures.push({ chNum, expectedLen, actualLen: verifyLen, reason: 'length mismatch' });

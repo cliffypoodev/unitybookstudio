@@ -1,6 +1,6 @@
 import { runManuscriptPolishPipeline } from '../src/lib/manuscriptPolishRunner.js';
 import { runAntiDetectionPolish } from '../src/lib/antiDetectionPolish.js';
-import { verifySaveParagraphMatch } from '../src/lib/structureUtils.js';
+import { verifySaveParagraphMatch, countRangeRemovals, sumQuarantineRemovals } from '../src/lib/structureUtils.js';
 
 let failures = 0;
 function check(name, condition) {
@@ -13,6 +13,14 @@ function check(name, condition) {
 }
 
 async function runTests() {
+  console.log('--- Testing Production Helpers ---');
+
+  const testRanges = [{ start: 4, end: 9 }, { start: 10, end: 12 }];
+  check('{start: 4, end: 9} authorizes exactly 5 paragraphs', countRangeRemovals([{ start: 4, end: 9 }]) === 5);
+  check('Multiple non-overlapping merged ranges sum correctly', countRangeRemovals(testRanges) === 7);
+
+  const testQuarantine = [{ paragraphsRemoved: 2 }, { paragraphsRemoved: 0 }, { paragraphsRemoved: 3 }];
+  check('Quarantine change records authorize only their recorded paragraphsRemoved', sumQuarantineRemovals(testQuarantine) === 5);
   console.log('--- Testing Anti-Detection Polish Pattern 4 ---');
   const originalShape = `This is normal text in paragraph one. It has some length to it.
 
@@ -119,8 +127,16 @@ And another paragraph. That is fine.`;
     allowLLM: false,
     _testInjectHealer: destructiveHealer
   });
-  
+
   check('Injected destructive post-restore healer is rejected and output reverted', loadedDestructive[0].content.includes('\n\n') && resultDestruct.structureViolations.some(v => v.stage === 'Injected Test Healer' && v.action === 'REVERTED'));
+
+  // Test: Source wiring for verifySaveParagraphMatch
+  const fs = (await import('fs')).default;
+  const psContent = fs.readFileSync('./src/pages/ProjectStudio.jsx', 'utf8');
+  check('verifySaveParagraphMatch is imported in ProjectStudio.jsx', psContent.includes('import { countParagraphs, verifySaveParagraphMatch, countRangeRemovals, sumQuarantineRemovals } from \'../lib/structureUtils.js\''));
+  const verifyCalls = (psContent.match(/verifySaveParagraphMatch\(f\.content,\s*verifyContent\)/g) || []).length;
+  check('verifySaveParagraphMatch is called in both fiction and nonfiction save paths', verifyCalls >= 2);
+  check('Nonfiction mismatch records expected and actual counts in saveFailures', psContent.includes('reason: \'paragraph count mismatch\'') && psContent.includes('expectedLen: matchResult.expected, actualLen: matchResult.actual'));
 
   if (failures > 0) {
     console.error(`\nFAILED ${failures} tests.`);

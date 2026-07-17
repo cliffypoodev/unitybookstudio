@@ -16,3 +16,16 @@ export function verifySaveParagraphMatch(expectedContent, verifyContent) {
 
   return { ok: true, expected: expectedPCount, actual: verifyPCount };
 }
+
+export function countRangeRemovals(ranges) {
+  return (ranges || []).reduce((sum, r) => {
+    if (r && typeof r.start === 'number' && typeof r.end === 'number') {
+      return sum + Math.max(0, r.end - r.start);
+    }
+    return sum;
+  }, 0);
+}
+
+export function sumQuarantineRemovals(changes) {
+  return (changes || []).reduce((sum, ch) => sum + (ch.paragraphsRemoved || 0), 0);
+}
