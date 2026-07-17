@@ -119,6 +119,44 @@ export async function runManuscriptPolishPipeline({
     originalWordCounts.set(chNum, countWords(f.original || f.content || ''));
   }
 
+  const structureViolations = [];
+  function countParagraphs(text) {
+    return String(text || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
+  }
+  const __snapshots = new Map();
+  function checkpoint() {
+    for (const f of loaded) {
+      const chNum = f.chapter?.chapter_number || '?';
+      __snapshots.set(chNum, { text: f.content, pCount: countParagraphs(f.content) });
+    }
+  }
+  function verifyInvariant(stageName, allowedRemovals = {}) {
+    for (const f of loaded) {
+      const chNum = f.chapter?.chapter_number || '?';
+      const snap = __snapshots.get(chNum);
+      if (!snap) continue;
+      const afterCount = countParagraphs(f.content);
+      const reduction = snap.pCount - afterCount;
+      if (reduction > 0) {
+        const expected = allowedRemovals[chNum] || 0;
+        if (reduction !== expected) {
+          console.warn(`[STRUCTURE-GUARD] ${stageName} Ch.${chNum}: count reduced ${snap.pCount} -> ${afterCount} (allowed: ${expected}). REVERTED.`);
+          structureViolations.push({
+            stage: stageName,
+            chapter: chNum,
+            before: snap.pCount,
+            attemptedAfter: afterCount,
+            allowedRemovals: expected,
+            action: 'REVERTED'
+          });
+          f.content = snap.text;
+        }
+      }
+    }
+    checkpoint();
+  }
+  checkpoint();
+
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE A: Manuscript-level pre-pass (cross-chapter deterministic)
   // ══════════════════════════════════════════════════════════════════════════
@@ -134,6 +172,7 @@ export async function runManuscriptPolishPipeline({
       changes.push(`Ch.${f.chapter?.chapter_number || '?'}: ${leak.changes.join('; ')}`);
     }
   }
+  verifyInvariant('Model Leaks Scrub');
 
   // A0: Legacy artifact healing (baked-in corruption from pre-merge pipeline)
   onProgress('Polish: Healing legacy artifacts…');
@@ -149,6 +188,7 @@ export async function runManuscriptPolishPipeline({
   if (legacyRepairCount > 0) {
     changes.push(`Legacy artifact healing: ${legacyRepairCount} repair(s).`);
   }
+  verifyInvariant('Legacy Artifact Healing');
 
   // A1: Banned vocabulary RECAST (synonym substitution, never empty-string)
   onProgress('Polish: Recasting banned vocabulary…');
@@ -164,6 +204,7 @@ export async function runManuscriptPolishPipeline({
   if (bannedRecastCount > 0) {
     changes.push(`Banned vocabulary: recast ${bannedRecastCount} word(s) with synonyms (no deletions).`);
   }
+  verifyInvariant('Banned Vocabulary Recast');
 
   // A1.5: ARCH2-4b-a — witness-quote consolidation. A research quote may be
   // printed inside quotation marks in exactly ONE chapter (beat-derived home,
@@ -183,6 +224,7 @@ export async function runManuscriptPolishPipeline({
     }
     console.log('[QUOTE-CONSOLIDATION] removed=' + qc.removed + ' flagged=' + qc.flagged.length);
   } catch (qcErr) { console.warn('[QUOTE-CONSOLIDATION] skipped:', qcErr?.message); }
+  verifyInvariant('Witness Quote Consolidation');
 
   // A2: Anthology-specific checks (fiction-only)
   // FICTIONFIX-1: body-language dedupe was anthology-gated, so plain novels
@@ -202,6 +244,7 @@ export async function runManuscriptPolishPipeline({
     const contamResult = await runContaminationDetector(loaded, onProgress, project);
     changes.push(...contamResult.changes); anthologyStats.contaminationFixed = contamResult.contaminationFixed || 0;
   }
+  verifyInvariant('Anthology Specific Checks');
 
   // A3: Punctuation cleanup + spelling fixes
   onProgress('Polish: Punctuation + spelling…');
@@ -209,6 +252,7 @@ export async function runManuscriptPolishPipeline({
   changes.push(...punctResult.changes);
   const spellingResult = runSpellingFixes(loaded, onProgress);
   changes.push(...spellingResult.changes);
+  verifyInvariant('Punctuation & Spelling');
 
   // A4: Capitalization fixes
   onProgress('Polish: Fixing capitalization…');
@@ -221,6 +265,7 @@ export async function runManuscriptPolishPipeline({
       if (fixed > 0) { capFixed += fixed; changes.push(`Ch.${f.chapter?.chapter_number || '?'}: fixed ${fixed} cap errors`); }
     }
   }
+  verifyInvariant('Capitalization Fixes');
 
   // A5: Capitalization hygiene + transition word caps
   const capHygieneResult = runCapitalizationHygiene(loaded, onProgress);
@@ -229,6 +274,7 @@ export async function runManuscriptPolishPipeline({
   const transitionResult = runTransitionWordCaps(loaded, onProgress);
   changes.push(...transitionResult.changes);
   const transitionFixed = transitionResult.changes?.length || 0;
+  verifyInvariant('Capitalization Hygiene');
 
   // A6: Dialogue punctuation + filler
   let dialogPunctFixed = 0;
@@ -241,17 +287,20 @@ export async function runManuscriptPolishPipeline({
     changes.push(...dialogFillerResult.changes);
     dialogFillerFixed = dialogFillerResult.dialogFillerFixed || 0;
   }
+  verifyInvariant('Dialogue Punctuation & Filler');
 
   // A6.5: ARCH2-4b-c — antithesis ("not X but Y") density cap. Keeps the
   // first two per chapter, deterministically inverts later SAFE copula shapes
   // ("was not X but Y" → "was Y, not X"), leaves everything else untouched.
   const antithesisResult = runAntithesisCap(loaded, onProgress);
   changes.push(...antithesisResult.changes);
+  verifyInvariant('Antithesis Cap');
 
   // A7: Stacked clause variation
   const stackingResult = runStackedClauseVariation(loaded, onProgress);
   changes.push(...stackingResult.changes);
   const stackingFixed = stackingResult.stackingFixed || 0;
+  verifyInvariant('Stacked Clause Variation');
 
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE B: Per-chapter style/voice cleanup (manuscript-level dispatch)
@@ -265,6 +314,7 @@ export async function runManuscriptPolishPipeline({
     changes.push(...nfCore.changes);
     nfCoreStats = nfCore.stats || {};
   }
+  verifyInvariant('Nonfiction Core');
 
   // B1: Voice patterns
   onProgress('Polish: Fixing voice patterns…');
@@ -273,6 +323,7 @@ export async function runManuscriptPolishPipeline({
     : fixVoicePatterns(loaded, chapterCount);
   changes.push(...voiceResult.changes);
   const voiceFixed = voiceResult.voiceFixed || 0;
+  verifyInvariant('Voice Patterns');
 
   // B2: External AI pattern detection
   onProgress('Polish: Scanning for external AI patterns…');
@@ -281,6 +332,7 @@ export async function runManuscriptPolishPipeline({
     : runExternalAiPatternFix(loaded);
   changes.push(...extResult.changes);
   const externalPatternsFixed = extResult.fixed || 0;
+  verifyInvariant('External AI Patterns');
 
   // B3: Repetition caps (fiction-only — NF has its own rep targets in NF core)
   onProgress('Polish: Fixing repetition…');
@@ -291,6 +343,7 @@ export async function runManuscriptPolishPipeline({
   } else {
     repFixed = nfCoreStats.repFixed || 0;
   }
+  verifyInvariant('Repetition Caps');
 
   let repetitionRewritten = 0;
   if (mode === 'nonfiction' && allowLLM) {
@@ -325,6 +378,7 @@ export async function runManuscriptPolishPipeline({
       }
     }
   }
+  verifyInvariant('Repetition Rewrite');
 
   if (mode !== 'nonfiction' && allowLLM) {
     onProgress('Polish: Rewriting repeated openings/beats…');
@@ -350,6 +404,7 @@ export async function runManuscriptPolishPipeline({
       }
     }
   }
+  verifyInvariant('Repetition Rewrite');
 
   // B3.5: Banned AI-slop character-name auto-rename (FICTION ONLY — nonfiction names are real people)
   if (mode !== 'nonfiction') {
@@ -385,6 +440,7 @@ export async function runManuscriptPolishPipeline({
       }
     }
   }
+  verifyInvariant('Banned Name Auto-Rename');
 
   // B4: Dialogue tag caps + coping mechanism caps + broken sentence fixes (fiction-only)
   if (mode !== 'nonfiction') {
@@ -399,11 +455,13 @@ export async function runManuscriptPolishPipeline({
   }
   const brokenResult = runBrokenSentenceFixes(loaded, onProgress);
   changes.push(...brokenResult.changes);
+  verifyInvariant('Dialogue Tag & Coping Caps');
 
   // B5: Dynamic high-frequency phrase detection
   if (!isAnthology) {
     runHighFrequencyPhraseDetection(loaded, chapterCount, changes);
   }
+  verifyInvariant('High-Frequency Phrase Detection');
 
   // B6: Vocab caps + ChatGPT vocab caps
   const vocabResult = isAnthology
@@ -415,6 +473,7 @@ export async function runManuscriptPolishPipeline({
     ? runPerChapter(loaded, (l, prog) => runChatGPTVocabCaps(l, prog), [onProgress])
     : runChatGPTVocabCaps(loaded, onProgress);
   changes.push(...chatgptResult.changes);
+  verifyInvariant('Vocab & ChatGPT Caps');
 
   // B7: Anti-AI detection
   const antiDetect = isAnthology
@@ -433,6 +492,7 @@ export async function runManuscriptPolishPipeline({
   changes.push(...starterResult.changes);
   const aiResist = runAiDetectionResistance(loaded, onProgress);
   changes.push(...aiResist.changes);
+  verifyInvariant('Anti-Detection Polish');
 
   // B8: Scene duplicate sweep (fiction only)
   let sceneDuplicateStats = { blocksRemoved: 0, wordsRemoved: 0, reportedOnly: 0, chaptersChanged: 0, skippedUnsafe: 0 };
@@ -444,14 +504,14 @@ export async function runManuscriptPolishPipeline({
     });
     changes.push(sceneDupResult.summary);
     changes.push(...(sceneDupResult.changes || []));
-    sceneDuplicateStats = {
+    anthologyStats.sceneDupes = {
       blocksRemoved: sceneDupResult.blocksRemoved || 0,
       wordsRemoved: sceneDupResult.wordsRemoved || 0,
-      reportedOnly: sceneDupResult.reportedOnly || 0,
-      flaggedForReview: sceneDupResult.flaggedForReview || 0,
-      chaptersChanged: sceneDupResult.changedChapters?.size || sceneDupResult.changedChapters?.length || 0,
       skippedUnsafe: sceneDupResult.skippedUnsafe || 0,
     };
+    verifyInvariant('Scene Duplicate Sweep', sceneDupResult.allowedRemovals || {});
+  } else {
+    verifyInvariant('Scene Duplicate Sweep');
   }
 
   // B9: Style tic sweep
@@ -459,6 +519,7 @@ export async function runManuscriptPolishPipeline({
   const styleTicResult = runStyleTicSweep(loaded, onProgress, { project, isAnthology, chapterCount });
   changes.push(styleTicResult.summary);
   changes.push(...(styleTicResult.changes || []));
+  verifyInvariant('Style Tic Sweep');
 
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE C: Per-chapter deterministic cleanup + quality repair
@@ -468,12 +529,14 @@ export async function runManuscriptPolishPipeline({
   onProgress('Polish: Cleaning deterministic artifacts…');
   const artifactPreResult = repairLoadedManuscriptArtifacts(loaded, { project, forceSongbirdAliases: true });
   changes.push(...artifactPreResult.changes);
+  verifyInvariant('Pre-Quote Artifact Repair');
 
   // C2: Quote fixes
   onProgress('Polish: Fixing quotation boundaries…');
   const quoteResult = fixHangingQuotes(loaded);
   changes.push(...quoteResult.changes);
   const quotesFixed = quoteResult.quotesFixed || 0;
+  verifyInvariant('Quote Fixes');
 
   // C3: Canon name lock
   onProgress('Polish: Locking canon names…');
@@ -486,11 +549,13 @@ export async function runManuscriptPolishPipeline({
       changes.push(`Ch.${f.chapter?.chapter_number || '?'}: canon-name lock repaired ${canonRepair.repairs?.join('; ') || ''}`);
     }
   }
+  verifyInvariant('Canon Name Lock');
 
   // C4: Final artifact cleanup
   onProgress('Polish: Final safe mechanical cleanup…');
   const artifactResult = repairLoadedManuscriptArtifacts(loaded, { project, forceSongbirdAliases: true });
   changes.push(...artifactResult.changes);
+  verifyInvariant('Final Artifact Cleanup');
 
   // C5: Deterministic grammar repair + dialogue mechanics
   onProgress('Polish: Running grammar repair…');
@@ -530,6 +595,7 @@ export async function runManuscriptPolishPipeline({
   if (dialogueRepairCount > 0) changes.push(`Dialogue mechanics: fixed ${dialogueRepairCount} issue(s).`);
   if (midParaAutoFixCount > 0) changes.push(`Mid-paragraph dialogue: ${midParaAutoFixCount} auto-fixed.`);
   if (slopRepairCount > 0) changes.push(`AI-slop reduction: ${slopRepairCount} recast(s).`);
+  verifyInvariant('Grammar & Dialogue Mechanics');
 
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE D: LLM prose polish (LAST mutating step)
@@ -595,6 +661,7 @@ export async function runManuscriptPolishPipeline({
       }
       changes.push(`NF LLM Polish: ${llmPolishCount} polished, ${llmFallbackCount} fallback.`);
     } else {
+  verifyInvariant('NF LLM Polish');
       // ── Fiction Mode: LLM prose polish ──
       onProgress('Polish: Running LLM prose polisher…');
       const briefContext = project
@@ -669,6 +736,7 @@ export async function runManuscriptPolishPipeline({
       changes.push(`LLM Prose Polish: ${llmPolishCount} polished, ${llmFallbackCount} fallback.`);
     }
   }
+  verifyInvariant('Fiction LLM Polish');
 
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE D2: Final vocabulary sweep — POLISHFIX-3.
@@ -695,6 +763,7 @@ export async function runManuscriptPolishPipeline({
     }
   }
   if (finalVocabFixed > 0) changes.push('Final vocabulary sweep: ' + finalVocabFixed + ' banned word(s) recast/cleaned after LLM stages.');
+  verifyInvariant('Final Vocabulary Sweep');
 
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE D3: FICTIONFIX-1 — sentence-case + spacing healer. Several passes
@@ -707,6 +776,7 @@ export async function runManuscriptPolishPipeline({
   // FICTIONFIX-2: heal article-swap wounds and verb jams left by older passes
   const woundRepair = healProseWounds(loaded, onProgress);
   changes.push(...woundRepair.changes);
+  verifyInvariant('Sentence Case & Wound Repair');
 
   // PHASE E: Quality gate + improvement scoring
   // ══════════════════════════════════════════════════════════════════════════
@@ -816,6 +886,7 @@ export async function runManuscriptPolishPipeline({
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 
   return {
+    structureViolations,
     changes,
     gateFailures,
     llmLog: llmPolishLog,

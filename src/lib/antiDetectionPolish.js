@@ -5,8 +5,8 @@
  * Pure regex/string operations — no AI calls.
  */
 
-import { runExtraPolishChecks } from '@/lib/extraPolishChecks';
-import { ABBREVIATION_TOKENS } from '@/lib/safeUppercase';
+import { runExtraPolishChecks } from './extraPolishChecks.js';
+import { ABBREVIATION_TOKENS } from './safeUppercase.js';
 
 /**
  * Abbreviation-aware sentence splitter.
@@ -132,32 +132,43 @@ function detectAndFixTriplets(loaded) {
     //       with the em-dash density reducer (Step 9c), which converted them to commas,
     //       re-creating new short fragments on the next pass.
     {
-      const sentences = splitSentencesAbbreviationAware(f.content);
-      const joins = []; // indices into sentences[] to merge [i] with [i+1]
-      for (let i = 0; i < sentences.length - 2; i++) {
-        const s1 = sentences[i], s2 = sentences[i + 1], s3 = sentences[i + 2];
-        if (!s1 || !s2 || !s3) continue;
-        // All three must be short fragments (under 6 words each)
-        if (s1.split(/\s+/).length > 6 || s2.split(/\s+/).length > 6 || s3.split(/\s+/).length > 6) continue;
-        // Guard (a): skip if either sentence already contains an em-dash or semicolon
-        if (s1.includes('\u2014') || s1.includes(' — ') || s1.includes(';')) continue;
-        if (s2.includes('\u2014') || s2.includes(' — ') || s2.includes(';')) continue;
-        // Guard (b): skip if either sentence contains dialogue/quoted material
-        if (/["\u201c\u201d]/.test(s1) || /["\u201c\u201d]/.test(s2)) continue;
-        // Chapter cap
+      const blocks = f.content.split(/(\n{2,})/);
+      let chapterChanged = false;
+      for (let b = 0; b < blocks.length; b++) {
+        if (blocks[b].trim() === '') continue;
+        
+        const sentences = splitSentencesAbbreviationAware(blocks[b]);
+        const joins = []; // indices into sentences[] to merge [i] with [i+1]
+        for (let i = 0; i < sentences.length - 2; i++) {
+          const s1 = sentences[i], s2 = sentences[i + 1], s3 = sentences[i + 2];
+          if (!s1 || !s2 || !s3) continue;
+          // All three must be short fragments (under 6 words each)
+          if (s1.split(/\s+/).length > 6 || s2.split(/\s+/).length > 6 || s3.split(/\s+/).length > 6) continue;
+          // Guard (a): skip if either sentence already contains an em-dash or semicolon
+          if (s1.includes('\u2014') || s1.includes(' — ') || s1.includes(';')) continue;
+          if (s2.includes('\u2014') || s2.includes(' — ') || s2.includes(';')) continue;
+          // Guard (b): skip if either sentence contains dialogue/quoted material
+          if (/["\u201c\u201d]/.test(s1) || /["\u201c\u201d]/.test(s2)) continue;
+          // Chapter cap
+          if (chapterFixed >= 15) break;
+          joins.push(i);
+          chapterFixed++; fixed++;
+          i += 2; // skip past the triple to avoid overlapping joins
+        }
+        // Apply joins in reverse order to preserve indices
+        for (let j = joins.length - 1; j >= 0; j--) {
+          const idx = joins[j];
+          const merged = sentences[idx].replace(/[.!?]+$/, '') + '; ' + sentences[idx + 1].charAt(0).toLowerCase() + sentences[idx + 1].slice(1);
+          sentences.splice(idx, 2, merged);
+        }
+        if (joins.length > 0) {
+          blocks[b] = sentences.join(' ');
+          chapterChanged = true;
+        }
         if (chapterFixed >= 15) break;
-        joins.push(i);
-        chapterFixed++; fixed++;
-        i += 2; // skip past the triple to avoid overlapping joins
       }
-      // Apply joins in reverse order to preserve indices
-      for (let j = joins.length - 1; j >= 0; j--) {
-        const idx = joins[j];
-        const merged = sentences[idx].replace(/[.!?]+$/, '') + '; ' + sentences[idx + 1].charAt(0).toLowerCase() + sentences[idx + 1].slice(1);
-        sentences.splice(idx, 2, merged);
-      }
-      if (joins.length > 0) {
-        f.content = sentences.join(' ');
+      if (chapterChanged) {
+        f.content = blocks.join('');
       }
     }
 
