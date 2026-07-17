@@ -17,6 +17,7 @@ import {
   buildReviewerPrompt,
   REVIEWER_RESPONSE_SCHEMA,
   computeConsensus,
+  runReviewerPanelSequential,
 } from '@/lib/criticPanel';
 
 // Deep critique pipeline imports
@@ -73,9 +74,8 @@ async function runSingleReviewer(reviewer, context) {
       task_type: 'critique',
       prompt,
       response_json_schema: REVIEWER_RESPONSE_SCHEMA,
-      model: 'gemini_3_flash',
-      fallback_model: 'gemini_3_flash',
       temperature: 0.3,
+      max_tokens: 3000,
     });
     let data = typeof response === 'string' ? response : response;
     if (typeof data === 'string') {
@@ -493,67 +493,76 @@ export default function CriticSubPage({ project, chapters, busyLabel, setBusyLab
 
   const handleRunPanel = async () => {
     if (isBusy) return;
-    let title = project?.title || 'Untitled';
-    let genre = project?.genre || 'Fiction';
-    const isAnthology = isAnthologyProject(project);
-
-    setBusyLabel('Critic: Loading chapters…');
-
-    const normalizedChapters = await loadManuscriptChapters(source, project, chapters, uploadedContent);
-    if (!normalizedChapters.length) {
-      toast.error(source === 'project' ? 'No chapters found.' : 'Upload a manuscript first.');
-      setBusyLabel('');
-      return;
-    }
-
-    if (source === 'upload' && uploadedContent?.title) title = uploadedContent.title;
-    const fullText = getFullText(normalizedChapters);
-    const wordCount = countWords(fullText);
-    if (wordCount < 5000) {
-      toast.error('Manuscript too short for critique (' + wordCount + ' words). Need at least 5,000.');
-      setBusyLabel('');
-      return;
-    }
-    if (source === 'project' && normalizedChapters.length < 3) {
-      toast.error('Need at least 3 drafted chapters for a meaningful critique.');
-      setBusyLabel('');
-      return;
-    }
-
-    const excerpt = isAnthology ? buildAnthologyExcerpt(normalizedChapters) : buildCriticExcerpt(fullText);
-    const resolvedType = project?.project_type || project?.book_type || 'fiction';
-    const authorName = project?.author_name || 'the author';
-    const panel = pickReviewerPanel(project, genre, resolvedType);
-
-    // Series context (preserved)
-    let seriesContext = { isSeries: false, seriesName: '', seriesNumber: 0, priorVolumeTitle: '', seriesUnresolvedThreads: [], seriesResolvedThreads: [], seriesDeathsAndLosses: [], seriesSecretsRevealed: [], seriesLastBookEnding: '' };
-    const seriesNumber = Number(project?.series_number || 0);
-    const hasSeriesLink = !!(project?.series_bible_id && seriesNumber >= 2);
-    if (hasSeriesLink) {
-      try {
-        setBusyLabel('Critic: Loading series bible…');
-        const bibles = await base44.entities.SeriesBible.filter({ id: project.series_bible_id });
-        const bible = bibles?.[0];
-        if (bible) {
-          const safeParse = (s) => { if (!s) return []; if (Array.isArray(s)) return s; try { return JSON.parse(s) || []; } catch { return []; } };
-          let priorVolumeTitle = bible.last_book_title || '';
-          if (project?.prior_volume_id) { try { const priors = await base44.entities.NovelProject.filter({ id: project.prior_volume_id }); if (priors?.[0]?.title) priorVolumeTitle = priors[0].title; } catch {} }
-          seriesContext = { isSeries: true, seriesName: bible.series_name || project.series_name || '', seriesNumber, priorVolumeTitle, seriesUnresolvedThreads: safeParse(bible.unresolved_threads), seriesResolvedThreads: safeParse(bible.resolved_threads), seriesDeathsAndLosses: safeParse(bible.deaths_and_losses), seriesSecretsRevealed: safeParse(bible.secrets_revealed), seriesLastBookEnding: bible.last_book_ending || '' };
-        }
-      } catch (err) { console.warn('[CRITIC] Series bible load failed:', err?.message); }
-    }
-
-    const reviewerContext = {
-      title, genre, wordCount, excerpt, authorName, projectType: resolvedType, isAnthology,
-      anthologyTheme: project?.anthology_theme || project?.seed_concept || 'unspecified',
-      isMultiPov: project?.pov_mode === 'third-multi', ...seriesContext,
-    };
-
-    setBusyLabel(`Critic: Generating ${panel.length} reviews in parallel… (45-90s)`);
 
     try {
+      setBusyLabel('Critic: Loading chapters…');
+      let title = project?.title || 'Untitled';
+      let genre = project?.genre || 'Fiction';
+      const isAnthology = isAnthologyProject(project);
+
+      setPanelResults({ consensus: null, reviews: [] });
+
+      const normalizedChapters = await loadManuscriptChapters(source, project, chapters, uploadedContent);
+      if (!normalizedChapters.length) {
+        toast.error(source === 'project' ? 'No chapters found.' : 'Upload a manuscript first.');
+        return;
+      }
+
+      if (source === 'upload' && uploadedContent?.title) title = uploadedContent.title;
+      const fullText = getFullText(normalizedChapters);
+      const wordCount = countWords(fullText);
+      if (wordCount < 5000) {
+        toast.error('Manuscript too short for critique (' + wordCount + ' words). Need at least 5,000.');
+        return;
+      }
+      if (source === 'project' && normalizedChapters.length < 3) {
+        toast.error('Need at least 3 drafted chapters for a meaningful critique.');
+        return;
+      }
+
+      const excerpt = isAnthology ? buildAnthologyExcerpt(normalizedChapters) : buildCriticExcerpt(fullText);
+      const resolvedType = project?.project_type || project?.book_type || 'fiction';
+      const authorName = project?.author_name || 'the author';
+      const panel = pickReviewerPanel(project, genre, resolvedType);
+
+      // Series context (preserved)
+      let seriesContext = { isSeries: false, seriesName: '', seriesNumber: 0, priorVolumeTitle: '', seriesUnresolvedThreads: [], seriesResolvedThreads: [], seriesDeathsAndLosses: [], seriesSecretsRevealed: [], seriesLastBookEnding: '' };
+      const seriesNumber = Number(project?.series_number || 0);
+      const hasSeriesLink = !!(project?.series_bible_id && seriesNumber >= 2);
+      if (hasSeriesLink) {
+        try {
+          setBusyLabel('Critic: Loading series bible…');
+          const bibles = await base44.entities.SeriesBible.filter({ id: project.series_bible_id });
+          const bible = bibles?.[0];
+          if (bible) {
+            const safeParse = (s) => { if (!s) return []; if (Array.isArray(s)) return s; try { return JSON.parse(s) || []; } catch { return []; } };
+            let priorVolumeTitle = bible.last_book_title || '';
+            if (project?.prior_volume_id) { try { const priors = await base44.entities.NovelProject.filter({ id: project.prior_volume_id }); if (priors?.[0]?.title) priorVolumeTitle = priors[0].title; } catch {} }
+            seriesContext = { isSeries: true, seriesName: bible.series_name || project.series_name || '', seriesNumber, priorVolumeTitle, seriesUnresolvedThreads: safeParse(bible.unresolved_threads), seriesResolvedThreads: safeParse(bible.resolved_threads), seriesDeathsAndLosses: safeParse(bible.deaths_and_losses), seriesSecretsRevealed: safeParse(bible.secrets_revealed), seriesLastBookEnding: bible.last_book_ending || '' };
+          }
+        } catch (err) { console.warn('[CRITIC] Series bible load failed:', err?.message); }
+      }
+
+      const reviewerContext = {
+        title, genre, wordCount, excerpt, authorName, projectType: resolvedType, isAnthology,
+        anthologyTheme: project?.anthology_theme || project?.seed_concept || 'unspecified',
+        isMultiPov: project?.pov_mode === 'third-multi', ...seriesContext,
+      };
+
       const t0 = Date.now();
-      const reviews = await Promise.all(panel.map((reviewer) => runSingleReviewer(reviewer, reviewerContext)));
+
+      const reviews = await runReviewerPanelSequential(
+        panel,
+        (reviewer) => runSingleReviewer(reviewer, reviewerContext),
+        (reviewer, index, total) => {
+          setBusyLabel(`Critic: Reviewer ${index} of ${total} — ${reviewer.outlet}…`);
+        },
+        (partialReviews) => {
+          const consensus = computeConsensus(partialReviews);
+          setPanelResults({ consensus, reviews: partialReviews });
+        }
+      );
+
       const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
       console.warn('[CRITIC] Reviews returned in', elapsed + 's.');
       const consensus = computeConsensus(reviews);

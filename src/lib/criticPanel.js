@@ -927,3 +927,19 @@ export function computeConsensus(reviews) {
     divergence: { gap, label: divergenceLabel, direction },
   };
 }
+
+export async function runReviewerPanelSequential(reviewers, runReviewer, onProgress, onPartial) {
+  const results = [];
+  for (let i = 0; i < reviewers.length; i++) {
+    const reviewer = reviewers[i];
+    if (onProgress) {
+      onProgress(reviewer, i + 1, reviewers.length);
+    }
+    const result = await runReviewer(reviewer);
+    results.push(result);
+    if (onPartial) {
+      onPartial([...results]);
+    }
+  }
+  return results;
+}
