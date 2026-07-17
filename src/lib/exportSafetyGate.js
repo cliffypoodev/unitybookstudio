@@ -114,8 +114,15 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
 
     // Quote cluster detection (hard block)
     let quoteClusterCount = 0;
+    const quoteClusterMatches = [];
     try {
-      quoteClusterCount = (content.match(/(["“”]{3,})/g) || []).length;
+      for (const m of content.matchAll(/(["“”]{3,})/g)) {
+        quoteClusterCount++;
+        if (quoteClusterMatches.length < 3) {
+          const snippet = content.substring(Math.max(0, m.index - 30), Math.min(content.length, m.index + m[0].length + 30)).replace(/\n/g, ' ');
+          quoteClusterMatches.push({ type: 'quote-cluster', phrase: m[0], snippet });
+        }
+      }
     } catch (_e) { /* counting unavailable */ }
 
     // Slop density check (warning only)
@@ -149,6 +156,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         ...gate.processLeaks.matches.slice(0, 3).map(m => ({ type: 'process-leak', phrase: m.phrase, snippet: m.snippet })),
         ...gate.contamination.matches.slice(0, 3).map(m => ({ type: 'contamination', phrase: m.phrase, snippet: m.snippet })),
         ...gate.malformed.matches.slice(0, 2).map(m => ({ type: 'malformed', phrase: m.phrase, snippet: m.snippet })),
+        ...quoteClusterMatches,
       ],
     };
 
@@ -170,7 +178,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     }
     
     // Hard-block for 3+ consecutive quotation marks
-    if (quoteClusterCount > 0 && entry.ok) {
+    if (quoteClusterCount > 0) {
       entry.ok = false;
       entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
       entry.reasons = [...(entry.reasons || []), `${quoteClusterCount} malformed runs of 3+ consecutive quotation marks (hard blocker)`];

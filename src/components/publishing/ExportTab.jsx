@@ -60,7 +60,7 @@ import { backupExportChapterIfChanged } from '@/lib/exportVersionSafety';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { runPreExportSafetyGate, formatExportSafetyFailure, assertExportSafetyAllowed, assertExportSnapshotIntegrity } from '@/lib/exportSafetyGate';
 
-console.log('[EXPORT] ExportTab HARDFIX v46 loaded: pre-export dialogue surface repair + strict safety gate');
+console.log('[EXPORT] ExportTab HARDFIX v47 loaded: read-only export with strict safety gate');
 
 export default function ExportTab({
   project,

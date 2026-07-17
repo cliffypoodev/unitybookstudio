@@ -327,6 +327,32 @@ console.log('\n── REGRESSION 10: Hard Block for Quote Clusters ──');
   assert(report.hardFailures[0]?.reasons?.some(r => r.includes('malformed runs of 3+ consecutive quotation marks')), 'Reason mentions quote clusters');
 }
 
+// ── REGRESSION 11: Mixed Errors with Quote Cluster ──
+console.log('\n── REGRESSION 11: Mixed Errors with Quote Cluster ──');
+{
+  const text = `${CLEAN_CHAPTER_1}\n\n/nothink\n\nThis has a malformed quote cluster.""""""""And continues...\n\n${CLEAN_CHAPTER_3}`;
+
+  const resolvedChapters = [
+    { chapter_number: 1, title: 'Mixed', content_md: text, __exportResolved: true },
+  ];
+
+  const report = await runPreExportSafetyGate(resolvedChapters, {
+    project: { project_type: 'anthology', genre: 'literary fiction' },
+  });
+
+  const formatted = formatExportSafetyFailure(report);
+
+  assert(report.blocked === true, 'Export BLOCKED by mixed errors including quote cluster');
+  assert(report.hardFailures.length === 1, 'Exactly 1 hard failure');
+  assert(report.hardFailures[0]?.processLeakCount > 0, 'processLeakCount > 0');
+  assert(report.hardFailures[0]?.quoteClusterCount > 0, 'quoteClusterCount > 0');
+  assert(report.hardFailures[0]?.reasons?.some(r => r.includes('malformed runs of 3+ consecutive quotation marks')), 'Reason mentions quote clusters');
+
+  assert(formatted.includes('Quote clusters (3+):'), 'Formatted report mentions Quote clusters (3+)');
+  assert(formatted.includes('process-leak'), 'Formatted report mentions process-leak');
+  assert(formatted.includes('quote-cluster'), 'Formatted report mentions quote-cluster snippet type');
+}
+
 // ── SUMMARY ──
 
 console.log(`\n${'='.repeat(60)}`);
