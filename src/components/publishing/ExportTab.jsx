@@ -50,6 +50,7 @@ import { chapterHasContent, resolveChapterContent, prepareChapterContent } from 
 import { isFrontMatter, isBackMatter, isBodyChapter } from '@/lib/bibliographyGenerator';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { base44 } from '@/api/base44Client';
+import { mergeFreshChapterRecords } from '@/lib/exportRefreshResolver';
 import {
   prepareRichEditorPayload,
   resolveRichHtmlContent,
@@ -927,8 +928,12 @@ export default function ExportTab({
       let exportChapters = [];
 
       try {
+        console.log('[EXPORT] Fetching fresh records to validate snapshot...');
+        const freshRecords = await base44.entities.Chapter.filter({ project_id: project.id }, 'chapter_number', 200);
+        const refreshedChapters = mergeFreshChapterRecords(orderedWithEdits, freshRecords);
+
         exportChapters = await buildResolvedExportChapters({
-          chapters: orderedWithEdits,
+          chapters: refreshedChapters,
           selectedChapterId,
           editorLoadedForId,
           editorValue,

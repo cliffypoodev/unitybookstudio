@@ -308,6 +308,22 @@ console.log('\n── TEST 13: Raw model control tokens (LEAKFIX-2B) ──');
   assert(normalGate.ok === true, 'Gate passes ordinary prose "think"');
 }
 
+// ── TEST 14: Resolver Consistency (EXPORT-REFRESH-4) ──────────────
+
+console.log('\n── TEST 14: Resolver Consistency (EXPORT-REFRESH-4) ──');
+{
+  const text = `The sun was setting.\n\n/no_think\n\nIt was getting dark.`;
+  
+  // Even if stage is 'stale-url-recovery', a model control token should trigger a hard block
+  const gate = runManuscriptSafetyGate(text, { stage: 'stale-url-recovery' });
+  
+  assert(gate.ok === false, 'Stale URL content containing control token fails gate');
+  assert(gate.recommendedAction === 'REJECT_REGENERATE', `Gate recommends REJECT_REGENERATE (got: ${gate.recommendedAction})`);
+  
+  // Since processLeaks matches > 0, chapterStorage will NOT set __needsMetadataRefresh
+  assert(gate.processLeaks.matches.length > 0, 'processLeaks contains matches');
+}
+
 // ── SUMMARY ──────────────────────────────────────────────────────
 
 console.log(`\n${'='.repeat(50)}`);
