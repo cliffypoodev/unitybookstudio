@@ -407,7 +407,11 @@ export default function ExportTab({
   const orderedWithEdits = useMemo(() => {
     const source = (resolvedChapters.length ? resolvedChapters : ordered).filter(Boolean);
 
-    if (!selectedChapterId || editorLoadedForId !== selectedChapterId) {
+    if (
+      !isEditorDirty ||
+      !selectedChapterId ||
+      editorLoadedForId !== selectedChapterId
+    ) {
       return source;
     }
 
@@ -678,13 +682,14 @@ export default function ExportTab({
 
 
   const buildResolvedExportChapters = useCallback(
-    async ({ chapters: sourceChapters = [], selectedChapterId: activeChapterId, editorLoadedForId: loadedId, editorValue: activeEditorValue } = {}) => {
+    async ({ chapters: sourceChapters = [], selectedChapterId: activeChapterId, editorLoadedForId: loadedId, editorValue: activeEditorValue, useUnsavedEditorOverride = false } = {}) => {
       const source = Array.isArray(sourceChapters) ? sourceChapters.filter(Boolean) : [];
       const resolved = [];
 
       for (let index = 0; index < source.length; index += 1) {
         const chapter = source[index];
         const isActiveEditorChapter =
+          useUnsavedEditorOverride === true &&
           chapter?.id &&
           activeChapterId &&
           chapter.id === activeChapterId &&
@@ -906,9 +911,11 @@ export default function ExportTab({
       const settings = publishSettings;
       const dim = parseTrimSize(settings.trimSize);
 
+      let useUnsavedEditorOverride = false;
       if (dirtyRef.current && selectedChapter) {
         try {
           await handleSaveChapter();
+          useUnsavedEditorOverride = false;
         } catch (err) {
           const ok = window.confirm(
             'The current chapter has unsaved edits that could not be saved. Export anyway using the editor text currently on screen?'
@@ -917,6 +924,7 @@ export default function ExportTab({
           if (!ok) return;
 
           console.warn('[EXPORT] Exporting with local unsaved editor override:', err);
+          useUnsavedEditorOverride = true;
         }
       }
 
@@ -937,6 +945,7 @@ export default function ExportTab({
           selectedChapterId,
           editorLoadedForId,
           editorValue,
+          useUnsavedEditorOverride,
         });
       } catch (err) {
         console.error('[EXPORT] Final export snapshot failed:', err);

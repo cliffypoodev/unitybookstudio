@@ -19,6 +19,7 @@ export function mergeFreshChapterRecords(cachedChapters, freshRecords) {
         ...cached,
         ...fresh,
         content_md: undefined, // Force re-resolve
+        local_editor_override: false,
         __staleSnapshotRefreshed: true,
       };
     }
