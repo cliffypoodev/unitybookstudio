@@ -32,7 +32,7 @@ import { runChatGPTVocabCaps, runTransitionWordCaps } from './chatgptPatternPoli
 import { runStackedClauseVariation } from './sentencePatternPolish.js';
 import { runAntithesisCap } from './antithesisCap.js';
 import { runSentenceCaseRepair, healProseWounds } from './sentenceCaseRepair.js';
-import { scrubModelLeaks } from './modelLeakGuard.js'; // LEAKFIX-1
+import { scrubModelLeaks, detectModelControlTokens } from './modelLeakGuard.js'; // LEAKFIX-1, LEAKFIX-2
 import { runAntiDetectionPolish } from './antiDetectionPolish.js';
 import { countParagraphs } from './structureUtils.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
@@ -175,6 +175,30 @@ export async function runManuscriptPolishPipeline({
   }
   checkpoint();
 
+  let totalLeakTokensRemoved = 0;
+  let totalLeakParagraphsRemoved = 0;
+
+  function runModelLeakScrub(stageName) {
+    const allowances = {};
+    for (let i = 0; i < loaded.length; i++) {
+      const f = loaded[i];
+      const key = getChapterKey(f, i);
+      const leak = scrubModelLeaks(f.content, `Ch.${f.chapter?.chapter_number || '?'}`);
+      if (leak.changes && leak.changes.length) {
+        f.content = leak.text;
+        changes.push(`Ch.${f.chapter?.chapter_number || '?'}: ${stageName} - ${leak.changes.join('; ')}`);
+      }
+      if (leak.paragraphsRemoved > 0) {
+        allowances[key] = leak.paragraphsRemoved;
+        totalLeakParagraphsRemoved += leak.paragraphsRemoved;
+      }
+      if (leak.tokensRemoved > 0) {
+        totalLeakTokensRemoved += leak.tokensRemoved;
+      }
+    }
+    verifyInvariant(stageName, allowances);
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE A: Manuscript-level pre-pass (cross-chapter deterministic)
   // ══════════════════════════════════════════════════════════════════════════
@@ -183,14 +207,7 @@ export async function runManuscriptPolishPipeline({
   // and non-Latin language drift from every chapter FIRST, so re-polishing a
   // damaged manuscript heals both leak classes.
   onProgress('Polish: Scrubbing model leaks…');
-  for (const f of loaded) {
-    const leak = scrubModelLeaks(f.content, `Ch.${f.chapter?.chapter_number || '?'}`);
-    if (leak.changes.length) {
-      f.content = leak.text;
-      changes.push(`Ch.${f.chapter?.chapter_number || '?'}: ${leak.changes.join('; ')}`);
-    }
-  }
-  verifyInvariant('Model Leaks Scrub');
+  runModelLeakScrub('Initial Model Leaks Scrub');
 
   // A0: Legacy artifact healing (baked-in corruption from pre-merge pipeline)
   onProgress('Polish: Healing legacy artifacts…');
@@ -929,6 +946,22 @@ export async function runManuscriptPolishPipeline({
     }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // PHASE G: Absolute Final Model Leaks Scrub (LEAKFIX-2)
+  // ══════════════════════════════════════════════════════════════════════════
+  onProgress('Polish: Final absolute model leak scrub…');
+  runModelLeakScrub('Final Model Leaks Scrub');
+
+  // Residual hard check
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const chNum = f.chapter?.chapter_number || '?';
+    const remainingLeak = detectModelControlTokens(f.content || '');
+    if (remainingLeak.length > 0) {
+      throw new Error(`CRITICAL: Model control token leaked through final scrub in Ch.${chNum}: "${remainingLeak[0].token}"`);
+    }
+  }
+
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 
   return {
@@ -970,6 +1003,8 @@ export async function runManuscriptPolishPipeline({
       },
       nfCore: nfCoreStats,
       contentLossReverts,
+      leakTokensRemoved: totalLeakTokensRemoved,
+      leakParagraphsRemoved: totalLeakParagraphsRemoved,
     },
     // Legacy flat fields (kept for backward compat)
     bannedRecastCount,

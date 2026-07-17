@@ -1,5 +1,5 @@
 // src/lib/localLLM.js
-// Unity Book Studio — Local LLM Engine
+import { stripModelControlTokens } from './modelLeakGuard.js';
 // Sends all LLM calls to a local Ollama server.
 
 // NETFIX-1: same-origin path proxied by vite to the Studio's llama.cpp —
@@ -129,6 +129,9 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
   text = text.replace(/<\/think>/gi, '');
   text = text.replace(/\\boxed\{[^}]*\}/g, '');
+
+  // LEAKFIX-2: scrub control tokens via shared boundary before returning
+  text = stripModelControlTokens(text).text;
   text = text.trim();
 
   return text;

@@ -1,4 +1,5 @@
 // src/lib/repetitionRewrite.js
+import { stripModelControlTokens } from './modelLeakGuard.js';
 
 // Lazy import for LLM
 let _callAgent = null;
@@ -343,12 +344,15 @@ export async function rewriteFlaggedSpots({ chapterText, chapter, project, callL
   async function callAndClean(textIn) {
     let rw = '';
     try {
-      rw = await _callFn('PARAGRAPH:\n' + textIn + '\n\n/no_think', systemPrompt);
+      rw = await _callFn('PARAGRAPH:\n' + textIn, systemPrompt);
     } catch (err) {
       return '';
     }
     if (typeof rw !== 'string') rw = rw?.text || rw?.content || String(rw || '');
     rw = rw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    rw = stripModelControlTokens(rw).text;
+    if (!rw) return '';
+
     rw = rw.split('\n').filter(line => {
       const l = line.trim().toLowerCase();
       return !(l.startsWith('here is') || l.startsWith('here are') || l.startsWith('rewritten') || l.startsWith('sure,') || l.startsWith('certainly') || l.startsWith('paragraph:'));

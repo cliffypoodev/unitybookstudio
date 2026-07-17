@@ -21,11 +21,30 @@ const NON_LATIN_RUN_RX = /[\u3400-\u4DBF\u4E00-\u9FFF\u3040-\u30FF\u31F0-\u31FF\
 
 const TERMINALS = new Set(['.', '!', '?', '\u2026', '"', '\u201D', '\u2019', ')', ']']);
 
+export function detectModelControlTokens(text) {
+  if (!text) return [];
+  const src = String(text);
+  CONTROL_TOKEN_RX.lastIndex = 0;
+  const matches = [];
+  let m;
+  while ((m = CONTROL_TOKEN_RX.exec(src)) !== null) {
+    const snippetStart = Math.max(0, m.index - 30);
+    const snippetEnd = Math.min(src.length, m.index + m[0].length + 30);
+    matches.push({
+      token: m[0],
+      index: m.index,
+      snippet: src.substring(snippetStart, snippetEnd),
+    });
+  }
+  return matches;
+}
+
 export function stripModelControlTokens(text = '') {
   let removed = 0;
   const out = String(text || '').replace(CONTROL_TOKEN_RX, () => { removed += 1; return ' '; });
   return { text: collapse(out), removed };
 }
+
 
 /**
  * Remove non-Latin drift runs. When a run interrupts an English sentence,
@@ -80,15 +99,27 @@ export function stripNonLatinDrift(text = '') {
 }
 
 export function scrubModelLeaks(text = '', label = '') {
+  const originalParas = String(text || '').replace(/\r\n/g, '\n').split(/\n{2,}/);
+  let paragraphsRemoved = 0;
+
+  for (const para of originalParas) {
+    if (!para.trim()) continue;
+    const stripped = para.replace(CONTROL_TOKEN_RX, ' ').trim();
+    if (stripped.length === 0 && para.trim().length > 0) {
+      paragraphsRemoved++;
+    }
+  }
+
   const tokens = stripModelControlTokens(text);
   const drift = stripNonLatinDrift(tokens.text);
   const changes = [];
   if (tokens.removed) changes.push(`removed ${tokens.removed} model control token(s)`);
+  if (paragraphsRemoved > 0) changes.push(`removed ${paragraphsRemoved} token-only paragraph(s)`);
   if (drift.removedRuns) changes.push(`removed ${drift.removedRuns} non-Latin drift run(s)` + (drift.droppedLeadIns ? ` + ${drift.droppedLeadIns} beheaded lead-in(s)` : ''));
   if (changes.length) {
     console.log(`[LEAK-GUARD] ${label || 'text'}: ${changes.join('; ')}` + (drift.samples.length ? ` | e.g. ${drift.samples[0]}` : ''));
   }
-  return { text: drift.text, changes };
+  return { text: drift.text, changes, paragraphsRemoved, tokensRemoved: tokens.removed };
 }
 
 function collapse(t) {
@@ -122,4 +153,4 @@ export function scrubOutlineChapters(chapters = []) {
   return { chapters: out, gutted, changed };
 }
 
-console.log('[LEAK-GUARD] LEAKFIX-1 loaded: control-token + non-Latin drift scrubber');
+console.log('[LEAK-GUARD] LEAKFIX-2 loaded: control-token + non-Latin drift scrubber');

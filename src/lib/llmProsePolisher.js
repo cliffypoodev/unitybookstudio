@@ -4,6 +4,7 @@
 // Does NOT save anything directly.
 
 import { POLISHER_ANTI_CHATBOT_RULES, getAntiChatbotRulesForProject } from './antiChatbotProse.js';
+import { stripModelControlTokens } from './modelLeakGuard.js';
 
 // Lazy import: callAgent is only needed when no callLLM override is provided.
 // This allows the module to be imported in Node.js tests without Vite's @/ alias.
@@ -113,7 +114,7 @@ export function buildPolisherSystemPrompt(project) {
 
 const PROCESS_LEAKAGE_PATTERNS = [
   /\bAction Plan\b/i,
-  /\bNext Move\b/i,
+  /^\s*(?:#+\s*|\*\*|[-*]\s*)?(?:Best\s+)?Next Move\b/im,
   /\bAnalysis\b\s*:/i,
   /\bRevision Notes\b/i,
   /\bHere is the revised/i,
@@ -156,6 +157,8 @@ function cleanLLMOutput(raw) {
   // Strip preamble lines like "Here is the polished chapter:" or "Sure, here's..."
   text = text.replace(/^(?:Here(?:'s| is) (?:the |your )(?:polished|revised|edited) (?:chapter|text|version)[:\.\!]?\s*\n?)+/i, '');
   text = text.replace(/^(?:Sure[,!.]?\s*(?:here(?:'s| is))?.*?:\s*\n?)/i, '');
+
+  text = stripModelControlTokens(text).text;
 
   return text.trim();
 }
@@ -278,6 +281,7 @@ export async function polishChapterWithLLM({
   function cleanChunkOutput(raw) {
     if (typeof raw !== 'string') raw = raw?.text || raw?.content || String(raw || '');
     raw = stripLeakedChapterLabels(raw).replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    raw = stripModelControlTokens(raw).text;
     raw = raw.split('\n').filter(line => {
       const l = line.trim().toLowerCase();
       return !(l.startsWith('here is') || l.startsWith('here are') || l.startsWith('polished') || l.startsWith('sure,') || l.startsWith('certainly') || l.startsWith('passage:') || l.startsWith('chapter text:'));
