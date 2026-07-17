@@ -34,6 +34,7 @@ import { runAntithesisCap } from './antithesisCap.js';
 import { runSentenceCaseRepair, healProseWounds } from './sentenceCaseRepair.js';
 import { scrubModelLeaks } from './modelLeakGuard.js'; // LEAKFIX-1
 import { runAntiDetectionPolish } from './antiDetectionPolish.js';
+import { countParagraphs } from './structureUtils.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
 import { fixHangingQuotes } from './quoteFixPolish.js';
@@ -102,6 +103,7 @@ export async function runManuscriptPolishPipeline({
   mode = 'fiction',
   sceneDuplicateSweep = null,
   _llmOverride = null,
+  _testInjectHealer = null,
 }) {
   const changes = [];
   const isAnthology = isAnthologyProject(project);
@@ -114,9 +116,10 @@ export async function runManuscriptPolishPipeline({
 
   // Record original word counts for global loss guard (Step 2)
   const originalWordCounts = new Map();
-  for (const f of loaded) {
-    const chNum = f.chapter?.chapter_number || '?';
-    originalWordCounts.set(chNum, countWords(f.original || f.content || ''));
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const key = (f.chapter && f.chapter.id) ? f.chapter.id : i;
+    originalWordCounts.set(key, countWords(f.original || f.content || ''));
   }
 
   const structureViolations = [];
@@ -887,7 +890,7 @@ export async function runManuscriptPolishPipeline({
     const f = loaded[i];
     const key = getChapterKey(f, i);
     const chNum = f.chapter?.chapter_number || '?';
-    const originalWc = originalWordCounts.get(chNum) || 0;
+    const originalWc = originalWordCounts.get(key) || 0;
     if (originalWc < 50) continue; // skip trivially short chapters
     const finalWc = countWords(f.content || '');
     const retainedRatio = finalWc / originalWc;
@@ -919,6 +922,11 @@ export async function runManuscriptPolishPipeline({
     const revertWoundRepair = healProseWounds(loaded, onProgress);
     changes.push(...revertWoundRepair.changes);
     verifyInvariant('Post-Restore Wound Repair');
+
+    if (_testInjectHealer) {
+      _testInjectHealer(loaded);
+      verifyInvariant('Injected Test Healer');
+    }
   }
 
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);

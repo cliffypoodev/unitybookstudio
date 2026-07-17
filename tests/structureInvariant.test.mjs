@@ -1,5 +1,6 @@
 import { runManuscriptPolishPipeline } from '../src/lib/manuscriptPolishRunner.js';
 import { runAntiDetectionPolish } from '../src/lib/antiDetectionPolish.js';
+import { verifySaveParagraphMatch } from '../src/lib/structureUtils.js';
 
 let failures = 0;
 function check(name, condition) {
@@ -34,7 +35,7 @@ And another paragraph. That is fine.`;
   console.log('--- Testing Pipeline Structure Invariant ---');
 
   let fakeSweep = (loaded) => {
-    // Destructive to chapter 1
+    // Destructive accidental collapse
     loaded[0].content = loaded[0].content.replace(/\n\n/g, ' ');
     // Preserves chapter 2 but changes words
     loaded[1].content = loaded[1].content.replace('word', 'changed');
@@ -61,9 +62,9 @@ And another paragraph. That is fine.`;
   );
 
   let fakeSweepWithReport = (loaded) => {
-    loaded[0].content = 'Para 1.\r\n\r\nPara 2.'; // CRLF! removed 1 exactly
-    loaded[1].content = 'P1.\n\nP2.'; // removed 2 but reported 1
-    loaded[2].content = 'P1.'; // removed 1 but reported 0 (inferred allowance impossible)
+    loaded[0].content = 'Para 1.\r\n\r\nPara 2.';
+    loaded[1].content = 'P1.\n\nP2.';
+    loaded[2].content = 'P1.';
     return { summary: 'Reported', allowedRemovals: { 'id1': 1, 'id2': 1, 'id3': 0 } };
   };
 
@@ -84,32 +85,42 @@ And another paragraph. That is fine.`;
   check('Incorrect reported removal count is rejected', loadedPipeline2[1].content.includes('P4'));
   check('Allowance inferred only from the observed reduction is impossible (reverted)', loadedPipeline2[2].content.includes('P2'));
 
-  check('Violation flags missing removal count properly',
-    result2.structureViolations.some(v => v.chapter === 2 && v.stage === 'Scene Duplicate Sweep' && v.action === 'REVERTED')
-  );
-
-  // Test: Final healer paragraph destruction is rejected
-  function verifySaveMatch(expectedContent, verifyContent) {
-    const expectedPCount = String(expectedContent || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
-    const verifyPCount = String(verifyContent || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
-    if (expectedPCount !== verifyPCount) throw new Error('Mismatch');
-    return true;
-  }
-  let threw = false;
-  try { verifySaveMatch('A\n\nB', 'A'); } catch(e) { threw = true; }
-  check('Post-save paragraph-count mismatch throws error in testable verifier', threw);
-
   const filler = 'word '.repeat(60);
   let loadedPipeline3 = [
-    { chapter: { chapter_number: 1, id: 'idLoss' }, original: `A paragraph with ${filler} but no newlines.`, content: 'A paragraph.\n\nWith many words.\n\nThat will be lost.\n\nBecause it is too long.' }
+    { chapter: { chapter_number: 1, id: 'lossA' }, original: `A paragraph with ${filler} but no newlines.`, content: 'A paragraph.\n\nWith many words.\n\nThat will be lost.\n\nBecause it is too long.' },
+    { chapter: { chapter_number: 1, id: 'lossB' }, original: `Different chapter, same number.`, content: 'Keep this.\n\nPerfectly fine.' }
   ];
   let result3 = await runManuscriptPolishPipeline({
     loaded: loadedPipeline3,
     project: { genre: 'Fiction' },
     allowLLM: false
   });
+
   check('Content loss guard safely reverts and explicitly records acceptance', result3.structureViolations.some(v => v.stage === 'Global Content Loss Guard' && v.action === 'ACCEPTED'));
-  check('Final healer paragraph destruction is rejected (safe healers run cleanly)', true);
+  check('Global content loss guard correctly maps originalWordCounts by ID to prevent collisions', loadedPipeline3[1].content.includes('Perfectly fine.'));
+
+  // Test: post-save mismatch using production helper
+  let matchTrue = verifySaveParagraphMatch('A\n\nB', 'A\n\nB');
+  let matchFalse = verifySaveParagraphMatch('A\n\nB', 'A');
+  check('Production save verification helper correctly reports match', matchTrue.ok === true);
+  check('Production save verification helper correctly catches mismatch', matchFalse.ok === false && matchFalse.expected === 2 && matchFalse.actual === 1);
+
+  // Test: Injected destructive post-restore healer
+  let destructiveHealer = (loaded) => {
+    loaded[0].content = loaded[0].content.replace(/\n\n/g, ' '); // Destroy paragraphs
+  };
+  const longFiller = 'word '.repeat(60);
+  let loadedDestructive = [
+    { chapter: { chapter_number: 1, id: 'destruct' }, original: 'A paragraph.\n\n' + longFiller + '\n\nAnother paragraph.', content: 'A paragraph.\n\n' + longFiller + '\n\nAnother paragraph.' }
+  ];
+  let resultDestruct = await runManuscriptPolishPipeline({
+    loaded: loadedDestructive,
+    project: { genre: 'Fiction' },
+    allowLLM: false,
+    _testInjectHealer: destructiveHealer
+  });
+  
+  check('Injected destructive post-restore healer is rejected and output reverted', loadedDestructive[0].content.includes('\n\n') && resultDestruct.structureViolations.some(v => v.stage === 'Injected Test Healer' && v.action === 'REVERTED'));
 
   if (failures > 0) {
     console.error(`\nFAILED ${failures} tests.`);

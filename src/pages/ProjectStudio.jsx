@@ -988,8 +988,6 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
   report.scannedChapters = items.length;
   report.allowedRemovals = {};
 
-  const countParagraphs = (text) => String(text || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
-
   if (typeof onProgress === 'function') {
     onProgress('Scene Duplicate Sweep: scanning chapters for alternate-draft blocks...');
   }
@@ -1001,9 +999,9 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
     const quarantine = applyStrandedAlternateDraftQuarantine(item.content || '');
     let preSweepQuarantineWords = 0;
     if (quarantine.text !== String(item.content || '')) {
-      const pReduction = countParagraphs(item.content) - countParagraphs(quarantine.text);
-      if (pReduction > 0) {
-        report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + pReduction;
+      const paragraphsRemoved = quarantine.changes.reduce((sum, ch) => sum + countParagraphs(ch.removedText || ch.text || ''), 0);
+      if (paragraphsRemoved > 0) {
+        report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + paragraphsRemoved;
       }
       preSweepQuarantineWords = countWords(item.content || '') - countWords(quarantine.text);
       item.content = quarantine.text;
@@ -1069,9 +1067,13 @@ function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {}) {
 
       if (cleaned && newWordCount >= originalWordCount * (1 - options.maxRemovalRatioPerChapter)) {
         item.content = cleaned;
-        const pReduction = countParagraphs(originalText) - countParagraphs(cleaned);
-        if (pReduction > 0) {
-          report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + pReduction;
+        // Calculate explicitly removed paragraphs by summing the range sizes
+        const paragraphsRemoved = removals.reduce((sum, r) => {
+          if (Array.isArray(r)) return sum + (r[1] - r[0] + 1);
+          return sum + 1;
+        }, 0);
+        if (paragraphsRemoved > 0) {
+          report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + paragraphsRemoved;
         }
         row.blocksRemoved = removals.length;
         row.wordsRemoved = wordsRemoved;
