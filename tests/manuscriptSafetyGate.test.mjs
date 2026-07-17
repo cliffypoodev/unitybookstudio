@@ -244,6 +244,46 @@ console.log('\n── TEST 9: Sanitize for matching ──');
   assert(result.includes('--'), 'Em dash normalized');
 }
 
+// ── TEST 10: False North-style excerpt (SAFETYGATE-1) ─────────────
+
+console.log('\n── TEST 10: False North-style excerpt (SAFETYGATE-1) ──');
+{
+  const text = `"Twelve hours of daylight left. We need to move."
+"We move when we're ready," she said.`;
+  const result = detectProcessLeaks(text);
+  assert(result.hasLeak === false, 'False North excerpt passes detectProcessLeaks');
+
+  const gate = runManuscriptSafetyGate(text, { stage: 'pre-polish' });
+  assert(gate.ok === true, 'False North excerpt passes runManuscriptSafetyGate');
+}
+
+// ── TEST 11: Natural dialogue containing former generic canaries ──
+
+console.log('\n── TEST 11: Natural dialogue containing former generic canaries ──');
+{
+  const text = `"I recommend the eastern ridge," Lena said.
+"We need to move before dark," Tomas said.
+"Focus on how the snow shifts under your boots," Mara said.`;
+  const result = detectProcessLeaks(text);
+  assert(result.hasLeak === false, 'Natural dialogue passes detectProcessLeaks');
+}
+
+// ── TEST 12: Genuine editorial block still fails ─────────────────
+
+console.log('\n── TEST 12: Genuine editorial block still fails ──');
+{
+  const text = `Analysis & Strengths
+The pacing is good.
+Next Move: Tighten the opening
+Action Plan:
+1. Revise dialogue.`;
+  const result = detectProcessLeaks(text);
+  assert(result.hasLeak === true, 'Genuine editorial block fails detectProcessLeaks');
+  assert(result.matches.some(m => m.phrase === 'Analysis & Strengths'), 'Matches Analysis & Strengths');
+  assert(result.matches.some(m => m.phrase === 'Next Move:'), 'Matches Next Move:');
+  assert(result.matches.some(m => m.phrase === 'Action Plan:'), 'Matches Action Plan:');
+}
+
 // ── SUMMARY ──────────────────────────────────────────────────────
 
 console.log(`\n${'='.repeat(50)}`);

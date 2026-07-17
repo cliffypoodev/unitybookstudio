@@ -190,6 +190,24 @@ console.log('\n── REGRESSION 6: Extracted (4).docx Chapter 2 ──');
   }
 }
 
+// ── REGRESSION 7: False North excerpt doesn't block export ──────
+
+console.log('\n── REGRESSION 7: False North excerpt does not block export ──');
+{
+  const text = `"Twelve hours of daylight left. We need to move."
+"We move when we're ready," she said.`;
+  const resolvedChapters = [
+    { chapter_number: 1, title: 'Clean', content_md: text, __exportResolved: true },
+  ];
+
+  const report = await runPreExportSafetyGate(resolvedChapters, {
+    project: { project_type: 'anthology', genre: 'literary fiction' },
+  });
+
+  assert(report.blocked === false, 'Export NOT blocked by False North excerpt');
+  assert(report.hardFailures.length === 0, 'No hard failures for False North excerpt');
+}
+
 // ── SUMMARY ──
 
 console.log(`\n${'='.repeat(60)}`);

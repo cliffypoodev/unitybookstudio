@@ -76,11 +76,6 @@ const PROCESS_LEAK_CANARIES = [
   { phrase: 'Self-Correction', severity: 'high', matchMode: 'standalone' },
   { phrase: 'Anticipation Check', severity: 'critical', matchMode: 'standalone' },
   { phrase: 'Thinking...', severity: 'high', matchMode: 'standalone' },
-
-  // Directive language (high confidence in heading/label context)
-  { phrase: 'I recommend', severity: 'high', matchMode: 'exact' },
-  { phrase: 'We need to move', severity: 'high', matchMode: 'exact' },
-  { phrase: 'Focus on how', severity: 'high', matchMode: 'exact' },
   { phrase: 'TODO', severity: 'high', matchMode: 'standalone' },
 ];
 
@@ -112,24 +107,6 @@ function isProcessLeakFalsePositive(phrase, context, fullText) {
 
   // "TODO" inside dialogue or as part of a compound word
   if (lowerPhrase === 'todo' && /\b(?:to-do|todo list)\b/i.test(context)) return true;
-
-  // "I recommend" inside character dialogue
-  if (lowerPhrase === 'i recommend') {
-    const idx = lowerContext.indexOf(lowerPhrase);
-    if (idx > 0) {
-      const before = context.substring(Math.max(0, idx - 60), idx);
-      if (/[""\u201C]\s*$/m.test(before)) return true; // inside dialogue
-    }
-  }
-
-  // "We need to move" / "Focus on how" inside dialogue
-  if (lowerPhrase === 'we need to move' || lowerPhrase === 'focus on how') {
-    const idx = lowerContext.indexOf(lowerPhrase);
-    if (idx > 0) {
-      const before = context.substring(Math.max(0, idx - 60), idx);
-      if (/[""\u201C]\s*$/m.test(before)) return true;
-    }
-  }
 
   return false;
 }
