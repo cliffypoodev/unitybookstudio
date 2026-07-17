@@ -12,6 +12,41 @@
 // - Only allows override via explicit ALLOW_UNSAFE_EXPORT flag
 // =============================================================
 
+export function createExportHardBlockError(code, message, details) {
+  const err = new Error(message);
+  err.name = 'ExportHardBlockError';
+  err.code = code;
+  err.isSafetyGateBlock = true;
+  if (details) err.details = details;
+  return err;
+}
+
+export function assertExportSafetyAllowed(report) {
+  if (report && report.blocked) {
+    const formatted = formatExportSafetyFailure(report);
+    throw createExportHardBlockError('SAFETY_GATE_BLOCKED', formatted, report);
+  }
+  return report;
+}
+
+export function assertExportSnapshotIntegrity({
+  resolving,
+  chapterCount,
+  bodyChapterCount,
+  missingBodyChapterCount,
+  totalChars,
+  planningMetadataBlocked,
+  forbiddenArtifactsBlocked,
+}) {
+  if (resolving) throw createExportHardBlockError('RESOLVING_IN_PROGRESS', 'Export blocked: chapter content resolution is still in progress.');
+  if (chapterCount === 0) throw createExportHardBlockError('ZERO_CHAPTERS', 'Export blocked: no chapters resolved for export.');
+  if (bodyChapterCount === 0) throw createExportHardBlockError('ZERO_BODY_CHAPTERS', 'Export blocked: no body chapters found.');
+  if (missingBodyChapterCount > 0) throw createExportHardBlockError('MISSING_BODY_CONTENT', `Export blocked: ${missingBodyChapterCount} body chapter(s) have missing content.`);
+  if (totalChars === 0) throw createExportHardBlockError('ZERO_CHARS', 'Export blocked: manuscript is entirely empty.');
+  if (planningMetadataBlocked) throw createExportHardBlockError('PLANNING_METADATA_SURVIVED', 'Export blocked: planning/outline metadata masquerading as chapter body.');
+  if (forbiddenArtifactsBlocked) throw createExportHardBlockError('FORBIDDEN_ARTIFACTS_SURVIVED', 'Export blocked: forbidden internal pipeline artifact text survived final cleanup.');
+}
+
 import { runManuscriptSafetyGate } from './manuscriptSafetyGate.js';
 import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 

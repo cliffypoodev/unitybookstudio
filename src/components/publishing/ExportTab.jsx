@@ -57,7 +57,7 @@ import {
 } from '@/lib/richContentStorage';
 import { backupExportChapterIfChanged } from '@/lib/exportVersionSafety';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
-import { runPreExportSafetyGate, formatExportSafetyFailure } from '@/lib/exportSafetyGate';
+import { runPreExportSafetyGate, formatExportSafetyFailure, assertExportSafetyAllowed, assertExportSnapshotIntegrity } from '@/lib/exportSafetyGate';
 import { runDialogueMechanicsPass, runMidParagraphDialogueAutofixPass } from '@/lib/dialogueMechanicsRepair';
 console.log('[EXPORT] ExportTab HARDFIX v46 loaded: pre-export dialogue surface repair + strict safety gate');
 
@@ -883,37 +883,15 @@ export default function ExportTab({
         };
       }
 
-      // ── PERSIST SURFACE REPAIRS TO DB (fire-and-forget) ──
-      // Save repaired text back to the chapter record so the same deterministic
-      // fixes don't need to run on every export. Only persists if repairs were made.
-      if (totalSurfaceRepairs > 0 || totalMidParaAutoFixed > 0) {
-        const repairChapters = cleaned.filter(ch =>
-          surfaceRepairReport.some(r => r.chapter === ch.chapter_number) ||
-          midParaReport.some(r => r.chapter === ch.chapter_number)
-        );
-        for (const ch of repairChapters) {
-          if (!ch?.id || !ch?.content_md) continue;
-          try {
-            const persistFields = await prepareChapterContent(ch.content_md, project?.id, ch.id, ch);
-            await runWithNetworkRetry(() => base44.entities.Chapter.update(ch.id, persistFields));
-            console.log(`[EXPORT-PERSIST] Ch.${ch.chapter_number}: surface repairs persisted to DB`);
-          } catch (persistErr) {
-            // Non-blocking: export continues even if persist fails
-            console.warn(`[EXPORT-PERSIST] Ch.${ch.chapter_number}: persist failed (export unaffected):`, persistErr?.message);
-          }
-        }
-      }
-
       // ── PRE-EXPORT SAFETY GATE (STRICT) ──
       // Scan all resolved chapters for process leaks, contamination, and dialogue issues.
       // HARD BLOCK: Do not produce DOCX if any chapter has hard failures.
       // This gate runs AFTER surface repair, so repaired text is what gets checked.
       const safetyReport = await runPreExportSafetyGate(cleaned, { project, stage: 'pre-export' });
 
-      if (safetyReport.blocked) {
-        const failureText = formatExportSafetyFailure(safetyReport);
-        console.warn('[EXPORT] SAFETY GATE ISSUES (export proceeding — gate is advisory only):\n' + failureText);
-      } else if (safetyReport.warnings.length > 0) {
+      assertExportSafetyAllowed(safetyReport);
+
+      if (safetyReport.warnings.length > 0) {
         console.warn('[EXPORT] Safety gate warnings (export proceeding):', safetyReport.warnings);
       }
 
@@ -942,9 +920,8 @@ export default function ExportTab({
       }
 
       if (resolving) {
-        console.warn(
-          '[EXPORT] Warning: chapter content is still being fetched from the database. Exporting with current snapshot.'
-        );
+        alert('EXPORT BLOCKED\n\nChapter content is still being resolved. Please wait a moment and try again.\n\nNo file was produced. Manuscript data was not changed.');
+        return;
       }
 
       let exportChapters = [];
@@ -958,8 +935,8 @@ export default function ExportTab({
         });
       } catch (err) {
         console.error('[EXPORT] Final export snapshot failed:', err);
-        console.warn('[EXPORT] Warning: could not build safe export snapshot. Attempting export with available chapters.');
-        exportChapters = (orderedWithEdits || []).filter(Boolean);
+        alert(`EXPORT BLOCKED\n\n${err.message || 'Unknown safety failure'}\n\nNo file was produced. Manuscript data was not changed.`);
+        return;
       }
 
       const planningOnlySurvivors = hardBlockExportIfPlanningMetadataSurvives(exportChapters);
@@ -1046,6 +1023,22 @@ export default function ExportTab({
         console.warn(
           `[EXPORT] Warning: all ${exportChapters.length} chapters resolved to empty content.`
         );
+      }
+
+      try {
+        assertExportSnapshotIntegrity({
+          resolving,
+          chapterCount: exportChapters.length,
+          bodyChapterCount: bodyChapters.length,
+          missingBodyChapterCount: missingBodyChapters.length,
+          totalChars: totalCharsInExport,
+          planningMetadataBlocked: planningOnlySurvivors.blocked,
+          forbiddenArtifactsBlocked: forbiddenExportArtifacts.blocked,
+        });
+      } catch (err) {
+        console.error('[EXPORT] Snapshot integrity check failed:', err);
+        alert(`EXPORT BLOCKED\n\n${err.message || 'Snapshot integrity failure'}\n\nNo file was produced. Manuscript data was not changed.`);
+        return;
       }
 
       console.log('[EXPORT] Final snapshot ready:', {

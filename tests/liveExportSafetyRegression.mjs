@@ -18,7 +18,7 @@ const __dirname = dirname(__filename);
 
 // Import the actual modules used by the live export path
 const exportGatePath = resolve(__dirname, '..', 'src', 'lib', 'exportSafetyGate.js');
-const { runPreExportSafetyGate, formatExportSafetyFailure } = await import(exportGatePath);
+const { runPreExportSafetyGate, formatExportSafetyFailure, createExportHardBlockError, assertExportSafetyAllowed, assertExportSnapshotIntegrity } = await import(exportGatePath);
 
 let passed = 0;
 let failed = 0;
@@ -225,6 +225,88 @@ console.log('\n── REGRESSION 8: Live export blocks raw model control tokens 
   assert(report.blocked === true, 'Export BLOCKED by raw model control token');
   assert(report.hardFailures.length === 1, 'Exactly 1 hard failure');
   assert(report.hardFailures[0]?.processLeakCount > 0, `processLeakCount > 0 (got: ${report.hardFailures[0]?.processLeakCount})`);
+}
+
+// ── REGRESSION 9: Hard Block Enforcement ──
+console.log('\n── REGRESSION 9: Hard Block Enforcement ──');
+{
+  const cleanReport = { blocked: false, warnings: [] };
+  assert(assertExportSafetyAllowed(cleanReport) === cleanReport, 'A clean safety report passes assertExportSafetyAllowed unchanged');
+
+  const contaminatedText = `${CLEAN_CHAPTER_1}\n\n/nothink\n\n${CLEAN_CHAPTER_3}`;
+  const contaminatedResolved = [{ chapter_number: 1, title: 'C', content_md: contaminatedText, __exportResolved: true }];
+  const badReport = await runPreExportSafetyGate(contaminatedResolved, { project: { project_type: 'anthology', genre: 'literary fiction' } });
+
+  assert(badReport.blocked === true, 'A manuscript containing /no_think produces a report with blocked:true');
+
+  let thrownError = null;
+  try {
+    assertExportSafetyAllowed(badReport);
+  } catch (err) {
+    thrownError = err;
+  }
+
+  assert(thrownError !== null, 'assertExportSafetyAllowed throws for that blocked report');
+  assert(thrownError?.name === 'ExportHardBlockError', 'The thrown error has name === ExportHardBlockError');
+  assert(thrownError?.isSafetyGateBlock === true, 'The thrown error has isSafetyGateBlock === true');
+  assert(thrownError?.code === 'SAFETY_GATE_BLOCKED', 'The thrown error has a useful code');
+  assert(String(thrownError?.message).includes('EXPORT BLOCKED'), 'The thrown error message contains EXPORT BLOCKED');
+
+  try {
+    assertExportSnapshotIntegrity({ resolving: true });
+    assert(false, 'resolving:true should throw');
+  } catch (err) {
+    assert(err.code === 'RESOLVING_IN_PROGRESS', 'resolving:true hard-blocks snapshot integrity');
+  }
+
+  try {
+    assertExportSnapshotIntegrity({ resolving: false, chapterCount: 0 });
+    assert(false, 'chapterCount:0 should throw');
+  } catch (err) {
+    assert(err.code === 'ZERO_CHAPTERS', 'chapterCount:0 hard-blocks');
+  }
+
+  try {
+    assertExportSnapshotIntegrity({ resolving: false, chapterCount: 1, bodyChapterCount: 0 });
+    assert(false, 'bodyChapterCount:0 should throw');
+  } catch (err) {
+    assert(err.code === 'ZERO_BODY_CHAPTERS', 'bodyChapterCount:0 hard-blocks');
+  }
+
+  try {
+    assertExportSnapshotIntegrity({ resolving: false, chapterCount: 1, bodyChapterCount: 1, missingBodyChapterCount: 1 });
+    assert(false, 'missingBodyChapterCount > 0 should throw');
+  } catch (err) {
+    assert(err.code === 'MISSING_BODY_CONTENT', 'missingBodyChapterCount > 0 hard-blocks');
+  }
+
+  try {
+    assertExportSnapshotIntegrity({ resolving: false, chapterCount: 1, bodyChapterCount: 1, missingBodyChapterCount: 0, totalChars: 0 });
+    assert(false, 'totalChars:0 should throw');
+  } catch (err) {
+    assert(err.code === 'ZERO_CHARS', 'totalChars:0 hard-blocks');
+  }
+
+  try {
+    assertExportSnapshotIntegrity({ resolving: false, chapterCount: 1, bodyChapterCount: 1, missingBodyChapterCount: 0, totalChars: 100, planningMetadataBlocked: true });
+    assert(false, 'planningMetadataBlocked:true should throw');
+  } catch (err) {
+    assert(err.code === 'PLANNING_METADATA_SURVIVED', 'planningMetadataBlocked:true hard-blocks');
+  }
+
+  try {
+    assertExportSnapshotIntegrity({ resolving: false, chapterCount: 1, bodyChapterCount: 1, missingBodyChapterCount: 0, totalChars: 100, planningMetadataBlocked: false, forbiddenArtifactsBlocked: true });
+    assert(false, 'forbiddenArtifactsBlocked:true should throw');
+  } catch (err) {
+    assert(err.code === 'FORBIDDEN_ARTIFACTS_SURVIVED', 'forbiddenArtifactsBlocked:true hard-blocks');
+  }
+
+  try {
+    assertExportSnapshotIntegrity({ resolving: false, chapterCount: 1, bodyChapterCount: 1, missingBodyChapterCount: 0, totalChars: 100, planningMetadataBlocked: false, forbiddenArtifactsBlocked: false });
+    assert(true, 'A clean fully resolved snapshot passes without throwing');
+  } catch (err) {
+    assert(false, 'Clean snapshot should not throw');
+  }
 }
 
 // ── SUMMARY ──

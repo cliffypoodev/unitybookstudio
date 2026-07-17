@@ -287,6 +287,50 @@ assert(!recastContent.includes('Chapter 1'), 'llmSentenceRecast.js: no "Chapter 
 assert(!recastContent.includes('Chapter 18'), 'llmSentenceRecast.js: no "Chapter 18" hardcoding');
 
 // ════════════════════════════════════════════════════════════════
+// SECTION 4: Export Wiring Smoke
+// ════════════════════════════════════════════════════════════════
+
+console.log('\n═══ SECTION 4: Export Wiring Smoke ═══\n');
+import { existsSync } from 'fs';
+
+const exportTabPath = join(root, 'src/components/publishing/ExportTab.jsx');
+const exportTabContent = readFileSync(exportTabPath, 'utf-8');
+
+const projectStudioPath = join(root, 'src/pages/ProjectStudio.jsx');
+if (existsSync(projectStudioPath)) {
+  const psContent = readFileSync(projectStudioPath, 'utf-8');
+  assert(psContent.includes("id: 'export'") && psContent.includes('<ExportTab'), "ProjectStudio id: 'export' section renders <ExportTab>");
+}
+
+assert(exportTabContent.includes('assertExportSafetyAllowed'), 'ExportTab imports assertExportSafetyAllowed');
+assert(exportTabContent.includes('assertExportSnapshotIntegrity'), 'ExportTab imports assertExportSnapshotIntegrity');
+assert(/runPreExportSafetyGate[\s\S]*?assertExportSafetyAllowed/.test(exportTabContent), 'ExportTab calls assertExportSafetyAllowed after runPreExportSafetyGate');
+
+assert(/assertExportSnapshotIntegrity[\s\S]*?buildMarkdownExport/.test(exportTabContent), 'ExportTab calls assertExportSnapshotIntegrity before buildMarkdownExport');
+assert(/assertExportSnapshotIntegrity[\s\S]*?navigator\.clipboard\.writeText/.test(exportTabContent), 'ExportTab calls assertExportSnapshotIntegrity before navigator.clipboard.writeText');
+assert(/assertExportSnapshotIntegrity[\s\S]*?buildBookHtml/.test(exportTabContent), 'ExportTab calls assertExportSnapshotIntegrity before buildBookHtml');
+assert(/assertExportSnapshotIntegrity[\s\S]*?buildDocxDocument/.test(exportTabContent), 'ExportTab calls assertExportSnapshotIntegrity before buildDocxDocument');
+assert(/assertExportSnapshotIntegrity[\s\S]*?Packer\.toBlob/.test(exportTabContent), 'ExportTab calls assertExportSnapshotIntegrity before Packer.toBlob');
+assert(/assertExportSnapshotIntegrity[\s\S]*?downloadBlob/.test(exportTabContent), 'ExportTab calls assertExportSnapshotIntegrity before downloadBlob');
+
+assert(!exportTabContent.includes('export proceeding — gate is advisory only'), 'ExportTab does not contain "export proceeding — gate is advisory only"');
+assert(!exportTabContent.includes('Attempting export with available chapters'), 'ExportTab does not contain "Attempting export with available chapters"');
+assert(!exportTabContent.includes('PERSIST SURFACE REPAIRS TO DB'), 'ExportTab does not contain "PERSIST SURFACE REPAIRS TO DB"');
+
+assert(!exportTabContent.includes('exportChapters = (orderedWithEdits || []).filter(Boolean)'), 'The safe-snapshot catch returns without assigning orderedWithEdits as an export fallback');
+assert(!exportTabContent.includes('[EXPORT-PERSIST]'), 'ExportTab does not call base44.entities.Chapter.update from a pre-export surface-repair persistence block');
+
+assert(/assertExportSnapshotIntegrity[\s\S]*?catch[\s\S]*?alert[\s\S]*?return/.test(exportTabContent), 'Planning-metadata hard blocks cannot reach file generation');
+assert(/assertExportSnapshotIntegrity[\s\S]*?catch[\s\S]*?alert[\s\S]*?return/.test(exportTabContent), 'Forbidden-artifact hard blocks cannot reach file generation');
+assert(/if\s*\(\s*resolving\s*\)\s*\{[\s\S]*?alert[\s\S]*?return/.test(exportTabContent), 'Resolving state cannot reach file generation');
+
+const publishingTabPath = join(root, 'src/components/publishing/PublishingTab.jsx');
+if (existsSync(publishingTabPath)) {
+  const pContent = readFileSync(publishingTabPath, 'utf-8');
+  assert(!pContent.includes('assertExportSnapshotIntegrity'), 'Tools → Publishing remains untouched and distinct from the manuscript ExportTab');
+}
+
+// ════════════════════════════════════════════════════════════════
 // SUMMARY
 // ════════════════════════════════════════════════════════════════
 
