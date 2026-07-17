@@ -112,6 +112,12 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       dialogueIssueCount = dqIssues.count;
     } catch (_e) { /* detection unavailable */ }
 
+    // Quote cluster detection (hard block)
+    let quoteClusterCount = 0;
+    try {
+      quoteClusterCount = (content.match(/(["“”]{3,})/g) || []).length;
+    } catch (_e) { /* counting unavailable */ }
+
     // Slop density check (warning only)
     let slopTotal = 0;
     try {
@@ -136,6 +142,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       contaminationCount: gate.contamination.matches.length,
       malformedCount: gate.malformed.matches.length,
       dialogueIssueCount,
+      quoteClusterCount,
       slopTotal,
       reasons: gate.reasons,
       snippets: [
@@ -150,7 +157,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       `[SAFETY-GATE] stage=${stage} chapter=${entry.chapterNumber}/${entry.title} ok=${gate.ok} ` +
       `action=${gate.recommendedAction} processLeaks=${entry.processLeakCount} ` +
       `contamination=${entry.contaminationCount} malformed=${entry.malformedCount} ` +
-      `dialogue=${dialogueIssueCount} slop=${slopTotal}`
+      `dialogue=${dialogueIssueCount} quoteClusters=${quoteClusterCount} slop=${slopTotal}`
     );
 
     // Hard-block for dialogue issues exceeding threshold.
@@ -159,7 +166,14 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     if (dialogueIssueCount > 5 && gate.ok) {
       entry.ok = false;
       entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
-      entry.reasons = [...(entry.reasons || []), `${dialogueIssueCount} missing opening quote dialogue issues (threshold: 5, after surface repair)`];
+      entry.reasons = [...(entry.reasons || []), `${dialogueIssueCount} missing opening quote dialogue issues (threshold: 5)`];
+    }
+    
+    // Hard-block for 3+ consecutive quotation marks
+    if (quoteClusterCount > 0 && entry.ok) {
+      entry.ok = false;
+      entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+      entry.reasons = [...(entry.reasons || []), `${quoteClusterCount} malformed runs of 3+ consecutive quotation marks (hard blocker)`];
     }
 
     if (!entry.ok) {
@@ -366,6 +380,7 @@ export function formatExportSafetyFailure(report) {
     if (f.contaminationCount > 0) lines.push(`    Contamination: ${f.contaminationCount}`);
     if (f.malformedCount > 0) lines.push(`    Malformed grammar: ${f.malformedCount}`);
     if (f.dialogueIssueCount > 0) lines.push(`    Dialogue issues: ${f.dialogueIssueCount}`);
+    if (f.quoteClusterCount > 0) lines.push(`    Quote clusters (3+): ${f.quoteClusterCount}`);
     if (f.slopTotal > 40) lines.push(`    AI-slop density: ${f.slopTotal} (high)`);
     for (const s of (f.snippets || []).slice(0, 3)) {
       lines.push(`    → [${s.type}] "${s.phrase}"`);

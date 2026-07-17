@@ -59,7 +59,7 @@ import {
 import { backupExportChapterIfChanged } from '@/lib/exportVersionSafety';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { runPreExportSafetyGate, formatExportSafetyFailure, assertExportSafetyAllowed, assertExportSnapshotIntegrity } from '@/lib/exportSafetyGate';
-import { runDialogueMechanicsPass, runMidParagraphDialogueAutofixPass } from '@/lib/dialogueMechanicsRepair';
+
 console.log('[EXPORT] ExportTab HARDFIX v46 loaded: pre-export dialogue surface repair + strict safety gate');
 
 export default function ExportTab({
@@ -801,92 +801,6 @@ export default function ExportTab({
           .map(ch => `  Ch.${ch.chapter_number || '?'} (${ch.title || 'untitled'})`)
           .join('\n');
         console.warn(`[EXPORT] METADATA REFRESH RECOMMENDED for ${metadataRefreshChapters.length} chapter(s):\n${refreshList}\nContent passed safety gate but metadata (preview/count) is stale. Run "Polish" or re-save to refresh metadata.`);
-      }
-
-      // ── PRE-EXPORT SURFACE DIALOGUE REPAIR ──
-      // Run deterministic dialogue mechanics repair on every resolved chapter's
-      // text BEFORE the safety gate. This ensures missing opening quotes are
-      // repaired regardless of whether the chapter was polished.
-      const surfaceRepairReport = [];
-      let totalSurfaceRepairs = 0;
-      for (const ch of cleaned) {
-        const content = ch?.content_md || ch?.content || '';
-        if (!content || content.length < 100) continue;
-        try {
-          const dmResult = runDialogueMechanicsPass(content, { stage: 'pre-export-surface' });
-          if (dmResult.repairs.length > 0) {
-            // Apply repaired text to the chapter for export
-            if (ch.content_md) ch.content_md = dmResult.text;
-            if (ch.content) ch.content = dmResult.text;
-            totalSurfaceRepairs += dmResult.repairs.length;
-            surfaceRepairReport.push({
-              chapter: ch.chapter_number || '?',
-              title: ch.title || '',
-              before: dmResult.beforeCount,
-              after: dmResult.afterCount,
-              repaired: dmResult.repairs.length,
-              manualReview: dmResult.manualReview?.length || 0,
-            });
-            console.log(
-              `[EXPORT-SURFACE-REPAIR] Ch.${ch.chapter_number}: ${dmResult.repairs.length} dialogue quote(s) repaired (${dmResult.beforeCount} → ${dmResult.afterCount})`
-            );
-          }
-        } catch (dmErr) {
-          console.warn(`[EXPORT-SURFACE-REPAIR] Ch.${ch.chapter_number}: error:`, dmErr?.message);
-        }
-      }
-      if (totalSurfaceRepairs > 0) {
-        console.log(`[EXPORT-SURFACE-REPAIR] Total: ${totalSurfaceRepairs} dialogue quote(s) repaired across ${surfaceRepairReport.length} chapter(s)`);
-      }
-
-      // ── PRE-EXPORT MID-PARAGRAPH DIALOGUE AUTOFIX ──
-      // After standard surface repair, run confidence-scored mid-paragraph autofix.
-      // Only applies SAFE_TO_AUTOFIX repairs; leaves MANUAL_REVIEW as warnings.
-      let totalMidParaAutoFixed = 0;
-      let totalMidParaManualReview = 0;
-      const midParaReport = [];
-      for (const ch of cleaned) {
-        const content = ch?.content_md || ch?.content || '';
-        if (!content || content.length < 100) continue;
-        try {
-          const mpResult = runMidParagraphDialogueAutofixPass(content, { stage: 'pre-export-mid-para' });
-          if (mpResult.midParagraphAutoFixed > 0 || mpResult.midParagraphManualReview > 0) {
-            if (mpResult.midParagraphAutoFixed > 0) {
-              if (ch.content_md) ch.content_md = mpResult.text;
-              if (ch.content) ch.content = mpResult.text;
-            }
-            totalMidParaAutoFixed += mpResult.midParagraphAutoFixed;
-            totalMidParaManualReview += mpResult.midParagraphManualReview;
-            midParaReport.push({
-              chapter: ch.chapter_number || '?',
-              autoFixed: mpResult.midParagraphAutoFixed,
-              manualReview: mpResult.midParagraphManualReview,
-              details: mpResult.details,
-            });
-            console.log(
-              `[EXPORT-MID-PARA-FIX] Ch.${ch.chapter_number}: ${mpResult.midParagraphAutoFixed} auto-fixed, ${mpResult.midParagraphManualReview} manual-review`
-            );
-          }
-        } catch (mpErr) {
-          console.warn(`[EXPORT-MID-PARA-FIX] Ch.${ch.chapter_number}: error:`, mpErr?.message);
-        }
-      }
-      if (totalMidParaAutoFixed > 0 || totalMidParaManualReview > 0) {
-        console.log(`[EXPORT-MID-PARA-FIX] Total: ${totalMidParaAutoFixed} auto-fixed, ${totalMidParaManualReview} manual-review`);
-      }
-
-      // Store for dev inspection
-      if (typeof window !== 'undefined') {
-        window.__UBS_LAST_EXPORT_SURFACE_REPORT = {
-          timestamp: new Date().toISOString(),
-          totalRepairs: totalSurfaceRepairs,
-          chapters: surfaceRepairReport,
-          midParagraph: {
-            totalAutoFixed: totalMidParaAutoFixed,
-            totalManualReview: totalMidParaManualReview,
-            chapters: midParaReport,
-          },
-        };
       }
 
       // ── PRE-EXPORT SAFETY GATE (STRICT) ──

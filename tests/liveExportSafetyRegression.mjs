@@ -309,6 +309,24 @@ console.log('\n── REGRESSION 9: Hard Block Enforcement ──');
   }
 }
 
+// ── REGRESSION 10: Hard Block for Quote Clusters ──
+console.log('\n── REGRESSION 10: Hard Block for Quote Clusters ──');
+{
+  const text = `${CLEAN_CHAPTER_1}\n\nThis has a malformed quote cluster.""""""""And continues...\n\n${CLEAN_CHAPTER_3}`;
+
+  const resolvedChapters = [
+    { chapter_number: 1, title: 'Cluster', content_md: text, __exportResolved: true },
+  ];
+
+  const report = await runPreExportSafetyGate(resolvedChapters, {
+    project: { project_type: 'anthology', genre: 'literary fiction' },
+  });
+
+  assert(report.blocked === true, 'Export BLOCKED by quote cluster');
+  assert(report.hardFailures.length === 1, 'Exactly 1 hard failure');
+  assert(report.hardFailures[0]?.reasons?.some(r => r.includes('malformed runs of 3+ consecutive quotation marks')), 'Reason mentions quote clusters');
+}
+
 // ── SUMMARY ──
 
 console.log(`\n${'='.repeat(60)}`);
