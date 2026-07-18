@@ -339,7 +339,7 @@ Return JSON only: { "voice_md": "..." }`;
 
 // ── Batch 2 Prompts ──────────────────────────────────────────────────────
 
-function buildCanonPrompt(seedConcept, settings, worldMd) {
+function buildCanonPrompt(seedConcept, settings, worldMd, charactersMd) {
   const ctx = buildContextBlock(seedConcept, settings);
   const isFiction = !isNonfictionSettings(settings);
   const nonfictionRules = isFiction ? '' : buildStrictNonfictionRules(settings);
@@ -349,6 +349,9 @@ ${ctx}
 
 WORLD (already generated):
 ${clipText(worldMd, 3000)}
+
+CHARACTERS (already generated — these identities, relationships, pronouns, and roles are binding):
+${clipText(charactersMd, 3500)}
 
 Generate canon_md: ${isFiction
     ? 'Hard facts and consistency anchors that future chapters must respect. Names, dates, locations, rules, power structures, relationships. 200+ words.'
@@ -375,7 +378,7 @@ Generate mystery_md: ${isFiction
 Return JSON only: { "mystery_md": "..." }`;
 }
 
-function buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd) {
+function buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd, canonMd, mysteryMd) {
   const constraintBlock = buildSetupConstraints(settings);
   const ctx = buildContextBlock(seedConcept, settings);
   const chapterCount = settings.chapter_target || 20;
@@ -414,6 +417,12 @@ ${clipText(worldMd, 2500)}
 
 PEOPLE / STAKEHOLDER LANDSCAPE (already generated):
 ${clipText(charactersMd, 2500)}
+
+CANON / CONTINUITY CONTRACT (binding):
+${clipText(canonMd, 3000)}
+
+MYSTERY / REVELATION PATH (binding):
+${clipText(mysteryMd, 2500)}
 ${nonfictionOutlineRules}
 
 Generate:
@@ -622,18 +631,18 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
 
   // GATEFIX-18: SEQUENTIAL — one local LLM call at a time (M1 constraint).
   onProgress?.('Bible: canon (4/6)…');
-  const canonResult = await callLLM(buildCanonPrompt(seedConcept, settings, worldMd), singleFieldSchema('canon_md'));
+  const canonResult = await callLLM(buildCanonPrompt(seedConcept, settings, worldMd, charactersMd), singleFieldSchema('canon_md'));
   onProgress?.('Bible: investigation path (5/6)…');
   const mysteryResult = await callLLM(buildMysteryPrompt(seedConcept, settings, charactersMd), singleFieldSchema('mystery_md'));
   onProgress?.('Bible: outline (6/6)…');
-  const outlineResultRaw = await callLLM(buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd), outlineSchema, { max_tokens: 16384 });
+  const outlineResultRaw = await callLLM(buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd, canonResult?.canon_md || '', mysteryResult?.mystery_md || ''), outlineSchema, { max_tokens: 16384 });
 
   let canonMd = canonResult?.canon_md || '';
   let mysteryMd = mysteryResult?.mystery_md || '';
   let outlineResult = outlineResultRaw || {};
 
   // FIELDGUARD-1: same floors for the batch-2 documents.
-  canonMd = await fieldGuardRetry('canon_md', canonMd, () => buildCanonPrompt(seedConcept, settings, worldMd));
+  canonMd = await fieldGuardRetry('canon_md', canonMd, () => buildCanonPrompt(seedConcept, settings, worldMd, charactersMd));
   mysteryMd = await fieldGuardRetry('mystery_md', mysteryMd, () => buildMysteryPrompt(seedConcept, settings, charactersMd));
 
   if (!isFiction) {
@@ -707,8 +716,16 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
       dupe = analyzeOutlineDuplication(chapters);
     }
     if (dupe.critical || forced.length) {
-      console.warn('[OUTLINE-DEDUPE] Accepting best-effort outline with remaining issues after ' + round + ' round(s): ' + dupe.issues.slice(0, 6).join(' | '));
-      onProgress?.('Bible: WARNING - outline still has issues after repair. Review the outline before drafting.');
+      const unresolved = [...dupe.issues.slice(0, 8), ...forced.map((n) => 'Ch.' + n + ' lost required content')];
+      const error = new Error(
+        'Story Bible rejected: the outline still contains repeated/alternate events or premature endings after ' +
+        round + ' repair round(s). ' + unresolved.join(' | ')
+      );
+      error.name = 'NarrativeContractError';
+      error.code = 'OUTLINE_CONTRACT_UNRESOLVED';
+      error.issues = unresolved;
+      console.error('[NARRATIVE-CONNECT] Hard-blocking unresolved outline:', error);
+      throw error;
     } else if (outlineChanged) {
       console.log('[OUTLINE-DEDUPE] Outline converged to distinct chapters after targeted repair.');
     }
