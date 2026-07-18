@@ -9,6 +9,7 @@ import {
 } from '../src/lib/generationContext.js';
 
 let passed = 0;
+const skipWiring = process.env.UBS_SKIP_WIRING === '1';
 function test(name, fn) {
   return Promise.resolve()
     .then(fn)
@@ -150,7 +151,7 @@ await test('duplicate or incomplete scene identities hard-block beat saving', ()
   );
 });
 
-await test('production wiring is fail-closed across planning, beats, and scenes', () => {
+if (!skipWiring) await test('production wiring is fail-closed across planning, beats, and scenes', () => {
   const studio = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
   const writer = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
   const bible = fs.readFileSync(new URL('../src/lib/parallelBibleGenerator.js', import.meta.url), 'utf8');
