@@ -632,18 +632,23 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
   // GATEFIX-18: SEQUENTIAL — one local LLM call at a time (M1 constraint).
   onProgress?.('Bible: canon (4/6)…');
   const canonResult = await callLLM(buildCanonPrompt(seedConcept, settings, worldMd, charactersMd), singleFieldSchema('canon_md'));
+  let canonMd = canonResult?.canon_md || '';
+  // The outline must never be built from a canon draft that later fails its
+  // own field guard. Repair/validate canon before it becomes a dependency.
+  canonMd = await fieldGuardRetry('canon_md', canonMd, () => buildCanonPrompt(seedConcept, settings, worldMd, charactersMd));
+
   onProgress?.('Bible: investigation path (5/6)…');
   const mysteryResult = await callLLM(buildMysteryPrompt(seedConcept, settings, charactersMd), singleFieldSchema('mystery_md'));
-  onProgress?.('Bible: outline (6/6)…');
-  const outlineResultRaw = await callLLM(buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd, canonResult?.canon_md || '', mysteryResult?.mystery_md || ''), outlineSchema, { max_tokens: 16384 });
-
-  let canonMd = canonResult?.canon_md || '';
   let mysteryMd = mysteryResult?.mystery_md || '';
-  let outlineResult = outlineResultRaw || {};
-
-  // FIELDGUARD-1: same floors for the batch-2 documents.
-  canonMd = await fieldGuardRetry('canon_md', canonMd, () => buildCanonPrompt(seedConcept, settings, worldMd, charactersMd));
   mysteryMd = await fieldGuardRetry('mystery_md', mysteryMd, () => buildMysteryPrompt(seedConcept, settings, charactersMd));
+
+  onProgress?.('Bible: outline (6/6)…');
+  const outlineResultRaw = await callLLM(
+    buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd, canonMd, mysteryMd),
+    outlineSchema,
+    { max_tokens: 16384 }
+  );
+  let outlineResult = outlineResultRaw || {};
 
   if (!isFiction) {
     canonMd = stripNonfictionScarTissue(canonMd);
