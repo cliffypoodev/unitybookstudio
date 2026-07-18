@@ -67,6 +67,7 @@ import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity 
 import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
+import { hydrateProjectForGeneration, loadGenerationSnapshot } from '@/lib/generationContext';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
 import { runParallelDraftPool, PARALLEL_DRAFT_LANE_LIMIT } from '@/lib/parallelDraftPool';
@@ -3074,9 +3075,18 @@ Return structured JSON:
     await handleExpand();
   };
 
-  const generateSceneBeats = async (chapter, allChapters) => {
-    const chapterList = allChapters || chapters;
-    const promptProject = buildNameHygieneEnhancedProject(project);
+  const generateSceneBeats = async (chapter, allChapters, generationProjectOverride) => {
+    // NARRATIVE-CONNECT-1: beat planning must use a fresh chapter list and the
+    // fully resolved foundation. URL-backed bible fields are blank on the raw
+    // entity by design; sending that raw entity to the architect silently
+    // removes the story bible from the prompt.
+    const chapterList = allChapters || await base44.entities.Chapter.filter(
+      { project_id: projectId },
+      'chapter_number',
+      200
+    );
+    const generationProject = generationProjectOverride || await hydrateProjectForGeneration(project);
+    const promptProject = buildNameHygieneEnhancedProject(generationProject);
     // Anthology: each story is standalone — no previous chapter context for beats
     const previousChapter = isAnthologyProject(promptProject) ? null : chapterList.find((item) => item.chapter_number === chapter.chapter_number - 1);
     const isNonfiction = promptProject.book_type === 'nonfiction';
@@ -3135,6 +3145,28 @@ Return structured JSON:
   };
 
   const draftChapter = async (chapter, shouldRefresh = true, modelOverride, onProgress, options = {}) => {
+    // NARRATIVE-CONNECT-1: capture one explicit, fully hydrated generation
+    // snapshot. Never let beat/scene generation read the React closure's stale
+    // chapter list or blank URL-backed foundation fields.
+    const generationSnapshot = await loadGenerationSnapshot({
+      project,
+      chapter,
+      fetchChapters: () => base44.entities.Chapter.filter(
+        { project_id: projectId },
+        'chapter_number',
+        200
+      ),
+    });
+    chapter = generationSnapshot.chapter;
+    const generationChapters = generationSnapshot.chapters;
+    const generationProject = generationSnapshot.project;
+    console.log('[NARRATIVE-CONNECT] Generation snapshot ready:', {
+      snapshotId: generationSnapshot.snapshotId,
+      chapter: chapter.chapter_number,
+      chapters: generationChapters.length,
+      foundation: generationProject.__generationContext,
+    });
+
     // When called with onProgress callback (from parallel Draft All), route
     // progress through it to the per-chapter slot. Otherwise use global busyLabel.
     const report = (value) => {
@@ -3146,10 +3178,10 @@ Return structured JSON:
       console.log(`[DRAFT-CH-${chapter.chapter_number}] draftChapter received onProgress callback`);
     }
     // Anthology: each story is standalone — no previous chapter context
-    const isAnthologyDraft = isAnthologyProject(project);
-    const previousChapter = isAnthologyDraft ? null : chapters.find((item) => item.chapter_number === chapter.chapter_number - 1);
+    const isAnthologyDraft = isAnthologyProject(generationProject);
+    const previousChapter = isAnthologyDraft ? null : generationSnapshot.previousChapter;
     const resolvedPrev = previousChapter ? { ...previousChapter, content_md: await resolveChapterContent(previousChapter) } : null;
-    const draftingProject = { ...buildNameHygieneEnhancedProject(project), __chapters: chapters };
+    const draftingProject = { ...buildNameHygieneEnhancedProject(generationProject), __chapters: generationChapters };
     const targetWords = draftingProject.chapter_length_target || draftingProject.target_chapter_words || 3500;
     const minAcceptable = Math.round(targetWords * 0.7);
     // Track generated prose for emergency save if a later step fails
@@ -3173,7 +3205,7 @@ Return structured JSON:
 
     // Generate scene beats before drafting
     report(`Generating beats for chapter ${chapter.chapter_number}…`);
-    const beatsJson = await generateSceneBeats(chapter);
+    const beatsJson = await generateSceneBeats(chapter, generationChapters, generationProject);
     const chapterWithBeats = { ...chapter, scene_beats_json: beatsJson };
 
     // Get previous chapter tail for continuity
@@ -3191,9 +3223,9 @@ Return structured JSON:
     // not full content — the prompt should know WHAT was covered, not re-ingest
     // every word. Skip for anthologies (each story is standalone) and for Ch 1
     // (no prior chapters to dedupe against).
-    const isAnth = isAnthologyProject(project);
+    const isAnth = isAnthologyProject(generationProject);
     const priorChapterSummaries = (!isAnth && chapter.chapter_number > 1)
-      ? (chapters || [])
+      ? generationChapters
           .filter(c => c && c.chapter_number && c.chapter_number < chapter.chapter_number && isBodyChapter(c))
           .sort((a, b) => a.chapter_number - b.chapter_number)
           .map(c => ({
@@ -3229,7 +3261,7 @@ Return structured JSON:
     if (isNonfiction) {
       report(`Saving nonfiction chapter ${chapter.chapter_number}; nonfiction polish remains available through Fix/Polish…`);
 
-      const canonRepair = repairCanonNameDrift(chapterContent, { project: draftingProject, chapter, chapters });
+      const canonRepair = repairCanonNameDrift(chapterContent, { project: draftingProject, chapter, chapters: generationChapters });
       if (canonRepair.changed) {
         console.warn('[CANON-NAME-LOCK][NF-DRAFT-SAVE v15.2] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', canonRepair.repairs);
         chapterContent = canonRepair.text;
@@ -3278,7 +3310,7 @@ Return structured JSON:
       const guard = validateProjectChapterContent({
         project: buildNameHygieneEnhancedProject(draftingProject || {}),
         chapter,
-        chapters,
+        chapters: generationChapters,
         content: chapterContent,
       });
       if (guard?.shouldBlockSave || guard?.severity === 'warning') {
@@ -3349,7 +3381,7 @@ Return structured JSON:
         setChapterDraft(chapterContent);
       }
 
-      const draftedCount = getDraftedCount(chapters);
+      const draftedCount = getDraftedCount(generationChapters);
       const _draftProjectPayload = protectedProjectUpdate({
         chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
         status: 'ready',
@@ -3486,7 +3518,7 @@ Return structured JSON:
         setChapterDraft(chapterContent);
       }
 
-      const draftedCount = getDraftedCount(chapters);
+      const draftedCount = getDraftedCount(generationChapters);
       const _draftProjectPayload = protectedProjectUpdate({
         chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
         status: 'ready',
@@ -3606,7 +3638,7 @@ Return structured JSON:
 
     // Canon-name and artifact cleanup must run before save so bad names like
     // Langston/Arthur or Nikolai/Silas cannot persist into the manuscript DB.
-    const canonRepair = repairCanonNameDrift(chapterContent, { project, chapter, chapters });
+    const canonRepair = repairCanonNameDrift(chapterContent, { project: generationProject, chapter, chapters: generationChapters });
     if (canonRepair.changed) {
       console.warn('[CANON-NAME-LOCK] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', canonRepair.repairs);
       chapterContent = canonRepair.text;
@@ -3677,7 +3709,7 @@ Return structured JSON:
       setChapterDraft(chapterContent);
     }
 
-    const draftedCount = getDraftedCount(chapters);
+    const draftedCount = getDraftedCount(generationChapters);
     const _draftProjectPayload = protectedProjectUpdate({
       chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
       status: 'ready',
