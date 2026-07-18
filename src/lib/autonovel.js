@@ -1457,7 +1457,10 @@ Canon rules:
 ${clipText(project.canon_md, 1200)}
 
 Mystery/tension thread:
-${clipText(project.mystery_md, 800)}
+${clipText(project.mystery_md, 1200)}
+
+Twist/reversal contract (place each twist only in its assigned chapter; never create an alternate version):
+${clipText(project.twists_md, 2400)}
 ${voiceGuide ? `\nVoice guide:\n${voiceGuide}` : ''}
 
 CHAPTER ${chapter.chapter_number}: "${chapter.title}"
