@@ -67,7 +67,7 @@ import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity 
 import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
-import { hydrateProjectForGeneration, loadGenerationSnapshot } from '@/lib/generationContext';
+import { hydrateProjectForGeneration, loadGenerationSnapshot, validateSceneBeatContracts } from '@/lib/generationContext';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
 import { runParallelDraftPool, PARALLEL_DRAFT_LANE_LIMIT } from '@/lib/parallelDraftPool';
@@ -3123,6 +3123,11 @@ Return structured JSON:
 
     if (isNonfiction) {
       validateNonfictionBeatPlanForDrafting(beatResult || {}, chapter);
+    } else {
+      const contractReport = validateSceneBeatContracts(beatResult || {}, {
+        chapterNumber: chapter.chapter_number,
+      });
+      console.log('[NARRATIVE-CONNECT] Scene contract accepted:', contractReport);
     }
 
     const fullBeatsJson = JSON.stringify(beatResult || {}, null, 2);
