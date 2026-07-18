@@ -193,6 +193,76 @@ export function buildGenerationSnapshot({ project, chapters = [], chapter } = {}
   });
 }
 
+export function validateSceneBeatContracts(value, options = {}) {
+  let parsed = value;
+  if (typeof parsed === 'string') {
+    try {
+      parsed = JSON.parse(parsed);
+    } catch (error) {
+      throw new GenerationContextError('Scene-beat contract is not valid JSON.', {
+        code: 'SCENE_CONTRACT_JSON_INVALID',
+        cause: error?.message || String(error),
+      });
+    }
+  }
+
+  const beats = Array.isArray(parsed)
+    ? parsed
+    : (Array.isArray(parsed?.beats) ? parsed.beats : []);
+
+  if (!beats.length) {
+    throw new GenerationContextError('Scene-beat contract contains no scenes.', {
+      code: 'SCENE_CONTRACT_EMPTY',
+      chapterNumber: options.chapterNumber || null,
+    });
+  }
+
+  const expectedChapter = Number(options.chapterNumber || 0);
+  const expectedPrefix = expectedChapter
+    ? `ch${String(expectedChapter).padStart(2, '0')}-s`
+    : '';
+  const seenIds = new Set();
+  const issues = [];
+
+  beats.forEach((beat, index) => {
+    const position = index + 1;
+    const sceneId = text(beat?.scene_id);
+    if (!sceneId) issues.push(`Scene ${position}: scene_id is missing`);
+    else {
+      if (expectedPrefix && !sceneId.toLowerCase().startsWith(expectedPrefix)) {
+        issues.push(`Scene ${position}: scene_id "${sceneId}" does not belong to Chapter ${expectedChapter}`);
+      }
+      if (seenIds.has(sceneId.toLowerCase())) issues.push(`Scene ${position}: duplicate scene_id "${sceneId}"`);
+      seenIds.add(sceneId.toLowerCase());
+    }
+
+    if (!text(beat?.entry_state)) issues.push(`Scene ${position}: entry_state is missing`);
+    if (!text(beat?.exit_state)) issues.push(`Scene ${position}: exit_state is missing`);
+    if (!Array.isArray(beat?.required_events) || !beat.required_events.some((event) => text(event))) {
+      issues.push(`Scene ${position}: required_events must contain at least one concrete event`);
+    }
+    if (!text(beat?.scene_goal)) issues.push(`Scene ${position}: scene_goal is missing`);
+  });
+
+  if (issues.length) {
+    throw new GenerationContextError(
+      `Scene-beat contract rejected for Chapter ${expectedChapter || '?'}: ${issues.slice(0, 6).join('; ')}`,
+      {
+        code: 'SCENE_CONTRACT_INVALID',
+        chapterNumber: expectedChapter || null,
+        issues,
+      }
+    );
+  }
+
+  return Object.freeze({
+    ok: true,
+    chapterNumber: expectedChapter || null,
+    sceneCount: beats.length,
+    sceneIds: Object.freeze(beats.map((beat) => beat.scene_id)),
+  });
+}
+
 export async function loadGenerationSnapshot({
   project,
   chapter,
