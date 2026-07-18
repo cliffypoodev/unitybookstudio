@@ -524,7 +524,13 @@ export const sceneBeatSchema = {
         type: 'object',
         properties: {
           scene_number: { type: 'number' },
+          scene_id: { type: 'string', description: 'Stable ID in the form chNN-sNN. One planned scene equals one ID and one accepted draft.' },
           scene_goal: { type: 'string' },
+          entry_state: { type: 'string', description: 'Concrete story state at scene opening: location, time, character status, injuries, knowledge, and important object ownership.' },
+          required_events: { type: 'array', items: { type: 'string' }, description: 'Events that must happen exactly once in this scene.' },
+          forbidden_events: { type: 'array', items: { type: 'string' }, description: 'Events or outcomes this scene must not repeat, reverse, or introduce.' },
+          exit_state: { type: 'string', description: 'Concrete changed state handed to the next scene.' },
+          continuity_dependencies: { type: 'array', items: { type: 'string' }, description: 'Prior chapter/scene facts this scene depends on and must preserve.' },
           pov_character: { type: 'string' },
           setting: { type: 'string' },
           characters_present: { type: 'array', items: { type: 'string' }, description: 'canonical_name of every character in the scene. ONLY names from canon_cast.' },
@@ -535,7 +541,7 @@ export const sceneBeatSchema = {
           exit_hook: { type: 'string' },
           intimacy_level: { type: 'number', description: 'Optional 0-4. 0=none, 1=tension/flirting, 2=partial physical contact, 3=explicit sexual content, 4=intensely explicit. Only include when the scene involves romantic/sexual content.' },
         },
-        required: ['scene_number', 'scene_goal', 'characters_present', 'conflict', 'emotional_arc', 'tension_level'],
+        required: ['scene_number', 'scene_id', 'scene_goal', 'entry_state', 'required_events', 'exit_state', 'characters_present', 'conflict', 'emotional_arc', 'tension_level'],
       },
     },
   },
@@ -1254,6 +1260,19 @@ export async function buildSceneBeatPrompt(project, chapter, previousChapter, ch
   const scenePovRule = SCENE_POV_RULES[project.pov_mode] || SCENE_POV_RULES['third-close'];
   const targetWords = project.chapter_length_target || project.target_chapter_words || 3500;
 
+  // NARRATIVE-CONNECT-1: fiction previously accepted `chapters` but ignored
+  // it. Give the beat architect the whole ordered chapter contract so later
+  // chapters cannot unknowingly replay an earlier death, reveal, departure,
+  // confrontation, or ending.
+  const fullChapterPlanContext = (Array.isArray(chapters) ? chapters : [])
+    .filter(Boolean)
+    .sort((a, b) => Number(a.chapter_number || 0) - Number(b.chapter_number || 0))
+    .map((item) => {
+      const marker = Number(item.chapter_number) === Number(chapter.chapter_number) ? ' [CURRENT]' : '';
+      return `Ch.${item.chapter_number}${marker}: ${item.title || 'Untitled'} — ${String(item.beat_summary || '').replace(/\s+/g, ' ').trim()}`;
+    })
+    .join('\n');
+
   // Scene-count estimate.
   // For NOVELS: use word-count-based formula (~1 scene per 1200 words).
   // For ANTHOLOGY stories: use the length preset's `parts` value as a floor, since
@@ -1431,6 +1450,9 @@ ${clipText(project.characters_md, 1600)}
 Outline context:
 ${clipText(project.outline_md, 1600)}
 
+FULL ORDERED CHAPTER CONTRACT (every event below has one home; never replay it):
+${clipText(fullChapterPlanContext, 12000)}
+
 Canon rules:
 ${clipText(project.canon_md, 1200)}
 
@@ -1449,7 +1471,13 @@ Generate approximately ${scenesEstimate} scene beats for this chapter (~${target
 
 Each beat must include:
 - scene_number: sequential within this chapter
+- scene_id: stable ID formatted ch${String(chapterNumber).padStart(2, '0')}-sNN
 - scene_goal: what this scene must accomplish for the story
+- entry_state: concrete location/time, who is alive/present/injured, what they know, and ownership of important objects
+- required_events: events that happen exactly once in this scene
+- forbidden_events: earlier deaths, reveals, confrontations, departures, or endings that must not be replayed
+- exit_state: the concrete changed state handed to the next scene
+- continuity_dependencies: earlier facts this scene must preserve
 - pov_character: who holds the camera (must obey POV mode rules)
 - setting: where and when
 - conflict: the specific tension or obstacle in this scene
@@ -1461,7 +1489,9 @@ Rules:
 - Beats must form a coherent arc across the chapter with rising tension
 - Each beat must advance plot, character, or both — no filler scenes
 - The final beat's exit_hook must create forward momentum into the next chapter
-- Every beat must change the story state. If two beats share the same location, people, and core action, merge them or replace the later one with consequence/fallout.
+- Every beat must change the story state. The exit_state of scene N must be compatible with the entry_state of scene N+1.
+- A death, departure, revelation, confrontation, transfer of an important object, climax, or ending has ONE owning scene_id. Never plan an alternate take of the same event.
+- If two beats share the same location, people, and core action, merge them or replace the later one with consequence/fallout.
 - Scene 2 and later must NEVER restart the chapter premise, re-enter the same initial location, or re-explain the same reveal.
 - Respect the canon document — do not contradict established facts
 - Match the configured beat style: ${project.beat_style || 'genre default'}
