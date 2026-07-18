@@ -2080,6 +2080,32 @@ function getAnthologyContext(project, chapter) {
   }
 }
 
+function buildSceneStateContractBlock(spec) {
+  const sceneId = String(spec?.scene_id || '').trim();
+  const entryState = String(spec?.entry_state || '').trim();
+  const exitState = String(spec?.exit_state || '').trim();
+  const requiredEvents = Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean) : [];
+  const forbiddenEvents = Array.isArray(spec?.forbidden_events) ? spec.forbidden_events.filter(Boolean) : [];
+  const dependencies = Array.isArray(spec?.continuity_dependencies) ? spec.continuity_dependencies.filter(Boolean) : [];
+
+  if (!sceneId && !entryState && !exitState && !requiredEvents.length) return '';
+
+  const lines = [
+    `SCENE ID: ${sceneId || 'missing — do not draft'}`,
+    `ENTRY STATE (must be true when the scene opens): ${entryState || 'missing'}`,
+    `REQUIRED EVENTS (each exactly once): ${requiredEvents.length ? requiredEvents.join('; ') : 'missing'}`,
+    `FORBIDDEN REPLAYS / REVERSALS: ${forbiddenEvents.length ? forbiddenEvents.join('; ') : 'None listed; still do not replay earlier events.'}`,
+    `EXIT STATE (must be true when the scene ends): ${exitState || 'missing'}`,
+  ];
+  if (dependencies.length) lines.push(`CONTINUITY DEPENDENCIES: ${dependencies.join('; ')}`);
+
+  return `NARRATIVE STATE CONTRACT — MANDATORY:
+This is one versioned scene, not an alternate take. Write only this scene.
+Never reverse a death, departure, revelation, injury, object transfer, or decision
+established by the entry state or prior context.
+${lines.join('\n')}`;
+}
+
 function buildSceneCastBlock(spec) {
   const present = Array.isArray(spec?.characters_present) ? spec.characters_present.filter(Boolean) : [];
   const props = Array.isArray(spec?.props_present) ? spec.props_present.filter(Boolean) : [];
@@ -2094,7 +2120,8 @@ function buildScenePrompt(args) {
   const isNF = isNonfictionProject(args.project) || isNonfictionAnthology(args.project);
   const base = isNF ? buildNonfictionPrompt(args) : buildFictionPrompt(args);
   const sceneCast = buildSceneCastBlock(args.spec || args);
-  let out = sceneCast ? `${sceneCast}\n\n${base}` : base;
+  const stateContract = isNF ? '' : buildSceneStateContractBlock(args.spec || args);
+  let out = [stateContract, sceneCast, base].filter(Boolean).join('\n\n');
   // ARCH2-4b-a: foreign-homed witness quotes must not reach the model through
   // ANY prompt channel (bible fields, beats, rolling context) — not only the
   // research block. Home-chapter quotes and unhomed quotes pass through
@@ -2790,8 +2817,16 @@ export async function generateChapterSceneByScene({
         generated.repaired = true;
         generated.issues = [...(generated.issues || []), `Duplicate/restart repaired: ${duplicateCheck.reason}`];
       } else {
-        console.warn(`[sceneWriter] Scene ${spec.sceneNumber || i + 1} duplicate repair still looked unsafe; keeping original but flagging.`);
-        generated.issues = [...(generated.issues || []), `Possible duplicate/restart survived: ${duplicateCheck.reason}`];
+        const duplicateError = new Error(
+          `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: duplicate/restart survived its repair pass (${duplicateCheck.reason}).`
+        );
+        duplicateError.name = 'NarrativeInvariantError';
+        duplicateError.code = 'SCENE_DUPLICATE_UNRESOLVED';
+        duplicateError.sceneId = spec.scene_id || null;
+        duplicateError.sceneNumber = spec.sceneNumber || i + 1;
+        duplicateError.reason = duplicateCheck.reason;
+        console.error('[NARRATIVE-CONNECT] Hard-blocking unsafe scene:', duplicateError);
+        throw duplicateError;
       }
     }
 
