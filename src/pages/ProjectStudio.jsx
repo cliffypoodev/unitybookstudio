@@ -1394,6 +1394,51 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
         ? raw.scenes
         : [];
 
+  // NARRATIVE-CONNECT-1: the old universal compactor converted fiction
+  // {beats:[...]} into nonfiction-shaped {sections:[...]} and silently dropped
+  // scene_goal, conflict, emotional_arc, cast, and every state-transition
+  // field. Preserve the validated fiction contract exactly enough to redraft,
+  // inspect, and verify later.
+  if (Array.isArray(raw.beats)) {
+    const compactFictionBeat = (unit = {}, index = 0) => ({
+      scene_number: Number(unit.scene_number || index + 1),
+      scene_id: truncateForEntityField(unit.scene_id, 40),
+      scene_goal: truncateForEntityField(unit.scene_goal, 420),
+      entry_state: truncateForEntityField(unit.entry_state, 520),
+      required_events: slimArrayForEntityField(unit.required_events || [], 8, 240),
+      forbidden_events: slimArrayForEntityField(unit.forbidden_events || [], 8, 240),
+      exit_state: truncateForEntityField(unit.exit_state, 520),
+      continuity_dependencies: slimArrayForEntityField(unit.continuity_dependencies || [], 8, 220),
+      pov_character: truncateForEntityField(unit.pov_character, 100),
+      setting: truncateForEntityField(unit.setting, 220),
+      characters_present: slimArrayForEntityField(unit.characters_present || [], 12, 100),
+      props_present: slimArrayForEntityField(unit.props_present || [], 12, 100),
+      conflict: truncateForEntityField(unit.conflict, 380),
+      emotional_arc: truncateForEntityField(unit.emotional_arc, 300),
+      tension_level: Number(unit.tension_level || 0),
+      exit_hook: truncateForEntityField(unit.exit_hook, 300),
+      word_target: Number(unit.word_target || unit.target_words || 0) || undefined,
+    });
+
+    const fictionContract = {
+      compacted_for_entity_field: true,
+      compact_version: 'fiction-scene-contract-v1',
+      chapter_number: chapter?.chapter_number || raw.chapter_number || null,
+      title: truncateForEntityField(chapter?.title || raw.title || '', 140),
+      beats: sourceUnits.map(compactFictionBeat).slice(0, 12),
+    };
+    const fictionJson = JSON.stringify(fictionContract, null, 2);
+    if (fictionJson.length > SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+      const err = new Error(
+        `Chapter ${chapter?.chapter_number || '?'} scene contract is ${fictionJson.length} characters and cannot be saved safely. Reduce beat verbosity; the contract was not truncated.`
+      );
+      err.name = 'NarrativeContractError';
+      err.code = 'FICTION_SCENE_CONTRACT_TOO_LARGE';
+      throw err;
+    }
+    return fictionJson;
+  }
+
   const compact = {
     compacted_for_entity_field: true,
     compact_version: 'scene-beats-compact-v15.5',
