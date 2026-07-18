@@ -1425,7 +1425,7 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
       compact_version: 'fiction-scene-contract-v1',
       chapter_number: chapter?.chapter_number || raw.chapter_number || null,
       title: truncateForEntityField(chapter?.title || raw.title || '', 140),
-      beats: sourceUnits.map(compactFictionBeat).slice(0, 12),
+      beats: sourceUnits.map(compactFictionBeat),
     };
     const fictionJson = JSON.stringify(fictionContract, null, 2);
     if (fictionJson.length > SCENE_BEATS_ENTITY_CHAR_LIMIT) {
