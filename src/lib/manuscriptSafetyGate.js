@@ -1,6 +1,7 @@
 // =============================================================
 // manuscriptSafetyGate.js — Unified manuscript safety gate v1
 import { detectModelControlTokens } from './modelLeakGuard.js';
+import { findNarrativeMetaLeaks } from './generationContext.js';
 //
 // Shared safety module for the three active UI paths:
 //   1. Draft/Rewrite → draftChapter() save path
@@ -197,6 +198,20 @@ export function detectProcessLeaks(text, options = {}) {
       snippet: ct.snippet,
       severity: 'critical',
       type: 'model-control-token'
+    });
+  }
+
+  // NARRATIVE-CONNECT-2: chapter-number and adjacent-chapter phrases are
+  // dynamic, so a fixed canary list cannot catch them. They exposed the
+  // planning contract directly in the Brass Meridian manuscript.
+  for (const leak of findNarrativeMetaLeaks(text)) {
+    if (matches.some((match) => match.index === leak.index && match.phrase === leak.phrase)) continue;
+    matches.push({
+      phrase: leak.phrase,
+      index: leak.index,
+      snippet: leak.snippet,
+      severity: 'critical',
+      type: 'narrative-process-leak',
     });
   }
 

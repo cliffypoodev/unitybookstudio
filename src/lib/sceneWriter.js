@@ -53,6 +53,12 @@ import { excludeForeignQuotes } from '@/lib/quoteLedger';
 import { getTwistContextForChapter, getAnthologyTwistBlock } from '@/lib/plotTwists';
 import { resolveResearchContent } from '@/lib/researchStorage';
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
+import {
+  assertNarrativeTextClean,
+  assertSceneContractUnchanged,
+  createImmutableSceneContract,
+  findNarrativeMetaLeaks,
+} from '@/lib/generationContext';
 import { buildProjectContinuityLockBlock, validateProjectChapterContent } from '@/lib/projectContentGuard';
 import { buildCanonNameLockBlock, repairCanonNameDrift } from '@/lib/canonNameLock';
 import { repairChapterQuotes } from '@/lib/quoteFixPolish';
@@ -196,6 +202,15 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
   const words = prose.trim().split(/\s+/).filter(Boolean);
   const blockingIssues = [];
   const warnings = [];
+
+  if (!(isNonfictionProject(project) || isNonfictionAnthology(project))) {
+    const metaLeaks = findNarrativeMetaLeaks(prose);
+    if (metaLeaks.length) {
+      blockingIssues.push(
+        `Manuscript planning-language leakage detected: ${metaLeaks.slice(0, 3).map((item) => `"${item.phrase}"`).join(', ')}. Rewrite as immersive story prose without referring to chapters, scene IDs, beats, contracts, or the drafting process.`
+      );
+    }
+  }
 
   // SEVERE (nonfiction): invented names not present in research → blocking, retry
   if (project?.book_type === 'nonfiction') {
@@ -1233,6 +1248,7 @@ function buildFictionPrompt({
   volumeContractBlock = '',
   authorStyleBlock = '',
   includeFullCraft = false,
+  revisionFeedback = '',
 }) {
   const projectHeader = buildProjectContextHeader(project);
   const setupConstraints = buildSetupConstraints(project);
@@ -1278,6 +1294,9 @@ function buildFictionPrompt({
   const anthologySpiceBeat = buildAnthologySpiceBeatContext(project);
   const twistBlock = twistContext ? `TWIST / REVERSAL CONTEXT:\n${compact(twistContext, 2500)}` : '';
   const craftRules = includeFullCraft ? COMPACT_CRAFT_RULES : '';
+  const revisionBlock = String(revisionFeedback || '').trim()
+    ? `REJECTED-DRAFT CORRECTIONS — BINDING:\nThe previous chapter draft was rejected. Fix every issue below while still following this scene's immutable state contract. Do not create an alternate event sequence.\n${compact(revisionFeedback, 5000)}`
+    : '';
 
   return [
     `You are the prose engine for a professional long-form book-writing app. Your job is to write the next scene as polished manuscript prose.`,
@@ -1313,6 +1332,7 @@ function buildFictionPrompt({
     canonNameLockBlock,
     anthologyVarietyBlock,
     sceneSpecBlock,
+    revisionBlock,
     manuscriptPurityBlock,
     sceneContinuityExpansionBlock,
     noSlopBlock,
@@ -2637,6 +2657,7 @@ export async function generateChapterSceneByScene({
   proseModelOverride,
   model: modelOverride,
   includeFullCraft = true,
+  revisionFeedback = '',
   onProgress,
 }) {
   if (!project) throw new Error('Project is required.');
@@ -2647,6 +2668,9 @@ export async function generateChapterSceneByScene({
   const chapterNumber = getChapterNumber(chapter);
   const chapterTarget = getChapterTargetWords(project, chapter);
   const parsedScenes = parseScenesFromChapter(chapter, scenes, isNF);
+  const immutableContract = !isNF
+    ? createImmutableSceneContract(parsedScenes, { chapterNumber })
+    : null;
   const beatPreflight = normalizeSceneBeatsForDrafting(parsedScenes, {
     isNonfiction: isNF,
     chapterNumber,
@@ -2655,6 +2679,18 @@ export async function generateChapterSceneByScene({
   });
 
   if (beatPreflight?.changed) {
+    if (!isNF) {
+      const error = new Error(
+        `Chapter ${chapterNumber} scene contract was rejected before drafting: the legacy normalizer would change ${beatPreflight.originalCount} accepted scenes into ${beatPreflight.finalCount}. Regenerate the beat plan instead of merging or dropping contracted scenes.`
+      );
+      error.name = 'NarrativeInvariantError';
+      error.code = 'SCENE_CONTRACT_NORMALIZER_CONFLICT';
+      error.narrativeContract = true;
+      error.contractFingerprint = immutableContract?.fingerprint || null;
+      error.details = beatPreflight;
+      console.error('[NARRATIVE-CONNECT] Refusing to mutate accepted fiction contract:', error);
+      throw error;
+    }
     console.warn('[sceneWriter] Scene beat preflight changed chapter beats:', beatPreflight.report, beatPreflight.warnings || []);
     onProgress?.({
       stage: 'scene_beat_preflight',
@@ -2673,7 +2709,13 @@ export async function generateChapterSceneByScene({
     if (cov) console.warn('[COVERAGE] ch' + (chapter?.chapter_number || '?') + ': ' + cov.coverage + '% of ' + cov.total + ' beat atoms in evidence' + (cov.missingCount ? ' — MISSING: ' + cov.missing.join(' | ') : ''));
   } catch (covErr) { /* advisory only — drafting continues regardless */ }
 
-  const normalizedScenes = normalizeSceneSpecs(beatPreflight?.beats || parsedScenes, chapterTarget);
+  const normalizedScenes = normalizeSceneSpecs(
+    isNF ? (beatPreflight?.beats || parsedScenes) : immutableContract.beats,
+    chapterTarget
+  );
+  if (!isNF) {
+    assertSceneContractUnchanged(immutableContract, normalizedScenes, { chapterNumber });
+  }
 
   const model = pickProseModel(project, proseModelOverride || modelOverride);
   const fallbackControls = buildFallbackControls('prose', project);
@@ -2741,6 +2783,7 @@ export async function generateChapterSceneByScene({
       volumeContractBlock,
       authorStyleBlock,
       includeFullCraft,
+      revisionFeedback,
     });
 
     // Capture the prompt sent to the model for diagnostic comparison
@@ -2777,6 +2820,17 @@ export async function generateChapterSceneByScene({
 
     if (!sceneProse) {
       throw new Error('Scene ' + (spec.sceneNumber || i + 1) + ' returned empty prose after ' + MAX_EMPTY_REROLLS + ' attempts.');
+    }
+
+    if (!isNF) {
+      try {
+        assertNarrativeTextClean(sceneProse, { chapterNumber });
+      } catch (error) {
+        error.sceneId = spec.scene_id || null;
+        error.sceneNumber = spec.sceneNumber || i + 1;
+        error.narrativeContract = true;
+        throw error;
+      }
     }
 
     const duplicateCheck = detectLikelySceneRestart(sceneProse, accumulatedProse, spec, i);
@@ -2874,6 +2928,7 @@ export async function generateChapterSceneByScene({
 
   pipelineSnapshot(chapter?.id, '0c-accumulated-pre-final-clean', accumulatedProse);
   let finalProse = cleanSceneOutput(accumulatedProse, project);
+  if (!isNF) assertNarrativeTextClean(finalProse, { chapterNumber });
   pipelineSnapshot(chapter?.id, '0d-after-final-cleanSceneOutput', finalProse);
 
   const nameRepair = repairCanonNameDrift(finalProse, { project, chapter, chapters: allProjectChapters });

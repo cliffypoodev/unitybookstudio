@@ -67,7 +67,8 @@ import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity 
 import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
-import { hydrateProjectForGeneration, loadGenerationSnapshot, validateSceneBeatContracts } from '@/lib/generationContext';
+import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, validateSceneBeatContracts } from '@/lib/generationContext';
+import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
 import { runParallelDraftPool, PARALLEL_DRAFT_LANE_LIMIT } from '@/lib/parallelDraftPool';
@@ -3142,16 +3143,51 @@ Return structured JSON:
     console.log('[BEATS] Beat model:', beatModel);
     let beatResult = null;
     try {
-      const beatResponse = await invokeLLMWithRetry({
-        task_type: 'outline',
-        prompt: await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList),
-        response_json_schema: schema,
-        spec: promptProject,
-        model: beatModel,
-        max_tokens: beatModel?.includes('lumimaid') ? 4096 : 8192,
-        ...buildFallbackControls('beats', promptProject),
-      });
-      beatResult = unwrapIntegrationResult(beatResponse);
+      const initialBeatPrompt = await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList);
+      let beatPrompt = initialBeatPrompt;
+      const maxContractAttempts = isNonfiction ? 1 : 2;
+
+      for (let attempt = 1; attempt <= maxContractAttempts; attempt += 1) {
+        const beatResponse = await invokeLLMWithRetry({
+          task_type: 'outline',
+          prompt: beatPrompt,
+          response_json_schema: schema,
+          spec: promptProject,
+          model: beatModel,
+          max_tokens: beatModel?.includes('lumimaid') ? 4096 : 8192,
+          ...buildFallbackControls('beats', promptProject),
+        });
+        beatResult = unwrapIntegrationResult(beatResponse);
+
+        if (isNonfiction) break;
+
+        validateSceneBeatContracts(beatResult || {}, {
+          chapterNumber: chapter.chapter_number,
+        });
+        const proposedBeats = Array.isArray(beatResult?.beats) ? beatResult.beats : [];
+        const overlapReport = normalizeSceneBeatsForDrafting(proposedBeats, {
+          isNonfiction: false,
+          chapterNumber: chapter.chapter_number,
+          chapterTitle: chapter.title || '',
+          projectTitle: promptProject.title || '',
+        });
+
+        if (!overlapReport.changed) break;
+
+        if (attempt === maxContractAttempts) {
+          const error = new Error(
+            `Chapter ${chapter.chapter_number} beat contract rejected: scenes still overlap or compete for the same story function after regeneration. ${overlapReport.report}`
+          );
+          error.name = 'NarrativeInvariantError';
+          error.code = 'SCENE_CONTRACT_OVERLAP_UNRESOLVED';
+          error.narrativeContract = true;
+          error.details = overlapReport;
+          throw error;
+        }
+
+        console.warn('[NARRATIVE-CONNECT] Rejecting overlapping beat contract and regenerating:', overlapReport);
+        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}\n\nReturn a completely new JSON beat contract.`;
+      }
     } catch (beatError) {
       if (!isNonfiction) throw beatError;
 
@@ -3605,10 +3641,20 @@ Return structured JSON:
       fallback_model: pickFallbackModel('judge', project),
     });
     const judge = unwrapIntegrationResult(judgeResponse);
+    const judgeContractComplete =
+      Number.isFinite(Number(judge?.narrative_contract_adherence)) &&
+      Number.isFinite(Number(judge?.continuity_integrity)) &&
+      Array.isArray(judge?.contract_violations) &&
+      Array.isArray(judge?.process_leaks);
 
     // If quality is unacceptable, do one full rewrite with feedback
-    const needsRetry = !slopResult.pass
+    const needsRetry = !judgeContractComplete
+      || !slopResult.pass
       || judge.voice_adherence < 5
+      || judge.narrative_contract_adherence < 8
+      || judge.continuity_integrity < 8
+      || (Array.isArray(judge?.contract_violations) && judge.contract_violations.length > 0)
+      || (Array.isArray(judge?.process_leaks) && judge.process_leaks.length > 0)
       || tenseViolations.some((v) => v.severity === 'critical')
       || povViolations.some((v) => v.severity === 'critical')
       || wordCount < minAcceptable;
@@ -3619,6 +3665,8 @@ Return structured JSON:
         ...tenseViolations.map((v) => v.description),
         ...povViolations.map((v) => v.description),
         ...judgeIssues,
+        ...(Array.isArray(judge?.contract_violations) ? judge.contract_violations : []),
+        ...(Array.isArray(judge?.process_leaks) ? judge.process_leaks : []),
         `Mechanical slop score: ${slopResult.score}/10`,
         ...sourceAuditNotes,
         ...slopResult.details,
@@ -3640,6 +3688,7 @@ Return structured JSON:
         onProgress: (label) => report(label),
         proseModelOverride,
         priorChapterSummaries,
+        revisionFeedback: retryFeedback,
       });
       chapterContent = retryResult.prose;
       wordCount = retryResult.totalWords;
@@ -3661,6 +3710,36 @@ Return structured JSON:
     })) : judge;
 
     const judgeIssues = Array.isArray(finalJudge?.issues) ? finalJudge.issues : [];
+    const finalContractViolations = Array.isArray(finalJudge?.contract_violations) ? finalJudge.contract_violations : [];
+    const finalProcessLeaks = Array.isArray(finalJudge?.process_leaks) ? finalJudge.process_leaks : [];
+    const finalJudgeContractComplete =
+      Number.isFinite(Number(finalJudge?.narrative_contract_adherence)) &&
+      Number.isFinite(Number(finalJudge?.continuity_integrity)) &&
+      Array.isArray(finalJudge?.contract_violations) &&
+      Array.isArray(finalJudge?.process_leaks);
+    if (
+      !finalJudgeContractComplete ||
+      finalJudge?.narrative_contract_adherence < 8 ||
+      finalJudge?.continuity_integrity < 8 ||
+      finalContractViolations.length > 0 ||
+      finalProcessLeaks.length > 0
+    ) {
+      const error = new Error(
+        `Chapter ${chapter.chapter_number} rejected after its one contract-aware rewrite: ${[
+          ...finalContractViolations,
+          ...finalProcessLeaks,
+          !finalJudgeContractComplete ? 'judge omitted required narrative-contract fields' : null,
+          finalJudge?.narrative_contract_adherence < 8 ? `narrative contract score ${finalJudge.narrative_contract_adherence}/10` : null,
+          finalJudge?.continuity_integrity < 8 ? `continuity score ${finalJudge.continuity_integrity}/10` : null,
+        ].filter(Boolean).slice(0, 8).join('; ')}`
+      );
+      error.name = 'NarrativeInvariantError';
+      error.code = 'NARRATIVE_CONTRACT_UNRESOLVED';
+      error.narrativeContract = true;
+      error.contractViolations = finalContractViolations;
+      error.processLeaks = finalProcessLeaks;
+      throw error;
+    }
     const isStub = wordCount < 200;
     const combinedRevisionNotes = [
       ...finalTense.map((v) => v.description),
@@ -3723,6 +3802,8 @@ Return structured JSON:
 
     wordCount = countWords(chapterContent);
 
+    assertNarrativeTextClean(chapterContent, { chapterNumber: chapter.chapter_number });
+
     runProjectContentGuardBeforeSave(chapter, chapterContent, 'draft');
 
     pipelineSnapshot(chapter.id, '8-final-save', chapterContent);
@@ -3782,8 +3863,8 @@ Return structured JSON:
     } catch (draftError) {
       // Emergency save: if prose was generated but a later step failed, save what we have.
       // Never emergency-save content that the contamination guard explicitly blocked.
-      if (draftError?.projectContentGuard) {
-        console.error('[PROJECT-CONTENT-GUARD] Emergency save skipped because generated content was contaminated:', draftError?.guard || draftError?.message);
+      if (draftError?.projectContentGuard || draftError?.narrativeContract || draftError?.details?.narrativeContract) {
+        console.error('[DRAFT-GUARD] Emergency save skipped because generated content violated a hard contract:', draftError?.guard || draftError?.message);
         throw draftError;
       }
 

@@ -4,6 +4,10 @@ import {
   GenerationContextError,
   hydrateProjectForGeneration,
   buildGenerationSnapshot,
+  createImmutableSceneContract,
+  assertSceneContractUnchanged,
+  assertNarrativeTextClean,
+  findNarrativeMetaLeaks,
   loadGenerationSnapshot,
   validateSceneBeatContracts,
 } from '../src/lib/generationContext.js';
@@ -46,7 +50,7 @@ await test('URL-backed foundation fields are hydrated before generation', async 
   assert.equal(hydrated.outline_md, 'FULL ORDERED OUTLINE');
   assert.equal(hydrated.canon_md, 'FULL CANON');
   assert.equal(project.world_md, '');
-  assert.equal(hydrated.__generationContext.version, 'narrative-connect-v1');
+  assert.equal(hydrated.__generationContext.version, 'narrative-connect-v2');
 });
 
 await test('unresolved required fiction foundation hard-blocks generation', async () => {
@@ -151,6 +155,60 @@ await test('duplicate or incomplete scene identities hard-block beat saving', ()
   );
 });
 
+await test('accepted fiction scene contracts are immutable', () => {
+  const contract = createImmutableSceneContract({
+    beats: [
+      {
+        scene_number: 1,
+        scene_id: 'ch04-s01',
+        pov_character: 'Lena',
+        setting: 'Reactor chamber',
+        conflict: 'Marcus must surrender the key before the seal fails.',
+        scene_goal: 'Vale makes the sacrifice.',
+        entry_state: 'Vale, Lena, and Marcus are alive in the reactor chamber. Marcus holds the key.',
+        required_events: ['Marcus gives the key to Vale.', 'Vale seals himself inside the chamber.'],
+        forbidden_events: ['Vale must not die twice.', 'The archive must not reopen.'],
+        exit_state: 'Vale is sealed inside. Lena and Marcus are outside. Vale holds the key.',
+      },
+      {
+        scene_number: 2,
+        scene_id: 'ch04-s02',
+        scene_goal: 'Lena and Marcus reach the exit route.',
+        entry_state: 'Vale is sealed inside. Lena and Marcus are outside. Vale holds the key.',
+        required_events: ['Lena and Marcus leave the reactor sector.'],
+        forbidden_events: ['Do not recover Vale or the key.', 'Do not reopen the archive.'],
+        exit_state: 'Lena and Marcus are on the exit route; Vale remains sealed inside.',
+      },
+    ],
+  }, { chapterNumber: 4 });
+
+  assert.ok(Object.isFrozen(contract));
+  assert.ok(Object.isFrozen(contract.beats));
+  assert.equal(contract.beats[0].pov_character, 'Lena');
+  assert.equal(contract.beats[0].setting, 'Reactor chamber');
+  assert.equal(contract.beats[0].conflict, 'Marcus must surrender the key before the seal fails.');
+  assert.doesNotThrow(() => assertSceneContractUnchanged(contract, contract.beats, { chapterNumber: 4 }));
+  assert.throws(
+    () => assertSceneContractUnchanged(contract, [contract.beats[1]], { chapterNumber: 4 }),
+    (error) => error.code === 'SCENE_CONTRACT_INVALID' || error.code === 'SCENE_CONTRACT_MUTATED'
+  );
+});
+
+await test('Brass Meridian planning-language leaks are rejected from prose', () => {
+  const contaminated = [
+    'He raised the prosthetic hook he had been using since the accident in Chapter 2.',
+    'She carried the printed log from the previous chapter.',
+    'She remembered the accident in Chapter 3.',
+  ].join(' ');
+  const matches = findNarrativeMetaLeaks(contaminated);
+  assert.ok(matches.length >= 3);
+  assert.throws(
+    () => assertNarrativeTextClean(contaminated, { chapterNumber: 5 }),
+    (error) => error.code === 'NARRATIVE_META_LEAK' && error.details.narrativeContract === true
+  );
+  assert.doesNotThrow(() => assertNarrativeTextClean('She remembered the door crushing his hand beneath the failing station.'));
+});
+
 if (!skipWiring) await test('production wiring is fail-closed across planning, beats, and scenes', () => {
   const studio = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
   const writer = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
@@ -159,10 +217,15 @@ if (!skipWiring) await test('production wiring is fail-closed across planning, b
 
   assert.match(studio, /loadGenerationSnapshot\s*\(/);
   assert.match(studio, /validateSceneBeatContracts\s*\(/);
+  assert.match(studio, /SCENE_CONTRACT_OVERLAP_UNRESOLVED/);
+  assert.match(studio, /revisionFeedback:\s*retryFeedback/);
+  assert.match(studio, /NARRATIVE_CONTRACT_UNRESOLVED/);
+  assert.match(studio, /draftError\?\.narrativeContract/);
   assert.match(studio, /fiction-scene-contract-v1/);
   assert.match(writer, /SCENE_DUPLICATE_UNRESOLVED/);
   assert.doesNotMatch(writer, /duplicate repair still looked unsafe; keeping original but flagging/);
   assert.match(writer, /NARRATIVE STATE CONTRACT — MANDATORY/);
+  assert.match(writer, /SCENE_CONTRACT_NORMALIZER_CONFLICT/);
   assert.match(bible, /OUTLINE_CONTRACT_UNRESOLVED/);
   assert.doesNotMatch(bible, /Accepting best-effort outline with remaining issues/);
   assert.match(auto, /FULL ORDERED CHAPTER CONTRACT/);

@@ -9,7 +9,7 @@
  * an explicit immutable chapter snapshot for one generation operation.
  */
 
-export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v1';
+export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 
 export const FOUNDATION_FIELDS = Object.freeze([
   'world_md',
@@ -40,6 +40,82 @@ export class GenerationContextError extends Error {
 
 function text(value) {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function deepFreeze(value) {
+  if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
+  Object.freeze(value);
+  Object.values(value).forEach(deepFreeze);
+  return value;
+}
+
+function sceneBeatsFrom(value) {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.beats)) return value.beats;
+  return [];
+}
+
+function stableContractJson(beats = []) {
+  return JSON.stringify(beats.map((beat = {}) => ({
+    scene_number: Number(beat.scene_number ?? beat.sceneNumber ?? 0),
+    scene_id: text(beat.scene_id),
+    scene_goal: text(beat.scene_goal),
+    entry_state: text(beat.entry_state),
+    required_events: (Array.isArray(beat.required_events) ? beat.required_events : []).map(text).filter(Boolean),
+    forbidden_events: (Array.isArray(beat.forbidden_events) ? beat.forbidden_events : []).map(text).filter(Boolean),
+    exit_state: text(beat.exit_state),
+    continuity_dependencies: (Array.isArray(beat.continuity_dependencies) ? beat.continuity_dependencies : []).map(text).filter(Boolean),
+  })));
+}
+
+function hashText(value = '') {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+export const NARRATIVE_META_LEAK_PATTERNS = Object.freeze([
+  /\b(?:in|from|during|since|after|before)\s+(?:the\s+)?(?:previous|next|following|preceding)\s+chapter\b/gi,
+  /\b(?:in|from|during|since|after|before)\s+Chapter\s+\d+\b/g,
+  /\b(?:the\s+)?previous\s+chapter\b/gi,
+  /\b(?:the\s+)?next\s+chapter\b/gi,
+  /\b(?:scene\s+(?:id|number|contract|beat)|chapter\s+(?:contract|beat))\b/gi,
+]);
+
+export function findNarrativeMetaLeaks(value = '') {
+  const source = String(value || '');
+  const matches = [];
+  for (const pattern of NARRATIVE_META_LEAK_PATTERNS) {
+    pattern.lastIndex = 0;
+    let match;
+    while ((match = pattern.exec(source)) !== null) {
+      matches.push({
+        phrase: match[0],
+        index: match.index,
+        snippet: source.slice(Math.max(0, match.index - 45), Math.min(source.length, match.index + match[0].length + 45)),
+      });
+      if (match[0].length === 0) pattern.lastIndex += 1;
+    }
+  }
+  return matches;
+}
+
+export function assertNarrativeTextClean(value, options = {}) {
+  const matches = findNarrativeMetaLeaks(value);
+  if (!matches.length) return Object.freeze({ ok: true, matches: Object.freeze([]) });
+
+  throw new GenerationContextError(
+    `Narrative output rejected for Chapter ${options.chapterNumber || '?'}: manuscript prose contains planning-language leakage (${matches.slice(0, 3).map((item) => `"${item.phrase}"`).join(', ')}).`,
+    {
+      code: 'NARRATIVE_META_LEAK',
+      chapterNumber: options.chapterNumber || null,
+      matches,
+      narrativeContract: true,
+    }
+  );
 }
 
 function isStandaloneFiction(project = {}) {
@@ -206,9 +282,7 @@ export function validateSceneBeatContracts(value, options = {}) {
     }
   }
 
-  const beats = Array.isArray(parsed)
-    ? parsed
-    : (Array.isArray(parsed?.beats) ? parsed.beats : []);
+  const beats = sceneBeatsFrom(parsed);
 
   if (!beats.length) {
     throw new GenerationContextError('Scene-beat contract contains no scenes.', {
@@ -236,10 +310,19 @@ export function validateSceneBeatContracts(value, options = {}) {
       seenIds.add(sceneId.toLowerCase());
     }
 
+    const sceneNumber = Number(beat?.scene_number ?? beat?.sceneNumber ?? 0);
+    if (sceneNumber !== position) issues.push(`Scene ${position}: scene_number must be ${position}, got ${sceneNumber || 'missing'}`);
+    if (expectedPrefix && sceneId.toLowerCase() !== `${expectedPrefix}${String(position).padStart(2, '0')}`) {
+      issues.push(`Scene ${position}: scene_id must be ${expectedPrefix}${String(position).padStart(2, '0')}`);
+    }
+
     if (!text(beat?.entry_state)) issues.push(`Scene ${position}: entry_state is missing`);
     if (!text(beat?.exit_state)) issues.push(`Scene ${position}: exit_state is missing`);
     if (!Array.isArray(beat?.required_events) || !beat.required_events.some((event) => text(event))) {
       issues.push(`Scene ${position}: required_events must contain at least one concrete event`);
+    }
+    if (!Array.isArray(beat?.forbidden_events)) {
+      issues.push(`Scene ${position}: forbidden_events must be an array`);
     }
     if (!text(beat?.scene_goal)) issues.push(`Scene ${position}: scene_goal is missing`);
   });
@@ -261,6 +344,62 @@ export function validateSceneBeatContracts(value, options = {}) {
     sceneCount: beats.length,
     sceneIds: Object.freeze(beats.map((beat) => beat.scene_id)),
   });
+}
+
+export function createImmutableSceneContract(value, options = {}) {
+  let parsed = value;
+  if (typeof parsed === 'string') {
+    try {
+      parsed = JSON.parse(parsed);
+    } catch (error) {
+      throw new GenerationContextError('Scene-beat contract is not valid JSON.', {
+        code: 'SCENE_CONTRACT_JSON_INVALID',
+        cause: error?.message || String(error),
+      });
+    }
+  }
+
+  const report = validateSceneBeatContracts(parsed, options);
+  // Preserve the complete accepted beat payload for the writer (POV, setting,
+  // conflict, emotional arc, etc.). The fingerprint intentionally covers only
+  // the semantic contract fields that downstream stages are forbidden to
+  // merge, drop, reorder, or rewrite.
+  const clonedBeats = JSON.parse(JSON.stringify(sceneBeatsFrom(parsed)));
+  const fingerprint = hashText(stableContractJson(clonedBeats));
+  return deepFreeze({
+    version: 'fiction-scene-contract-v2',
+    fingerprint,
+    chapterNumber: report.chapterNumber,
+    beats: clonedBeats,
+  });
+}
+
+export function assertSceneContractUnchanged(contract, candidate, options = {}) {
+  if (!contract?.fingerprint || !Array.isArray(contract?.beats)) {
+    throw new GenerationContextError('Cannot verify scene contract: immutable baseline is missing.', {
+      code: 'SCENE_CONTRACT_BASELINE_MISSING',
+      narrativeContract: true,
+    });
+  }
+
+  validateSceneBeatContracts(candidate, {
+    chapterNumber: options.chapterNumber || contract.chapterNumber,
+  });
+  const candidateFingerprint = hashText(stableContractJson(sceneBeatsFrom(candidate)));
+  if (candidateFingerprint !== contract.fingerprint) {
+    throw new GenerationContextError(
+      `Scene contract mutation blocked for Chapter ${options.chapterNumber || contract.chapterNumber || '?'}. A downstream module attempted to merge, drop, reorder, or rewrite an accepted scene.`,
+      {
+        code: 'SCENE_CONTRACT_MUTATED',
+        narrativeContract: true,
+        expectedFingerprint: contract.fingerprint,
+        actualFingerprint: candidateFingerprint,
+        expectedSceneIds: contract.beats.map((beat) => beat.scene_id),
+        actualSceneIds: sceneBeatsFrom(candidate).map((beat) => beat?.scene_id),
+      }
+    );
+  }
+  return Object.freeze({ ok: true, fingerprint: contract.fingerprint });
 }
 
 export async function loadGenerationSnapshot({
