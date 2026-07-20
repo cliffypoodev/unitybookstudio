@@ -322,7 +322,15 @@ export function validateSceneBeatContracts(value, options = {}) {
       issues.push(`Scene ${position}: required_events must contain at least one concrete event`);
     }
     if (!Array.isArray(beat?.forbidden_events)) {
-      issues.push(`Scene ${position}: forbidden_events must be an array`);
+      if (beat && typeof beat === 'object') {
+        const rawForbidden = text(beat.forbidden_events);
+        beat.forbidden_events =
+          !rawForbidden || /^(?:none|n\/a|null|no forbidden events?)$/i.test(rawForbidden)
+            ? []
+            : [rawForbidden];
+      } else {
+        issues.push(`Scene ${position}: forbidden_events must be an array`);
+      }
     }
     if (!text(beat?.scene_goal)) issues.push(`Scene ${position}: scene_goal is missing`);
   });

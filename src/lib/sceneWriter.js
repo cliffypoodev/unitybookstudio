@@ -2913,7 +2913,9 @@ export async function generateChapterSceneByScene({
       issues: generated.issues,
     });
 
-    accumulatedProse = [accumulatedProse, sceneProse].filter(Boolean).join('\n\n');
+    accumulatedProse = [accumulatedProse, sceneProse]
+      .filter(Boolean)
+      .join('\n\n* * *\n\n');
 
     onProgress?.({
       stage: 'scene_done',
