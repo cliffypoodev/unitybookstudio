@@ -3175,6 +3175,17 @@ Return structured JSON:
         if (!overlapReport.changed) break;
 
         if (attempt === maxContractAttempts) {
+          if (
+            Array.isArray(overlapReport.normalizedBeats) &&
+            overlapReport.normalizedBeats.length > 0
+          ) {
+            console.warn(
+              `[NARRATIVE-CONNECT] Chapter ${chapter.chapter_number} still contained overlapping beats after ${maxContractAttempts} attempts. Using the validated normalized beat plan.`
+            );
+            beatResult.beats = overlapReport.normalizedBeats;
+            break;
+          }
+
           const error = new Error(
             `Chapter ${chapter.chapter_number} beat contract rejected: scenes still overlap or compete for the same story function after regeneration. ${overlapReport.report}`
           );
