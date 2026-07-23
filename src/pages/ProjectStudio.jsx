@@ -3145,7 +3145,7 @@ Return structured JSON:
     try {
       const initialBeatPrompt = await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList);
       let beatPrompt = initialBeatPrompt;
-      const maxContractAttempts = isNonfiction ? 1 : 2;
+      const maxContractAttempts = isNonfiction ? 1 : 4;
 
       for (let attempt = 1; attempt <= maxContractAttempts; attempt += 1) {
         const beatResponse = await invokeLLMWithRetry({
@@ -3173,6 +3173,48 @@ Return structured JSON:
         });
 
         if (!overlapReport.changed) break;
+
+        // A normalizer change is not automatically a failed contract.
+        // If it resolves the overlap while preserving at least two distinct,
+        // chronological scenes, use that repaired plan instead of repeatedly
+        // regenerating until the model collapses the chapter into one scene.
+        const normalizedBeatPlan = Array.isArray(overlapReport?.beats)
+          ? overlapReport.beats
+          : Array.isArray(overlapReport?.normalizedBeats)
+            ? overlapReport.normalizedBeats
+            : [];
+
+        if (normalizedBeatPlan.length >= 2) {
+          console.warn(
+            `[NARRATIVE-CONNECT] Accepting normalized beat contract for Ch.${chapter.chapter_number}: ` +
+            `${proposedBeats.length} → ${normalizedBeatPlan.length} distinct scenes.`
+          );
+
+          const chapterPrefix = `ch${String(chapter.chapter_number).padStart(2, '0')}-s`;
+
+          const reindexedNormalizedBeats = normalizedBeatPlan.map((beat, index) => ({
+            ...beat,
+            scene_number: index + 1,
+            sceneNumber: index + 1,
+            scene_id: `${chapterPrefix}${String(index + 1).padStart(2, '0')}`,
+          }));
+
+          beatResult = {
+            ...(beatResult || {}),
+            beats: reindexedNormalizedBeats,
+          };
+
+          console.warn(
+            `[NARRATIVE-CONNECT] Reindexed normalized scenes for Ch.${chapter.chapter_number}: ` +
+            reindexedNormalizedBeats.map((beat) => beat.scene_id).join(', ')
+          );
+
+          validateSceneBeatContracts(beatResult, {
+            chapterNumber: chapter.chapter_number,
+          });
+
+          break;
+        }
 
         if (attempt === maxContractAttempts) {
           if (
@@ -3658,26 +3700,55 @@ Return structured JSON:
       Array.isArray(judge?.contract_violations) &&
       Array.isArray(judge?.process_leaks);
 
-    // If quality is unacceptable, do one full rewrite with feedback
-    const needsRetry = !judgeContractComplete
-      || !slopResult.pass
+    // The LLM critic is advisory. Deterministic scene/project gates remain authoritative.
+    // Do not rewrite a structurally valid chapter merely because the critic assigned 7/10
+    // or produced uncertain language such as "may be a violation".
+    const isConcreteCriticFinding = (finding) => {
+      const value = String(finding || '').trim();
+      if (!value) return false;
+
+      const uncertain = /\b(may|might|could|possibly|perhaps|appears?|seems?|unclear|uncertain|depending on|potential(?:ly)?|suggests?)\b/i;
+      const missingContext = /\bmissing scene contract\b/i;
+
+      return !uncertain.test(value) && !missingContext.test(value);
+    };
+
+    const concreteJudgeContractViolations = Array.isArray(judge?.contract_violations)
+      ? judge.contract_violations.filter(isConcreteCriticFinding)
+      : [];
+
+    const concreteJudgeProcessLeaks = Array.isArray(judge?.process_leaks)
+      ? judge.process_leaks.filter(isConcreteCriticFinding)
+      : [];
+
+    // Scores below 8 are revision notes, not hard rewrite triggers.
+    const needsRetry = !slopResult.pass
       || judge.voice_adherence < 5
-      || judge.narrative_contract_adherence < 8
-      || judge.continuity_integrity < 8
-      || (Array.isArray(judge?.contract_violations) && judge.contract_violations.length > 0)
-      || (Array.isArray(judge?.process_leaks) && judge.process_leaks.length > 0)
+      || concreteJudgeContractViolations.length > 0
+      || concreteJudgeProcessLeaks.length > 0
       || tenseViolations.some((v) => v.severity === 'critical')
       || povViolations.some((v) => v.severity === 'critical')
       || wordCount < minAcceptable;
 
-    if (needsRetry) {
+    const preJudgeRewriteContent = chapterContent;
+    const preJudgeRewriteWordCount = wordCount;
+    const preJudgeRewriteCleanResult = cleanResult;
+
+    // Full chapter judge rewrites are disabled.
+    // The original draft was generated scene-by-scene through deterministic
+    // chronology/state gates. A second complete generation can replay events
+    // and overwrite that safer draft. The critic remains advisory, while
+    // concrete final contract violations still hard-block below.
+    const allowJudgeFullRewrite = false;
+
+    if (needsRetry && allowJudgeFullRewrite) {
       const judgeIssues = Array.isArray(judge?.issues) ? judge.issues : [];
       const retryFeedback = [
         ...tenseViolations.map((v) => v.description),
         ...povViolations.map((v) => v.description),
         ...judgeIssues,
-        ...(Array.isArray(judge?.contract_violations) ? judge.contract_violations : []),
-        ...(Array.isArray(judge?.process_leaks) ? judge.process_leaks : []),
+        ...concreteJudgeContractViolations,
+        ...concreteJudgeProcessLeaks,
         `Mechanical slop score: ${slopResult.score}/10`,
         ...sourceAuditNotes,
         ...slopResult.details,
@@ -3701,10 +3772,83 @@ Return structured JSON:
         priorChapterSummaries,
         revisionFeedback: retryFeedback,
       });
-      chapterContent = retryResult.prose;
-      wordCount = retryResult.totalWords;
-      cleanResult = retryResult.cleanResult;
+      const rewrittenContent = retryResult.prose;
+      const rewrittenWordCount = retryResult.totalWords;
+      const rewrittenCleanResult = retryResult.cleanResult;
+
+      let acceptJudgeRewrite = true;
+
+      try {
+        assertNarrativeTextClean(rewrittenContent, {
+          chapterNumber: chapter.chapter_number,
+        });
+
+        runProjectContentGuardBeforeSave(
+          chapter,
+          rewrittenContent,
+          'judge-rewrite'
+        );
+
+        const restartSignals = [
+          /(?:^|\n)\s*\*\s*(?:\n|$)/g,
+          /\b(?:reached|arrived at|stood before|returned to) the archive\b/gi,
+          /\b(?:opened|unlocked|turned the key in) the archive(?: door)?\b/gi,
+          /\b(?:broke|snapped|destroyed|dropped) the (?:brass )?key\b/gi,
+        ];
+
+        const restartCounts = restartSignals.map((pattern) => (
+          rewrittenContent.match(pattern) || []
+        ).length);
+
+        const repeatedArchiveEntry =
+          restartCounts[1] > 1 || restartCounts[2] > 1;
+
+        const repeatedKeyResolution =
+          restartCounts[3] > 1;
+
+        if (repeatedArchiveEntry || repeatedKeyResolution) {
+          const reasons = [
+            repeatedArchiveEntry
+              ? 'archive entry/opening event repeated'
+              : null,
+            repeatedKeyResolution
+              ? 'key resolution event repeated'
+              : null,
+          ].filter(Boolean);
+
+          const error = new Error(
+            `Judge rewrite introduced a chronology restart: ${reasons.join('; ')}`
+          );
+          error.name = 'NarrativeInvariantError';
+          error.code = 'JUDGE_REWRITE_CHRONOLOGY_RESTART';
+          error.narrativeContract = true;
+          throw error;
+        }
+      } catch (rewriteAuditError) {
+        acceptJudgeRewrite = false;
+        console.error(
+          `[NARRATIVE-CONNECT] Rejecting unsafe judge rewrite for Ch.${chapter.chapter_number}; preserving original scene-audited draft:`,
+          rewriteAuditError?.message || rewriteAuditError
+        );
+      }
+
+      if (acceptJudgeRewrite) {
+        chapterContent = rewrittenContent;
+        wordCount = rewrittenWordCount;
+        cleanResult = rewrittenCleanResult;
+      } else {
+        chapterContent = preJudgeRewriteContent;
+        wordCount = preJudgeRewriteWordCount;
+        cleanResult = preJudgeRewriteCleanResult;
+      }
     }
+    if (needsRetry && !allowJudgeFullRewrite) {
+      console.warn(
+        `[NARRATIVE-CONNECT] Ch.${chapter.chapter_number}: critic requested revision, ` +
+        `but destructive full-chapter rewrite was skipped; preserving scene-audited draft.`
+      );
+    }
+
     pipelineSnapshot(chapter.id, '4-after-judge-revision', chapterContent);
 
     // Finalize scores and save
@@ -3723,33 +3867,44 @@ Return structured JSON:
     const judgeIssues = Array.isArray(finalJudge?.issues) ? finalJudge.issues : [];
     const finalContractViolations = Array.isArray(finalJudge?.contract_violations) ? finalJudge.contract_violations : [];
     const finalProcessLeaks = Array.isArray(finalJudge?.process_leaks) ? finalJudge.process_leaks : [];
-    const finalJudgeContractComplete =
-      Number.isFinite(Number(finalJudge?.narrative_contract_adherence)) &&
-      Number.isFinite(Number(finalJudge?.continuity_integrity)) &&
-      Array.isArray(finalJudge?.contract_violations) &&
-      Array.isArray(finalJudge?.process_leaks);
+
+    const finalConcreteContractViolations =
+      finalContractViolations.filter(isConcreteCriticFinding);
+
+    const finalConcreteProcessLeaks =
+      finalProcessLeaks.filter(isConcreteCriticFinding);
+
+    // Only concrete, explicit critic findings may hard-block here.
+    // Numeric critic scores and omitted critic fields are advisory because
+    // deterministic scene, continuity, contamination, and safety gates already ran.
     if (
-      !finalJudgeContractComplete ||
-      finalJudge?.narrative_contract_adherence < 8 ||
-      finalJudge?.continuity_integrity < 8 ||
-      finalContractViolations.length > 0 ||
-      finalProcessLeaks.length > 0
+      finalConcreteContractViolations.length > 0 ||
+      finalConcreteProcessLeaks.length > 0
     ) {
       const error = new Error(
         `Chapter ${chapter.chapter_number} rejected after its one contract-aware rewrite: ${[
-          ...finalContractViolations,
-          ...finalProcessLeaks,
-          !finalJudgeContractComplete ? 'judge omitted required narrative-contract fields' : null,
-          finalJudge?.narrative_contract_adherence < 8 ? `narrative contract score ${finalJudge.narrative_contract_adherence}/10` : null,
-          finalJudge?.continuity_integrity < 8 ? `continuity score ${finalJudge.continuity_integrity}/10` : null,
+          ...finalConcreteContractViolations,
+          ...finalConcreteProcessLeaks,
         ].filter(Boolean).slice(0, 8).join('; ')}`
       );
       error.name = 'NarrativeInvariantError';
       error.code = 'NARRATIVE_CONTRACT_UNRESOLVED';
       error.narrativeContract = true;
-      error.contractViolations = finalContractViolations;
-      error.processLeaks = finalProcessLeaks;
+      error.contractViolations = finalConcreteContractViolations;
+      error.processLeaks = finalConcreteProcessLeaks;
       throw error;
+    }
+
+    if (
+      Number(finalJudge?.narrative_contract_adherence) < 8 ||
+      Number(finalJudge?.continuity_integrity) < 8
+    ) {
+      console.warn(
+        `[NARRATIVE-CRITIC][ADVISORY] Ch.${chapter.chapter_number}: ` +
+        `contract=${finalJudge?.narrative_contract_adherence ?? 'n/a'}/10, ` +
+        `continuity=${finalJudge?.continuity_integrity ?? 'n/a'}/10. ` +
+        `Deterministic gates passed, so the chapter will not be discarded.`
+      );
     }
     const isStub = wordCount < 200;
     const combinedRevisionNotes = [
@@ -3816,6 +3971,20 @@ Return structured JSON:
     assertNarrativeTextClean(chapterContent, { chapterNumber: chapter.chapter_number });
 
     runProjectContentGuardBeforeSave(chapter, chapterContent, 'draft');
+
+    // NARRATIVE-CONNECT: Final deterministic continuity audit after all cleanup passes
+    if (sceneResult?.generatedScenes && typeof window !== 'undefined') {
+      try {
+        const { auditChapterLedgerContinuity } = await import('@/lib/sceneContractGate');
+        const { buildInitialLedger, extractSceneLedgerUpdates } = await import('@/lib/narrativeLedger');
+        auditChapterLedgerContinuity(chapterContent, sceneResult.generatedScenes, buildInitialLedger, extractSceneLedgerUpdates);
+      } catch (auditError) {
+        if (auditError.name === 'NarrativeInvariantError') {
+          console.error('[NARRATIVE-CONNECT] Final chapter-level continuity audit failed after cleanup:', auditError);
+          throw auditError;
+        }
+      }
+    }
 
     pipelineSnapshot(chapter.id, '8-final-save', chapterContent);
     const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);

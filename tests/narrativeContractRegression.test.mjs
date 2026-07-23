@@ -102,4 +102,46 @@ test('contract-aware rewrite feedback is actually injected into prose prompts', 
   assert.match(studio, /Emergency save skipped because generated content violated a hard contract/);
 });
 
+import { auditSceneAgainstLedger } from '../src/lib/sceneContractGate.js';
+import { buildInitialLedger, extractSceneLedgerUpdates } from '../src/lib/narrativeLedger.js';
+
+test('runtime ledger blocks dead character action', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, 'Marcus is dead.', { exit_state: 'Marcus is dead.' });
+  
+  const audit = auditSceneAgainstLedger({
+    prose: 'Marcus said he was fine.',
+    runtimeLedger: ledger
+  });
+  
+  assert.equal(audit.ok, false);
+  assert.ok(audit.issues.some((i) => i.code === 'DEAD_CHARACTER_ACTION'));
+});
+
+test('runtime ledger blocks unavailable object usage', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, 'The brass key is destroyed.', { exit_state: 'The brass key is destroyed.' });
+  
+  const audit = auditSceneAgainstLedger({
+    prose: 'He used the brass key to open the door.',
+    runtimeLedger: ledger
+  });
+  
+  assert.equal(audit.ok, false);
+  assert.ok(audit.issues.some((i) => i.code === 'UNAVAILABLE_OBJECT_USAGE'));
+});
+
+test('runtime ledger blocks completed event replay from earlier scenes', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, '', { required_events: ['Marcus finds the hidden ledger'] });
+  
+  const audit = auditSceneAgainstLedger({
+    prose: 'Marcus finds the hidden ledger inside the desk.',
+    runtimeLedger: ledger
+  });
+
+  assert.equal(audit.ok, false);
+  assert.ok(audit.issues.some((i) => i.code === 'PRIOR_EVENT_REPLAY'));
+});
+
 console.log(`\nNARRATIVE CONTRACT REGRESSION: ${passed} passed, 0 failed\n`);
