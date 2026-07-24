@@ -42,7 +42,7 @@ import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
 import { computeDraftIntegrityReport } from '@/lib/draftIntegrityReport';
 import { clearRichContentFields } from '@/lib/richContentStorage';
 import { filterConcreteCriticFindings } from '@/lib/sceneContractGate';
-import { runQualityScan, formatQualityResult } from '@/lib/qualityScan';
+import { runQualityScan } from '@/lib/qualityScan';
 import { mechanicalScore } from '@/lib/mechanicalScore';
 import { generateChapterByScenes } from '@/lib/sceneWriter';
 import { validateProjectChapterContent, makeProjectContentGuardError, stripProjectContaminationBlocks } from '@/lib/projectContentGuard';
