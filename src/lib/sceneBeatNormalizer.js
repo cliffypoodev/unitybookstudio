@@ -518,6 +518,17 @@ function dramaticUtilityScore(beat) {
   return score;
 }
 
+export const isCleanMetadata = (t) => {
+  const s = String(t).trim();
+  if (s.startsWith('MERGE REASON:')) return false;
+  if (s.startsWith('NORMALIZER REASON:')) return false;
+  if (s.startsWith('CHRONOLOGY GUARD:')) return false;
+  if (s.startsWith('CONTINUITY WARNING:')) return false;
+  if (s.startsWith('Merged alternate/same-function beat material:')) return false;
+  if (s.startsWith('MERGED FROM:')) return false;
+  return true;
+};
+
 function chooseBaseAndDuplicate(keptBeat, newBeat) {
   const keptScore = dramaticUtilityScore(keptBeat);
   const newScore = dramaticUtilityScore(newBeat);
@@ -529,23 +540,65 @@ function chooseBaseAndDuplicate(keptBeat, newBeat) {
   return { base: keptBeat, duplicate: newBeat, replaced: false, keptScore, newScore };
 }
 
-function hasUniqueIrreversibleChange(beatA, beatB) {
-  const combinedA = normalize(textOf(beatA?.required_events) + ' ' + textOf(beatA?.entry_state) + ' ' + textOf(beatA?.exit_state));
-  const combinedB = normalize(textOf(beatB?.required_events) + ' ' + textOf(beatB?.entry_state) + ' ' + textOf(beatB?.exit_state));
+export function classifyStoryFunction(scene) {
+  const text = normalize(textOf(scene?.required_events) + ' ' + textOf(scene?.entry_state) + ' ' + textOf(scene?.exit_state));
+  const words = text.split(/\s+/).filter(Boolean);
+  const hasStem = (stemList) => words.some(w => stemList.includes(w) || stemList.includes(stemWord(w)));
 
-  const irreversibleTerms = ['discovery', 'revelation', 'confrontation', 'destruction', 'escape', 'dies', 'killed', 'destroyed', 'leaves'];
+  if (hasStem(['discover', 'uncover', 'reveal'])) return 'revelation';
+  if (hasStem(['confront', 'accuse', 'challenge'])) return 'confrontation';
+  if (hasStem(['destroy', 'break', 'discard', 'drop'])) return 'irreversible_object_loss';
+  if (hasStem(['escape', 'escapes', 'escap', 'exit', 'reach'])) return 'escape';
+  if (hasStem(['retrieve', 'obtain', 'acquire'])) return 'acquisition';
+  if (hasStem(['decide', 'refuse', 'forgive', 'reject'])) return 'character_decision';
+  return 'other';
+}
 
-  const aHas = irreversibleTerms.filter(t => combinedA.includes(t));
-  const bHas = irreversibleTerms.filter(t => combinedB.includes(t));
-
-  for (const term of aHas) {
-    if (!bHas.includes(term)) return true;
+export function shouldMergeFictionScenes(beatA, beatB) {
+  const funcA = classifyStoryFunction(beatA);
+  const funcB = classifyStoryFunction(beatB);
+  if (funcA !== 'other' || funcB !== 'other') {
+    if (funcA !== funcB) return false;
   }
-  for (const term of bHas) {
-    if (!aHas.includes(term)) return true;
-  }
+  return true; // if they don't have distinct recognized functions, they might merge
+}
 
-  return false;
+export function compareEventSignatures(aBeat, bBeat) {
+  const aSig = extractEventSignature(aBeat);
+  const bSig = extractEventSignature(bBeat);
+  const aFunc = classifyStoryFunction(aBeat);
+  const bFunc = classifyStoryFunction(bBeat);
+
+  const jc = (arr1, arr2) => {
+    if (!arr1.length || !arr2.length) return 0;
+    const inter = arr1.filter(x => arr2.includes(x));
+    const un = new Set([...arr1, ...arr2]);
+    return inter.length / un.size;
+  };
+
+  return {
+    sameCategory: aFunc !== 'other' && aFunc === bFunc,
+    samePrincipalCharacter: jc(aSig.names, bSig.names) >= 0.5,
+    samePrincipalObject: jc(aSig.objects, bSig.objects) >= 0.5,
+    sameTargetLocation: samePlace(aSig, bSig)
+  };
+}
+
+export function validateSceneContractReplay(scenes) {
+  for (let i = 1; i < scenes.length; i++) {
+    const currentScene = scenes[i];
+    const priorScenes = scenes.slice(0, i);
+
+    for (const priorScene of priorScenes) {
+      const cmp = compareEventSignatures(currentScene, priorScene);
+      if (cmp.sameCategory && cmp.samePrincipalCharacter && cmp.samePrincipalObject) {
+         // It's a semantic replay of the same core action by the same person on the same object
+         const err = new Error(`Contract-level replay rejected: Scene ${i+1} repeats completed prior event from Scene ${priorScene.scene_number}`);
+         err.code = 'SCENE_DUPLICATE_UNRESOLVED';
+         throw err;
+      }
+    }
+  }
 }
 
 function looksLikeAlternateDraft(currentBeat, keptBeat, options = {}) {
@@ -564,7 +617,7 @@ function looksLikeAlternateDraft(currentBeat, keptBeat, options = {}) {
     return chronologyConflict;
   }
 
-  if (!options.isNonfiction && hasUniqueIrreversibleChange(currentBeat, keptBeat)) {
+  if (!options.isNonfiction && !shouldMergeFictionScenes(currentBeat, keptBeat)) {
     return { duplicate: false, confidence: 'none', reason: 'distinct irreversible story functions' };
   }
 
@@ -766,6 +819,7 @@ export function normalizeSceneBeatsForDrafting(rawBeats, options = {}) {
     report: `Scene Beat Normalizer: ${beats.length} → ${finalBeats.length} beats | merged/dropped ${merged} duplicate(s) | same-function merges ${functionMerged} | chronology merges ${chronologyMerged} | chronology reorders ${chronologyReordered} | stronger beat replacements ${replacedWithStronger} | reported ${reported} medium-confidence overlap(s).`,
   };
 }
+
 
 export default normalizeSceneBeatsForDrafting;
 

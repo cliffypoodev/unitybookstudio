@@ -46,13 +46,13 @@ import {
   ANTI_REPETITION_RULES,
   generateAndSaveSummary,
 } from '@/lib/chapterCohesion';
-import { buildPacingBlock } from '@/lib/pacingModulation';
-import { getRelevantResearch } from '@/lib/fictionResearch';
-import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { excludeForeignQuotes } from '@/lib/quoteLedger';
 import { getTwistContextForChapter, getAnthologyTwistBlock } from '@/lib/plotTwists';
 import { resolveResearchContent } from '@/lib/researchStorage';
-import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
+import { buildPacingBlock } from '@/lib/pacingModulation';
+import { getRelevantResearch } from '@/lib/fictionResearch';
+import { researchCoverageCheck } from '@/lib/researchCoverage';
+import { normalizeSceneBeatsForDrafting, validateSceneContractReplay, isCleanMetadata } from '@/lib/sceneBeatNormalizer';
 import {
   assertNarrativeTextClean,
   assertSceneContractUnchanged,
@@ -2103,10 +2103,7 @@ function getAnthologyContext(project, chapter) {
 }
 
 function buildSceneStateContractBlock(spec) {
-  const isClean = (t) => {
-    const s = String(t).toLowerCase();
-    return !s.includes('merged') && !s.includes('do not') && !s.includes('reason:') && !s.includes('chronology guard') && !s.includes('continuity warning');
-  };
+  const isClean = isCleanMetadata;
 
   const sceneId = String(spec?.scene_id || '').trim();
   const entryState = String(spec?.entry_state || '').trim();
@@ -2776,41 +2773,10 @@ export async function generateChapterSceneByScene({
   let lastScenePrompt = '';
   let runtimeLedger = buildInitialLedger();
 
-  // Contract-Level Replay Validation
-  const getTokens = (str) => String(str).toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(Boolean);
-  const isClean = (t) => {
-    const s = String(t).toLowerCase();
-    return !s.includes('merged') && !s.includes('do not') && !s.includes('reason:') && !s.includes('chronology guard') && !s.includes('continuity warning');
-  };
+  // Contract-Level Replay Validation using semantic signatures
+  const isClean = isCleanMetadata;
 
-  for (let i = 1; i < normalizedScenes.length; i++) {
-    const currentScene = normalizedScenes[i];
-    const priorScenes = normalizedScenes.slice(0, i);
-    const priorEvents = priorScenes.flatMap(s => Array.isArray(s.required_events) ? s.required_events : []).filter(isClean);
-    const currentEvents = (Array.isArray(currentScene.required_events) ? currentScene.required_events : []).filter(isClean);
-
-    for (const curr of currentEvents) {
-      const currTokens = getTokens(curr);
-      if (currTokens.length < 3) continue;
-
-      for (const prior of priorEvents) {
-        const priorTokens = getTokens(prior);
-        if (priorTokens.length < 3) continue;
-
-        const intersection = currTokens.filter(t => priorTokens.includes(t));
-        const union = new Set([...currTokens, ...priorTokens]);
-        const jaccard = intersection.length / union.size;
-
-        if (jaccard >= 0.5) {
-           throw new NarrativeInvariantError(
-             `Contract-level replay rejected: Scene ${i+1} repeats completed prior event "${curr}" which overlaps "${prior}"`,
-             { code: 'SCENE_DUPLICATE_UNRESOLVED', chapterNumber: chapter?.chapter_number || null }
-           );
-        }
-      }
-    }
-  }
-
+  validateSceneContractReplay(normalizedScenes);
   for (let i = 0; i < normalizedScenes.length; i += 1) {
     const spec = normalizedScenes[i];
     const priorScenes = normalizedScenes.slice(0, i);
