@@ -311,4 +311,46 @@ test('critic blocking key destruction but later scenes just reference it as dest
   assert.equal(concrete.length, 0);
 });
 
+test('Archive door mentioned in both scenes must not hard-block', () => {
+  const findings = ['Archive door mentioned in both scenes'];
+  const concrete = filterConcreteCriticFindings(findings, []);
+  assert.equal(concrete.length, 0);
+});
+
+test('Emotional arcs overlap in both scenes must not hard-block', () => {
+  const findings = ['Emotional arcs overlap in both scenes'];
+  const concrete = filterConcreteCriticFindings(findings, []);
+  assert.equal(concrete.length, 0);
+});
+
+test('The same room appears in two scenes must not hard-block', () => {
+  const findings = ['The same room appears in two scenes'];
+  const concrete = filterConcreteCriticFindings(findings, []);
+  assert.equal(concrete.length, 0);
+});
+
+test('The chapter feels repetitive must not hard-block without deterministic repetition evidence', () => {
+  const findings = ['The chapter feels repetitive'];
+  const concrete = filterConcreteCriticFindings(findings, []);
+  assert.equal(concrete.length, 0);
+});
+
+test('Marcus is dead in Scene 1 but speaks in Scene 2 must hard-block', () => {
+  const findings = ['Marcus is dead in Scene 1 but speaks in Scene 2'];
+  const concrete = filterConcreteCriticFindings(findings, []);
+  assert.equal(concrete.length, 1);
+});
+
+test('Lena and Marcus separate, then converse without reunion must hard-block', () => {
+  const findings = ['Lena and Marcus separate, then converse without reunion'];
+  const concrete = filterConcreteCriticFindings(findings, []);
+  assert.equal(concrete.length, 1);
+});
+
+test('Generic confident wording must remain advisory unless mapped to a hard category', () => {
+  const findings = ['This scene undoubtedly fails to deliver a satisfying conclusion.'];
+  const concrete = filterConcreteCriticFindings(findings, []);
+  assert.equal(concrete.length, 0);
+});
+
 console.log(`\nNARRATIVE CONTRACT REGRESSION: ${passed} passed, 0 failed\n`);

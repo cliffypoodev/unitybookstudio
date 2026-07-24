@@ -778,25 +778,41 @@ export function auditChapterLedgerContinuity({ generatedScenes, cleanedScenes },
   }
 }
 
-export function filterConcreteCriticFindings(findings, generatedScenes) {
-  if (!Array.isArray(findings)) return [];
+export function classifyCriticFinding(finding, generatedScenes, deterministicReports) {
+  const value = String(finding || '').trim();
+  if (!value) return { hard: false, category: 'empty', reason: 'Empty finding' };
 
-  return findings.filter((finding) => {
-    const value = String(finding || '').trim();
-    if (!value) return false;
+  const uncertain = /\b(may|might|could|possibly|perhaps|appears?|seems?|unclear|uncertain|depending on|potential(?:ly)?|suggests?)\b/i;
+  const missingContext = /\bmissing scene contract\b/i;
 
-    const uncertain = /\b(may|might|could|possibly|perhaps|appears?|seems?|unclear|uncertain|depending on|potential(?:ly)?|suggests?)\b/i;
-    const missingContext = /\bmissing scene contract\b/i;
+  if (uncertain.test(value) || missingContext.test(value)) {
+    return { hard: false, category: 'advisory_uncertain', reason: 'Uncertain or missing context' };
+  }
 
-    if (uncertain.test(value) || missingContext.test(value)) return false;
+  const v = value.toLowerCase();
 
-    // Check false-positive object destruction
-    const destructionTerms = /\b(destroyed|destroys|breaks?|burns?|shatters?|ruins?)\b/i;
-    const contradictTerms = /\b(contradicts?|violates?|interferes?|planned use)\b/i;
-    
-    if (destructionTerms.test(value) && contradictTerms.test(value) && Array.isArray(generatedScenes)) {
-      // Find nouns in the critic claim to identify the object
-      const words = value.replace(/[^\w\s]/g, '').toLowerCase().split(/\s+/);
+  // Advisory Categories (explicitly checked for clarity, though default is advisory anyway)
+  if (/\b(emotion(?:al)?|arcs? overlap|feeling|tone|atmosphere|pacing|feels redundant|repetitive|contrast)\b/.test(v)) {
+    return { hard: false, category: 'advisory_emotional_continuity', reason: 'Stylistic or emotional overlap is advisory' };
+  }
+
+  if (/\b(mentioned in both|same room appears|appears in two|same location|mentioned multiple)\b/.test(v)) {
+    return { hard: false, category: 'advisory_location_reference', reason: 'Repeated mentions of locations are advisory' };
+  }
+
+  if (/\b(redundant|similar|repeated atmosphere|thematic overlap|chapter feels repetitive)\b/.test(v)) {
+    return { hard: false, category: 'advisory_thematic', reason: 'Thematic overlap or redundancy is advisory' };
+  }
+
+  // Hard Categories
+  if (/\b(dead|died)\b/.test(v) && /\b(speaks?|talks?|walks?|acts?|alive)\b/.test(v)) {
+    return { hard: true, category: 'hard_dead_character_acts', reason: 'Dead character acts alive' };
+  }
+
+  if (/\b(destroyed|destroys|breaks?|burns?|ruins?)\b/.test(v) && /\b(contradicts?|violates?|interferes?|planned use)\b/.test(v)) {
+    // Ground against scene contracts
+    if (Array.isArray(generatedScenes)) {
+      const words = v.replace(/[^\w\s]/g, '').split(/\s+/);
       const stops = new Set(['the','a','an','is','are','was','were','in','manner','that','contradicts','its','planned','use','narrative','destroyed','destroys','breaks','burns','with','from','for','about','and','but','or']);
       const candidateObjects = words.filter(w => w.length > 2 && !stops.has(w));
       
@@ -804,13 +820,11 @@ export function filterConcreteCriticFindings(findings, generatedScenes) {
       for (let i = 0; i < generatedScenes.length; i++) {
         const sc = generatedScenes[i];
         const spec = sc.spec || {};
-        const reqEvents = Array.isArray(spec.required_events) ? spec.required_events.join(' ') : '';
-        const exitState = spec.exit_state || '';
-        const combinedCurrent = (reqEvents + ' ' + exitState).toLowerCase();
+        const combinedCurrent = ((spec.required_events||[]).join(' ') + ' ' + (spec.exit_state||'')).toLowerCase();
         
-        if (destructionTerms.test(combinedCurrent)) {
-          const matchesObject = candidateObjects.some(obj => combinedCurrent.includes(obj));
-          if (matchesObject || candidateObjects.length === 0) {
+        if (/\b(destroyed|destroys|breaks?|burns?|ruins?)\b/.test(combinedCurrent)) {
+          const matchesObject = candidateObjects.length === 0 || candidateObjects.some(obj => combinedCurrent.includes(obj));
+          if (matchesObject) {
             destructionSceneIndex = i;
             break;
           }
@@ -821,24 +835,81 @@ export function filterConcreteCriticFindings(findings, generatedScenes) {
         let laterRequiresIntact = false;
         for (let j = destructionSceneIndex + 1; j < generatedScenes.length; j++) {
           const futSpec = generatedScenes[j].spec || {};
-          const futReq = Array.isArray(futSpec.required_events) ? futSpec.required_events.join(' ') : '';
-          const futEntry = futSpec.entry_state || '';
-          const futExit = futSpec.exit_state || '';
-          const futCombined = (futReq + ' ' + futEntry + ' ' + futExit).toLowerCase();
+          const futCombined = ((futSpec.required_events||[]).join(' ') + ' ' + (futSpec.entry_state||'') + ' ' + (futSpec.exit_state||'')).toLowerCase();
           
           const mentionsObject = candidateObjects.length === 0 || candidateObjects.some(obj => futCombined.includes(obj));
-          if (mentionsObject && /\b(intact|uses|usable|unbroken|unlocks?|inserts?)\b/i.test(futCombined)) {
+          if (mentionsObject && /\b(intact|uses|usable|unbroken|unlocks?|inserts?)\b/.test(futCombined)) {
             laterRequiresIntact = true;
             break;
           }
         }
 
         if (!laterRequiresIntact) {
-          return false; // Not a hard violation, just advisory
+          return { hard: false, category: 'advisory_object_destruction', reason: 'Destruction is required and not contradicted later' };
+        } else {
+          return { hard: true, category: 'hard_object_destruction', reason: 'Destruction contradicts later planned use' };
         }
       }
     }
+  }
 
-    return true;
-  });
+  if (/\b(destroyed|destroys|breaks?|burns?|ruins?)\b/.test(v) && /\b(used|uses|intact)\b/.test(v)) {
+    return { hard: true, category: 'hard_destroyed_object_used', reason: 'Destroyed object used again' };
+  }
+
+  if (/\b(prematurely|early)\b/.test(v)) {
+    return { hard: true, category: 'hard_future_event_early', reason: 'Future event occurs early' };
+  }
+
+  if (/\b(separate|separation)\b/.test(v) && /\b(reunion|reunite|converse|interact)\b/.test(v)) {
+    return { hard: true, category: 'hard_separation_violation', reason: 'Separated characters interact without reunion' };
+  }
+
+  if (/\b(omitted|missing required|fails to perform)\b/.test(v)) {
+    return { hard: true, category: 'hard_required_event_omitted', reason: 'Required event omitted' };
+  }
+
+  if (/\b(forbidden|banned)\b/.test(v)) {
+    return { hard: true, category: 'hard_forbidden_event_performed', reason: 'Forbidden event performed' };
+  }
+
+  if (/\b(replayed|repeated required|already happened)\b/.test(v)) {
+    return { hard: true, category: 'hard_irreversible_event_replayed', reason: 'Completed irreversible event replayed' };
+  }
+
+  if (/\b(contradicts prior exit|contradicts exit state)\b/.test(v)) {
+    return { hard: true, category: 'hard_exit_state_contradiction', reason: 'Contradicts prior exit state' };
+  }
+
+  if (/\b(contradicts current entry|contradicts entry state)\b/.test(v)) {
+    return { hard: true, category: 'hard_entry_state_contradiction', reason: 'Contradicts current entry state' };
+  }
+
+  if (/\b(possession contradiction)\b/.test(v)) {
+    return { hard: true, category: 'hard_possession_contradiction', reason: 'Explicit possession contradiction' };
+  }
+
+  if (/\b(explicit location contradiction)\b/.test(v)) {
+    return { hard: true, category: 'hard_location_contradiction', reason: 'Explicit location contradiction' };
+  }
+
+  if (/\b(canon fact contradiction|contradicts canon)\b/.test(v)) {
+    return { hard: true, category: 'hard_canon_contradiction', reason: 'Explicit canon fact contradiction' };
+  }
+
+  if (/\b(planning leak|process text leaked)\b/.test(v)) {
+    return { hard: true, category: 'hard_process_leak', reason: 'Internal planning text leaked' };
+  }
+
+  if (/\b(malformed|truncated prose)\b/.test(v)) {
+    return { hard: true, category: 'hard_malformed_prose', reason: 'Malformed or truncated prose confirmed' };
+  }
+
+  // Ensure default is advisory
+  return { hard: false, category: 'advisory_general', reason: 'Unmapped confident wording remains advisory' };
+}
+
+export function filterConcreteCriticFindings(findings, generatedScenes, deterministicReports) {
+  if (!Array.isArray(findings)) return [];
+  return findings.filter((finding) => classifyCriticFinding(finding, generatedScenes, deterministicReports).hard === true);
 }
