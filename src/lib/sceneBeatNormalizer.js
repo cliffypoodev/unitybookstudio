@@ -1113,7 +1113,6 @@ export function extractEventSignatures(text, context) {
   
   for (const match of text.matchAll(new RegExp(`\\b(discovers|uncovers|reveals|learns)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
-    console.log("MATCHED DISCOVERS:", match[0], actor);
     sigs.push({ category: 'revelation', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
   }
   
@@ -1150,7 +1149,6 @@ export function extractEventSignatures(text, context) {
 }
 export function validateRawBeatChronology(beats) {
   const context = buildContext(beats);
-  console.log("BUILT CONTEXT:", context.knownActors);
   const history = {
     events: [],
     possessions: new Set(),
@@ -1169,10 +1167,6 @@ export function validateRawBeatChronology(beats) {
     if (priorPossession) history.possessions.add(`${priorPossession.actor}_has_${priorPossession.object}`);
     const entryPossession = parsePossessions(entryText, context);
     if (entryPossession) history.possessions.add(`${entryPossession.actor}_has_${entryPossession.object}`);
-    
-    console.log("Scene", beat.scene_number, "priorPossession:", priorPossession);
-    console.log("Scene", beat.scene_number, "entryPossession:", entryPossession);
-    console.log("Scene", beat.scene_number, "possessions:", history.possessions);
     
     // Seed current events
     for (const eventStr of beat.required_events || []) {
@@ -1286,7 +1280,6 @@ export function validateRawBeatChronology(beats) {
 
 export function repairRawContract(beats) {
   const context = buildContext(beats);
-  console.log("REPAIR CONTEXT:", context.knownActors);
   let changed = false;
   const repairs = [];
   const clonedBeats = JSON.parse(JSON.stringify(beats));
@@ -1351,12 +1344,9 @@ export function repairRawContract(beats) {
   const finalEvents = [];
   for (const ev of allEvents) {
     const sigs = extractEventSignatures(ev.text, context);
-    console.log("EXTRACTED SIGS:", ev.text, sigs);
     let isRedundant = false;
     for (const sig of sigs) {
       if (['confrontation', 'structural_collapse', 'destroy_object', 'revelation', 'inspect_evidence'].includes(sig.category)) {
-        console.log("SEENSIGS:", seenSigs);
-        console.log("SIG:", sig);
         const dup = seenSigs.find(s => s.category === sig.category && s.actor === sig.actor && s.object === sig.object && s.target === sig.target && (s.actor === null || !s.actor.startsWith('unresolved')) && (s.object === null || !s.object.startsWith('unresolved')) && (s.target === null || !s.target.startsWith('unresolved')));
         if (dup) {
           isRedundant = true;
