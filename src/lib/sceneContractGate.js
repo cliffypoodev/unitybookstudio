@@ -638,6 +638,28 @@ export function auditSceneAgainstLedger({
         }
       }
     }
+    
+    if (runtimeLedger.objectLocations) {
+      for (const [obj, loc] of Object.entries(runtimeLedger.objectLocations)) {
+        // If an object is left somewhere, and later seen somewhere else without being taken
+        // A simple check: if the prose describes the object "on the X" but it was on the "Y"
+        const wrongLocRegex = new RegExp(`\\b(?:the\\s+)?${obj}\\s+(?:is|lies|rests|sits|is resting|is lying|is sitting)\\s+(?:on|in|at)\\s+(?:the\\s+)?([a-z]+)\\b`, 'i');
+        const match = prose.match(wrongLocRegex);
+        if (match) {
+          const newLoc = match[1].toLowerCase();
+          if (newLoc !== loc) {
+            // Did someone pick it up first?
+            const pickUpRegex = new RegExp(`\\b(?:takes|grabs|picks up|retrieves|pockets|snatches)\\s+(?:the\\s+)?${obj}\\b`, 'i');
+            if (!pickUpRegex.test(prose) && !prose.toLowerCase().includes(`takes the ${obj}`)) {
+              issues.push({
+                code: 'INVALID_OBJECT_TRANSITION',
+                message: `Object "${obj}" was at ${loc} but is now at ${newLoc} without being moved.`,
+              });
+            }
+          }
+        }
+      }
+    }
     if (Array.isArray(runtimeLedger.separatedCharacters)) {
       const trusted = getTrustedCharacters(spec, runtimeLedger);
       

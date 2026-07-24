@@ -11,8 +11,11 @@ import {
   compareEventSignatures,
   validateSceneContractReplay,
   shouldMergeFictionScenes,
-  isCleanMetadata
+  isCleanMetadata,
+  auditSceneFutureBoundaries,
+  validateGeneratedSceneReplay
 } from '../src/lib/sceneBeatNormalizer.js';
+import { buildInitialLedger, extractSceneLedgerUpdates } from '../src/lib/narrativeLedger.js';
 
 let passed = 0;
 function test(name, fn) {
@@ -110,7 +113,7 @@ test('contract-aware rewrite feedback is actually injected into prose prompts', 
 });
 
 import { auditSceneAgainstLedger, auditChapterLedgerContinuity, filterConcreteCriticFindings } from '../src/lib/sceneContractGate.js';
-import { buildInitialLedger, extractSceneLedgerUpdates } from '../src/lib/narrativeLedger.js';
+
 
 test('runtime ledger blocks dead character action', () => {
   let ledger = buildInitialLedger();
@@ -452,3 +455,72 @@ test('10. Validation actually executes; no source-text regex assertions', () => 
 });
 
 console.log(`\nNARRATIVE CONTRACT REGRESSION: ${passed} passed, 0 failed\n`);
+
+
+test('11. Scene 1 fails future-event audit when destroying key early', () => {
+  const spec = { future_reserved_events: ['Lena destroys the brass key.'] };
+  const prose = 'Lena takes the brass key and crushes it under her boot, destroying it completely.';
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, false);
+  assert.equal(audit.violations.length > 0, true);
+});
+
+test('12. Scene 1 passes with just truth revealed (no future key destruction)', () => {
+  const spec = { future_reserved_events: ['Lena destroys the brass key.'] };
+  const prose = 'Lena discovers Marcus\'s role in the conspiracy. The brass key feels heavy in her pocket.';
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, true);
+});
+
+test('13. Scene 1 fails when locking Marcus inside before confrontation', () => {
+  const spec = { future_reserved_events: ['Lena confronts Marcus.', 'Lena seals Marcus inside the archive.'] };
+  const prose = 'Without a word, Lena slams the heavy metal door, locking Marcus inside the archive forever.';
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, false);
+  // It shouldn't trigger confrontation, but it should trigger imprisonment
+  assert.ok(audit.violations.some(v => v.includes('seals Marcus')));
+});
+
+test('14. Scene 1 fails when surface escape starts early', () => {
+  const spec = { future_reserved_events: ['Lena escapes to the surface.'] };
+  const prose = 'Lena finally reaches the surface, escaping the cold darkness of the station below.';
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, false);
+});
+
+test('15. Key transitions intact -> destroyed -> remains destroyed passes', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, 'Lena picks up the brass key.', { required_events: [] });
+  let audit1 = auditSceneAgainstLedger({ prose: 'She holds the intact brass key.', runtimeLedger: ledger });
+  assert.equal(audit1.issues.length, 0);
+
+  ledger = extractSceneLedgerUpdates(ledger, 'Lena destroys the brass key with a hammer.', { required_events: [] });
+  let audit2 = auditSceneAgainstLedger({ prose: 'The shattered remains of the key lay on the floor.', runtimeLedger: ledger });
+  // Note: the test just says it passes. 
+  // Wait, audit2 checks if we *use* the destroyed key. So just referencing it is fine, but using it fails.
+  assert.equal(audit2.issues.some(i => i.code === 'UNAVAILABLE_OBJECT_USAGE'), false);
+});
+
+test('16. Key transitions console -> floor -> snapped fails without explanation', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, 'Lena leaves the brass key on the console.', { required_events: [] });
+  // Object is left on the console
+  let audit = auditSceneAgainstLedger({ prose: 'The brass key is resting on the floor.', runtimeLedger: ledger });
+  // It should flag INVALID_OBJECT_TRANSITION
+  assert.ok(audit.issues.some(i => i.code === 'INVALID_OBJECT_TRANSITION'));
+});
+
+test('17. Repeated abandonment of Marcus across generated scenes fails', () => {
+  const scene1 = { acceptedProse: 'Lena abandons Marcus in the dark corridor, refusing his pleas.' };
+  const prose2 = 'Once again, Lena abandons Marcus behind, leaving him alone.';
+  const audit = validateGeneratedSceneReplay(prose2, [scene1]);
+  assert.equal(audit.ok, false);
+  assert.ok(audit.replays.length > 0);
+});
+
+test('18. Repeated station collapse across Scenes 2 and 3 fails', () => {
+  const scene2 = { acceptedProse: 'The station finally collapses completely around them, crumbling into dust.' };
+  const prose3 = 'The metal groans as the entire station collapses, burying everything.';
+  const audit = validateGeneratedSceneReplay(prose3, [scene2]);
+  assert.equal(audit.ok, false);
+});

@@ -463,6 +463,39 @@ function extractEventSignature(beat) {
   };
 }
 
+export function extractProseEventSignatures(prose) {
+  const full = normalize(String(prose));
+  const fullWords = full.split(' ').filter(Boolean);
+  
+  const names = [];
+  const properish = String(prose).match(/\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})?\b/g) || [];
+  for (const name of properish) {
+    const lower = name.toLowerCase();
+    if (STOPWORDS.has(lower)) continue;
+    if (!names.includes(lower)) names.push(lower);
+  }
+
+  const objects = keywords(full); 
+
+  const hasStem = (stemList) => fullWords.some(w => stemList.includes(w) || stemList.includes(stemWord(w)));
+  
+  const functions = [];
+  if (hasStem(['discover', 'uncover', 'reveal'])) functions.push('revelation');
+  if (hasStem(['confront', 'accuse', 'challenge'])) functions.push('confrontation');
+  if (hasStem(['destroy', 'break', 'discard', 'drop'])) functions.push('irreversible_object_loss');
+  if (hasStem(['escape', 'escapes', 'escap', 'exit', 'reach'])) functions.push('escape');
+  if (hasStem(['retrieve', 'obtain', 'acquire'])) functions.push('acquisition');
+  if (hasStem(['decide', 'refuse', 'forgive', 'reject', 'abandon', 'leave'])) functions.push('abandonment_refusal');
+  if (hasStem(['imprison', 'lock', 'trap', 'seal'])) functions.push('imprisonment_separation');
+  if (hasStem(['die', 'dead', 'kill', 'collapse', 'collaps', 'destroy'])) functions.push('death_collapse');
+
+  return {
+    names,
+    objects,
+    functions,
+  };
+}
+
 function samePlace(a, b) {
   if (!a.places.length || !b.places.length) return false;
   return jaccard(a.places, b.places) >= 0.34 || a.places.some((p) => b.places.includes(p));
@@ -550,7 +583,9 @@ export function classifyStoryFunction(scene) {
   if (hasStem(['destroy', 'break', 'discard', 'drop'])) return 'irreversible_object_loss';
   if (hasStem(['escape', 'escapes', 'escap', 'exit', 'reach'])) return 'escape';
   if (hasStem(['retrieve', 'obtain', 'acquire'])) return 'acquisition';
-  if (hasStem(['decide', 'refuse', 'forgive', 'reject'])) return 'character_decision';
+  if (hasStem(['decide', 'refuse', 'forgive', 'reject', 'abandon', 'leave'])) return 'abandonment_refusal';
+  if (hasStem(['imprison', 'lock', 'trap', 'seal'])) return 'imprisonment_separation';
+  if (hasStem(['die', 'dead', 'kill', 'collapse', 'destroy'])) return 'death_collapse';
   return 'other';
 }
 
@@ -820,7 +855,67 @@ export function normalizeSceneBeatsForDrafting(rawBeats, options = {}) {
   };
 }
 
+export function auditSceneFutureBoundaries(sceneProse, spec) {
+  const proseSig = extractProseEventSignatures(sceneProse);
+  const violations = [];
+  
+  for (const futureEvent of spec.future_reserved_events || []) {
+    const futureBeat = { required_events: [futureEvent] };
+    const futureFunc = classifyStoryFunction(futureBeat);
+    const futureSig = extractEventSignature(futureBeat);
+    
+    if (futureFunc === 'other') continue;
 
+    if (proseSig.functions.includes(futureFunc)) {
+      // Check if actors and objects overlap sufficiently
+      const sameCharacter = futureSig.names.length === 0 || futureSig.names.some(n => proseSig.names.includes(n));
+      const sameObject = futureSig.objects.length === 0 || futureSig.objects.some(o => proseSig.objects.includes(o));
+      const sameTarget = futureSig.places.length === 0 || futureSig.places.some(p => proseSig.objects.includes(p)); // places might show up in prose objects
+
+      if (sameCharacter && sameObject && sameTarget) {
+        violations.push(futureEvent);
+      }
+    }
+  }
+  
+  return { ok: violations.length === 0, violations };
+}
+
+export function buildFutureBoundaryRepairPrompt(prose, spec, violations) {
+  return [
+    `The scene you just generated violates the narrative contract by performing events reserved for future scenes.`,
+    `The following events MUST NOT happen yet, but your prose performed them:`,
+    violations.map(v => `- ${v}`).join('\n'),
+    '',
+    `Rewrite the scene so that it strictly STOPS at the intended exit state: "${spec.exit_state || 'The scene ends.'}"`,
+    `Do not advance the plot beyond this point. Leave the future reserved events for later.`,
+  ].join('\n');
+}
+
+export function validateGeneratedSceneReplay(sceneProse, priorScenes) {
+  const proseSig = extractProseEventSignatures(sceneProse);
+  const replays = [];
+
+  for (const prior of priorScenes) {
+    if (!prior.acceptedProse) continue;
+    const priorSig = extractProseEventSignatures(prior.acceptedProse);
+    
+    for (const func of proseSig.functions) {
+      if (priorSig.functions.includes(func)) {
+        // If they share an irreversible function, see if they share characters and objects
+        const sharedNames = proseSig.names.filter(n => priorSig.names.includes(n));
+        const sharedObjects = proseSig.objects.filter(o => priorSig.objects.includes(o));
+        
+        if (sharedNames.length > 0 || sharedObjects.length > 0) {
+          replays.push(`Repeated ${func} involving ${sharedNames[0] || 'no name'} and ${sharedObjects[0] || 'no object'}`);
+        }
+      }
+    }
+  }
+  return { ok: replays.length === 0, replays: Array.from(new Set(replays)) };
+}
+
+export { extractEventSignature };
 export default normalizeSceneBeatsForDrafting;
 
 console.log('[SCENE-BEAT-NORMALIZER] loaded: story-function + chronology guard preflight v3.0 - 2026-05-03');

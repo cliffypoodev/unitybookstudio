@@ -52,7 +52,18 @@ import { resolveResearchContent } from '@/lib/researchStorage';
 import { buildPacingBlock } from '@/lib/pacingModulation';
 import { getRelevantResearch } from '@/lib/fictionResearch';
 import { researchCoverageCheck } from '@/lib/researchCoverage';
-import { normalizeSceneBeatsForDrafting, validateSceneContractReplay, isCleanMetadata } from '@/lib/sceneBeatNormalizer';
+import { 
+  normalizeSceneBeatsForDrafting, 
+  validateSceneContractReplay, 
+  isCleanMetadata, 
+  extractEventSignature, 
+  extractProseEventSignatures, 
+  classifyStoryFunction,
+  auditSceneFutureBoundaries,
+  validateGeneratedSceneReplay,
+  buildFutureBoundaryRepairPrompt
+} from './sceneBeatNormalizer.js';
+
 import {
   assertNarrativeTextClean,
   assertSceneContractUnchanged,
@@ -2929,6 +2940,106 @@ export async function generateChapterSceneByScene({
       }
     }
 
+
+    if (!isNF) {
+      let futureAudit = auditSceneFutureBoundaries(sceneProse, promptSpec);
+      if (!futureAudit.ok) {
+        console.warn(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} futureViolations=${futureAudit.violations.length}`);
+        onProgress?.({
+          stage: 'scene_contract_repair',
+          sceneIndex: i,
+          sceneNumber: spec.sceneNumber,
+          totalScenes: normalizedScenes.length,
+          reason: 'Performed future events early: ' + futureAudit.violations.join(', ')
+        });
+
+        const repairPrompt = [
+          prompt,
+          buildFutureBoundaryRepairPrompt(sceneProse, promptSpec, futureAudit.violations)
+        ].join('\n\n');
+
+        const repaired = await generateSceneWithRepair({
+          project,
+          spec,
+          prompt: repairPrompt,
+          model,
+          fallbackModel,
+          disableFallbacks,
+          targetWords: sceneTarget,
+          temperature: 0.48,
+          maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+        });
+
+        const repairedProse = lightCleanSceneOutput(repaired.prose);
+        futureAudit = auditSceneFutureBoundaries(repairedProse, promptSpec);
+        
+        if (repairedProse && futureAudit.ok) {
+          sceneProse = repairedProse;
+          generated.repaired = true;
+          generated.issues = [...(generated.issues || []), `Future boundary repaired: ${futureAudit.violations.join(', ')}`];
+        } else {
+          const futureError = new Error(
+            `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: future boundary violations survived repair.`
+          );
+          futureError.name = 'NarrativeInvariantError';
+          futureError.code = 'FUTURE_EVENT_PERFORMED_EARLY';
+          futureError.sceneId = spec.scene_id || null;
+          futureError.sceneNumber = spec.sceneNumber || i + 1;
+          throw futureError;
+        }
+      } else {
+        console.log(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} exitStateOk=true`);
+      }
+
+      // PROSE REPLAY AUDIT
+      let replayAudit = validateGeneratedSceneReplay(sceneProse, generatedScenes);
+      if (!replayAudit.ok) {
+        console.warn(`[SCENE-REPLAY-AUDIT] scene=${spec.sceneNumber || i + 1} priorReplayCount=${replayAudit.replays.length}`);
+        onProgress?.({
+          stage: 'scene_contract_repair',
+          sceneIndex: i,
+          sceneNumber: spec.sceneNumber,
+          totalScenes: normalizedScenes.length,
+          reason: 'Semantic prose replay: ' + replayAudit.replays.join(', ')
+        });
+
+        const repairPrompt = [
+          prompt,
+          `The scene you generated semantically replays irreversible events from earlier scenes: \n- ${replayAudit.replays.join('\n- ')}\n\nRewrite the scene without replaying these events.`
+        ].join('\n\n');
+
+        const repaired = await generateSceneWithRepair({
+          project,
+          spec,
+          prompt: repairPrompt,
+          model,
+          fallbackModel,
+          disableFallbacks,
+          targetWords: sceneTarget,
+          temperature: 0.48,
+          maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+        });
+
+        const repairedProse = lightCleanSceneOutput(repaired.prose);
+        replayAudit = validateGeneratedSceneReplay(repairedProse, generatedScenes);
+
+        if (repairedProse && replayAudit.ok) {
+          sceneProse = repairedProse;
+          generated.repaired = true;
+          generated.issues = [...(generated.issues || []), `Semantic replay repaired`];
+        } else {
+          const replayError = new Error(
+            `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: semantic replay survived repair.`
+          );
+          replayError.name = 'NarrativeInvariantError';
+          replayError.code = 'SCENE_DUPLICATE_UNRESOLVED';
+          replayError.sceneId = spec.scene_id || null;
+          replayError.sceneNumber = spec.sceneNumber || i + 1;
+          throw replayError;
+        }
+      }
+    }
+
     if (!isNF) {
       let contractAudit = auditSceneAgainstLedger({
         prose: sceneProse,
@@ -3370,3 +3481,5 @@ export function buildSceneWriterDebugPrompt(args) {
 // Legacy compatibility export.
 // ProjectStudio imports this exact name.
 export const generateChapterByScenes = generateChapterSceneByScene;
+
+export { auditSceneFutureBoundaries, validateGeneratedSceneReplay };

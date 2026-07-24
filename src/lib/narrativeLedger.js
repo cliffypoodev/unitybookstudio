@@ -56,6 +56,7 @@ export function buildInitialLedger() {
     possessions: {},
     droppedObjects: [],
     separatedCharacters: [],
+    objectLocations: {},
   };
 }
 
@@ -144,16 +145,25 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
         if (!ledger.possessions[taker]) ledger.possessions[taker] = [];
         if (!ledger.possessions[taker].includes(objName)) ledger.possessions[taker].push(objName);
         ledger.droppedObjects = ledger.droppedObjects.filter(o => o !== objName);
+        if (ledger.objectLocations && ledger.objectLocations[objName]) {
+          delete ledger.objectLocations[objName];
+        }
       }
     }
 
     // Dropped: placed X on Y, drops X
-    const dropMatch = str.match(/\b(?:places|drops|leaves)\s+(?:the\s+)?([a-z\s]+)\s+(?:on|in|at)\b/);
+    const dropMatch = str.match(/\b(?:places|drops|leaves|inserts)\s+(?:the\s+)?([a-z\s]+)\s+(?:on|in|at|inside)\s+(?:the\s+)?([a-z\s]+)\b/i);
     if (dropMatch) {
       const objNameRaw = dropMatch[1].trim().toLowerCase();
       const objName = objNameRaw.replace(/[.,:;!?]+$/, '');
+      const locationRaw = dropMatch[2].trim().toLowerCase();
+      const location = locationRaw.split(' ')[0].replace(/[.,:;!?]+$/, ''); // Just grab the first noun-like word
+      
       if (objName.length > 2 && objName.length < 25) {
         if (!ledger.droppedObjects.includes(objName)) ledger.droppedObjects.push(objName);
+        if (!ledger.objectLocations) ledger.objectLocations = {};
+        ledger.objectLocations[objName] = location;
+        
         for (const c in ledger.possessions) {
           ledger.possessions[c] = ledger.possessions[c].filter(o => o !== objName);
         }
