@@ -529,7 +529,26 @@ function chooseBaseAndDuplicate(keptBeat, newBeat) {
   return { base: keptBeat, duplicate: newBeat, replaced: false, keptScore, newScore };
 }
 
-function looksLikeAlternateDraft(currentBeat, keptBeat) {
+function hasUniqueIrreversibleChange(beatA, beatB) {
+  const combinedA = normalize(textOf(beatA?.required_events) + ' ' + textOf(beatA?.entry_state) + ' ' + textOf(beatA?.exit_state));
+  const combinedB = normalize(textOf(beatB?.required_events) + ' ' + textOf(beatB?.entry_state) + ' ' + textOf(beatB?.exit_state));
+
+  const irreversibleTerms = ['discovery', 'revelation', 'confrontation', 'destruction', 'escape', 'dies', 'killed', 'destroyed', 'leaves'];
+
+  const aHas = irreversibleTerms.filter(t => combinedA.includes(t));
+  const bHas = irreversibleTerms.filter(t => combinedB.includes(t));
+
+  for (const term of aHas) {
+    if (!bHas.includes(term)) return true;
+  }
+  for (const term of bHas) {
+    if (!aHas.includes(term)) return true;
+  }
+
+  return false;
+}
+
+function looksLikeAlternateDraft(currentBeat, keptBeat, options = {}) {
   const current = extractEventSignature(currentBeat);
   const kept = extractEventSignature(keptBeat);
   const overlap = coreOverlap(current, kept);
@@ -543,6 +562,10 @@ function looksLikeAlternateDraft(currentBeat, keptBeat) {
 
   if (chronologyConflict?.duplicate) {
     return chronologyConflict;
+  }
+
+  if (!options.isNonfiction && hasUniqueIrreversibleChange(currentBeat, keptBeat)) {
+    return { duplicate: false, confidence: 'none', reason: 'distinct irreversible story functions' };
   }
 
   if (overlap.score >= 0.64) {
@@ -669,7 +692,7 @@ export function normalizeSceneBeatsForDrafting(rawBeats, options = {}) {
     let match = null;
 
     for (let i = 0; i < kept.length; i += 1) {
-      const candidate = looksLikeAlternateDraft(beat, kept[i]);
+      const candidate = looksLikeAlternateDraft(beat, kept[i], options);
       if (candidate.duplicate) {
         matchedIndex = i;
         match = candidate;

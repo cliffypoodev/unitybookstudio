@@ -353,4 +353,35 @@ test('Generic confident wording must remain advisory unless mapped to a hard cat
   assert.equal(concrete.length, 0);
 });
 
+test('distinct fiction scenes must not be merged by normalizer even if sharing characters/location', () => {
+  const scenes = [
+    {
+      scene_number: 1,
+      scene_id: 'ch05-s01',
+      location: 'The Archive',
+      characters: ['Lena', 'Marcus'],
+      required_events: ['Lena discovers Marcus\'s role and retrieves the brass key.'],
+      entry_state: 'Lena arrives at the archive.',
+      exit_state: 'Lena holds the brass key.',
+    },
+    {
+      scene_number: 2,
+      scene_id: 'ch05-s02',
+      location: 'The Archive',
+      characters: ['Lena', 'Marcus'],
+      required_events: ['Lena confronts Marcus and destroys the key.'],
+      entry_state: 'Lena holds the brass key.',
+      exit_state: 'The key is destroyed.',
+    }
+  ];
+  const report = normalizeSceneBeatsForDrafting(scenes, { isNonfiction: false, chapterNumber: 5 });
+  assert.equal(report.beats.length, 2);
+});
+
+test('contract replay validation throws on paraphrase overlap', async () => {
+  const sceneWriter = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
+  assert.match(sceneWriter, /Contract-level replay rejected/);
+  assert.match(sceneWriter, /isClean/);
+});
+
 console.log(`\nNARRATIVE CONTRACT REGRESSION: ${passed} passed, 0 failed\n`);

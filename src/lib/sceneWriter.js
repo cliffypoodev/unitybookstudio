@@ -2103,15 +2103,20 @@ function getAnthologyContext(project, chapter) {
 }
 
 function buildSceneStateContractBlock(spec) {
+  const isClean = (t) => {
+    const s = String(t).toLowerCase();
+    return !s.includes('merged') && !s.includes('do not') && !s.includes('reason:') && !s.includes('chronology guard') && !s.includes('continuity warning');
+  };
+
   const sceneId = String(spec?.scene_id || '').trim();
   const entryState = String(spec?.entry_state || '').trim();
   const exitState = String(spec?.exit_state || '').trim();
-  const requiredEvents = Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean) : [];
-  const forbiddenEvents = Array.isArray(spec?.forbidden_events) ? spec.forbidden_events.filter(Boolean) : [];
-  const dependencies = Array.isArray(spec?.continuity_dependencies) ? spec.continuity_dependencies.filter(Boolean) : [];
-  const priorCompletedEvents = Array.isArray(spec?.prior_completed_events) ? spec.prior_completed_events.filter(Boolean) : [];
-  const priorExitStates = Array.isArray(spec?.prior_exit_states) ? spec.prior_exit_states.filter(Boolean) : [];
-  const futureReservedEvents = Array.isArray(spec?.future_reserved_events) ? spec.future_reserved_events.filter(Boolean) : [];
+  const requiredEvents = Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean).filter(isClean) : [];
+  const forbiddenEvents = Array.isArray(spec?.forbidden_events) ? spec.forbidden_events.filter(Boolean).filter(isClean) : [];
+  const dependencies = Array.isArray(spec?.continuity_dependencies) ? spec.continuity_dependencies.filter(Boolean).filter(isClean) : [];
+  const priorCompletedEvents = Array.isArray(spec?.prior_completed_events) ? spec.prior_completed_events.filter(Boolean).filter(isClean) : [];
+  const priorExitStates = Array.isArray(spec?.prior_exit_states) ? spec.prior_exit_states.filter(Boolean).filter(isClean) : [];
+  const futureReservedEvents = Array.isArray(spec?.future_reserved_events) ? spec.future_reserved_events.filter(Boolean).filter(isClean) : [];
 
   if (!sceneId && !entryState && !exitState && !requiredEvents.length) return '';
 
@@ -2771,20 +2776,56 @@ export async function generateChapterSceneByScene({
   let lastScenePrompt = '';
   let runtimeLedger = buildInitialLedger();
 
+  // Contract-Level Replay Validation
+  const getTokens = (str) => String(str).toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(Boolean);
+  const isClean = (t) => {
+    const s = String(t).toLowerCase();
+    return !s.includes('merged') && !s.includes('do not') && !s.includes('reason:') && !s.includes('chronology guard') && !s.includes('continuity warning');
+  };
+
+  for (let i = 1; i < normalizedScenes.length; i++) {
+    const currentScene = normalizedScenes[i];
+    const priorScenes = normalizedScenes.slice(0, i);
+    const priorEvents = priorScenes.flatMap(s => Array.isArray(s.required_events) ? s.required_events : []).filter(isClean);
+    const currentEvents = (Array.isArray(currentScene.required_events) ? currentScene.required_events : []).filter(isClean);
+
+    for (const curr of currentEvents) {
+      const currTokens = getTokens(curr);
+      if (currTokens.length < 3) continue;
+
+      for (const prior of priorEvents) {
+        const priorTokens = getTokens(prior);
+        if (priorTokens.length < 3) continue;
+
+        const intersection = currTokens.filter(t => priorTokens.includes(t));
+        const union = new Set([...currTokens, ...priorTokens]);
+        const jaccard = intersection.length / union.size;
+
+        if (jaccard >= 0.5) {
+           throw new NarrativeInvariantError(
+             `Contract-level replay rejected: Scene ${i+1} repeats completed prior event "${curr}" which overlaps "${prior}"`,
+             { code: 'SCENE_DUPLICATE_UNRESOLVED', chapterNumber: chapter?.chapter_number || null }
+           );
+        }
+      }
+    }
+  }
+
   for (let i = 0; i < normalizedScenes.length; i += 1) {
     const spec = normalizedScenes[i];
     const priorScenes = normalizedScenes.slice(0, i);
     const futureScenes = normalizedScenes.slice(i + 1);
     const promptSpec = {
       ...spec,
+      required_events: Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean).filter(isClean) : [],
       prior_completed_events: priorScenes.flatMap((scene) =>
-        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean) : []
+        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
       ),
       prior_exit_states: priorScenes
         .map((scene) => String(scene?.exit_state || '').trim())
-        .filter(Boolean),
+        .filter(Boolean).filter(isClean),
       future_reserved_events: futureScenes.flatMap((scene) =>
-        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean) : []
+        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
       ),
     };
     const isFirst = i === 0;
