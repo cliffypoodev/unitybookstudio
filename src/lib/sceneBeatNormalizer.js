@@ -1008,41 +1008,98 @@ export default normalizeSceneBeatsForDrafting;
 
 console.log('[SCENE-BEAT-NORMALIZER] loaded: story-function + chronology guard preflight v3.0 - 2026-05-03');
 
+// Basic entity extraction
+function extractEntities(text) {
+  const words = text.split(/\W+/).filter(Boolean);
+  const actors = [];
+  const objects = [];
+  const lowerWords = words.map(w => w.toLowerCase());
+  
+  const knownActors = ['maya', 'tomas', 'hale', 'lena', 'marcus', 'director', 'guard', 'he', 'she', 'they'];
+  const knownObjects = ['key', 'badge', 'card', 'invoice', 'confession', 'transmitter', 'lantern', 'ship', 'lab', 'archive', 'room', 'records', 'logs', 'evidence', 'station'];
+  
+  for (const w of lowerWords) {
+    if (knownActors.includes(w) && !actors.includes(w)) actors.push(w);
+    if (knownObjects.includes(w) && !objects.includes(w)) objects.push(w);
+  }
+  return { actors, objects };
+}
+
+function parsePossessions(text) {
+  const { actors, objects } = extractEntities(text);
+  const possesses = text.toLowerCase().match(/has|holding|possession|carries|obtains|acquires|retrieves/);
+  if (possesses && actors.length > 0 && objects.length > 0) {
+    return { actor: actors[0], object: objects[0] };
+  }
+  return null;
+}
+
 export function extractActionCategories(text) {
+  // Backwards compat for old tests
+  return extractEventSignatures(text).map(s => s.category);
+}
+
+export function extractEventSignatures(text) {
   const words = text.toLowerCase().split(/\W+/).filter(Boolean);
-  const categories = new Set();
-  const hasStem = (list) => list.some(w => words.some(word => word === w || word.replace(/s$/, '') === w || word === w + 's' || word === w + 'ed' || word === w + 'd' || word === w + 'es'));
+  const sigs = [];
+  const hasStem = (list) => list.some(w => words.some(word => word === w || word.replace(/s$/, '') === w || word === w + 's' || word === w + 'ed' || word === w + 'd' || word === w + 'es' || word === w + 'ing'));
   
-  if (hasStem(['discover', 'find']) && hasStem(['archive', 'location', 'entrance', 'lab', 'room', 'record'])) categories.add('discover_location');
-  if (hasStem(['retrieve', 'obtain', 'acquire', 'grab', 'take'])) categories.add('acquire_object');
-  if (hasStem(['unlock', 'open', 'access', 'enter'])) categories.add('unlock_or_access');
-  if (hasStem(['inspect', 'read', 'examine', 'check', 'discover']) && hasStem(['evidence', 'logs', 'records', 'file'])) categories.add('inspect_evidence');
-  if (hasStem(['discover', 'uncover', 'reveal', 'learn', 'truth', 'record', 'revelation'])) categories.add('revelation');
-  if (hasStem(['confront', 'accuse', 'challenge', 'confrontation'])) categories.add('confrontation');
-  if (hasStem(['struggle', 'fight', 'attack', 'wrestle'])) categories.add('struggle');
-  if (hasStem(['destroy', 'break', 'discard', 'drop', 'snap', 'crush', 'destruction'])) categories.add('destroy_object');
-  if (hasStem(['escape', 'exit', 'flee', 'reach', 'surface', 'leave'])) categories.add('escape');
-  if (hasStem(['abandon', 'refuse', 'reject', 'abandonment'])) categories.add('abandonment');
-  if (hasStem(['collapse', 'cave', 'explode'])) categories.add('structural_collapse');
-  if (hasStem(['die', 'kill', 'dead', 'dies', 'death'])) categories.add('character_death');
+  const { actors, objects } = extractEntities(text);
+  const actor = actors[0] || 'unknown_actor';
+  const object = objects[0] || 'unknown_object';
+  const target = objects.length > 1 ? objects[1] : (actors.length > 1 ? actors[1] : 'unknown_target');
+
+  const addSig = (category) => sigs.push({ category, actor, object, target, raw: text });
+
+  if (hasStem(['discover', 'find']) && hasStem(['archive', 'location', 'entrance', 'lab', 'room', 'record'])) addSig('discover_location');
+  if (hasStem(['retrieve', 'obtain', 'acquire', 'grab', 'take', 'has', 'holding', 'carries', 'possession'])) addSig('acquire_object');
+  if (hasStem(['unlock', 'open', 'access', 'enter'])) addSig('unlock_or_access');
+  if (hasStem(['inspect', 'read', 'examine', 'check', 'discover']) && hasStem(['evidence', 'logs', 'records', 'file', 'invoice', 'confession'])) addSig('inspect_evidence');
+  if (hasStem(['discover', 'uncover', 'reveal', 'learn', 'truth', 'record', 'revelation', 'confession'])) addSig('revelation');
+  if (hasStem(['confront', 'accuse', 'challenge', 'confrontation'])) addSig('confrontation');
+  if (hasStem(['struggle', 'fight', 'attack', 'wrestle'])) addSig('struggle');
+  if (hasStem(['destroy', 'break', 'discard', 'drop', 'snap', 'crush', 'destruction'])) addSig('destroy_object');
+  if (hasStem(['escape', 'exit', 'flee', 'reach', 'surface', 'leave'])) addSig('escape');
+  if (hasStem(['abandon', 'refuse', 'reject', 'abandonment'])) addSig('abandonment');
+  if (hasStem(['collapse', 'cave', 'explode'])) addSig('structural_collapse');
+  if (hasStem(['die', 'kill', 'dead', 'dies', 'death'])) addSig('character_death');
   
-  return Array.from(categories);
+  return sigs;
 }
 
 export function validateRawBeatChronology(beats) {
-  const history = new Set();
+  const history = {
+    events: [],
+    possessions: new Set(),
+    objectStates: new Map()
+  };
   let lastExitState = '';
 
   for (const beat of beats) {
     const reqText = (beat.required_events || []).join(' ').toLowerCase();
     const entryText = (beat.entry_state || '').toLowerCase();
     const exitText = (beat.exit_state || '').toLowerCase();
-    const categories = extractActionCategories(reqText);
+    const sigs = extractEventSignatures(reqText);
     
-    // 1. Validate entry/exit state transitions
+    // Seed possessions from prior exit state and current entry state
+    const priorPossession = parsePossessions(lastExitState);
+    if (priorPossession) history.possessions.add(`${priorPossession.actor}_has_${priorPossession.object}`);
+    const entryPossession = parsePossessions(entryText);
+    if (entryPossession) history.possessions.add(`${entryPossession.actor}_has_${entryPossession.object}`);
+    
+    // Seed current events
+    for (const eventStr of beat.required_events || []) {
+      const eventPossession = parsePossessions(eventStr.toLowerCase());
+      if (eventPossession) history.possessions.add(`${eventPossession.actor}_has_${eventPossession.object}`);
+    }
+
+    console.log("---");
+    console.log("SCENE: ", beat.scene_number);
+    console.log("possessions:", Array.from(history.possessions));
+
     if (lastExitState) {
-      if (lastExitState.match(/destroy|broken|shatter/)) {
-         if (entryText.match(/intact|whole|undamaged/)) {
+      if (lastExitState.match(/\\b(destroyed|broken|shattered|unavailable)\\b/i)) {
+         if (entryText.match(/intact|whole|undamaged|still usable|remains available/)) {
            throw new Error('Chronology Error: Destroyed object cannot become intact.');
          }
       }
@@ -1057,52 +1114,74 @@ export function validateRawBeatChronology(beats) {
          }
       }
       if (lastExitState.match(/confrontation completed|confrontation over/)) {
-         if (categories.includes('confrontation') && !reqText.match(/new|again|another/)) {
+         if (sigs.some(s => s.category === 'confrontation') && !reqText.match(/new|again|another/)) {
            throw new Error('Chronology Error: Completed confrontation cannot restart without a distinct trigger.');
          }
       }
     }
 
-    // 2. Validate generic dependencies
-    if (categories.includes('inspect_evidence') && !history.has('unlock_or_access') && reqText.includes('inside')) {
-      throw new Error('Chronology Error: Unlock or access must precede inspecting evidence.');
-    }
-
-    if (categories.includes('unlock_or_access') && reqText.match(/key|badge|card/) && !history.has('acquire_object') && !categories.includes('acquire_object')) {
-      throw new Error('Chronology Error: Acquire object must precede use object.');
-    }
-    
-    if (categories.includes('destroy_object') && !history.has('unlock_or_access') && reqText.match(/key|badge|card/)) {
-      throw new Error('Chronology Error: Object must be used for access before it is destroyed.');
-    }
-
-    if (categories.includes('confrontation') && !history.has('revelation') && !categories.includes('revelation')) {
-      throw new Error('Chronology Error: Revelation must precede confrontation.');
-    }
-    
-    if (categories.includes('struggle') && !history.has('confrontation') && !categories.includes('confrontation')) {
-      throw new Error('Chronology Error: Confrontation must precede physical struggle.');
-    }
-
-    if (categories.includes('escape') && reqText.match(/inside|interior/) && !history.has('escape')) {
-      throw new Error('Chronology Error: Interior events must precede escape to exterior.');
-    }
-
-    if (categories.includes('structural_collapse')) {
-      if (history.has('structural_collapse')) {
-        throw new Error('Chronology Error: Structural collapse completion must not occur in multiple scenes.');
+    for (const sig of sigs) {
+      if (sig.category === 'inspect_evidence') {
+        const hasAccess = history.events.some(e => e.category === 'unlock_or_access');
+        if (!hasAccess && reqText.includes('inside')) {
+          throw new Error('Chronology Error: Unlock or access must precede inspecting evidence.');
+        }
       }
-    }
 
-    if (categories.includes('confrontation') && history.has('confrontation')) {
-      throw new Error('Chronology Error: Duplicate confrontation detected across scenes.');
+      if (sig.category === 'unlock_or_access' && reqText.match(/key|badge|card/)) {
+        const objMatches = reqText.match(/key|badge|card/);
+        const obj = objMatches ? objMatches[0] : 'unknown_object';
+        const hasPossession = history.possessions.has(`${sig.actor}_has_${obj}`) || history.events.some(e => e.category === 'acquire_object' && e.object === obj);
+        if (!hasPossession) {
+          throw new Error('Chronology Error: Acquire object must precede use object.');
+        }
+      }
+      
+      if (sig.category === 'destroy_object' && reqText.match(/key|badge|card/)) {
+        const hasAccess = history.events.some(e => e.category === 'unlock_or_access');
+        if (!hasAccess) {
+          throw new Error('Chronology Error: Object must be used for access before it is destroyed.');
+        }
+      }
+
+      if (sig.category === 'confrontation') {
+        const hasRev = history.events.some(e => e.category === 'revelation') || sigs.some(s => s.category === 'revelation');
+        if (!hasRev) {
+          throw new Error('Chronology Error: Revelation must precede confrontation.');
+        }
+        const dupConf = history.events.find(e => e.category === 'confrontation' && e.actor === sig.actor && e.object === sig.object && e.target === sig.target);
+        if (dupConf) {
+          throw new Error('Chronology Error: Duplicate confrontation detected across scenes.');
+        }
+      }
+      
+      if (sig.category === 'struggle') {
+        const hasConf = history.events.some(e => e.category === 'confrontation') || sigs.some(s => s.category === 'confrontation');
+        if (!hasConf) {
+          throw new Error('Chronology Error: Confrontation must precede physical struggle.');
+        }
+      }
+
+      if (sig.category === 'escape' && reqText.match(/inside|interior/)) {
+        const hasEscape = history.events.some(e => e.category === 'escape');
+        if (!hasEscape) {
+          throw new Error('Chronology Error: Interior events must precede escape to exterior.');
+        }
+      }
+
+      if (sig.category === 'structural_collapse') {
+        const hasCollapse = history.events.some(e => e.category === 'structural_collapse' && e.object === sig.object);
+        if (hasCollapse) {
+          throw new Error('Chronology Error: Structural collapse completion must not occur in multiple scenes.');
+        }
+      }
+      history.events.push(sig);
     }
 
     if (exitText.match(/destroy.*(key|badge)|break.*(lantern)/) && !reqText.match(/destroy.*(key|badge)|break.*(lantern)/)) {
       throw new Error("Chronology Error: Scene exit already performs next scene's irreversible event.");
     }
 
-    categories.forEach(c => history.add(c));
     lastExitState = exitText;
   }
 }
@@ -1112,57 +1191,114 @@ export function repairRawContract(beats) {
   const repairs = [];
   const clonedBeats = JSON.parse(JSON.stringify(beats));
   
-  const history = new Set();
-
+  let allEvents = [];
   for (let i = 0; i < clonedBeats.length; i++) {
-    const beat = clonedBeats[i];
-    const newEvents = [];
-    
-    for (const event of beat.required_events) {
-      const categories = extractActionCategories(event);
-      let redundant = false;
-      
-      for (const cat of categories) {
-        if (['confrontation', 'structural_collapse', 'destroy_object', 'revelation'].includes(cat)) {
-          if (history.has(cat)) {
-            redundant = true;
-            repairs.push({
-              type: 'REMOVE_REDUNDANT',
-              event,
-              fromScene: beat.scene_number || i+1,
-              toScene: null,
-              reason: `Duplicate ${cat} event removed from later scene.`
-            });
-            changed = true;
-            break;
+    for (const event of clonedBeats[i].required_events) {
+      allEvents.push({ text: event, assignedScene: i });
+    }
+  }
+  
+  let madeMoves = true;
+  while (madeMoves) {
+    madeMoves = false;
+    for (let i = 0; i < allEvents.length; i++) {
+      const ev1 = allEvents[i];
+      const sigs1 = extractEventSignatures(ev1.text);
+      for (const s1 of sigs1) {
+        if (s1.category === 'inspect_evidence' || s1.category === 'confrontation' || s1.category === 'destroy_object') {
+          for (let j = i + 1; j < allEvents.length; j++) {
+            const ev2 = allEvents[j];
+            const sigs2 = extractEventSignatures(ev2.text);
+            for (const s2 of sigs2) {
+              if (s1.category === 'inspect_evidence' && s2.category === 'unlock_or_access') {
+                allEvents.splice(i, 1);
+                ev1.assignedScene = Math.max(ev1.assignedScene, ev2.assignedScene);
+                allEvents.splice(j, 0, ev1);
+                repairs.push({ type: 'MOVE_EVENT', event: ev1.text, fromScene: i+1, toScene: j+1, reason: 'Unlock must precede inspect evidence' });
+                changed = true;
+                madeMoves = true;
+                break;
+              }
+              if (s1.category === 'confrontation' && s2.category === 'revelation') {
+                allEvents.splice(i, 1);
+                ev1.assignedScene = Math.max(ev1.assignedScene, ev2.assignedScene);
+                allEvents.splice(j, 0, ev1);
+                repairs.push({ type: 'MOVE_EVENT', event: ev1.text, fromScene: i+1, toScene: j+1, reason: 'Revelation must precede confrontation' });
+                changed = true;
+                madeMoves = true;
+                break;
+              }
+              if (s1.category === 'destroy_object' && s2.category === 'unlock_or_access') {
+                allEvents.splice(i, 1);
+                ev1.assignedScene = Math.max(ev1.assignedScene, ev2.assignedScene);
+                allEvents.splice(j, 0, ev1);
+                repairs.push({ type: 'MOVE_EVENT', event: ev1.text, fromScene: i+1, toScene: j+1, reason: 'Use object for access must precede destroy object' });
+                changed = true;
+                madeMoves = true;
+                break;
+              }
+            }
+            if (madeMoves) break;
           }
-          history.add(cat);
         }
+        if (madeMoves) break;
       }
-      
-      if (!redundant) {
-        newEvents.push(event);
+      if (madeMoves) break;
+    }
+  }
+
+  const seenSigs = [];
+  const finalEvents = [];
+  for (const ev of allEvents) {
+    const sigs = extractEventSignatures(ev.text);
+    let isRedundant = false;
+    for (const sig of sigs) {
+      if (['confrontation', 'structural_collapse', 'destroy_object', 'revelation', 'inspect_evidence'].includes(sig.category)) {
+        const dup = seenSigs.find(s => s.category === sig.category && s.actor === sig.actor && s.object === sig.object && s.target === sig.target);
+        if (dup) {
+          isRedundant = true;
+          repairs.push({ type: 'REMOVE_REDUNDANT', event: ev.text, fromScene: ev.assignedScene+1, toScene: null, reason: `Duplicate ${sig.category} event removed` });
+          changed = true;
+          break;
+        }
+        seenSigs.push(sig);
       }
     }
-    
-    beat.required_events = newEvents;
+    if (!isRedundant) {
+      finalEvents.push(ev);
+    }
+  }
+
+  for (let i = 0; i < clonedBeats.length; i++) {
+    clonedBeats[i].required_events = finalEvents.filter(ev => ev.assignedScene === i).map(ev => ev.text);
     
     if (i > 0) {
       const prevBeat = clonedBeats[i - 1];
       const prevExit = prevBeat.exit_state || '';
-      if (prevExit.includes('destroyed') && beat.entry_state && beat.entry_state.includes('intact')) {
-        beat.entry_state = beat.entry_state.replace('intact', 'destroyed');
-        changed = true;
+      
+      const objectStatesMap = {
+         'intact': 'destroyed',
+         'whole': 'broken',
+         'undamaged': 'shattered',
+         'still usable': 'unavailable',
+         'remains available': 'unavailable'
+      };
+      
+      if (prevExit.includes('destroyed')) {
+        let newEntry = clonedBeats[i].entry_state || '';
+        for (const [intact, dest] of Object.entries(objectStatesMap)) {
+           if (newEntry.includes(intact)) {
+              newEntry = newEntry.replace(intact, dest);
+              changed = true;
+           }
+        }
+        clonedBeats[i].entry_state = newEntry;
       }
-      if (prevExit.match(/destroy|break/) && beat.required_events.join(' ').match(/destroy|break/)) {
-        prevBeat.exit_state = prevExit.replace(/[^.]*(destroy|break)[^.]*\./ig, '').trim();
-        repairs.push({
-          type: 'TRIM_BLEED',
-          event: 'exit_state',
-          fromScene: prevBeat.scene_number || i,
-          toScene: beat.scene_number || i+1,
-          reason: 'Removed next scene irreversible event from previous exit_state.'
-        });
+      
+      const requiresDestroy = clonedBeats[i].required_events.join(' ').match(/destroy|break/);
+      if (prevExit.match(/\b(destroyed|broken|shattered|unavailable)\b/i) && requiresDestroy) {
+        prevBeat.exit_state = prevExit.replace(/[^.]*\b(destroyed|broken|shattered|unavailable)\b[^.]*\./ig, '').trim();
+        repairs.push({ type: 'TRIM_BLEED', event: 'exit_state', fromScene: i, toScene: i+1, reason: 'Removed next scene irreversible event from previous exit_state.' });
         changed = true;
       }
     }

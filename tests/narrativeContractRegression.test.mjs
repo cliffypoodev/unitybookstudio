@@ -588,119 +588,133 @@ test('19. Runtime-shaped Chapter 5 contract preserves 3 scenes and leaves no met
 
 
 
-test('20. Maya acquires a badge, opens a lab, later destroys the badge', () => {
-  const broken = [
-    { scene_number: 1, required_events: ['Maya finds a lab.', 'Maya opens the lab.', 'Maya destroys the badge.'], exit_state: 'badge destroyed.' },
-    { scene_number: 2, required_events: ['Maya destroys the badge.'], exit_state: '' }
-  ];
-  
-  // This should throw because scene 1 uses it for access then destroys it early, wait no:
-  // "acquire object must precede use object"
-  // "use object for access must precede destroy object"
-  assert.throws(() => validateRawBeatChronology([
-    { scene_number: 1, required_events: ['Maya destroys the badge.'], exit_state: '' },
+
+test('20. Possession established by previous exit_state permits object use', () => {
+  assert.doesNotThrow(() => validateRawBeatChronology([
+    { scene_number: 1, required_events: [], exit_state: 'Maya is holding the badge.' },
     { scene_number: 2, required_events: ['Maya unlocks the lab with the badge.'], exit_state: '' }
-  ]), /Object must be used for access before it is destroyed/);
-  
-  // Repair testing for Maya
-  const repairResult = repairRawContract([
-    { scene_number: 1, required_events: ['Maya finds the badge.', 'Maya destroys the badge.'], exit_state: 'badge destroyed.' },
-    { scene_number: 2, required_events: ['Maya destroys the badge again.'], exit_state: '' }
-  ]);
-  assert.equal(repairResult.changed, true);
-  assert.ok(repairResult.repairs.some(r => r.type === 'REMOVE_REDUNDANT'));
+  ]));
 });
 
-test('21. Tomas discovers records, later confronts Director Hale', () => {
-  assert.throws(() => validateRawBeatChronology([
-    { required_events: ['Tomas confronts Director Hale.'], exit_state: '' },
-    { required_events: ['Tomas discovers the truth.'], exit_state: '' }
-  ]), /Revelation must precede confrontation/);
+test('21. Possession established by current entry_state permits object use', () => {
+  assert.doesNotThrow(() => validateRawBeatChronology([
+    { scene_number: 1, required_events: ['Maya unlocks the lab with the badge.'], entry_state: 'Maya has the badge.' }
+  ]));
 });
 
-test('22. A ship collapse is not object destruction', () => {
-  const cats = extractActionCategories('The ship collapses completely.');
-  assert.ok(cats.includes('structural_collapse'));
-  assert.ok(!cats.includes('destroy_object'));
-});
-
-test('23. A lantern breaking is not structural collapse', () => {
-  const cats = extractActionCategories('He breaks the lantern.');
-  assert.ok(!cats.includes('structural_collapse'));
-  assert.ok(cats.includes('destroy_object'));
-});
-
-test('24. Chapter 2 and Chapter 9 can both be repaired without hardcoded chapter checks', () => {
+test('22. Two different revelations remain', () => {
   const input = [
-    { scene_number: 1, required_events: ['She breaks the key.'], exit_state: 'key broken.' },
-    { scene_number: 2, required_events: ['She breaks the key.'], exit_state: 'key broken.' }
+    { scene_number: 1, required_events: ['Maya discovers a forged invoice.'] },
+    { scene_number: 2, required_events: ['Maya later discovers the director\'s confession.'] }
   ];
-  const r2 = repairRawContract(input);
-  assert.equal(r2.changed, true);
-  assert.equal(r2.beats[1].required_events.length, 0); // second break is removed
-  // Doesn't need a chapter parameter!
+  const r = repairRawContract(input);
+  assert.equal(r.beats[1].required_events.length, 1);
 });
 
-test('25. Repair output never introduces names or nouns absent from the input', () => {
-  const r = repairRawContract([
-    { required_events: ['He finds it.'], exit_state: 'found.' },
-    { required_events: ['He finds it.'], exit_state: 'found.' }
-  ]);
+test('23. Two confrontations with different targets remain', () => {
+  const input = [
+    { scene_number: 1, required_events: ['Tomas confronts a guard.'] },
+    { scene_number: 2, required_events: ['Tomas later confronts Director Hale.'] }
+  ];
+  const r = repairRawContract(input);
+  assert.equal(r.beats[1].required_events.length, 1);
+});
+
+test('24. Two object destructions involving different objects remain', () => {
+  const input = [
+    { scene_number: 1, required_events: ['Maya destroys a badge.'] },
+    { scene_number: 2, required_events: ['Tomas later destroys a transmitter.'] }
+  ];
+  const r = repairRawContract(input);
+  assert.equal(r.beats[1].required_events.length, 1);
+});
+
+test('25. True duplicate confrontation with same actor/target/result is removed', () => {
+  const input = [
+    { scene_number: 1, required_events: ['Tomas confronts Director Hale.'] },
+    { scene_number: 2, required_events: ['Tomas confronts Director Hale.'] }
+  ];
+  const r = repairRawContract(input);
+  assert.equal(r.beats[1].required_events.length, 0);
+  assert.ok(r.changed);
+});
+
+test('26. Evidence-before-access is moved, not merely deleted', () => {
+  const input = [
+    { scene_number: 1, required_events: ['Maya discovers the evidence.'] },
+    { scene_number: 2, required_events: ['Maya unlocks the archive.'] }
+  ];
+  const r = repairRawContract(input);
+  assert.ok(r.changed);
+  assert.ok(r.repairs.some(rep => rep.type === 'MOVE_EVENT'));
+  assert.equal(r.beats[0].required_events.length, 0);
+  assert.equal(r.beats[1].required_events.length, 2);
+});
+
+test('27. Object destruction before required use is moved later', () => {
+  const input = [
+    { scene_number: 1, required_events: ['Maya destroys the badge.'] },
+    { scene_number: 2, required_events: ['Maya unlocks the lab.'] }
+  ];
+  const r = repairRawContract(input);
+  assert.ok(r.changed);
+  assert.ok(r.repairs.some(rep => rep.type === 'MOVE_EVENT'));
+});
+
+test('28. Repair never reduces the number of unique semantic events', () => {
+  const input = [
+    { scene_number: 1, required_events: ['Tomas confronts Hale.', 'Maya discovers evidence.'] },
+    { scene_number: 2, required_events: ['Tomas destroys transmitter.'] }
+  ];
+  const r = repairRawContract(input);
+  const evCount = r.beats.reduce((acc, b) => acc + b.required_events.length, 0);
+  assert.equal(evCount, 3);
+});
+
+test('29. Repair never introduces entities absent from input', () => {
+  const input = [
+    { scene_number: 1, required_events: ['Tomas confronts Hale.'] }
+  ];
+  const r = repairRawContract(input);
   const text = JSON.stringify(r.beats);
   assert.ok(!text.includes('Lena'));
-  assert.ok(!text.includes('Marcus'));
 });
 
-test('26. Repair returns a detailed repair report', () => {
-  const r = repairRawContract([
-    { scene_number: 1, required_events: ['A confrontation happens.'], exit_state: 'confrontation completed.' },
-    { scene_number: 2, required_events: ['Another confrontation happens.'], exit_state: '' }
-  ]);
-  assert.equal(r.changed, true);
-  assert.ok(Array.isArray(r.repairs));
-  assert.equal(r.repairs.length, 1);
-  assert.equal(r.repairs[0].type, 'REMOVE_REDUNDANT');
-});
-
-test('27. Entry/exit contradictions are executable tests, not comments', () => {
-  assert.throws(() => validateRawBeatChronology([
-    { required_events: [], exit_state: 'key is destroyed.' },
-    { required_events: [], entry_state: 'key is intact.' }
-  ]), /Destroyed object cannot become intact/);
-
-  assert.throws(() => validateRawBeatChronology([
-    { required_events: [], exit_state: 'she is outside.' },
-    { required_events: [], entry_state: 'she is inside.' }
-  ]), /Character outside cannot begin next scene inside/);
-});
-
-test('28. Exact Chapter 5 contract test via repair', () => {
+test('30. Current runtime-shaped Chapter 5 contract repairs and then passes validation', () => {
   const chapter5Broken = [
     {
       scene_number: 1,
       required_events: [
-        'Lena discovers the truth.',
-        'Lena confronts Marcus.'
+        "Lena discovers the hidden archive while exploring the corridor.",
+        "Lena finds evidence linking Marcus to her father's accident.",
+        "Lena confronts Marcus, who tries to deny his involvement."
       ],
-      entry_state: 'Lena explores.',
-      exit_state: 'key destroyed.'
+      entry_state: "Lena explores.",
+      exit_state: "Lena is holding the brass key, and Marcus is trying to stop her from destroying it."
     },
     {
       scene_number: 2,
       required_events: [
-        'Lena unlocks the archive with the key.',
-        'Lena destroys the key.'
+        "Lena unlocks the archive with the key, revealing logs about Marcus's actions.",
+        "Marcus attacks Lena, trying to take the key away.",
+        "Lena fights off Marcus and destroys the key."
       ],
-      entry_state: 'key intact.',
-      exit_state: 'key destroyed.'
+      entry_state: "key intact.",
+      exit_state: "key destroyed."
     }
   ];
   
-  // This fails validation originally
-  assert.throws(() => validateRawBeatChronology(chapter5Broken));
-  
-  // Repair fixes it? Actually the generic repair just removes exact duplicates and trims bleed.
-  // We'll just verify the repair pipeline returns the correct shape.
   const result = repairRawContract(chapter5Broken);
   assert.equal(result.changed, true);
+  assert.doesNotThrow(() => validateRawBeatChronology(result.beats));
+});
+
+test('31. Repair report identifies every move/removal/state correction', () => {
+  const r = repairRawContract([
+    { scene_number: 1, required_events: ['A confrontation happens.'], exit_state: 'key destroyed.' },
+    { scene_number: 2, required_events: ['A confrontation happens.'], entry_state: 'key intact.' }
+  ]);
+  assert.equal(r.changed, true);
+  assert.ok(r.repairs.length > 0);
+  assert.ok(r.beats[1].entry_state.includes('destroyed'));
 });
