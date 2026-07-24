@@ -8,6 +8,8 @@ export function buildInitialLedger() {
     completedEvents: [],
     deadCharacters: [],
     unavailableObjects: [],
+    possessions: {},
+    droppedObjects: [],
   };
 }
 
@@ -64,6 +66,47 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
       if (objName.length > 2 && objName.length < 25 && !['it', 'he', 'she', 'they', 'everything', 'nothing'].includes(objName)) {
         if (!ledger.unavailableObjects.includes(objName)) {
           ledger.unavailableObjects.push(objName);
+          // If destroyed, remove from dropped and possessions
+          ledger.droppedObjects = ledger.droppedObjects.filter(o => o !== objName);
+          for (const c in ledger.possessions) {
+            ledger.possessions[c] = ledger.possessions[c].filter(o => o !== objName);
+          }
+        }
+      }
+    }
+
+    // Possession: Gives X to Y
+    const givesMatch = str.match(/\b(?:gives|hands|passes)\s+(?:the\s+)?([a-z\s]+)\s+to\s+([A-Z][a-z]+)\b/);
+    if (givesMatch) {
+      const objName = givesMatch[1].trim().toLowerCase();
+      const receiver = givesMatch[2];
+      if (objName.length > 2 && objName.length < 25) {
+        if (!ledger.possessions[receiver]) ledger.possessions[receiver] = [];
+        if (!ledger.possessions[receiver].includes(objName)) ledger.possessions[receiver].push(objName);
+        ledger.droppedObjects = ledger.droppedObjects.filter(o => o !== objName);
+      }
+    }
+
+    // Possession: X takes/grabs Y
+    const takesMatch = str.match(/\b([A-Z][a-z]+)\s+(?:takes|grabs|picks up|retrieves)\s+(?:the\s+)?([a-z\s]+)\b/);
+    if (takesMatch) {
+      const taker = takesMatch[1];
+      const objName = takesMatch[2].trim().toLowerCase();
+      if (objName.length > 2 && objName.length < 25) {
+        if (!ledger.possessions[taker]) ledger.possessions[taker] = [];
+        if (!ledger.possessions[taker].includes(objName)) ledger.possessions[taker].push(objName);
+        ledger.droppedObjects = ledger.droppedObjects.filter(o => o !== objName);
+      }
+    }
+
+    // Dropped: placed X on Y, drops X
+    const dropMatch = str.match(/\b(?:places|drops|leaves)\s+(?:the\s+)?([a-z\s]+)\s+(?:on|in|at)\b/);
+    if (dropMatch) {
+      const objName = dropMatch[1].trim().toLowerCase();
+      if (objName.length > 2 && objName.length < 25) {
+        if (!ledger.droppedObjects.includes(objName)) ledger.droppedObjects.push(objName);
+        for (const c in ledger.possessions) {
+          ledger.possessions[c] = ledger.possessions[c].filter(o => o !== objName);
         }
       }
     }
@@ -87,6 +130,20 @@ export function serializeLedger(ledger) {
   
   if (ledger.unavailableObjects && ledger.unavailableObjects.length > 0) {
     out += `DESTROYED/UNAVAILABLE OBJECTS (Cannot be used or found): ${ledger.unavailableObjects.join(', ')}\n`;
+  }
+
+  if (ledger.droppedObjects && ledger.droppedObjects.length > 0) {
+    out += `DROPPED/PLACED OBJECTS (Currently not held by anyone): ${ledger.droppedObjects.join(', ')}\n`;
+  }
+
+  const possessors = Object.keys(ledger.possessions || {});
+  if (possessors.length > 0) {
+    out += `OBJECT POSSESSIONS:\n`;
+    for (const char of possessors) {
+      if (ledger.possessions[char].length > 0) {
+        out += `- ${char} holds: ${ledger.possessions[char].join(', ')}\n`;
+      }
+    }
   }
 
   const conditions = Object.keys(ledger.characterConditions || {});

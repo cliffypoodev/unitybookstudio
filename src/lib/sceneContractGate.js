@@ -636,6 +636,45 @@ export function auditSceneAgainstLedger({
         }
       }
     }
+
+    if (Array.isArray(runtimeLedger.droppedObjects)) {
+      for (const obj of runtimeLedger.droppedObjects) {
+        // If someone holds or possesses a dropped object
+        const objRegex = new RegExp(`\\b([A-Z][a-z]+)\\s+(?:holds|grips|clutches|has|pulls)\\s+(?:the\\s+)?${obj}\\b`, 'i');
+        const match = prose.match(objRegex);
+        if (match) {
+          issues.push({
+            code: 'OBJECT_POSSESSION_VIOLATION',
+            message: `Character "${match[1]}" holds "${obj}", but it was placed down and not retrieved.`,
+          });
+        }
+      }
+    }
+
+    if (runtimeLedger.possessions) {
+      for (const char in runtimeLedger.possessions) {
+        for (const obj of runtimeLedger.possessions[char]) {
+          // If someone else holds it
+          const objRegex = new RegExp(`\\b([A-Z][a-z]+)\\s+(?:holds|grips|clutches|has|pulls)\\s+(?:the\\s+)?${obj}\\b`, 'i');
+          const match = prose.match(objRegex);
+          if (match && match[1] !== char) {
+            issues.push({
+              code: 'OBJECT_POSSESSION_VIOLATION',
+              message: `Character "${match[1]}" holds "${obj}", but it is possessed by "${char}".`,
+            });
+          }
+        }
+      }
+    }
+
+    // "all evidence is gone" violation
+    const hasExistingObjects = (runtimeLedger.droppedObjects && runtimeLedger.droppedObjects.length > 0) || (runtimeLedger.possessions && Object.keys(runtimeLedger.possessions).length > 0);
+    if (hasExistingObjects && prose.match(/\b(?:all evidence is gone|no proof remains|destroyed all evidence|no evidence left)\b/i)) {
+      issues.push({
+        code: 'EVIDENCE_AVAILABILITY_VIOLATION',
+        message: `Prose claims all evidence is gone, but objects still exist in the ledger.`,
+      });
+    }
   }
 
   return {
@@ -670,13 +709,17 @@ MANDATORY:
 }
 
 export function auditChapterLedgerContinuity(chapterContent, generatedScenes, buildInitialLedger, extractSceneLedgerUpdates) {
-  if (!chapterContent || !Array.isArray(generatedScenes) || generatedScenes.length === 0) return;
+  if (!chapterContent || !Array.isArray(generatedScenes) || generatedScenes.length === 0) {
+    return chapterContent;
+  }
 
-  const segments = chapterContent.split(/\n\n\*\s*\*\s*\*\n\n/);
-  // Allow for minor mismatches if cleanup dropped a separator, but if lengths match, audit strictly
+  const segments = chapterContent.split(/\n\n<<<SCENE_BOUNDARY>>>\n\n/);
+  
   if (segments.length !== generatedScenes.length) {
-    console.warn(`[NARRATIVE-CONNECT] Cannot run final chapter-level continuity audit: segment count (${segments.length}) does not match generated scenes (${generatedScenes.length}).`);
-    return;
+    const error = new Error(`Cannot run final chapter-level continuity audit: segment count (${segments.length}) does not match generated scenes (${generatedScenes.length}).`);
+    error.name = 'NarrativeInvariantError';
+    error.code = 'FINAL_CHAPTER_CONTINUITY_AUDIT_UNAVAILABLE';
+    throw error;
   }
 
   let runtimeLedger = buildInitialLedger();
@@ -705,5 +748,7 @@ export function auditChapterLedgerContinuity(chapterContent, generatedScenes, bu
     runtimeLedger = extractSceneLedgerUpdates(runtimeLedger, sceneProse, spec);
     accumulatedProse = [accumulatedProse, sceneProse].filter(Boolean).join('\n\n* * *\n\n');
   }
+
+  return accumulatedProse;
 }
 

@@ -102,7 +102,7 @@ test('contract-aware rewrite feedback is actually injected into prose prompts', 
   assert.match(studio, /Emergency save skipped because generated content violated a hard contract/);
 });
 
-import { auditSceneAgainstLedger } from '../src/lib/sceneContractGate.js';
+import { auditSceneAgainstLedger, auditChapterLedgerContinuity } from '../src/lib/sceneContractGate.js';
 import { buildInitialLedger, extractSceneLedgerUpdates } from '../src/lib/narrativeLedger.js';
 
 test('runtime ledger blocks dead character action', () => {
@@ -142,6 +142,67 @@ test('runtime ledger blocks completed event replay from earlier scenes', () => {
 
   assert.equal(audit.ok, false);
   assert.ok(audit.issues.some((i) => i.code === 'PRIOR_EVENT_REPLAY'));
+});
+
+test('runtime ledger blocks possession violation for dropped object', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, '', { exit_state: 'Lena places the brass key on the desk.' });
+  
+  const audit = auditSceneAgainstLedger({
+    prose: 'Lena holds the brass key tightly.',
+    runtimeLedger: ledger
+  });
+  
+  assert.equal(audit.ok, false);
+  assert.ok(audit.issues.some((i) => i.code === 'OBJECT_POSSESSION_VIOLATION'));
+});
+
+test('runtime ledger blocks possession violation for transferred object', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, '', { exit_state: 'Lena gives the log page to Marcus.' });
+  
+  const audit = auditSceneAgainstLedger({
+    prose: 'Lena holds the log page.',
+    runtimeLedger: ledger
+  });
+  
+  assert.equal(audit.ok, false);
+  assert.ok(audit.issues.some((i) => i.code === 'OBJECT_POSSESSION_VIOLATION'));
+});
+
+test('runtime ledger blocks all evidence is gone if objects remain', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, '', { exit_state: 'Lena places the brass key on the desk.' });
+  
+  const audit = auditSceneAgainstLedger({
+    prose: 'She looked around. All evidence is gone.',
+    runtimeLedger: ledger
+  });
+  
+  assert.equal(audit.ok, false);
+  assert.ok(audit.issues.some((i) => i.code === 'EVIDENCE_AVAILABILITY_VIOLATION'));
+});
+
+test('auditChapterLedgerContinuity throws if segments do not match', () => {
+  const chapterContent = 'Scene 1\n\n<<<SCENE_BOUNDARY>>>\n\nScene 2';
+  const generatedScenes = [ { spec: {} }, { spec: {} }, { spec: {} } ]; // 3 scenes expected, 2 segments found
+  
+  let didThrow = false;
+  try {
+    auditChapterLedgerContinuity(chapterContent, generatedScenes, buildInitialLedger, extractSceneLedgerUpdates);
+  } catch (e) {
+    didThrow = true;
+    assert.equal(e.code, 'FINAL_CHAPTER_CONTINUITY_AUDIT_UNAVAILABLE');
+  }
+  assert.equal(didThrow, true);
+});
+
+test('auditChapterLedgerContinuity replaces boundary with asterisks on success', () => {
+  const chapterContent = 'Scene 1\n\n<<<SCENE_BOUNDARY>>>\n\nScene 2';
+  const generatedScenes = [ { spec: {} }, { spec: {} } ]; 
+  
+  const result = auditChapterLedgerContinuity(chapterContent, generatedScenes, buildInitialLedger, extractSceneLedgerUpdates);
+  assert.equal(result, 'Scene 1\n\n* * *\n\nScene 2');
 });
 
 console.log(`\nNARRATIVE CONTRACT REGRESSION: ${passed} passed, 0 failed\n`);

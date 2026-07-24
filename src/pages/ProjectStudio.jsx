@@ -3966,6 +3966,15 @@ Return structured JSON:
     }
     pipelineSnapshot(chapter.id, '7-after-quote-repair', chapterContent);
 
+    // NARRATIVE-CONNECT: Block save if malformed dialogue persists
+    if (dmFinal.orphanFlagged > 0 || (dmFinal.manualReview && dmFinal.manualReview.length > 0)) {
+      const error = new Error(`Chapter ${chapter.chapter_number} rejected due to unresolved malformed dialogue (orphans: ${dmFinal.orphanFlagged}, manual review: ${dmFinal.manualReview?.length}).`);
+      error.name = 'NarrativeInvariantError';
+      error.code = 'MALFORMED_DIALOGUE_UNRESOLVED';
+      error.narrativeContract = true;
+      throw error;
+    }
+
     wordCount = countWords(chapterContent);
 
     assertNarrativeTextClean(chapterContent, { chapterNumber: chapter.chapter_number });
@@ -3977,7 +3986,7 @@ Return structured JSON:
       try {
         const { auditChapterLedgerContinuity } = await import('@/lib/sceneContractGate');
         const { buildInitialLedger, extractSceneLedgerUpdates } = await import('@/lib/narrativeLedger');
-        auditChapterLedgerContinuity(chapterContent, sceneResult.generatedScenes, buildInitialLedger, extractSceneLedgerUpdates);
+        chapterContent = auditChapterLedgerContinuity(chapterContent, sceneResult.generatedScenes, buildInitialLedger, extractSceneLedgerUpdates);
       } catch (auditError) {
         if (auditError.name === 'NarrativeInvariantError') {
           console.error('[NARRATIVE-CONNECT] Final chapter-level continuity audit failed after cleanup:', auditError);
