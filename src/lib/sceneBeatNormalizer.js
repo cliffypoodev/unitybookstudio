@@ -1008,66 +1008,149 @@ export default normalizeSceneBeatsForDrafting;
 
 console.log('[SCENE-BEAT-NORMALIZER] loaded: story-function + chronology guard preflight v3.0 - 2026-05-03');
 
-// Basic entity extraction
-function extractEntities(text) {
-  const words = text.split(/\W+/).filter(Boolean);
-  const actors = [];
-  const objects = [];
-  const lowerWords = words.map(w => w.toLowerCase());
-  
-  const knownActors = ['maya', 'tomas', 'hale', 'lena', 'marcus', 'director', 'guard', 'he', 'she', 'they'];
-  const knownObjects = ['key', 'badge', 'card', 'invoice', 'confession', 'transmitter', 'lantern', 'ship', 'lab', 'archive', 'room', 'records', 'logs', 'evidence', 'station'];
-  
-  for (const w of lowerWords) {
-    if (knownActors.includes(w) && !actors.includes(w)) actors.push(w);
-    if (knownObjects.includes(w) && !objects.includes(w)) objects.push(w);
-  }
-  return { actors, objects };
+let unknownIdCounter = 0;
+function nextUnknown(prefix) {
+  return prefix + "_" + (++unknownIdCounter);
 }
 
-function parsePossessions(text) {
-  const { actors, objects } = extractEntities(text);
-  const possesses = text.toLowerCase().match(/has|holding|possession|carries|obtains|acquires|retrieves/);
-  if (possesses && actors.length > 0 && objects.length > 0) {
-    return { actor: actors[0], object: objects[0] };
+function buildContext(beats) {
+  const characters = new Set(['he', 'she', 'they']);
+  
+  for (const beat of beats) {
+    if (beat.characters) {
+      beat.characters.forEach(c => characters.add(c.toLowerCase()));
+    }
+    
+    const texts = [
+      ...(beat.required_events || []),
+      beat.entry_state || '',
+      beat.exit_state || '',
+      beat.scene_goal || ''
+    ];
+    
+    for (const text of texts) {
+      const properish = String(text).match(/\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})?\b/g) || [];
+      for (const name of properish) {
+        characters.add(name.toLowerCase());
+      }
+    }
+  }
+  
+  return { knownActors: Array.from(characters) };
+}
+
+function resolveActor(sentence, knownActors, matchIndex) {
+  const precedingText = sentence.slice(0, matchIndex);
+  let closestActor = null;
+  let maxIndex = -1;
+  
+  for (const actor of knownActors) {
+    const regex = new RegExp(`\\b${actor}\\b`, 'gi');
+    let m;
+    while ((m = regex.exec(precedingText)) !== null) {
+      if (m.index > maxIndex) {
+        maxIndex = m.index;
+        closestActor = actor.toLowerCase();
+      }
+    }
+  }
+  
+  if (closestActor) return closestActor;
+  return "unresolved_actor_" + Math.random().toString(36).substr(2, 5);
+}
+
+export function extractActionCategories(text) {
+  return extractEventSignatures(text, { knownActors: [] }).map(s => s.category);
+}
+
+function parsePossessions(text, context) {
+  if (!context) context = { knownActors: [] };
+  const article = `(?:(?:the|a|an)\\s+)?`;
+  const match = text.match(new RegExp(`\\b(has|holds|is holding|carries|possesses|obtains|retrieves|takes)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$)`, 'i'));
+  if (match) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    if (!actor.startsWith('unresolved_actor')) {
+      return { actor, object: match[2].trim().toLowerCase() };
+    }
   }
   return null;
 }
 
-export function extractActionCategories(text) {
-  // Backwards compat for old tests
-  return extractEventSignatures(text).map(s => s.category);
-}
-
-export function extractEventSignatures(text) {
-  const words = text.toLowerCase().split(/\W+/).filter(Boolean);
+export function extractEventSignatures(text, context) {
+  if (!context) context = { knownActors: [] };
   const sigs = [];
-  const hasStem = (list) => list.some(w => words.some(word => word === w || word.replace(/s$/, '') === w || word === w + 's' || word === w + 'ed' || word === w + 'd' || word === w + 'es' || word === w + 'ing'));
+  const article = `(?:(?:the|a|an)\\s+)?`;
+  const tLower = text.toLowerCase();
   
-  const { actors, objects } = extractEntities(text);
-  const actor = actors[0] || 'unknown_actor';
-  const object = objects[0] || 'unknown_object';
-  const target = objects.length > 1 ? objects[1] : (actors.length > 1 ? actors[1] : 'unknown_target');
-
-  const addSig = (category) => sigs.push({ category, actor, object, target, raw: text });
-
-  if (hasStem(['discover', 'find']) && hasStem(['archive', 'location', 'entrance', 'lab', 'room', 'record'])) addSig('discover_location');
-  if (hasStem(['retrieve', 'obtain', 'acquire', 'grab', 'take', 'has', 'holding', 'carries', 'possession'])) addSig('acquire_object');
-  if (hasStem(['unlock', 'open', 'access', 'enter'])) addSig('unlock_or_access');
-  if (hasStem(['inspect', 'read', 'examine', 'check', 'discover']) && hasStem(['evidence', 'logs', 'records', 'file', 'invoice', 'confession'])) addSig('inspect_evidence');
-  if (hasStem(['discover', 'uncover', 'reveal', 'learn', 'truth', 'record', 'revelation', 'confession'])) addSig('revelation');
-  if (hasStem(['confront', 'accuse', 'challenge', 'confrontation'])) addSig('confrontation');
-  if (hasStem(['struggle', 'fight', 'attack', 'wrestle'])) addSig('struggle');
-  if (hasStem(['destroy', 'break', 'discard', 'drop', 'snap', 'crush', 'destruction'])) addSig('destroy_object');
-  if (hasStem(['escape', 'exit', 'flee', 'reach', 'surface', 'leave'])) addSig('escape');
-  if (hasStem(['abandon', 'refuse', 'reject', 'abandonment'])) addSig('abandonment');
-  if (hasStem(['collapse', 'cave', 'explode'])) addSig('structural_collapse');
-  if (hasStem(['die', 'kill', 'dead', 'dies', 'death'])) addSig('character_death');
+  for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s]+?)\\s+(?:with|using)\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    sigs.push({ category: 'unlock_or_access', actor, object: match[3].trim().toLowerCase(), target: match[2].trim().toLowerCase(), raw: match[0] });
+  }
+  for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    sigs.push({ category: 'unlock_or_access', actor, object: null, target: match[2].trim().toLowerCase(), raw: match[0] });
+  }
   
+  for (const match of text.matchAll(new RegExp(`\\b(confronts|accuses|challenges)\\b\\s+([a-z0-9\\s.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    sigs.push({ category: 'confrontation', actor, object: null, target: match[2].trim().toLowerCase(), raw: match[0] });
+  }
+  
+  for (const match of text.matchAll(new RegExp(`\\b(acquires|obtains|retrieves|takes|grabs|has|holding|carries|possesses)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    sigs.push({ category: 'acquire_object', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
+  }
+  
+  for (const match of text.matchAll(new RegExp(`\\b(destroys|breaks|discards|drops|snaps|crushes|shatters)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    sigs.push({ category: 'destroy_object', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
+  }
+  
+  for (const match of text.matchAll(new RegExp(`\\b(reads|inspects|examines|checks)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    sigs.push({ category: 'inspect_evidence', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
+  }
+  
+  for (const match of text.matchAll(new RegExp(`\\b(discovers|uncovers|reveals|learns)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    console.log("MATCHED DISCOVERS:", match[0], actor);
+    sigs.push({ category: 'revelation', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
+  }
+  
+  if (sigs.length === 0) {
+    const words = tLower.split(/\\W+/).filter(Boolean);
+    const hasStem = (list) => list.some(w => words.some(word => word === w || word.replace(/s$/, '') === w || word === w + 's' || word === w + 'ed' || word === w + 'd' || word === w + 'es' || word === w + 'ing'));
+    
+    if (hasStem(['discover', 'find']) && hasStem(['archive', 'location', 'entrance', 'lab', 'room', 'record'])) {
+      sigs.push({ category: 'discover_location', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
+    }
+    if (hasStem(['struggle', 'fight', 'attack', 'wrestle'])) {
+      sigs.push({ category: 'struggle', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
+    }
+    if (hasStem(['escape', 'exit', 'flee', 'reach', 'surface', 'leave'])) {
+      sigs.push({ category: 'escape', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
+    }
+    if (hasStem(['abandon', 'refuse', 'reject', 'abandonment'])) {
+      sigs.push({ category: 'abandonment', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
+    }
+    if (hasStem(['collapse', 'cave', 'explode'])) {
+      sigs.push({ category: 'structural_collapse', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
+    }
+    if (hasStem(['die', 'kill', 'dead', 'dies', 'death'])) {
+      sigs.push({ category: 'character_death', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
+    }
+  }
+  
+  sigs.sort((a, b) => {
+    const idxA = text.indexOf(a.raw);
+    const idxB = text.indexOf(b.raw);
+    return idxA - idxB;
+  });
   return sigs;
 }
-
 export function validateRawBeatChronology(beats) {
+  const context = buildContext(beats);
+  console.log("BUILT CONTEXT:", context.knownActors);
   const history = {
     events: [],
     possessions: new Set(),
@@ -1079,23 +1162,23 @@ export function validateRawBeatChronology(beats) {
     const reqText = (beat.required_events || []).join(' ').toLowerCase();
     const entryText = (beat.entry_state || '').toLowerCase();
     const exitText = (beat.exit_state || '').toLowerCase();
-    const sigs = extractEventSignatures(reqText);
+    const sigs = extractEventSignatures(reqText, context);
     
     // Seed possessions from prior exit state and current entry state
-    const priorPossession = parsePossessions(lastExitState);
+    const priorPossession = parsePossessions(lastExitState, context);
     if (priorPossession) history.possessions.add(`${priorPossession.actor}_has_${priorPossession.object}`);
-    const entryPossession = parsePossessions(entryText);
+    const entryPossession = parsePossessions(entryText, context);
     if (entryPossession) history.possessions.add(`${entryPossession.actor}_has_${entryPossession.object}`);
+    
+    console.log("Scene", beat.scene_number, "priorPossession:", priorPossession);
+    console.log("Scene", beat.scene_number, "entryPossession:", entryPossession);
+    console.log("Scene", beat.scene_number, "possessions:", history.possessions);
     
     // Seed current events
     for (const eventStr of beat.required_events || []) {
-      const eventPossession = parsePossessions(eventStr.toLowerCase());
+      const eventPossession = parsePossessions(eventStr.toLowerCase(), context);
       if (eventPossession) history.possessions.add(`${eventPossession.actor}_has_${eventPossession.object}`);
     }
-
-    console.log("---");
-    console.log("SCENE: ", beat.scene_number);
-    console.log("possessions:", Array.from(history.possessions));
 
     if (lastExitState) {
       if (lastExitState.match(/\\b(destroyed|broken|shattered|unavailable)\\b/i)) {
@@ -1128,11 +1211,19 @@ export function validateRawBeatChronology(beats) {
         }
       }
 
-      if (sig.category === 'unlock_or_access' && reqText.match(/key|badge|card/)) {
-        const objMatches = reqText.match(/key|badge|card/);
-        const obj = objMatches ? objMatches[0] : 'unknown_object';
-        const hasPossession = history.possessions.has(`${sig.actor}_has_${obj}`) || history.events.some(e => e.category === 'acquire_object' && e.object === obj);
-        if (!hasPossession) {
+      if (sig.category === 'unlock_or_access' && sig.object) {
+        let hasObj = false;
+        for (const p of history.possessions) {
+          const [pActor, pObj] = p.split('_has_');
+          if (pActor === sig.actor && (pObj.includes(sig.object) || sig.object.includes(pObj))) {
+            hasObj = true;
+            break;
+          }
+        }
+        if (!hasObj) {
+          hasObj = history.events.some(e => e.category === 'acquire_object' && e.actor === sig.actor && (e.object.includes(sig.object) || sig.object.includes(e.object)));
+        }
+        if (!hasObj) {
           throw new Error('Chronology Error: Acquire object must precede use object.');
         }
       }
@@ -1149,7 +1240,7 @@ export function validateRawBeatChronology(beats) {
         if (!hasRev) {
           throw new Error('Chronology Error: Revelation must precede confrontation.');
         }
-        const dupConf = history.events.find(e => e.category === 'confrontation' && e.actor === sig.actor && e.object === sig.object && e.target === sig.target);
+        const dupConf = history.events.find(e => e.category === 'confrontation' && e.actor === sig.actor && e.target === sig.target && !e.actor.startsWith('unresolved') && !e.target.startsWith('unresolved'));
         if (dupConf) {
           throw new Error('Chronology Error: Duplicate confrontation detected across scenes.');
         }
@@ -1178,8 +1269,15 @@ export function validateRawBeatChronology(beats) {
       history.events.push(sig);
     }
 
-    if (exitText.match(/destroy.*(key|badge)|break.*(lantern)/) && !reqText.match(/destroy.*(key|badge)|break.*(lantern)/)) {
-      throw new Error("Chronology Error: Scene exit already performs next scene's irreversible event.");
+    const exitSigs = extractEventSignatures(exitText, context);
+    const reqSigs = extractEventSignatures(reqText, context);
+    for (const es of exitSigs) {
+      if (es.category === 'destroy_object') {
+        const hasMatchingReq = reqSigs.some(rs => rs.category === 'destroy_object' && rs.object === es.object);
+        if (!hasMatchingReq) {
+          throw new Error("Chronology Error: Scene exit already performs next scene's irreversible event.");
+        }
+      }
     }
 
     lastExitState = exitText;
@@ -1187,6 +1285,8 @@ export function validateRawBeatChronology(beats) {
 }
 
 export function repairRawContract(beats) {
+  const context = buildContext(beats);
+  console.log("REPAIR CONTEXT:", context.knownActors);
   let changed = false;
   const repairs = [];
   const clonedBeats = JSON.parse(JSON.stringify(beats));
@@ -1203,14 +1303,14 @@ export function repairRawContract(beats) {
     madeMoves = false;
     for (let i = 0; i < allEvents.length; i++) {
       const ev1 = allEvents[i];
-      const sigs1 = extractEventSignatures(ev1.text);
+      const sigs1 = extractEventSignatures(ev1.text, context);
       for (const s1 of sigs1) {
-        if (s1.category === 'inspect_evidence' || s1.category === 'confrontation' || s1.category === 'destroy_object') {
+        if (s1.category === 'inspect_evidence' || s1.category === 'revelation' || s1.category === 'confrontation' || s1.category === 'destroy_object') {
           for (let j = i + 1; j < allEvents.length; j++) {
             const ev2 = allEvents[j];
-            const sigs2 = extractEventSignatures(ev2.text);
+            const sigs2 = extractEventSignatures(ev2.text, context);
             for (const s2 of sigs2) {
-              if (s1.category === 'inspect_evidence' && s2.category === 'unlock_or_access') {
+              if ((s1.category === 'inspect_evidence' || s1.category === 'revelation') && s2.category === 'unlock_or_access') {
                 allEvents.splice(i, 1);
                 ev1.assignedScene = Math.max(ev1.assignedScene, ev2.assignedScene);
                 allEvents.splice(j, 0, ev1);
@@ -1250,11 +1350,14 @@ export function repairRawContract(beats) {
   const seenSigs = [];
   const finalEvents = [];
   for (const ev of allEvents) {
-    const sigs = extractEventSignatures(ev.text);
+    const sigs = extractEventSignatures(ev.text, context);
+    console.log("EXTRACTED SIGS:", ev.text, sigs);
     let isRedundant = false;
     for (const sig of sigs) {
       if (['confrontation', 'structural_collapse', 'destroy_object', 'revelation', 'inspect_evidence'].includes(sig.category)) {
-        const dup = seenSigs.find(s => s.category === sig.category && s.actor === sig.actor && s.object === sig.object && s.target === sig.target);
+        console.log("SEENSIGS:", seenSigs);
+        console.log("SIG:", sig);
+        const dup = seenSigs.find(s => s.category === sig.category && s.actor === sig.actor && s.object === sig.object && s.target === sig.target && (s.actor === null || !s.actor.startsWith('unresolved')) && (s.object === null || !s.object.startsWith('unresolved')) && (s.target === null || !s.target.startsWith('unresolved')));
         if (dup) {
           isRedundant = true;
           repairs.push({ type: 'REMOVE_REDUNDANT', event: ev.text, fromScene: ev.assignedScene+1, toScene: null, reason: `Duplicate ${sig.category} event removed` });
@@ -1290,6 +1393,7 @@ export function repairRawContract(beats) {
            if (newEntry.includes(intact)) {
               newEntry = newEntry.replace(intact, dest);
               changed = true;
+              repairs.push({ type: 'CORRECT_STATE', event: 'entry_state', fromScene: i+1, toScene: null, reason: 'Corrected timeline violation in entry_state' });
            }
         }
         clonedBeats[i].entry_state = newEntry;
