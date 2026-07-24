@@ -41,7 +41,6 @@ import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepar
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
 import { computeDraftIntegrityReport } from '@/lib/draftIntegrityReport';
 import { clearRichContentFields } from '@/lib/richContentStorage';
-import { evaluatePacingModulation } from '@/lib/pacingModulation';
 import { filterConcreteCriticFindings } from '@/lib/sceneContractGate';
 import { runQualityScan, formatQualityResult } from '@/lib/qualityScan';
 import { mechanicalScore } from '@/lib/mechanicalScore';
