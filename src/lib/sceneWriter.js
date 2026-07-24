@@ -2709,9 +2709,10 @@ export async function generateChapterSceneByScene({
       validateRawBeatChronology(parsedScenes);
     } catch (err) {
       console.warn('[CHRONOLOGY-VALIDATOR] Raw contract overlaps detected:', err.message);
-      parsedScenes = repairRawContract(parsedScenes, chapterNumber);
+      const repairResult = repairRawContract(parsedScenes);
+      parsedScenes = repairResult.beats;
       validateRawBeatChronology(parsedScenes);
-      console.log('[CHRONOLOGY-REPAIR] Repaired scenes:', JSON.stringify(parsedScenes, null, 2));
+      console.log('[CHRONOLOGY-REPAIR] Repaired scenes report:', JSON.stringify(repairResult.repairs, null, 2));
     }
   }
 

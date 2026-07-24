@@ -955,10 +955,12 @@ export function auditSceneFutureBoundaries(sceneProse, spec) {
       
       // If the future event specifies an object, the prose must act on that object.
       // If the future event specifies a character, the prose must act on that character.
-      let objectMatch = futureSig.objects.length === 0 || sameObject;
+      // We must require a matching action category plus matching relevant actor/object/target.
+      let objectMatch = futureSig.objects.length === 0 || sameObject || sameTarget;
       let charMatch = futureSig.names.length === 0 || sameCharacter;
+      let verbMatch = futureSig.verbs.length === 0 || sameVerb || hasMatch;
       
-      if (charMatch && objectMatch) {
+      if (charMatch && objectMatch && verbMatch) {
         violations.push(futureEvent);
       }
     }
@@ -1006,116 +1008,165 @@ export default normalizeSceneBeatsForDrafting;
 
 console.log('[SCENE-BEAT-NORMALIZER] loaded: story-function + chronology guard preflight v3.0 - 2026-05-03');
 
-export function repairRawContract(beats, chapterNumber) {
-  if (chapterNumber === 5) {
-    return [
-      {
-        scene_number: 1,
-        scene_id: 'ch05-s01',
-        scene_goal: 'Find the truth',
-        required_events: [
-          'Lena discovers the hidden archive entrance.',
-          'Lena obtains or confirms possession of the brass key.',
-          'Lena unlocks and enters the archive.',
-          'Lena discovers evidence linking Marcus to the accident.'
-        ],
-        entry_state: 'Lena explores the corridor.',
-        exit_state: "Marcus's responsibility is known. Lena possesses the evidence. The brass key remains intact. Marcus realizes Lena knows the truth. No physical struggle or key destruction yet.",
-        location: 'The Archive',
-        characters: ['Lena', 'Marcus'],
-        emotional_beat: 'Shock'
-      },
-      {
-        scene_number: 2,
-        scene_id: 'ch05-s02',
-        scene_goal: 'Confront Marcus',
-        required_events: [
-          'Lena confronts Marcus with the evidence.',
-          'Marcus admits, denies, or rationalizes his actions.',
-          'Marcus attempts to take the key or evidence.',
-          'A physical struggle occurs.',
-          'Lena destroys the brass key once.'
-        ],
-        entry_state: 'Lena confronts Marcus in the archive.',
-        exit_state: 'confrontation completed. key destroyed and unavailable. Marcus injured. both remain inside the failing station. surface escape not yet completed.',
-        location: 'The Archive',
-        characters: ['Lena', 'Marcus'],
-        emotional_beat: 'Anger'
-      },
-      {
-        scene_number: 3,
-        scene_id: 'ch05-s03',
-        scene_goal: 'Escape',
-        required_events: [
-          'Lena and Marcus attempt to escape.',
-          'Lena reaches the surface.',
-          'Lena refuses forgiveness and leaves Marcus behind.',
-          'station collapse occurs once',
-          'Lena begins returning to civilization'
-        ],
-        entry_state: 'The station starts shaking.',
-        exit_state: 'Lena is outside on the ice, abandoning Marcus.',
-        location: 'The Ice',
-        characters: ['Lena', 'Marcus'],
-        emotional_beat: 'Relief'
-      }
-    ];
-  }
-  return beats;
+export function extractActionCategories(text) {
+  const words = text.toLowerCase().split(/\W+/).filter(Boolean);
+  const categories = new Set();
+  const hasStem = (list) => list.some(w => words.some(word => word === w || word.replace(/s$/, '') === w || word === w + 's' || word === w + 'ed' || word === w + 'd' || word === w + 'es'));
+  
+  if (hasStem(['discover', 'find']) && hasStem(['archive', 'location', 'entrance', 'lab', 'room', 'record'])) categories.add('discover_location');
+  if (hasStem(['retrieve', 'obtain', 'acquire', 'grab', 'take'])) categories.add('acquire_object');
+  if (hasStem(['unlock', 'open', 'access', 'enter'])) categories.add('unlock_or_access');
+  if (hasStem(['inspect', 'read', 'examine', 'check', 'discover']) && hasStem(['evidence', 'logs', 'records', 'file'])) categories.add('inspect_evidence');
+  if (hasStem(['discover', 'uncover', 'reveal', 'learn', 'truth', 'record', 'revelation'])) categories.add('revelation');
+  if (hasStem(['confront', 'accuse', 'challenge', 'confrontation'])) categories.add('confrontation');
+  if (hasStem(['struggle', 'fight', 'attack', 'wrestle'])) categories.add('struggle');
+  if (hasStem(['destroy', 'break', 'discard', 'drop', 'snap', 'crush', 'destruction'])) categories.add('destroy_object');
+  if (hasStem(['escape', 'exit', 'flee', 'reach', 'surface', 'leave'])) categories.add('escape');
+  if (hasStem(['abandon', 'refuse', 'reject', 'abandonment'])) categories.add('abandonment');
+  if (hasStem(['collapse', 'cave', 'explode'])) categories.add('structural_collapse');
+  if (hasStem(['die', 'kill', 'dead', 'dies', 'death'])) categories.add('character_death');
+  
+  return Array.from(categories);
 }
 
 export function validateRawBeatChronology(beats) {
-  let archiveUnlocked = false;
-  let keyDestroyed = false;
-  let evidenceFound = false;
-  let confrontationSeen = false;
+  const history = new Set();
   let lastExitState = '';
 
   for (const beat of beats) {
-    const reqText = normalize(textOf(beat.required_events));
-    const entryText = normalize(beat.entry_state || '');
-    const exitText = normalize(beat.exit_state || '');
+    const reqText = (beat.required_events || []).join(' ').toLowerCase();
+    const entryText = (beat.entry_state || '').toLowerCase();
+    const exitText = (beat.exit_state || '').toLowerCase();
+    const categories = extractActionCategories(reqText);
     
-    // Check entry/exit disagreement
-    if (lastExitState && entryText) {
-      // Very basic disagreement check for tests
-    }
-    
-    // Evidence before access
-    if (reqText.includes('evidence') || exitText.includes('evidence') || reqText.includes('logs')) {
-      if (!archiveUnlocked && !reqText.includes('unlock') && !reqText.includes('enter')) {
-        throw new Error('Chronology Error: Scene finds evidence before unlocking the archive.');
+    // 1. Validate entry/exit state transitions
+    if (lastExitState) {
+      if (lastExitState.match(/destroy|broken|shatter/)) {
+         if (entryText.match(/intact|whole|undamaged/)) {
+           throw new Error('Chronology Error: Destroyed object cannot become intact.');
+         }
       }
-      evidenceFound = true;
-    }
-    
-    if (reqText.includes('unlock') || reqText.includes('enter')) {
-      archiveUnlocked = true;
-      if (keyDestroyed) {
-        throw new Error('Chronology Error: Key destroyed before archive unlock.');
+      if (lastExitState.match(/outside|surface|exterior/)) {
+         if (entryText.match(/inside|interior/)) {
+           throw new Error('Chronology Error: Character outside cannot begin next scene inside without transition.');
+         }
       }
-    }
-
-    if (reqText.includes('destroy') && reqText.includes('key')) {
-      keyDestroyed = true;
-    }
-
-    // Duplicate confrontation
-    if (reqText.includes('confront')) {
-      if (confrontationSeen) {
-        throw new Error('Chronology Error: Duplicate confrontation detected across scenes.');
+      if (lastExitState.match(/known|truth|revealed/)) {
+         if (entryText.match(/unknown|ignorant|secret/)) {
+           throw new Error('Chronology Error: Evidence known cannot become unknown.');
+         }
       }
-      confrontationSeen = true;
-    }
-    
-    // Check if exit state starts next scene's core irreversible event (e.g. key destruction)
-    if (exitText.includes('destroy') && exitText.includes('key')) {
-      // If this scene itself doesn't require destroying the key, it's bleeding from a future scene
-      if (!reqText.includes('destroy') || !reqText.includes('key')) {
-        throw new Error("Chronology Error: Scene exit already performs next scene's irreversible event.");
+      if (lastExitState.match(/confrontation completed|confrontation over/)) {
+         if (categories.includes('confrontation') && !reqText.match(/new|again|another/)) {
+           throw new Error('Chronology Error: Completed confrontation cannot restart without a distinct trigger.');
+         }
       }
     }
 
+    // 2. Validate generic dependencies
+    if (categories.includes('inspect_evidence') && !history.has('unlock_or_access') && reqText.includes('inside')) {
+      throw new Error('Chronology Error: Unlock or access must precede inspecting evidence.');
+    }
+
+    if (categories.includes('unlock_or_access') && reqText.match(/key|badge|card/) && !history.has('acquire_object') && !categories.includes('acquire_object')) {
+      throw new Error('Chronology Error: Acquire object must precede use object.');
+    }
+    
+    if (categories.includes('destroy_object') && !history.has('unlock_or_access') && reqText.match(/key|badge|card/)) {
+      throw new Error('Chronology Error: Object must be used for access before it is destroyed.');
+    }
+
+    if (categories.includes('confrontation') && !history.has('revelation') && !categories.includes('revelation')) {
+      throw new Error('Chronology Error: Revelation must precede confrontation.');
+    }
+    
+    if (categories.includes('struggle') && !history.has('confrontation') && !categories.includes('confrontation')) {
+      throw new Error('Chronology Error: Confrontation must precede physical struggle.');
+    }
+
+    if (categories.includes('escape') && reqText.match(/inside|interior/) && !history.has('escape')) {
+      throw new Error('Chronology Error: Interior events must precede escape to exterior.');
+    }
+
+    if (categories.includes('structural_collapse')) {
+      if (history.has('structural_collapse')) {
+        throw new Error('Chronology Error: Structural collapse completion must not occur in multiple scenes.');
+      }
+    }
+
+    if (categories.includes('confrontation') && history.has('confrontation')) {
+      throw new Error('Chronology Error: Duplicate confrontation detected across scenes.');
+    }
+
+    if (exitText.match(/destroy.*(key|badge)|break.*(lantern)/) && !reqText.match(/destroy.*(key|badge)|break.*(lantern)/)) {
+      throw new Error("Chronology Error: Scene exit already performs next scene's irreversible event.");
+    }
+
+    categories.forEach(c => history.add(c));
     lastExitState = exitText;
   }
+}
+
+export function repairRawContract(beats) {
+  let changed = false;
+  const repairs = [];
+  const clonedBeats = JSON.parse(JSON.stringify(beats));
+  
+  const history = new Set();
+
+  for (let i = 0; i < clonedBeats.length; i++) {
+    const beat = clonedBeats[i];
+    const newEvents = [];
+    
+    for (const event of beat.required_events) {
+      const categories = extractActionCategories(event);
+      let redundant = false;
+      
+      for (const cat of categories) {
+        if (['confrontation', 'structural_collapse', 'destroy_object', 'revelation'].includes(cat)) {
+          if (history.has(cat)) {
+            redundant = true;
+            repairs.push({
+              type: 'REMOVE_REDUNDANT',
+              event,
+              fromScene: beat.scene_number || i+1,
+              toScene: null,
+              reason: `Duplicate ${cat} event removed from later scene.`
+            });
+            changed = true;
+            break;
+          }
+          history.add(cat);
+        }
+      }
+      
+      if (!redundant) {
+        newEvents.push(event);
+      }
+    }
+    
+    beat.required_events = newEvents;
+    
+    if (i > 0) {
+      const prevBeat = clonedBeats[i - 1];
+      const prevExit = prevBeat.exit_state || '';
+      if (prevExit.includes('destroyed') && beat.entry_state && beat.entry_state.includes('intact')) {
+        beat.entry_state = beat.entry_state.replace('intact', 'destroyed');
+        changed = true;
+      }
+      if (prevExit.match(/destroy|break/) && beat.required_events.join(' ').match(/destroy|break/)) {
+        prevBeat.exit_state = prevExit.replace(/[^.]*(destroy|break)[^.]*\./ig, '').trim();
+        repairs.push({
+          type: 'TRIM_BLEED',
+          event: 'exit_state',
+          fromScene: prevBeat.scene_number || i,
+          toScene: beat.scene_number || i+1,
+          reason: 'Removed next scene irreversible event from previous exit_state.'
+        });
+        changed = true;
+      }
+    }
+  }
+
+  return { beats: clonedBeats, changed, repairs };
 }
