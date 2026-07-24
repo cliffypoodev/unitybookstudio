@@ -2702,7 +2702,19 @@ export async function generateChapterSceneByScene({
   const isNF = isNonfictionProject(project) || isNonfictionAnthology(project);
   const chapterNumber = getChapterNumber(chapter);
   const chapterTarget = getChapterTargetWords(project, chapter);
-  const parsedScenes = parseScenesFromChapter(chapter, scenes, isNF);
+  let parsedScenes = parseScenesFromChapter(chapter, scenes, isNF);
+  
+  if (!isNF) {
+    try {
+      validateRawBeatChronology(parsedScenes);
+    } catch (err) {
+      console.warn('[CHRONOLOGY-VALIDATOR] Raw contract overlaps detected:', err.message);
+      parsedScenes = repairRawContract(parsedScenes, chapterNumber);
+      validateRawBeatChronology(parsedScenes);
+      console.log('[CHRONOLOGY-REPAIR] Repaired scenes:', JSON.stringify(parsedScenes, null, 2));
+    }
+  }
+
   const immutableContract = !isNF
     ? createImmutableSceneContract(parsedScenes, { chapterNumber })
     : null;

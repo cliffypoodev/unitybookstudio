@@ -13,7 +13,9 @@ import {
   shouldMergeFictionScenes,
   isCleanMetadata,
   auditSceneFutureBoundaries,
-  validateGeneratedSceneReplay
+  validateGeneratedSceneReplay,
+  validateRawBeatChronology,
+  repairRawContract
 } from '../src/lib/sceneBeatNormalizer.js';
 import { buildInitialLedger, extractSceneLedgerUpdates } from '../src/lib/narrativeLedger.js';
 
@@ -581,4 +583,84 @@ test('19. Runtime-shaped Chapter 5 contract preserves 3 scenes and leaves no met
       assert.equal(text.includes('CHRONOLOGY GUARD'), false);
     }
   }
+});
+
+
+test('20. Evidence cannot be discovered before archive access', () => {
+  assert.throws(() => {
+    validateRawBeatChronology([
+      { required_events: ['Lena finds evidence inside.'], exit_state: '' },
+      { required_events: ['Lena unlocks the archive.'], exit_state: '' }
+    ]);
+  }, /Chronology Error: Scene finds evidence before unlocking the archive/);
+});
+
+test('21. Confronting Marcus in Scenes 1 and 2 is rejected as duplicate', () => {
+  assert.throws(() => {
+    validateRawBeatChronology([
+      { required_events: ['Lena confronts Marcus.'], exit_state: '' },
+      { required_events: ['Lena confronts Marcus again.'], exit_state: '' }
+    ]);
+  }, /Chronology Error: Duplicate confrontation detected across scenes/);
+});
+
+test('22. Scene 1 exit cannot begin key destruction reserved for Scene 2', () => {
+  assert.throws(() => {
+    validateRawBeatChronology([
+      { required_events: ['Lena grabs the key.'], exit_state: 'Lena destroys the key.' },
+      { required_events: ['Lena destroys the key.'], exit_state: '' }
+    ]);
+  }, /Chronology Error: Scene exit already performs next scene's irreversible event/);
+});
+
+test('23. Key chronology access -> intact -> destroyed passes', () => {
+  assert.doesNotThrow(() => {
+    validateRawBeatChronology([
+      { required_events: ['Lena accesses the key.'], exit_state: 'key intact' },
+      { required_events: ['Lena destroys the key.'], exit_state: 'key destroyed' }
+    ]);
+  });
+});
+
+test('24. Key destroyed before archive unlock fails', () => {
+  assert.throws(() => {
+    validateRawBeatChronology([
+      { required_events: ['Lena destroys the key.'], exit_state: '' },
+      { required_events: ['Lena unlocks the archive.'], exit_state: '' }
+    ]);
+  }, /Chronology Error: Key destroyed before archive unlock/);
+});
+
+test('25. Destroying a key is object_loss, not death_collapse', () => {
+  const f = classifyStoryFunction({ required_events: ['Lena destroys the brass key.'] });
+  assert.ok(f.has('irreversible_object_loss'));
+  assert.ok(!f.has('death_collapse'));
+  assert.ok(!f.has('structural_collapse'));
+});
+
+test('26. Station collapse is structural_collapse', () => {
+  const f = classifyStoryFunction({ required_events: ['The station collapses.'] });
+  assert.ok(f.has('structural_collapse'));
+  assert.ok(!f.has('death_collapse'));
+});
+
+test('27. Character death is character_death', () => {
+  const f = classifyStoryFunction({ required_events: ['Marcus dies.'] });
+  assert.ok(f.has('character_death'));
+  assert.ok(!f.has('death_collapse'));
+});
+
+test('28. Exact repaired Chapter 5 contract passes chronology validation', () => {
+  const repaired = repairRawContract([], 5);
+  assert.doesNotThrow(() => {
+    validateRawBeatChronology(repaired);
+  });
+});
+
+test('29. Future audit does not flag Scene 1 revelation merely because Scene 2 contains unrelated revelation language', () => {
+  // If scene 2 has "Marcus reveals a knife" (revelation) but it doesn't match Scene 1's actors/objects, it shouldn't flag.
+  const spec = { future_reserved_events: ['Marcus reveals a hidden knife.'] };
+  const prose = 'Lena discovers the truth in the archive logs.';
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, true);
 });
