@@ -386,13 +386,13 @@ test('1. Exact Chapter 5 three-scene contract remains three scenes', () => {
 });
 
 test('2. "discovers" and "destroys" classify as different irreversible functions', () => {
-  assert.equal(classifyStoryFunction({ required_events: ['Lena discovers the truth.'] }), 'revelation');
-  assert.equal(classifyStoryFunction({ required_events: ['Lena destroys the brass key.'] }), 'irreversible_object_loss');
+  assert.ok(classifyStoryFunction({ required_events: ['Lena discovers the truth.'] }).has('revelation'));
+  assert.ok(classifyStoryFunction({ required_events: ['Lena destroys the brass key.'] }).has('irreversible_object_loss'));
 });
 
 test('3. "confronts" and "escapes" classify as different functions', () => {
-  assert.equal(classifyStoryFunction({ required_events: ['Lena confronts Marcus.'] }), 'confrontation');
-  assert.equal(classifyStoryFunction({ required_events: ['Lena escapes the archive.'] }), 'escape');
+  assert.ok(classifyStoryFunction({ required_events: ['Lena confronts Marcus.'] }).has('confrontation'));
+  assert.ok(classifyStoryFunction({ required_events: ['Lena escapes the archive.'] }).has('escape'));
 });
 
 test('4. Two true alternate drafts of the same archive-opening event merge', () => {
@@ -523,4 +523,62 @@ test('18. Repeated station collapse across Scenes 2 and 3 fails', () => {
   const prose3 = 'The metal groans as the entire station collapses, burying everything.';
   const audit = validateGeneratedSceneReplay(prose3, [scene2]);
   assert.equal(audit.ok, false);
+});
+
+
+test('19. Runtime-shaped Chapter 5 contract preserves 3 scenes and leaves no metadata', () => {
+  const runtimeShapedChapter5Beats = [
+    {
+      scene_number: 1,
+      scene_id: 'ch05-s01',
+      scene_goal: 'Find the truth',
+      required_events: ['Lena discovers Marcus\'s role in the conspiracy.', 'The truth is revealed.'],
+      entry_state: 'Lena enters the archive.',
+      exit_state: 'Lena knows the truth.',
+      location: 'The Archive',
+      characters: ['Lena'],
+      emotional_beat: 'Shock'
+    },
+    {
+      scene_number: 2,
+      scene_id: 'ch05-s02',
+      scene_goal: 'Confront Marcus',
+      required_events: ['Lena confronts Marcus.', 'Lena destroys the brass key.'],
+      entry_state: 'Marcus enters the archive.',
+      exit_state: 'The key is broken.',
+      location: 'The Archive',
+      characters: ['Lena', 'Marcus'],
+      emotional_beat: 'Anger'
+    },
+    {
+      scene_number: 3,
+      scene_id: 'ch05-s03',
+      scene_goal: 'Escape',
+      required_events: ['Lena escapes to the surface.', 'The station collapses.'],
+      entry_state: 'The station starts shaking.',
+      exit_state: 'Lena is outside on the ice.',
+      location: 'The Ice',
+      characters: ['Lena'],
+      emotional_beat: 'Relief'
+    }
+  ];
+
+  const result = normalizeSceneBeatsForDrafting(runtimeShapedChapter5Beats, {
+    isNonfiction: false,
+    chapterNumber: 5
+  });
+
+  assert.equal(result.beats.length, 3);
+  
+  // Verify no returned narrative field contains diagnostic metadata
+  for (const beat of result.beats) {
+    const fields = [beat.required_events, beat.forbidden_events, beat.continuity_dependencies, beat.entry_state, beat.exit_state, beat.scene_goal, beat.emotional_beat, beat.beats, beat.summary].flat().filter(Boolean).map(String);
+    
+    for (const text of fields) {
+      assert.equal(text.includes('Merged'), false);
+      assert.equal(text.includes('Do NOT'), false);
+      assert.equal(text.includes('Reason'), false);
+      assert.equal(text.includes('CHRONOLOGY GUARD'), false);
+    }
+  }
 });

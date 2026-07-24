@@ -2716,10 +2716,10 @@ export async function generateChapterSceneByScene({
   if (beatPreflight?.changed) {
     if (!isNF) {
       const error = new Error(
-        `Chapter ${chapterNumber} scene contract was rejected before drafting: the legacy normalizer would change ${beatPreflight.originalCount} accepted scenes into ${beatPreflight.finalCount}. Regenerate the beat plan instead of merging or dropping contracted scenes.`
+        `Chapter ${chapterNumber} scene contract was rejected before drafting: the normalizer attempted to shrink ${beatPreflight.originalCount} accepted scenes into ${beatPreflight.finalCount} without valid proof. Regenerate the beat plan instead of merging or dropping contracted scenes.`
       );
       error.name = 'NarrativeInvariantError';
-      error.code = 'SCENE_CONTRACT_NORMALIZER_CONFLICT';
+      error.code = beatPreflight.finalCount < beatPreflight.originalCount ? 'UNPROVEN_SCENE_MERGE' : 'SCENE_CONTRACT_NORMALIZER_CONFLICT';
       error.narrativeContract = true;
       error.contractFingerprint = immutableContract?.fingerprint || null;
       error.details = beatPreflight;
