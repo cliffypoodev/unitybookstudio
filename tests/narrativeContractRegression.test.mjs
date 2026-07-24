@@ -183,17 +183,66 @@ test('runtime ledger blocks all evidence is gone if objects remain', () => {
   assert.ok(audit.issues.some((i) => i.code === 'EVIDENCE_AVAILABILITY_VIOLATION'));
 });
 
-test('runtime ledger blocks separated characters from interacting', () => {
+test('runtime ledger extracts proper separation facts', () => {
   let ledger = buildInitialLedger();
-  ledger = extractSceneLedgerUpdates(ledger, 'Marcus climbs away from the group.', { exit_state: '' });
-  
+  ledger = extractSceneLedgerUpdates(ledger, 'Lena and Marcus separate', { characters: ['Lena', 'Marcus'] });
+  assert.ok(ledger.separatedCharacters.includes('Lena'));
+  assert.ok(ledger.separatedCharacters.includes('Marcus'));
+});
+
+test('runtime ledger ignores environmental noise when extracting separations', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, 'The Arctic light reflected through the dust and smoke and separates from the mountain', { exit_state: '' });
+  assert.equal(ledger.separatedCharacters.includes('Arctic'), false);
+  assert.equal(ledger.separatedCharacters.includes('Light'), false);
+  assert.equal(ledger.separatedCharacters.includes('Dust'), false);
+  assert.equal(ledger.separatedCharacters.includes('Smoke'), false);
+  assert.equal(ledger.separatedCharacters.includes('The'), false);
+});
+
+test('runtime ledger ignores stopwords and capitalized pronouns in separations', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, 'Above them, smoke drifted. For three minutes, Lena leaves His behind.', { characters: ['Lena'] });
+  assert.equal(ledger.separatedCharacters.includes('Above'), false);
+  assert.equal(ledger.separatedCharacters.includes('For'), false);
+  assert.equal(ledger.separatedCharacters.includes('Three'), false);
+  assert.equal(ledger.separatedCharacters.includes('His'), false);
+  assert.ok(ledger.separatedCharacters.includes('Lena')); // matches Lena leaves His behind
+});
+
+test('lowercase stopword and can never become a character', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, 'Lena and Marcus split up', { characters: ['Lena', 'Marcus'] });
+  assert.equal(ledger.separatedCharacters.includes('and'), false);
+  assert.equal(ledger.separatedCharacters.includes('And'), false);
+});
+
+test('separated characters interacting without reunion blocks', () => {
+  let ledger = buildInitialLedger();
+  ledger.separatedCharacters = ['Marcus'];
   const audit = auditSceneAgainstLedger({
     prose: 'Marcus and Lena walk down the hall together.',
-    runtimeLedger: ledger
+    runtimeLedger: ledger,
+    spec: { characters: ['Marcus', 'Lena'] }
   });
   
   assert.equal(audit.ok, false);
   assert.ok(audit.issues.some((i) => i.code === 'CHARACTER_SEPARATION_VIOLATION'));
+});
+
+test('separated characters explicitly reuniting passes', () => {
+  let ledger = buildInitialLedger();
+  ledger.separatedCharacters = ['Marcus'];
+  ledger = extractSceneLedgerUpdates(ledger, 'Marcus reunites with Lena.', { exit_state: '' });
+  assert.equal(ledger.separatedCharacters.includes('Marcus'), false);
+  
+  const audit = auditSceneAgainstLedger({
+    prose: 'Marcus and Lena walk down the hall together.',
+    runtimeLedger: ledger,
+    spec: { characters: ['Marcus', 'Lena'] }
+  });
+  
+  assert.equal(audit.ok, true);
 });
 
 test('auditChapterLedgerContinuity throws if scenes do not match', () => {

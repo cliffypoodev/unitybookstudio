@@ -1,5 +1,50 @@
 import { extractLimbFacts } from './sceneContractGate.js';
 
+export function getTrustedCharacters(spec, ledger) {
+  const trusted = new Set();
+  const stopwords = new Set([
+    'and','but','or','he','she','his','her','they','their','it',
+    'for','from','with','above','below','into',
+    'one','two','three','four','five','six','seven','eight','nine','ten',
+    'light','dust','smoke','wind','ice','arctic','snow','water','fire',
+    'the','a','an','then','when','if','as','to','in','on','at','by','of',
+    'is','are','was','were','be','been','being',
+    'do','does','did','have','has','had',
+    'this','that','these','those',
+    'here','there','where','why','how','what','which','who','whom',
+    'chapter','scene','part', 'some', 'any', 'many', 'few', 'all'
+  ]);
+
+  const addFromText = (text) => {
+    if (!text || typeof text !== 'string') return;
+    const matches = text.match(/\b([A-Z][a-z]+)\b/g);
+    if (matches) {
+      for (const m of matches) {
+        if (!stopwords.has(m.toLowerCase())) {
+          trusted.add(m);
+        }
+      }
+    }
+  };
+
+  if (spec) {
+    addFromText(spec.scene_goal);
+    addFromText(spec.entry_state);
+    addFromText(spec.exit_state);
+    addFromText(spec.pov);
+    if (Array.isArray(spec.required_events)) spec.required_events.forEach(addFromText);
+    if (Array.isArray(spec.forbidden_events)) spec.forbidden_events.forEach(addFromText);
+    if (Array.isArray(spec.characters)) spec.characters.forEach(addFromText);
+  }
+
+  if (ledger) {
+    if (Array.isArray(ledger.separatedCharacters)) ledger.separatedCharacters.forEach(c => trusted.add(c));
+    if (Array.isArray(ledger.deadCharacters)) ledger.deadCharacters.forEach(c => trusted.add(c));
+    for (const c in ledger.possessions) trusted.add(c);
+  }
+
+  return trusted;
+}
 export function buildInitialLedger() {
   return {
     locations: {},
@@ -115,20 +160,39 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
       }
     }
 
-    // Character separation: climbs away, leaves alone, escapes
-    const separationMatch = str.match(/\b([A-Z][a-z]+)\s+(?:climbs away|leaves alone|leaves without|runs away|escapes|is separated)\b/i);
-    if (separationMatch) {
-      const character = separationMatch[1];
-      if (!ledger.separatedCharacters.includes(character)) {
-        ledger.separatedCharacters.push(character);
+    const trusted = getTrustedCharacters(spec, ledger);
+    const formatName = (n) => n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+
+    // Character separation
+    const sepRegexes = [
+      /\b([A-Z][a-z]+)\s+(?:separates from|leaves)\s+([A-Z][a-z]+)\b/i,
+      /\b([A-Z][a-z]+)\s+leaves\s+([A-Z][a-z]+)\s+behind\b/i,
+      /\b([A-Z][a-z]+)\s+and\s+([A-Z][a-z]+)\s+(?:split up|separate)\b/i,
+      /\b([A-Z][a-z]+)\s+(?:climbs alone|leaves alone|escapes alone|is separated|climbs away|runs away)\b/i
+    ];
+    for (const rx of sepRegexes) {
+      const match = str.match(rx);
+      if (match) {
+        const c1 = formatName(match[1]);
+        if (c1 && trusted.has(c1) && !ledger.separatedCharacters.includes(c1)) {
+          ledger.separatedCharacters.push(c1);
+        }
+        if (match[2]) {
+          const c2 = formatName(match[2]);
+          if (c2 && trusted.has(c2) && !ledger.separatedCharacters.includes(c2)) {
+            ledger.separatedCharacters.push(c2);
+          }
+        }
       }
     }
     
     // Character reunion
     const reunionMatch = str.match(/\b([A-Z][a-z]+)\s+(?:reunites with|finds|returns to|meets back up with)\b/i);
     if (reunionMatch) {
-      const character = reunionMatch[1];
-      ledger.separatedCharacters = ledger.separatedCharacters.filter(c => c !== character);
+      const character = formatName(reunionMatch[1]);
+      if (trusted.has(character)) {
+        ledger.separatedCharacters = ledger.separatedCharacters.filter(c => c !== character);
+      }
     }
   }
 

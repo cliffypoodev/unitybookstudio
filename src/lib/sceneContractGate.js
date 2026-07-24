@@ -1,3 +1,5 @@
+import { getTrustedCharacters } from './narrativeLedger.js';
+
 const STOPWORDS = new Set([
   'about','after','again','against','before','being','between','could','every',
   'from','have','into','just','more','must','only','other','should','their',
@@ -637,6 +639,8 @@ export function auditSceneAgainstLedger({
       }
     }
     if (Array.isArray(runtimeLedger.separatedCharacters)) {
+      const trusted = getTrustedCharacters(spec, runtimeLedger);
+      
       for (const sepChar of runtimeLedger.separatedCharacters) {
         const nameRegex = new RegExp(`\\b${sepChar}\\b`);
         if (nameRegex.test(prose)) {
@@ -645,11 +649,14 @@ export function auditSceneAgainstLedger({
             if (nameRegex.test(sentence)) {
               const otherCharMatch = sentence.match(/\b([A-Z][a-z]+)\b/g);
               if (otherCharMatch) {
-                const others = otherCharMatch.filter(c => c !== sepChar && !['The', 'A', 'He', 'She', 'It', 'They', 'But', 'And', 'Then', 'When'].includes(c));
-                if (others.length > 0) {
+                // Filter out non-trusted characters and stopwords
+                const others = otherCharMatch.filter(c => c !== sepChar && trusted.has(c));
+                // Ensure unique
+                const uniqueOthers = [...new Set(others)];
+                if (uniqueOthers.length > 0) {
                   issues.push({
                     code: 'CHARACTER_SEPARATION_VIOLATION',
-                    message: `${sepChar} is separated from the group but appears to interact with ${others.join(', ')} in the same scene without a reunion event.`,
+                    message: `${sepChar} is separated from the group but appears to interact with ${uniqueOthers.join(', ')} in the same scene without a reunion event.`,
                     severity: 'critical'
                   });
                 }
