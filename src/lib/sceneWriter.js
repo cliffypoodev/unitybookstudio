@@ -3007,25 +3007,36 @@ export async function generateChapterSceneByScene({
       }
     }
 
+    const ledgerBefore = JSON.parse(JSON.stringify(runtimeLedger));
+
+    if (!isNF) {
+      runtimeLedger = extractSceneLedgerUpdates(runtimeLedger, sceneProse, promptSpec);
+      console.log(`[NARRATIVE-CONNECT] Updated ledger for scene ${spec.sceneNumber || i + 1}. Dead: ${runtimeLedger.deadCharacters.length}, Unavailable Objects: ${runtimeLedger.unavailableObjects.length}, Completed Events: ${runtimeLedger.completedEvents.length}`);
+    }
+
+    const ledgerAfter = JSON.parse(JSON.stringify(runtimeLedger));
+
     generatedScenes.push({
-      sceneNumber: spec.sceneNumber,
+      sceneId: spec.scene_id || spec.id || null,
+      sceneNumber: spec.sceneNumber || i + 1,
+      spec: promptSpec,
+      originalProse: generated?.prose || '',
+      acceptedProse: sceneProse,
+      ledgerBefore,
+      ledgerAfter,
+      // Legacy fields
       prose: sceneProse,
-      repaired: generated.repaired,
-      issues: generated.issues,
+      repaired: generated?.repaired || false,
+      issues: generated?.issues || [],
       targetWords: sceneTarget,
       wordCount: countWords(sceneProse),
     });
 
     repairReports.push({
       sceneNumber: spec.sceneNumber,
-      repaired: generated.repaired,
-      issues: generated.issues,
+      repaired: generated?.repaired || false,
+      issues: generated?.issues || [],
     });
-
-    if (!isNF) {
-      runtimeLedger = extractSceneLedgerUpdates(runtimeLedger, sceneProse, promptSpec);
-      console.log(`[NARRATIVE-CONNECT] Updated ledger for scene ${spec.sceneNumber || i + 1}. Dead: ${runtimeLedger.deadCharacters.length}, Unavailable Objects: ${runtimeLedger.unavailableObjects.length}, Completed Events: ${runtimeLedger.completedEvents.length}`);
-    }
 
     accumulatedProse = [accumulatedProse, sceneProse]
       .filter(Boolean)

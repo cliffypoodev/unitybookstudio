@@ -778,3 +778,67 @@ export function auditChapterLedgerContinuity({ generatedScenes, cleanedScenes },
   }
 }
 
+export function filterConcreteCriticFindings(findings, generatedScenes) {
+  if (!Array.isArray(findings)) return [];
+
+  return findings.filter((finding) => {
+    const value = String(finding || '').trim();
+    if (!value) return false;
+
+    const uncertain = /\b(may|might|could|possibly|perhaps|appears?|seems?|unclear|uncertain|depending on|potential(?:ly)?|suggests?)\b/i;
+    const missingContext = /\bmissing scene contract\b/i;
+
+    if (uncertain.test(value) || missingContext.test(value)) return false;
+
+    // Check false-positive object destruction
+    const destructionTerms = /\b(destroyed|destroys|breaks?|burns?|shatters?|ruins?)\b/i;
+    const contradictTerms = /\b(contradicts?|violates?|interferes?|planned use)\b/i;
+    
+    if (destructionTerms.test(value) && contradictTerms.test(value) && Array.isArray(generatedScenes)) {
+      // Find nouns in the critic claim to identify the object
+      const words = value.replace(/[^\w\s]/g, '').toLowerCase().split(/\s+/);
+      const stops = new Set(['the','a','an','is','are','was','were','in','manner','that','contradicts','its','planned','use','narrative','destroyed','destroys','breaks','burns','with','from','for','about','and','but','or']);
+      const candidateObjects = words.filter(w => w.length > 2 && !stops.has(w));
+      
+      let destructionSceneIndex = -1;
+      for (let i = 0; i < generatedScenes.length; i++) {
+        const sc = generatedScenes[i];
+        const spec = sc.spec || {};
+        const reqEvents = Array.isArray(spec.required_events) ? spec.required_events.join(' ') : '';
+        const exitState = spec.exit_state || '';
+        const combinedCurrent = (reqEvents + ' ' + exitState).toLowerCase();
+        
+        if (destructionTerms.test(combinedCurrent)) {
+          const matchesObject = candidateObjects.some(obj => combinedCurrent.includes(obj));
+          if (matchesObject || candidateObjects.length === 0) {
+            destructionSceneIndex = i;
+            break;
+          }
+        }
+      }
+
+      if (destructionSceneIndex !== -1) {
+        let laterRequiresIntact = false;
+        for (let j = destructionSceneIndex + 1; j < generatedScenes.length; j++) {
+          const futSpec = generatedScenes[j].spec || {};
+          const futReq = Array.isArray(futSpec.required_events) ? futSpec.required_events.join(' ') : '';
+          const futEntry = futSpec.entry_state || '';
+          const futExit = futSpec.exit_state || '';
+          const futCombined = (futReq + ' ' + futEntry + ' ' + futExit).toLowerCase();
+          
+          const mentionsObject = candidateObjects.length === 0 || candidateObjects.some(obj => futCombined.includes(obj));
+          if (mentionsObject && /\b(intact|uses|usable|unbroken|unlocks?|inserts?)\b/i.test(futCombined)) {
+            laterRequiresIntact = true;
+            break;
+          }
+        }
+
+        if (!laterRequiresIntact) {
+          return false; // Not a hard violation, just advisory
+        }
+      }
+    }
+
+    return true;
+  });
+}

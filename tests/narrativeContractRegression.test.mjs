@@ -102,7 +102,7 @@ test('contract-aware rewrite feedback is actually injected into prose prompts', 
   assert.match(studio, /Emergency save skipped because generated content violated a hard contract/);
 });
 
-import { auditSceneAgainstLedger, auditChapterLedgerContinuity } from '../src/lib/sceneContractGate.js';
+import { auditSceneAgainstLedger, auditChapterLedgerContinuity, filterConcreteCriticFindings } from '../src/lib/sceneContractGate.js';
 import { buildInitialLedger, extractSceneLedgerUpdates } from '../src/lib/narrativeLedger.js';
 
 test('runtime ledger blocks dead character action', () => {
@@ -260,14 +260,55 @@ test('auditChapterLedgerContinuity throws if scenes do not match', () => {
 });
 
 test('auditChapterLedgerContinuity succeeds on match', () => {
-  const generatedScenes = [ { spec: {} }, { spec: {} } ]; 
-  const cleanedScenes = [ 'Scene 1', 'Scene 2' ];
-  
-  let didThrow = false;
-  try {
+  const generatedScenes = [ { spec: {} }, { spec: {} }, { spec: {} } ]; 
+  const cleanedScenes = [ 'Scene 1', 'Scene 2', 'Scene 3' ];
+  assert.doesNotThrow(() => {
     auditChapterLedgerContinuity({ generatedScenes, cleanedScenes }, buildInitialLedger, extractSceneLedgerUpdates);
-  } catch (e) { didThrow = true; }
-  assert.equal(didThrow, false);
+  });
+});
+
+test('critic falsely blocking required key destruction is filtered', () => {
+  const generatedScenes = [
+    { spec: { required_events: ['Lena destroys the brass key.'] } }
+  ];
+  const findings = ['The brass key is destroyed in a manner that contradicts its planned use in the narrative.'];
+  const concrete = filterConcreteCriticFindings(findings, generatedScenes);
+  // Must NOT hard-block, so it should be filtered out
+  assert.equal(concrete.length, 0);
+});
+
+test('critic accurately blocking required key destruction because a later scene requires it intact is NOT filtered', () => {
+  const generatedScenes = [
+    { spec: { required_events: ['Lena destroys the brass key.'] } },
+    { spec: { required_events: ['Lena uses the intact brass key to unlock the door.'] } }
+  ];
+  const findings = ['The brass key is destroyed in a manner that contradicts its planned use in the narrative.'];
+  const concrete = filterConcreteCriticFindings(findings, generatedScenes);
+  // Must hard-block, so it should NOT be filtered out
+  assert.equal(concrete.length, 1);
+});
+
+test('critic blocking key destroyed early is NOT filtered', () => {
+  const generatedScenes = [
+    { spec: { required_events: ['Lena enters the room.'] } },
+    { spec: { required_events: ['Lena destroys the brass key.'] } }
+  ];
+  // Critic just complains it was destroyed early, no "contradicts its planned use"
+  const findings = ['The brass key is destroyed in scene 1 prematurely.'];
+  const concrete = filterConcreteCriticFindings(findings, generatedScenes);
+  // Must hard-block
+  assert.equal(concrete.length, 1);
+});
+
+test('critic blocking key destruction but later scenes just reference it as destroyed is filtered', () => {
+  const generatedScenes = [
+    { spec: { required_events: ['Lena destroys the brass key.'] } },
+    { spec: { required_events: ['Lena looks at the destroyed brass key.'] } }
+  ];
+  const findings = ['The brass key is destroyed in a manner that contradicts its planned use in the narrative.'];
+  const concrete = filterConcreteCriticFindings(findings, generatedScenes);
+  // Must NOT hard-block, should be filtered out
+  assert.equal(concrete.length, 0);
 });
 
 console.log(`\nNARRATIVE CONTRACT REGRESSION: ${passed} passed, 0 failed\n`);

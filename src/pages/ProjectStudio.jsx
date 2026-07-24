@@ -41,7 +41,9 @@ import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepar
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
 import { computeDraftIntegrityReport } from '@/lib/draftIntegrityReport';
 import { clearRichContentFields } from '@/lib/richContentStorage';
-import { runQualityScan } from '@/lib/qualityScan';
+import { evaluatePacingModulation } from '@/lib/pacingModulation';
+import { filterConcreteCriticFindings } from '@/lib/sceneContractGate';
+import { runQualityScan, formatQualityResult } from '@/lib/qualityScan';
 import { mechanicalScore } from '@/lib/mechanicalScore';
 import { generateChapterByScenes } from '@/lib/sceneWriter';
 import { validateProjectChapterContent, makeProjectContentGuardError, stripProjectContaminationBlocks } from '@/lib/projectContentGuard';
@@ -3703,22 +3705,13 @@ Return structured JSON:
     // The LLM critic is advisory. Deterministic scene/project gates remain authoritative.
     // Do not rewrite a structurally valid chapter merely because the critic assigned 7/10
     // or produced uncertain language such as "may be a violation".
-    const isConcreteCriticFinding = (finding) => {
-      const value = String(finding || '').trim();
-      if (!value) return false;
-
-      const uncertain = /\b(may|might|could|possibly|perhaps|appears?|seems?|unclear|uncertain|depending on|potential(?:ly)?|suggests?)\b/i;
-      const missingContext = /\bmissing scene contract\b/i;
-
-      return !uncertain.test(value) && !missingContext.test(value);
-    };
-
+    
     const concreteJudgeContractViolations = Array.isArray(judge?.contract_violations)
-      ? judge.contract_violations.filter(isConcreteCriticFinding)
+      ? filterConcreteCriticFindings(judge.contract_violations, sceneResult?.generatedScenes)
       : [];
 
     const concreteJudgeProcessLeaks = Array.isArray(judge?.process_leaks)
-      ? judge.process_leaks.filter(isConcreteCriticFinding)
+      ? filterConcreteCriticFindings(judge.process_leaks, sceneResult?.generatedScenes)
       : [];
 
     // Scores below 8 are revision notes, not hard rewrite triggers.
@@ -3869,10 +3862,10 @@ Return structured JSON:
     const finalProcessLeaks = Array.isArray(finalJudge?.process_leaks) ? finalJudge.process_leaks : [];
 
     const finalConcreteContractViolations =
-      finalContractViolations.filter(isConcreteCriticFinding);
+      filterConcreteCriticFindings(finalContractViolations, sceneResult?.generatedScenes);
 
     const finalConcreteProcessLeaks =
-      finalProcessLeaks.filter(isConcreteCriticFinding);
+      filterConcreteCriticFindings(finalProcessLeaks, sceneResult?.generatedScenes);
 
     // Only concrete, explicit critic findings may hard-block here.
     // Numeric critic scores and omitted critic fields are advisory because
@@ -3930,6 +3923,19 @@ Return structured JSON:
     let finalDmManualReview = 0;
 
     if (sceneResult?.generatedScenes && Array.isArray(sceneResult.generatedScenes)) {
+      sceneResult.generatedScenes.forEach((sc, idx) => {
+        console.log(`[STRUCTURED-SCENES] sceneId=${sc.sceneId || 'none'} acceptedProseChars=${sc.acceptedProse?.length || 0}`);
+        
+        if (!sc.acceptedProse) {
+          const err = new Error(`Scene ${idx + 1} is missing acceptedProse`);
+          err.name = 'NarrativeInvariantError';
+          err.code = 'STRUCTURED_SCENE_PROSE_MISSING';
+          err.sceneId = sc.sceneId;
+          err.narrativeContract = true;
+          throw err;
+        }
+      });
+
       // Per-scene cleanup
       for (let i = 0; i < sceneResult.generatedScenes.length; i++) {
         let sceneProse = sceneResult.generatedScenes[i].acceptedProse || '';
