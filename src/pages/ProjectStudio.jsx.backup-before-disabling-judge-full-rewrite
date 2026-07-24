@@ -3734,14 +3734,7 @@ Return structured JSON:
     const preJudgeRewriteWordCount = wordCount;
     const preJudgeRewriteCleanResult = cleanResult;
 
-    // Full chapter judge rewrites are disabled.
-    // The original draft was generated scene-by-scene through deterministic
-    // chronology/state gates. A second complete generation can replay events
-    // and overwrite that safer draft. The critic remains advisory, while
-    // concrete final contract violations still hard-block below.
-    const allowJudgeFullRewrite = false;
-
-    if (needsRetry && allowJudgeFullRewrite) {
+    if (needsRetry) {
       const judgeIssues = Array.isArray(judge?.issues) ? judge.issues : [];
       const retryFeedback = [
         ...tenseViolations.map((v) => v.description),
@@ -3842,13 +3835,6 @@ Return structured JSON:
         cleanResult = preJudgeRewriteCleanResult;
       }
     }
-    if (needsRetry && !allowJudgeFullRewrite) {
-      console.warn(
-        `[NARRATIVE-CONNECT] Ch.${chapter.chapter_number}: critic requested revision, ` +
-        `but destructive full-chapter rewrite was skipped; preserving scene-audited draft.`
-      );
-    }
-
     pipelineSnapshot(chapter.id, '4-after-judge-revision', chapterContent);
 
     // Finalize scores and save
@@ -3926,110 +3912,52 @@ Return structured JSON:
     const chapterStatus = isStub ? 'error' : 'drafted';
     const qualityScan = runQualityScan(chapterContent, project, chapter.chapter_number);
 
-    let finalDmOrphans = 0;
-    let finalDmManualReview = 0;
+    // Post-draft cleanup: fix mechanical errors before saving
+    const cleanup = await postDraftCleanup(chapterContent, project, chapter.chapter_number, report);
+    chapterContent = cleanup.text;
+    pipelineSnapshot(chapter.id, '5-after-postDraftCleanup', chapterContent);
 
-    if (sceneResult?.generatedScenes && Array.isArray(sceneResult.generatedScenes)) {
-      // Per-scene cleanup
-      for (let i = 0; i < sceneResult.generatedScenes.length; i++) {
-        let sceneProse = sceneResult.generatedScenes[i].acceptedProse || '';
-        
-        const cleanup = await postDraftCleanup(sceneProse, project, chapter.chapter_number, report);
-        sceneProse = cleanup.text;
-
-        const canonRepair = repairCanonNameDrift(sceneProse, { project: generationProject, chapter, chapters: generationChapters });
-        if (canonRepair.changed) sceneProse = canonRepair.text;
-
-        const hardAliasRepair = forceSongbirdAliasRepairText(sceneProse, { project });
-        if (hardAliasRepair.changed) sceneProse = hardAliasRepair.text;
-
-        const artifactRepair = repairManuscriptArtifacts(sceneProse, { project, chapter });
-        if (artifactRepair.changed) sceneProse = artifactRepair.text;
-
-        const draftQuoteRepair = repairChapterQuotes(sceneProse);
-        if (draftQuoteRepair.text !== sceneProse) sceneProse = draftQuoteRepair.text;
-
-        const dmFinal = runDialogueMechanicsFinal(sceneProse, { stage: 'pre-save' });
-        if (dmFinal.text !== sceneProse) sceneProse = dmFinal.text;
-        
-        finalDmOrphans += (dmFinal.orphanFlagged || 0);
-        finalDmManualReview += (dmFinal.manualReview?.length || 0);
-
-        sceneResult.generatedScenes[i].acceptedProse = sceneProse;
-      }
-
-      // Block malformed dialogue globally
-      if (finalDmOrphans > 0 || finalDmManualReview > 0) {
-        const error = new Error(`Chapter ${chapter.chapter_number} rejected due to unresolved malformed dialogue (orphans: ${finalDmOrphans}, manual review: ${finalDmManualReview}).`);
-        error.name = 'NarrativeInvariantError';
-        error.code = 'MALFORMED_DIALOGUE_UNRESOLVED';
-        error.narrativeContract = true;
-        throw error;
-      }
-
-      // Final audit
-      if (typeof window !== 'undefined') {
-        const { auditChapterLedgerContinuity } = await import('@/lib/sceneContractGate');
-        const { buildInitialLedger, extractSceneLedgerUpdates } = await import('@/lib/narrativeLedger');
-        
-        try {
-          const cleanedScenes = sceneResult.generatedScenes.map(s => s.acceptedProse);
-          auditChapterLedgerContinuity({ generatedScenes: sceneResult.generatedScenes, cleanedScenes }, buildInitialLedger, extractSceneLedgerUpdates);
-        } catch (auditError) {
-          if (auditError.name === 'NarrativeInvariantError') {
-            console.error('[NARRATIVE-CONNECT] Final chapter-level continuity audit failed after cleanup:', auditError);
-            throw auditError;
-          }
-        }
-      }
-
-      // Join after successful audit
-      chapterContent = sceneResult.generatedScenes
-        .map(s => s.acceptedProse)
-        .filter(Boolean)
-        .join('\n\n* * *\n\n');
-
-    } else {
-      // Fallback for non-structured text (e.g. earlier pipeline steps)
-      const cleanup = await postDraftCleanup(chapterContent, project, chapter.chapter_number, report);
-      chapterContent = cleanup.text;
-      
-      const canonRepair = repairCanonNameDrift(chapterContent, { project: generationProject, chapter, chapters: generationChapters });
-      if (canonRepair.changed) chapterContent = canonRepair.text;
-
-      const hardAliasRepair = forceSongbirdAliasRepairText(chapterContent, { project });
-      if (hardAliasRepair.changed) chapterContent = hardAliasRepair.text;
-
-      const artifactRepair = repairManuscriptArtifacts(chapterContent, { project, chapter });
-      if (artifactRepair.changed) chapterContent = artifactRepair.text;
-
-      const draftQuoteRepair = repairChapterQuotes(chapterContent);
-      if (draftQuoteRepair.text !== chapterContent) chapterContent = draftQuoteRepair.text;
-
-      const dmFinal = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save' });
-      if (dmFinal.text !== chapterContent) chapterContent = dmFinal.text;
-
-      if (dmFinal.orphanFlagged > 0 || (dmFinal.manualReview && dmFinal.manualReview.length > 0)) {
-        const error = new Error(`Chapter ${chapter.chapter_number} rejected due to unresolved malformed dialogue (orphans: ${dmFinal.orphanFlagged}, manual review: ${dmFinal.manualReview?.length}).`);
-        error.name = 'NarrativeInvariantError';
-        error.code = 'MALFORMED_DIALOGUE_UNRESOLVED';
-        error.narrativeContract = true;
-        throw error;
-      }
+    // Canon-name and artifact cleanup must run before save so bad names like
+    // Langston/Arthur or Nikolai/Silas cannot persist into the manuscript DB.
+    const canonRepair = repairCanonNameDrift(chapterContent, { project: generationProject, chapter, chapters: generationChapters });
+    if (canonRepair.changed) {
+      console.warn('[CANON-NAME-LOCK] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', canonRepair.repairs);
+      chapterContent = canonRepair.text;
+    }
+    const hardAliasRepair = forceSongbirdAliasRepairText(chapterContent, { project });
+    if (hardAliasRepair.changed) {
+      console.warn('[SONGBIRD-HARD-ALIAS] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', hardAliasRepair.repairs);
+      chapterContent = hardAliasRepair.text;
     }
 
-    if (chapterContent.includes('<<<SCENE_BOUNDARY>>>')) {
-      const error = new Error(`Chapter ${chapter.chapter_number} contains internal scene boundary sentinel leakage.`);
-      error.name = 'NarrativeInvariantError';
-      error.code = 'INTERNAL_SCENE_SENTINEL_LEAK';
-      error.narrativeContract = true;
-      throw error;
+    const artifactRepair = repairManuscriptArtifacts(chapterContent, { project, chapter });
+    if (artifactRepair.changed) {
+      console.warn('[ARTIFACT-REPAIR] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', artifactRepair.changes);
+      chapterContent = artifactRepair.text;
     }
+
+    pipelineSnapshot(chapter.id, '6-after-canon-artifact-repair', chapterContent);
+
+    const draftQuoteRepair = repairChapterQuotes(chapterContent);
+    if (draftQuoteRepair.text !== chapterContent) {
+      console.warn('[QUOTE-REPAIR] Repaired draft Ch.' + (chapter.chapter_number || '?') + ' before save:', draftQuoteRepair.fixes);
+      chapterContent = draftQuoteRepair.text;
+    }
+
+    // DIALOGUEFIX-2: true-last dialogue heal before save (see NF site above).
+    const dmFinal = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save' });
+    if (dmFinal.text !== chapterContent) {
+      console.warn('[DIALOGUE-MECHANICS-REPAIR] Pre-save repairs Ch.' + (chapter.chapter_number || '?') + ': ' + (dmFinal.repairs?.length || 0) + ' verb-tag, ' + (dmFinal.orphanRepaired || 0) + ' orphan-closer');
+      chapterContent = dmFinal.text;
+    }
+    pipelineSnapshot(chapter.id, '7-after-quote-repair', chapterContent);
 
     wordCount = countWords(chapterContent);
+
     assertNarrativeTextClean(chapterContent, { chapterNumber: chapter.chapter_number });
+
     runProjectContentGuardBeforeSave(chapter, chapterContent, 'draft');
-    
+
     pipelineSnapshot(chapter.id, '8-final-save', chapterContent);
     const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
 
@@ -4086,33 +4014,10 @@ Return structured JSON:
     };
     } catch (draftError) {
       // Emergency save: if prose was generated but a later step failed, save what we have.
-      if (draftError) {
-        const shouldBlockEmergencySave = (error) => {
-          if (!error) return false;
-          if (error.name === 'NarrativeInvariantError') return true;
-          if (error.narrativeContract === true) return true;
-          if (error.details?.narrativeContract === true) return true;
-          
-          const code = error.code || error.details?.code;
-          if (!code) return false;
-
-          if (code === 'FINAL_CHAPTER_CONTINUITY_AUDIT_UNAVAILABLE') return true;
-          if (code === 'SCENE_STATE_CONTRACT_UNRESOLVED') return true;
-          if (code === 'SCENE_DUPLICATE_UNRESOLVED') return true;
-          if (code === 'MALFORMED_DIALOGUE_UNRESOLVED') return true;
-          if (code === 'OBJECT_POSSESSION_VIOLATION') return true;
-          if (code === 'EVIDENCE_AVAILABILITY_VIOLATION') return true;
-          if (code.startsWith('NARRATIVE_')) return true;
-          if (code.startsWith('SCENE_')) return true;
-          if (code.startsWith('FINAL_CHAPTER_')) return true;
-          if (code === 'INTERNAL_SCENE_SENTINEL_LEAK') return true;
-          return false;
-        };
-
-        if (draftError?.projectContentGuard || shouldBlockEmergencySave(draftError)) {
-          console.error('[DRAFT-GUARD] Emergency save skipped because generated content violated a hard contract:', draftError?.guard || draftError?.message);
-          throw draftError;
-        }
+      // Never emergency-save content that the contamination guard explicitly blocked.
+      if (draftError?.projectContentGuard || draftError?.narrativeContract || draftError?.details?.narrativeContract) {
+        console.error('[DRAFT-GUARD] Emergency save skipped because generated content violated a hard contract:', draftError?.guard || draftError?.message);
+        throw draftError;
       }
 
       if (emergencyProse && emergencyWordCount >= 200) {

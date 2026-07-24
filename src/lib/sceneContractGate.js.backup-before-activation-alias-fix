@@ -8,14 +8,6 @@ const STOPWORDS = new Set([
 ]);
 
 const TOKEN_CANON = new Map([
-  ['activate', 'activate'],
-  ['activated', 'activate'],
-  ['activating', 'activate'],
-  ['activates', 'activate'],
-  ['trigger', 'activate'],
-  ['triggered', 'activate'],
-  ['triggering', 'activate'],
-  ['triggers', 'activate'],
   ['arrive', 'arrive'],
   ['arrived', 'arrive'],
   ['arriving', 'arrive'],
@@ -378,7 +370,7 @@ function paragraphHits(eventText, proseText) {
     .filter((entry) => entry.result.hit);
 }
 
-export function extractLimbFacts(text) {
+function extractLimbFacts(text) {
   const source = String(text || '');
   const facts = [];
   const sentences = source
@@ -537,20 +529,12 @@ export function auditSceneAgainstLedger({
   prose,
   accumulatedProse = '',
   spec = {},
-  runtimeLedger = null,
 } = {}) {
   const issues = [];
 
   const priorEvents = Array.isArray(spec?.prior_completed_events)
     ? spec.prior_completed_events.filter(Boolean)
     : [];
-
-  // Also check ledger completed events for replays
-  if (runtimeLedger && Array.isArray(runtimeLedger.completedEvents)) {
-    for (const ev of runtimeLedger.completedEvents) {
-      if (!priorEvents.includes(ev)) priorEvents.push(ev);
-    }
-  }
 
   const futureEvents = Array.isArray(spec?.future_reserved_events)
     ? spec.future_reserved_events.filter(Boolean)
@@ -610,96 +594,6 @@ export function auditSceneAgainstLedger({
     });
   }
 
-  if (runtimeLedger) {
-    if (Array.isArray(runtimeLedger.deadCharacters)) {
-      for (const deadChar of runtimeLedger.deadCharacters) {
-        // Simplistic check for dead character acting
-        const deadRegex = new RegExp(`\\b${deadChar}\\b\\s+(?:said|nodded|walked|looked|sighed|smiled|shook|turned|asked|replied)\\b`, 'i');
-        if (deadRegex.test(prose)) {
-          issues.push({
-            code: 'DEAD_CHARACTER_ACTION',
-            message: `Dead character "${deadChar}" performed an action in this scene.`,
-          });
-        }
-      }
-    }
-
-    if (Array.isArray(runtimeLedger.unavailableObjects)) {
-      for (const obj of runtimeLedger.unavailableObjects) {
-        // Simplistic check for unavailable object usage
-        const objRegex = new RegExp(`\\b(?:used|inserted|turned|opened\\s+with|fired|wielded)\\s+(?:the\\s+)?${obj}\\b`, 'i');
-        if (objRegex.test(prose)) {
-          issues.push({
-            code: 'UNAVAILABLE_OBJECT_USAGE',
-            message: `Destroyed or unavailable object "${obj}" was used in this scene.`,
-          });
-        }
-      }
-    }
-    if (Array.isArray(runtimeLedger.separatedCharacters)) {
-      for (const sepChar of runtimeLedger.separatedCharacters) {
-        const nameRegex = new RegExp(`\\b${sepChar}\\b`);
-        if (nameRegex.test(prose)) {
-          const sentences = prose.split(/(?<=[.!?])\s+/);
-          for (const sentence of sentences) {
-            if (nameRegex.test(sentence)) {
-              const otherCharMatch = sentence.match(/\b([A-Z][a-z]+)\b/g);
-              if (otherCharMatch) {
-                const others = otherCharMatch.filter(c => c !== sepChar && !['The', 'A', 'He', 'She', 'It', 'They', 'But', 'And', 'Then', 'When'].includes(c));
-                if (others.length > 0) {
-                  issues.push({
-                    code: 'CHARACTER_SEPARATION_VIOLATION',
-                    message: `${sepChar} is separated from the group but appears to interact with ${others.join(', ')} in the same scene without a reunion event.`,
-                    severity: 'critical'
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    if (Array.isArray(runtimeLedger.droppedObjects)) {
-      for (const obj of runtimeLedger.droppedObjects) {
-        // If someone holds or possesses a dropped object
-        const objRegex = new RegExp(`\\b([A-Z][a-z]+)\\s+(?:holds|grips|clutches|has|pulls)\\s+(?:the\\s+)?${obj}\\b`, 'i');
-        const match = prose.match(objRegex);
-        if (match) {
-          issues.push({
-            code: 'OBJECT_POSSESSION_VIOLATION',
-            message: `Character "${match[1]}" holds "${obj}", but it was placed down and not retrieved.`,
-          });
-        }
-      }
-    }
-
-    if (runtimeLedger.possessions) {
-      for (const char in runtimeLedger.possessions) {
-        for (const obj of runtimeLedger.possessions[char]) {
-          // If someone else holds it
-          const objRegex = new RegExp(`\\b([A-Z][a-z]+)\\s+(?:holds|grips|clutches|has|pulls)\\s+(?:the\\s+)?${obj}\\b`, 'i');
-          const match = prose.match(objRegex);
-          if (match && match[1] !== char) {
-            issues.push({
-              code: 'OBJECT_POSSESSION_VIOLATION',
-              message: `Character "${match[1]}" holds "${obj}", but it is possessed by "${char}".`,
-            });
-          }
-        }
-      }
-    }
-
-    // "all evidence is gone" violation
-    const hasExistingObjects = (runtimeLedger.droppedObjects && runtimeLedger.droppedObjects.length > 0) || (runtimeLedger.possessions && Object.keys(runtimeLedger.possessions).length > 0);
-    if (hasExistingObjects && prose.match(/\b(?:all evidence is gone|no proof remains|destroyed all evidence|no evidence left)\b/i)) {
-      issues.push({
-        code: 'EVIDENCE_AVAILABILITY_VIOLATION',
-        message: `Prose claims all evidence is gone, but objects still exist in the ledger.`,
-      });
-    }
-  }
-
   return {
     ok: issues.length === 0,
     issues,
@@ -730,44 +624,3 @@ MANDATORY:
 - Continue chronologically from the prior scene's final state.
 - Return manuscript prose only.`;
 }
-
-export function auditChapterLedgerContinuity({ generatedScenes, cleanedScenes }, buildInitialLedger, extractSceneLedgerUpdates) {
-  if (!Array.isArray(generatedScenes) || !Array.isArray(cleanedScenes)) {
-    return;
-  }
-
-  if (cleanedScenes.length !== generatedScenes.length) {
-    const error = new Error(`Cannot run final chapter-level continuity audit: segment count (${cleanedScenes.length}) does not match generated scenes (${generatedScenes.length}).`);
-    error.name = 'NarrativeInvariantError';
-    error.code = 'FINAL_CHAPTER_CONTINUITY_AUDIT_UNAVAILABLE';
-    throw error;
-  }
-
-  let runtimeLedger = buildInitialLedger();
-  let accumulatedProse = '';
-
-  for (let i = 0; i < generatedScenes.length; i++) {
-    const sceneProse = cleanedScenes[i];
-    const spec = generatedScenes[i].spec;
-
-    const audit = auditSceneAgainstLedger({
-      prose: sceneProse,
-      accumulatedProse,
-      spec,
-      runtimeLedger
-    });
-
-    if (!audit.ok) {
-      const error = new Error(`Chapter rejected after final cleanup due to scene ${i+1} continuity violation: ${audit.report}`);
-      error.name = 'NarrativeInvariantError';
-      error.code = 'SCENE_STATE_CONTRACT_UNRESOLVED_AFTER_CLEANUP';
-      error.narrativeContract = true;
-      error.audit = audit;
-      throw error;
-    }
-
-    runtimeLedger = extractSceneLedgerUpdates(runtimeLedger, sceneProse, spec);
-    accumulatedProse = [accumulatedProse, sceneProse].filter(Boolean).join('\n\n* * *\n\n');
-  }
-}
-

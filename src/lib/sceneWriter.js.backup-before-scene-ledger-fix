@@ -60,12 +60,10 @@ import {
   findNarrativeMetaLeaks,
 } from '@/lib/generationContext';
 import { buildProjectContinuityLockBlock, validateProjectChapterContent } from '@/lib/projectContentGuard';
-import { auditSceneAgainstLedger, buildSceneContractRepairInstruction } from '@/lib/sceneContractGate';
 import { buildCanonNameLockBlock, repairCanonNameDrift } from '@/lib/canonNameLock';
 import { repairChapterQuotes } from '@/lib/quoteFixPolish';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
-import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger } from '@/lib/narrativeLedger';
 import {
   isAnthologyProject,
   isNonfictionAnthology,
@@ -2109,30 +2107,16 @@ function buildSceneStateContractBlock(spec) {
   const requiredEvents = Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean) : [];
   const forbiddenEvents = Array.isArray(spec?.forbidden_events) ? spec.forbidden_events.filter(Boolean) : [];
   const dependencies = Array.isArray(spec?.continuity_dependencies) ? spec.continuity_dependencies.filter(Boolean) : [];
-  const priorCompletedEvents = Array.isArray(spec?.prior_completed_events) ? spec.prior_completed_events.filter(Boolean) : [];
-  const priorExitStates = Array.isArray(spec?.prior_exit_states) ? spec.prior_exit_states.filter(Boolean) : [];
-  const futureReservedEvents = Array.isArray(spec?.future_reserved_events) ? spec.future_reserved_events.filter(Boolean) : [];
 
   if (!sceneId && !entryState && !exitState && !requiredEvents.length) return '';
 
   const lines = [
     `SCENE ID: ${sceneId || 'missing — do not draft'}`,
     `ENTRY STATE (must be true when the scene opens): ${entryState || 'missing'}`,
-    `REQUIRED EVENTS FOR THIS SCENE ONLY (each exactly once): ${requiredEvents.length ? requiredEvents.join('; ') : 'missing'}`,
+    `REQUIRED EVENTS (each exactly once): ${requiredEvents.length ? requiredEvents.join('; ') : 'missing'}`,
     `FORBIDDEN REPLAYS / REVERSALS: ${forbiddenEvents.length ? forbiddenEvents.join('; ') : 'None listed; still do not replay earlier events.'}`,
     `EXIT STATE (must be true when the scene ends): ${exitState || 'missing'}`,
   ];
-  if (priorCompletedEvents.length) {
-    lines.push(`COMPLETED EVENTS FROM EARLIER SCENES — NEVER REPLAY: ${priorCompletedEvents.join('; ')}`);
-  }
-  if (priorExitStates.length) {
-    lines.push(`LOCKED PRIOR EXIT STATES — MUST REMAIN TRUE: ${priorExitStates.join('; ')}`);
-  }
-  if (futureReservedEvents.length) {
-    lines.push(
-      `FUTURE-SCENE BOUNDARY: Later plot developments exist, but their details are intentionally hidden. Do not advance beyond this scene's required events or exit state.`
-    );
-  }
   if (dependencies.length) lines.push(`CONTINUITY DEPENDENCIES: ${dependencies.join('; ')}`);
 
   return `NARRATIVE STATE CONTRACT — MANDATORY:
@@ -2157,13 +2141,7 @@ function buildScenePrompt(args) {
   const base = isNF ? buildNonfictionPrompt(args) : buildFictionPrompt(args);
   const sceneCast = buildSceneCastBlock(args.spec || args);
   const stateContract = isNF ? '' : buildSceneStateContractBlock(args.spec || args);
-  
-  const serializedLedger = args.runtimeLedger ? serializeLedger(args.runtimeLedger) : '';
-  const ledgerInstruction = serializedLedger 
-    ? `\n\n${serializedLedger}\n\nCRITICAL NARRATIVE-STATE DIRECTIVE:\n- You must begin exactly from the actual final state established above.\n- Do NOT resurrect any character marked DEAD.\n- Do NOT utilize any object marked UNAVAILABLE/DESTROYED.\n- Do NOT replay any RECENT COMPLETED EVENTS.`
-    : '';
-
-  let out = [stateContract, sceneCast, base].filter(Boolean).join('\n\n') + ledgerInstruction;
+  let out = [stateContract, sceneCast, base].filter(Boolean).join('\n\n');
   // ARCH2-4b-a: foreign-homed witness quotes must not reach the model through
   // ANY prompt channel (bible fields, beats, rolling context) — not only the
   // research block. Home-chapter quotes and unhomed quotes pass through
@@ -2769,24 +2747,9 @@ export async function generateChapterSceneByScene({
   const generatedScenes = [];
   const repairReports = [];
   let lastScenePrompt = '';
-  let runtimeLedger = buildInitialLedger();
 
   for (let i = 0; i < normalizedScenes.length; i += 1) {
     const spec = normalizedScenes[i];
-    const priorScenes = normalizedScenes.slice(0, i);
-    const futureScenes = normalizedScenes.slice(i + 1);
-    const promptSpec = {
-      ...spec,
-      prior_completed_events: priorScenes.flatMap((scene) =>
-        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean) : []
-      ),
-      prior_exit_states: priorScenes
-        .map((scene) => String(scene?.exit_state || '').trim())
-        .filter(Boolean),
-      future_reserved_events: futureScenes.flatMap((scene) =>
-        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean) : []
-      ),
-    };
     const isFirst = i === 0;
     const rawSceneTarget = Number(spec.targetWords || Math.floor(chapterTarget / normalizedScenes.length));
     const sceneTarget = Number.isFinite(rawSceneTarget) && rawSceneTarget > 0
@@ -2806,7 +2769,7 @@ export async function generateChapterSceneByScene({
       project,
       chapter,
       chapters: allProjectChapters,
-      spec: promptSpec,
+      spec,
       accumulatedProse,
       previousChapterTail: isFirst && !isAnthology ? continuity.previousChapterTail : '',
       rollingContext: isAnthology ? '' : continuity.rollingContext,
@@ -2821,7 +2784,6 @@ export async function generateChapterSceneByScene({
       authorStyleBlock,
       includeFullCraft,
       revisionFeedback,
-      runtimeLedger,
     });
 
     // Capture the prompt sent to the model for diagnostic comparison
@@ -2838,7 +2800,7 @@ export async function generateChapterSceneByScene({
     for (let attempt = 1; attempt <= MAX_EMPTY_REROLLS; attempt++) {
       generated = await generateSceneWithRepair({
         project,
-        spec: promptSpec,
+        spec,
         prompt,
         model,
         fallbackModel,
@@ -2922,77 +2884,6 @@ export async function generateChapterSceneByScene({
       }
     }
 
-    if (!isNF) {
-      let contractAudit = auditSceneAgainstLedger({
-        prose: sceneProse,
-        accumulatedProse,
-        spec: promptSpec,
-        runtimeLedger,
-      });
-
-      if (!contractAudit.ok) {
-        console.warn(
-          `[NARRATIVE-CONNECT] Scene ${spec.sceneNumber || i + 1} failed deterministic contract audit; repairing:`,
-          contractAudit.report
-        );
-
-        onProgress?.({
-          stage: 'scene_contract_repair',
-          sceneIndex: i,
-          sceneNumber: spec.sceneNumber,
-          totalScenes: normalizedScenes.length,
-          reason: contractAudit.report,
-        });
-
-        const contractRepairPrompt = [
-          prompt,
-          buildSceneContractRepairInstruction(contractAudit),
-        ].join('\n\n');
-
-        const contractRepair = await generateSceneWithRepair({
-          project,
-          spec: promptSpec,
-          prompt: contractRepairPrompt,
-          model,
-          fallbackModel,
-          disableFallbacks,
-          targetWords: sceneTarget,
-          temperature: 0.48,
-          maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
-        });
-
-        const repairedContractProse = lightCleanSceneOutput(contractRepair.prose);
-
-        contractAudit = auditSceneAgainstLedger({
-          prose: repairedContractProse,
-          accumulatedProse,
-          spec: promptSpec,
-          runtimeLedger,
-        });
-
-        if (!repairedContractProse || !contractAudit.ok) {
-          const contractError = new Error(
-            `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: deterministic narrative-state violations survived repair (${contractAudit.report || 'empty repaired prose'}).`
-          );
-          contractError.name = 'NarrativeInvariantError';
-          contractError.code = 'SCENE_STATE_CONTRACT_UNRESOLVED';
-          contractError.sceneId = spec.scene_id || null;
-          contractError.sceneNumber = spec.sceneNumber || i + 1;
-          contractError.audit = contractAudit;
-          contractError.narrativeContract = true;
-          console.error('[NARRATIVE-CONNECT] Hard-blocking state-invalid scene:', contractError);
-          throw contractError;
-        }
-
-        sceneProse = repairedContractProse;
-        generated.repaired = true;
-        generated.issues = [
-          ...(generated.issues || []),
-          'Deterministic scene-state contract repaired',
-        ];
-      }
-    }
-
     const sceneGuard = validateProjectChapterContent({
       project,
       chapter,
@@ -3021,11 +2912,6 @@ export async function generateChapterSceneByScene({
       repaired: generated.repaired,
       issues: generated.issues,
     });
-
-    if (!isNF) {
-      runtimeLedger = extractSceneLedgerUpdates(runtimeLedger, sceneProse, promptSpec);
-      console.log(`[NARRATIVE-CONNECT] Updated ledger for scene ${spec.sceneNumber || i + 1}. Dead: ${runtimeLedger.deadCharacters.length}, Unavailable Objects: ${runtimeLedger.unavailableObjects.length}, Completed Events: ${runtimeLedger.completedEvents.length}`);
-    }
 
     accumulatedProse = [accumulatedProse, sceneProse]
       .filter(Boolean)

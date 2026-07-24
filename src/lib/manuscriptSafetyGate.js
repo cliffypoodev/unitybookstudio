@@ -498,6 +498,17 @@ export function runManuscriptSafetyGate(text, options = {}) {
   const contamination = detectProjectContamination(text, options);
   const malformed = detectMalformedGrammar(text);
 
+  if (text.includes('<<<SCENE_BOUNDARY>>>')) {
+    return {
+      ok: false,
+      recommendedAction: 'REJECT_REGENERATE',
+      reasons: ['CRITICAL internal scene boundary sentinel leakage detected (<<<SCENE_BOUNDARY>>>).'],
+      processLeaks: { hasLeak: true, matches: [{ phrase: '<<<SCENE_BOUNDARY>>>', severity: 'critical' }] },
+      contamination,
+      malformed,
+    };
+  }
+
   const reasons = [];
   let recommendedAction = 'PASS';
 

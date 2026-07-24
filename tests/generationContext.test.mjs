@@ -217,10 +217,10 @@ if (!skipWiring) await test('production wiring is fail-closed across planning, b
 
   assert.match(studio, /loadGenerationSnapshot\s*\(/);
   assert.match(studio, /validateSceneBeatContracts\s*\(/);
+  assert.match(studio, /shouldBlockEmergencySave\(draftError\)/);
   assert.match(studio, /SCENE_CONTRACT_OVERLAP_UNRESOLVED/);
   assert.match(studio, /revisionFeedback:\s*retryFeedback/);
   assert.match(studio, /NARRATIVE_CONTRACT_UNRESOLVED/);
-  assert.match(studio, /draftError\?\.narrativeContract/);
   assert.match(studio, /fiction-scene-contract-v1/);
   assert.match(writer, /SCENE_DUPLICATE_UNRESOLVED/);
   assert.doesNotMatch(writer, /duplicate repair still looked unsafe; keeping original but flagging/);

@@ -183,13 +183,26 @@ test('runtime ledger blocks all evidence is gone if objects remain', () => {
   assert.ok(audit.issues.some((i) => i.code === 'EVIDENCE_AVAILABILITY_VIOLATION'));
 });
 
-test('auditChapterLedgerContinuity throws if segments do not match', () => {
-  const chapterContent = 'Scene 1\n\n<<<SCENE_BOUNDARY>>>\n\nScene 2';
-  const generatedScenes = [ { spec: {} }, { spec: {} }, { spec: {} } ]; // 3 scenes expected, 2 segments found
+test('runtime ledger blocks separated characters from interacting', () => {
+  let ledger = buildInitialLedger();
+  ledger = extractSceneLedgerUpdates(ledger, 'Marcus climbs away from the group.', { exit_state: '' });
+  
+  const audit = auditSceneAgainstLedger({
+    prose: 'Marcus and Lena walk down the hall together.',
+    runtimeLedger: ledger
+  });
+  
+  assert.equal(audit.ok, false);
+  assert.ok(audit.issues.some((i) => i.code === 'CHARACTER_SEPARATION_VIOLATION'));
+});
+
+test('auditChapterLedgerContinuity throws if scenes do not match', () => {
+  const generatedScenes = [ { spec: {} }, { spec: {} }, { spec: {} } ]; 
+  const cleanedScenes = [ 'Scene 1', 'Scene 2' ];
   
   let didThrow = false;
   try {
-    auditChapterLedgerContinuity(chapterContent, generatedScenes, buildInitialLedger, extractSceneLedgerUpdates);
+    auditChapterLedgerContinuity({ generatedScenes, cleanedScenes }, buildInitialLedger, extractSceneLedgerUpdates);
   } catch (e) {
     didThrow = true;
     assert.equal(e.code, 'FINAL_CHAPTER_CONTINUITY_AUDIT_UNAVAILABLE');
@@ -197,12 +210,15 @@ test('auditChapterLedgerContinuity throws if segments do not match', () => {
   assert.equal(didThrow, true);
 });
 
-test('auditChapterLedgerContinuity replaces boundary with asterisks on success', () => {
-  const chapterContent = 'Scene 1\n\n<<<SCENE_BOUNDARY>>>\n\nScene 2';
+test('auditChapterLedgerContinuity succeeds on match', () => {
   const generatedScenes = [ { spec: {} }, { spec: {} } ]; 
+  const cleanedScenes = [ 'Scene 1', 'Scene 2' ];
   
-  const result = auditChapterLedgerContinuity(chapterContent, generatedScenes, buildInitialLedger, extractSceneLedgerUpdates);
-  assert.equal(result, 'Scene 1\n\n* * *\n\nScene 2');
+  let didThrow = false;
+  try {
+    auditChapterLedgerContinuity({ generatedScenes, cleanedScenes }, buildInitialLedger, extractSceneLedgerUpdates);
+  } catch (e) { didThrow = true; }
+  assert.equal(didThrow, false);
 });
 
 console.log(`\nNARRATIVE CONTRACT REGRESSION: ${passed} passed, 0 failed\n`);

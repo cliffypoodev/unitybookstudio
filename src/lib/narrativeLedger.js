@@ -10,6 +10,7 @@ export function buildInitialLedger() {
     unavailableObjects: [],
     possessions: {},
     droppedObjects: [],
+    separatedCharacters: [],
   };
 }
 
@@ -43,9 +44,8 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
     }
   }
 
-  // 3. Generic deterministic death extraction
-  // Look for exact names + "is dead" or "died" in the exit_state and required_events
-  const stateStrings = [...requiredEvents, spec?.exit_state || ''];
+  // Look for exact names + "is dead" or "died" in the exit_state, required_events, AND prose itself
+  const stateStrings = [...requiredEvents, spec?.exit_state || '', sceneProse || ''];
   for (const str of stateStrings) {
     if (!str) continue;
     
@@ -58,10 +58,11 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
       }
     }
 
-    // Simplistic but safe deterministic object destruction match
     const destroyedMatch = str.match(/\b(?:the\s+)?([a-z\s]+)\s+(?:is|was)\s+(?:destroyed|shattered|crushed|burned)\b/i);
     if (destroyedMatch) {
-      const objName = destroyedMatch[1].trim().toLowerCase();
+      const objNameRaw = destroyedMatch[1].trim().toLowerCase();
+      // Remove trailing punctuation from object name
+      const objName = objNameRaw.replace(/[.,:;!?]+$/, '');
       // Ignore common verbs/adjectives mistaken for objects
       if (objName.length > 2 && objName.length < 25 && !['it', 'he', 'she', 'they', 'everything', 'nothing'].includes(objName)) {
         if (!ledger.unavailableObjects.includes(objName)) {
@@ -78,7 +79,8 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
     // Possession: Gives X to Y
     const givesMatch = str.match(/\b(?:gives|hands|passes)\s+(?:the\s+)?([a-z\s]+)\s+to\s+([A-Z][a-z]+)\b/);
     if (givesMatch) {
-      const objName = givesMatch[1].trim().toLowerCase();
+      const objNameRaw = givesMatch[1].trim().toLowerCase();
+      const objName = objNameRaw.replace(/[.,:;!?]+$/, '');
       const receiver = givesMatch[2];
       if (objName.length > 2 && objName.length < 25) {
         if (!ledger.possessions[receiver]) ledger.possessions[receiver] = [];
@@ -88,10 +90,11 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
     }
 
     // Possession: X takes/grabs Y
-    const takesMatch = str.match(/\b([A-Z][a-z]+)\s+(?:takes|grabs|picks up|retrieves)\s+(?:the\s+)?([a-z\s]+)\b/);
+    const takesMatch = str.match(/\b([A-Z][a-z]+)\s+(?:takes|grabs|picks up|retrieves|pockets|snatches)\s+(?:the\s+)?([a-z\s]+)\b/);
     if (takesMatch) {
       const taker = takesMatch[1];
-      const objName = takesMatch[2].trim().toLowerCase();
+      const objNameRaw = takesMatch[2].trim().toLowerCase();
+      const objName = objNameRaw.replace(/[.,:;!?]+$/, '');
       if (objName.length > 2 && objName.length < 25) {
         if (!ledger.possessions[taker]) ledger.possessions[taker] = [];
         if (!ledger.possessions[taker].includes(objName)) ledger.possessions[taker].push(objName);
@@ -102,13 +105,30 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
     // Dropped: placed X on Y, drops X
     const dropMatch = str.match(/\b(?:places|drops|leaves)\s+(?:the\s+)?([a-z\s]+)\s+(?:on|in|at)\b/);
     if (dropMatch) {
-      const objName = dropMatch[1].trim().toLowerCase();
+      const objNameRaw = dropMatch[1].trim().toLowerCase();
+      const objName = objNameRaw.replace(/[.,:;!?]+$/, '');
       if (objName.length > 2 && objName.length < 25) {
         if (!ledger.droppedObjects.includes(objName)) ledger.droppedObjects.push(objName);
         for (const c in ledger.possessions) {
           ledger.possessions[c] = ledger.possessions[c].filter(o => o !== objName);
         }
       }
+    }
+
+    // Character separation: climbs away, leaves alone, escapes
+    const separationMatch = str.match(/\b([A-Z][a-z]+)\s+(?:climbs away|leaves alone|leaves without|runs away|escapes|is separated)\b/i);
+    if (separationMatch) {
+      const character = separationMatch[1];
+      if (!ledger.separatedCharacters.includes(character)) {
+        ledger.separatedCharacters.push(character);
+      }
+    }
+    
+    // Character reunion
+    const reunionMatch = str.match(/\b([A-Z][a-z]+)\s+(?:reunites with|finds|returns to|meets back up with)\b/i);
+    if (reunionMatch) {
+      const character = reunionMatch[1];
+      ledger.separatedCharacters = ledger.separatedCharacters.filter(c => c !== character);
     }
   }
 
