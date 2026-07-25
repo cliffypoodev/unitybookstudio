@@ -3164,22 +3164,108 @@ Return structured JSON:
 
         if (isNonfiction) break;
 
-        const parsedUnits = extractSceneBeatUnitsForValidation(beatResult);
+        // 1. CAPTURE RAW ARCHITECT STRUCTURE BEFORE EXTRACTION
+        const rawContainer = Array.isArray(beatResult) ? beatResult : (beatResult?.beats || beatResult?.scenes || beatResult?.sections || []);
+        const rawCount = rawContainer.length;
+        const rawIndexes = [];
+        const rawSceneNumbers = [];
+        const rawSceneIds = [];
+        const invalidIndexes = [];
+        const invalidReasons = [];
+
+        for (let i = 0; i < rawContainer.length; i++) {
+          const el = rawContainer[i];
+          rawIndexes.push(i);
+          const sNum = Number(el?.scene_number || el?.sceneNumber || 0);
+          if (sNum > 0) rawSceneNumbers.push(sNum);
+          
+          const sId = el?.scene_id || el?.id || `?`; // if undefined, preserve length
+          if (sId !== '?') rawSceneIds.push(sId);
+
+          const reasons = [];
+          if (!el || typeof el !== 'object') reasons.push('Element is not an object');
+          else {
+            if (!sNum) reasons.push('Missing scene_number');
+            if (sId === '?') reasons.push('Missing scene_id');
+            if (!el.required_events || !Array.isArray(el.required_events)) reasons.push('Missing required_events array');
+          }
+
+          if (reasons.length > 0) {
+            invalidIndexes.push(i);
+            invalidReasons.push(reasons.join(', '));
+          }
+        }
+
+        console.log(`[BEAT-PIPELINE-RAW]
+rawCount=${rawCount}
+rawIndexes=${JSON.stringify(rawIndexes)}
+rawSceneNumbers=${JSON.stringify(rawSceneNumbers)}
+rawSceneIds=${JSON.stringify(rawSceneIds)}
+invalidIndexes=${JSON.stringify(invalidIndexes)}
+invalidReasons=${JSON.stringify(invalidReasons)}`);
+
+        // 2. DETECT NUMBER GAPS
+        const expectedCountForGapCheck = rawSceneNumbers.length > 0 ? Math.max(...rawSceneNumbers) : rawCount;
+        const expectedSequence = Array.from({ length: expectedCountForGapCheck }, (_, i) => i + 1);
+        
+        if (JSON.stringify(rawSceneNumbers) !== JSON.stringify(expectedSequence) && expectedCountForGapCheck > 1) {
+          const missingSceneNumbers = expectedSequence.filter(n => !rawSceneNumbers.includes(n));
+          throw new NarrativeInvariantError(`SCENE_SEQUENCE_GAP: Expected sequence ${JSON.stringify(expectedSequence)}, got ${JSON.stringify(rawSceneNumbers)}`, {
+            code: 'SCENE_SEQUENCE_GAP',
+            expectedSequence,
+            actualSequence: rawSceneNumbers,
+            missingSceneNumbers,
+            failureStage: 'architect-raw'
+          });
+        }
+
+        if (invalidIndexes.length > 0) {
+          throw new NarrativeInvariantError(`SCENE_MALFORMED_IN_PIPELINE: Element at index ${invalidIndexes[0]} is malformed`, {
+            code: 'SCENE_MALFORMED_IN_PIPELINE',
+            malformedIndex: invalidIndexes[0],
+            expectedSceneNumber: invalidIndexes[0] + 1,
+            validationReasons: invalidReasons
+          });
+        }
+
+        // 3. ESTABLISH PROVENANCE FROM RAW ARRAY POSITIONS
         if (!beatResult.pipeline_contract) {
           beatResult.pipeline_contract = {
-            expected_scene_count: parsedUnits.length,
-            expected_scene_ids: parsedUnits.map(b => b?.scene_id).filter(Boolean),
-            expected_scene_numbers: parsedUnits.map(b => Number(b?.scene_number || b?.sceneNumber || 0)).filter(n => n > 0),
-            source_stage: 'architect-parsed'
+            raw_scene_count: rawCount,
+            expected_scene_count: rawCount,
+            expected_scene_ids: rawSceneIds,
+            expected_scene_numbers: rawSceneNumbers,
+            raw_indexes: rawIndexes,
+            source_stage: 'architect-raw'
           };
         }
+
+        // 4. COMPARE RAW AGAINST EXTRACTED UNITS
+        const parsedUnits = extractSceneBeatUnitsForValidation(beatResult);
+        
+        const extractedCount = parsedUnits.length;
+        const extractedNumbers = parsedUnits.map(b => Number(b?.scene_number || b?.sceneNumber || 0)).filter(n => n > 0);
+        const extractedIds = parsedUnits.map(b => b?.scene_id || b?.id).filter(Boolean);
+
+        if (rawCount !== extractedCount || JSON.stringify(rawSceneNumbers) !== JSON.stringify(extractedNumbers) || JSON.stringify(rawSceneIds) !== JSON.stringify(extractedIds)) {
+          throw new NarrativeInvariantError(`Loss detected during extractSceneBeatUnitsForValidation`, {
+            code: 'SCENE_LOST_IN_PIPELINE',
+            expectedSceneIds: rawSceneIds,
+            actualSceneIds: extractedIds,
+            missingSceneIds: rawSceneIds.filter(id => !extractedIds.includes(id)),
+            failureStage: 'scene-unit-extraction'
+          });
+        }
+
         verifySceneProvenance(parsedUnits, beatResult.pipeline_contract, 'architect-parsed');
+        verifyContiguousSceneSequence(parsedUnits, beatResult.pipeline_contract.expected_scene_count, 'architect-parsed');
 
         validateSceneBeatContracts(beatResult || {}, {
           chapterNumber: chapter.chapter_number,
         });
         const proposedBeats = Array.isArray(beatResult?.beats) ? beatResult.beats : [];
         verifySceneProvenance(proposedBeats, beatResult.pipeline_contract, 'before-normalization');
+        verifyContiguousSceneSequence(proposedBeats, beatResult.pipeline_contract.expected_scene_count, 'before-normalization');
         const overlapReport = normalizeSceneBeatsForDrafting(proposedBeats, {
           isNonfiction: false,
           chapterNumber: chapter.chapter_number,
@@ -3196,14 +3282,16 @@ Return structured JSON:
         const originalCount = proposedBeats.length;
         const newCount = normalizedBeatPlan.length;
         if (newCount < originalCount && (!overlapReport.merged || overlapReport.merged < (originalCount - newCount))) {
-          const warning = `Refusing to accept normalized beat contract for Ch.${chapter.chapter_number}: ${originalCount} → ${newCount} scenes without sufficient merge records. Loss detected.`;
-          console.warn(`[BEAT-PIPELINE] ${warning}`);
-          overlapReport.warnings.push(warning);
+          throw new NarrativeInvariantError(`Refusing to accept normalized beat contract for Ch.${chapter.chapter_number}: ${originalCount} → ${newCount} scenes without sufficient merge records. Loss detected.`, {
+            code: 'SCENE_LOST_IN_PIPELINE',
+            failureStage: 'after-normalization'
+          });
         } else {
           console.log(`[BEAT-PIPELINE] Accepting normalized beat contract for Ch.${chapter.chapter_number}: ${originalCount} → ${newCount} distinct scenes.`);
         }
 
         verifySceneProvenance(normalizedBeatPlan, beatResult.pipeline_contract, 'after-normalization');
+        verifyContiguousSceneSequence(normalizedBeatPlan, beatResult.pipeline_contract.expected_scene_count, 'after-normalization');
 
         if (!overlapReport.changed) break;
 

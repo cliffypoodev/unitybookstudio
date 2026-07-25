@@ -1,4 +1,4 @@
-import { verifySceneProvenance, NarrativeInvariantError } from '../src/lib/generationContext.js';
+import { verifySceneProvenance, NarrativeInvariantError, captureRawArchitectProvenance } from '../src/lib/generationContext.js';
 import assert from 'node:assert/strict';
 import { generateChapterSceneByScene } from '../src/lib/sceneWriter.js';
 import * as sceneBeatNormalizer from '../src/lib/sceneBeatNormalizer.js';
@@ -23,7 +23,6 @@ async function runAll() {
 
   const mockProject = { book_type: 'fiction', title: 'Test Project' };
   const mockChapter = { chapter_number: 5, title: 'The Archive', scene_beats_json: '[]' };
-
 
   await test('32. Scene 2 trace test: Silent loss correctly throws SCENE_LOST_IN_PIPELINE', async () => {
     const chapterWithSilentLoss = {
@@ -104,7 +103,6 @@ async function runAll() {
       { scene_number: 2, scene_id: 'ch05-s02', scene_goal: '2', entry_state: 'key intact.', exit_state: '2', location: '2', characters: [], emotional_beat: '2', required_events: ['A confrontation happens.'] }
     ];
     
-    // Validate schema correctly so validation passes, but repair fails.
     const brokenScenes = new Proxy(overlappingScenes, {
       get(target, prop) {
         if (prop === 'filter') {
@@ -123,12 +121,6 @@ async function runAll() {
       assert.equal(err.message, 'Mock repair failure during filtering');
     }
   });
-
-  console.log(`\\n${passes}/${tests} passed.`);
-  if (passes !== tests) process.exit(1);
-}
-
-runAll();
 
   await test('37. Positive end-to-end ID test', async () => {
     const chapterValid = {
@@ -158,8 +150,6 @@ runAll();
     verifySceneProvenance(chapterValid.scenes, chapterValid.scene_beats_json.pipeline_contract, 'after-normalization');
     verifySceneProvenance(chapterValid.scenes, chapterValid.scene_beats_json.pipeline_contract, 'before-compact-save');
     verifySceneProvenance(chapterValid.scenes, chapterValid.scene_beats_json.pipeline_contract, 'writer-parse');
-
-    
   });
 
   await test('38. ProjectStudio Helper Guard', async () => {
@@ -185,3 +175,48 @@ runAll();
       }
     }
   });
+
+    await test('39. Raw extraction loss', async () => {
+    const rawArchitectResult = {
+      beats: [
+        { scene_number: 1, scene_id: "ch05-s01", required_events: ['One'] },
+        { scene_number: 2, scene_id: "ch05-s02" }, // malformed shape
+        { scene_number: 3, scene_id: "ch05-s03", required_events: ['Three'] }
+      ]
+    };
+    try {
+      captureRawArchitectProvenance(rawArchitectResult);
+      throw new Error('Test 39 Failed: Did not detect malformed element');
+    } catch (err) {
+      if (err.name === 'NarrativeInvariantError' && err.code === 'SCENE_MALFORMED_IN_PIPELINE' && err.malformedIndex === 1) {
+        // Success
+      } else {
+        throw err;
+      }
+    }
+  });
+
+  await test('40. Raw sequence gap test', async () => {
+    const rawArchitectResult = {
+      beats: [
+        { scene_number: 1, scene_id: "ch05-s01", required_events: ['One'] },
+        { scene_number: 3, scene_id: "ch05-s03", required_events: ['Three'] }
+      ]
+    };
+    try {
+      captureRawArchitectProvenance(rawArchitectResult);
+      throw new Error('Test 40 Failed: Did not detect sequence gap');
+    } catch (err) {
+      if (err.name === 'NarrativeInvariantError' && err.code === 'SCENE_SEQUENCE_GAP' && err.missingSceneNumbers.includes(2)) {
+        // Success
+      } else {
+        throw err;
+      }
+    }
+  });
+
+  console.log(`\n${passes}/${tests} passed.`);
+  if (passes !== tests) process.exit(1);
+}
+
+await runAll();

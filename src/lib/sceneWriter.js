@@ -12,7 +12,7 @@
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
 import { buildProjectContextHeader, unwrapIntegrationResult, countWords, buildAuthorVoiceInstruction } from '@/lib/autonovel';
-import { verifySceneProvenance } from '@/lib/generationContext';
+import { verifySceneProvenance, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { isNonfictionProject } from '@/lib/manuscriptStats';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildPovTenseBlock } from '@/lib/povTense';
@@ -2712,6 +2712,7 @@ export async function generateChapterSceneByScene({
   const parsedJson = typeof chapter?.scene_beats_json === 'string' ? JSON.parse(chapter.scene_beats_json) : (chapter?.scene_beats_json || {});
   if (parsedJson?.pipeline_contract && !isNF) {
     verifySceneProvenance(parsedScenes, parsedJson.pipeline_contract, 'writer-parse');
+    verifyContiguousSceneSequence(parsedScenes, parsedJson.pipeline_contract.expected_scene_count, 'writer-parse');
   }
 
   // Determine expected count to catch silent loss before normalization

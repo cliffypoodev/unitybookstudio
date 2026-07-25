@@ -475,3 +475,94 @@ export async function loadGenerationSnapshot({
     chapter,
   });
 }
+
+
+export function verifyContiguousSceneSequence(beats, expectedCount, stage) {
+  const actualNumbers = (Array.isArray(beats) ? beats : []).map(b => Number(b?.scene_number || b?.sceneNumber || 0)).filter(n => n > 0);
+  const expectedSequence = Array.from({ length: expectedCount }, (_, i) => i + 1);
+  
+  if (JSON.stringify(actualNumbers) !== JSON.stringify(expectedSequence)) {
+    const missingSceneNumbers = expectedSequence.filter(n => !actualNumbers.includes(n));
+    throw new NarrativeInvariantError(`Scene sequence gap detected at ${stage}: Expected [${expectedSequence.join(', ')}], got [${actualNumbers.join(', ')}]`, {
+      code: 'SCENE_SEQUENCE_GAP',
+      expectedSequence,
+      actualSequence: actualNumbers,
+      missingSceneNumbers,
+      failureStage: stage
+    });
+  }
+}
+
+
+export function captureRawArchitectProvenance(beatResult) {
+  const rawContainer = Array.isArray(beatResult) ? beatResult : (beatResult?.beats || beatResult?.scenes || beatResult?.sections || []);
+  const rawCount = rawContainer.length;
+  const rawIndexes = [];
+  const rawSceneNumbers = [];
+  const rawSceneIds = [];
+  const invalidIndexes = [];
+  const invalidReasons = [];
+
+  for (let i = 0; i < rawContainer.length; i++) {
+    const el = rawContainer[i];
+    rawIndexes.push(i);
+    const sNum = Number(el?.scene_number || el?.sceneNumber || 0);
+    if (sNum > 0) rawSceneNumbers.push(sNum);
+    
+    const sId = el?.scene_id || el?.id || '?';
+    if (sId !== '?') rawSceneIds.push(sId);
+
+    const reasons = [];
+    if (!el || typeof el !== 'object') reasons.push('Element is not an object');
+    else {
+      if (!sNum) reasons.push('Missing scene_number');
+      if (sId === '?') reasons.push('Missing scene_id');
+      if (!el.required_events || !Array.isArray(el.required_events)) reasons.push('Missing required_events array');
+    }
+
+    if (reasons.length > 0) {
+      invalidIndexes.push(i);
+      invalidReasons.push(reasons.join(', '));
+    }
+  }
+
+  console.log(`[BEAT-PIPELINE-RAW]
+rawCount=${rawCount}
+rawIndexes=${JSON.stringify(rawIndexes)}
+rawSceneNumbers=${JSON.stringify(rawSceneNumbers)}
+rawSceneIds=${JSON.stringify(rawSceneIds)}
+invalidIndexes=${JSON.stringify(invalidIndexes)}
+invalidReasons=${JSON.stringify(invalidReasons)}`);
+
+  const expectedCountForGapCheck = rawSceneNumbers.length > 0 ? Math.max(...rawSceneNumbers) : rawCount;
+  const expectedSequence = Array.from({ length: expectedCountForGapCheck }, (_, i) => i + 1);
+  
+  if (JSON.stringify(rawSceneNumbers) !== JSON.stringify(expectedSequence) && expectedCountForGapCheck > 1) {
+    const missingSceneNumbers = expectedSequence.filter(n => !rawSceneNumbers.includes(n));
+    throw new NarrativeInvariantError(`SCENE_SEQUENCE_GAP: Expected sequence ${JSON.stringify(expectedSequence)}, got ${JSON.stringify(rawSceneNumbers)}`, {
+      code: 'SCENE_SEQUENCE_GAP',
+      expectedSequence,
+      actualSequence: rawSceneNumbers,
+      missingSceneNumbers,
+      failureStage: 'architect-raw'
+    });
+  }
+
+  if (invalidIndexes.length > 0) {
+    throw new NarrativeInvariantError(`SCENE_MALFORMED_IN_PIPELINE: Element at index ${invalidIndexes[0]} is malformed`, {
+      code: 'SCENE_MALFORMED_IN_PIPELINE',
+      malformedIndex: invalidIndexes[0],
+      expectedSceneNumber: invalidIndexes[0] + 1,
+      validationReasons: invalidReasons
+    });
+  }
+
+  return {
+    raw_scene_count: rawCount,
+    expected_scene_count: rawCount,
+    expected_scene_ids: rawSceneIds,
+    expected_scene_numbers: rawSceneNumbers,
+    raw_indexes: rawIndexes,
+    source_stage: 'architect-raw'
+  };
+}
