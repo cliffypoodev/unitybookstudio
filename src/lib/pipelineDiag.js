@@ -125,11 +125,66 @@ function listChapters() {
   return [...snapshots.keys()];
 }
 
+const replayDiagnostics = [];
+
+function captureReplayDiagnostic(record) {
+  try {
+    const isNode = typeof process !== 'undefined' && process.env;
+    const isViteDev = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV;
+    const isDev = (isNode && process.env.NODE_ENV !== 'production') || isViteDev;
+    if (!isDev) return;
+
+    const runId = Math.random().toString(36).substring(2, 10);
+    const timestamp = new Date().toISOString();
+    const entry = { runId, timestamp, ...record };
+
+    if (typeof window !== 'undefined') {
+      replayDiagnostics.push(entry);
+      console.log('[PIPELINE-DIAG] Captured replay diagnostic. Call __UBS_PIPELINE.exportReplayDiagnostics() to download.');
+    } else if (typeof process !== 'undefined') {
+      import('node:fs').then(fs => {
+        import('node:path').then(path => {
+          const diagDir = path.join(process.cwd(), 'diagnostics', 'replay');
+          if (!fs.existsSync(diagDir)) fs.mkdirSync(diagDir, { recursive: true });
+          fs.writeFileSync(
+            path.join(diagDir, `replay-diagnostic-${timestamp.replace(/:/g, '-')}-${runId}.json`),
+            JSON.stringify(entry, null, 2),
+            'utf8'
+          );
+        });
+      }).catch(err => {
+        console.error('Failed to write diagnostic in Node environment', err);
+      });
+    }
+  } catch (err) {
+    console.error('Diagnostic capture failed (ignored):', err);
+  }
+}
+
+function exportReplayDiagnostics() {
+  if (typeof window === 'undefined') return;
+  if (!replayDiagnostics.length) {
+    console.log('[PIPELINE-DIAG] No replay diagnostics to export.');
+    return;
+  }
+  const data = JSON.stringify(replayDiagnostics, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `replay-diagnostics-${new Date().getTime()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+
 // Expose globally
 if (typeof window !== 'undefined') {
-  window.__UBS_PIPELINE = { snapshot, report, diff, getStageText, clear, listChapters, snapshots };
+  window.__UBS_PIPELINE = { snapshot, report, diff, getStageText, clear, listChapters, snapshots, captureReplayDiagnostic, exportReplayDiagnostics };
 } else if (typeof global !== 'undefined') {
-  global.__UBS_PIPELINE = { snapshot, report, diff, getStageText, clear, listChapters, snapshots };
+  global.__UBS_PIPELINE = { snapshot, report, diff, getStageText, clear, listChapters, snapshots, captureReplayDiagnostic, exportReplayDiagnostics };
 }
-export { snapshot };
-export default { snapshot };
+export { snapshot, captureReplayDiagnostic, exportReplayDiagnostics };
+export default { snapshot, captureReplayDiagnostic, exportReplayDiagnostics };

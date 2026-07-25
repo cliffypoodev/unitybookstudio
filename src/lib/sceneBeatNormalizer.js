@@ -1073,6 +1073,7 @@ export function buildFutureBoundaryRepairPrompt(prose, spec, violations) {
 export function validateGeneratedSceneReplay(sceneProse, priorScenes) {
   const proseSig = extractProseEventSignatures(sceneProse);
   const replays = [];
+  const detailedMatches = [];
 
   for (const prior of priorScenes) {
     if (!prior.acceptedProse) continue;
@@ -1086,11 +1087,27 @@ export function validateGeneratedSceneReplay(sceneProse, priorScenes) {
         
         if (sharedNames.length > 0 || sharedObjects.length > 0) {
           replays.push(`Repeated ${func} involving ${sharedNames[0] || 'no name'} and ${sharedObjects[0] || 'no object'}`);
+          detailedMatches.push({
+            priorSceneId: prior.scene_id || null,
+            priorSceneNumber: prior.sceneNumber || null,
+            matchedFunction: func,
+            matchedName: sharedNames[0] || null,
+            matchedObject: sharedObjects[0] || null,
+            rule: 'shared_function_with_name_or_object',
+            priorContract: { ...prior, acceptedProse: undefined },
+            priorAcceptedProse: prior.acceptedProse,
+            priorSignatures: priorSig
+          });
         }
       }
     }
   }
-  return { ok: replays.length === 0, replays: Array.from(new Set(replays)) };
+  return { 
+    ok: replays.length === 0, 
+    replays: Array.from(new Set(replays)),
+    detailedMatches,
+    currentSignatures: proseSig
+  };
 }
 
 export { extractEventSignature };

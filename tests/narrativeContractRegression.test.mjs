@@ -399,7 +399,7 @@ test('3. "confronts" and "escapes" classify as different functions', () => {
   assert.ok(classifyStoryFunction({ required_events: ['Lena escapes the archive.'] }).has('escape'));
 });
 
-test('4. Two true alternate drafts of the same archive-opening event merge', () => {
+test('4. Two true alternate drafts of the same archive-opening event DO NOT merge for fiction', () => {
   const scene1 = {
     scene_number: 1,
     required_events: ['Lena inserts the brass key and opens the archive.'],
@@ -411,8 +411,8 @@ test('4. Two true alternate drafts of the same archive-opening event merge', () 
     scene_goal: 'Archive access'
   };
   const report = normalizeSceneBeatsForDrafting([scene1, scene2], { isNonfiction: false, chapterNumber: 1 });
-  // They are same category (other), same character (Lena), same object (key/archive). They should merge.
-  assert.equal(report.beats.length, 1);
+  // Fiction scenes no longer merge due to commit 90671e96
+  assert.equal(report.beats.length, 2);
 });
 
 test('5. Retrieval and destruction of the same key do not merge', () => {

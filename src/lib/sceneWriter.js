@@ -17,7 +17,7 @@ import { isNonfictionProject } from '@/lib/manuscriptStats';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { buildPovTenseBlock } from '@/lib/povTense';
 import { cleanGeneratedProse } from '@/lib/proseQuality';
-import { snapshot as pipelineSnapshot } from '@/lib/pipelineDiag';
+import { snapshot as pipelineSnapshot, captureReplayDiagnostic } from '@/lib/pipelineDiag';
 import { runDialogueMechanicsPass } from '@/lib/dialogueMechanicsRepair'; // DIALOGUEFIX-1
 import { scrubModelLeaks } from '@/lib/modelLeakGuard'; // LEAKFIX-1
 import { labelCompositeCharacters, fixFoiaAnachronisms, flagUnverifiedStats } from '@/lib/postClean';
@@ -3069,6 +3069,7 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
       let replayAudit = validateGeneratedSceneReplay(sceneProse, generatedScenes);
       if (!replayAudit.ok) {
         console.warn(`[SCENE-REPLAY-AUDIT] scene=${spec.sceneNumber || i + 1} priorReplayCount=${replayAudit.replays.length}`);
+        
         onProgress?.({
           stage: 'scene_contract_repair',
           sceneIndex: i,
@@ -3095,12 +3096,42 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
         });
 
         const repairedProse = lightCleanSceneOutput(repaired.prose);
-        replayAudit = validateGeneratedSceneReplay(repairedProse, generatedScenes);
+        const postRepairAudit = validateGeneratedSceneReplay(repairedProse, generatedScenes);
 
-        if (repairedProse && replayAudit.ok) {
+        // CAPTURE REPLAY DIAGNOSTICS FOR ALL MATCHES
+        for (const match of replayAudit.detailedMatches) {
+          captureReplayDiagnostic({
+            chapterId: chapter?.id,
+            chapterNumber: chapter?.chapterNumber || spec.chapter_number,
+            currentSceneId: spec.scene_id || null,
+            currentSceneNumber: spec.sceneNumber || i + 1,
+            priorSceneId: match.priorSceneId,
+            priorSceneNumber: match.priorSceneNumber,
+            currentContract: spec,
+            priorContract: match.priorContract,
+            currentRawProse: generated.prose,
+            currentCleanedProse: sceneProse,
+            priorAcceptedProse: match.priorAcceptedProse,
+            currentSignatures: replayAudit.currentSignatures,
+            priorSignatures: match.priorSignatures,
+            allMatchesReturned: replayAudit.replays,
+            matchedFunction: match.matchedFunction,
+            matchedName: match.matchedName,
+            matchedObject: match.matchedObject,
+            detectorRule: match.rule,
+            repairPrompt,
+            repairedRawProse: repaired.prose,
+            repairedCleanedProse: repairedProse,
+            replayMatchesAfterRepair: postRepairAudit.replays,
+            finalResult: postRepairAudit.ok ? 'PASS' : 'FAIL'
+          });
+        }
+
+        if (repairedProse && postRepairAudit.ok) {
           sceneProse = repairedProse;
           generated.repaired = true;
           generated.issues = [...(generated.issues || []), `Semantic replay repaired`];
+          replayAudit = postRepairAudit; // update so it passes
         } else {
           const replayError = new Error(
             `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: semantic replay survived repair.`
@@ -3112,6 +3143,7 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
           throw replayError;
         }
       }
+
     }
 
     if (!isNF) {
