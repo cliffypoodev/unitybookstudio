@@ -2857,6 +2857,13 @@ export async function generateChapterSceneByScene({
       future_reserved_events: futureScenes.flatMap((scene) =>
         Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
       ),
+      future_reserved_event_objects: futureScenes.flatMap((scene) =>
+        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean).map(ev => ({
+          event: ev,
+          sceneId: scene.scene_id,
+          sceneNumber: scene.scene_number || scene.sceneNumber
+        })) : []
+      ),
     };
     const isFirst = i === 0;
     const rawSceneTarget = Number(spec.targetWords || Math.floor(chapterTarget / normalizedScenes.length));
@@ -2998,12 +3005,22 @@ export async function generateChapterSceneByScene({
       let futureAudit = auditSceneFutureBoundaries(sceneProse, promptSpec);
       if (!futureAudit.ok) {
         console.warn(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} futureViolations=${futureAudit.violations.length}`);
+        futureAudit.violations.forEach((v, vIdx) => {
+          console.log(`[SCENE-BOUNDARY-VIOLATION]
+scene=${spec.scene_id || spec.sceneNumber || i + 1}
+futureScene=${v.sceneId || v.sceneNumber || 'unknown'}
+category=${v.category}
+futureEvent="${v.event}"
+excerpt="${v.excerpt}"
+sentenceIndex=${v.sentenceIndex}`);
+        });
+
         onProgress?.({
           stage: 'scene_contract_repair',
           sceneIndex: i,
           sceneNumber: spec.sceneNumber,
           totalScenes: normalizedScenes.length,
-          reason: 'Performed future events early: ' + futureAudit.violations.join(', ')
+          reason: 'Performed future events early: ' + futureAudit.violations.map(v => v.event).join(', ')
         });
 
         const repairPrompt = [
@@ -3026,10 +3043,14 @@ export async function generateChapterSceneByScene({
         const repairedProse = lightCleanSceneOutput(repaired.prose);
         futureAudit = auditSceneFutureBoundaries(repairedProse, promptSpec);
         
+        console.log(`[SCENE-BOUNDARY-REPAIR-RESULT]
+remainingCount=${futureAudit.violations.length}
+remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`);
+        
         if (repairedProse && futureAudit.ok) {
           sceneProse = repairedProse;
           generated.repaired = true;
-          generated.issues = [...(generated.issues || []), `Future boundary repaired: ${futureAudit.violations.join(', ')}`];
+          generated.issues = [...(generated.issues || []), `Future boundary repaired: ${futureAudit.violations.map(v => v.event).join(', ')}`];
         } else {
           const futureError = new Error(
             `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: future boundary violations survived repair.`

@@ -490,7 +490,7 @@ export function extractProseEventSignatures(prose) {
   const functions = [];
   if (hasStem(['discover', 'uncover', 'reveal'])) functions.push('revelation');
   if (hasStem(['confront', 'accuse', 'challenge'])) functions.push('confrontation');
-  if (hasStem(['destroy', 'break', 'discard', 'drop'])) functions.push('irreversible_object_loss');
+  if (hasStem(['destroy', 'break', 'discard', 'drop', 'snap', 'snapp', 'snapped'])) functions.push('irreversible_object_loss');
   if (hasStem(['escape', 'escapes', 'escap', 'exit', 'reach'])) functions.push('escape');
   if (hasStem(['retrieve', 'obtain', 'acquire'])) functions.push('acquisition');
   if (hasStem(['decide', 'refuse', 'forgive', 'reject', 'abandon', 'leave'])) functions.push('abandonment_refusal');
@@ -957,48 +957,80 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
 }
 
 export function auditSceneFutureBoundaries(sceneProse, spec) {
-  const proseSig = extractProseEventSignatures(sceneProse);
+  const sentences = String(sceneProse).split(/(?<=[.!?])\s+/);
   const violations = [];
   
-  for (const futureEvent of spec.future_reserved_events || []) {
-    const futureBeat = { required_events: [futureEvent] };
-    const futureFunc = classifyStoryFunction(futureBeat);
-    const futureSig = extractEventSignature(futureBeat);
-    
-    if (futureFunc.has('other')) continue;
+  const futureEvents = (spec.future_reserved_event_objects || (spec.future_reserved_events || []).map(e => ({ event: e, sceneId: 'unknown', sceneNumber: 'unknown' })));
 
-    const hasMatch = [...futureFunc].some(fn => proseSig.functions.includes(fn));
-    if (hasMatch) {
-      // Check if actors and objects overlap sufficiently - use specific signature comparison
-      const sameCharacter = futureSig.names.length > 0 && futureSig.names.some(n => proseSig.names.includes(n));
-      const sameObject = futureSig.objects.length > 0 && futureSig.objects.some(o => proseSig.objects.includes(o));
-      const sameTarget = futureSig.places.length > 0 && futureSig.places.some(p => proseSig.objects.includes(p));
-      const sameVerb = futureSig.verbs.length > 0 && futureSig.verbs.some(v => proseSig.functions.includes(v));
+  for (let sIdx = 0; sIdx < sentences.length; sIdx++) {
+    const sentence = sentences[sIdx];
+    const sLower = sentence.toLowerCase();
+    
+    // Add modality/tense-aware detection so planning, intention, fear, prediction, or hypothetical language is not treated as a completed future event.
+    if (sLower.match(/\b(would|could|should|might|may|intended to|planned to|thought about|decided|knew she|knew he|wondered|later|soon|perhaps|maybe)\b/)) {
+      continue;
+    }
+    
+    const sentenceSig = extractProseEventSignatures(sentence);
+    if (sentenceSig.functions.length === 0) continue;
+
+    for (const futureObj of futureEvents) {
+      const futureEvent = futureObj.event;
+      const futureBeat = { required_events: [futureEvent] };
+      const futureFunc = classifyStoryFunction(futureBeat);
+      const futureSig = extractEventSignature(futureBeat);
       
-      // If the future event specifies an object, the prose must act on that object.
-      // If the future event specifies a character, the prose must act on that character.
-      // We must require a matching action category plus matching relevant actor/object/target.
-      let objectMatch = futureSig.objects.length === 0 || sameObject || sameTarget;
-      let charMatch = futureSig.names.length === 0 || sameCharacter;
-      let verbMatch = futureSig.verbs.length === 0 || sameVerb || hasMatch;
-      
-      if (charMatch && objectMatch && verbMatch) {
-        violations.push(futureEvent);
+      if (futureFunc.has('other')) continue;
+
+      const hasMatch = [...futureFunc].some(fn => sentenceSig.functions.includes(fn));
+      if (hasMatch) {
+        // Match actors and objects
+        const sameCharacter = futureSig.names.length > 0 && futureSig.names.some(n => sentenceSig.names.includes(n));
+        const sameObject = futureSig.objects.length > 0 && futureSig.objects.some(o => sentenceSig.objects.includes(o));
+        // Use sentenceSig.objects for target matching as extractProseEventSignatures doesn't extract places yet
+        const sameTarget = futureSig.places.length > 0 && futureSig.places.some(p => sentenceSig.objects.includes(p));
+        const sameVerb = futureSig.verbs.length > 0 && futureSig.verbs.some(v => sentenceSig.functions.includes(v));
+        
+        let objectMatch = futureSig.objects.length === 0 || sameObject || sameTarget;
+        let charMatch = futureSig.names.length === 0 || sentenceSig.names.length === 0 || sameCharacter;
+        let verbMatch = futureSig.verbs.length === 0 || sameVerb || hasMatch;
+        
+        if (charMatch && objectMatch && verbMatch) {
+          violations.push({
+            event: futureEvent,
+            sceneId: futureObj.sceneId,
+            sceneNumber: futureObj.sceneNumber,
+            category: [...futureFunc].find(fn => sentenceSig.functions.includes(fn)) || 'unknown',
+            excerpt: sentence.trim(),
+            sentenceIndex: sIdx
+          });
+        }
       }
     }
   }
   
-  return { ok: violations.length === 0, violations };
+  const uniqueViolations = [];
+  const seenEvents = new Set();
+  for (const v of violations) {
+    if (!seenEvents.has(v.event)) {
+      seenEvents.add(v.event);
+      uniqueViolations.push(v);
+    }
+  }
+  
+  return { ok: uniqueViolations.length === 0, violations: uniqueViolations };
 }
 
 export function buildFutureBoundaryRepairPrompt(prose, spec, violations) {
   return [
     `The scene you just generated violates the narrative contract by performing events reserved for future scenes.`,
-    `The following events MUST NOT happen yet, but your prose performed them:`,
-    violations.map(v => `- ${v}`).join('\n'),
+    `The following offending excerpts were detected:`,
+    violations.map(v => `- "${v.excerpt}" (This performs the future event: "${v.event}" reserved for Scene ${v.sceneId || v.sceneNumber || 'unknown'})`).join('\n'),
     '',
-    `Rewrite the scene so that it strictly STOPS at the intended exit state: "${spec.exit_state || 'The scene ends.'}"`,
-    `Do not advance the plot beyond this point. Leave the future reserved events for later.`,
+    `Rewrite the scene to REMOVE or REWRITE these specific passages.`,
+    `Do NOT add replacement future events. Do NOT advance the plot beyond this point.`,
+    `Leave the future reserved events for later.`,
+    `Strictly STOP at the intended exit state: "${spec.exit_state || 'The scene ends.'}"`
   ].join('\n');
 }
 

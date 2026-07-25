@@ -16,7 +16,8 @@ import {
   validateGeneratedSceneReplay,
   validateRawBeatChronology,
   repairRawContract,
-  extractActionCategories
+  extractActionCategories,
+  buildFutureBoundaryRepairPrompt
 } from '../src/lib/sceneBeatNormalizer.js';
 import { buildInitialLedger, extractSceneLedgerUpdates } from '../src/lib/narrativeLedger.js';
 
@@ -481,7 +482,7 @@ test('13. Scene 1 fails when locking Marcus inside before confrontation', () => 
   const audit = auditSceneFutureBoundaries(prose, spec);
   assert.equal(audit.ok, false);
   // It shouldn't trigger confrontation, but it should trigger imprisonment
-  assert.ok(audit.violations.some(v => v.includes('seals Marcus')));
+  assert.ok(audit.violations.some(v => v.event.includes('seals Marcus')));
 });
 
 test('14. Scene 1 fails when surface escape starts early', () => {
@@ -860,4 +861,47 @@ test('34. Evidence confrontation before evidence revelation fails chronology gua
   assert.throws(() => {
     validateRawBeatChronology([scene1, scene2]);
   }, /Chronology Error: Evidence revelation must precede evidence-based confrontation/);
+});
+
+test('35. Future boundary allows intent: "Lena decided she would confront Marcus."', () => {
+  const prose = "Lena decided she would confront Marcus.";
+  const spec = { future_reserved_events: ['Lena confronts Marcus.'] };
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, true);
+});
+
+test('36. Future boundary flags completion: "Lena confronted Marcus with the logs."', () => {
+  const prose = "Lena confronted Marcus with the logs.";
+  const spec = { future_reserved_events: ['Lena confronts Marcus.'] };
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, false);
+  assert.equal(audit.violations[0].event, 'Lena confronts Marcus.');
+});
+
+test('37. Future boundary allows intent: "She knew she might have to destroy the key."', () => {
+  const prose = "She knew she might have to destroy the key.";
+  const spec = { future_reserved_events: ['Lena destroys the brass key.'] };
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, true);
+});
+
+test('38. Future boundary flags completion: "She snapped the brass key in half."', () => {
+  const prose = "She snapped the brass key in half.";
+  const spec = { future_reserved_events: ['Lena destroys the brass key.'] };
+  const audit = auditSceneFutureBoundaries(prose, spec);
+  assert.equal(audit.ok, false);
+  assert.equal(audit.violations[0].event, 'Lena destroys the brass key.');
+});
+
+test('39. Repair prompt receives exact offending excerpts', () => {
+  const spec = { exit_state: "The scene ends here." };
+  const violations = [
+    { event: "Lena confronts Marcus.", sceneId: "ch05-s02", excerpt: "Lena confronted Marcus." },
+    { event: "Lena destroys the brass key.", sceneId: "ch05-s03", excerpt: "She snapped the brass key in half." }
+  ];
+  const prompt = buildFutureBoundaryRepairPrompt("fake prose", spec, violations);
+  assert.match(prompt, /offending excerpts were detected/);
+  assert.match(prompt, /"Lena confronted Marcus\." \(This performs the future event: "Lena confronts Marcus\." reserved for Scene ch05-s02\)/);
+  assert.match(prompt, /"She snapped the brass key in half\." \(This performs the future event: "Lena destroys the brass key\." reserved for Scene ch05-s03\)/);
+  assert.match(prompt, /REMOVE or REWRITE these specific passages/);
 });
