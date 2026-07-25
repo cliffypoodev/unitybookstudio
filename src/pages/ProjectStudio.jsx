@@ -3288,6 +3288,12 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
           });
         } else {
           console.log(`[BEAT-PIPELINE] Accepting normalized beat contract for Ch.${chapter.chapter_number}: ${originalCount} → ${newCount} distinct scenes.`);
+          if (newCount < originalCount && beatResult.pipeline_contract) {
+             console.log('[BEAT-PIPELINE] Updating pipeline contract to reflect proven scene merge.');
+             beatResult.pipeline_contract.expected_scene_count = newCount;
+             beatResult.pipeline_contract.expected_scene_ids = normalizedBeatPlan.map(b => b.scene_id || b.id).filter(Boolean);
+             beatResult.pipeline_contract.expected_scene_numbers = normalizedBeatPlan.map(b => Number(b.scene_number || b.sceneNumber || 0)).filter(n => n > 0);
+          }
         }
 
         verifySceneProvenance(normalizedBeatPlan, beatResult.pipeline_contract, 'after-normalization');
