@@ -2756,33 +2756,28 @@ export async function generateChapterSceneByScene({
   });
 
   if (expectedCount > 0 && beatPreflight.finalCount < expectedCount) {
-    if (!beatPreflight.merged || beatPreflight.merged < (expectedCount - beatPreflight.finalCount)) {
-      const error = new Error(
-        `Chapter ${chapterNumber} scene contract lost data. Expected ${expectedCount} scenes, but pipeline reduced it to ${beatPreflight.finalCount} without proof of merge.`
-      );
-      error.name = 'NarrativeInvariantError';
-      error.code = 'SCENE_LOST_IN_PIPELINE';
-      error.narrativeContract = true;
-      error.contractFingerprint = immutableContract?.fingerprint || null;
-      throw error;
-    }
+    const error = new Error(
+      `Chapter ${chapterNumber} scene contract lost data. Expected ${expectedCount} scenes, but pipeline reduced it to ${beatPreflight.finalCount} without proof of merge.`
+    );
+    error.name = 'NarrativeInvariantError';
+    error.code = 'SCENE_LOST_IN_PIPELINE';
+    error.narrativeContract = true;
+    error.contractFingerprint = immutableContract?.fingerprint || null;
+    throw error;
   }
 
   if (beatPreflight?.changed) {
     if (!isNF) {
-      const unprovenLoss = beatPreflight.finalCount < beatPreflight.originalCount && (!beatPreflight.merged || beatPreflight.merged < (beatPreflight.originalCount - beatPreflight.finalCount));
-      if (unprovenLoss) {
-        const error = new Error(
-          `Chapter ${chapterNumber} scene contract was rejected before drafting: the normalizer attempted to shrink ${beatPreflight.originalCount} accepted scenes into ${beatPreflight.finalCount} without valid proof. Regenerate the beat plan instead of merging or dropping contracted scenes.`
-        );
-        error.name = 'NarrativeInvariantError';
-        error.code = beatPreflight.finalCount < beatPreflight.originalCount ? 'UNPROVEN_SCENE_MERGE' : 'SCENE_CONTRACT_NORMALIZER_CONFLICT';
-        error.narrativeContract = true;
-        error.contractFingerprint = immutableContract?.fingerprint || null;
-        error.details = beatPreflight;
-        console.error('[NARRATIVE-CONNECT] Refusing to mutate accepted fiction contract:', error);
-        throw error;
-      }
+      const error = new Error(
+        `Chapter ${chapterNumber} scene contract was rejected before drafting: the normalizer attempted to shrink ${beatPreflight.originalCount} accepted scenes into ${beatPreflight.finalCount} without valid proof. Regenerate the beat plan instead of merging or dropping contracted scenes.`
+      );
+      error.name = 'NarrativeInvariantError';
+      error.code = beatPreflight.finalCount < beatPreflight.originalCount ? 'UNPROVEN_SCENE_MERGE' : 'SCENE_CONTRACT_NORMALIZER_CONFLICT';
+      error.narrativeContract = true;
+      error.contractFingerprint = immutableContract?.fingerprint || null;
+      error.details = beatPreflight;
+      console.error('[NARRATIVE-CONNECT] Refusing to mutate accepted fiction contract:', error);
+      throw error;
     }
     console.warn('[sceneWriter] Scene beat preflight changed chapter beats:', beatPreflight.report, beatPreflight.warnings || []);
     onProgress?.({
