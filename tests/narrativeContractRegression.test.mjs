@@ -781,3 +781,83 @@ test('32. Historical death does not falsely classify as character_death and depe
   // Assert: no SCENE_LOST_IN_PIPELINE error occurs
   // (Since we didn't throw an error, it succeeded)
 });
+
+test('33. Evidence-aware chronology distinguishes obstruction from evidence_confrontation', () => {
+  const scene1 = {
+    scene_number: 1,
+    scene_id: 'ch05-s01',
+    required_events: [
+      "Lena and Marcus search for the archive containing the accident report.",
+      "Marcus tries to stop Lena from accessing the archive, leading to a confrontation.",
+      "The station collapses further, forcing them to separate.",
+      "Lena accesses the archive with the brass key."
+    ],
+    entry_state: "Lena has the brass key.",
+    exit_state: "Lena reaches the archive alone."
+  };
+
+  const scene2 = {
+    scene_number: 2,
+    scene_id: 'ch05-s02',
+    required_events: [
+      "Lena discovers the hidden report detailing Marcus's role in the accident.",
+      "Lena confronts Marcus, who admits his guilt."
+    ],
+    exit_state: "Lena decides to destroy the brass key and escape."
+  };
+
+  const scene3 = {
+    scene_number: 3,
+    scene_id: 'ch05-s03',
+    required_events: [
+      "Lena escapes, destroys the key, refuses forgiveness, and leaves Marcus."
+    ]
+  };
+
+  const func1 = classifyStoryFunction(scene1);
+  const func2 = classifyStoryFunction(scene2);
+
+  // Assert: Scene 1 obstruction does not count as evidence_confrontation
+  assert.equal(func1.has('evidence_confrontation'), false);
+  
+  // Assert: Scene 2 revelation precedes Scene 2 evidence_confrontation
+  // (We check this by validating it passes validation)
+  
+  // Assert: validateRawBeatChronology passes without error
+  assert.doesNotThrow(() => {
+    validateRawBeatChronology([scene1, scene2, scene3]);
+  });
+  
+  // Assert: repairRawContract is not invoked / normalizer works without dropping
+  const result = normalizeSceneBeatsForDrafting([scene1, scene2, scene3], { isNonfiction: false, chapterNumber: 5 });
+  
+  // Assert: final scene count remains 3
+  assert.equal(result.beats.length, 3);
+  
+  // Assert: IDs remain unchanged
+  assert.equal(result.beats[0].scene_id, 'ch05-s01');
+  assert.equal(result.beats[1].scene_id, 'ch05-s02');
+  assert.equal(result.beats[2].scene_id, 'ch05-s03');
+});
+
+test('34. Evidence confrontation before evidence revelation fails chronology guard', () => {
+  const scene1 = {
+    scene_number: 1,
+    scene_id: 'ch05-s01',
+    required_events: [
+      "Lena confronts Marcus with the report proving his guilt."
+    ]
+  };
+
+  const scene2 = {
+    scene_number: 2,
+    scene_id: 'ch05-s02',
+    required_events: [
+      "Lena later discovers that report."
+    ]
+  };
+
+  assert.throws(() => {
+    validateRawBeatChronology([scene1, scene2]);
+  }, /Chronology Error: Evidence revelation must precede evidence-based confrontation/);
+});

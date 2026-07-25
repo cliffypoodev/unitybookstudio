@@ -1104,11 +1104,11 @@ export function extractEventSignatures(text, context) {
   const article = `(?:(?:the|a|an)\\s+)?`;
   const tLower = text.toLowerCase();
   
-  for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s]+?)\\s+(?:with|using)\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+  for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)\\s+(?:with|using)\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'unlock_or_access', actor, object: match[3].trim().toLowerCase(), target: match[2].trim().toLowerCase(), raw: match[0] });
   }
-  for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+  for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'unlock_or_access', actor, object: null, target: match[2].trim().toLowerCase(), raw: match[0] });
   }
@@ -1116,26 +1116,39 @@ export function extractEventSignatures(text, context) {
   for (const match of text.matchAll(new RegExp(`\\b(confronts|accuses|challenges)\\b\\s+([a-z0-9\\s.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'confrontation', actor, object: null, target: match[2].trim().toLowerCase(), raw: match[0] });
+    
+    if (text.match(/(evidence|report|logs?|files?|truth|role|actions|accident|guilt|implicating)/i)) {
+      sigs.push({ category: 'evidence_confrontation', actor, object: null, target: match[2].trim().toLowerCase(), raw: match[0] });
+    }
   }
   
-  for (const match of text.matchAll(new RegExp(`\\b(acquires|obtains|retrieves|takes|grabs|has|holding|carries|possesses)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+  for (const match of text.matchAll(new RegExp(`\\b(blocks|stops|tries to stop|warns|argues?|struggles?|prevents?)\\b\\s+([a-z0-9\\s.]+?)(?:\\.|\\,|$| and| but| from)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    sigs.push({ category: 'obstruction_conflict', actor, object: null, target: match[2].trim().toLowerCase(), raw: match[0] });
+  }
+  
+  for (const match of text.matchAll(new RegExp(`\\b(acquires|obtains|retrieves|takes|grabs|has|holding|carries|possesses)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'acquire_object', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
   }
   
-  for (const match of text.matchAll(new RegExp(`\\b(destroys|breaks|discards|drops|snaps|crushes|shatters)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+  for (const match of text.matchAll(new RegExp(`\\b(destroys|breaks|discards|drops|snaps|crushes|shatters)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'destroy_object', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
   }
   
-  for (const match of text.matchAll(new RegExp(`\\b(reads|inspects|examines|checks)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+  for (const match of text.matchAll(new RegExp(`\\b(reads|inspects|examines|checks)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'inspect_evidence', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
   }
   
-  for (const match of text.matchAll(new RegExp(`\\b(discovers|uncovers|reveals|learns)\\b\\s+${article}([a-z0-9\\s]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+  for (const match of text.matchAll(new RegExp(`\\b(discovers|uncovers|reveals|learns)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'revelation', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
+    
+    if (text.match(/(evidence|report|logs?|files?|truth|role|actions|accident|guilt|implicating)/i)) {
+      sigs.push({ category: 'evidence_revelation', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
+    }
   }
   
   if (sigs.length === 0) {
@@ -1255,21 +1268,27 @@ export function validateRawBeatChronology(beats) {
       }
 
       if (sig.category === 'confrontation') {
-        const hasRev = history.events.some(e => e.category === 'revelation') || sigs.some(s => s.category === 'revelation');
-        if (!hasRev) {
-          throw new Error('Chronology Error: Revelation must precede confrontation.');
-        }
         const dupConf = history.events.find(e => e.category === 'confrontation' && e.actor === sig.actor && e.target === sig.target && !e.actor.startsWith('unresolved') && !e.target.startsWith('unresolved'));
         if (dupConf) {
           throw new Error('Chronology Error: Duplicate confrontation detected across scenes.');
         }
       }
       
-      if (sig.category === 'struggle') {
-        const hasConf = history.events.some(e => e.category === 'confrontation') || sigs.some(s => s.category === 'confrontation');
-        if (!hasConf) {
-          throw new Error('Chronology Error: Confrontation must precede physical struggle.');
+      if (sig.category === 'evidence_confrontation') {
+        const hasRev = history.events.some(e => e.category === 'evidence_revelation' || e.category === 'revelation') || sigs.some(s => s.category === 'evidence_revelation' || s.category === 'revelation');
+        // DEBUG
+        if (!hasRev) {
+          console.log("FAILING EVIDENCE_CONFRONTATION", {
+             reqText,
+             sigs: sigs.map(s => s.category),
+             historyEvents: history.events.map(e => e.category)
+          });
+          throw new Error('Chronology Error: Evidence revelation must precede evidence-based confrontation.');
         }
+      }
+      
+      if (sig.category === 'struggle' || sig.category === 'obstruction_conflict') {
+        // Struggle/obstruction can happen at any time; no global confrontation prerequisite needed
       }
 
       if (sig.category === 'escape' && reqText.match(/inside|interior/)) {
