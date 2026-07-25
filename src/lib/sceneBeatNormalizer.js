@@ -483,7 +483,7 @@ export function extractProseEventSignatures(prose) {
     if (!names.includes(lower)) names.push(lower);
   }
 
-  const objects = keywords(full); 
+  const objects = keywords(full);
 
   const hasStem = (stemList) => fullWords.some(w => stemList.includes(w) || stemList.includes(stemWord(w)));
   
@@ -984,14 +984,15 @@ export function auditSceneFutureBoundaries(sceneProse, spec) {
 
       const hasMatch = [...futureFunc].some(fn => sentenceSig.functions.includes(fn));
       if (hasMatch) {
-        // Match actors and objects
+        const futureKeywords = keywords(futureEvent).filter(w => !futureSig.verbs.includes(w) && !futureFunc.has(w) && !futureSig.names.includes(w));
+        const sentenceKeywords = sentenceSig.objects.filter(w => !futureSig.verbs.includes(w) && !futureFunc.has(w) && !sentenceSig.names.includes(w));
+        
         const sameCharacter = futureSig.names.length > 0 && futureSig.names.some(n => sentenceSig.names.includes(n));
-        const sameObject = futureSig.objects.length > 0 && futureSig.objects.some(o => sentenceSig.objects.includes(o));
-        // Use sentenceSig.objects for target matching as extractProseEventSignatures doesn't extract places yet
-        const sameTarget = futureSig.places.length > 0 && futureSig.places.some(p => sentenceSig.objects.includes(p));
+        const sameObject = futureKeywords.length > 0 && futureKeywords.some(o => sentenceKeywords.includes(o));
+        const sameTarget = futureSig.places.length > 0 && futureSig.places.some(p => sentenceKeywords.includes(p));
         const sameVerb = futureSig.verbs.length > 0 && futureSig.verbs.some(v => sentenceSig.functions.includes(v));
         
-        let objectMatch = futureSig.objects.length === 0 || sameObject || sameTarget;
+        let objectMatch = futureKeywords.length === 0 || sameObject || sameTarget;
         let charMatch = futureSig.names.length === 0 || sentenceSig.names.length === 0 || sameCharacter;
         let verbMatch = futureSig.verbs.length === 0 || sameVerb || hasMatch;
         
