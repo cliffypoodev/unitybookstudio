@@ -12,9 +12,14 @@
 export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
 
+export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
+  key: 'scene_context_composer_v1',
+  defaultEnabled: false,
+});
+
 export function isSceneContextComposerEnabled(flags) {
-  if (!flags || typeof flags !== 'object') return false;
-  return flags.scene_context_composer_v1 === true;
+  if (!flags || typeof flags !== 'object') return SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled;
+  return flags[SCENE_CONTEXT_COMPOSER_FEATURE.key] === true;
 }
 
 export const FOUNDATION_FIELDS = Object.freeze([
@@ -578,55 +583,143 @@ export function generateDeterministicEventId(projectId, chapterId, sceneId, cate
   return `evt_${hashText(input)}`;
 }
 
+// ─── Recursive JSON-safe canonicalization ──────────────────────────────
+// Recursively builds a canonical JSON-safe value from an arbitrary input.
+// Rejects cyclic objects, undefined, functions, symbols, BigInt, NaN,
+// Infinity, Date, class instances, and sparse arrays.
+// Objects have their keys sorted recursively at every depth.
+// Arrays preserve order; each element is recursively canonicalized.
+// The top-level packet_id key is excluded.
+
+const _SEEN = Symbol('canonicalize_seen');
+
+function assertJsonSafe(value, path) {
+  if (value === null || typeof value === 'boolean') return;
+  if (typeof value === 'string') return;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      throw packetError(
+        `Non-JSON-safe number at ${path}: ${value}`,
+        'NON_JSON_SAFE_VALUE',
+        [`${path} contains non-finite number: ${value}`]
+      );
+    }
+    return;
+  }
+  if (typeof value === 'undefined') {
+    throw packetError(
+      `undefined at ${path}`,
+      'NON_JSON_SAFE_VALUE',
+      [`${path} contains undefined`]
+    );
+  }
+  if (typeof value === 'function') {
+    throw packetError(
+      `function at ${path}`,
+      'NON_JSON_SAFE_VALUE',
+      [`${path} contains a function`]
+    );
+  }
+  if (typeof value === 'symbol') {
+    throw packetError(
+      `symbol at ${path}`,
+      'NON_JSON_SAFE_VALUE',
+      [`${path} contains a symbol`]
+    );
+  }
+  if (typeof value === 'bigint') {
+    throw packetError(
+      `BigInt at ${path}`,
+      'NON_JSON_SAFE_VALUE',
+      [`${path} contains a BigInt`]
+    );
+  }
+  if (value instanceof Date) {
+    throw packetError(
+      `Date at ${path}`,
+      'NON_JSON_SAFE_VALUE',
+      [`${path} contains a Date object`]
+    );
+  }
+  if (typeof value === 'object') {
+    // Reject class instances (prototype is not Object.prototype or Array.prototype or null)
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== Array.prototype && proto !== null) {
+      throw packetError(
+        `Class instance at ${path}`,
+        'NON_JSON_SAFE_VALUE',
+        [`${path} contains a class instance (${value.constructor?.name || 'unknown'})`]
+      );
+    }
+    return;
+  }
+}
+
+function canonicalizeValue(value, path, seen) {
+  if (value === null) return null;
+  if (typeof value === 'boolean' || typeof value === 'string') return value;
+  if (typeof value === 'number') {
+    assertJsonSafe(value, path);
+    return value;
+  }
+  assertJsonSafe(value, path);
+
+  if (typeof value !== 'object') {
+    // Already rejected by assertJsonSafe, but be defensive
+    throw packetError(`Unexpected type at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains unexpected type ${typeof value}`]);
+  }
+
+  if (seen.has(value)) {
+    throw packetError(
+      `Cyclic reference at ${path}`,
+      'NON_JSON_SAFE_VALUE',
+      [`${path} contains a cyclic object reference`]
+    );
+  }
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    // Reject sparse arrays
+    for (let i = 0; i < value.length; i++) {
+      if (!(i in value)) {
+        throw packetError(
+          `Sparse array at ${path}`,
+          'NON_JSON_SAFE_VALUE',
+          [`${path} contains a sparse array (missing index ${i})`]
+        );
+      }
+    }
+    const result = value.map((el, i) => canonicalizeValue(el, `${path}[${i}]`, seen));
+    seen.delete(value);
+    return result;
+  }
+
+  // Plain object: sort keys, recursively canonicalize
+  const sortedKeys = Object.keys(value).sort();
+  const result = {};
+  for (const k of sortedKeys) {
+    result[k] = canonicalizeValue(value[k], `${path}.${k}`, seen);
+  }
+  seen.delete(value);
+  return result;
+}
+
 function canonicalizePacketForFingerprint(packet) {
-  // Builds a canonical object from the packet, excluding packet_id.
-  // Uses sorted-key JSON serialization for property-order independence.
-  const canonical = {
-    chapter_id: text(packet.chapter_id),
-    chapter_number: Number(packet.chapter_number),
-    canonically_unique_objects: (Array.isArray(packet.canonically_unique_objects) ? packet.canonically_unique_objects : []).map(text),
-    completed_events: (Array.isArray(packet.completed_events) ? packet.completed_events : []).map(text),
-    confirmed_deaths: (Array.isArray(packet.confirmed_deaths) ? packet.confirmed_deaths : []).map(text),
-    continuity_dependencies: (Array.isArray(packet.continuity_dependencies) ? packet.continuity_dependencies : []).map(text),
-    current_injuries: (Array.isArray(packet.current_injuries) ? packet.current_injuries : []).map(text),
-    current_locations: (Array.isArray(packet.current_locations) ? packet.current_locations : []).map(text),
-    current_possessions: (Array.isArray(packet.current_possessions) ? packet.current_possessions : []).map(text),
-    current_scene_forbidden_events: (Array.isArray(packet.current_scene_forbidden_events) ? packet.current_scene_forbidden_events : []).map(text),
-    current_separations: (Array.isArray(packet.current_separations) ? packet.current_separations : []).map(text),
-    entry_state: text(packet.entry_state),
-    exit_state: text(packet.exit_state),
-    future_reserved_events: (Array.isArray(packet.future_reserved_events) ? packet.future_reserved_events : []).map(e => ({
-      event_id: e ? text(e.event_id) : ''
-    })),
-    immediate_continuity: text(packet.immediate_continuity),
-    packet_version: text(packet.packet_version),
-    pov_identity: text(packet.pov_identity),
-    pov_known_facts: (Array.isArray(packet.pov_known_facts) ? packet.pov_known_facts : []).map(text),
-    project_id: text(packet.project_id),
-    required_events: (Array.isArray(packet.required_events) ? packet.required_events : []).map(e => ({
-      event_id: e ? text(e.event_id) : '',
-      text: e ? text(e.text) : ''
-    })),
-    scene_authorized_facts: (Array.isArray(packet.scene_authorized_facts) ? packet.scene_authorized_facts : []).map(f => ({
-      fact_id: f ? text(f.fact_id) : '',
-      knowledge_scope: f ? text(f.knowledge_scope) : '',
-      provenance: f ? text(f.provenance) : '',
-      summary: f ? text(f.summary) : ''
-    })),
-    scene_goal: text(packet.scene_goal),
-    scene_id: text(packet.scene_id),
-    scene_number: Number(packet.scene_number),
-    snapshot_id: text(packet.snapshot_id),
-    source_contract_fingerprint: text(packet.source_contract_fingerprint),
-    unavailable_objects: (Array.isArray(packet.unavailable_objects) ? packet.unavailable_objects : []).map(text),
-    voice_rules: (Array.isArray(packet.voice_rules) ? packet.voice_rules : []).map(text)
-  };
-  return JSON.stringify(canonical, Object.keys(canonical).sort());
+  // Build a shallow copy excluding packet_id, then recursively canonicalize.
+  const copy = {};
+  for (const k of Object.keys(packet)) {
+    if (k === 'packet_id') continue;
+    copy[k] = packet[k];
+  }
+  const canonical = canonicalizeValue(copy, 'packet', new Set());
+  return JSON.stringify(canonical);
 }
 
 export function generatePacketFingerprint(packet) {
   return `sep_${hashText(canonicalizePacketForFingerprint(packet))}`;
 }
+
+// ─── Packet schema constants ───────────────────────────────────────────
 
 const PROHIBITED_KEYS = new Set([
   'world_md', 'characters_md', 'outline_md', 'canon_md', 'mystery_md', 'twists_md', 'research_md',
@@ -650,18 +743,143 @@ const ALLOWED_FUTURE_EVENT_KEYS = new Set(['event_id']);
 
 const ALLOWED_FACT_KEYS = new Set(['fact_id', 'summary', 'provenance', 'knowledge_scope']);
 
+const ALLOWED_KNOWLEDGE_SCOPE_KEYS = new Set(['pov_identity', 'basis']);
+
 const ALLOWED_REQUIRED_EVENT_KEYS = new Set(['event_id', 'text']);
+
+// Required top-level string fields that must be nonempty
+const REQUIRED_NONEMPTY_STRING_FIELDS = [
+  'packet_version', 'snapshot_id', 'source_contract_fingerprint',
+  'project_id', 'chapter_id', 'scene_id',
+  'scene_goal', 'entry_state', 'exit_state', 'pov_identity'
+];
+
+// String fields that may be empty
+const OPTIONAL_STRING_FIELDS = ['immediate_continuity'];
+
+// Bounded, scene-safe declarative state statement arrays.
+// Each element must be a nonempty string. These represent factual, scene-scoped
+// declarations of current state (locations, possessions, injuries, etc.) used
+// only for scene-level validation. They are NOT structured records.
+const STRING_ARRAY_FIELDS = [
+  'current_scene_forbidden_events', 'continuity_dependencies',
+  'current_locations', 'current_possessions', 'current_injuries',
+  'confirmed_deaths', 'current_separations', 'unavailable_objects',
+  'canonically_unique_objects', 'voice_rules'
+];
+
+// Record array fields (validated separately)
+const RECORD_ARRAY_FIELDS = [
+  'required_events', 'future_reserved_events', 'scene_authorized_facts'
+];
+
+// ID-valued array fields (elements must be nonempty strings, treated as a set)
+const ID_ARRAY_FIELDS = ['completed_events', 'pov_known_facts'];
 
 function packetError(message, code, issues) {
   return new NarrativeInvariantError(message, { code, issues: Object.freeze(issues || [message]) });
 }
 
+function requireString(value, fieldName, allowEmpty) {
+  if (typeof value !== 'string') {
+    throw packetError(
+      `${fieldName} must be a string`,
+      'INVALID_FIELD_TYPE',
+      [`${fieldName} must be a string, got ${typeof value}`]
+    );
+  }
+  if (!allowEmpty && value.trim() === '') {
+    throw packetError(
+      `${fieldName} must be nonempty`,
+      'MISSING_REQUIRED_FIELD',
+      [`${fieldName} is empty or whitespace-only`]
+    );
+  }
+}
+
+function requireArray(value, fieldName) {
+  if (!Array.isArray(value)) {
+    throw packetError(
+      `${fieldName} must be an array`,
+      'INVALID_FIELD_TYPE',
+      [`${fieldName} must be an array, got ${value === null ? 'null' : typeof value}`]
+    );
+  }
+  // Reject sparse arrays
+  for (let i = 0; i < value.length; i++) {
+    if (!(i in value)) {
+      throw packetError(
+        `${fieldName} contains a sparse array`,
+        'NON_JSON_SAFE_VALUE',
+        [`${fieldName} is a sparse array (missing index ${i})`]
+      );
+    }
+  }
+}
+
+function requireStringArrayElements(arr, fieldName) {
+  for (let i = 0; i < arr.length; i++) {
+    const el = arr[i];
+    if (typeof el !== 'string') {
+      throw packetError(
+        `${fieldName}[${i}] must be a string`,
+        'INVALID_FIELD_TYPE',
+        [`${fieldName}[${i}] must be a string, got ${el === null ? 'null' : typeof el}`]
+      );
+    }
+    if (el.trim() === '') {
+      throw packetError(
+        `${fieldName}[${i}] must be nonempty`,
+        'INVALID_FIELD_VALUE',
+        [`${fieldName}[${i}] is empty or whitespace-only`]
+      );
+    }
+  }
+}
+
+function requirePlainObject(value, fieldName) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw packetError(
+      `${fieldName} must be a plain object`,
+      'INVALID_RECORD',
+      [`${fieldName} must be a non-null plain object, got ${value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value}`]
+    );
+  }
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== null) {
+    throw packetError(
+      `${fieldName} is a class instance`,
+      'INVALID_RECORD',
+      [`${fieldName} must be a plain object, got class instance ${value.constructor?.name || 'unknown'}`]
+    );
+  }
+}
+
+function requirePositiveInteger(value, fieldName) {
+  if (typeof value !== 'number') {
+    throw packetError(
+      `${fieldName} must be a number`,
+      'INVALID_FIELD_TYPE',
+      [`${fieldName} must be a number, got ${typeof value}`]
+    );
+  }
+  if (!Number.isFinite(value) || !Number.isInteger(value) || value <= 0) {
+    throw packetError(
+      `${fieldName} must be a finite positive integer`,
+      fieldName === 'chapter_number' ? 'INVALID_CHAPTER_NUMBER' : 'INVALID_SCENE_NUMBER',
+      [`${fieldName} must be a finite positive integer, got ${value}`]
+    );
+  }
+}
+
+// ─── Validator ─────────────────────────────────────────────────────────
+
 export function validateSceneExecutionPacket(packet, immutableSceneContract) {
-  if (!packet || typeof packet !== 'object') {
-    throw packetError('Invalid packet', 'INVALID_PACKET', ['Packet must be a non-null object']);
+  if (!packet || typeof packet !== 'object' || Array.isArray(packet)) {
+    throw packetError('Invalid packet', 'INVALID_PACKET', ['Packet must be a non-null plain object']);
   }
 
-  // Top-level key enforcement
+  // ── Top-level key enforcement ──
   for (const k of Object.keys(packet)) {
     if (PROHIBITED_KEYS.has(k)) {
       throw packetError(`Prohibited key: ${k}`, 'PROHIBITED_KEY', [`Top-level key "${k}" is a prohibited raw foundation or private field`]);
@@ -671,72 +889,179 @@ export function validateSceneExecutionPacket(packet, immutableSceneContract) {
     }
   }
 
-  // Future-reserved event nested key enforcement
-  for (const e of (Array.isArray(packet.future_reserved_events) ? packet.future_reserved_events : [])) {
-    if (!e || typeof e !== 'object') continue;
-    for (const k of Object.keys(e)) {
-      if (k.includes('truth') || k.includes('secret') || k.includes('withheld') || k.includes('private')) {
-        throw packetError(`Prohibited secret truth payload: ${k}`, 'PROHIBITED_SECRET_TRUTH', [`Future-reserved event contains prohibited field "${k}"`]);
-      }
-      if (!ALLOWED_FUTURE_EVENT_KEYS.has(k)) {
-        throw packetError(`Unknown key in future-reserved event: ${k}`, 'UNKNOWN_NESTED_KEY', [`Future-reserved event key "${k}" is not allowed; only event_id is permitted`]);
-      }
+  // ── Required field presence ──
+  const allRequiredKeys = [
+    ...REQUIRED_NONEMPTY_STRING_FIELDS, ...OPTIONAL_STRING_FIELDS,
+    ...STRING_ARRAY_FIELDS, ...RECORD_ARRAY_FIELDS, ...ID_ARRAY_FIELDS,
+    'chapter_number', 'scene_number', 'packet_id'
+  ];
+  for (const k of allRequiredKeys) {
+    if (!(k in packet)) {
+      throw packetError(`Missing required field: ${k}`, 'MISSING_REQUIRED_FIELD', [`Field "${k}" is missing from the packet`]);
     }
   }
 
-  // Required event nested key enforcement
-  for (const e of (Array.isArray(packet.required_events) ? packet.required_events : [])) {
-    if (!e || typeof e !== 'object') continue;
-    for (const k of Object.keys(e)) {
-      if (!ALLOWED_REQUIRED_EVENT_KEYS.has(k)) {
-        throw packetError(`Unknown key in required event: ${k}`, 'UNKNOWN_NESTED_KEY', [`Required event key "${k}" is not allowed; only event_id and text are permitted`]);
-      }
-    }
-  }
-
-  // Authorized fact nested key enforcement
-  for (const f of (Array.isArray(packet.scene_authorized_facts) ? packet.scene_authorized_facts : [])) {
-    if (!f || typeof f !== 'object') continue;
-    for (const k of Object.keys(f)) {
-      if (k.includes('withheld') || k.includes('private') || k.includes('secret') || k.includes('truth')) {
-        throw packetError(`Prohibited knowledge field in fact: ${k}`, 'PROHIBITED_SECRET_TRUTH', [`Authorized fact contains prohibited field "${k}"`]);
-      }
-      if (!ALLOWED_FACT_KEYS.has(k)) {
-        throw packetError(`Unknown key in authorized fact: ${k}`, 'UNKNOWN_NESTED_KEY', [`Authorized fact key "${k}" is not allowed; only fact_id, summary, provenance, and knowledge_scope are permitted`]);
-      }
-    }
-  }
-
+  // ── Version ──
+  requireString(packet.packet_version, 'packet_version', false);
   if (packet.packet_version !== SCENE_EXECUTION_PACKET_VERSION) {
     throw packetError('Wrong packet version', 'WRONG_PACKET_VERSION', [`Expected "${SCENE_EXECUTION_PACKET_VERSION}", got "${packet.packet_version}"`]);
   }
 
-  const missingIdentity = [];
-  if (!text(packet.project_id)) missingIdentity.push('project_id');
-  if (!text(packet.chapter_id)) missingIdentity.push('chapter_id');
-  if (!text(packet.scene_id)) missingIdentity.push('scene_id');
-  if (missingIdentity.length) {
-    throw packetError('Missing identity', 'MISSING_IDENTITY', missingIdentity.map(f => `${f} is missing or empty`));
+  // ── String fields ──
+  for (const f of REQUIRED_NONEMPTY_STRING_FIELDS) {
+    requireString(packet[f], f, false);
+  }
+  for (const f of OPTIONAL_STRING_FIELDS) {
+    requireString(packet[f], f, true);
   }
 
-  if (typeof packet.chapter_number !== 'number' || packet.chapter_number <= 0) {
-    throw packetError('Invalid chapter number', 'INVALID_CHAPTER_NUMBER', [`chapter_number must be a positive number, got ${packet.chapter_number}`]);
-  }
-  if (typeof packet.scene_number !== 'number' || packet.scene_number <= 0) {
-    throw packetError('Invalid scene number', 'INVALID_SCENE_NUMBER', [`scene_number must be a positive number, got ${packet.scene_number}`]);
+  // ── Numeric fields ──
+  requirePositiveInteger(packet.chapter_number, 'chapter_number');
+  requirePositiveInteger(packet.scene_number, 'scene_number');
+
+  // ── String array fields ──
+  for (const f of STRING_ARRAY_FIELDS) {
+    requireArray(packet[f], f);
+    requireStringArrayElements(packet[f], f);
   }
 
-  if (!text(packet.snapshot_id)) {
-    throw packetError('Missing snapshot ID', 'MISSING_SNAPSHOT_ID', ['snapshot_id is missing or empty']);
+  // ── Record array fields (type check only; detailed validation below) ──
+  for (const f of RECORD_ARRAY_FIELDS) {
+    requireArray(packet[f], f);
   }
-  if (!text(packet.source_contract_fingerprint)) {
-    throw packetError('Missing source contract fingerprint', 'MISSING_CONTRACT_FINGERPRINT', ['source_contract_fingerprint is missing or empty']);
+
+  // ── ID array fields ──
+  for (const f of ID_ARRAY_FIELDS) {
+    requireArray(packet[f], f);
+    for (let i = 0; i < packet[f].length; i++) {
+      if (typeof packet[f][i] !== 'string') {
+        throw packetError(
+          `${f}[${i}] must be a string`,
+          'INVALID_FIELD_TYPE',
+          [`${f}[${i}] must be a string, got ${packet[f][i] === null ? 'null' : typeof packet[f][i]}`]
+        );
+      }
+      if (packet[f][i].trim() === '') {
+        throw packetError(
+          `${f}[${i}] must be nonempty`,
+          'INVALID_FIELD_VALUE',
+          [`${f}[${i}] is empty or whitespace-only`]
+        );
+      }
+    }
   }
+
+  // ── Required event validation ──
+  for (let i = 0; i < packet.required_events.length; i++) {
+    const e = packet.required_events[i];
+    requirePlainObject(e, `required_events[${i}]`);
+    for (const k of Object.keys(e)) {
+      if (!ALLOWED_REQUIRED_EVENT_KEYS.has(k)) {
+        throw packetError(`Unknown key in required event: ${k}`, 'UNKNOWN_NESTED_KEY', [`required_events[${i}] key "${k}" is not allowed; only event_id and text are permitted`]);
+      }
+    }
+    if (!('event_id' in e)) {
+      throw packetError(`required_events[${i}] missing event_id`, 'MISSING_REQUIRED_FIELD', [`required_events[${i}] is missing event_id`]);
+    }
+    if (!('text' in e)) {
+      throw packetError(`required_events[${i}] missing text`, 'MISSING_REQUIRED_FIELD', [`required_events[${i}] is missing text`]);
+    }
+    requireString(e.event_id, `required_events[${i}].event_id`, false);
+    requireString(e.text, `required_events[${i}].text`, false);
+  }
+
+  // ── Future-reserved event validation ──
+  for (let i = 0; i < packet.future_reserved_events.length; i++) {
+    const e = packet.future_reserved_events[i];
+    requirePlainObject(e, `future_reserved_events[${i}]`);
+    for (const k of Object.keys(e)) {
+      if (k.includes('truth') || k.includes('secret') || k.includes('withheld') || k.includes('private')) {
+        throw packetError(`Prohibited secret truth payload: ${k}`, 'PROHIBITED_SECRET_TRUTH', [`future_reserved_events[${i}] contains prohibited field "${k}"`]);
+      }
+      if (!ALLOWED_FUTURE_EVENT_KEYS.has(k)) {
+        throw packetError(`Unknown key in future-reserved event: ${k}`, 'UNKNOWN_NESTED_KEY', [`future_reserved_events[${i}] key "${k}" is not allowed; only event_id is permitted`]);
+      }
+    }
+    if (!('event_id' in e)) {
+      throw packetError(`future_reserved_events[${i}] missing event_id`, 'MISSING_REQUIRED_FIELD', [`future_reserved_events[${i}] is missing event_id`]);
+    }
+    requireString(e.event_id, `future_reserved_events[${i}].event_id`, false);
+  }
+
+  // ── Scene-authorized fact validation ──
+  for (let i = 0; i < packet.scene_authorized_facts.length; i++) {
+    const f = packet.scene_authorized_facts[i];
+    requirePlainObject(f, `scene_authorized_facts[${i}]`);
+    for (const k of Object.keys(f)) {
+      if (k.includes('withheld') || k.includes('private') || k.includes('secret') || k.includes('truth')) {
+        throw packetError(`Prohibited knowledge field in fact: ${k}`, 'PROHIBITED_SECRET_TRUTH', [`scene_authorized_facts[${i}] contains prohibited field "${k}"`]);
+      }
+      if (!ALLOWED_FACT_KEYS.has(k)) {
+        throw packetError(`Unknown key in authorized fact: ${k}`, 'UNKNOWN_NESTED_KEY', [`scene_authorized_facts[${i}] key "${k}" is not allowed; only fact_id, summary, provenance, and knowledge_scope are permitted`]);
+      }
+    }
+    for (const reqField of ['fact_id', 'summary', 'provenance', 'knowledge_scope']) {
+      if (!(reqField in f)) {
+        throw packetError(`scene_authorized_facts[${i}] missing ${reqField}`, 'MISSING_REQUIRED_FIELD', [`scene_authorized_facts[${i}] is missing ${reqField}`]);
+      }
+    }
+    requireString(f.fact_id, `scene_authorized_facts[${i}].fact_id`, false);
+    requireString(f.summary, `scene_authorized_facts[${i}].summary`, false);
+    requireString(f.provenance, `scene_authorized_facts[${i}].provenance`, false);
+    // knowledge_scope must be a structured object
+    requirePlainObject(f.knowledge_scope, `scene_authorized_facts[${i}].knowledge_scope`);
+    for (const k of Object.keys(f.knowledge_scope)) {
+      if (!ALLOWED_KNOWLEDGE_SCOPE_KEYS.has(k)) {
+        throw packetError(
+          `Unknown knowledge_scope key: ${k}`,
+          'UNKNOWN_NESTED_KEY',
+          [`scene_authorized_facts[${i}].knowledge_scope key "${k}" is not allowed; only pov_identity and basis are permitted`]
+        );
+      }
+    }
+    if (!('pov_identity' in f.knowledge_scope)) {
+      throw packetError(
+        `scene_authorized_facts[${i}].knowledge_scope missing pov_identity`,
+        'MISSING_REQUIRED_FIELD',
+        [`scene_authorized_facts[${i}].knowledge_scope is missing pov_identity`]
+      );
+    }
+    if (!('basis' in f.knowledge_scope)) {
+      throw packetError(
+        `scene_authorized_facts[${i}].knowledge_scope missing basis`,
+        'MISSING_REQUIRED_FIELD',
+        [`scene_authorized_facts[${i}].knowledge_scope is missing basis`]
+      );
+    }
+    requireString(f.knowledge_scope.pov_identity, `scene_authorized_facts[${i}].knowledge_scope.pov_identity`, false);
+    requireString(f.knowledge_scope.basis, `scene_authorized_facts[${i}].knowledge_scope.basis`, false);
+    if (f.knowledge_scope.pov_identity.trim() !== packet.pov_identity.trim()) {
+      throw packetError(
+        `Knowledge scope POV mismatch in scene_authorized_facts[${i}]`,
+        'KNOWLEDGE_SCOPE_POV_MISMATCH',
+        [`scene_authorized_facts[${i}].knowledge_scope.pov_identity "${f.knowledge_scope.pov_identity}" does not match packet pov_identity "${packet.pov_identity}"`]
+      );
+    }
+  }
+
+  // ── Identity cross-checks ──
   if (packet.source_contract_fingerprint !== immutableSceneContract?.fingerprint) {
     throw packetError('Contract fingerprint mismatch', 'CONTRACT_FINGERPRINT_MISMATCH', [`Expected "${immutableSceneContract?.fingerprint}", got "${packet.source_contract_fingerprint}"`]);
   }
 
-  assertSceneContractUnchanged(immutableSceneContract, immutableSceneContract.beats, { chapterNumber: packet.chapter_number });
+  // Wrap assertSceneContractUnchanged to normalize error contract
+  try {
+    assertSceneContractUnchanged(immutableSceneContract, immutableSceneContract.beats, { chapterNumber: packet.chapter_number });
+  } catch (e) {
+    if (e instanceof NarrativeInvariantError) throw e;
+    // Normalize GenerationContextError or other errors into the packet error contract
+    const issues = e.details?.issues || e.details?.validationReasons || [e.message];
+    throw packetError(
+      e.message || 'Scene contract validation failed',
+      e.code || 'SCENE_CONTRACT_INVALID',
+      Array.isArray(issues) ? issues : [String(issues)]
+    );
+  }
 
   const beat = immutableSceneContract.beats.find(b => b.scene_id === packet.scene_id);
   if (!beat) {
@@ -756,8 +1081,8 @@ export function validateSceneExecutionPacket(packet, immutableSceneContract) {
     throw packetError('Exit state mismatch', 'EXIT_STATE_MISMATCH', [`Packet exit_state does not match contract`]);
   }
 
-  // Required events: exact count, order, text, and deterministic ID
-  const requiredEvents = Array.isArray(packet.required_events) ? packet.required_events : [];
+  // ── Required events: exact count, order, text, deterministic ID ──
+  const requiredEvents = packet.required_events;
   const beatEvents = Array.isArray(beat.required_events) ? beat.required_events : [];
   if (requiredEvents.length !== beatEvents.length) {
     throw packetError('Required events count mismatch', 'REQUIRED_EVENTS_MISMATCH', [`Expected ${beatEvents.length} required events, got ${requiredEvents.length}`]);
@@ -765,26 +1090,21 @@ export function validateSceneExecutionPacket(packet, immutableSceneContract) {
 
   const reqEventIds = new Set();
   for (let i = 0; i < requiredEvents.length; i++) {
-    if (!requiredEvents[i] || typeof requiredEvents[i] !== 'object') {
-      throw packetError('Invalid required event', 'INVALID_REQUIRED_EVENT', [`Required event at index ${i} is not an object`]);
-    }
     if (text(requiredEvents[i].text) !== text(beatEvents[i])) {
       throw packetError('Required event text mismatch', 'REQUIRED_EVENTS_MISMATCH', [`Required event ${i + 1} text does not match contract`]);
     }
-
     const expectedId = generateDeterministicEventId(packet.project_id, packet.chapter_id, packet.scene_id, 'required', i + 1, beatEvents[i]);
     if (requiredEvents[i].event_id !== expectedId) {
       throw packetError('Event ID mismatch', 'EVENT_ID_MISMATCH', [`Required event ${i + 1} event_id does not match deterministic derivation`]);
     }
-
     if (reqEventIds.has(requiredEvents[i].event_id)) {
       throw packetError('Duplicate required event ID', 'DUPLICATE_EVENT_ID', [`Duplicate required event_id "${requiredEvents[i].event_id}"`]);
     }
     reqEventIds.add(requiredEvents[i].event_id);
   }
 
-  // Forbidden events: exact count, order, and text
-  const forbiddenEvents = Array.isArray(packet.current_scene_forbidden_events) ? packet.current_scene_forbidden_events : [];
+  // ── Forbidden events: exact count, order, text ──
+  const forbiddenEvents = packet.current_scene_forbidden_events;
   const beatForbidden = Array.isArray(beat.forbidden_events) ? beat.forbidden_events : [];
   if (forbiddenEvents.length !== beatForbidden.length) {
     throw packetError('Forbidden events count mismatch', 'FORBIDDEN_EVENTS_MISMATCH', [`Expected ${beatForbidden.length} forbidden events, got ${forbiddenEvents.length}`]);
@@ -795,10 +1115,9 @@ export function validateSceneExecutionPacket(packet, immutableSceneContract) {
     }
   }
 
-  // Future-reserved event ID uniqueness and overlap with required
+  // ── Future-reserved event ID uniqueness and overlap with required ──
   const futureEventIds = new Set();
-  for (const e of (Array.isArray(packet.future_reserved_events) ? packet.future_reserved_events : [])) {
-    if (!e || typeof e !== 'object') continue;
+  for (const e of packet.future_reserved_events) {
     if (futureEventIds.has(e.event_id)) {
       throw packetError('Duplicate future reserved event ID', 'DUPLICATE_EVENT_ID', [`Duplicate future_reserved event_id "${e.event_id}"`]);
     }
@@ -808,32 +1127,58 @@ export function validateSceneExecutionPacket(packet, immutableSceneContract) {
     }
   }
 
-  // Completed event ID uniqueness
+  // ── Completed event ID uniqueness ──
   const completedEventIds = new Set();
-  for (const id of (Array.isArray(packet.completed_events) ? packet.completed_events : [])) {
+  for (const id of packet.completed_events) {
     if (completedEventIds.has(id)) {
       throw packetError('Duplicate completed event ID', 'DUPLICATE_EVENT_ID', [`Duplicate completed event_id "${id}"`]);
     }
     completedEventIds.add(id);
   }
 
-  // Fact ID uniqueness
-  const factIds = new Set();
-  for (const f of (Array.isArray(packet.scene_authorized_facts) ? packet.scene_authorized_facts : [])) {
-    if (!f || typeof f !== 'object') continue;
-    if (factIds.has(f.fact_id)) {
+  // ── Fact ID uniqueness ──
+  const factIdSet = new Set();
+  for (const f of packet.scene_authorized_facts) {
+    if (factIdSet.has(f.fact_id)) {
       throw packetError('Duplicate fact ID', 'DUPLICATE_FACT_ID', [`Duplicate fact_id "${f.fact_id}"`]);
     }
-    factIds.add(f.fact_id);
+    factIdSet.add(f.fact_id);
   }
 
-  if (packet.immediate_continuity && packet.immediate_continuity.length > 2000) {
+  // ── pov_known_facts must resolve to scene_authorized_facts ──
+  const povFactIds = new Set();
+  for (let i = 0; i < packet.pov_known_facts.length; i++) {
+    const fid = packet.pov_known_facts[i];
+    if (povFactIds.has(fid)) {
+      throw packetError(`Duplicate pov_known_facts ID`, 'DUPLICATE_POV_FACT_ID', [`pov_known_facts[${i}] "${fid}" is a duplicate`]);
+    }
+    povFactIds.add(fid);
+    if (!factIdSet.has(fid)) {
+      throw packetError(`pov_known_facts ID not found in scene_authorized_facts`, 'UNRESOLVED_POV_FACT', [`pov_known_facts[${i}] "${fid}" does not resolve to any scene_authorized_facts entry`]);
+    }
+  }
+
+  // ── Continuity size limit ──
+  if (packet.immediate_continuity.length > 2000) {
     throw packetError('Immediate continuity too large', 'CONTINUITY_TOO_LARGE', [`immediate_continuity is ${packet.immediate_continuity.length} chars, max 2000`]);
   }
 
+  // ── JSON safety of entire packet (also validates nested values) ──
+  // This is done before fingerprint comparison to ensure the packet is
+  // entirely JSON-safe and the fingerprint can be reliably computed.
+  try {
+    canonicalizePacketForFingerprint(packet);
+  } catch (e) {
+    if (e instanceof NarrativeInvariantError) throw e;
+    throw packetError('Packet contains non-JSON-safe values', 'NON_JSON_SAFE_VALUE', [e.message]);
+  }
+
+  // ── Packet fingerprint ──
+  requireString(packet.packet_id, 'packet_id', false);
   if (packet.packet_id !== generatePacketFingerprint(packet)) {
     throw packetError('Packet fingerprint mismatch', 'PACKET_FINGERPRINT_MISMATCH', ['packet_id does not match canonical fingerprint derivation']);
   }
 
+  // ── Return defensive frozen clone ──
   return deepFreeze(JSON.parse(JSON.stringify(packet)));
 }
