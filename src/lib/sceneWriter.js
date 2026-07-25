@@ -2145,9 +2145,15 @@ function buildSceneStateContractBlock(spec) {
     lines.push(`LOCKED PRIOR EXIT STATES — MUST REMAIN TRUE: ${priorExitStates.join('; ')}`);
   }
   if (futureReservedEvents.length) {
-    lines.push(
-      `FUTURE-SCENE BOUNDARY: Later plot developments exist, but their details are intentionally hidden. Do not advance beyond this scene's required events or exit state.`
-    );
+    const futureReservedObjs = Array.isArray(spec?.future_reserved_event_objects) ? spec.future_reserved_event_objects : futureReservedEvents.map(e => ({event: e}));
+    const linesToAdd = [
+      `RESERVED FOR LATER SCENES — DO NOT PERFORM OR RESOLVE:`,
+      ...futureReservedObjs.filter(o => o?.event).map(obj => 
+        `- ${obj.event}${obj.sceneNumber || obj.sceneId ? ` (Reserved for Scene ${obj.sceneNumber || obj.sceneId})` : ''}`
+      ),
+      `You may refer to existing characters or objects, foreshadow danger, or notice unexplained things. You MAY NOT perform the event, resolve it, transfer the reserved object, reveal the reserved information, or stage an alternate version of it.`
+    ];
+    lines.push(linesToAdd.join('\n'));
   }
   if (dependencies.length) lines.push(`CONTINUITY DEPENDENCIES: ${dependencies.join('; ')}`);
 
@@ -3002,7 +3008,7 @@ export async function generateChapterSceneByScene({
 
 
     if (!isNF) {
-      let futureAudit = auditSceneFutureBoundaries(sceneProse, promptSpec);
+      let futureAudit = await auditSceneFutureBoundaries(sceneProse, promptSpec, model);
       if (!futureAudit.ok) {
         console.warn(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} futureViolations=${futureAudit.violations.length}`);
         futureAudit.violations.forEach((v, vIdx) => {
@@ -3023,8 +3029,9 @@ sentenceIndex=${v.sentenceIndex}`);
           reason: 'Performed future events early: ' + futureAudit.violations.map(v => v.event).join(', ')
         });
 
+        const cleanedPrompt = prompt.replace(/TWIST \/ REVERSAL CONTEXT:[\s\S]*?(?=\n\n(?:NARRATIVE STATE CONTRACT|THIS SCENE|=== SERIES CONTEXT|[A-Z0-9_\s]+:|$))/i, '');
         const repairPrompt = [
-          prompt,
+          cleanedPrompt,
           buildFutureBoundaryRepairPrompt(sceneProse, promptSpec, futureAudit.violations)
         ].join('\n\n');
 
@@ -3041,7 +3048,7 @@ sentenceIndex=${v.sentenceIndex}`);
         });
 
         const repairedProse = lightCleanSceneOutput(repaired.prose);
-        futureAudit = auditSceneFutureBoundaries(repairedProse, promptSpec);
+        futureAudit = await auditSceneFutureBoundaries(repairedProse, promptSpec, model);
         
         console.log(`[SCENE-BOUNDARY-REPAIR-RESULT]
 remainingCount=${futureAudit.violations.length}

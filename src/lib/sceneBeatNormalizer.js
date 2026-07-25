@@ -18,6 +18,8 @@
  * beats and keeps the more dramatic/escalatory version.
  */
 
+import { invokeLLMWithRetry } from './integrationRetry.js';
+
 const STOPWORDS = new Set([
   'the','and','that','this','with','from','into','onto','about','there','their','they','them','then','than','when','where','what','were','was','had','has','have','his','her','she','him','you','your','for','but','not','all','out','one','two','three','four','five','just','like','back','down','over','under','again','very','would','could','should','been','being','through','because','before','after','inside','outside','still','only','really','more','most','some','any','every','each','its','it','he','we','i','a','an','of','to','in','on','at','by','as','is','are','or','if','chapter','scene','beat','must','will','should','begin','end','start','continue','protagonist','character','characters','pov'
 ]);
@@ -991,60 +993,72 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
   };
 }
 
-export function auditSceneFutureBoundaries(sceneProse, spec) {
-  const sentences = String(sceneProse).split(/(?<=[.!?])\s+/);
+export async function auditSceneFutureBoundaries(sceneProse, spec, model, invokeFn = invokeLLMWithRetry) {
   const violations = [];
-  
   const futureEvents = (spec.future_reserved_event_objects || (spec.future_reserved_events || []).map(e => ({ event: e, sceneId: 'unknown', sceneNumber: 'unknown' })));
 
-  for (let sIdx = 0; sIdx < sentences.length; sIdx++) {
-    const sentence = sentences[sIdx];
-    const sLower = sentence.toLowerCase();
+  if (!futureEvents.length || !sceneProse) return { ok: true, violations: [] };
+
+  const prompt = [
+    `You are a strict narrative auditor enforcing a FUTURE SCENE BOUNDARY.`,
+    `Evaluate the provided scene prose to determine if it explicitly PERFORMS or RESOLVES any of the reserved future events listed below.`,
+    `RULES:`,
+    `1. Merely mentioning an object or character from a reserved event is NOT a violation.`,
+    `2. Foreshadowing, guessing, fearing, or discussing a future possibility is NOT a violation.`,
+    `3. A negated statement ("They did not find the key") is NOT a violation.`,
+    `4. A violation ONLY occurs if the scene definitively enacts the physical or informational action of the reserved event.`,
+    `5. You must extract the exact sentence excerpt that performs the violation.`,
+    ``,
+    `RESERVED FUTURE EVENTS (Do not perform these):`,
+    futureEvents.map((e, i) => `[ID: ${i}] ${e.event}`).join('\\n'),
+    ``,
+    `SCENE PROSE TO EVALUATE:`,
+    sceneProse.slice(0, 16000), // Safety truncation
+    ``,
+    `Return a JSON array of violations. If no violations exist, return [].`,
+    `Format each violation as: {"id": <number from list>, "excerpt": "<exact sentence from prose>"}`,
+    `Output ONLY valid JSON.`
+  ].join('\\n');
+
+  try {
+    const resultRaw = await invokeFn({
+      prompt,
+      model: model || 'gemini-2.5-flash',
+      disable_fallbacks: false,
+      use_gemini_fallback: true,
+      use_openai_fallback: true,
+      temperature: 0.1,
+      max_tokens: 1000,
+    });
     
-    // Add modality/tense-aware detection so planning, intention, fear, prediction, or hypothetical language is not treated as a completed future event.
-    if (sLower.match(/\b(would|could|should|might|may|intended to|planned to|thought about|decided|knew she|knew he|wondered|later|soon|perhaps|maybe)\b/)) {
-      continue;
+    // Quick extract JSON
+    let text = resultRaw;
+    if (typeof resultRaw !== 'string') {
+      text = resultRaw?.content || resultRaw?.text || JSON.stringify(resultRaw);
     }
-    
-    const sentenceSig = extractProseEventSignatures(sentence);
-    if (sentenceSig.functions.length === 0) continue;
-
-    for (const futureObj of futureEvents) {
-      const futureEvent = futureObj.event;
-      const futureBeat = { required_events: [futureEvent] };
-      const futureFunc = classifyStoryFunction(futureBeat);
-      const futureSig = extractEventSignature(futureBeat);
-      
-      if (futureFunc.has('other')) continue;
-
-      const hasMatch = [...futureFunc].some(fn => sentenceSig.functions.includes(fn));
-      if (hasMatch) {
-        const futureKeywords = keywords(futureEvent).filter(w => !futureSig.verbs.includes(w) && !futureFunc.has(w) && !futureSig.names.includes(w));
-        const sentenceKeywords = sentenceSig.objects.filter(w => !futureSig.verbs.includes(w) && !futureFunc.has(w) && !sentenceSig.names.includes(w));
-        
-        const sameCharacter = futureSig.names.length > 0 && futureSig.names.some(n => sentenceSig.names.includes(n));
-        const sameObject = futureKeywords.length > 0 && futureKeywords.some(o => sentenceKeywords.includes(o));
-        const sameTarget = futureSig.places.length > 0 && futureSig.places.some(p => sentenceKeywords.includes(p));
-        const sameVerb = futureSig.verbs.length > 0 && futureSig.verbs.some(v => sentenceSig.functions.includes(v));
-        
-        let objectMatch = futureKeywords.length === 0 || sameObject || sameTarget;
-        let charMatch = futureSig.names.length === 0 || sentenceSig.names.length === 0 || sameCharacter;
-        let verbMatch = futureSig.verbs.length === 0 || sameVerb || hasMatch;
-        
-        if (charMatch && objectMatch && verbMatch) {
-          violations.push({
-            event: futureEvent,
-            sceneId: futureObj.sceneId,
-            sceneNumber: futureObj.sceneNumber,
-            category: [...futureFunc].find(fn => sentenceSig.functions.includes(fn)) || 'unknown',
-            excerpt: sentence.trim(),
-            sentenceIndex: sIdx
-          });
+    const match = text.match(/\[[\s\S]*\]/);
+    if (match) {
+      const parsed = JSON.parse(match[0]);
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          const futureObj = futureEvents[item.id];
+          if (futureObj && item.excerpt) {
+            violations.push({
+              event: futureObj.event,
+              sceneId: futureObj.sceneId,
+              sceneNumber: futureObj.sceneNumber,
+              category: 'llm_detected_violation',
+              excerpt: item.excerpt,
+              sentenceIndex: 0
+            });
+          }
         }
       }
     }
+  } catch (error) {
+    console.warn('[auditSceneFutureBoundaries] LLM check failed, assuming ok for safety', error);
   }
-  
+
   const uniqueViolations = [];
   const seenEvents = new Set();
   for (const v of violations) {

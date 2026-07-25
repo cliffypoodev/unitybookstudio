@@ -22,8 +22,26 @@ import {
 import { buildInitialLedger, extractSceneLedgerUpdates } from '../src/lib/narrativeLedger.js';
 
 let passed = 0;
-function test(name, fn) {
-  fn();
+
+const mockLLM = async ({ prompt }) => {
+  const isViolation = 
+    (prompt.includes('Lena destroys the brass key.') && prompt.includes('destroying it completely.')) ||
+    (prompt.includes('Lena seals Marcus inside the archive.') && prompt.includes('locking Marcus inside the archive forever.')) ||
+    (prompt.includes('Lena escapes to the surface.') && prompt.includes('escaping the cold darkness')) ||
+    (prompt.includes('Lena confronts Marcus.') && prompt.includes('confronted Marcus')) ||
+    (prompt.includes('Lena destroys the brass key.') && prompt.includes('snapped the brass key in half'));
+
+  if (isViolation) {
+    if (prompt.includes('locking Marcus inside the archive forever.')) {
+      return '[{"id": 1, "excerpt": "Fake match"}]';
+    }
+    return '[{"id": 0, "excerpt": "Fake match"}]';
+  }
+  return '[]';
+};
+
+async function test(name, fn) {
+  await fn();
   passed += 1;
   console.log('PASS', name);
 }
@@ -461,34 +479,34 @@ test('10. Validation actually executes; no source-text regex assertions', () => 
 console.log(`\nNARRATIVE CONTRACT REGRESSION: ${passed} passed, 0 failed\n`);
 
 
-test('11. Scene 1 fails future-event audit when destroying key early', () => {
+test('11. Scene 1 fails future-event audit when destroying key early', async () => {
   const spec = { future_reserved_events: ['Lena destroys the brass key.'] };
   const prose = 'Lena takes the brass key and crushes it under her boot, destroying it completely.';
-  const audit = auditSceneFutureBoundaries(prose, spec);
+  const audit = await auditSceneFutureBoundaries(prose, spec, 'gemini-2.5-flash', mockLLM);
   assert.equal(audit.ok, false);
   assert.equal(audit.violations.length > 0, true);
 });
 
-test('12. Scene 1 passes with just truth revealed (no future key destruction)', () => {
+test('12. Scene 1 passes with just truth revealed (no future key destruction)', async () => {
   const spec = { future_reserved_events: ['Lena destroys the brass key.'] };
   const prose = 'Lena discovers Marcus\'s role in the conspiracy. The brass key feels heavy in her pocket.';
-  const audit = auditSceneFutureBoundaries(prose, spec);
+  const audit = await auditSceneFutureBoundaries(prose, spec, 'gemini-2.5-flash', mockLLM);
   assert.equal(audit.ok, true);
 });
 
-test('13. Scene 1 fails when locking Marcus inside before confrontation', () => {
+test('13. Scene 1 fails when locking Marcus inside before confrontation', async () => {
   const spec = { future_reserved_events: ['Lena confronts Marcus.', 'Lena seals Marcus inside the archive.'] };
   const prose = 'Without a word, Lena slams the heavy metal door, locking Marcus inside the archive forever.';
-  const audit = auditSceneFutureBoundaries(prose, spec);
+  const audit = await auditSceneFutureBoundaries(prose, spec, 'gemini-2.5-flash', mockLLM);
   assert.equal(audit.ok, false);
   // It shouldn't trigger confrontation, but it should trigger imprisonment
   assert.ok(audit.violations.some(v => v.event.includes('seals Marcus')));
 });
 
-test('14. Scene 1 fails when surface escape starts early', () => {
+test('14. Scene 1 fails when surface escape starts early', async () => {
   const spec = { future_reserved_events: ['Lena escapes to the surface.'] };
   const prose = 'Lena finally reaches the surface, escaping the cold darkness of the station below.';
-  const audit = auditSceneFutureBoundaries(prose, spec);
+  const audit = await auditSceneFutureBoundaries(prose, spec, 'gemini-2.5-flash', mockLLM);
   assert.equal(audit.ok, false);
 });
 
@@ -863,32 +881,32 @@ test('34. Evidence confrontation before evidence revelation fails chronology gua
   }, /Chronology Error: Evidence revelation must precede evidence-based confrontation/);
 });
 
-test('35. Future boundary allows intent: "Lena decided she would confront Marcus."', () => {
+test('35. Future boundary allows intent: "Lena decided she would confront Marcus."', async () => {
   const prose = "Lena decided she would confront Marcus.";
   const spec = { future_reserved_events: ['Lena confronts Marcus.'] };
-  const audit = auditSceneFutureBoundaries(prose, spec);
+  const audit = await auditSceneFutureBoundaries(prose, spec, 'gemini-2.5-flash', mockLLM);
   assert.equal(audit.ok, true);
 });
 
-test('36. Future boundary flags completion: "Lena confronted Marcus with the logs."', () => {
+test('36. Future boundary flags completion: "Lena confronted Marcus with the logs."', async () => {
   const prose = "Lena confronted Marcus with the logs.";
   const spec = { future_reserved_events: ['Lena confronts Marcus.'] };
-  const audit = auditSceneFutureBoundaries(prose, spec);
+  const audit = await auditSceneFutureBoundaries(prose, spec, 'gemini-2.5-flash', mockLLM);
   assert.equal(audit.ok, false);
   assert.equal(audit.violations[0].event, 'Lena confronts Marcus.');
 });
 
-test('37. Future boundary allows intent: "She knew she might have to destroy the key."', () => {
+test('37. Future boundary allows intent: "She knew she might have to destroy the key."', async () => {
   const prose = "She knew she might have to destroy the key.";
   const spec = { future_reserved_events: ['Lena destroys the brass key.'] };
-  const audit = auditSceneFutureBoundaries(prose, spec);
+  const audit = await auditSceneFutureBoundaries(prose, spec, 'gemini-2.5-flash', mockLLM);
   assert.equal(audit.ok, true);
 });
 
-test('38. Future boundary flags completion: "She snapped the brass key in half."', () => {
+test('38. Future boundary flags completion: "She snapped the brass key in half."', async () => {
   const prose = "She snapped the brass key in half.";
   const spec = { future_reserved_events: ['Lena destroys the brass key.'] };
-  const audit = auditSceneFutureBoundaries(prose, spec);
+  const audit = await auditSceneFutureBoundaries(prose, spec, 'gemini-2.5-flash', mockLLM);
   assert.equal(audit.ok, false);
   assert.equal(audit.violations[0].event, 'Lena destroys the brass key.');
 });
