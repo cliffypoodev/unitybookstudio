@@ -215,6 +215,56 @@ async function runAll() {
     }
   });
 
+  await test('41. Fiction overlap retains both scenes perfectly', async () => {
+    const rawArchitectResult = {
+      beats: [
+        { scene_number: 1, scene_id: "ch05-s01", required_events: ['A confrontation happens.'], entry_state: 'angry', exit_state: 'calm', location: 'Office' },
+        { scene_number: 2, scene_id: "ch05-s02", required_events: ['A confrontation happens.'], entry_state: 'angry', exit_state: 'calm', location: 'Office' }
+      ]
+    };
+    
+    // Create the pipeline contract
+    const pipeline_contract = captureRawArchitectProvenance(rawArchitectResult);
+    
+    const overlapReport = sceneBeatNormalizer.normalizeSceneBeatsForDrafting(rawArchitectResult.beats, {
+      isNonfiction: false,
+      chapterNumber: 5,
+      chapterTitle: 'Test',
+      projectTitle: 'Test Project',
+    });
+
+    // A. Two overlapping fiction scenes remain two scenes.
+    assert.equal(overlapReport.beats.length, 2, 'Should remain 2 scenes');
+    
+    // B. Both original IDs survive normalization.
+    assert.equal(overlapReport.beats[0].scene_id, 'ch05-s01');
+    assert.equal(overlapReport.beats[1].scene_id, 'ch05-s02');
+    
+    // C. Both original scene numbers survive normalization.
+    assert.equal(overlapReport.beats[0].scene_number, 1);
+    assert.equal(overlapReport.beats[1].scene_number, 2);
+    
+    // D. Required events from both scenes survive unchanged.
+    assert.equal(overlapReport.beats[0].required_events[0], 'A confrontation happens.');
+    assert.equal(overlapReport.beats[1].required_events[0], 'A confrontation happens.');
+
+    // E. Narrative beat fields from both scenes survive unchanged.
+    assert.equal(overlapReport.beats[0].entry_state, 'angry');
+    assert.equal(overlapReport.beats[1].entry_state, 'angry');
+    
+    // F. The overlap report records the overlap without claiming a semantic merge.
+    assert.equal(overlapReport.merged, 0, 'merged count should be 0');
+    assert.equal(overlapReport.removed, 0, 'removed count should be 0');
+    assert.ok(overlapReport.reported > 0 || overlapReport.warnings.length > 0, 'Should have reported a warning');
+
+    // G. verifySceneProvenance passes after normalization.
+    verifySceneProvenance(overlapReport.beats, pipeline_contract, 'after-normalization');
+    
+    // H. verifyContiguousSceneSequence passes after normalization.
+    const { verifyContiguousSceneSequence } = await import('../src/lib/generationContext.js');
+    verifyContiguousSceneSequence(overlapReport.beats, pipeline_contract.expected_scene_count, 'after-normalization');
+  });
+
   console.log(`\n${passes}/${tests} passed.`);
   if (passes !== tests) process.exit(1);
 }

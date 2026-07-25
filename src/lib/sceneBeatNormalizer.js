@@ -234,7 +234,10 @@ function hasDecisionChronologyConflict(currentBeat, keptBeat) {
   return null;
 }
 
-function enforceDecisionChronology(beats) {
+function enforceDecisionChronology(beats, isNonfiction = true) {
+  if (!isNonfiction) {
+    return { beats, merged: 0, reordered: 0, replaced: 0, warnings: [] };
+  }
   const warnings = [];
   const out = beats.map((beat) => ({ ...(beat || {}) }));
   let merged = 0;
@@ -746,7 +749,8 @@ function summarizeBeat(beat) {
   return s.length > 280 ? `${s.slice(0, 277)}...` : s;
 }
 
-function resequence(beats) {
+function resequence(beats, isNonfiction = true) {
+  if (!isNonfiction) return beats;
   return beats.map((beat, index) => ({
     ...(beat || {}),
     scene_number: index + 1,
@@ -790,7 +794,7 @@ export function normalizeSceneBeatsForDrafting(rawBeats, options = {}) {
     };
   }
 
-  const chronologyPass = enforceDecisionChronology(beats);
+  const chronologyPass = enforceDecisionChronology(beats, isNonfiction);
   const inputBeats = chronologyPass.beats;
 
   // Add [NORMALIZER-INPUT] logging
@@ -847,6 +851,27 @@ mergeReason: ${candidate.reason}`);
     }
 
     if (matchedIndex >= 0 && match?.confidence === 'high') {
+      if (!isNonfiction) {
+        reported += 1;
+        warnings.push(`High-confidence overlapping beat ${beat.scene_number || beat.sceneNumber || '?'} kept for safety: ${match.reason}`);
+        kept[matchedIndex] = {
+           ...kept[matchedIndex],
+           merged_duplicate_notes: [
+             ...(Array.isArray(kept[matchedIndex].merged_duplicate_notes) ? kept[matchedIndex].merged_duplicate_notes : []),
+             `Overlap detected with beat ${beat.scene_number || beat.sceneNumber || '?'}: ${match.reason} - scenes retained for drafting differentiation.`
+           ]
+        };
+        kept.push({
+          ...(beat || {}),
+          continuity_warning: `This beat overlaps an earlier beat. Treat it only as a consequence/escalation, never a restart. ${match.reason}`,
+          beats: [
+            ...(Array.isArray(beat?.beats) ? beat.beats : []),
+            `CONTINUITY WARNING: This beat overlaps earlier material. Write only the new consequence/escalation. Do NOT replay the same encounter, setup, report, or aftermath. ${match.reason}`,
+          ],
+        });
+        continue;
+      }
+
       const chosen = chooseBaseAndDuplicate(kept[matchedIndex], beat);
       console.log(`[NORMALIZER-MERGE]
 removedScene: ${chosen.duplicate.sceneNumber || chosen.duplicate.scene_number || '?'}
@@ -869,7 +894,7 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
 
       // Same-function aftermath beats are safer to merge than to keep, because keeping both creates the exact
       // duplicate-report / duplicate-reflection problem we are fixing.
-      if (sameFunction) {
+      if (sameFunction && isNonfiction) {
         const chosen = chooseBaseAndDuplicate(kept[matchedIndex], beat);
         console.log(`[NORMALIZER-MERGE]
 removedScene: ${chosen.duplicate.sceneNumber || chosen.duplicate.scene_number || '?'}
@@ -889,6 +914,15 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
 
       reported += 1;
       warnings.push(`Medium-confidence overlapping beat ${beat.scene_number || beat.sceneNumber || '?'} kept for safety: ${match.reason}`);
+      if (!isNonfiction) {
+        kept[matchedIndex] = {
+           ...kept[matchedIndex],
+           merged_duplicate_notes: [
+             ...(Array.isArray(kept[matchedIndex].merged_duplicate_notes) ? kept[matchedIndex].merged_duplicate_notes : []),
+             `Overlap detected with beat ${beat.scene_number || beat.sceneNumber || '?'}: ${match.reason} - scenes retained for drafting differentiation.`
+           ]
+        };
+      }
       kept.push({
         ...(beat || {}),
         continuity_warning: `This beat may overlap an earlier beat. Treat it only as a consequence/escalation, never a restart. ${match.reason}`,
@@ -903,7 +937,7 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
     kept.push({ ...(beat || {}) });
   }
 
-  let finalBeats = addFunctionWarnings(resequence(kept.length ? kept : beats));
+  let finalBeats = addFunctionWarnings(resequence(kept.length ? kept : beats, isNonfiction));
   
   // FAIL-CLOSED COUNT-PRESERVATION RULE
   if (!isNonfiction && inputBeats.length > finalBeats.length) {
