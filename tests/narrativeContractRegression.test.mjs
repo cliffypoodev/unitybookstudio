@@ -905,3 +905,59 @@ test('39. Repair prompt receives exact offending excerpts', () => {
   assert.match(prompt, /"She snapped the brass key in half\." \(This performs the future event: "Lena destroys the brass key\." reserved for Scene ch05-s03\)/);
   assert.match(prompt, /REMOVE or REWRITE these specific passages/);
 });
+
+test('40. Chronology permits destruction if object was used for access (positive)', () => {
+  const beats = [
+    {
+      entry_state: "Lena has the brass key.",
+      required_events: [
+        "They discover a hidden archive door with a brass lock.",
+        "Lena uses the brass key to open the door."
+      ]
+    },
+    {
+      required_events: [
+        "Lena destroys the brass key."
+      ]
+    }
+  ];
+  // Should not throw
+  validateRawBeatChronology(beats);
+});
+
+test('41. Chronology blocks destruction if object was not used for access (negative)', () => {
+  const beats = [
+    {
+      entry_state: "Lena has the brass key.",
+      required_events: [
+        "They discover a hidden archive door."
+      ]
+    },
+    {
+      required_events: [
+        "Lena destroys the brass key."
+      ]
+    }
+  ];
+  assert.throws(() => {
+    validateRawBeatChronology(beats);
+  }, /Chronology Error: Object must be used for access before it is destroyed/);
+});
+
+test('42. Chronology handles alternate grammar: using the brass key', () => {
+  const beats = [
+    {
+      entry_state: "Lena has the brass key.",
+      required_events: [
+        "Lena opens the archive door using the brass key."
+      ]
+    },
+    {
+      required_events: [
+        "Lena destroys the brass key."
+      ]
+    }
+  ];
+  // Should not throw
+  validateRawBeatChronology(beats);
+});

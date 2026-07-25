@@ -1136,11 +1136,15 @@ export function extractEventSignatures(text, context) {
   const article = `(?:(?:the|a|an)\\s+)?`;
   const tLower = text.toLowerCase();
   
+  for (const match of text.matchAll(new RegExp(`\\b(uses)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)\\s+(?:to\\s+(?:unlock|open|access|enter))\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    const actor = resolveActor(text, context.knownActors, match.index);
+    sigs.push({ category: 'unlock_or_access', actor, object: match[2].trim().toLowerCase(), target: match[3].trim().toLowerCase(), raw: match[0] });
+  }
   for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)\\s+(?:with|using)\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'unlock_or_access', actor, object: match[3].trim().toLowerCase(), target: match[2].trim().toLowerCase(), raw: match[0] });
   }
-  for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+  for (const match of text.matchAll(new RegExp(`\\b(unlocks|opens|accesses|enters)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but| with| using)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'unlock_or_access', actor, object: null, target: match[2].trim().toLowerCase(), raw: match[0] });
   }
@@ -1293,7 +1297,37 @@ export function validateRawBeatChronology(beats) {
       }
       
       if (sig.category === 'destroy_object' && reqText.match(/key|badge|card/)) {
-        const hasAccess = history.events.some(e => e.category === 'unlock_or_access');
+        const normalizeObj = (o) => o ? o.replace(/^(the|a|an)\\s+/i, '').replace(/archive|brass|hidden|metal/g, '').trim() : '';
+        const destroyedObj = normalizeObj(sig.object);
+        
+        let hasAccess = false;
+        const priorAccessObjects = [];
+        const priorAccessTargets = [];
+        const normalizedPriorObjects = [];
+        
+        for (const e of history.events) {
+          if (e.category === 'unlock_or_access') {
+            if (e.object) priorAccessObjects.push(e.object);
+            if (e.target) priorAccessTargets.push(e.target);
+            
+            if (e.object) {
+               const priorObj = normalizeObj(e.object);
+               normalizedPriorObjects.push(priorObj);
+               if (priorObj === destroyedObj || priorObj.includes(destroyedObj) || destroyedObj.includes(priorObj)) {
+                 hasAccess = true;
+               }
+            }
+          }
+        }
+        
+        console.log('[OBJECT-CHRONOLOGY]');
+        console.log(`destroyedObject=${sig.object}`);
+        console.log(`priorAccessObjects=${priorAccessObjects.join(',')}`);
+        console.log(`priorAccessTargets=${priorAccessTargets.join(',')}`);
+        console.log(`normalizedDestroyedObject=${destroyedObj}`);
+        console.log(`normalizedPriorObjects=${normalizedPriorObjects.join(',')}`);
+        console.log(`matched=${hasAccess}`);
+        
         if (!hasAccess) {
           throw new Error('Chronology Error: Object must be used for access before it is destroyed.');
         }
