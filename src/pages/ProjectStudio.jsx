@@ -68,7 +68,7 @@ import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity 
 import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
-import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, validateSceneBeatContracts } from '@/lib/generationContext';
+import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance } from '@/lib/generationContext';
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
@@ -3164,10 +3164,22 @@ Return structured JSON:
 
         if (isNonfiction) break;
 
+        const parsedUnits = extractSceneBeatUnitsForValidation(beatResult);
+        if (!beatResult.pipeline_contract) {
+          beatResult.pipeline_contract = {
+            expected_scene_count: parsedUnits.length,
+            expected_scene_ids: parsedUnits.map(b => b?.scene_id).filter(Boolean),
+            expected_scene_numbers: parsedUnits.map(b => Number(b?.scene_number || b?.sceneNumber || 0)).filter(n => n > 0),
+            source_stage: 'architect-parsed'
+          };
+        }
+        verifySceneProvenance(parsedUnits, beatResult.pipeline_contract, 'architect-parsed');
+
         validateSceneBeatContracts(beatResult || {}, {
           chapterNumber: chapter.chapter_number,
         });
         const proposedBeats = Array.isArray(beatResult?.beats) ? beatResult.beats : [];
+        verifySceneProvenance(proposedBeats, beatResult.pipeline_contract, 'before-normalization');
         const overlapReport = normalizeSceneBeatsForDrafting(proposedBeats, {
           isNonfiction: false,
           chapterNumber: chapter.chapter_number,
@@ -3175,27 +3187,29 @@ Return structured JSON:
           projectTitle: promptProject.title || '',
         });
 
-        if (!overlapReport.changed) break;
-
-        // A normalizer change is not automatically a failed contract.
-        // If it resolves the overlap while preserving at least two distinct,
-        // chronological scenes, use that repaired plan instead of repeatedly
-        // regenerating until the model collapses the chapter into one scene.
         const normalizedBeatPlan = Array.isArray(overlapReport?.beats)
           ? overlapReport.beats
           : Array.isArray(overlapReport?.normalizedBeats)
             ? overlapReport.normalizedBeats
             : [];
 
-        if (normalizedBeatPlan.length >= 2) {
-          console.warn(
-            `[NARRATIVE-CONNECT] Accepting normalized beat contract for Ch.${chapter.chapter_number}: ` +
-            `${proposedBeats.length} → ${normalizedBeatPlan.length} distinct scenes.`
-          );
+        const originalCount = proposedBeats.length;
+        const newCount = normalizedBeatPlan.length;
+        if (newCount < originalCount && (!overlapReport.merged || overlapReport.merged < (originalCount - newCount))) {
+          const warning = `Refusing to accept normalized beat contract for Ch.${chapter.chapter_number}: ${originalCount} → ${newCount} scenes without sufficient merge records. Loss detected.`;
+          console.warn(`[BEAT-PIPELINE] ${warning}`);
+          overlapReport.warnings.push(warning);
+        } else {
+          console.log(`[BEAT-PIPELINE] Accepting normalized beat contract for Ch.${chapter.chapter_number}: ${originalCount} → ${newCount} distinct scenes.`);
+        }
 
-          const reindexedNormalizedBeats = normalizedBeatPlan; // NARRATIVE-CONNECT: Do not reindex to hide the missing middle scene
+        verifySceneProvenance(normalizedBeatPlan, beatResult.pipeline_contract, 'after-normalization');
 
-          beatResult = {
+        if (!overlapReport.changed) break;
+
+        const reindexedNormalizedBeats = normalizedBeatPlan; // NARRATIVE-CONNECT: Do not reindex to hide the missing middle scene
+
+        beatResult = {
             ...(beatResult || {}),
             beats: reindexedNormalizedBeats,
           };
@@ -3208,9 +3222,8 @@ Return structured JSON:
           validateSceneBeatContracts(beatResult, {
             chapterNumber: chapter.chapter_number,
           });
-
+          
           break;
-        }
 
         if (attempt === maxContractAttempts) {
           if (
@@ -3269,6 +3282,7 @@ Return structured JSON:
     } catch(e) {}
     console.log(`[BEAT-PIPELINE] before-compact-save: ${parsedCount} scenes`);
 
+    verifySceneProvenance(extractSceneBeatUnitsForValidation(beatResult), beatResult?.pipeline_contract, 'before-compact-save');
     const compactBeatsJson = compactSceneBeatsForEntity(beatResult || {}, chapter);
 
     console.log(`[BEAT-PIPELINE] after-compact-save: compacted length ${compactBeatsJson.length}`);
@@ -3381,6 +3395,13 @@ Return structured JSON:
       : [];
 
     console.log('[DRAFT DEBUG] Calling generateChapterByScenes. Beats parsed:', JSON.parse(chapterWithBeats.scene_beats_json || '{}')?.beats?.length || JSON.parse(chapterWithBeats.scene_beats_json || '{}')?.sections?.length || 0, 'scenes', '| proseModelOverride:', proseModelOverride || 'none', '| coverage summaries:', priorChapterSummaries.length);
+    
+    // Verify compact parse and before-draft
+    const parsedForDraft = typeof chapterWithBeats.scene_beats_json === 'string' ? JSON.parse(chapterWithBeats.scene_beats_json) : chapterWithBeats.scene_beats_json;
+    if (parsedForDraft?.pipeline_contract && !isAnthologyProject(generationProject) && generationProject.book_type !== 'nonfiction') {
+       verifySceneProvenance(parsedForDraft.beats, parsedForDraft.pipeline_contract, 'before-generateChapterByScenes');
+    }
+
     const sceneResult = await generateChapterByScenes({
       project: draftingProject,
       chapter: chapterWithBeats,

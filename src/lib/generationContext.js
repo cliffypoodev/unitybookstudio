@@ -33,8 +33,17 @@ export class GenerationContextError extends Error {
   constructor(message, details = {}) {
     super(message);
     this.name = 'GenerationContextError';
-    this.code = details.code || 'GENERATION_CONTEXT_INVALID';
+    this.code = details.code || 'UNKNOWN_ERROR';
     this.details = details;
+  }
+}
+
+export class NarrativeInvariantError extends Error {
+  constructor(message, details = {}) {
+    super(message);
+    this.name = 'NarrativeInvariantError';
+    this.code = details.code || 'UNKNOWN_INVARIANT_ERROR';
+    Object.assign(this, details);
   }
 }
 
@@ -267,6 +276,35 @@ export function buildGenerationSnapshot({ project, chapters = [], chapter } = {}
     chapter: currentChapter,
     previousChapter,
   });
+}
+
+export function getSceneGoal(scene) {
+  return text(scene?.scene_goal || scene?.goal);
+}
+
+export function verifySceneProvenance(actualBeats, pipelineContract, failureStage) {
+  if (!pipelineContract || !Array.isArray(pipelineContract.expected_scene_ids)) return;
+  const expectedIds = pipelineContract.expected_scene_ids;
+  const actualIds = (Array.isArray(actualBeats) ? actualBeats : []).map(b => b?.scene_id || b?.id).filter(Boolean);
+  
+  const expectedSet = new Set(expectedIds);
+  const actualSet = new Set(actualIds);
+  
+  const missing = expectedIds.filter(id => !actualSet.has(id));
+  const unexpected = actualIds.filter(id => !expectedSet.has(id));
+  
+  if (missing.length > 0) {
+    const err = new NarrativeInvariantError(`Scene loss detected at ${failureStage}: Missing ${missing.join(', ')}`, {
+      code: 'SCENE_LOST_IN_PIPELINE',
+      expectedSceneIds: expectedIds,
+      actualSceneIds: actualIds,
+      missingSceneIds: missing,
+      unexpectedSceneIds: unexpected,
+      lastKnownCompleteStage: pipelineContract.source_stage,
+      failureStage: failureStage
+    });
+    throw err;
+  }
 }
 
 export function validateSceneBeatContracts(value, options = {}) {
