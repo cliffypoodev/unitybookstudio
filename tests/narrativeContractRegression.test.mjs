@@ -718,3 +718,66 @@ test('31. Repair report identifies every move/removal/state correction', () => {
   assert.ok(r.repairs.length > 0);
   assert.ok(r.beats[1].entry_state.includes('destroyed'));
 });
+
+test('32. Historical death does not falsely classify as character_death and dependency rule prevents false merges', () => {
+  const scene1 = {
+    scene_number: 1,
+    scene_id: 'ch05-s01',
+    required_events: [
+      "Lena uses the brass key to access the archive.",
+      "The archive reveals evidence implicating Marcus in the accident that killed Lena's father.",
+      "Lena confronts Marcus with the evidence."
+    ]
+  };
+
+  const scene2 = {
+    scene_number: 2,
+    scene_id: 'ch05-s02',
+    required_events: [
+      "Lena and Marcus navigate the collapsing station.",
+      "They narrowly avoid structural collapse."
+    ]
+  };
+
+  const scene3 = {
+    scene_number: 3,
+    scene_id: 'ch05-s03',
+    required_events: [
+      "Lena destroys the brass key.",
+      "Lena refuses to forgive Marcus.",
+      "Lena leaves Marcus behind and escapes."
+    ]
+  };
+
+  const func1 = classifyStoryFunction(scene1);
+  const func3 = classifyStoryFunction(scene3);
+
+  // Assert: Scene 1 categories include revelation and confrontation
+  assert.ok(func1.has('revelation'));
+  assert.ok(func1.has('confrontation'));
+
+  // Assert: Scene 1 does NOT include character_death
+  assert.equal(func1.has('character_death'), false);
+
+  // Assert: Scene 3 includes irreversible_object_loss and abandonment_refusal
+  assert.ok(func3.has('irreversible_object_loss'));
+  assert.ok(func3.has('abandonment_refusal'));
+
+  // Assert: Scene 1 and Scene 3 mergeDecision === false
+  // shouldMergeFictionScenes checks category match (false since sizes differ and categories differ), but the real test is the pipeline
+  assert.equal(shouldMergeFictionScenes(scene1, scene3), false);
+
+  // Run through pipeline
+  const result = normalizeSceneBeatsForDrafting([scene1, scene2, scene3], { isNonfiction: false, chapterNumber: 5 });
+
+  // Assert: final scene count remains 3
+  assert.equal(result.beats.length, 3);
+  
+  // Assert: IDs remain ch05-s01, ch05-s02, ch05-s03
+  assert.equal(result.beats[0].scene_id, 'ch05-s01');
+  assert.equal(result.beats[1].scene_id, 'ch05-s02');
+  assert.equal(result.beats[2].scene_id, 'ch05-s03');
+  
+  // Assert: no SCENE_LOST_IN_PIPELINE error occurs
+  // (Since we didn't throw an error, it succeeded)
+});

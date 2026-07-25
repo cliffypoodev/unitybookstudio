@@ -186,6 +186,14 @@ function hasDecisionChronologyConflict(currentBeat, keptBeat) {
   const keptText = normalize(textOf(keptBeat));
   const overlap = coreOverlap(extractEventSignature(currentBeat), extractEventSignature(keptBeat));
 
+  const currentFuncs = classifyStoryFunction(currentBeat);
+  const keptFuncs = classifyStoryFunction(keptBeat);
+
+  if ((keptFuncs.has('revelation') && (currentFuncs.has('irreversible_object_loss') || currentFuncs.has('abandonment_refusal') || currentFuncs.has('escape'))) ||
+      (currentFuncs.has('revelation') && (keptFuncs.has('irreversible_object_loss') || keptFuncs.has('abandonment_refusal') || keptFuncs.has('escape')))) {
+    return null; // Dependency order: prerequisite revelation -> later irreversible response
+  }
+
   if (current.stage === kept.stage) {
     return {
       duplicate: true,
@@ -587,7 +595,21 @@ export function classifyStoryFunction(scene) {
   if (hasStem(['decide', 'refuse', 'forgive', 'reject', 'abandon', 'leave'])) funcs.add('abandonment_refusal');
   if (hasStem(['imprison', 'lock', 'trap', 'seal'])) funcs.add('imprisonment_separation');
   if (hasStem(['collapse', 'collapses', 'collapsed', 'collaps', 'cave'])) funcs.add('structural_collapse');
-  if (hasStem(['die', 'dies', 'died', 'dead', 'kill', 'kills', 'killed'])) funcs.add('character_death');
+
+  const deathStems = ['die', 'dies', 'died', 'dead', 'kill', 'kills', 'killed', 'crush', 'crushes', 'crushed'];
+  const historicalContext = /\\b(records?|files?|logs?|documents?|archive|evidence|reports?|remembers?|remembered|admits?|admitted|discuss(es|ed)?|discovers?|discovered|accident|incident|years earlier|past|history|implicat(es|ing|ed)|casualties|casualty|fatal)\\b/i;
+
+  const textRaw = ((scene?.required_events || []).join('. ') + ' ' + (scene?.scene_goal || '') + ' ' + (scene?.entry_state || '') + ' ' + (scene?.exit_state || '')).toLowerCase();
+  const sentences = textRaw.split(/(?<=[.?!])\\s+/);
+  const hasActiveDeath = sentences.some(sentence => {
+    const sNorm = normalize(sentence);
+    const sWords = sNorm.split(/\\s+/).filter(Boolean);
+    const hasDeath = sWords.some(w => deathStems.includes(w) || deathStems.includes(stemWord(w)));
+    if (!hasDeath) return false;
+    return !historicalContext.test(sentence);
+  });
+
+  if (hasActiveDeath) funcs.add('character_death');
   
   if (funcs.size === 0) funcs.add('other');
   return funcs;
@@ -1135,8 +1157,11 @@ export function extractEventSignatures(text, context) {
     if (hasStem(['collapse', 'cave', 'explode'])) {
       sigs.push({ category: 'structural_collapse', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
     }
-    if (hasStem(['die', 'kill', 'dead', 'dies', 'death'])) {
-      sigs.push({ category: 'character_death', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
+    if (hasStem(['die', 'kill', 'dead', 'dies', 'death', 'crush', 'crushed'])) {
+      const historicalContext = /\\b(records?|files?|logs?|documents?|archive|evidence|reports?|remembers?|remembered|admits?|admitted|discuss(es|ed)?|discovers?|discovered|accident|incident|years earlier|past|history|implicat(es|ing|ed)|casualties|casualty|fatal)\\b/i;
+      if (!historicalContext.test(tLower)) {
+        sigs.push({ category: 'character_death', actor: resolveActor(text, context.knownActors, 0), object: null, target: null, raw: text });
+      }
     }
   }
   
