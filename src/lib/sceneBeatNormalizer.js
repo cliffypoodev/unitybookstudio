@@ -235,9 +235,6 @@ function hasDecisionChronologyConflict(currentBeat, keptBeat) {
 }
 
 function enforceDecisionChronology(beats, isNonfiction = true) {
-  if (!isNonfiction) {
-    return { beats, merged: 0, reordered: 0, replaced: 0, warnings: [] };
-  }
   const warnings = [];
   const out = beats.map((beat) => ({ ...(beat || {}) }));
   let merged = 0;
@@ -313,6 +310,10 @@ function enforceDecisionChronology(beats, isNonfiction = true) {
     }
     out.length = 0;
     out.push(...next);
+  }
+
+  if (!isNonfiction) {
+    return { beats, merged: 0, reordered: 0, replaced: 0, warnings };
   }
 
   return { beats: out, merged, reordered, replaced, warnings };
@@ -758,7 +759,7 @@ function resequence(beats, isNonfiction = true) {
   }));
 }
 
-function addFunctionWarnings(beats) {
+function addFunctionWarnings(beats, isNonfiction = true) {
   const seen = new Map();
   return beats.map((beat) => {
     const fn = primaryFunction(beat);
@@ -770,10 +771,12 @@ function addFunctionWarnings(beats) {
       ...beat,
       story_function: beat.story_function || fn.label,
       continuity_warning: `Repeated story function detected: ${fn.label}. This scene must create a new state change and must not replay the earlier ${fn.label} beat.`,
-      beats: [
-        ...(Array.isArray(beat?.beats) ? beat.beats : []),
-        `STORY FUNCTION WARNING: Another ${fn.label} beat already exists in this chapter. Write only if this scene creates a new irreversible state change. Do not repeat the same emotional processing or logistics.`,
-      ],
+      ...(isNonfiction ? {
+        beats: [
+          ...(Array.isArray(beat?.beats) ? beat.beats : []),
+          `STORY FUNCTION WARNING: Another ${fn.label} beat already exists in this chapter. Write only if this scene creates a new irreversible state change. Do not repeat the same emotional processing or logistics.`,
+        ],
+      } : {})
     };
   });
 }
@@ -863,11 +866,7 @@ mergeReason: ${candidate.reason}`);
         };
         kept.push({
           ...(beat || {}),
-          continuity_warning: `This beat overlaps an earlier beat. Treat it only as a consequence/escalation, never a restart. ${match.reason}`,
-          beats: [
-            ...(Array.isArray(beat?.beats) ? beat.beats : []),
-            `CONTINUITY WARNING: This beat overlaps earlier material. Write only the new consequence/escalation. Do NOT replay the same encounter, setup, report, or aftermath. ${match.reason}`,
-          ],
+          continuity_warning: `This beat overlaps an earlier beat. Treat it only as a consequence/escalation, never a restart. ${match.reason}`
         });
         continue;
       }
@@ -926,10 +925,12 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
       kept.push({
         ...(beat || {}),
         continuity_warning: `This beat may overlap an earlier beat. Treat it only as a consequence/escalation, never a restart. ${match.reason}`,
-        beats: [
-          ...(Array.isArray(beat?.beats) ? beat.beats : []),
-          `CONTINUITY WARNING: This beat overlaps earlier material. Write only the new consequence/escalation. Do NOT replay the same encounter, setup, report, or aftermath. ${match.reason}`,
-        ],
+        ...(isNonfiction ? {
+          beats: [
+            ...(Array.isArray(beat?.beats) ? beat.beats : []),
+            `CONTINUITY WARNING: This beat overlaps earlier material. Write only the new consequence/escalation. Do NOT replay the same encounter, setup, report, or aftermath. ${match.reason}`,
+          ],
+        } : {})
       });
       continue;
     }
@@ -937,7 +938,7 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
     kept.push({ ...(beat || {}) });
   }
 
-  let finalBeats = addFunctionWarnings(resequence(kept.length ? kept : beats, isNonfiction));
+  let finalBeats = addFunctionWarnings(resequence(kept.length ? kept : beats, isNonfiction), isNonfiction);
   
   // FAIL-CLOSED COUNT-PRESERVATION RULE
   if (!isNonfiction && inputBeats.length > finalBeats.length) {

@@ -218,11 +218,40 @@ async function runAll() {
   await test('41. Fiction overlap retains both scenes perfectly', async () => {
     const rawArchitectResult = {
       beats: [
-        { scene_number: 1, scene_id: "ch05-s01", required_events: ['A confrontation happens.'], entry_state: 'angry', exit_state: 'calm', location: 'Office' },
-        { scene_number: 2, scene_id: "ch05-s02", required_events: ['A confrontation happens.'], entry_state: 'angry', exit_state: 'calm', location: 'Office' }
+        { 
+          scene_number: 1, 
+          scene_id: "ch05-s01", 
+          beats: ['A fight starts.'],
+          required_events: ['A confrontation happens.'], 
+          entry_state: 'angry', 
+          exit_state: 'calm', 
+          goal: 'Win',
+          conflict: 'Lost key',
+          disaster: 'Trapped',
+          scene_summary: 'They fight.',
+          location: 'Office',
+          pov_character: 'Alice'
+        },
+        { 
+          scene_number: 2, 
+          scene_id: "ch05-s02", 
+          beats: ['A fight starts.'],
+          required_events: ['A confrontation happens.'], 
+          entry_state: 'angry', 
+          exit_state: 'calm', 
+          goal: 'Win',
+          conflict: 'Lost key',
+          disaster: 'Trapped',
+          scene_summary: 'They fight.',
+          location: 'Office',
+          pov_character: 'Alice'
+        }
       ]
     };
     
+    // Deep clone the original input before normalization
+    const originalInput = JSON.parse(JSON.stringify(rawArchitectResult.beats));
+
     // Create the pipeline contract
     const pipeline_contract = captureRawArchitectProvenance(rawArchitectResult);
     
@@ -233,36 +262,72 @@ async function runAll() {
       projectTitle: 'Test Project',
     });
 
-    // A. Two overlapping fiction scenes remain two scenes.
+    // 1. Scene count is unchanged.
     assert.equal(overlapReport.beats.length, 2, 'Should remain 2 scenes');
     
-    // B. Both original IDs survive normalization.
-    assert.equal(overlapReport.beats[0].scene_id, 'ch05-s01');
-    assert.equal(overlapReport.beats[1].scene_id, 'ch05-s02');
+    // 2. Scene IDs are unchanged.
+    // 3. Scene numbers are unchanged.
+    // 4. Every narrative field in both output scenes deeply equals its corresponding original field.
+    for (let i = 0; i < 2; i++) {
+      assert.equal(overlapReport.beats[i].scene_id, originalInput[i].scene_id);
+      assert.equal(overlapReport.beats[i].scene_number, originalInput[i].scene_number);
+      assert.deepEqual(overlapReport.beats[i].beats, originalInput[i].beats);
+      assert.deepEqual(overlapReport.beats[i].required_events, originalInput[i].required_events);
+      assert.equal(overlapReport.beats[i].entry_state, originalInput[i].entry_state);
+      assert.equal(overlapReport.beats[i].exit_state, originalInput[i].exit_state);
+      assert.equal(overlapReport.beats[i].goal, originalInput[i].goal);
+      assert.equal(overlapReport.beats[i].conflict, originalInput[i].conflict);
+      assert.equal(overlapReport.beats[i].disaster, originalInput[i].disaster);
+      assert.equal(overlapReport.beats[i].scene_summary, originalInput[i].scene_summary);
+      assert.equal(overlapReport.beats[i].location, originalInput[i].location);
+      assert.equal(overlapReport.beats[i].pov_character, originalInput[i].pov_character);
+      
+      // 5. No diagnostic text appears inside either scene’s beats array.
+      assert.ok(!overlapReport.beats[i].beats.some(b => typeof b === 'string' && b.includes('CONTINUITY WARNING')), 'beats array must not contain diagnostic text');
+    }
     
-    // C. Both original scene numbers survive normalization.
-    assert.equal(overlapReport.beats[0].scene_number, 1);
-    assert.equal(overlapReport.beats[1].scene_number, 2);
-    
-    // D. Required events from both scenes survive unchanged.
-    assert.equal(overlapReport.beats[0].required_events[0], 'A confrontation happens.');
-    assert.equal(overlapReport.beats[1].required_events[0], 'A confrontation happens.');
+    // 6. continuity_warning or report warnings record the overlap.
+    assert.ok(overlapReport.reported > 0 || overlapReport.warnings.length > 0 || overlapReport.beats.some(b => b.continuity_warning), 'Should have reported a warning');
 
-    // E. Narrative beat fields from both scenes survive unchanged.
-    assert.equal(overlapReport.beats[0].entry_state, 'angry');
-    assert.equal(overlapReport.beats[1].entry_state, 'angry');
-    
-    // F. The overlap report records the overlap without claiming a semantic merge.
+    // 7. merged === 0.
     assert.equal(overlapReport.merged, 0, 'merged count should be 0');
+    // 8. removed === 0.
     assert.equal(overlapReport.removed, 0, 'removed count should be 0');
-    assert.ok(overlapReport.reported > 0 || overlapReport.warnings.length > 0, 'Should have reported a warning');
 
-    // G. verifySceneProvenance passes after normalization.
+    // 9. Provenance validation passes.
     verifySceneProvenance(overlapReport.beats, pipeline_contract, 'after-normalization');
     
-    // H. verifyContiguousSceneSequence passes after normalization.
+    // 10. Contiguous-sequence validation passes.
     const { verifyContiguousSceneSequence } = await import('../src/lib/generationContext.js');
     verifyContiguousSceneSequence(overlapReport.beats, pipeline_contract.expected_scene_count, 'after-normalization');
+  });
+
+  await test('42. Fiction chronology does not mutate, delete, or reorder scenes', async () => {
+    // Stage sequence that would normally cause chronology merges/reorders
+    const rawArchitectResult = {
+      beats: [
+        { scene_number: 1, scene_id: "ch05-s01", beats: ['b1'], story_function: 'Consequence', chronology_stage: 'departure/consequence', required_events: ['e1'] },
+        { scene_number: 2, scene_id: "ch05-s02", beats: ['b2'], story_function: 'Inciting Incident', chronology_stage: 'offer/demand', required_events: ['e2'] },
+        { scene_number: 3, scene_id: "ch05-s03", beats: ['b3'], story_function: 'Inciting Incident', chronology_stage: 'offer/demand', required_events: ['e3'] }
+      ]
+    };
+    
+    const originalInput = JSON.parse(JSON.stringify(rawArchitectResult.beats));
+    
+    const overlapReport = sceneBeatNormalizer.normalizeSceneBeatsForDrafting(rawArchitectResult.beats, {
+      isNonfiction: false,
+      chapterNumber: 5,
+    });
+    
+    assert.equal(overlapReport.beats.length, 3);
+    assert.equal(overlapReport.merged, 0);
+    assert.equal(overlapReport.removed, 0);
+    
+    for (let i = 0; i < 3; i++) {
+      assert.equal(overlapReport.beats[i].scene_id, originalInput[i].scene_id);
+      assert.equal(overlapReport.beats[i].scene_number, originalInput[i].scene_number);
+      assert.deepEqual(overlapReport.beats[i].beats, originalInput[i].beats);
+    }
   });
 
   console.log(`\n${passes}/${tests} passed.`);
