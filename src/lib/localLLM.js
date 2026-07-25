@@ -26,8 +26,8 @@ export async function searchWeb(query, n = 5) {
 }
 
 export const AGENT_MODELS = {
-  ghostwriter:       'HauhauCS/Qwen3.6-27B-Uncensored-HauhauCS-Aggressive:Q5_K_P',   // fiction prose (all non-nonfiction)
-  ghostwriter_nsfw:  'HauhauCS/Qwen3.6-27B-Uncensored-HauhauCS-Aggressive:Q5_K_P',   // adult fiction — same uncensored model
+  ghostwriter:       'qwen3.6-35b-uncensored',   // fiction prose (all non-nonfiction)
+  ghostwriter_nsfw:  'qwen3.6-35b-uncensored',   // adult fiction — same uncensored model
   architect:         'deepseek-r1-32b',                                  // fiction outlines/bibles (reasoning model)
   researcher:        'phi4',                                             // factual gathering
   critic:            'deepseek-r1-14b',                                  // QA/critique (faster R1)
