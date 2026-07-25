@@ -1396,6 +1396,8 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
         ? raw.scenes
         : [];
 
+  console.log(`[BEAT-PIPELINE] architect-parsed: ${sourceUnits.length} scenes`);
+
   // NARRATIVE-CONNECT-1: the old universal compactor converted fiction
   // {beats:[...]} into nonfiction-shaped {sections:[...]} and silently dropped
   // scene_goal, conflict, emotional_arc, cast, and every state-transition
@@ -3191,14 +3193,7 @@ Return structured JSON:
             `${proposedBeats.length} → ${normalizedBeatPlan.length} distinct scenes.`
           );
 
-          const chapterPrefix = `ch${String(chapter.chapter_number).padStart(2, '0')}-s`;
-
-          const reindexedNormalizedBeats = normalizedBeatPlan.map((beat, index) => ({
-            ...beat,
-            scene_number: index + 1,
-            sceneNumber: index + 1,
-            scene_id: `${chapterPrefix}${String(index + 1).padStart(2, '0')}`,
-          }));
+          const reindexedNormalizedBeats = normalizedBeatPlan; // NARRATIVE-CONNECT: Do not reindex to hide the missing middle scene
 
           beatResult = {
             ...(beatResult || {}),
@@ -3206,7 +3201,7 @@ Return structured JSON:
           };
 
           console.warn(
-            `[NARRATIVE-CONNECT] Reindexed normalized scenes for Ch.${chapter.chapter_number}: ` +
+            `[NARRATIVE-CONNECT] Keeping original scene IDs for Ch.${chapter.chapter_number}: ` +
             reindexedNormalizedBeats.map((beat) => beat.scene_id).join(', ')
           );
 
@@ -3266,7 +3261,17 @@ Return structured JSON:
     }
 
     const fullBeatsJson = JSON.stringify(beatResult || {}, null, 2);
+    
+    let parsedCount = 0;
+    try {
+      const parsed = typeof beatResult === 'string' ? JSON.parse(beatResult) : beatResult;
+      parsedCount = (parsed.beats || parsed.scenes || parsed.sections || []).length;
+    } catch(e) {}
+    console.log(`[BEAT-PIPELINE] before-compact-save: ${parsedCount} scenes`);
+
     const compactBeatsJson = compactSceneBeatsForEntity(beatResult || {}, chapter);
+
+    console.log(`[BEAT-PIPELINE] after-compact-save: compacted length ${compactBeatsJson.length}`);
 
     console.log(
       `[BEATS][COMPACT-SAVE v15.8] Ch.${chapter.chapter_number}: full=${fullBeatsJson.length} chars, entity=${compactBeatsJson.length} chars`

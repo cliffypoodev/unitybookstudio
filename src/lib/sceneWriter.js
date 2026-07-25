@@ -61,7 +61,9 @@ import {
   classifyStoryFunction,
   auditSceneFutureBoundaries,
   validateGeneratedSceneReplay,
-  buildFutureBoundaryRepairPrompt
+  buildFutureBoundaryRepairPrompt,
+  validateRawBeatChronology,
+  repairRawContract
 } from './sceneBeatNormalizer.js';
 
 import {
@@ -2704,27 +2706,58 @@ export async function generateChapterSceneByScene({
   const chapterTarget = getChapterTargetWords(project, chapter);
   let parsedScenes = parseScenesFromChapter(chapter, scenes, isNF);
   
+  console.log(`[BEAT-PIPELINE] parseScenesFromChapter output: ${parsedScenes.length} scenes.`);
+
+  // Determine expected count to catch silent loss before normalization
+  let expectedCount = scenes ? scenes.length : 0;
+  if (!expectedCount && chapter?.scene_beats_json) {
+    try {
+      const j = typeof chapter.scene_beats_json === 'string' ? JSON.parse(chapter.scene_beats_json) : chapter.scene_beats_json;
+      expectedCount = (j.beats || j.scenes || j.sections || (Array.isArray(j) ? j : [])).length;
+    } catch (e) {
+      // Ignored for expected count
+    }
+  }
+
   if (!isNF) {
     try {
       validateRawBeatChronology(parsedScenes);
     } catch (err) {
-      console.warn('[CHRONOLOGY-VALIDATOR] Raw contract overlaps detected:', err.message);
-      const repairResult = repairRawContract(parsedScenes);
-      parsedScenes = repairResult.beats;
-      validateRawBeatChronology(parsedScenes);
-      console.log('[CHRONOLOGY-REPAIR] Repaired scenes report:', JSON.stringify(repairResult.repairs, null, 2));
+      if (err.name === 'ChronologyError' || String(err.message).includes('Chronology')) {
+        console.warn('[CHRONOLOGY-VALIDATOR] Chronology overlaps detected:', err.message);
+        const repairResult = repairRawContract(parsedScenes);
+        parsedScenes = repairResult.beats;
+        validateRawBeatChronology(parsedScenes);
+        console.log('[CHRONOLOGY-REPAIR] Repaired scenes report:', JSON.stringify(repairResult.repairs, null, 2));
+      } else {
+        throw err; // DO NOT catch ReferenceError or TypeError
+      }
     }
   }
 
   const immutableContract = !isNF
     ? createImmutableSceneContract(parsedScenes, { chapterNumber })
     : null;
+    
+  console.log(`[BEAT-PIPELINE] normalizer-input: ${parsedScenes.length} scenes. Expected: ${expectedCount}`);
+
   const beatPreflight = normalizeSceneBeatsForDrafting(parsedScenes, {
     isNonfiction: isNF,
     chapterNumber,
     chapterTitle: chapter?.title || '',
     projectTitle: project?.title || '',
   });
+
+  if (expectedCount > 0 && beatPreflight.finalCount < expectedCount) {
+    const error = new Error(
+      `Chapter ${chapterNumber} scene contract lost data. Expected ${expectedCount} scenes, but pipeline reduced it to ${beatPreflight.finalCount} without proof of merge.`
+    );
+    error.name = 'NarrativeInvariantError';
+    error.code = 'SCENE_LOST_IN_PIPELINE';
+    error.narrativeContract = true;
+    error.contractFingerprint = immutableContract?.fingerprint || null;
+    throw error;
+  }
 
   if (beatPreflight?.changed) {
     if (!isNF) {

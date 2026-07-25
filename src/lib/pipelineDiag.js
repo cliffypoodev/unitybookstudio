@@ -126,7 +126,10 @@ function listChapters() {
 }
 
 // Expose globally
-window.__UBS_PIPELINE = { snapshot, report, diff, getStageText, clear, listChapters, snapshots };
-
+if (typeof window !== 'undefined') {
+  window.__UBS_PIPELINE = { snapshot, report, diff, getStageText, clear, listChapters, snapshots };
+} else if (typeof global !== 'undefined') {
+  global.__UBS_PIPELINE = { snapshot, report, diff, getStageText, clear, listChapters, snapshots };
+}
 export { snapshot };
 export default { snapshot };
