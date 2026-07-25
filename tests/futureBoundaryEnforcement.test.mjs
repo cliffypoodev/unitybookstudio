@@ -111,6 +111,43 @@ const runTests = async () => {
     assert.equal(audit.ok, true);
   });
 
+  await test('14. audit model throws (fails closed)', async () => {
+    const prose = 'Test prose';
+    const spec = { future_reserved_events: ['Test event'] };
+    const throwingLLM = async () => { throw new Error('Simulated model failure'); };
+    const audit = await auditSceneFutureBoundaries(prose, spec, 'qwen', throwingLLM);
+    assert.equal(audit.ok, false);
+    assert.equal(audit.auditFailed, true);
+  });
+
+  await test('15. audit model times out (simulated throw) (fails closed)', async () => {
+    const prose = 'Test prose';
+    const spec = { future_reserved_events: ['Test event'] };
+    const timeoutLLM = async () => { throw new Error('Timeout'); };
+    const audit = await auditSceneFutureBoundaries(prose, spec, 'qwen', timeoutLLM);
+    assert.equal(audit.ok, false);
+    assert.equal(audit.auditFailed, true);
+  });
+
+  await test('16. audit model returns malformed JSON (fails closed)', async () => {
+    const prose = 'Test prose';
+    const spec = { future_reserved_events: ['Test event'] };
+    const malformedLLM = async () => '[\n{"id": 0, "excerpt": "Uh oh" \n]';
+    const audit = await auditSceneFutureBoundaries(prose, spec, 'qwen', malformedLLM);
+    assert.equal(audit.ok, false);
+    assert.equal(audit.auditFailed, true);
+  });
+
+  await test('17. audit model returns non-array JSON (fails closed)', async () => {
+    const prose = 'Test prose';
+    const spec = { future_reserved_events: ['Test event'] };
+    const nonArrayLLM = async () => '[ {"id": 0}'; // malformed too, but wait, the test is non-array. Let's send an object.
+    const nonArrayObjLLM = async () => '{"ok": true}'; // this will fail the match since it expects [ ... ]
+    const audit = await auditSceneFutureBoundaries(prose, spec, 'qwen', nonArrayObjLLM);
+    assert.equal(audit.ok, false);
+    assert.equal(audit.auditFailed, true);
+  });
+
   console.log(`ALL FUTURE BOUNDARY TESTS PASSED (${passed}/${passed})`);
 };
 

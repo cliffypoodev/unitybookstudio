@@ -2174,6 +2174,42 @@ function buildSceneCastBlock(spec) {
   return `THIS SCENE — CAST & PROPS:\n${lines.join('\n')}`;
 }
 
+function filterTwistContextForScene(twistContext, spec) {
+  if (!twistContext) return '';
+
+  const blocks = twistContext.split('\n\n').filter(Boolean);
+
+  // Create a strict authorization text from ONLY permitted fields
+  const authFields = [
+    spec.scene_goal || '',
+    ...(Array.isArray(spec.required_events) ? spec.required_events : []),
+    ...(Array.isArray(spec.twists) ? spec.twists : []),
+    ...(Array.isArray(spec.assigned_twists) ? spec.assigned_twists : [])
+  ];
+  const authText = authFields.join(' ').toLowerCase();
+
+  const filtered = blocks.filter(block => {
+    if (block.startsWith('=== TWIST MANAGEMENT')) return true;
+    if (block === '===') return true;
+
+    // Twists are identified by their name in quotes, e.g., "The Betrayal"
+    const nameMatch = block.match(/"([^"]+)"/);
+    if (nameMatch) {
+      const name = nameMatch[1].toLowerCase();
+      // Only keep the twist instruction if the twist name is explicitly assigned or referenced in authorized fields
+      return authText.includes(name);
+    }
+    return true;
+  });
+
+  // If only headers/footers remain, return empty
+  if (filtered.length <= 2 && filtered.every(b => b.startsWith('===') || b === '===')) {
+    return '';
+  }
+
+  return filtered.join('\n\n');
+}
+
 function buildScenePrompt(args) {
   const isNF = isNonfictionProject(args.project) || isNonfictionAnthology(args.project);
   const base = isNF ? buildNonfictionPrompt(args) : buildFictionPrompt(args);
@@ -2899,7 +2935,7 @@ export async function generateChapterSceneByScene({
       targetWords: sceneTarget,
       relevantResearch,
       anthologyContext,
-      twistContext,
+      twistContext: filterTwistContextForScene(twistContext, promptSpec),
       seriesContinuityBlock,
       volumeContractBlock,
       authorStyleBlock,
@@ -3010,6 +3046,15 @@ export async function generateChapterSceneByScene({
     if (!isNF) {
       let futureAudit = await auditSceneFutureBoundaries(sceneProse, promptSpec, model);
       if (!futureAudit.ok) {
+        if (futureAudit.auditFailed) {
+          const auditError = new Error(`Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: future boundary audit failed to execute or returned malformed JSON.`);
+          auditError.name = 'NarrativeInvariantError';
+          auditError.code = 'SCENE_BOUNDARY_AUDIT_FAILED';
+          auditError.sceneId = spec.scene_id || null;
+          auditError.sceneNumber = spec.sceneNumber || i + 1;
+          throw auditError;
+        }
+
         console.warn(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} futureViolations=${futureAudit.violations.length}`);
         futureAudit.violations.forEach((v, vIdx) => {
           console.log(`[SCENE-BOUNDARY-VIOLATION]
@@ -3537,7 +3582,7 @@ export async function generateSingleScene({
     targetWords: spec.targetWords,
     relevantResearch,
     anthologyContext: getAnthologyContext(project, chapter),
-    twistContext,
+    twistContext: filterTwistContextForScene(twistContext, spec),
     seriesContinuityBlock,
     volumeContractBlock,
     authorStyleBlock,

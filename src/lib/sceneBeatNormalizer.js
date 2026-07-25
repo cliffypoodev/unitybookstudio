@@ -1042,21 +1042,30 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
       if (Array.isArray(parsed)) {
         for (const item of parsed) {
           const futureObj = futureEvents[item.id];
-          if (futureObj && item.excerpt) {
-            violations.push({
-              event: futureObj.event,
-              sceneId: futureObj.sceneId,
-              sceneNumber: futureObj.sceneNumber,
-              category: 'llm_detected_violation',
-              excerpt: item.excerpt,
-              sentenceIndex: 0
-            });
+          if (!futureObj) {
+            throw new Error(`LLM returned unknown event ID: ${item.id}`);
           }
+          if (!item.excerpt || typeof item.excerpt !== 'string' || item.excerpt.trim() === '') {
+            throw new Error('LLM returned invalid or missing excerpt.');
+          }
+          violations.push({
+            event: futureObj.event,
+            sceneId: futureObj.sceneId,
+            sceneNumber: futureObj.sceneNumber,
+            category: 'llm_detected_violation',
+            excerpt: item.excerpt,
+            sentenceIndex: 0
+          });
         }
+      } else {
+        throw new Error('LLM response was JSON but not an array.');
       }
+    } else {
+      throw new Error('LLM response did not contain a JSON array.');
     }
   } catch (error) {
-    console.warn('[auditSceneFutureBoundaries] LLM check failed, assuming ok for safety', error);
+    console.error('[auditSceneFutureBoundaries] LLM check failed or returned malformed data:', error);
+    return { ok: false, auditFailed: true, violations: [] };
   }
 
   const uniqueViolations = [];
