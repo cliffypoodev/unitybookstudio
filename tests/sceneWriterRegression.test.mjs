@@ -330,6 +330,109 @@ async function runAll() {
     }
   });
 
+  await test('43. Same-scene discovery then confrontation passes', async () => {
+    const beats = [
+      {
+        scene_number: 1,
+        scene_id: "ch05-s01",
+        required_events: [
+          "Lena discovers the logs revealing Marcus's role.",
+          "Lena confronts Marcus with the evidence."
+        ],
+        entry_state: "unknown",
+        exit_state: "confrontation completed"
+      }
+    ];
+    sceneBeatNormalizer.validateRawBeatChronology(beats);
+  });
+
+  await test('44. Same-scene confrontation then discovery fails', async () => {
+    const beats = [
+      {
+        scene_number: 1,
+        scene_id: "ch05-s01",
+        required_events: [
+          "Lena confronts Marcus with the evidence.",
+          "Lena discovers the logs revealing Marcus's role."
+        ],
+        entry_state: "unknown",
+        exit_state: "confrontation completed"
+      }
+    ];
+    let threw = false;
+    try {
+      sceneBeatNormalizer.validateRawBeatChronology(beats);
+    } catch (e) {
+      if (e.message.includes('Evidence revelation must precede')) threw = true;
+    }
+    assert.ok(threw, "Should throw chronology error for confrontation before discovery");
+  });
+
+  await test('45. Earlier-scene discovery then later-scene confrontation passes', async () => {
+    const beats = [
+      {
+        scene_number: 1,
+        scene_id: "ch05-s01",
+        required_events: [
+          "Lena discovers the logs revealing Marcus's role."
+        ]
+      },
+      {
+        scene_number: 2,
+        scene_id: "ch05-s02",
+        required_events: [
+          "Lena confronts Marcus with the evidence."
+        ]
+      }
+    ];
+    sceneBeatNormalizer.validateRawBeatChronology(beats);
+  });
+
+  await test('46. Earlier-scene confrontation then later discovery fails', async () => {
+    const beats = [
+      {
+        scene_number: 1,
+        scene_id: "ch05-s01",
+        required_events: [
+          "Lena confronts Marcus with the evidence."
+        ]
+      },
+      {
+        scene_number: 2,
+        scene_id: "ch05-s02",
+        required_events: [
+          "Lena discovers the logs revealing Marcus's role."
+        ]
+      }
+    ];
+    let threw = false;
+    try {
+      sceneBeatNormalizer.validateRawBeatChronology(beats);
+    } catch (e) {
+      if (e.message.includes('Evidence revelation must precede')) threw = true;
+    }
+    assert.ok(threw, "Should throw chronology error for earlier confrontation");
+  });
+
+  await test('47. Confrontation with no evidence discovery fails', async () => {
+    const beats = [
+      {
+        scene_number: 1,
+        scene_id: "ch05-s01",
+        required_events: [
+          "Lena confronts Marcus with the evidence."
+        ]
+      }
+    ];
+    let threw = false;
+    try {
+      sceneBeatNormalizer.validateRawBeatChronology(beats);
+    } catch (e) {
+      if (e.message.includes('Evidence revelation must precede')) threw = true;
+    }
+    assert.ok(threw, "Should throw chronology error for missing discovery");
+  });
+
   console.log(`\n${passes}/${tests} passed.`);
   if (passes !== tests) process.exit(1);
 }

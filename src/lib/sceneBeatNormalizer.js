@@ -1267,10 +1267,9 @@ export function validateRawBeatChronology(beats) {
   let lastExitState = '';
 
   for (const beat of beats) {
-    const reqText = (beat.required_events || []).join(' ').toLowerCase();
+    const fullReqText = (beat.required_events || []).join(' ').toLowerCase();
     const entryText = (beat.entry_state || '').toLowerCase();
     const exitText = (beat.exit_state || '').toLowerCase();
-    const sigs = extractEventSignatures(reqText, context);
     
     // Seed possessions from prior exit state and current entry state
     const priorPossession = parsePossessions(lastExitState, context);
@@ -1278,7 +1277,7 @@ export function validateRawBeatChronology(beats) {
     const entryPossession = parsePossessions(entryText, context);
     if (entryPossession) history.possessions.add(`${entryPossession.actor}_has_${entryPossession.object}`);
     
-    // Seed current events
+    // Seed current events possessions
     for (const eventStr of beat.required_events || []) {
       const eventPossession = parsePossessions(eventStr.toLowerCase(), context);
       if (eventPossession) history.possessions.add(`${eventPossession.actor}_has_${eventPossession.object}`);
@@ -1301,116 +1300,124 @@ export function validateRawBeatChronology(beats) {
          }
       }
       if (lastExitState.match(/confrontation completed|confrontation over/)) {
-         if (sigs.some(s => s.category === 'confrontation') && !reqText.match(/new|again|another/)) {
+         const fullSigs = extractEventSignatures(fullReqText, context);
+         if (fullSigs.some(s => s.category === 'confrontation') && !fullReqText.match(/new|again|another/)) {
            throw new Error('Chronology Error: Completed confrontation cannot restart without a distinct trigger.');
          }
       }
     }
 
-    for (const sig of sigs) {
-      if (sig.category === 'inspect_evidence') {
-        const hasAccess = history.events.some(e => e.category === 'unlock_or_access');
-        if (!hasAccess && reqText.includes('inside')) {
-          throw new Error('Chronology Error: Unlock or access must precede inspecting evidence.');
-        }
-      }
+    // Process events sequentially in array order to enforce event-level chronology
+    for (const eventStr of beat.required_events || []) {
+      const reqText = eventStr.toLowerCase();
+      const sigs = extractEventSignatures(reqText, context);
 
-      if (sig.category === 'unlock_or_access' && sig.object) {
-        let hasObj = false;
-        for (const p of history.possessions) {
-          const [pActor, pObj] = p.split('_has_');
-          if (pActor === sig.actor && (pObj.includes(sig.object) || sig.object.includes(pObj))) {
-            hasObj = true;
-            break;
+      for (const sig of sigs) {
+        if (sig.category === 'inspect_evidence') {
+          const hasAccess = history.events.some(e => e.category === 'unlock_or_access');
+          if (!hasAccess && reqText.includes('inside')) {
+            throw new Error('Chronology Error: Unlock or access must precede inspecting evidence.');
           }
         }
-        if (!hasObj) {
-          hasObj = history.events.some(e => e.category === 'acquire_object' && e.actor === sig.actor && (e.object.includes(sig.object) || sig.object.includes(e.object)));
-        }
-        if (!hasObj) {
-          throw new Error('Chronology Error: Acquire object must precede use object.');
-        }
-      }
-      
-      if (sig.category === 'destroy_object' && reqText.match(/key|badge|card/)) {
-        const normalizeObj = (o) => o ? o.replace(/^(the|a|an)\\s+/i, '').replace(/archive|brass|hidden|metal/g, '').trim() : '';
-        const destroyedObj = normalizeObj(sig.object);
-        
-        let hasAccess = false;
-        const priorAccessObjects = [];
-        const priorAccessTargets = [];
-        const normalizedPriorObjects = [];
-        
-        for (const e of history.events) {
-          if (e.category === 'unlock_or_access') {
-            if (e.object) priorAccessObjects.push(e.object);
-            if (e.target) priorAccessTargets.push(e.target);
-            
-            if (e.object) {
-               const priorObj = normalizeObj(e.object);
-               normalizedPriorObjects.push(priorObj);
-               if (priorObj === destroyedObj || priorObj.includes(destroyedObj) || destroyedObj.includes(priorObj)) {
-                 hasAccess = true;
-               }
+
+        if (sig.category === 'unlock_or_access' && sig.object) {
+          let hasObj = false;
+          for (const p of history.possessions) {
+            const [pActor, pObj] = p.split('_has_');
+            if (pActor === sig.actor && (pObj.includes(sig.object) || sig.object.includes(pObj))) {
+              hasObj = true;
+              break;
             }
           }
+          if (!hasObj) {
+            hasObj = history.events.some(e => e.category === 'acquire_object' && e.actor === sig.actor && (e.object.includes(sig.object) || sig.object.includes(e.object)));
+          }
+          if (!hasObj) {
+            throw new Error('Chronology Error: Acquire object must precede use object.');
+          }
         }
         
-        console.log('[OBJECT-CHRONOLOGY]');
-        console.log(`destroyedObject=${sig.object}`);
-        console.log(`priorAccessObjects=${priorAccessObjects.join(',')}`);
-        console.log(`priorAccessTargets=${priorAccessTargets.join(',')}`);
-        console.log(`normalizedDestroyedObject=${destroyedObj}`);
-        console.log(`normalizedPriorObjects=${normalizedPriorObjects.join(',')}`);
-        console.log(`matched=${hasAccess}`);
+        if (sig.category === 'destroy_object' && reqText.match(/key|badge|card/)) {
+          const normalizeObj = (o) => o ? o.replace(/^(the|a|an)\\s+/i, '').replace(/archive|brass|hidden|metal/g, '').trim() : '';
+          const destroyedObj = normalizeObj(sig.object);
+          
+          let hasAccess = false;
+          const priorAccessObjects = [];
+          const priorAccessTargets = [];
+          const normalizedPriorObjects = [];
+          
+          for (const e of history.events) {
+            if (e.category === 'unlock_or_access') {
+              if (e.object) priorAccessObjects.push(e.object);
+              if (e.target) priorAccessTargets.push(e.target);
+              
+              if (e.object) {
+                 const priorObj = normalizeObj(e.object);
+                 normalizedPriorObjects.push(priorObj);
+                 if (priorObj === destroyedObj || priorObj.includes(destroyedObj) || destroyedObj.includes(priorObj)) {
+                   hasAccess = true;
+                 }
+              }
+            }
+          }
+          
+          console.log('[OBJECT-CHRONOLOGY]');
+          console.log(`destroyedObject=${sig.object}`);
+          console.log(`priorAccessObjects=${priorAccessObjects.join(',')}`);
+          console.log(`priorAccessTargets=${priorAccessTargets.join(',')}`);
+          console.log(`normalizedDestroyedObject=${destroyedObj}`);
+          console.log(`normalizedPriorObjects=${normalizedPriorObjects.join(',')}`);
+          console.log(`matched=${hasAccess}`);
+          
+          if (!hasAccess) {
+            throw new Error('Chronology Error: Object must be used for access before it is destroyed.');
+          }
+        }
+
+        if (sig.category === 'confrontation') {
+          const dupConf = history.events.find(e => e.category === 'confrontation' && e.actor === sig.actor && e.target === sig.target && !e.actor.startsWith('unresolved') && !e.target.startsWith('unresolved'));
+          if (dupConf) {
+            throw new Error('Chronology Error: Duplicate confrontation detected across scenes.');
+          }
+        }
         
-        if (!hasAccess) {
-          throw new Error('Chronology Error: Object must be used for access before it is destroyed.');
+        if (sig.category === 'evidence_confrontation') {
+          const hasRev = history.events.some(e => e.category === 'evidence_revelation' || e.category === 'revelation');
+          // DEBUG
+          if (!hasRev) {
+            console.log("FAILING EVIDENCE_CONFRONTATION", {
+               reqText,
+               sigs: sigs.map(s => s.category),
+               historyEvents: history.events.map(e => e.category)
+            });
+            throw new Error('Chronology Error: Evidence revelation must precede evidence-based confrontation.');
+          }
         }
-      }
+        
+        if (sig.category === 'struggle' || sig.category === 'obstruction_conflict') {
+          // Struggle/obstruction can happen at any time; no global confrontation prerequisite needed
+        }
 
-      if (sig.category === 'confrontation') {
-        const dupConf = history.events.find(e => e.category === 'confrontation' && e.actor === sig.actor && e.target === sig.target && !e.actor.startsWith('unresolved') && !e.target.startsWith('unresolved'));
-        if (dupConf) {
-          throw new Error('Chronology Error: Duplicate confrontation detected across scenes.');
+        if (sig.category === 'escape' && reqText.match(/inside|interior/)) {
+          const hasEscape = history.events.some(e => e.category === 'escape');
+          if (!hasEscape) {
+            throw new Error('Chronology Error: Interior events must precede escape to exterior.');
+          }
         }
-      }
-      
-      if (sig.category === 'evidence_confrontation') {
-        const hasRev = history.events.some(e => e.category === 'evidence_revelation' || e.category === 'revelation') || sigs.some(s => s.category === 'evidence_revelation' || s.category === 'revelation');
-        // DEBUG
-        if (!hasRev) {
-          console.log("FAILING EVIDENCE_CONFRONTATION", {
-             reqText,
-             sigs: sigs.map(s => s.category),
-             historyEvents: history.events.map(e => e.category)
-          });
-          throw new Error('Chronology Error: Evidence revelation must precede evidence-based confrontation.');
-        }
-      }
-      
-      if (sig.category === 'struggle' || sig.category === 'obstruction_conflict') {
-        // Struggle/obstruction can happen at any time; no global confrontation prerequisite needed
-      }
 
-      if (sig.category === 'escape' && reqText.match(/inside|interior/)) {
-        const hasEscape = history.events.some(e => e.category === 'escape');
-        if (!hasEscape) {
-          throw new Error('Chronology Error: Interior events must precede escape to exterior.');
+        if (sig.category === 'structural_collapse') {
+          const hasCollapse = history.events.some(e => e.category === 'structural_collapse' && e.object === sig.object);
+          if (hasCollapse) {
+            throw new Error('Chronology Error: Structural collapse completion must not occur in multiple scenes.');
+          }
         }
+        
+        history.events.push(sig);
       }
-
-      if (sig.category === 'structural_collapse') {
-        const hasCollapse = history.events.some(e => e.category === 'structural_collapse' && e.object === sig.object);
-        if (hasCollapse) {
-          throw new Error('Chronology Error: Structural collapse completion must not occur in multiple scenes.');
-        }
-      }
-      history.events.push(sig);
     }
 
     const exitSigs = extractEventSignatures(exitText, context);
-    const reqSigs = extractEventSignatures(reqText, context);
+    const reqSigs = extractEventSignatures(fullReqText, context);
     for (const es of exitSigs) {
       if (es.category === 'destroy_object') {
         const hasMatchingReq = reqSigs.some(rs => rs.category === 'destroy_object' && rs.object === es.object);
