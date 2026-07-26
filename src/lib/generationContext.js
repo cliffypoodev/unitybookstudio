@@ -14,6 +14,8 @@ export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
 export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v1';
 export const SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION = 'scene-execution-shadow-integration-v1';
 export const SCENE_EXECUTION_PROMPT_CANARY_VERSION = 'scene-execution-prompt-canary-v1';
+export const SCENE_EXECUTION_CANARY_TRIAL_VERSION = 'scene-execution-canary-trial-v1';
+export const SCENE_EXECUTION_CANARY_EVIDENCE_VERSION = 'scene-execution-canary-evidence-v1';
 
 export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
   key: 'scene_context_composer_v1',
@@ -27,6 +29,11 @@ export const SCENE_EXECUTION_SHADOW_FEATURE = Object.freeze({
 
 export const SCENE_EXECUTION_PROMPT_CANARY_FEATURE = Object.freeze({
   key: 'scene_execution_prompt_canary_v1',
+  defaultEnabled: false,
+});
+
+export const SCENE_EXECUTION_CANARY_TRIAL_FEATURE = Object.freeze({
+  key: 'scene_execution_canary_trial_v1',
   defaultEnabled: false,
 });
 
@@ -74,6 +81,24 @@ export function isSceneExecutionPromptCanaryEnabled(flags) {
   );
   if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
     return SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled;
+  }
+  return descriptor.value === true;
+}
+
+export function isSceneExecutionCanaryTrialEnabled(flags) {
+  if (!flags || typeof flags !== 'object' || Array.isArray(flags)) {
+    return SCENE_EXECUTION_CANARY_TRIAL_FEATURE.defaultEnabled;
+  }
+  const proto = Object.getPrototypeOf(flags);
+  if (proto !== Object.prototype && proto !== null) {
+    return SCENE_EXECUTION_CANARY_TRIAL_FEATURE.defaultEnabled;
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(
+    flags,
+    SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key
+  );
+  if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
+    return SCENE_EXECUTION_CANARY_TRIAL_FEATURE.defaultEnabled;
   }
   return descriptor.value === true;
 }
@@ -2161,6 +2186,10 @@ export function prepareSceneExecutionShadowIntegration(input) {
       immutableSceneContract,
     });
     return {
+      snapshot_id: packet.snapshot_id,
+      project_id: packet.project_id,
+      chapter_id: packet.chapter_id,
+      source_contract_fingerprint: packet.source_contract_fingerprint,
       scene_id: beat.scene_id,
       scene_number: beat.scene_number,
       packet_id: packet.packet_id,
@@ -2201,6 +2230,7 @@ const PROMPT_CANARY_APPLY_KEYS = new Set([
 ]);
 
 const verifiedSceneExecutionPromptCanaryStates = new WeakSet();
+const verifiedSceneExecutionPromptCanaryResults = new WeakSet();
 
 function finalizeSceneExecutionPromptCanaryState(state) {
   const frozen = deepFreeze(state);
@@ -2335,6 +2365,10 @@ export function prepareSceneExecutionPromptCanary(input) {
     integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
     enabled: true,
     mode: 'single-scene-canary',
+    snapshot_id: targetReport.snapshot_id,
+    project_id: targetReport.project_id,
+    chapter_id: targetReport.chapter_id,
+    source_contract_fingerprint: targetReport.source_contract_fingerprint,
     target_scene_id: targetSceneId,
     packet_id: targetReport.packet_id,
     projection: targetReport.projection,
@@ -2342,7 +2376,9 @@ export function prepareSceneExecutionPromptCanary(input) {
 }
 
 function finalizeSceneExecutionPromptCanaryResult(result) {
-  return deepFreeze(result);
+  const frozen = deepFreeze(result);
+  verifiedSceneExecutionPromptCanaryResults.add(frozen);
+  return frozen;
 }
 
 export function applySceneExecutionPromptCanary(input) {
@@ -2444,4 +2480,522 @@ export function applySceneExecutionPromptCanary(input) {
     packet_id: state.packet_id,
     prompt: `${prompt}\n\n${state.projection}`,
   });
+}
+
+// ─── Stage 6: test-only canary trial and evidence envelope ──────────
+// Stage 5 proves that one projection can cross the prompt boundary. Stage 6
+// makes that crossing eligible for controlled testing only: a fourth
+// independent default-off gate must bind one explicit trial to one project,
+// chapter, contract, packet, and scene. Evidence is collected only after the
+// selected scene survives the writer's deterministic gates, and contains
+// fingerprints/counts rather than raw prompts, prose, or foundation content.
+
+const CANARY_TRIAL_REQUEST_KEYS = new Set([
+  'integration',
+  'promptCanaryState',
+  'immutableSceneContract',
+  'projectId',
+  'chapterId',
+]);
+
+const CANARY_TRIAL_INTEGRATION_KEYS = new Set([
+  'flags',
+  'mode',
+  'trialId',
+  'projectId',
+  'chapterId',
+  'targetSceneId',
+]);
+
+const CANARY_EVIDENCE_INPUT_KEYS = new Set([
+  'trialState',
+  'promptCanaryResult',
+  'basePrompt',
+  'modelPrompt',
+  'acceptedProse',
+  'repaired',
+  'issues',
+]);
+
+const CANARY_EVIDENCE_SET_KEYS = new Set([
+  'trialState',
+  'evidenceRecords',
+]);
+
+const CANARY_TRIAL_MODE = 'test-only-single-scene';
+const CANARY_AUTHORITY_BEGIN = '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>';
+const CANARY_AUTHORITY_END = '<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>';
+
+const verifiedSceneExecutionCanaryTrialStates = new WeakSet();
+const verifiedSceneExecutionCanaryEvidenceRecords = new WeakSet();
+
+function finalizeSceneExecutionCanaryTrialState(state) {
+  const frozen = deepFreeze(state);
+  verifiedSceneExecutionCanaryTrialStates.add(frozen);
+  return frozen;
+}
+
+function disabledSceneExecutionCanaryTrialState() {
+  return finalizeSceneExecutionCanaryTrialState({
+    integration_version: SCENE_EXECUTION_CANARY_TRIAL_VERSION,
+    enabled: false,
+    mode: 'disabled',
+    trial_id: null,
+    project_id: null,
+    chapter_id: null,
+    snapshot_id: null,
+    target_scene_id: null,
+    packet_id: null,
+    source_contract_fingerprint: null,
+  });
+}
+
+function requireOpaqueCanaryTrialReference(value, path, code) {
+  if (
+    typeof value !== 'string' ||
+    !OPAQUE_PROMPT_REFERENCE_PATTERN.test(value)
+  ) {
+    throw composerError(
+      `Invalid canary trial reference at ${path}`,
+      code,
+      [`${path} must be one nonempty opaque identifier without whitespace or prose`]
+    );
+  }
+  return value;
+}
+
+function requireVerifiedPromptCanaryState(promptCanaryState) {
+  if (
+    !promptCanaryState ||
+    typeof promptCanaryState !== 'object' ||
+    !verifiedSceneExecutionPromptCanaryStates.has(promptCanaryState)
+  ) {
+    throw composerError(
+      'Scene execution canary trial requires a verified prompt canary state',
+      'SCENE_EXECUTION_CANARY_TRIAL_CANARY_INVALID',
+      ['sceneExecutionCanaryTrial.promptCanaryState must be returned by prepareSceneExecutionPromptCanary in this runtime']
+    );
+  }
+}
+
+export function prepareSceneExecutionCanaryTrial(input) {
+  inspectComposerRecord(
+    input,
+    'sceneExecutionCanaryTrial',
+    CANARY_TRIAL_REQUEST_KEYS
+  );
+
+  const integration = composerOwnDataValue(
+    input,
+    'integration',
+    'sceneExecutionCanaryTrial',
+    false
+  );
+  const promptCanaryState = composerOwnDataValue(
+    input,
+    'promptCanaryState',
+    'sceneExecutionCanaryTrial'
+  );
+  requireVerifiedPromptCanaryState(promptCanaryState);
+
+  if (integration === undefined || integration === null) {
+    if (promptCanaryState.enabled) {
+      throw composerError(
+        'Enabled prompt canary requires a Stage 6 trial envelope',
+        'SCENE_EXECUTION_CANARY_TRIAL_REQUIRED',
+        [`Provide one explicit "${CANARY_TRIAL_MODE}" trial with the own data flag "${SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key}" enabled`]
+      );
+    }
+    return disabledSceneExecutionCanaryTrialState();
+  }
+
+  inspectComposerRecord(
+    integration,
+    'sceneExecutionCanaryTrial.integration',
+    CANARY_TRIAL_INTEGRATION_KEYS
+  );
+  const flags = composerOwnDataValue(
+    integration,
+    'flags',
+    'sceneExecutionCanaryTrial.integration',
+    false
+  );
+  if (!isSceneExecutionCanaryTrialEnabled(flags)) {
+    if (promptCanaryState.enabled) {
+      throw composerError(
+        'Enabled prompt canary requires the Stage 6 trial gate',
+        'SCENE_EXECUTION_CANARY_TRIAL_REQUIRED',
+        [`Set the own data flag "${SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key}" to true for one explicit test-only scene trial`]
+      );
+    }
+    return disabledSceneExecutionCanaryTrialState();
+  }
+  if (
+    !isSceneContextComposerEnabled(flags) ||
+    !isSceneExecutionShadowEnabled(flags) ||
+    !isSceneExecutionPromptCanaryEnabled(flags)
+  ) {
+    throw composerError(
+      'Scene execution canary trial requires all prior gates',
+      'SCENE_EXECUTION_CANARY_TRIAL_PRIOR_GATE_DISABLED',
+      ['The composer, shadow, prompt canary, and canary trial flags must all be own enumerable data properties set to true']
+    );
+  }
+  if (!promptCanaryState.enabled || promptCanaryState.mode !== 'single-scene-canary') {
+    throw composerError(
+      'Scene execution canary trial requires an enabled Stage 5 canary',
+      'SCENE_EXECUTION_CANARY_TRIAL_CANARY_DISABLED',
+      ['Prepare one verified enabled single-scene prompt canary before preparing its trial envelope']
+    );
+  }
+
+  const mode = composerOwnDataValue(
+    integration,
+    'mode',
+    'sceneExecutionCanaryTrial.integration'
+  );
+  if (mode !== CANARY_TRIAL_MODE) {
+    throw composerError(
+      'Scene execution canary trial mode is not test-only',
+      'INVALID_SCENE_EXECUTION_CANARY_TRIAL_MODE',
+      [`sceneExecutionCanaryTrial.integration.mode must equal "${CANARY_TRIAL_MODE}"`]
+    );
+  }
+
+  const trialId = requireOpaqueCanaryTrialReference(
+    composerOwnDataValue(
+      integration,
+      'trialId',
+      'sceneExecutionCanaryTrial.integration'
+    ),
+    'sceneExecutionCanaryTrial.integration.trialId',
+    'INVALID_SCENE_EXECUTION_CANARY_TRIAL_ID'
+  );
+  const requestedProjectId = requireOpaqueCanaryTrialReference(
+    composerOwnDataValue(
+      integration,
+      'projectId',
+      'sceneExecutionCanaryTrial.integration'
+    ),
+    'sceneExecutionCanaryTrial.integration.projectId',
+    'INVALID_SCENE_EXECUTION_CANARY_TRIAL_BINDING'
+  );
+  const requestedChapterId = requireOpaqueCanaryTrialReference(
+    composerOwnDataValue(
+      integration,
+      'chapterId',
+      'sceneExecutionCanaryTrial.integration'
+    ),
+    'sceneExecutionCanaryTrial.integration.chapterId',
+    'INVALID_SCENE_EXECUTION_CANARY_TRIAL_BINDING'
+  );
+  const targetSceneId = requireOpaqueCanaryTrialReference(
+    composerOwnDataValue(
+      integration,
+      'targetSceneId',
+      'sceneExecutionCanaryTrial.integration'
+    ),
+    'sceneExecutionCanaryTrial.integration.targetSceneId',
+    'INVALID_SCENE_EXECUTION_CANARY_TRIAL_BINDING'
+  );
+  const projectId = requireOpaqueCanaryTrialReference(
+    composerOwnDataValue(input, 'projectId', 'sceneExecutionCanaryTrial'),
+    'sceneExecutionCanaryTrial.projectId',
+    'INVALID_SCENE_EXECUTION_CANARY_TRIAL_BINDING'
+  );
+  const chapterId = requireOpaqueCanaryTrialReference(
+    composerOwnDataValue(input, 'chapterId', 'sceneExecutionCanaryTrial'),
+    'sceneExecutionCanaryTrial.chapterId',
+    'INVALID_SCENE_EXECUTION_CANARY_TRIAL_BINDING'
+  );
+
+  if (requestedProjectId !== projectId || requestedChapterId !== chapterId) {
+    throw composerError(
+      'Scene execution canary trial does not match the active project and chapter',
+      'SCENE_EXECUTION_CANARY_TRIAL_SCOPE_MISMATCH',
+      ['The test-only trial projectId and chapterId must exactly match the active writer inputs']
+    );
+  }
+  if (targetSceneId !== promptCanaryState.target_scene_id) {
+    throw composerError(
+      'Scene execution canary trial target does not match its prompt canary',
+      'SCENE_EXECUTION_CANARY_TRIAL_TARGET_MISMATCH',
+      ['The test-only trial targetSceneId must exactly match the verified Stage 5 target scene']
+    );
+  }
+
+  const immutableSceneContract = composerOwnDataValue(
+    input,
+    'immutableSceneContract',
+    'sceneExecutionCanaryTrial'
+  );
+  inspectContractDescriptorSafe(immutableSceneContract);
+  if (
+    promptCanaryState.project_id !== projectId ||
+    promptCanaryState.chapter_id !== chapterId ||
+    promptCanaryState.source_contract_fingerprint !==
+      immutableSceneContract.fingerprint
+  ) {
+    throw composerError(
+      'Scene execution canary trial provenance does not match the active runtime',
+      'SCENE_EXECUTION_CANARY_TRIAL_PROVENANCE_MISMATCH',
+      ['The branded Stage 5 snapshot, project, chapter, and contract provenance must exactly match the active writer inputs']
+    );
+  }
+  if (!immutableSceneContract.beats.some((beat) => beat.scene_id === targetSceneId)) {
+    throw composerError(
+      'Scene execution canary trial target is outside the immutable contract',
+      'SCENE_EXECUTION_CANARY_TRIAL_TARGET_MISMATCH',
+      [`No immutable-contract scene matches "${targetSceneId}"`]
+    );
+  }
+
+  return finalizeSceneExecutionCanaryTrialState({
+    integration_version: SCENE_EXECUTION_CANARY_TRIAL_VERSION,
+    enabled: true,
+    mode: CANARY_TRIAL_MODE,
+    trial_id: trialId,
+    project_id: projectId,
+    chapter_id: chapterId,
+    snapshot_id: promptCanaryState.snapshot_id,
+    target_scene_id: targetSceneId,
+    packet_id: promptCanaryState.packet_id,
+    source_contract_fingerprint: immutableSceneContract.fingerprint,
+  });
+}
+
+function countMarker(value, marker) {
+  let count = 0;
+  let index = 0;
+  while ((index = value.indexOf(marker, index)) !== -1) {
+    count += 1;
+    index += marker.length;
+  }
+  return count;
+}
+
+function countCanaryEvidenceWords(value) {
+  return value.trim() ? value.trim().split(/\s+/).length : 0;
+}
+
+function finalizeSceneExecutionCanaryEvidenceRecord(record) {
+  const frozen = deepFreeze(record);
+  verifiedSceneExecutionCanaryEvidenceRecords.add(frozen);
+  return frozen;
+}
+
+export function collectSceneExecutionCanaryEvidence(input) {
+  inspectComposerRecord(
+    input,
+    'sceneExecutionCanaryEvidence',
+    CANARY_EVIDENCE_INPUT_KEYS
+  );
+
+  const trialState = composerOwnDataValue(
+    input,
+    'trialState',
+    'sceneExecutionCanaryEvidence'
+  );
+  if (
+    !trialState ||
+    typeof trialState !== 'object' ||
+    !verifiedSceneExecutionCanaryTrialStates.has(trialState) ||
+    !trialState.enabled
+  ) {
+    throw composerError(
+      'Canary evidence requires a verified enabled Stage 6 trial',
+      'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_TRIAL',
+      ['sceneExecutionCanaryEvidence.trialState must be returned by prepareSceneExecutionCanaryTrial in this runtime']
+    );
+  }
+
+  const promptCanaryResult = composerOwnDataValue(
+    input,
+    'promptCanaryResult',
+    'sceneExecutionCanaryEvidence'
+  );
+  if (
+    !promptCanaryResult ||
+    typeof promptCanaryResult !== 'object' ||
+    !verifiedSceneExecutionPromptCanaryResults.has(promptCanaryResult) ||
+    !promptCanaryResult.applied
+  ) {
+    throw composerError(
+      'Canary evidence requires the verified applied Stage 5 result',
+      'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_RESULT',
+      ['sceneExecutionCanaryEvidence.promptCanaryResult must be the applied result returned by applySceneExecutionPromptCanary in this runtime']
+    );
+  }
+  if (
+    promptCanaryResult.scene_id !== trialState.target_scene_id ||
+    promptCanaryResult.packet_id !== trialState.packet_id
+  ) {
+    throw composerError(
+      'Canary evidence result does not match the trial target',
+      'SCENE_EXECUTION_CANARY_EVIDENCE_SCOPE_MISMATCH',
+      ['The applied scene ID and packet ID must exactly match the verified Stage 6 trial']
+    );
+  }
+
+  const basePrompt = composerOwnDataValue(
+    input,
+    'basePrompt',
+    'sceneExecutionCanaryEvidence'
+  );
+  const modelPrompt = composerOwnDataValue(
+    input,
+    'modelPrompt',
+    'sceneExecutionCanaryEvidence'
+  );
+  const acceptedProse = composerOwnDataValue(
+    input,
+    'acceptedProse',
+    'sceneExecutionCanaryEvidence'
+  );
+  const repaired = composerOwnDataValue(
+    input,
+    'repaired',
+    'sceneExecutionCanaryEvidence'
+  );
+  const issues = composerOwnDataValue(
+    input,
+    'issues',
+    'sceneExecutionCanaryEvidence'
+  );
+
+  if (
+    typeof basePrompt !== 'string' ||
+    typeof modelPrompt !== 'string' ||
+    typeof acceptedProse !== 'string' ||
+    acceptedProse.trim() === '' ||
+    typeof repaired !== 'boolean' ||
+    !Array.isArray(issues)
+  ) {
+    throw composerError(
+      'Canary evidence inputs are invalid',
+      'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_INPUT',
+      ['basePrompt, modelPrompt, and nonempty acceptedProse must be strings; repaired must be boolean; issues must be an array']
+    );
+  }
+  descriptorSafeInspect(issues, 'sceneExecutionCanaryEvidence.issues', new Set());
+  if (issues.some((issue) => typeof issue !== 'string')) {
+    throw composerError(
+      'Canary evidence issues must be strings',
+      'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_INPUT',
+      ['sceneExecutionCanaryEvidence.issues may contain only strings']
+    );
+  }
+  if (
+    promptCanaryResult.prompt !== modelPrompt ||
+    !modelPrompt.startsWith(`${basePrompt}\n\n`) ||
+    countMarker(basePrompt, CANARY_AUTHORITY_BEGIN) !== 0 ||
+    countMarker(basePrompt, CANARY_AUTHORITY_END) !== 0 ||
+    countMarker(modelPrompt, CANARY_AUTHORITY_BEGIN) !== 1 ||
+    countMarker(modelPrompt, CANARY_AUTHORITY_END) !== 1
+  ) {
+    throw composerError(
+      'Canary evidence cannot prove one exact authority injection',
+      'SCENE_EXECUTION_CANARY_EVIDENCE_PROMPT_MISMATCH',
+      ['The model prompt must be the verified canary result, preserve the base prompt as an exact prefix, and contain exactly one matched authority marker pair']
+    );
+  }
+
+  const authorityProjection = modelPrompt.slice(basePrompt.length + 2);
+  return finalizeSceneExecutionCanaryEvidenceRecord({
+    evidence_version: SCENE_EXECUTION_CANARY_EVIDENCE_VERSION,
+    status: 'accepted',
+    mode: CANARY_TRIAL_MODE,
+    trial_id: trialState.trial_id,
+    project_id: trialState.project_id,
+    chapter_id: trialState.chapter_id,
+    snapshot_id: trialState.snapshot_id,
+    scene_id: trialState.target_scene_id,
+    packet_id: trialState.packet_id,
+    source_contract_fingerprint: trialState.source_contract_fingerprint,
+    base_prompt_fingerprint: hashText(basePrompt),
+    model_prompt_fingerprint: hashText(modelPrompt),
+    authority_projection_fingerprint: hashText(authorityProjection),
+    accepted_prose_fingerprint: hashText(acceptedProse),
+    accepted_word_count: countCanaryEvidenceWords(acceptedProse),
+    repaired,
+    issue_count: issues.length,
+    authority_marker_pairs: 1,
+    raw_content_included: false,
+  });
+}
+
+export function finalizeSceneExecutionCanaryEvidence(input) {
+  inspectComposerRecord(
+    input,
+    'sceneExecutionCanaryEvidenceSet',
+    CANARY_EVIDENCE_SET_KEYS
+  );
+  const trialState = composerOwnDataValue(
+    input,
+    'trialState',
+    'sceneExecutionCanaryEvidenceSet'
+  );
+  if (
+    !trialState ||
+    typeof trialState !== 'object' ||
+    !verifiedSceneExecutionCanaryTrialStates.has(trialState)
+  ) {
+    throw composerError(
+      'Canary evidence set requires a verified Stage 6 trial',
+      'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_SET',
+      ['sceneExecutionCanaryEvidenceSet.trialState must be returned by prepareSceneExecutionCanaryTrial in this runtime']
+    );
+  }
+  const evidenceRecords = composerOwnDataValue(
+    input,
+    'evidenceRecords',
+    'sceneExecutionCanaryEvidenceSet'
+  );
+  if (!Array.isArray(evidenceRecords)) {
+    throw composerError(
+      'Canary evidence set must be an array',
+      'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_SET',
+      ['sceneExecutionCanaryEvidenceSet.evidenceRecords must be an array']
+    );
+  }
+  descriptorSafeInspect(
+    evidenceRecords,
+    'sceneExecutionCanaryEvidenceSet.evidenceRecords',
+    new Set()
+  );
+
+  if (!trialState.enabled) {
+    if (evidenceRecords.length !== 0) {
+      throw composerError(
+        'Disabled canary trial cannot return evidence',
+        'SCENE_EXECUTION_CANARY_EVIDENCE_CARDINALITY',
+        ['A disabled Stage 6 trial must produce zero evidence records']
+      );
+    }
+    return Object.freeze([]);
+  }
+  if (evidenceRecords.length !== 1) {
+    throw composerError(
+      'Enabled canary trial must return exactly one evidence record',
+      'SCENE_EXECUTION_CANARY_EVIDENCE_CARDINALITY',
+      [`Expected exactly one evidence record for "${trialState.target_scene_id}", received ${evidenceRecords.length}`]
+    );
+  }
+
+  const [record] = evidenceRecords;
+  if (
+    !record ||
+    typeof record !== 'object' ||
+    !verifiedSceneExecutionCanaryEvidenceRecords.has(record) ||
+    record.trial_id !== trialState.trial_id ||
+    record.scene_id !== trialState.target_scene_id ||
+    record.packet_id !== trialState.packet_id
+  ) {
+    throw composerError(
+      'Canary evidence record does not match the verified trial',
+      'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_SET',
+      ['The one evidence record must be returned by collectSceneExecutionCanaryEvidence for this exact trial']
+    );
+  }
+  return Object.freeze(evidenceRecords.slice());
 }

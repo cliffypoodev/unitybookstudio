@@ -71,8 +71,11 @@ import {
   assertNarrativeTextClean,
   assertSceneContractUnchanged,
   applySceneExecutionPromptCanary,
+  collectSceneExecutionCanaryEvidence,
   createImmutableSceneContract,
+  finalizeSceneExecutionCanaryEvidence,
   findNarrativeMetaLeaks,
+  prepareSceneExecutionCanaryTrial,
   prepareSceneExecutionPromptCanary,
   prepareSceneExecutionShadowIntegration,
 } from '@/lib/generationContext';
@@ -2744,6 +2747,7 @@ export async function generateChapterSceneByScene({
   onProgress,
   sceneExecutionShadow = null,
   sceneExecutionPromptCanary = null,
+  sceneExecutionCanaryTrial = null,
 }) {
   if (!project) throw new Error('Project is required.');
   if (!chapter) throw new Error('Chapter is required.');
@@ -2861,6 +2865,13 @@ export async function generateChapterSceneByScene({
     shadowState: sceneExecutionShadowState,
     immutableSceneContract: immutableContract,
   });
+  const sceneExecutionCanaryTrialState = prepareSceneExecutionCanaryTrial({
+    integration: sceneExecutionCanaryTrial,
+    promptCanaryState: sceneExecutionPromptCanaryState,
+    immutableSceneContract: immutableContract,
+    projectId: project?.id,
+    chapterId: chapter?.id,
+  });
 
   const model = pickProseModel(project, proseModelOverride || modelOverride);
   const fallbackControls = buildFallbackControls('prose', project);
@@ -2891,6 +2902,7 @@ export async function generateChapterSceneByScene({
   let accumulatedProse = '';
   const generatedScenes = [];
   const repairReports = [];
+  const sceneExecutionCanaryEvidenceRecords = [];
   let lastScenePrompt = '';
   let runtimeLedger = buildInitialLedger();
 
@@ -3358,6 +3370,34 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
 
     const ledgerAfter = JSON.parse(JSON.stringify(runtimeLedger));
 
+    if (promptCanaryResult.applied) {
+      const canaryEvidence = collectSceneExecutionCanaryEvidence({
+        trialState: sceneExecutionCanaryTrialState,
+        promptCanaryResult,
+        basePrompt,
+        modelPrompt: prompt,
+        acceptedProse: sceneProse,
+        repaired: generated?.repaired === true,
+        issues: Array.isArray(generated?.issues) ? generated.issues : [],
+      });
+      sceneExecutionCanaryEvidenceRecords.push(canaryEvidence);
+      pipelineSnapshot(
+        chapter?.id,
+        `0e-canary-evidence-scene-${i + 1}`,
+        JSON.stringify(canaryEvidence)
+      );
+      onProgress?.({
+        stage: 'scene_execution_canary_evidence',
+        sceneIndex: i,
+        sceneNumber: spec.sceneNumber,
+        sceneId: spec.scene_id,
+        totalScenes: normalizedScenes.length,
+        trialId: canaryEvidence.trial_id,
+        packetId: canaryEvidence.packet_id,
+        status: canaryEvidence.status,
+      });
+    }
+
     generatedScenes.push({
       sceneId: spec.scene_id || spec.id || null,
       sceneNumber: spec.sceneNumber || i + 1,
@@ -3394,6 +3434,11 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
       issues: generated.issues,
     });
   }
+
+  const sceneExecutionCanaryEvidence = finalizeSceneExecutionCanaryEvidence({
+    trialState: sceneExecutionCanaryTrialState,
+    evidenceRecords: sceneExecutionCanaryEvidenceRecords,
+  });
 
   pipelineSnapshot(chapter?.id, '0c-accumulated-pre-final-clean', accumulatedProse);
   let finalProse = cleanSceneOutput(accumulatedProse, project);
@@ -3559,6 +3604,12 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
     ...(sceneExecutionPromptCanaryState.enabled
       ? { sceneExecutionPromptCanary: sceneExecutionPromptCanaryState }
       : {}),
+    ...(sceneExecutionCanaryTrialState.enabled
+      ? {
+          sceneExecutionCanaryTrial: sceneExecutionCanaryTrialState,
+          sceneExecutionCanaryEvidence,
+        }
+      : {}),
   });
 
   if (!isAnthology && chapter?.id && finalProse) {
@@ -3608,6 +3659,12 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
       : {}),
     ...(sceneExecutionPromptCanaryState.enabled
       ? { sceneExecutionPromptCanary: sceneExecutionPromptCanaryState }
+      : {}),
+    ...(sceneExecutionCanaryTrialState.enabled
+      ? {
+          sceneExecutionCanaryTrial: sceneExecutionCanaryTrialState,
+          sceneExecutionCanaryEvidence,
+        }
       : {}),
   };
 }

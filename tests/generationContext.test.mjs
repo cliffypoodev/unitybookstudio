@@ -14,16 +14,23 @@ import {
   generateDeterministicEventId,
   generatePacketFingerprint,
   applySceneExecutionPromptCanary,
+  collectSceneExecutionCanaryEvidence,
   composeSceneExecutionPacket,
+  finalizeSceneExecutionCanaryEvidence,
+  isSceneExecutionCanaryTrialEnabled,
+  prepareSceneExecutionCanaryTrial,
   prepareSceneExecutionPromptCanary,
   prepareSceneExecutionShadowIntegration,
   renderSceneExecutionPromptProjection,
   validateSceneExecutionPacket,
   SCENE_EXECUTION_PACKET_VERSION,
+  SCENE_EXECUTION_CANARY_EVIDENCE_VERSION,
+  SCENE_EXECUTION_CANARY_TRIAL_VERSION,
   SCENE_EXECUTION_PROMPT_PROJECTION_VERSION,
   SCENE_EXECUTION_PROMPT_CANARY_VERSION,
   SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
   SCENE_CONTEXT_COMPOSER_FEATURE,
+  SCENE_EXECUTION_CANARY_TRIAL_FEATURE,
   SCENE_EXECUTION_PROMPT_CANARY_FEATURE,
   SCENE_EXECUTION_SHADOW_FEATURE,
   isSceneExecutionPromptCanaryEnabled,
@@ -4640,4 +4647,536 @@ await test('Stage 5 writer canary remains single-scene, default-off, and absent 
   assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);
   assert.equal(SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled, false);
   assert.equal(SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled, false);
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 6 — Test-only single-scene trial and evidence envelope
+// ═══════════════════════════════════════════════════════════════════════
+
+function makeCanaryTrialInput(overrides = {}) {
+  const promptCanaryInput =
+    overrides.promptCanaryInput ||
+    makePromptCanaryInput({
+      targetSceneId: overrides.targetSceneId || 'ch01-s02',
+    });
+  const promptCanaryState =
+    overrides.promptCanaryState ||
+    prepareSceneExecutionPromptCanary(promptCanaryInput);
+  const flags = {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+    ...(overrides.flags || {}),
+  };
+  return {
+    integration: {
+      flags,
+      mode: 'test-only-single-scene',
+      trialId: 'trial-ch01-s02-001',
+      projectId: 'proj-001',
+      chapterId: 'ch-001',
+      targetSceneId: overrides.targetSceneId || 'ch01-s02',
+      ...(overrides.integration || {}),
+    },
+    promptCanaryState,
+    immutableSceneContract: promptCanaryInput.immutableSceneContract,
+    projectId: 'proj-001',
+    chapterId: 'ch-001',
+    ...(overrides.input || {}),
+  };
+}
+
+function assertCanaryTrialFailsClosed(label, input, expectedCode) {
+  const before = snapshotDescriptorSafe(input);
+  let caught;
+  try {
+    prepareSceneExecutionCanaryTrial(input);
+    assert.fail(`${label}: Expected canary trial preparation to throw`);
+  } catch (error) {
+    caught = error;
+  }
+  assert.equal(caught.code, expectedCode, `${label}: wrong error code`);
+  assert.ok(Array.isArray(caught.issues), `${label}: issues must be an array`);
+  assert.ok(caught.issues.length > 0, `${label}: issues must be nonempty`);
+  assert.ok(Object.isFrozen(caught.issues), `${label}: issues must be frozen`);
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    `${label}: input`
+  );
+}
+
+function makeCanaryEvidenceInput(overrides = {}) {
+  const trialInput = overrides.trialInput || makeCanaryTrialInput();
+  const trialState =
+    overrides.trialState ||
+    prepareSceneExecutionCanaryTrial(trialInput);
+  const basePrompt = overrides.basePrompt || 'TEST SCENE BASE PROMPT';
+  const promptCanaryResult =
+    overrides.promptCanaryResult ||
+    applySceneExecutionPromptCanary({
+      state: trialInput.promptCanaryState,
+      prompt: basePrompt,
+      sceneId: trialState.target_scene_id,
+    });
+  return {
+    trialState,
+    promptCanaryResult,
+    basePrompt,
+    modelPrompt: promptCanaryResult.prompt,
+    acceptedProse:
+      overrides.acceptedProse ||
+      'The hero opened the locked room and stepped across the threshold.',
+    repaired: overrides.repaired === true,
+    issues: overrides.issues || [],
+    ...(overrides.input || {}),
+  };
+}
+
+function assertCanaryEvidenceFailsClosed(label, input, expectedCode) {
+  const before = snapshotDescriptorSafe(input);
+  let caught;
+  try {
+    collectSceneExecutionCanaryEvidence(input);
+    assert.fail(`${label}: Expected canary evidence collection to throw`);
+  } catch (error) {
+    caught = error;
+  }
+  assert.equal(caught.code, expectedCode, `${label}: wrong error code`);
+  assert.ok(Array.isArray(caught.issues), `${label}: issues must be an array`);
+  assert.ok(caught.issues.length > 0, `${label}: issues must be nonempty`);
+  assert.ok(Object.isFrozen(caught.issues), `${label}: issues must be frozen`);
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    `${label}: input`
+  );
+}
+
+await test('Stage 6 trial feature metadata is immutable, own-data-only, and default-disabled', () => {
+  assert.equal(
+    SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key,
+    'scene_execution_canary_trial_v1'
+  );
+  assert.equal(SCENE_EXECUTION_CANARY_TRIAL_FEATURE.defaultEnabled, false);
+  assert.ok(Object.isFrozen(SCENE_EXECUTION_CANARY_TRIAL_FEATURE));
+  assert.equal(isSceneExecutionCanaryTrialEnabled(), false);
+  assert.equal(isSceneExecutionCanaryTrialEnabled({}), false);
+  assert.equal(
+    isSceneExecutionCanaryTrialEnabled({
+      [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+    }),
+    true
+  );
+
+  let invoked = 0;
+  const flags = {};
+  Object.defineProperty(flags, SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key, {
+    get() {
+      invoked += 1;
+      return true;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assert.equal(isSceneExecutionCanaryTrialEnabled(flags), false);
+  assert.equal(invoked, 0, 'Stage 6 trial feature getter must not execute');
+});
+
+await test('Stage 6 absent trial is a frozen no-op only when the Stage 5 canary is disabled', () => {
+  const disabledPromptCanaryState = prepareSceneExecutionPromptCanary({
+    integration: null,
+    shadowState: null,
+    immutableSceneContract: null,
+  });
+  const disabledTrial = prepareSceneExecutionCanaryTrial({
+    integration: null,
+    promptCanaryState: disabledPromptCanaryState,
+    immutableSceneContract: null,
+    projectId: undefined,
+    chapterId: undefined,
+  });
+  assert.deepEqual(disabledTrial, {
+    integration_version: SCENE_EXECUTION_CANARY_TRIAL_VERSION,
+    enabled: false,
+    mode: 'disabled',
+    trial_id: null,
+    project_id: null,
+    chapter_id: null,
+    snapshot_id: null,
+    target_scene_id: null,
+    packet_id: null,
+    source_contract_fingerprint: null,
+  });
+  assert.ok(Object.isFrozen(disabledTrial));
+  const evidence = finalizeSceneExecutionCanaryEvidence({
+    trialState: disabledTrial,
+    evidenceRecords: [],
+  });
+  assert.deepEqual(evidence, []);
+  assert.ok(Object.isFrozen(evidence));
+
+  const enabledWithoutTrial = makeCanaryTrialInput();
+  enabledWithoutTrial.integration = null;
+  assertCanaryTrialFailsClosed(
+    'enabled Stage 5 canary without Stage 6 envelope',
+    enabledWithoutTrial,
+    'SCENE_EXECUTION_CANARY_TRIAL_REQUIRED'
+  );
+});
+
+await test('Stage 6 trial requires all four independent own feature gates', () => {
+  for (const missingKey of [
+    SCENE_CONTEXT_COMPOSER_FEATURE.key,
+    SCENE_EXECUTION_SHADOW_FEATURE.key,
+    SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key,
+  ]) {
+    const input = makeCanaryTrialInput();
+    delete input.integration.flags[missingKey];
+    assertCanaryTrialFailsClosed(
+      `Stage 6 trial missing ${missingKey}`,
+      input,
+      'SCENE_EXECUTION_CANARY_TRIAL_PRIOR_GATE_DISABLED'
+    );
+  }
+
+  const missingTrial = makeCanaryTrialInput();
+  delete missingTrial.integration.flags[SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key];
+  assertCanaryTrialFailsClosed(
+    'Stage 6 trial missing its fourth gate',
+    missingTrial,
+    'SCENE_EXECUTION_CANARY_TRIAL_REQUIRED'
+  );
+
+  const inheritedFlags = Object.create({
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+  });
+  const inherited = makeCanaryTrialInput({
+    integration: { flags: inheritedFlags },
+  });
+  assertCanaryTrialFailsClosed(
+    'Stage 6 inherited flags',
+    inherited,
+    'SCENE_EXECUTION_CANARY_TRIAL_REQUIRED'
+  );
+});
+
+await test('Stage 6 trial accepts only a branded enabled Stage 5 canary state', () => {
+  const input = makeCanaryTrialInput({
+    promptCanaryState: Object.freeze({
+      integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
+      enabled: true,
+      mode: 'single-scene-canary',
+      target_scene_id: 'ch01-s02',
+      packet_id: 'sep_deadbeef',
+      projection: 'synthetic',
+    }),
+  });
+  assertCanaryTrialFailsClosed(
+    'synthetic Stage 5 canary state',
+    input,
+    'SCENE_EXECUTION_CANARY_TRIAL_CANARY_INVALID'
+  );
+});
+
+await test('Stage 6 trial binds one test-only run to exact project, chapter, contract, packet, and scene', () => {
+  const input = makeCanaryTrialInput();
+  const before = snapshotDescriptorSafe(input);
+  const first = prepareSceneExecutionCanaryTrial(input);
+  const second = prepareSceneExecutionCanaryTrial(input);
+  assert.deepEqual(first, second);
+  assert.equal(first.enabled, true);
+  assert.equal(first.mode, 'test-only-single-scene');
+  assert.equal(first.trial_id, 'trial-ch01-s02-001');
+  assert.equal(first.project_id, 'proj-001');
+  assert.equal(first.chapter_id, 'ch-001');
+  assert.equal(
+    first.snapshot_id,
+    input.promptCanaryState.snapshot_id
+  );
+  assert.equal(first.target_scene_id, 'ch01-s02');
+  assert.equal(first.packet_id, input.promptCanaryState.packet_id);
+  assert.equal(
+    first.source_contract_fingerprint,
+    input.immutableSceneContract.fingerprint
+  );
+  assert.ok(Object.isFrozen(first));
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    'valid Stage 6 trial input'
+  );
+});
+
+await test('Stage 6 trial rejects non-test mode, prose-shaped IDs, and runtime scope mismatch', () => {
+  const wrongMode = makeCanaryTrialInput({
+    integration: { mode: 'ordinary-project-rollout' },
+  });
+  assertCanaryTrialFailsClosed(
+    'non-test Stage 6 mode',
+    wrongMode,
+    'INVALID_SCENE_EXECUTION_CANARY_TRIAL_MODE'
+  );
+
+  const proseTrialId = makeCanaryTrialInput({
+    integration: { trialId: 'run this everywhere now' },
+  });
+  assertCanaryTrialFailsClosed(
+    'prose-shaped Stage 6 trial ID',
+    proseTrialId,
+    'INVALID_SCENE_EXECUTION_CANARY_TRIAL_ID'
+  );
+
+  const projectMismatch = makeCanaryTrialInput({
+    integration: { projectId: 'proj-999' },
+  });
+  assertCanaryTrialFailsClosed(
+    'Stage 6 project mismatch',
+    projectMismatch,
+    'SCENE_EXECUTION_CANARY_TRIAL_SCOPE_MISMATCH'
+  );
+
+  const sceneMismatch = makeCanaryTrialInput({
+    integration: { targetSceneId: 'ch01-s03' },
+  });
+  assertCanaryTrialFailsClosed(
+    'Stage 6 scene mismatch',
+    sceneMismatch,
+    'SCENE_EXECUTION_CANARY_TRIAL_TARGET_MISMATCH'
+  );
+
+  const contractMismatch = makeCanaryTrialInput();
+  contractMismatch.immutableSceneContract = makeContract();
+  assertCanaryTrialFailsClosed(
+    'Stage 6 contract provenance mismatch',
+    contractMismatch,
+    'SCENE_EXECUTION_CANARY_TRIAL_PROVENANCE_MISMATCH'
+  );
+});
+
+await test('Stage 6 selected test scene produces one deterministic content-free evidence record', () => {
+  const input = makeCanaryEvidenceInput();
+  const before = snapshotDescriptorSafe(input);
+  const first = collectSceneExecutionCanaryEvidence(input);
+  const second = collectSceneExecutionCanaryEvidence(input);
+  assert.deepEqual(first, second);
+  assert.equal(first.evidence_version, SCENE_EXECUTION_CANARY_EVIDENCE_VERSION);
+  assert.equal(first.status, 'accepted');
+  assert.equal(first.mode, 'test-only-single-scene');
+  assert.equal(first.trial_id, 'trial-ch01-s02-001');
+  assert.equal(first.project_id, 'proj-001');
+  assert.equal(first.chapter_id, 'ch-001');
+  assert.equal(first.snapshot_id, input.trialState.snapshot_id);
+  assert.equal(first.scene_id, 'ch01-s02');
+  assert.equal(first.packet_id, input.trialState.packet_id);
+  assert.match(first.base_prompt_fingerprint, /^[a-f0-9]{8}$/);
+  assert.match(first.model_prompt_fingerprint, /^[a-f0-9]{8}$/);
+  assert.match(first.authority_projection_fingerprint, /^[a-f0-9]{8}$/);
+  assert.match(first.accepted_prose_fingerprint, /^[a-f0-9]{8}$/);
+  assert.equal(first.accepted_word_count, 11);
+  assert.equal(first.authority_marker_pairs, 1);
+  assert.equal(first.raw_content_included, false);
+  assert.ok(Object.isFrozen(first));
+  const serialized = JSON.stringify(first);
+  assert.equal(serialized.includes(input.basePrompt), false);
+  assert.equal(serialized.includes(input.acceptedProse), false);
+  assert.equal(serialized.includes('Open the locked room.'), false);
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    'Stage 6 evidence input'
+  );
+});
+
+await test('Stage 6 evidence accepts only branded applied results for the exact trial target', () => {
+  const fabricated = makeCanaryEvidenceInput({
+    promptCanaryResult: Object.freeze({
+      applied: true,
+      scene_id: 'ch01-s02',
+      packet_id: 'sep_deadbeef',
+      prompt: 'synthetic',
+    }),
+  });
+  assertCanaryEvidenceFailsClosed(
+    'fabricated Stage 5 result',
+    fabricated,
+    'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_RESULT'
+  );
+
+  const trialInput = makeCanaryTrialInput();
+  const trialState = prepareSceneExecutionCanaryTrial(trialInput);
+  const bypassResult = applySceneExecutionPromptCanary({
+    state: trialInput.promptCanaryState,
+    prompt: 'BYPASS BASE',
+    sceneId: 'ch01-s01',
+  });
+  const bypass = makeCanaryEvidenceInput({
+    trialInput,
+    trialState,
+    promptCanaryResult: bypassResult,
+    basePrompt: 'BYPASS BASE',
+  });
+  assertCanaryEvidenceFailsClosed(
+    'non-target Stage 5 bypass result',
+    bypass,
+    'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_RESULT'
+  );
+});
+
+await test('Stage 6 evidence proves exact prefix preservation and one authority marker pair', () => {
+  const changedModelPrompt = makeCanaryEvidenceInput({
+    input: { modelPrompt: 'CHANGED MODEL PROMPT' },
+  });
+  assertCanaryEvidenceFailsClosed(
+    'changed model prompt',
+    changedModelPrompt,
+    'SCENE_EXECUTION_CANARY_EVIDENCE_PROMPT_MISMATCH'
+  );
+
+  const changedBasePrompt = makeCanaryEvidenceInput({
+    input: { basePrompt: 'DIFFERENT BASE PROMPT' },
+  });
+  assertCanaryEvidenceFailsClosed(
+    'changed base prompt',
+    changedBasePrompt,
+    'SCENE_EXECUTION_CANARY_EVIDENCE_PROMPT_MISMATCH'
+  );
+});
+
+await test('Stage 6 evidence rejects unsafe inputs without invoking accessors', () => {
+  const accessorInput = makeCanaryEvidenceInput();
+  let invoked = 0;
+  Object.defineProperty(accessorInput, 'acceptedProse', {
+    get() {
+      invoked += 1;
+      return 'hostile';
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assertCanaryEvidenceFailsClosed(
+    'Stage 6 evidence accessor',
+    accessorInput,
+    'INVALID_COMPOSER_INPUT'
+  );
+  assert.equal(invoked, 0, 'Stage 6 evidence getter must not execute');
+
+  const nonStringIssue = makeCanaryEvidenceInput({
+    issues: [{ raw_prompt: 'do not collect me' }],
+  });
+  assertCanaryEvidenceFailsClosed(
+    'Stage 6 evidence non-string issue',
+    nonStringIssue,
+    'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_INPUT'
+  );
+});
+
+await test('Stage 6 trial and evidence accept null-prototype configuration records', () => {
+  const ordinary = makeCanaryTrialInput();
+  const flags = Object.assign(
+    Object.create(null),
+    ordinary.integration.flags
+  );
+  const integration = Object.assign(Object.create(null), {
+    ...ordinary.integration,
+    flags,
+  });
+  const trialInput = Object.assign(Object.create(null), {
+    ...ordinary,
+    integration,
+  });
+  const trialState = prepareSceneExecutionCanaryTrial(trialInput);
+  const ordinaryEvidence = makeCanaryEvidenceInput({
+    trialInput,
+    trialState,
+  });
+  const evidenceInput = Object.assign(
+    Object.create(null),
+    ordinaryEvidence
+  );
+  const evidence = collectSceneExecutionCanaryEvidence(evidenceInput);
+  assert.equal(evidence.scene_id, 'ch01-s02');
+  assert.equal(evidence.raw_content_included, false);
+});
+
+await test('Stage 6 finalization requires exactly one branded evidence record for an enabled trial', () => {
+  const input = makeCanaryEvidenceInput();
+  const record = collectSceneExecutionCanaryEvidence(input);
+  const finalized = finalizeSceneExecutionCanaryEvidence({
+    trialState: input.trialState,
+    evidenceRecords: [record],
+  });
+  assert.deepEqual(finalized, [record]);
+  assert.ok(Object.isFrozen(finalized));
+
+  for (const evidenceRecords of [[], [record, record]]) {
+    let caught;
+    try {
+      finalizeSceneExecutionCanaryEvidence({
+        trialState: input.trialState,
+        evidenceRecords,
+      });
+      assert.fail('Expected Stage 6 evidence cardinality failure');
+    } catch (error) {
+      caught = error;
+    }
+    assert.equal(
+      caught.code,
+      'SCENE_EXECUTION_CANARY_EVIDENCE_CARDINALITY'
+    );
+  }
+
+  let fabricatedCaught;
+  try {
+    finalizeSceneExecutionCanaryEvidence({
+      trialState: input.trialState,
+      evidenceRecords: [{ ...record }],
+    });
+    assert.fail('Expected fabricated Stage 6 evidence record to fail');
+  } catch (error) {
+    fabricatedCaught = error;
+  }
+  assert.equal(
+    fabricatedCaught.code,
+    'INVALID_SCENE_EXECUTION_CANARY_EVIDENCE_SET'
+  );
+});
+
+await test('Stage 6 writer enforces the trial envelope, evidence cardinality, and zero UI activation', () => {
+  const writer = fs.readFileSync('src/lib/sceneWriter.js', 'utf8');
+  const projectStudio = fs.readFileSync('src/pages/ProjectStudio.jsx', 'utf8');
+  assert.ok(writer.includes('prepareSceneExecutionCanaryTrial'));
+  assert.ok(writer.includes('collectSceneExecutionCanaryEvidence'));
+  assert.ok(writer.includes('finalizeSceneExecutionCanaryEvidence'));
+  assert.match(writer, /sceneExecutionCanaryTrial = null,/);
+  assert.match(
+    writer,
+    /const sceneExecutionPromptCanaryState = prepareSceneExecutionPromptCanary\([\s\S]*?const sceneExecutionCanaryTrialState = prepareSceneExecutionCanaryTrial\(/
+  );
+  assert.match(
+    writer,
+    /if \(promptCanaryResult\.applied\) \{[\s\S]*?collectSceneExecutionCanaryEvidence\([\s\S]*?sceneExecutionCanaryEvidenceRecords\.push\(canaryEvidence\);/
+  );
+  assert.match(
+    writer,
+    /const sceneExecutionCanaryEvidence = finalizeSceneExecutionCanaryEvidence\(\{[\s\S]*?evidenceRecords: sceneExecutionCanaryEvidenceRecords/
+  );
+  assert.equal(
+    projectStudio.includes('sceneExecutionCanaryTrial'),
+    false,
+    'ProjectStudio must not activate the Stage 6 test-only trial'
+  );
+  assert.equal(
+    projectStudio.includes('scene_execution_canary_trial_v1'),
+    false,
+    'no UBS UI flag may expose the Stage 6 trial'
+  );
+  assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);
+  assert.equal(SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled, false);
+  assert.equal(SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled, false);
+  assert.equal(SCENE_EXECUTION_CANARY_TRIAL_FEATURE.defaultEnabled, false);
 });
