@@ -17,10 +17,10 @@ import {
 } from './generationContext.js';
 
 export const SCENE_EXECUTION_LIVE_CANARY_VERSION =
-  'scene-execution-live-canary-v5';
+  'scene-execution-live-canary-v6';
 
 export const SCENE_EXECUTION_LIVE_CANARY_FEATURE = Object.freeze({
-  key: 'scene_execution_live_canary_v5',
+  key: 'scene_execution_live_canary_v6',
   defaultEnabled: false,
 });
 
@@ -466,7 +466,7 @@ function assessAuthorityAdherence(source, normalized) {
     `\\b${escapeRegExp(STAGE8_POV_IDENTITY)}\\b`
   ).test(source);
   const unauthorizedEventInstrumentDetected =
-    /\b(?:key|keycard|crowbar|lockpick|lock-pick|skeleton key)\b/i.test(
+    /\b(?:key|keycard|keyhole|tumblers?|crowbar|lockpick|lock-pick|skeleton key|lock(?:ing)? mechanism)\b/i.test(
       normalized
     ) ||
     /\bpick(?:ed|s|ing)?\s+(?:at\s+)?the lock\b/i.test(normalized);
@@ -510,7 +510,6 @@ function assessOutput(prose) {
     .replace(/\s+/g, ' ');
   const issues = [];
   const wordCount = countWords(source);
-  if (wordCount < 40) issues.push('OUTPUT_UNDERSIZED');
   if (wordCount > 500) issues.push('OUTPUT_OVERSIZED');
   if (
     countMarker(source, AUTHORITY_BEGIN) !== 0 ||

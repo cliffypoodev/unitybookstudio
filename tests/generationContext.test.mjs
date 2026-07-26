@@ -3540,7 +3540,7 @@ function parsePromptProjection(rendered) {
   );
   assert.equal(
     lines[1],
-    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. Exit-state attainment begins at the first clause that establishes the exit-state transition; never postpone the boundary to a later restatement. If the exit state places someone inside a location, entering it or crossing its threshold already attains that state. End that same sentence after only the minimum required continuity confirmation; do not describe or inventory the destination, move farther, look around, react, or close the door afterward. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.'
+    'Current-scene authority only. final_output_contract is the controlling last instruction and must be followed literally. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. Exit-state attainment begins at the first clause that establishes the exit-state transition; never postpone the boundary to a later restatement. If the exit state places someone inside a location, entering it or crossing its threshold already attains that state. End that same sentence after only the minimum required continuity confirmation; do not describe or inventory the destination, move farther, look around, react, or close the door afterward. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.'
   );
   assert.equal(
     lines.at(-1),
@@ -3617,7 +3617,7 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   );
   assert.equal(
     projection.projection_version,
-    'scene-execution-prompt-projection-v5'
+    'scene-execution-prompt-projection-v6'
   );
   assert.equal(projection.packet_id, input.packet.packet_id);
   assert.deepEqual(projection.scene_identity, {
@@ -3663,6 +3663,21 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
     first_exit_state_attainment_is_terminal: true,
     entry_or_threshold_crossing_attains_inside_exit_state: true,
     allow_post_exit_action_or_description: false,
+  });
+  assert.deepEqual(projection.final_output_contract, {
+    minimum_word_count: 0,
+    requested_word_target_is_nonbinding: true,
+    unlisted_concrete_fact_budget: 0,
+    required_sequence: [
+      'Morning in the village',
+      'The bell rings',
+      'Hero wakes up',
+      'Hero leaves the house',
+    ],
+    terminal_state: 'Hero leaves the house',
+    continuity_to_preserve: ['Sword is on the mantle'],
+    instruction:
+      'There is no minimum word count. Use only the listed scene authority to enact required_sequence in order. End the response the first time "Hero leaves the house" is established, even if the response is shorter than an earlier requested target. Emit no words after the sentence that establishes it.',
   });
   assert.equal(
     first.includes(
@@ -3717,6 +3732,36 @@ await test('Stage 3 prompt projection exposes future authority as opaque IDs onl
   assert.equal(rendered.includes('future event prose'), false);
   assert.equal(rendered.includes('hidden_truth'), false);
   assert.equal(rendered.includes('secret outcome'), false);
+});
+
+await test('Stage 3 final output contract makes the hard stop the last structured instruction', () => {
+  const rendered = renderSceneExecutionPromptProjection(
+    makePromptProjectionInput()
+  );
+  const projection = parsePromptProjection(rendered);
+  assert.equal(
+    Object.keys(projection).at(-1),
+    'final_output_contract'
+  );
+  assert.equal(projection.final_output_contract.minimum_word_count, 0);
+  assert.equal(
+    projection.final_output_contract.requested_word_target_is_nonbinding,
+    true
+  );
+  assert.equal(
+    projection.final_output_contract.unlisted_concrete_fact_budget,
+    0
+  );
+  assert.equal(
+    projection.final_output_contract.required_sequence.at(-1),
+    projection.current_scene_authority.exit_state
+  );
+  assert.equal(
+    projection.final_output_contract.instruction.endsWith(
+      'Emit no words after the sentence that establishes it.'
+    ),
+    true
+  );
 });
 
 await test('Stage 3 prompt projection excludes future contract prose', () => {
@@ -5869,11 +5914,11 @@ function makeStage8RunInput(overrides = {}) {
 await test('Stage 8 live-canary feature metadata is immutable, own-data-only, and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
-    'scene_execution_live_canary_v5'
+    'scene_execution_live_canary_v6'
   );
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_VERSION,
-    'scene-execution-live-canary-v5'
+    'scene-execution-live-canary-v6'
   );
   assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
@@ -6176,6 +6221,47 @@ await test('Stage 8 detects POV substitution, an unauthorized event instrument, 
     result.localReview.canary.audit
       .unsupported_history_or_knowledge_detected,
     true
+  );
+});
+
+await test('Stage 8 treats invented lock anatomy as an unauthorized event mechanism', async () => {
+  const compliantProse =
+    'Hero held the brass latch, opened the locked room, and crossed the threshold with the latch still in hand.';
+  const inventedMechanism =
+    'Hero pressed the brass latch into a keyhole until the tumblers clicked, opened the locked room, and crossed the threshold with the latch still in hand.';
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: compliantProse,
+      canaryProse: inventedMechanism,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+
+  assert.equal(
+    result.localReview.legacy.audit
+      .unauthorized_event_instrument_detected,
+    false
+  );
+  assert.equal(
+    result.localReview.legacy.audit.issue_codes.includes(
+      'OUTPUT_UNDERSIZED'
+    ),
+    false
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unauthorized_event_instrument_detected,
+    true
+  );
+  assert.equal(
+    result.attestation.canary_authority_issue_codes.includes(
+      'UNAUTHORIZED_EVENT_INSTRUMENT'
+    ),
+    true
+  );
+  assert.equal(
+    result.attestation.authority_adherence_mechanical_outcome,
+    'canary-regression-signal'
   );
 });
 
