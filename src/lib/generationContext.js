@@ -579,6 +579,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
 }
 
 
+
 // ─── Packet limits ─────────────────────────────────────────────────────
 // Conservative model-safe limits for a single scene execution packet.
 // Oversized authority fails closed with stable error codes.
@@ -598,30 +599,50 @@ export const PACKET_LIMITS = Object.freeze({
 
 // ─── Deterministic event IDs ───────────────────────────────────────────
 
+function requireEventIdString(value, label) {
+  if (typeof value !== 'string') {
+    throw packetError(
+      `generateDeterministicEventId: ${label} must be a string`,
+      'INVALID_EVENT_ID_INPUT',
+      [`${label} must be a string, got ${value === null ? 'null' : typeof value}`]
+    );
+  }
+  if (value.trim() === '') {
+    throw packetError(
+      `generateDeterministicEventId: ${label} is empty`,
+      'INVALID_EVENT_ID_INPUT',
+      [`${label} is empty or whitespace-only`]
+    );
+  }
+}
+
 export function generateDeterministicEventId(projectId, chapterId, sceneId, category, ordinal, eventText) {
-  // Normalize all identity-bearing inputs consistently
-  const normProject = text(String(projectId ?? ''));
-  const normChapter = text(String(chapterId ?? ''));
-  const normScene = text(String(sceneId ?? ''));
-  const normCategory = text(String(category ?? ''));
-  const normText = text(String(eventText ?? ''));
-  if (!normProject) throw packetError('generateDeterministicEventId: projectId is empty', 'INVALID_EVENT_ID_INPUT', ['projectId is empty or missing']);
-  if (!normChapter) throw packetError('generateDeterministicEventId: chapterId is empty', 'INVALID_EVENT_ID_INPUT', ['chapterId is empty or missing']);
-  if (!normScene) throw packetError('generateDeterministicEventId: sceneId is empty', 'INVALID_EVENT_ID_INPUT', ['sceneId is empty or missing']);
-  if (!normCategory) throw packetError('generateDeterministicEventId: category is empty', 'INVALID_EVENT_ID_INPUT', ['category is empty or missing']);
-  if (!normText) throw packetError('generateDeterministicEventId: eventText is empty', 'INVALID_EVENT_ID_INPUT', ['eventText is empty or missing']);
+  requireEventIdString(projectId, 'projectId');
+  requireEventIdString(chapterId, 'chapterId');
+  requireEventIdString(sceneId, 'sceneId');
+  requireEventIdString(category, 'category');
+  requireEventIdString(eventText, 'eventText');
   if (typeof ordinal !== 'number' || !Number.isFinite(ordinal) || !Number.isInteger(ordinal) || ordinal <= 0) {
     throw packetError('generateDeterministicEventId: ordinal must be a finite positive integer', 'INVALID_EVENT_ID_INPUT', [`ordinal must be a finite positive integer, got ${String(ordinal)}`]);
   }
+  const normProject = text(projectId);
+  const normChapter = text(chapterId);
+  const normScene = text(sceneId);
+  const normCategory = text(category);
+  const normText = text(eventText);
   const input = `${normProject}:${normChapter}:${normScene}:${normCategory}:${ordinal}:${normText}`;
   return `evt_${hashText(input)}`;
 }
 
-// ─── Recursive JSON-safe canonicalization ──────────────────────────────
+// ─── Descriptor-safe recursive inspection ──────────────────────────────
+// Inspects a value recursively using property descriptors only.
+// Never executes getters or setters.
+// Rejects symbol-keyed, non-enumerable, accessor, cyclic, class instance,
+// Date, function, symbol, BigInt, undefined, non-finite numbers, and sparse arrays.
 
-function assertJsonSafe(value, path) {
-  if (value === null || typeof value === 'boolean') return;
-  if (typeof value === 'string') return;
+function descriptorSafeInspect(value, path, seen) {
+  if (value === null) return;
+  if (typeof value === 'boolean' || typeof value === 'string') return;
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) {
       throw packetError(`Non-JSON-safe number at ${path}: ${value}`, 'NON_JSON_SAFE_VALUE', [`${path} contains non-finite number: ${value}`]);
@@ -643,28 +664,13 @@ function assertJsonSafe(value, path) {
   if (value instanceof Date) {
     throw packetError(`Date at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a Date object`]);
   }
-  if (typeof value === 'object') {
-    const proto = Object.getPrototypeOf(value);
-    if (proto !== Object.prototype && proto !== Array.prototype && proto !== null) {
-      throw packetError(`Class instance at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a class instance (${value.constructor?.name || 'unknown'})`]);
-    }
-    return;
-  }
-}
-
-function canonicalizeValue(value, path, seen) {
-  if (value === null) return null;
-  if (typeof value === 'boolean' || typeof value === 'string') return value;
-  if (typeof value === 'number') {
-    assertJsonSafe(value, path);
-    return value;
-  }
-  assertJsonSafe(value, path);
-
   if (typeof value !== 'object') {
-    throw packetError(`Unexpected type at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains unexpected type ${typeof value}`]);
+    throw packetError(`Unexpected type at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains unexpected type: ${typeof value}`]);
   }
-
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== Array.prototype && proto !== null) {
+    throw packetError(`Class instance at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a class instance (${value.constructor?.name || 'unknown'})`]);
+  }
   if (seen.has(value)) {
     throw packetError(`Cyclic reference at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a cyclic object reference`]);
   }
@@ -676,14 +682,28 @@ function canonicalizeValue(value, path, seen) {
         throw packetError(`Sparse array at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a sparse array (missing index ${i})`]);
       }
     }
-    const result = value.map((el, i) => canonicalizeValue(el, `${path}[${i}]`, seen));
+    // Inspect array elements by descriptor
+    for (let i = 0; i < value.length; i++) {
+      const desc = Object.getOwnPropertyDescriptor(value, i);
+      if (desc.get || desc.set) {
+        throw packetError(`Accessor at ${path}[${i}]`, 'INVALID_PACKET_PROPERTY', [`${path}[${i}] has an accessor (getter/setter) property`]);
+      }
+      descriptorSafeInspect(desc.value, `${path}[${i}]`, seen);
+    }
+    // Check for symbol keys on the array itself
+    const arrKeys = Reflect.ownKeys(value);
+    for (const k of arrKeys) {
+      if (typeof k === 'symbol') {
+        throw packetError(`Symbol-keyed property at ${path}`, 'INVALID_PACKET_PROPERTY', [`${path} has a symbol-keyed property: ${String(k)}`]);
+      }
+    }
     seen.delete(value);
-    return result;
+    return;
   }
 
-  // Plain object: check for symbol/non-enumerable/accessor keys, then sort and recurse
-  const allNestedKeys = Reflect.ownKeys(value);
-  for (const k of allNestedKeys) {
+  // Plain object
+  const allKeys = Reflect.ownKeys(value);
+  for (const k of allKeys) {
     if (typeof k === 'symbol') {
       throw packetError(`Symbol-keyed property at ${path}`, 'INVALID_PACKET_PROPERTY', [`${path} has a symbol-keyed property: ${String(k)}`]);
     }
@@ -694,7 +714,33 @@ function canonicalizeValue(value, path, seen) {
     if (desc.get || desc.set) {
       throw packetError(`Accessor property at ${path}.${k}`, 'INVALID_PACKET_PROPERTY', [`${path} has an accessor (getter/setter) property: "${k}"`]);
     }
+    descriptorSafeInspect(desc.value, `${path}.${k}`, seen);
   }
+  seen.delete(value);
+}
+
+// ─── Canonicalization (for fingerprint) ────────────────────────────────
+// After descriptorSafeInspect has proven the packet safe, this builds
+// a canonical JSON string. At this point we know there are no getters,
+// symbols, or hostile values.
+
+function canonicalizeValue(value, path, seen) {
+  if (value === null) return null;
+  if (typeof value === 'boolean' || typeof value === 'string') return value;
+  if (typeof value === 'number') return value;
+  if (typeof value !== 'object') return value;
+
+  if (seen.has(value)) {
+    throw packetError(`Cyclic reference at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a cyclic object reference`]);
+  }
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    const result = value.map((el, i) => canonicalizeValue(el, `${path}[${i}]`, seen));
+    seen.delete(value);
+    return result;
+  }
+
   const sortedKeys = Object.keys(value).sort();
   const result = {};
   for (const k of sortedKeys) {
@@ -704,35 +750,7 @@ function canonicalizeValue(value, path, seen) {
   return result;
 }
 
-function assertModelSafeRoot(packet) {
-  if (!packet || typeof packet !== 'object' || Array.isArray(packet)) {
-    throw packetError('Invalid packet root', 'INVALID_PACKET', ['Packet must be a non-null plain object']);
-  }
-  if (packet instanceof Date) {
-    throw packetError('Invalid packet root: Date', 'INVALID_PACKET', ['Packet root is a Date object']);
-  }
-  const proto = Object.getPrototypeOf(packet);
-  if (proto !== Object.prototype && proto !== null) {
-    throw packetError('Invalid packet root: class instance', 'INVALID_PACKET', [`Packet root is a class instance (${packet.constructor?.name || 'unknown'})`]);
-  }
-
-  const allKeys = Reflect.ownKeys(packet);
-  for (const k of allKeys) {
-    if (typeof k === 'symbol') {
-      throw packetError('Symbol-keyed property on packet', 'INVALID_PACKET_PROPERTY', [`Packet has a symbol-keyed property: ${String(k)}`]);
-    }
-    const desc = Object.getOwnPropertyDescriptor(packet, k);
-    if (!desc.enumerable) {
-      throw packetError(`Non-enumerable property on packet: ${k}`, 'INVALID_PACKET_PROPERTY', [`Packet has a non-enumerable property: "${k}"`]);
-    }
-    if (desc.get || desc.set) {
-      throw packetError(`Accessor property on packet: ${k}`, 'INVALID_PACKET_PROPERTY', [`Packet has an accessor (getter/setter) property: "${k}"`]);
-    }
-  }
-}
-
 function canonicalizePacketForFingerprint(packet) {
-  assertModelSafeRoot(packet);
   const copy = {};
   for (const k of Object.keys(packet)) {
     if (k === 'packet_id') continue;
@@ -744,6 +762,17 @@ function canonicalizePacketForFingerprint(packet) {
 
 export function generatePacketFingerprint(packet) {
   try {
+    // Quick root check
+    if (!packet || typeof packet !== 'object' || Array.isArray(packet)) {
+      throw packetError('Invalid packet', 'INVALID_PACKET', ['Packet must be a non-null plain object']);
+    }
+    if (packet instanceof Date) {
+      throw packetError('Invalid packet: Date', 'INVALID_PACKET', ['Packet root is a Date object']);
+    }
+    const proto = Object.getPrototypeOf(packet);
+    if (proto !== Object.prototype && proto !== null) {
+      throw packetError('Invalid packet: class instance', 'INVALID_PACKET', [`Packet root is a class instance (${packet.constructor?.name || 'unknown'})`]);
+    }
     return `sep_${hashText(canonicalizePacketForFingerprint(packet))}`;
   } catch (e) {
     if (e instanceof NarrativeInvariantError) throw e;
@@ -886,53 +915,180 @@ function requireSetUnique(arr, fieldName) {
   }
 }
 
-function isDeepFrozen(value) {
+// ─── Descriptor-safe deep-freeze check ─────────────────────────────────
+// Uses Reflect.ownKeys and property descriptors. Never executes getters.
+
+function isDeepFrozenSafe(value, seen) {
   if (!value || typeof value !== 'object') return true;
   if (!Object.isFrozen(value)) return false;
-  if (Array.isArray(value)) {
-    for (let i = 0; i < value.length; i++) {
-      if (!isDeepFrozen(value[i])) return false;
-    }
-  } else {
-    for (const v of Object.values(value)) {
-      if (!isDeepFrozen(v)) return false;
-    }
+  if (seen.has(value)) return true; // cyclic but frozen
+  seen.add(value);
+  const keys = Reflect.ownKeys(value);
+  for (const k of keys) {
+    const desc = Object.getOwnPropertyDescriptor(value, k);
+    // Accessors on frozen objects: we just check if frozen, don't invoke
+    if (desc.get || desc.set) continue;
+    if (!isDeepFrozenSafe(desc.value, seen)) return false;
   }
   return true;
 }
 
-function validateContractForPacket(immutableSceneContract) {
-  if (!immutableSceneContract || typeof immutableSceneContract !== 'object' || Array.isArray(immutableSceneContract)) {
+// ─── Descriptor-safe contract inspection ───────────────────────────────
+// Reads contract authority via property descriptors only. Never invokes
+// getters. Validates exact structure types before calling legacy validation.
+
+function inspectContractDescriptorSafe(contract) {
+  if (!contract || typeof contract !== 'object' || Array.isArray(contract)) {
     throw packetError('Invalid scene contract', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract must be a non-null plain object']);
   }
-  if (immutableSceneContract.version !== 'fiction-scene-contract-v2') {
-    throw packetError('Wrong scene contract version', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Expected version "fiction-scene-contract-v2", got "${immutableSceneContract.version}"`]);
+  if (contract instanceof Date) {
+    throw packetError('Invalid scene contract: Date', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract is a Date object']);
   }
-  if (typeof immutableSceneContract.fingerprint !== 'string' || !immutableSceneContract.fingerprint) {
+  const proto = Object.getPrototypeOf(contract);
+  if (proto !== Object.prototype && proto !== null) {
+    throw packetError('Invalid scene contract: class instance', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Scene contract is a class instance (${contract.constructor?.name || 'unknown'})`]);
+  }
+
+  // Check root keys via descriptors
+  const rootKeys = Reflect.ownKeys(contract);
+  for (const k of rootKeys) {
+    if (typeof k === 'symbol') {
+      throw packetError('Symbol-keyed property on contract', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Contract has a symbol-keyed property: ${String(k)}`]);
+    }
+    const desc = Object.getOwnPropertyDescriptor(contract, k);
+    if (!desc.enumerable) {
+      throw packetError(`Non-enumerable property on contract: ${k}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Contract has a non-enumerable property: "${k}"`]);
+    }
+    if (desc.get || desc.set) {
+      throw packetError(`Accessor property on contract: ${k}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Contract has an accessor (getter/setter) property: "${k}"`]);
+    }
+  }
+
+  // Read authority from descriptors (safe: no getters after check above)
+  const versionDesc = Object.getOwnPropertyDescriptor(contract, 'version');
+  if (!versionDesc || versionDesc.value !== 'fiction-scene-contract-v2') {
+    throw packetError('Wrong scene contract version', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Expected version "fiction-scene-contract-v2", got "${versionDesc?.value}"`]);
+  }
+
+  const fpDesc = Object.getOwnPropertyDescriptor(contract, 'fingerprint');
+  if (!fpDesc || typeof fpDesc.value !== 'string' || !fpDesc.value) {
     throw packetError('Scene contract missing fingerprint', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract fingerprint is missing or not a string']);
   }
-  if (typeof immutableSceneContract.chapterNumber !== 'number' || !Number.isFinite(immutableSceneContract.chapterNumber)) {
-    throw packetError('Scene contract missing chapterNumber', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract chapterNumber is missing or not a finite number']);
+
+  const cnDesc = Object.getOwnPropertyDescriptor(contract, 'chapterNumber');
+  if (!cnDesc) {
+    throw packetError('Scene contract missing chapterNumber', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract chapterNumber is missing']);
   }
-  if (!Array.isArray(immutableSceneContract.beats)) {
+  // Legacy createImmutableSceneContract may store chapterNumber: null
+  if (cnDesc.value !== null) {
+    if (typeof cnDesc.value !== 'number' || !Number.isFinite(cnDesc.value) || !Number.isInteger(cnDesc.value) || cnDesc.value <= 0) {
+      throw packetError('Scene contract invalid chapterNumber', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Scene contract chapterNumber must be null or a finite positive integer, got ${cnDesc.value}`]);
+    }
+  }
+
+  const beatsDesc = Object.getOwnPropertyDescriptor(contract, 'beats');
+  if (!beatsDesc || !Array.isArray(beatsDesc.value)) {
     throw packetError('Scene contract missing beats array', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract beats is missing or not an array']);
   }
-  for (let i = 0; i < immutableSceneContract.beats.length; i++) {
-    const b = immutableSceneContract.beats[i];
-    if (!b || typeof b !== 'object') {
-      throw packetError(`Scene contract beat ${i} is not an object`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is not a valid object`]);
+
+  const beats = beatsDesc.value;
+  for (let i = 0; i < beats.length; i++) {
+    // Read beat from array descriptor
+    const beatDesc = Object.getOwnPropertyDescriptor(beats, i);
+    if (!beatDesc) {
+      throw packetError(`Sparse beats array at index ${i}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is missing (sparse array)`]);
     }
-    if (typeof b.scene_id !== 'string') {
-      throw packetError(`Scene contract beat ${i} missing scene_id`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_id is missing or not a string`]);
+    if (beatDesc.get || beatDesc.set) {
+      throw packetError(`Accessor at beats[${i}]`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] has an accessor (getter/setter) property`]);
     }
-    if (!Array.isArray(b.required_events)) {
+    const b = beatDesc.value;
+    if (!b || typeof b !== 'object' || Array.isArray(b)) {
+      throw packetError(`Scene contract beat ${i} is not a plain object`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is not a valid plain object`]);
+    }
+    const beatProto = Object.getPrototypeOf(b);
+    if (beatProto !== Object.prototype && beatProto !== null) {
+      throw packetError(`Scene contract beat ${i} is a class instance`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is a class instance (${b.constructor?.name || 'unknown'})`]);
+    }
+    if (b instanceof Date) {
+      throw packetError(`Scene contract beat ${i} is a Date`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is a Date object`]);
+    }
+
+    // Check beat keys via descriptors
+    const beatKeys = Reflect.ownKeys(b);
+    for (const k of beatKeys) {
+      if (typeof k === 'symbol') {
+        throw packetError(`Symbol-keyed property on beat ${i}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] has a symbol-keyed property: ${String(k)}`]);
+      }
+      const bkDesc = Object.getOwnPropertyDescriptor(b, k);
+      if (bkDesc.get || bkDesc.set) {
+        throw packetError(`Accessor property on beat ${i}: ${k}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] has an accessor property: "${k}"`]);
+      }
+    }
+
+    // Read beat authority from descriptors
+    const sidDesc = Object.getOwnPropertyDescriptor(b, 'scene_id');
+    if (!sidDesc || typeof sidDesc.value !== 'string' || sidDesc.value.trim() === '') {
+      throw packetError(`Scene contract beat ${i} invalid scene_id`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_id is missing, not a string, or empty`]);
+    }
+    const snDesc = Object.getOwnPropertyDescriptor(b, 'scene_number');
+    if (snDesc) {
+      const sn = snDesc.value;
+      if (typeof sn !== 'number' && typeof sn !== 'string') {
+        throw packetError(`Scene contract beat ${i} invalid scene_number`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_number must be a number or numeric string, got ${typeof sn}`]);
+      }
+      const numSn = Number(sn);
+      if (!Number.isFinite(numSn) || !Number.isInteger(numSn) || numSn <= 0) {
+        throw packetError(`Scene contract beat ${i} invalid scene_number value`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_number must resolve to a finite positive integer, got ${sn}`]);
+      }
+    }
+    const sgDesc = Object.getOwnPropertyDescriptor(b, 'scene_goal');
+    if (!sgDesc || typeof sgDesc.value !== 'string' || sgDesc.value.trim() === '') {
+      throw packetError(`Scene contract beat ${i} invalid scene_goal`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_goal is missing, not a string, or empty`]);
+    }
+    const esDesc = Object.getOwnPropertyDescriptor(b, 'entry_state');
+    if (!esDesc || typeof esDesc.value !== 'string' || esDesc.value.trim() === '') {
+      throw packetError(`Scene contract beat ${i} invalid entry_state`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].entry_state is missing, not a string, or empty`]);
+    }
+    const exDesc = Object.getOwnPropertyDescriptor(b, 'exit_state');
+    if (!exDesc || typeof exDesc.value !== 'string' || exDesc.value.trim() === '') {
+      throw packetError(`Scene contract beat ${i} invalid exit_state`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].exit_state is missing, not a string, or empty`]);
+    }
+    // required_events must be a string array
+    const reDesc = Object.getOwnPropertyDescriptor(b, 'required_events');
+    if (!reDesc || !Array.isArray(reDesc.value)) {
       throw packetError(`Scene contract beat ${i} required_events not array`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].required_events is not an array`]);
     }
-    if (!Array.isArray(b.forbidden_events)) {
+    for (let j = 0; j < reDesc.value.length; j++) {
+      if (typeof reDesc.value[j] !== 'string') {
+        throw packetError(`Scene contract beat ${i} required_events[${j}] not string`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].required_events[${j}] must be a string, got ${typeof reDesc.value[j]}`]);
+      }
+    }
+    // forbidden_events must be a string array
+    const feDesc = Object.getOwnPropertyDescriptor(b, 'forbidden_events');
+    if (!feDesc || !Array.isArray(feDesc.value)) {
       throw packetError(`Scene contract beat ${i} forbidden_events not array`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].forbidden_events is not an array`]);
     }
+    for (let j = 0; j < feDesc.value.length; j++) {
+      if (typeof feDesc.value[j] !== 'string') {
+        throw packetError(`Scene contract beat ${i} forbidden_events[${j}] not string`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].forbidden_events[${j}] must be a string, got ${typeof feDesc.value[j]}`]);
+      }
+    }
+    // continuity_dependencies must be a string array if present
+    const cdDesc = Object.getOwnPropertyDescriptor(b, 'continuity_dependencies');
+    if (cdDesc) {
+      if (!Array.isArray(cdDesc.value)) {
+        throw packetError(`Scene contract beat ${i} continuity_dependencies not array`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].continuity_dependencies is not an array`]);
+      }
+      for (let j = 0; j < cdDesc.value.length; j++) {
+        if (typeof cdDesc.value[j] !== 'string') {
+          throw packetError(`Scene contract beat ${i} continuity_dependencies[${j}] not string`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].continuity_dependencies[${j}] must be a string, got ${typeof cdDesc.value[j]}`]);
+        }
+      }
+    }
   }
-  if (!isDeepFrozen(immutableSceneContract)) {
+
+  // Deep freeze check (descriptor-safe)
+  if (!isDeepFrozenSafe(contract, new Set())) {
     throw packetError('Scene contract is not deeply frozen', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['The supplied scene contract must be deeply frozen (immutable)']);
   }
 }
@@ -940,8 +1096,34 @@ function validateContractForPacket(immutableSceneContract) {
 // ─── Validator ─────────────────────────────────────────────────────────
 
 export function validateSceneExecutionPacket(packet, immutableSceneContract) {
-  // ── Root model safety ──
-  assertModelSafeRoot(packet);
+  try {
+    return _validatePacketInner(packet, immutableSceneContract);
+  } catch (e) {
+    if (e instanceof NarrativeInvariantError) throw e;
+    // Normalize any raw error (TypeError, getter-thrown, legacy) into stable contract
+    throw packetError(
+      e.message || 'Packet validation failed',
+      'VALIDATION_ERROR',
+      [e.message || String(e)]
+    );
+  }
+}
+
+function _validatePacketInner(packet, immutableSceneContract) {
+  // ── Full recursive descriptor-safe inspection BEFORE reading any nested value ──
+  // This rejects all hostile structures (getters, symbols, non-enumerables,
+  // class instances, cycles, etc.) before any schema field is accessed.
+  if (!packet || typeof packet !== 'object' || Array.isArray(packet)) {
+    throw packetError('Invalid packet root', 'INVALID_PACKET', ['Packet must be a non-null plain object']);
+  }
+  if (packet instanceof Date) {
+    throw packetError('Invalid packet root: Date', 'INVALID_PACKET', ['Packet root is a Date object']);
+  }
+  const packetProto = Object.getPrototypeOf(packet);
+  if (packetProto !== Object.prototype && packetProto !== null) {
+    throw packetError('Invalid packet root: class instance', 'INVALID_PACKET', [`Packet root is a class instance (${packet.constructor?.name || 'unknown'})`]);
+  }
+  descriptorSafeInspect(packet, 'packet', new Set());
 
   // ── Top-level key enforcement ──
   for (const k of Object.keys(packet)) {
@@ -1081,8 +1263,8 @@ export function validateSceneExecutionPacket(packet, immutableSceneContract) {
     }
   }
 
-  // ── Contract validation (mutation-safe) ──
-  validateContractForPacket(immutableSceneContract);
+  // ── Contract validation (descriptor-safe, mutation-safe) ──
+  inspectContractDescriptorSafe(immutableSceneContract);
 
   if (packet.source_contract_fingerprint !== immutableSceneContract.fingerprint) {
     throw packetError('Contract fingerprint mismatch', 'CONTRACT_FINGERPRINT_MISMATCH', [`Expected "${immutableSceneContract.fingerprint}", got "${packet.source_contract_fingerprint}"`]);
@@ -1162,14 +1344,6 @@ export function validateSceneExecutionPacket(packet, immutableSceneContract) {
     if (povFactIds.has(fid)) throw packetError('Duplicate pov_known_facts ID', 'DUPLICATE_POV_FACT_ID', [`pov_known_facts[${i}] "${fid}" is a duplicate`]);
     povFactIds.add(fid);
     if (!factIdSet.has(fid)) throw packetError('pov_known_facts ID not found in scene_authorized_facts', 'UNRESOLVED_POV_FACT', [`pov_known_facts[${i}] "${fid}" does not resolve to any scene_authorized_facts entry`]);
-  }
-
-  // ── JSON safety ──
-  try {
-    canonicalizePacketForFingerprint(packet);
-  } catch (e) {
-    if (e instanceof NarrativeInvariantError) throw e;
-    throw packetError('Packet contains non-JSON-safe values', 'NON_JSON_SAFE_VALUE', [e.message]);
   }
 
   // ── Packet fingerprint ──
