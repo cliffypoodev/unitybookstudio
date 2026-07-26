@@ -3540,7 +3540,7 @@ function parsePromptProjection(rendered) {
   );
   assert.equal(
     lines[1],
-    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them.'
+    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as a hard stop: end immediately when it is reached, without later action, exploration, plans, reflection, or setup. Do not perform, imply, or prepare forbidden events. Do not assert prior familiarity, ownership, plans, or knowledge unless continuity or knowledge_authority explicitly authorizes it.'
   );
   assert.equal(
     lines.at(-1),
@@ -3615,6 +3615,10 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
     projection.projection_version,
     SCENE_EXECUTION_PROMPT_PROJECTION_VERSION
   );
+  assert.equal(
+    projection.projection_version,
+    'scene-execution-prompt-projection-v2'
+  );
   assert.equal(projection.packet_id, input.packet.packet_id);
   assert.deepEqual(projection.scene_identity, {
     project_id: 'proj-001',
@@ -3649,6 +3653,18 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   assert.deepEqual(projection.continuity.current_locations, ['Village']);
   assert.deepEqual(projection.continuity.current_possessions, ['Sword']);
   assert.deepEqual(projection.voice_rules, ['Third person past tense']);
+  assert.equal(
+    first.includes(
+      'Treat current_scene_authority.exit_state as a hard stop: end immediately when it is reached, without later action, exploration, plans, reflection, or setup.'
+    ),
+    true
+  );
+  assert.equal(
+    first.includes(
+      'Do not perform, imply, or prepare forbidden events. Do not assert prior familiarity, ownership, plans, or knowledge unless continuity or knowledge_authority explicitly authorizes it.'
+    ),
+    true
+  );
   assertSnapshotsEqual(
     before,
     snapshotDescriptorSafe(input),
@@ -5824,7 +5840,11 @@ function makeStage8RunInput(overrides = {}) {
 await test('Stage 8 live-canary feature metadata is immutable, own-data-only, and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
-    'scene_execution_live_canary_v1'
+    'scene_execution_live_canary_v2'
+  );
+  assert.equal(
+    SCENE_EXECUTION_LIVE_CANARY_VERSION,
+    'scene-execution-live-canary-v2'
   );
   assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
@@ -5855,6 +5875,106 @@ await test('Stage 8 executes exactly one matched live legacy-canary pair and hol
   assert.equal(result.attestation.raw_content_included, false);
   assert.ok(Object.isFrozen(result));
   assert.ok(Object.isFrozen(result.attestation));
+});
+
+await test('Stage 8 recognizes a room opening expressed as the door swinging inward', async () => {
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse:
+        'Hero held the brass latch and pressed against the locked oak. The door swung inward with a groan. He crossed the threshold and stopped inside, keeping the latch in his hand.',
+      canaryProse:
+        'Hero kept the brass latch in his hand. The seal broke and the door swung inward. He stepped through and stopped inside.',
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+  assert.equal(
+    result.attestation.legacy_issue_codes.includes(
+      'REQUIRED_ROOM_OPENING_MISSING'
+    ),
+    false
+  );
+  assert.equal(
+    result.attestation.canary_issue_codes.includes(
+      'REQUIRED_ROOM_OPENING_MISSING'
+    ),
+    false
+  );
+});
+
+await test('Stage 8 permits an unopened future object to remain visible', async () => {
+  const compliantProse =
+    'Hero opened the locked room and crossed the threshold. A heavy chest sat closed in the corner, its lock untouched, but he did not move toward it. He stopped inside with the brass latch still in his hand.';
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: compliantProse,
+      canaryProse: compliantProse,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+  assert.equal(
+    result.attestation.legacy_issue_codes.includes(
+      'FUTURE_BOUNDARY_VIOLATION'
+    ),
+    false
+  );
+  assert.equal(
+    result.attestation.canary_issue_codes.includes(
+      'FUTURE_BOUNDARY_VIOLATION'
+    ),
+    false
+  );
+});
+
+await test('Stage 8 still rejects performing the forbidden chest and letter events', async () => {
+  const violatingProse =
+    'Hero opened the locked room and crossed the threshold. He did not hesitate, then lifted the chest lid and found the sealed letter beneath it. He stood inside with the brass latch in his hand.';
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: violatingProse,
+      canaryProse: violatingProse,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+  assert.equal(
+    result.attestation.legacy_issue_codes.includes(
+      'FUTURE_BOUNDARY_VIOLATION'
+    ),
+    true
+  );
+  assert.equal(
+    result.attestation.canary_issue_codes.includes(
+      'FUTURE_BOUNDARY_VIOLATION'
+    ),
+    true
+  );
+});
+
+await test('Stage 8 distinguishes a brief landing from genuine post-exit overrun', async () => {
+  const briefLanding =
+    'Hero opened the locked room and crossed the threshold. He stopped inside with the brass latch in his hand.';
+  const overrun = `${briefLanding} ${Array.from(
+    { length: 45 },
+    (_, index) => `later${index + 1}`
+  ).join(' ')}`;
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: overrun,
+      canaryProse: briefLanding,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+  assert.equal(
+    result.attestation.legacy_issue_codes.includes(
+      'EXIT_BOUNDARY_OVERRUN'
+    ),
+    true
+  );
+  assert.equal(
+    result.attestation.canary_issue_codes.includes(
+      'EXIT_BOUNDARY_OVERRUN'
+    ),
+    false
+  );
 });
 
 await test('Stage 8 sends byte-matched model settings and changes only the paired prompt', async () => {

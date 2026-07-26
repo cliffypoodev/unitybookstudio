@@ -17,10 +17,10 @@ import {
 } from './generationContext.js';
 
 export const SCENE_EXECUTION_LIVE_CANARY_VERSION =
-  'scene-execution-live-canary-v1';
+  'scene-execution-live-canary-v2';
 
 export const SCENE_EXECUTION_LIVE_CANARY_FEATURE = Object.freeze({
-  key: 'scene_execution_live_canary_v1',
+  key: 'scene_execution_live_canary_v2',
   defaultEnabled: false,
 });
 
@@ -304,6 +304,117 @@ function countMarker(value, marker) {
   }
 }
 
+function hasRequiredRoomOpening(normalized) {
+  if (
+    /\b(?:open(?:ed|s|ing)?|unlock(?:ed|s|ing)?|unseal(?:ed|s|ing)?)\b.{0,100}\b(?:room|door)\b/i.test(
+      normalized
+    ) ||
+    /\b(?:room|door)\b.{0,100}\b(?:open(?:ed|s|ing)?|unlock(?:ed|s|ing)?|unseal(?:ed|s|ing)?)\b/i.test(
+      normalized
+    )
+  ) {
+    return true;
+  }
+  return (
+    /\b(?:door|portal)\b.{0,80}\b(?:sw(?:ing|ang|ung)|move(?:d|s|ing)?|yield(?:ed|s|ing)?|gave way)\b.{0,40}\b(?:inward|open|aside)\b/i.test(
+      normalized
+    ) ||
+    /\b(?:inward|open|aside)\b.{0,40}\b(?:sw(?:ing|ang|ung)|move(?:d|s|ing)?|yield(?:ed|s|ing)?|gave way)\b.{0,80}\b(?:door|portal)\b/i.test(
+      normalized
+    )
+  );
+}
+
+function findExitTransition(normalized) {
+  const patterns = [
+    /\b(?:crossed|passed)\s+(?:(?:over|across|through)\s+)?the threshold\b/i,
+    /\bstepped\s+(?:across|over|through|into|inside|in)\b/i,
+    /\bentered\s+(?:the\s+)?(?:room|space)\b/i,
+    /\b(?:stood|stopped|paused|was)\s+inside\b/i,
+  ];
+  let earliest = null;
+  for (const pattern of patterns) {
+    const match = pattern.exec(normalized);
+    if (
+      match &&
+      (!earliest || match.index < earliest.index)
+    ) {
+      earliest = {
+        index: match.index,
+        end: match.index + match[0].length,
+      };
+    }
+  }
+  return earliest;
+}
+
+function actionIsNegated(clause, actionIndex, actionEnd) {
+  const prefix = clause.slice(Math.max(0, actionIndex - 55), actionIndex);
+  const suffix = clause.slice(actionEnd, Math.min(clause.length, actionEnd + 45));
+  return (
+    /(?:\b(?:not|never|without)\b|\b(?:didn't|doesn't|don't|hadn't|hasn't|haven't|wouldn't|won't|couldn't|can't|shouldn't|mustn't)\b)(?:\s+[\p{L}\p{N}'’-]+){0,3}\s*$/iu.test(
+      prefix
+    ) ||
+    /^\s+(?:no|neither)\b/i.test(suffix)
+  );
+}
+
+function clauseHasAffirmedActionNearObject(clause, actions, objects) {
+  const actionPattern = new RegExp(actions.source, 'gi');
+  let match;
+  while ((match = actionPattern.exec(clause)) !== null) {
+    const windowStart = Math.max(0, match.index - 65);
+    const windowEnd = Math.min(
+      clause.length,
+      match.index + match[0].length + 65
+    );
+    const window = clause.slice(windowStart, windowEnd);
+    if (
+      objects.test(window) &&
+      !actionIsNegated(
+        clause,
+        match.index,
+        match.index + match[0].length
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasFutureBoundaryViolation(normalized) {
+  const clauses = normalized.split(/(?<=[.!?;])\s+|\n+/u);
+  const chestActions =
+    /\b(?:open(?:ed|s|ing)?|unlock(?:ed|s|ing)?|unseal(?:ed|s|ing)?|lift(?:ed|s|ing)?|raise(?:d|s|ing)?|pr(?:y|ied|ies|ying)|forc(?:e|ed|es|ing)|remov(?:e|ed|es|ing))\b/i;
+  const letterActions =
+    /\b(?:discover(?:ed|s|ing)?|find(?:s|ing)?|found|locat(?:e|ed|es|ing)|read(?:s|ing)?|open(?:ed|s|ing)?|unseal(?:ed|s|ing)?|remov(?:e|ed|es|ing)|retriev(?:e|ed|es|ing)|reveal(?:ed|s|ing)?|expos(?:e|ed|es|ing))\b/i;
+  const contentsActions =
+    /\b(?:discover(?:ed|s|ing)?|examin(?:e|ed|es|ing)|inspect(?:ed|s|ing)?|read(?:s|ing)?|reveal(?:ed|s|ing)?|expos(?:e|ed|es|ing)|see(?:s|ing)?|saw)\b/i;
+  for (const clause of clauses) {
+    if (
+      clauseHasAffirmedActionNearObject(
+        clause,
+        chestActions,
+        /\b(?:chest|chest's|lid)\b/i
+      ) ||
+      clauseHasAffirmedActionNearObject(
+        clause,
+        letterActions,
+        /\b(?:sealed\s+)?letter\b/i
+      ) ||
+      clauseHasAffirmedActionNearObject(
+        clause,
+        contentsActions,
+        /\bcontents?\b/i
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function assessOutput(prose) {
   const source = String(prose || '').trim();
   const normalized = source
@@ -326,24 +437,18 @@ function assessOutput(prose) {
   if (/^\s*(?:scene|chapter)\s+(?:\d+|[ivxlcdm]+)\b/im.test(source)) {
     issues.push('MANUSCRIPT_HEADING_LEAK');
   }
-  const opensRoom =
-    /\b(?:open(?:ed|s|ing)?|unlock(?:ed|s|ing)?|unseal(?:ed|s|ing)?)\b.{0,100}\b(?:room|door)\b/i.test(
-      normalized
-    ) ||
-    /\b(?:room|door)\b.{0,100}\b(?:open(?:ed|s|ing)?|unlock(?:ed|s|ing)?|unseal(?:ed|s|ing)?)\b/i.test(
-      normalized
-    );
+  const opensRoom = hasRequiredRoomOpening(normalized);
   if (!opensRoom) issues.push('REQUIRED_ROOM_OPENING_MISSING');
-  const reachesExit =
-    /\b(?:inside|entered|entering|crossed the threshold|stepped (?:in|inside|through))\b/i.test(
-      normalized
-    );
+  const exitTransition = findExitTransition(normalized);
+  const reachesExit = exitTransition !== null;
   if (!reachesExit) issues.push('EXIT_STATE_MISSING');
   if (
-    /\b(?:chest|sealed letter|letter inside|contents? (?:of|inside))\b/i.test(
-      normalized
-    )
+    exitTransition &&
+    countWords(normalized.slice(exitTransition.end)) > 40
   ) {
+    issues.push('EXIT_BOUNDARY_OVERRUN');
+  }
+  if (hasFutureBoundaryViolation(normalized)) {
     issues.push('FUTURE_BOUNDARY_VIOLATION');
   }
   return deepFreeze({
