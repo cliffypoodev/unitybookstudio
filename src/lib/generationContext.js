@@ -634,6 +634,21 @@ export function generateDeterministicEventId(projectId, chapterId, sceneId, cate
   return `evt_${hashText(input)}`;
 }
 
+// ─── Centralized array-index predicate ─────────────────────────────────
+// A valid ECMAScript array index is a string key k such that:
+//   ToString(ToUint32(k)) === k  AND  ToUint32(k) < 2^32 - 1
+// This means the maximum valid array index is 4294967294 (2^32 - 2).
+// We additionally require that the index be < arr.length (within bounds).
+const MAX_ARRAY_INDEX = 4294967294; // 2^32 - 2
+
+function isCanonicalArrayIndex(k, arrayLength) {
+  const n = Number(k);
+  if (!Number.isInteger(n) || n < 0 || n > MAX_ARRAY_INDEX) return false;
+  if (String(n) !== k) return false; // must be canonical decimal
+  if (n >= arrayLength) return false; // must be within bounds
+  return true;
+}
+
 // ─── Descriptor-safe recursive inspection ──────────────────────────────
 // Inspects a value recursively using property descriptors only.
 // Never executes getters or setters.
@@ -677,16 +692,19 @@ function descriptorSafeInspect(value, path, seen) {
   seen.add(value);
 
   if (Array.isArray(value)) {
-    // Validate ALL own keys via descriptors: only 'length' and canonical indexes allowed
+    const arrLen = value.length;
+    // Validate ALL own keys via descriptors: only 'length' and canonical indexes allowed.
+    // Uses Reflect.ownKeys to enumerate own descriptors without iterating 0..length-1,
+    // so validation cost is proportional to actual own-key count, not attacker-controlled length.
     const arrAllKeys = Reflect.ownKeys(value);
+    let ownIndexCount = 0;
     for (const k of arrAllKeys) {
       if (typeof k === 'symbol') {
         throw packetError(`Symbol-keyed property at ${path}`, 'INVALID_PACKET_PROPERTY', [`${path} has a symbol-keyed array property: ${String(k)}`]);
       }
       if (k === 'length') continue; // standard array property
-      const idx = Number(k);
-      if (!Number.isInteger(idx) || idx < 0 || String(idx) !== k) {
-        // Named/custom string property on array
+      if (!isCanonicalArrayIndex(k, arrLen)) {
+        // Not a valid array index — could be a named property or out-of-bounds index
         const kDesc = Object.getOwnPropertyDescriptor(value, k);
         if (kDesc.get || kDesc.set) {
           throw packetError(`Named accessor on array at ${path}.${k}`, 'INVALID_PACKET_PROPERTY', [`${path} has a named accessor array property: "${k}"`]);
@@ -696,20 +714,21 @@ function descriptorSafeInspect(value, path, seen) {
         }
         throw packetError(`Custom array property at ${path}.${k}`, 'INVALID_PACKET_PROPERTY', [`${path} has an unsupported custom array property: "${k}"`]);
       }
-    }
-    // Validate each index 0..length-1
-    for (let i = 0; i < value.length; i++) {
-      const desc = Object.getOwnPropertyDescriptor(value, i);
-      if (!desc) {
-        throw packetError(`Sparse array at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a sparse array (missing index ${i})`]);
-      }
+      // Valid canonical index — inspect its descriptor
+      const desc = Object.getOwnPropertyDescriptor(value, k);
       if (desc.get || desc.set) {
-        throw packetError(`Accessor at ${path}[${i}]`, 'INVALID_PACKET_PROPERTY', [`${path}[${i}] has an accessor (getter/setter) property`]);
+        throw packetError(`Accessor at ${path}[${k}]`, 'INVALID_PACKET_PROPERTY', [`${path}[${k}] has an accessor (getter/setter) property`]);
       }
       if (!desc.enumerable) {
-        throw packetError(`Non-enumerable index at ${path}[${i}]`, 'INVALID_PACKET_PROPERTY', [`${path}[${i}] has a non-enumerable index descriptor`]);
+        throw packetError(`Non-enumerable index at ${path}[${k}]`, 'INVALID_PACKET_PROPERTY', [`${path}[${k}] has a non-enumerable index descriptor`]);
       }
-      descriptorSafeInspect(desc.value, `${path}[${i}]`, seen);
+      descriptorSafeInspect(desc.value, `${path}[${k}]`, seen);
+      ownIndexCount++;
+    }
+    // Density check: every index from 0..length-1 must have an own descriptor.
+    // We already validated each own index key, so if the count matches length, it's dense.
+    if (ownIndexCount !== arrLen) {
+      throw packetError(`Sparse array at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a sparse array (expected ${arrLen} indexes, found ${ownIndexCount})`]);
     }
     seen.delete(value);
     return;
@@ -755,8 +774,10 @@ function canonicalizeValue(value, path, seen) {
     return result;
   }
 
+  // Use Object.create(null) to prevent __proto__ from altering the prototype
+  // and disappearing from the canonical representation.
   const sortedKeys = Object.keys(value).sort();
-  const result = {};
+  const result = Object.create(null);
   for (const k of sortedKeys) {
     result[k] = canonicalizeValue(value[k], `${path}.${k}`, seen);
   }
@@ -765,7 +786,7 @@ function canonicalizeValue(value, path, seen) {
 }
 
 function canonicalizePacketForFingerprint(packet) {
-  const copy = {};
+  const copy = Object.create(null);
   for (const k of Object.keys(packet)) {
     if (k === 'packet_id') continue;
     copy[k] = packet[k];
@@ -788,20 +809,26 @@ export function generatePacketFingerprint(packet) {
       throw packetError('Invalid packet: class instance', 'INVALID_PACKET', ['Packet root is a non-plain object (custom prototype)']);
     }
     // Full recursive descriptor-safe inspection BEFORE canonicalization.
-    // Inspects all properties except packet_id (which is excluded from authority).
-    // First validate packet_id descriptor safely if present.
+    // Validate packet_id if present: must be an ordinary, enumerable data
+    // property holding a nonempty string.  Absence is valid (generating it).
     const pidDesc = Object.getOwnPropertyDescriptor(packet, 'packet_id');
     if (pidDesc) {
       if (pidDesc.get || pidDesc.set) {
         throw packetError('Accessor on packet.packet_id', 'INVALID_PACKET_PROPERTY', ['packet.packet_id has an accessor (getter/setter) property']);
       }
-      if (typeof pidDesc.value !== 'symbol' && typeof pidDesc.value !== 'function') {
-        // packet_id is a normal value, skip from inspection but allow
-      } else {
-        throw packetError('Invalid packet_id value', 'NON_JSON_SAFE_VALUE', [`packet.packet_id contains ${typeof pidDesc.value}`]);
+      if (!pidDesc.enumerable) {
+        throw packetError('Non-enumerable packet.packet_id', 'INVALID_PACKET_PROPERTY', ['packet.packet_id is non-enumerable']);
+      }
+      const pidVal = pidDesc.value;
+      if (typeof pidVal !== 'string') {
+        const label = pidVal === null ? 'null' : pidVal === undefined ? 'undefined' : typeof pidVal;
+        throw packetError('Invalid packet_id type', 'INVALID_PACKET_PROPERTY', [`packet.packet_id must be a string, got ${label}`]);
+      }
+      if (pidVal.trim() === '') {
+        throw packetError('Empty packet_id', 'INVALID_PACKET_PROPERTY', ['packet.packet_id must be a nonempty string after trimming']);
       }
     }
-    // Build a proxy view that skips packet_id for inspection
+    // Inspect every non-packet_id property via descriptors
     const seen = new Set();
     const allKeys = Reflect.ownKeys(packet);
     for (const k of allKeys) {
@@ -1012,24 +1039,26 @@ function contractDescriptorInspect(value, path, seen) {
   seen.add(value);
 
   if (Array.isArray(value)) {
+    const arrLen = value.length;
     const arrKeys = Reflect.ownKeys(value);
+    let ownIndexCount = 0;
     for (const k of arrKeys) {
       if (typeof k === 'symbol') throw contractError(`Symbol on array at ${path}`, [`${path} has a symbol-keyed array property: ${String(k)}`]);
       if (k === 'length') continue;
-      const idx = Number(k);
-      if (!Number.isInteger(idx) || idx < 0 || String(idx) !== k) {
+      if (!isCanonicalArrayIndex(k, arrLen)) {
         const kDesc = Object.getOwnPropertyDescriptor(value, k);
         if (kDesc.get || kDesc.set) throw contractError(`Named accessor on array at ${path}.${k}`, [`${path} has a named accessor array property: "${k}"`]);
         if (!kDesc.enumerable) throw contractError(`Non-enumerable array property at ${path}.${k}`, [`${path} has a non-enumerable array property: "${k}"`]);
         throw contractError(`Custom array property at ${path}.${k}`, [`${path} has an unsupported custom array property: "${k}"`]);
       }
+      const desc = Object.getOwnPropertyDescriptor(value, k);
+      if (desc.get || desc.set) throw contractError(`Accessor at ${path}[${k}]`, [`${path}[${k}] has an accessor (getter/setter) property`]);
+      if (!desc.enumerable) throw contractError(`Non-enumerable index at ${path}[${k}]`, [`${path}[${k}] has a non-enumerable index`]);
+      contractDescriptorInspect(desc.value, `${path}[${k}]`, seen);
+      ownIndexCount++;
     }
-    for (let i = 0; i < value.length; i++) {
-      const desc = Object.getOwnPropertyDescriptor(value, i);
-      if (!desc) throw contractError(`Sparse array at ${path}`, [`${path} is a sparse array (missing index ${i})`]);
-      if (desc.get || desc.set) throw contractError(`Accessor at ${path}[${i}]`, [`${path}[${i}] has an accessor (getter/setter) property`]);
-      if (!desc.enumerable) throw contractError(`Non-enumerable index at ${path}[${i}]`, [`${path}[${i}] has a non-enumerable index`]);
-      contractDescriptorInspect(desc.value, `${path}[${i}]`, seen);
+    if (ownIndexCount !== arrLen) {
+      throw contractError(`Sparse array at ${path}`, [`${path} is a sparse array (expected ${arrLen} indexes, found ${ownIndexCount})`]);
     }
     seen.delete(value);
     return;

@@ -1870,6 +1870,7 @@ function assertFpFails(label, packet, expectedCode) {
   assert.ok(Array.isArray(caught.issues), `${label}: issues must be array`);
   assert.ok(caught.issues.length > 0, `${label}: issues must be nonempty`);
   assert.ok(Object.isFrozen(caught.issues), `${label}: issues must be frozen`);
+  assertSnapshotsEqual(snap, snapshotDescriptorSafe(packet), `${label}: packet unchanged`);
 }
 
 await test('FP-pre: root getter rejected without invocation', () => {
@@ -2046,19 +2047,21 @@ function deepFreezeAll(obj) {
 }
 
 function assertContractFails(label, contract, packet) {
-  const packetSnap = packet ? snapshotDescriptorSafe(packet) : null;
+  // Always create the exact packet used for validation before snapshotting.
+  const actualPacket = packet || makeValidPacket(makeContract());
+  const packetSnap = snapshotDescriptorSafe(actualPacket);
+  const contractSnap = snapshotDescriptorSafe(contract);
   let caught;
   try {
-    validateSceneExecutionPacket(packet || makeValidPacket(makeContract()), contract);
+    validateSceneExecutionPacket(actualPacket, contract);
   } catch (e) { caught = e; }
   assert.ok(caught, `${label}: Expected to throw`);
   assert.equal(caught.code, 'SCENE_CONTRACT_NOT_IMMUTABLE', `${label}: Expected SCENE_CONTRACT_NOT_IMMUTABLE, got ${caught.code}`);
   assert.ok(Array.isArray(caught.issues), `${label}: issues array`);
   assert.ok(caught.issues.length > 0, `${label}: issues nonempty`);
   assert.ok(Object.isFrozen(caught.issues), `${label}: issues frozen`);
-  if (packet && packetSnap) {
-    assertSnapshotsEqual(packetSnap, snapshotDescriptorSafe(packet), `${label}: packet unchanged`);
-  }
+  assertSnapshotsEqual(packetSnap, snapshotDescriptorSafe(actualPacket), `${label}: packet unchanged`);
+  assertSnapshotsEqual(contractSnap, snapshotDescriptorSafe(contract), `${label}: contract unchanged`);
 }
 
 await test('Contract: getter at required_events[0] rejected without invocation', () => {
@@ -2190,5 +2193,300 @@ await test('Contract: empty continuity_dependencies entry rejected', () => {
   assertContractFails('empty cont dep', c);
 });
 
-console.log(`\nSTAGE 1E TESTS COMPLETE: ${passed} total passed\n`);
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 1F Tests
+// ═══════════════════════════════════════════════════════════════════════
 
+// ─── §1F-1. packet_id validation in generatePacketFingerprint ─────────
+
+const PID_MALFORMED_VALUES = [
+  ['number 0',         0,                      'INVALID_PACKET_PROPERTY'],
+  ['number 1',         1,                      'INVALID_PACKET_PROPERTY'],
+  ['number -1',        -1,                     'INVALID_PACKET_PROPERTY'],
+  ['NaN',              NaN,                    'INVALID_PACKET_PROPERTY'],
+  ['Infinity',         Infinity,               'INVALID_PACKET_PROPERTY'],
+  ['boolean true',     true,                   'INVALID_PACKET_PROPERTY'],
+  ['boolean false',    false,                  'INVALID_PACKET_PROPERTY'],
+  ['null',             null,                   'INVALID_PACKET_PROPERTY'],
+  ['undefined',        undefined,              'INVALID_PACKET_PROPERTY'],
+  ['empty string',     '',                     'INVALID_PACKET_PROPERTY'],
+  ['whitespace',       '   ',                  'INVALID_PACKET_PROPERTY'],
+  ['tab',              '\t',                   'INVALID_PACKET_PROPERTY'],
+  ['object',           {},                     'INVALID_PACKET_PROPERTY'],
+  ['array',            [],                     'INVALID_PACKET_PROPERTY'],
+  ['Date',             new Date(),             'INVALID_PACKET_PROPERTY'],
+  ['function',         () => {},               'INVALID_PACKET_PROPERTY'],
+  ['symbol',           Symbol('pid'),          'INVALID_PACKET_PROPERTY'],
+];
+
+for (const [label, value, expectedCode] of PID_MALFORMED_VALUES) {
+  await test(`FP packet_id: ${label} rejected`, () => {
+    const contract = makeContract();
+    const p = makeValidPacket(contract);
+    p.packet_id = value;
+    assertFpFails(`pid ${label}`, p, expectedCode);
+  });
+}
+
+await test('FP packet_id: accessor rejected without invocation', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  let invoked = 0;
+  delete p.packet_id;
+  Object.defineProperty(p, 'packet_id', {
+    get() { invoked++; return 'sep_fake'; },
+    enumerable: true, configurable: true,
+  });
+  assertFpFails('pid accessor', p, 'INVALID_PACKET_PROPERTY');
+  assert.equal(invoked, 0, 'packet_id getter must not be invoked');
+});
+
+await test('FP packet_id: non-enumerable rejected', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const val = p.packet_id;
+  delete p.packet_id;
+  Object.defineProperty(p, 'packet_id', {
+    value: val, enumerable: false, writable: true, configurable: true,
+  });
+  assertFpFails('pid non-enum', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP packet_id: absent is valid', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  delete p.packet_id;
+  // Should not throw — absence is valid when generating the id
+  const fp = generatePacketFingerprint(p);
+  assert.equal(typeof fp, 'string');
+  assert.ok(fp.startsWith('sep_'));
+});
+
+await test('FP packet_id: valid string accepted', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  // p.packet_id is already a valid string; should succeed
+  const fp = generatePacketFingerprint(p);
+  assert.equal(typeof fp, 'string');
+});
+
+// ─── §1F-2. __proto__ canonicalization ────────────────────────────────
+
+await test('FP __proto__: root __proto__ data property is not silently omitted', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  delete p.packet_id;
+  // Use Object.defineProperty to set __proto__ as a normal data property
+  Object.defineProperty(p, '__proto__', {
+    value: 'proto_value_root',
+    enumerable: true, writable: true, configurable: true,
+  });
+  const fp1 = generatePacketFingerprint(p);
+
+  const p2 = clonePacket(p);
+  delete p2.packet_id;
+  // p2 via JSON parse should also have __proto__ as data if cloned correctly.
+  // But JSON.parse assigns to a {} which makes __proto__ disappear.
+  // So we set it explicitly.
+  Object.defineProperty(p2, '__proto__', {
+    value: 'proto_value_root',
+    enumerable: true, writable: true, configurable: true,
+  });
+  const fp2 = generatePacketFingerprint(p2);
+  assert.equal(fp1, fp2, 'Same __proto__ value produces same fingerprint');
+});
+
+await test('FP __proto__: changing root __proto__ changes fingerprint', () => {
+  const contract = makeContract();
+  const p1 = makeValidPacket(contract);
+  delete p1.packet_id;
+  Object.defineProperty(p1, '__proto__', {
+    value: 'proto_A',
+    enumerable: true, writable: true, configurable: true,
+  });
+  const fp1 = generatePacketFingerprint(p1);
+
+  const p2 = makeValidPacket(contract);
+  delete p2.packet_id;
+  Object.defineProperty(p2, '__proto__', {
+    value: 'proto_B',
+    enumerable: true, writable: true, configurable: true,
+  });
+  const fp2 = generatePacketFingerprint(p2);
+  assert.notEqual(fp1, fp2, 'Different __proto__ values must produce different fingerprints');
+});
+
+await test('FP __proto__: nested __proto__ data property is not silently omitted', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  delete p.packet_id;
+  const inner = {};
+  Object.defineProperty(inner, '__proto__', {
+    value: 'nested_proto_val',
+    enumerable: true, writable: true, configurable: true,
+  });
+  Object.defineProperty(inner, 'event_id', {
+    value: 'evt_proto_test',
+    enumerable: true, writable: true, configurable: true,
+  });
+  p.future_reserved_events = [inner];
+  const fp1 = generatePacketFingerprint(p);
+
+  // Now change the nested __proto__ value
+  const p2 = makeValidPacket(contract);
+  delete p2.packet_id;
+  const inner2 = {};
+  Object.defineProperty(inner2, '__proto__', {
+    value: 'different_nested_proto',
+    enumerable: true, writable: true, configurable: true,
+  });
+  Object.defineProperty(inner2, 'event_id', {
+    value: 'evt_proto_test',
+    enumerable: true, writable: true, configurable: true,
+  });
+  p2.future_reserved_events = [inner2];
+  const fp2 = generatePacketFingerprint(p2);
+  assert.notEqual(fp1, fp2, 'Different nested __proto__ values must change fingerprint');
+});
+
+await test('FP __proto__: key reordering with __proto__ remains neutral', () => {
+  const contract = makeContract();
+  const p1 = makeValidPacket(contract);
+  delete p1.packet_id;
+  Object.defineProperty(p1, '__proto__', {
+    value: 'proto_val',
+    enumerable: true, writable: true, configurable: true,
+  });
+  const fp1 = generatePacketFingerprint(p1);
+
+  // Rebuild with keys in different order
+  const p2 = {};
+  Object.defineProperty(p2, '__proto__', {
+    value: 'proto_val',
+    enumerable: true, writable: true, configurable: true,
+  });
+  const origKeys = Object.keys(p1).filter(k => k !== '__proto__');
+  for (const k of origKeys.reverse()) {
+    p2[k] = p1[k];
+  }
+  const fp2 = generatePacketFingerprint(p2);
+  assert.equal(fp1, fp2, 'Key reorder with __proto__ must remain neutral');
+});
+
+await test('FP __proto__: original packet descriptor-unchanged after fingerprinting', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  delete p.packet_id;
+  Object.defineProperty(p, '__proto__', {
+    value: 'proto_val',
+    enumerable: true, writable: true, configurable: true,
+  });
+  const snap = snapshotDescriptorSafe(p);
+  generatePacketFingerprint(p);
+  assertSnapshotsEqual(snap, snapshotDescriptorSafe(p), '__proto__ packet unchanged');
+});
+
+// ─── §1F-3. Canonical array-index boundary tests ─────────────────────
+
+// 4294967295 (2^32-1) is NOT a valid array index. It looks like an integer
+// but exceeds the maximum array index (2^32-2).
+await test('FP: array property "4294967295" rejected (exceeds max index)', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  p.voice_rules['4294967295'] = 'injected';
+  assertFpFails('idx 2^32-1', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP: array property "4294967296" rejected (> 2^32-1)', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  p.voice_rules['4294967296'] = 'injected';
+  assertFpFails('idx 2^32', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP: array property "99999999999" rejected (far beyond bounds)', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  p.voice_rules['99999999999'] = 'injected';
+  assertFpFails('idx huge', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP: out-of-bounds index on dense array creates sparse (rejected)', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  // Setting arr[len+5] auto-extends length, creating sparse entries
+  const len = p.voice_rules.length;
+  p.voice_rules[String(len + 5)] = 'beyond';
+  assertFpFails('idx beyond len sparse', p, 'NON_JSON_SAFE_VALUE');
+});
+
+await test('FP: accessor at numeric array index rejected without invocation', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  let invoked = 0;
+  Object.defineProperty(p.voice_rules, '0', {
+    get() { invoked++; return 'x'; },
+    enumerable: true, configurable: true,
+  });
+  assertFpFails('idx accessor', p, 'INVALID_PACKET_PROPERTY');
+  assert.equal(invoked, 0, 'Accessor at index must not be invoked');
+});
+
+await test('FP: non-enumerable index rejected', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  Object.defineProperty(p.voice_rules, '0', {
+    value: 'hidden', enumerable: false, writable: true, configurable: true,
+  });
+  assertFpFails('idx non-enum', p, 'INVALID_PACKET_PROPERTY');
+});
+
+// ─── §1F-4. Contract array-index boundary tests ──────────────────────
+
+await test('Contract: array "4294967295" on required_events rejected', () => {
+  const c = makeFrozenContract();
+  c.beats[0].required_events['4294967295'] = 'injected';
+  deepFreezeAll(c);
+  assertContractFails('contract idx 2^32-1', c);
+});
+
+await test('Contract: array "4294967296" on forbidden_events rejected', () => {
+  const c = makeFrozenContract();
+  c.beats[0].forbidden_events['4294967296'] = 'injected';
+  deepFreezeAll(c);
+  assertContractFails('contract idx 2^32', c);
+});
+
+await test('Contract: out-of-bounds index on continuity_dependencies creates sparse (rejected)', () => {
+  const c = makeFrozenContract();
+  // Setting arr[len+5] auto-extends length, creating sparse entries
+  const len = c.beats[0].continuity_dependencies.length;
+  c.beats[0].continuity_dependencies[String(len + 5)] = 'beyond';
+  deepFreezeAll(c);
+  assertContractFails('contract idx beyond len sparse', c);
+});
+
+await test('Contract: accessor at numeric index on array rejected without invocation', () => {
+  const c = makeFrozenContract();
+  let invoked = 0;
+  Object.defineProperty(c.beats[0].required_events, '0', {
+    get() { invoked++; return 'Event A'; },
+    enumerable: true, configurable: true,
+  });
+  deepFreezeAll(c);
+  assertContractFails('contract idx accessor', c);
+  assert.equal(invoked, 0, 'Contract index accessor must not be invoked');
+});
+
+await test('Contract: non-enumerable numeric index on array rejected', () => {
+  const c = makeFrozenContract();
+  Object.defineProperty(c.beats[0].required_events, '0', {
+    value: 'Event A', enumerable: false, writable: false, configurable: false,
+  });
+  // Freeze won't iterate to the value since we freeze manually
+  try { Object.freeze(c.beats[0].required_events); } catch (_) {}
+  deepFreezeAll(c);
+  assertContractFails('contract idx non-enum', c);
+});
+
+console.log(`\nSTAGE 1F TESTS COMPLETE: ${passed} total passed\n`);
