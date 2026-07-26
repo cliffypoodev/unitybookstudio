@@ -13,15 +13,20 @@ import {
   isSceneContextComposerEnabled,
   generateDeterministicEventId,
   generatePacketFingerprint,
+  applySceneExecutionPromptCanary,
   composeSceneExecutionPacket,
+  prepareSceneExecutionPromptCanary,
   prepareSceneExecutionShadowIntegration,
   renderSceneExecutionPromptProjection,
   validateSceneExecutionPacket,
   SCENE_EXECUTION_PACKET_VERSION,
   SCENE_EXECUTION_PROMPT_PROJECTION_VERSION,
+  SCENE_EXECUTION_PROMPT_CANARY_VERSION,
   SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
   SCENE_CONTEXT_COMPOSER_FEATURE,
+  SCENE_EXECUTION_PROMPT_CANARY_FEATURE,
   SCENE_EXECUTION_SHADOW_FEATURE,
+  isSceneExecutionPromptCanaryEnabled,
   isSceneExecutionShadowEnabled,
   PACKET_LIMITS,
 } from '../src/lib/generationContext.js';
@@ -4208,9 +4213,431 @@ await test('Stage 4 writer seam is shadow-only and has no UI activation', () => 
   );
   assert.match(
     writer,
-    /const prompt = buildScenePrompt\(\{[\s\S]*?prompt,\n\s+model,/,
-    'the existing prompt must still flow directly to the model call'
+    /const basePrompt = buildScenePrompt\(\{[\s\S]*?const promptCanaryResult = applySceneExecutionPromptCanary\(\{[\s\S]*?prompt: basePrompt,[\s\S]*?const prompt = promptCanaryResult\.prompt;/,
+    'the existing prompt must pass through the prompt-neutral canary adapter'
   );
   assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);
   assert.equal(SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled, false);
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 5 — Single-scene prompt canary (triple-gated, default-off)
+// ═══════════════════════════════════════════════════════════════════════
+
+function makePromptCanaryInput(overrides = {}) {
+  const immutableSceneContract =
+    overrides.immutableSceneContract || makeThreeSceneComposerContract();
+  const contextBySceneId =
+    overrides.contextBySceneId ||
+    Object.fromEntries(
+      immutableSceneContract.beats.map((beat) => [
+        beat.scene_id,
+        {
+          pov_identity: 'Hero',
+          immediate_continuity: '',
+        },
+      ])
+    );
+  const shadowState =
+    overrides.shadowState ||
+    prepareSceneExecutionShadowIntegration(
+      makeShadowIntegrationInput({
+        immutableSceneContract,
+        contextBySceneId,
+      })
+    );
+  return {
+    integration: {
+      flags: {
+        [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+        [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+        [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+      },
+      targetSceneId: overrides.targetSceneId || 'ch01-s02',
+      ...(overrides.integration || {}),
+    },
+    shadowState,
+    immutableSceneContract,
+    ...(overrides.input || {}),
+  };
+}
+
+function assertPromptCanaryFailsClosed(label, input, expectedCode) {
+  const before = snapshotDescriptorSafe(input);
+  let caught;
+  try {
+    prepareSceneExecutionPromptCanary(input);
+    assert.fail(`${label}: Expected prompt canary preparation to throw`);
+  } catch (error) {
+    caught = error;
+  }
+  assert.equal(caught.code, expectedCode, `${label}: wrong error code`);
+  assert.ok(Array.isArray(caught.issues), `${label}: issues must be an array`);
+  assert.ok(caught.issues.length > 0, `${label}: issues must be nonempty`);
+  assert.ok(Object.isFrozen(caught.issues), `${label}: issues must be frozen`);
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    `${label}: input`
+  );
+}
+
+await test('Stage 5 prompt canary feature metadata is immutable and default-disabled', () => {
+  assert.equal(
+    SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key,
+    'scene_execution_prompt_canary_v1'
+  );
+  assert.equal(SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled, false);
+  assert.ok(Object.isFrozen(SCENE_EXECUTION_PROMPT_CANARY_FEATURE));
+  assert.equal(isSceneExecutionPromptCanaryEnabled(), false);
+  assert.equal(isSceneExecutionPromptCanaryEnabled({}), false);
+  assert.equal(
+    isSceneExecutionPromptCanaryEnabled({
+      [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    }),
+    true
+  );
+
+  let invoked = 0;
+  const flags = {};
+  Object.defineProperty(flags, SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key, {
+    get() {
+      invoked += 1;
+      return true;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assert.equal(isSceneExecutionPromptCanaryEnabled(flags), false);
+  assert.equal(invoked, 0, 'prompt canary feature getter must not execute');
+});
+
+await test('Stage 5 absent or disabled prompt canary is an exact frozen no-op', () => {
+  const disabledState = prepareSceneExecutionPromptCanary({
+    integration: null,
+    shadowState: null,
+    immutableSceneContract: null,
+  });
+  assert.deepEqual(disabledState, {
+    integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
+    enabled: false,
+    mode: 'disabled',
+    target_scene_id: null,
+    packet_id: null,
+    projection: null,
+  });
+  assert.ok(Object.isFrozen(disabledState));
+
+  const prompt = 'LEGACY PROMPT\nWITH EXACT BYTES';
+  const result = applySceneExecutionPromptCanary({
+    state: disabledState,
+    prompt,
+    sceneId: 'ch01-s01',
+  });
+  assert.equal(result.prompt, prompt);
+  assert.equal(result.applied, false);
+  assert.equal(result.enabled, false);
+  assert.ok(Object.isFrozen(result));
+
+  const nonfictionNoIdResult = applySceneExecutionPromptCanary({
+    state: disabledState,
+    prompt,
+    sceneId: undefined,
+  });
+  assert.equal(nonfictionNoIdResult.prompt, prompt);
+  assert.equal(nonfictionNoIdResult.applied, false);
+  assert.equal(nonfictionNoIdResult.scene_id, null);
+
+  const ownButFalse = makePromptCanaryInput({
+    integration: {
+      flags: {
+        [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+        [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+        [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: false,
+      },
+    },
+  });
+  assert.equal(
+    prepareSceneExecutionPromptCanary(ownButFalse).enabled,
+    false
+  );
+});
+
+await test('Stage 5 prompt canary requires all three independent own gates', () => {
+  const missingShadow = makePromptCanaryInput();
+  missingShadow.integration.flags = {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+  };
+  assertPromptCanaryFailsClosed(
+    'canary without shadow gate',
+    missingShadow,
+    'SCENE_EXECUTION_PROMPT_CANARY_SHADOW_DISABLED'
+  );
+
+  const missingComposer = makePromptCanaryInput();
+  missingComposer.integration.flags = {
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+  };
+  assertPromptCanaryFailsClosed(
+    'canary without composer gate',
+    missingComposer,
+    'SCENE_EXECUTION_PROMPT_CANARY_CORE_DISABLED'
+  );
+
+  const inheritedFlags = Object.create({
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+  });
+  const inherited = makePromptCanaryInput({
+    integration: { flags: inheritedFlags },
+  });
+  assert.equal(prepareSceneExecutionPromptCanary(inherited).enabled, false);
+});
+
+await test('Stage 5 prompt canary accepts only branded enabled Stage 4 shadow state', () => {
+  const input = makePromptCanaryInput({
+    shadowState: Object.freeze({
+      integration_version: SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
+      enabled: true,
+      mode: 'shadow',
+      source_contract_fingerprint: makeThreeSceneComposerContract().fingerprint,
+      scene_reports: Object.freeze([]),
+    }),
+  });
+  assertPromptCanaryFailsClosed(
+    'synthetic shadow state',
+    input,
+    'SCENE_EXECUTION_PROMPT_CANARY_SHADOW_INVALID'
+  );
+});
+
+await test('Stage 5 prompt canary binds one verified target scene deterministically', () => {
+  const input = makePromptCanaryInput();
+  const before = snapshotDescriptorSafe(input);
+  const first = prepareSceneExecutionPromptCanary(input);
+  const second = prepareSceneExecutionPromptCanary(input);
+  assert.deepEqual(first, second);
+  assert.equal(first.enabled, true);
+  assert.equal(first.mode, 'single-scene-canary');
+  assert.equal(first.target_scene_id, 'ch01-s02');
+  assert.match(first.packet_id, /^sep_[a-f0-9]{8}$/);
+  assert.match(
+    first.projection,
+    /<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>/
+  );
+  assert.ok(Object.isFrozen(first));
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    'valid prompt canary preparation'
+  );
+});
+
+await test('Stage 5 prompt canary rejects unknown or prose-shaped target IDs', () => {
+  const unknown = makePromptCanaryInput({ targetSceneId: 'ch01-s99' });
+  assertPromptCanaryFailsClosed(
+    'unknown target scene',
+    unknown,
+    'SCENE_EXECUTION_PROMPT_CANARY_TARGET_MISMATCH'
+  );
+
+  const proseShaped = makePromptCanaryInput({
+    targetSceneId: 'open the locked room now',
+  });
+  assertPromptCanaryFailsClosed(
+    'prose-shaped target scene',
+    proseShaped,
+    'INVALID_SCENE_EXECUTION_PROMPT_CANARY_TARGET'
+  );
+});
+
+await test('Stage 5 prompt canary rejects a shadow state from another contract', () => {
+  const oneSceneContract = makeContract();
+  const oneSceneShadow = prepareSceneExecutionShadowIntegration(
+    makeShadowIntegrationInput({
+      immutableSceneContract: oneSceneContract,
+      contextBySceneId: {
+        'ch01-s01': makeComposerContext(),
+      },
+    })
+  );
+  const input = makePromptCanaryInput({
+    shadowState: oneSceneShadow,
+  });
+  assertPromptCanaryFailsClosed(
+    'mismatched canary contract',
+    input,
+    'SCENE_EXECUTION_PROMPT_CANARY_CONTRACT_MISMATCH'
+  );
+});
+
+await test('Stage 5 prompt canary bypasses every non-target scene byte-for-byte', () => {
+  const state = prepareSceneExecutionPromptCanary(makePromptCanaryInput());
+  const prompt = 'ORIGINAL SCENE ONE PROMPT';
+  const result = applySceneExecutionPromptCanary({
+    state,
+    prompt,
+    sceneId: 'ch01-s01',
+  });
+  assert.equal(result.enabled, true);
+  assert.equal(result.applied, false);
+  assert.equal(result.mode, 'single-scene-canary-bypass');
+  assert.equal(result.prompt, prompt);
+  assert.equal(result.packet_id, null);
+});
+
+await test('Stage 5 prompt canary appends one validated projection without rewriting the base prompt', () => {
+  const state = prepareSceneExecutionPromptCanary(makePromptCanaryInput());
+  const prompt = 'ORIGINAL TARGET PROMPT\nDO NOT REWRITE';
+  const input = {
+    state,
+    prompt,
+    sceneId: 'ch01-s02',
+  };
+  const before = snapshotDescriptorSafe(input);
+  const result = applySceneExecutionPromptCanary(input);
+  assert.equal(result.enabled, true);
+  assert.equal(result.applied, true);
+  assert.equal(result.mode, 'single-scene-canary');
+  assert.equal(result.scene_id, 'ch01-s02');
+  assert.equal(result.packet_id, state.packet_id);
+  assert.equal(result.prompt.startsWith(`${prompt}\n\n`), true);
+  assert.equal(result.prompt.slice(prompt.length + 2), state.projection);
+  assert.equal(
+    result.prompt.match(
+      /<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>/g
+    )?.length,
+    1
+  );
+  assert.ok(Object.isFrozen(result));
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    'prompt canary apply input'
+  );
+});
+
+await test('Stage 5 prompt canary refuses duplicate authority injection', () => {
+  const state = prepareSceneExecutionPromptCanary(makePromptCanaryInput());
+  const input = {
+    state,
+    prompt:
+      'BASE\n<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>\nalready present',
+    sceneId: 'ch01-s02',
+  };
+  let caught;
+  try {
+    applySceneExecutionPromptCanary(input);
+    assert.fail('Expected duplicate canary injection to throw');
+  } catch (error) {
+    caught = error;
+  }
+  assert.equal(caught.code, 'SCENE_EXECUTION_PROMPT_CANARY_DUPLICATE');
+});
+
+await test('Stage 5 prompt canary never injects later-scene prose', () => {
+  const state = prepareSceneExecutionPromptCanary(
+    makePromptCanaryInput({ targetSceneId: 'ch01-s01' })
+  );
+  const result = applySceneExecutionPromptCanary({
+    state,
+    prompt: 'BASE PROMPT',
+    sceneId: 'ch01-s01',
+  });
+  assert.equal(result.applied, true);
+  assert.equal(result.prompt.includes('Hero opens the locked room.'), false);
+  assert.equal(result.prompt.includes('Hero opens the chest.'), false);
+  assert.equal(
+    result.prompt.includes('Hero discovers the sealed letter.'),
+    false
+  );
+  const projection = parsePromptProjection(state.projection);
+  assert.ok(
+    projection.future_boundaries.reserved_event_ids.every((eventId) =>
+      /^evt_[a-f0-9]{8}$/.test(eventId)
+    )
+  );
+});
+
+await test('Stage 5 prompt canary rejects accessors without invocation and accepts null prototypes', () => {
+  const accessorInput = makePromptCanaryInput();
+  let invoked = 0;
+  Object.defineProperty(accessorInput.integration, 'targetSceneId', {
+    get() {
+      invoked += 1;
+      return 'ch01-s02';
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assertPromptCanaryFailsClosed(
+    'canary target accessor',
+    accessorInput,
+    'INVALID_COMPOSER_INPUT'
+  );
+  assert.equal(invoked, 0, 'prompt canary target getter must not execute');
+
+  const ordinary = makePromptCanaryInput();
+  const flags = Object.assign(
+    Object.create(null),
+    ordinary.integration.flags
+  );
+  const integration = Object.assign(Object.create(null), {
+    flags,
+    targetSceneId: ordinary.integration.targetSceneId,
+  });
+  const input = Object.assign(Object.create(null), {
+    integration,
+    shadowState: ordinary.shadowState,
+    immutableSceneContract: ordinary.immutableSceneContract,
+  });
+  const state = prepareSceneExecutionPromptCanary(input);
+  const applyInput = Object.assign(Object.create(null), {
+    state,
+    prompt: 'NULL PROTOTYPE BASE PROMPT',
+    sceneId: 'ch01-s02',
+  });
+  assert.equal(
+    applySceneExecutionPromptCanary(applyInput).applied,
+    true
+  );
+});
+
+await test('Stage 5 writer canary remains single-scene, default-off, and absent from UI activation', () => {
+  const writer = fs.readFileSync('src/lib/sceneWriter.js', 'utf8');
+  const projectStudio = fs.readFileSync('src/pages/ProjectStudio.jsx', 'utf8');
+  const promptBuilderStart = writer.indexOf('function buildScenePrompt(args)');
+  const promptBuilderEnd = writer.indexOf(
+    'async function generateSceneWithRepair',
+    promptBuilderStart
+  );
+  const promptBuilder = writer.slice(promptBuilderStart, promptBuilderEnd);
+
+  assert.ok(writer.includes('prepareSceneExecutionPromptCanary'));
+  assert.ok(writer.includes('applySceneExecutionPromptCanary'));
+  assert.match(
+    writer,
+    /sceneExecutionPromptCanary = null,/
+  );
+  assert.equal(
+    promptBuilder.includes('sceneExecutionPromptCanary'),
+    false,
+    'legacy prompt construction must remain independent of canary authority'
+  );
+  assert.equal(
+    projectStudio.includes('sceneExecutionPromptCanary'),
+    false,
+    'ProjectStudio must not activate Stage 5'
+  );
+  assert.match(
+    writer,
+    /const basePrompt = buildScenePrompt\(\{[\s\S]*?const promptCanaryResult = applySceneExecutionPromptCanary\(\{[\s\S]*?prompt: basePrompt,[\s\S]*?const prompt = promptCanaryResult\.prompt;[\s\S]*?generateSceneWithRepair\(\{[\s\S]*?prompt,\n\s+model,/,
+    'only the canary adapter result may cross the model-call prompt boundary'
+  );
+  assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);
+  assert.equal(SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled, false);
+  assert.equal(SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled, false);
 });

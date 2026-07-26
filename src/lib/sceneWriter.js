@@ -70,8 +70,10 @@ import {
 import {
   assertNarrativeTextClean,
   assertSceneContractUnchanged,
+  applySceneExecutionPromptCanary,
   createImmutableSceneContract,
   findNarrativeMetaLeaks,
+  prepareSceneExecutionPromptCanary,
   prepareSceneExecutionShadowIntegration,
 } from '@/lib/generationContext';
 import { buildProjectContinuityLockBlock, validateProjectChapterContent } from '@/lib/projectContentGuard';
@@ -2741,6 +2743,7 @@ export async function generateChapterSceneByScene({
   revisionFeedback = '',
   onProgress,
   sceneExecutionShadow = null,
+  sceneExecutionPromptCanary = null,
 }) {
   if (!project) throw new Error('Project is required.');
   if (!chapter) throw new Error('Chapter is required.');
@@ -2853,6 +2856,11 @@ export async function generateChapterSceneByScene({
     integration: sceneExecutionShadow,
     immutableSceneContract: immutableContract,
   });
+  const sceneExecutionPromptCanaryState = prepareSceneExecutionPromptCanary({
+    integration: sceneExecutionPromptCanary,
+    shadowState: sceneExecutionShadowState,
+    immutableSceneContract: immutableContract,
+  });
 
   const model = pickProseModel(project, proseModelOverride || modelOverride);
   const fallbackControls = buildFallbackControls('prose', project);
@@ -2929,7 +2937,7 @@ export async function generateChapterSceneByScene({
       model,
     });
 
-    const prompt = buildScenePrompt({
+    const basePrompt = buildScenePrompt({
       project,
       chapter,
       chapters: allProjectChapters,
@@ -2950,6 +2958,12 @@ export async function generateChapterSceneByScene({
       revisionFeedback,
       runtimeLedger,
     });
+    const promptCanaryResult = applySceneExecutionPromptCanary({
+      state: sceneExecutionPromptCanaryState,
+      prompt: basePrompt,
+      sceneId: spec.scene_id,
+    });
+    const prompt = promptCanaryResult.prompt;
 
     const shadowSceneReport = sceneExecutionShadowState.enabled
       ? sceneExecutionShadowState.scene_reports[i]
@@ -2977,6 +2991,22 @@ export async function generateChapterSceneByScene({
         totalScenes: normalizedScenes.length,
         packetId: shadowSceneReport.packet_id,
         mode: sceneExecutionShadowState.mode,
+      });
+    }
+    if (promptCanaryResult.applied) {
+      pipelineSnapshot(
+        chapter?.id,
+        `0-prompt-canary-scene-${i + 1}`,
+        prompt
+      );
+      onProgress?.({
+        stage: 'scene_execution_prompt_canary',
+        sceneIndex: i,
+        sceneNumber: spec.sceneNumber,
+        sceneId: spec.scene_id,
+        totalScenes: normalizedScenes.length,
+        packetId: promptCanaryResult.packet_id,
+        mode: promptCanaryResult.mode,
       });
     }
 
@@ -3526,6 +3556,9 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
     ...(sceneExecutionShadowState.enabled
       ? { sceneExecutionShadow: sceneExecutionShadowState }
       : {}),
+    ...(sceneExecutionPromptCanaryState.enabled
+      ? { sceneExecutionPromptCanary: sceneExecutionPromptCanaryState }
+      : {}),
   });
 
   if (!isAnthology && chapter?.id && finalProse) {
@@ -3572,6 +3605,9 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
     disableFallbacks,
     ...(sceneExecutionShadowState.enabled
       ? { sceneExecutionShadow: sceneExecutionShadowState }
+      : {}),
+    ...(sceneExecutionPromptCanaryState.enabled
+      ? { sceneExecutionPromptCanary: sceneExecutionPromptCanaryState }
       : {}),
   };
 }

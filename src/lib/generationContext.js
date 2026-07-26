@@ -13,6 +13,7 @@ export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
 export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v1';
 export const SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION = 'scene-execution-shadow-integration-v1';
+export const SCENE_EXECUTION_PROMPT_CANARY_VERSION = 'scene-execution-prompt-canary-v1';
 
 export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
   key: 'scene_context_composer_v1',
@@ -21,6 +22,11 @@ export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
 
 export const SCENE_EXECUTION_SHADOW_FEATURE = Object.freeze({
   key: 'scene_execution_shadow_v1',
+  defaultEnabled: false,
+});
+
+export const SCENE_EXECUTION_PROMPT_CANARY_FEATURE = Object.freeze({
+  key: 'scene_execution_prompt_canary_v1',
   defaultEnabled: false,
 });
 
@@ -50,6 +56,24 @@ export function isSceneExecutionShadowEnabled(flags) {
   const descriptor = Object.getOwnPropertyDescriptor(flags, SCENE_EXECUTION_SHADOW_FEATURE.key);
   if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
     return SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled;
+  }
+  return descriptor.value === true;
+}
+
+export function isSceneExecutionPromptCanaryEnabled(flags) {
+  if (!flags || typeof flags !== 'object' || Array.isArray(flags)) {
+    return SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled;
+  }
+  const proto = Object.getPrototypeOf(flags);
+  if (proto !== Object.prototype && proto !== null) {
+    return SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled;
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(
+    flags,
+    SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key
+  );
+  if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
+    return SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled;
   }
   return descriptor.value === true;
 }
@@ -1984,8 +2008,16 @@ const SHADOW_INTEGRATION_KEYS = new Set([
   'contextBySceneId',
 ]);
 
+const verifiedSceneExecutionShadowStates = new WeakSet();
+
+function finalizeSceneExecutionShadowState(state) {
+  const frozen = deepFreeze(state);
+  verifiedSceneExecutionShadowStates.add(frozen);
+  return frozen;
+}
+
 function disabledSceneExecutionShadowState() {
-  return deepFreeze({
+  return finalizeSceneExecutionShadowState({
     integration_version: SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
     enabled: false,
     mode: 'disabled',
@@ -2136,10 +2168,280 @@ export function prepareSceneExecutionShadowIntegration(input) {
     };
   });
 
-  return deepFreeze({
+  return finalizeSceneExecutionShadowState({
     integration_version: SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
     enabled: true,
     mode: 'shadow',
+    source_contract_fingerprint: immutableSceneContract.fingerprint,
     scene_reports: sceneReports,
+  });
+}
+
+// ─── Stage 5: single-scene prompt canary ─────────────────────────────
+// The canary is the first controlled use of a validated prompt projection.
+// It accepts only a branded Stage 4 shadow state, requires a third independent
+// default-off feature flag, and may target exactly one immutable-contract
+// scene. Every other scene receives its original prompt byte-for-byte.
+
+const PROMPT_CANARY_REQUEST_KEYS = new Set([
+  'integration',
+  'shadowState',
+  'immutableSceneContract',
+]);
+
+const PROMPT_CANARY_INTEGRATION_KEYS = new Set([
+  'flags',
+  'targetSceneId',
+]);
+
+const PROMPT_CANARY_APPLY_KEYS = new Set([
+  'state',
+  'prompt',
+  'sceneId',
+]);
+
+const verifiedSceneExecutionPromptCanaryStates = new WeakSet();
+
+function finalizeSceneExecutionPromptCanaryState(state) {
+  const frozen = deepFreeze(state);
+  verifiedSceneExecutionPromptCanaryStates.add(frozen);
+  return frozen;
+}
+
+function disabledSceneExecutionPromptCanaryState() {
+  return finalizeSceneExecutionPromptCanaryState({
+    integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
+    enabled: false,
+    mode: 'disabled',
+    target_scene_id: null,
+    packet_id: null,
+    projection: null,
+  });
+}
+
+export function prepareSceneExecutionPromptCanary(input) {
+  inspectComposerRecord(input, 'sceneExecutionPromptCanary', PROMPT_CANARY_REQUEST_KEYS);
+
+  const integration = composerOwnDataValue(
+    input,
+    'integration',
+    'sceneExecutionPromptCanary',
+    false
+  );
+  if (integration === undefined || integration === null) {
+    return disabledSceneExecutionPromptCanaryState();
+  }
+
+  inspectComposerRecord(
+    integration,
+    'sceneExecutionPromptCanary.integration',
+    PROMPT_CANARY_INTEGRATION_KEYS
+  );
+  const flags = composerOwnDataValue(
+    integration,
+    'flags',
+    'sceneExecutionPromptCanary.integration',
+    false
+  );
+  if (!isSceneExecutionPromptCanaryEnabled(flags)) {
+    return disabledSceneExecutionPromptCanaryState();
+  }
+  if (!isSceneExecutionShadowEnabled(flags)) {
+    throw composerError(
+      'Scene execution prompt canary requires the shadow gate',
+      'SCENE_EXECUTION_PROMPT_CANARY_SHADOW_DISABLED',
+      [`Set own data flags "${SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key}", "${SCENE_EXECUTION_SHADOW_FEATURE.key}", and "${SCENE_CONTEXT_COMPOSER_FEATURE.key}" to true for an explicit single-scene canary`]
+    );
+  }
+  if (!isSceneContextComposerEnabled(flags)) {
+    throw composerError(
+      'Scene execution prompt canary requires the packet composer gate',
+      'SCENE_EXECUTION_PROMPT_CANARY_CORE_DISABLED',
+      [`Set own data flags "${SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key}", "${SCENE_EXECUTION_SHADOW_FEATURE.key}", and "${SCENE_CONTEXT_COMPOSER_FEATURE.key}" to true for an explicit single-scene canary`]
+    );
+  }
+
+  const shadowState = composerOwnDataValue(
+    input,
+    'shadowState',
+    'sceneExecutionPromptCanary'
+  );
+  if (
+    !shadowState ||
+    typeof shadowState !== 'object' ||
+    !verifiedSceneExecutionShadowStates.has(shadowState) ||
+    shadowState.enabled !== true ||
+    shadowState.mode !== 'shadow'
+  ) {
+    throw composerError(
+      'Scene execution prompt canary requires a verified enabled shadow state',
+      'SCENE_EXECUTION_PROMPT_CANARY_SHADOW_INVALID',
+      ['sceneExecutionPromptCanary.shadowState must be the enabled result returned by prepareSceneExecutionShadowIntegration in this runtime']
+    );
+  }
+
+  const immutableSceneContract = composerOwnDataValue(
+    input,
+    'immutableSceneContract',
+    'sceneExecutionPromptCanary'
+  );
+  inspectContractDescriptorSafe(immutableSceneContract);
+  if (
+    shadowState.source_contract_fingerprint !==
+    immutableSceneContract.fingerprint
+  ) {
+    throw composerError(
+      'Scene execution prompt canary contract does not match its shadow state',
+      'SCENE_EXECUTION_PROMPT_CANARY_CONTRACT_MISMATCH',
+      ['sceneExecutionPromptCanary.shadowState was prepared from a different immutable scene contract']
+    );
+  }
+
+  const targetSceneId = composerOwnDataValue(
+    integration,
+    'targetSceneId',
+    'sceneExecutionPromptCanary.integration'
+  );
+  if (
+    typeof targetSceneId !== 'string' ||
+    !OPAQUE_PROMPT_REFERENCE_PATTERN.test(targetSceneId)
+  ) {
+    throw composerError(
+      'Scene execution prompt canary target is invalid',
+      'INVALID_SCENE_EXECUTION_PROMPT_CANARY_TARGET',
+      ['sceneExecutionPromptCanary.integration.targetSceneId must be one opaque immutable-contract scene ID']
+    );
+  }
+
+  const targetBeat = immutableSceneContract.beats.find(
+    (beat) => beat.scene_id === targetSceneId
+  );
+  const targetReport = shadowState.scene_reports.find(
+    (report) => report.scene_id === targetSceneId
+  );
+  if (
+    !targetBeat ||
+    !targetReport ||
+    Number(targetReport.scene_number) !== Number(targetBeat.scene_number)
+  ) {
+    throw composerError(
+      'Scene execution prompt canary target is not covered by the shadow state',
+      'SCENE_EXECUTION_PROMPT_CANARY_TARGET_MISMATCH',
+      [`No verified shadow projection exists for immutable-contract scene "${targetSceneId}"`]
+    );
+  }
+
+  return finalizeSceneExecutionPromptCanaryState({
+    integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
+    enabled: true,
+    mode: 'single-scene-canary',
+    target_scene_id: targetSceneId,
+    packet_id: targetReport.packet_id,
+    projection: targetReport.projection,
+  });
+}
+
+function finalizeSceneExecutionPromptCanaryResult(result) {
+  return deepFreeze(result);
+}
+
+export function applySceneExecutionPromptCanary(input) {
+  inspectComposerRecord(
+    input,
+    'sceneExecutionPromptCanaryApply',
+    PROMPT_CANARY_APPLY_KEYS
+  );
+  const state = composerOwnDataValue(
+    input,
+    'state',
+    'sceneExecutionPromptCanaryApply'
+  );
+  if (
+    !state ||
+    typeof state !== 'object' ||
+    !verifiedSceneExecutionPromptCanaryStates.has(state)
+  ) {
+    throw composerError(
+      'Scene execution prompt canary state is not verified',
+      'INVALID_SCENE_EXECUTION_PROMPT_CANARY_STATE',
+      ['sceneExecutionPromptCanaryApply.state must be returned by prepareSceneExecutionPromptCanary in this runtime']
+    );
+  }
+
+  const prompt = composerOwnDataValue(
+    input,
+    'prompt',
+    'sceneExecutionPromptCanaryApply'
+  );
+  const sceneId = composerOwnDataValue(
+    input,
+    'sceneId',
+    'sceneExecutionPromptCanaryApply'
+  );
+  if (typeof prompt !== 'string') {
+    throw composerError(
+      'Scene execution prompt canary prompt must be a string',
+      'INVALID_SCENE_EXECUTION_PROMPT_CANARY_INPUT',
+      ['sceneExecutionPromptCanaryApply.prompt must be a string']
+    );
+  }
+
+  if (!state.enabled) {
+    return finalizeSceneExecutionPromptCanaryResult({
+      integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
+      enabled: false,
+      applied: false,
+      mode: 'disabled',
+      target_scene_id: null,
+      scene_id: typeof sceneId === 'string' ? sceneId : null,
+      packet_id: null,
+      prompt,
+    });
+  }
+
+  if (
+    typeof sceneId !== 'string' ||
+    !OPAQUE_PROMPT_REFERENCE_PATTERN.test(sceneId)
+  ) {
+    throw composerError(
+      'Scene execution prompt canary scene ID is invalid',
+      'INVALID_SCENE_EXECUTION_PROMPT_CANARY_INPUT',
+      ['sceneExecutionPromptCanaryApply.sceneId must be one opaque scene ID']
+    );
+  }
+
+  if (sceneId !== state.target_scene_id) {
+    return finalizeSceneExecutionPromptCanaryResult({
+      integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
+      enabled: true,
+      applied: false,
+      mode: 'single-scene-canary-bypass',
+      target_scene_id: state.target_scene_id,
+      scene_id: sceneId,
+      packet_id: null,
+      prompt,
+    });
+  }
+
+  if (
+    prompt.includes('<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>') ||
+    prompt.includes('<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>')
+  ) {
+    throw composerError(
+      'Scene execution prompt canary authority is already present',
+      'SCENE_EXECUTION_PROMPT_CANARY_DUPLICATE',
+      ['The target prompt already contains a validated Scene Execution Authority marker']
+    );
+  }
+
+  return finalizeSceneExecutionPromptCanaryResult({
+    integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
+    enabled: true,
+    applied: true,
+    mode: 'single-scene-canary',
+    target_scene_id: state.target_scene_id,
+    scene_id: sceneId,
+    packet_id: state.packet_id,
+    prompt: `${prompt}\n\n${state.projection}`,
   });
 }
