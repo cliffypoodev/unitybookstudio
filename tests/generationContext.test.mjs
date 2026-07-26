@@ -2472,6 +2472,28 @@ await test('Contract: non-enumerable numeric index on array rejected', () => {
 // Stage 1G Tests: Own-Property Authority & Inheritance Boundaries
 // ═══════════════════════════════════════════════════════════════════════
 
+function restoreAndAssertObjectPrototypeDescriptor(field, savedDescriptor) {
+  if (savedDescriptor === undefined) {
+    delete Object.prototype[field];
+    assert.equal(
+      Object.getOwnPropertyDescriptor(Object.prototype, field),
+      undefined,
+      `Object.prototype.${field} must be absent after restoration`
+    );
+    return;
+  }
+
+  Object.defineProperty(Object.prototype, field, savedDescriptor);
+  const restoredDescriptor = Object.getOwnPropertyDescriptor(Object.prototype, field);
+  assert.ok(restoredDescriptor, `Object.prototype.${field} descriptor must be restored`);
+  assert.equal(restoredDescriptor.enumerable, savedDescriptor.enumerable, `${field}: enumerable flag`);
+  assert.equal(restoredDescriptor.configurable, savedDescriptor.configurable, `${field}: configurable flag`);
+  assert.equal(restoredDescriptor.writable, savedDescriptor.writable, `${field}: writable flag`);
+  assert.strictEqual(restoredDescriptor.value, savedDescriptor.value, `${field}: value identity`);
+  assert.strictEqual(restoredDescriptor.get, savedDescriptor.get, `${field}: getter identity`);
+  assert.strictEqual(restoredDescriptor.set, savedDescriptor.set, `${field}: setter identity`);
+}
+
 // ─── §1G-1. Inherited packet_id rejection ────────────────────────────
 
 await test('FP inherited packet_id: inherited string rejected', () => {
@@ -2486,8 +2508,7 @@ await test('FP inherited packet_id: inherited string rejected', () => {
     delete p.packet_id;
     assertFpFails('inherited string pid', p, 'INVALID_PACKET_PROPERTY');
   } finally {
-    if (saved === undefined) delete Object.prototype.packet_id;
-    else Object.defineProperty(Object.prototype, 'packet_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('packet_id', saved);
   }
 });
 
@@ -2505,8 +2526,7 @@ await test('FP inherited packet_id: inherited getter rejected without invocation
     assertFpFails('inherited getter pid', p, 'INVALID_PACKET_PROPERTY');
     assert.equal(invoked, 0, 'Inherited getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.packet_id;
-    else Object.defineProperty(Object.prototype, 'packet_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('packet_id', saved);
   }
 });
 
@@ -2517,7 +2537,6 @@ await test('FP inherited packet_id: inherited setter rejected without invocation
   try {
     let invoked = 0;
     Object.defineProperty(Object.prototype, 'packet_id', {
-      get() { return 'sep_val'; },
       set(_v) { invoked++; },
       enumerable: false, configurable: true,
     });
@@ -2525,8 +2544,7 @@ await test('FP inherited packet_id: inherited setter rejected without invocation
     assertFpFails('inherited setter pid', p, 'INVALID_PACKET_PROPERTY');
     assert.equal(invoked, 0, 'Inherited setter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.packet_id;
-    else Object.defineProperty(Object.prototype, 'packet_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('packet_id', saved);
   }
 });
 
@@ -2544,8 +2562,7 @@ await test('FP inherited packet_id: inherited property getter invocation count r
     assertFailsClosed('inherited getter pid validator', p, contract, 'INVALID_PACKET_PROPERTY');
     assert.equal(invoked, 0, 'Getter invocation count must be exactly 0');
   } finally {
-    if (saved === undefined) delete Object.prototype.packet_id;
-    else Object.defineProperty(Object.prototype, 'packet_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('packet_id', saved);
   }
 });
 
@@ -2563,6 +2580,49 @@ await test('FP inherited packet_id: own valid string still accepted', () => {
   const p = makeValidPacket(contract);
   const fp = generatePacketFingerprint(p);
   assert.equal(typeof fp, 'string');
+});
+
+await test('Valid null-prototype packet and nested objects remain accepted', () => {
+  const contract = makeContract();
+  const ordinaryPacket = makeValidPacket(contract);
+  const toNullPrototypeRecord = (record) => Object.assign(Object.create(null), record);
+  const packet = toNullPrototypeRecord(ordinaryPacket);
+
+  packet.required_events = ordinaryPacket.required_events.map(toNullPrototypeRecord);
+  packet.future_reserved_events = ordinaryPacket.future_reserved_events.map(toNullPrototypeRecord);
+  packet.scene_authorized_facts = ordinaryPacket.scene_authorized_facts.map((fact) => {
+    const convertedFact = toNullPrototypeRecord(fact);
+    convertedFact.knowledge_scope = toNullPrototypeRecord(fact.knowledge_scope);
+    return convertedFact;
+  });
+  delete packet.packet_id;
+  packet.packet_id = generatePacketFingerprint(packet);
+
+  assert.equal(Object.getPrototypeOf(packet), null);
+  assert.equal(Object.getPrototypeOf(packet.required_events), Array.prototype);
+  assert.equal(Object.getPrototypeOf(packet.future_reserved_events), Array.prototype);
+  assert.equal(Object.getPrototypeOf(packet.scene_authorized_facts), Array.prototype);
+  for (const event of packet.required_events) assert.equal(Object.getPrototypeOf(event), null);
+  for (const event of packet.future_reserved_events) assert.equal(Object.getPrototypeOf(event), null);
+  for (const fact of packet.scene_authorized_facts) {
+    assert.equal(Object.getPrototypeOf(fact), null);
+    assert.equal(Object.getPrototypeOf(fact.knowledge_scope), null);
+  }
+
+  const packetSnap = snapshotDescriptorSafe(packet);
+  const contractSnap = snapshotDescriptorSafe(contract);
+  const validated = validateSceneExecutionPacket(packet, contract);
+
+  assert.ok(Object.isFrozen(validated));
+  assert.equal(validated.packet_id, packet.packet_id);
+  assert.equal(validated.scene_id, packet.scene_id);
+  assert.deepEqual(validated.required_events, JSON.parse(JSON.stringify(packet.required_events)));
+  assert.deepEqual(validated.future_reserved_events, JSON.parse(JSON.stringify(packet.future_reserved_events)));
+  assert.deepEqual(validated.scene_authorized_facts, JSON.parse(JSON.stringify(packet.scene_authorized_facts)));
+  assert.equal(validated.scene_authorized_facts[0].knowledge_scope.pov_identity, packet.pov_identity);
+  assert.equal(validated.scene_authorized_facts[0].knowledge_scope.basis, 'witnessed');
+  assertSnapshotsEqual(packetSnap, snapshotDescriptorSafe(packet), 'null-prototype packet unchanged');
+  assertSnapshotsEqual(contractSnap, snapshotDescriptorSafe(contract), 'null-prototype contract unchanged');
 });
 
 // ─── §1G-2. Top-level required fields own-property validation ────────
@@ -2615,8 +2675,7 @@ for (const field of TOP_LEVEL_REQUIRED_FIELDS) {
       assertFailsClosed(`inherited top-level getter ${field}`, p, contract, 'MISSING_REQUIRED_FIELD');
       assert.equal(invoked, 0, `Inherited getter for ${field} must not be invoked`);
     } finally {
-      if (saved === undefined) delete Object.prototype[field];
-      else Object.defineProperty(Object.prototype, field, saved);
+      restoreAndAssertObjectPrototypeDescriptor(field, saved);
     }
   });
 
@@ -2634,8 +2693,7 @@ for (const field of TOP_LEVEL_REQUIRED_FIELDS) {
       p.packet_id = generatePacketFingerprint(p);
       assertFailsClosed(`inherited top-level data prop ${field}`, p, contract, 'MISSING_REQUIRED_FIELD');
     } finally {
-      if (saved === undefined) delete Object.prototype[field];
-      else Object.defineProperty(Object.prototype, field, saved);
+      restoreAndAssertObjectPrototypeDescriptor(field, saved);
     }
   });
 }
@@ -2657,8 +2715,7 @@ await test('Inherited required_events[0].event_id: getter rejected without invoc
     assertFailsClosed('inherited req_events.event_id getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.event_id;
-    else Object.defineProperty(Object.prototype, 'event_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('event_id', saved);
   }
 });
 
@@ -2675,8 +2732,7 @@ await test('Inherited required_events[0].event_id: data property rejected', () =
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited req_events.event_id data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.event_id;
-    else Object.defineProperty(Object.prototype, 'event_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('event_id', saved);
   }
 });
 
@@ -2695,8 +2751,7 @@ await test('Inherited required_events[0].text: getter rejected without invocatio
     assertFailsClosed('inherited req_events.text getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.text;
-    else Object.defineProperty(Object.prototype, 'text', saved);
+    restoreAndAssertObjectPrototypeDescriptor('text', saved);
   }
 });
 
@@ -2713,8 +2768,7 @@ await test('Inherited required_events[0].text: data property rejected', () => {
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited req_events.text data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.text;
-    else Object.defineProperty(Object.prototype, 'text', saved);
+    restoreAndAssertObjectPrototypeDescriptor('text', saved);
   }
 });
 
@@ -2733,8 +2787,7 @@ await test('Inherited future_reserved_events[0].event_id: getter rejected withou
     assertFailsClosed('inherited fut_events.event_id getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.event_id;
-    else Object.defineProperty(Object.prototype, 'event_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('event_id', saved);
   }
 });
 
@@ -2751,8 +2804,7 @@ await test('Inherited future_reserved_events[0].event_id: data property rejected
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited fut_events.event_id data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.event_id;
-    else Object.defineProperty(Object.prototype, 'event_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('event_id', saved);
   }
 });
 
@@ -2771,8 +2823,7 @@ await test('Inherited scene_authorized_facts[0].fact_id: getter rejected without
     assertFailsClosed('inherited fact_id getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.fact_id;
-    else Object.defineProperty(Object.prototype, 'fact_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('fact_id', saved);
   }
 });
 
@@ -2789,8 +2840,7 @@ await test('Inherited scene_authorized_facts[0].fact_id: data property rejected'
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited fact_id data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.fact_id;
-    else Object.defineProperty(Object.prototype, 'fact_id', saved);
+    restoreAndAssertObjectPrototypeDescriptor('fact_id', saved);
   }
 });
 
@@ -2809,8 +2859,7 @@ await test('Inherited scene_authorized_facts[0].summary: getter rejected without
     assertFailsClosed('inherited summary getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.summary;
-    else Object.defineProperty(Object.prototype, 'summary', saved);
+    restoreAndAssertObjectPrototypeDescriptor('summary', saved);
   }
 });
 
@@ -2827,8 +2876,7 @@ await test('Inherited scene_authorized_facts[0].summary: data property rejected'
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited summary data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.summary;
-    else Object.defineProperty(Object.prototype, 'summary', saved);
+    restoreAndAssertObjectPrototypeDescriptor('summary', saved);
   }
 });
 
@@ -2847,8 +2895,7 @@ await test('Inherited scene_authorized_facts[0].provenance: getter rejected with
     assertFailsClosed('inherited provenance getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.provenance;
-    else Object.defineProperty(Object.prototype, 'provenance', saved);
+    restoreAndAssertObjectPrototypeDescriptor('provenance', saved);
   }
 });
 
@@ -2865,8 +2912,7 @@ await test('Inherited scene_authorized_facts[0].provenance: data property reject
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited provenance data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.provenance;
-    else Object.defineProperty(Object.prototype, 'provenance', saved);
+    restoreAndAssertObjectPrototypeDescriptor('provenance', saved);
   }
 });
 
@@ -2885,8 +2931,7 @@ await test('Inherited scene_authorized_facts[0].knowledge_scope: getter rejected
     assertFailsClosed('inherited knowledge_scope getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.knowledge_scope;
-    else Object.defineProperty(Object.prototype, 'knowledge_scope', saved);
+    restoreAndAssertObjectPrototypeDescriptor('knowledge_scope', saved);
   }
 });
 
@@ -2903,8 +2948,7 @@ await test('Inherited scene_authorized_facts[0].knowledge_scope: data property r
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited knowledge_scope data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.knowledge_scope;
-    else Object.defineProperty(Object.prototype, 'knowledge_scope', saved);
+    restoreAndAssertObjectPrototypeDescriptor('knowledge_scope', saved);
   }
 });
 
@@ -2923,8 +2967,7 @@ await test('Inherited knowledge_scope.pov_identity: getter rejected without invo
     assertFailsClosed('inherited pov_identity getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.pov_identity;
-    else Object.defineProperty(Object.prototype, 'pov_identity', saved);
+    restoreAndAssertObjectPrototypeDescriptor('pov_identity', saved);
   }
 });
 
@@ -2941,8 +2984,7 @@ await test('Inherited knowledge_scope.pov_identity: data property rejected', () 
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited pov_identity data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.pov_identity;
-    else Object.defineProperty(Object.prototype, 'pov_identity', saved);
+    restoreAndAssertObjectPrototypeDescriptor('pov_identity', saved);
   }
 });
 
@@ -2961,8 +3003,7 @@ await test('Inherited knowledge_scope.basis: getter rejected without invocation'
     assertFailsClosed('inherited basis getter', p, contract, 'MISSING_REQUIRED_FIELD');
     assert.equal(invoked, 0, 'Getter must not be invoked');
   } finally {
-    if (saved === undefined) delete Object.prototype.basis;
-    else Object.defineProperty(Object.prototype, 'basis', saved);
+    restoreAndAssertObjectPrototypeDescriptor('basis', saved);
   }
 });
 
@@ -2979,8 +3020,7 @@ await test('Inherited knowledge_scope.basis: data property rejected', () => {
     p.packet_id = generatePacketFingerprint(p);
     assertFailsClosed('inherited basis data prop', p, contract, 'MISSING_REQUIRED_FIELD');
   } finally {
-    if (saved === undefined) delete Object.prototype.basis;
-    else Object.defineProperty(Object.prototype, 'basis', saved);
+    restoreAndAssertObjectPrototypeDescriptor('basis', saved);
   }
 });
 
