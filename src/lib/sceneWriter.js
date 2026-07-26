@@ -72,6 +72,7 @@ import {
   assertSceneContractUnchanged,
   createImmutableSceneContract,
   findNarrativeMetaLeaks,
+  prepareSceneExecutionShadowIntegration,
 } from '@/lib/generationContext';
 import { buildProjectContinuityLockBlock, validateProjectChapterContent } from '@/lib/projectContentGuard';
 import { auditSceneAgainstLedger, buildSceneContractRepairInstruction } from '@/lib/sceneContractGate';
@@ -2739,6 +2740,7 @@ export async function generateChapterSceneByScene({
   includeFullCraft = true,
   revisionFeedback = '',
   onProgress,
+  sceneExecutionShadow = null,
 }) {
   if (!project) throw new Error('Project is required.');
   if (!chapter) throw new Error('Chapter is required.');
@@ -2847,6 +2849,11 @@ export async function generateChapterSceneByScene({
     assertSceneContractUnchanged(immutableContract, normalizedScenes, { chapterNumber });
   }
 
+  const sceneExecutionShadowState = prepareSceneExecutionShadowIntegration({
+    integration: sceneExecutionShadow,
+    immutableSceneContract: immutableContract,
+  });
+
   const model = pickProseModel(project, proseModelOverride || modelOverride);
   const fallbackControls = buildFallbackControls('prose', project);
   const fallbackModel = fallbackControls.fallback_model || pickFallbackModel('prose', project);
@@ -2943,6 +2950,35 @@ export async function generateChapterSceneByScene({
       revisionFeedback,
       runtimeLedger,
     });
+
+    const shadowSceneReport = sceneExecutionShadowState.enabled
+      ? sceneExecutionShadowState.scene_reports[i]
+      : null;
+    if (shadowSceneReport) {
+      if (shadowSceneReport.scene_id !== spec.scene_id) {
+        const error = new Error(
+          `Scene execution shadow report mismatch at scene ${i + 1}.`
+        );
+        error.name = 'NarrativeInvariantError';
+        error.code = 'SCENE_EXECUTION_SHADOW_SEQUENCE_MISMATCH';
+        error.narrativeContract = true;
+        throw error;
+      }
+      pipelineSnapshot(
+        chapter?.id,
+        `0-shadow-authority-scene-${i + 1}`,
+        shadowSceneReport.projection
+      );
+      onProgress?.({
+        stage: 'scene_execution_shadow',
+        sceneIndex: i,
+        sceneNumber: spec.sceneNumber,
+        sceneId: spec.scene_id,
+        totalScenes: normalizedScenes.length,
+        packetId: shadowSceneReport.packet_id,
+        mode: sceneExecutionShadowState.mode,
+      });
+    }
 
     // Capture the prompt sent to the model for diagnostic comparison
     pipelineSnapshot(chapter?.id, `0-prompt-scene-${i + 1}`, prompt);
@@ -3487,6 +3523,9 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
     sceneBeatPreflight: beatPreflight,
     sceneBeatPreflightReport: beatPreflight?.report || '',
     sourceAudit: isNF ? buildSourceAudit(relevantResearch, project) : null,
+    ...(sceneExecutionShadowState.enabled
+      ? { sceneExecutionShadow: sceneExecutionShadowState }
+      : {}),
   });
 
   if (!isAnthology && chapter?.id && finalProse) {
@@ -3531,6 +3570,9 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
     drafted_with_model: model,
     fallbackModel: disableFallbacks ? null : fallbackModel,
     disableFallbacks,
+    ...(sceneExecutionShadowState.enabled
+      ? { sceneExecutionShadow: sceneExecutionShadowState }
+      : {}),
   };
 }
 

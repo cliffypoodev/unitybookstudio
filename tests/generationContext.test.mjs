@@ -14,11 +14,15 @@ import {
   generateDeterministicEventId,
   generatePacketFingerprint,
   composeSceneExecutionPacket,
+  prepareSceneExecutionShadowIntegration,
   renderSceneExecutionPromptProjection,
   validateSceneExecutionPacket,
   SCENE_EXECUTION_PACKET_VERSION,
   SCENE_EXECUTION_PROMPT_PROJECTION_VERSION,
+  SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
   SCENE_CONTEXT_COMPOSER_FEATURE,
+  SCENE_EXECUTION_SHADOW_FEATURE,
+  isSceneExecutionShadowEnabled,
   PACKET_LIMITS,
 } from '../src/lib/generationContext.js';
 let passed = 0;
@@ -3908,4 +3912,305 @@ await test('Stage 3 prompt projection remains disconnected from live generation 
     );
   }
   assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 4 — Scene Writer shadow integration (default-off, prompt-neutral)
+// ═══════════════════════════════════════════════════════════════════════
+
+function makeShadowIntegrationInput(overrides = {}) {
+  const immutableSceneContract =
+    overrides.immutableSceneContract || makeContract();
+  const contextBySceneId =
+    overrides.contextBySceneId || {
+      'ch01-s01': makeComposerContext(),
+    };
+  return {
+    integration: {
+      flags: {
+        [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+        [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+      },
+      snapshot: makeComposerSnapshot(immutableSceneContract),
+      contextBySceneId,
+      ...(overrides.integration || {}),
+    },
+    immutableSceneContract,
+    ...(overrides.input || {}),
+  };
+}
+
+function assertShadowIntegrationFailsClosed(label, input, expectedCode) {
+  const before = snapshotDescriptorSafe(input);
+  let caught;
+  try {
+    prepareSceneExecutionShadowIntegration(input);
+    assert.fail(`${label}: Expected shadow integration to throw`);
+  } catch (error) {
+    caught = error;
+  }
+  assert.equal(caught.code, expectedCode, `${label}: wrong error code`);
+  assert.ok(Array.isArray(caught.issues), `${label}: issues must be an array`);
+  assert.ok(caught.issues.length > 0, `${label}: issues must be nonempty`);
+  assert.ok(Object.isFrozen(caught.issues), `${label}: issues must be frozen`);
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    `${label}: input`
+  );
+}
+
+await test('Stage 4 shadow feature metadata is immutable and default-disabled', () => {
+  assert.equal(SCENE_EXECUTION_SHADOW_FEATURE.key, 'scene_execution_shadow_v1');
+  assert.equal(SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled, false);
+  assert.ok(Object.isFrozen(SCENE_EXECUTION_SHADOW_FEATURE));
+  assert.equal(isSceneExecutionShadowEnabled(), false);
+  assert.equal(isSceneExecutionShadowEnabled({}), false);
+  assert.equal(
+    isSceneExecutionShadowEnabled({
+      [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    }),
+    true
+  );
+});
+
+await test('Stage 4 shadow integration is a frozen no-op without explicit own opt-in', () => {
+  const absent = {
+    integration: null,
+    immutableSceneContract: null,
+  };
+  const absentBefore = snapshotDescriptorSafe(absent);
+  const absentResult = prepareSceneExecutionShadowIntegration(absent);
+  assert.deepEqual(absentResult, {
+    integration_version: SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
+    enabled: false,
+    mode: 'disabled',
+    scene_reports: [],
+  });
+  assert.ok(Object.isFrozen(absentResult));
+  assert.ok(Object.isFrozen(absentResult.scene_reports));
+  assertSnapshotsEqual(
+    absentBefore,
+    snapshotDescriptorSafe(absent),
+    'absent shadow integration'
+  );
+
+  const inheritedFlags = Object.create({
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+  });
+  const inherited = makeShadowIntegrationInput({
+    integration: { flags: inheritedFlags },
+  });
+  assert.equal(
+    prepareSceneExecutionShadowIntegration(inherited).enabled,
+    false
+  );
+
+  let invoked = 0;
+  const accessorFlags = {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+  };
+  Object.defineProperty(accessorFlags, SCENE_EXECUTION_SHADOW_FEATURE.key, {
+    get() {
+      invoked += 1;
+      return true;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  const accessor = makeShadowIntegrationInput({
+    integration: { flags: accessorFlags },
+  });
+  assert.equal(
+    prepareSceneExecutionShadowIntegration(accessor).enabled,
+    false
+  );
+  assert.equal(invoked, 0, 'shadow feature getter must not execute');
+});
+
+await test('Stage 4 shadow integration deterministically prepares every scene projection', () => {
+  const input = makeShadowIntegrationInput();
+  const before = snapshotDescriptorSafe(input);
+  const first = prepareSceneExecutionShadowIntegration(input);
+  const second = prepareSceneExecutionShadowIntegration(input);
+  assert.deepEqual(first, second);
+  assert.equal(
+    first.integration_version,
+    SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION
+  );
+  assert.equal(first.enabled, true);
+  assert.equal(first.mode, 'shadow');
+  assert.equal(first.scene_reports.length, 1);
+  assert.equal(first.scene_reports[0].scene_id, 'ch01-s01');
+  assert.equal(first.scene_reports[0].scene_number, 1);
+  assert.match(first.scene_reports[0].packet_id, /^sep_[a-f0-9]{8}$/);
+  const projection = parsePromptProjection(
+    first.scene_reports[0].projection
+  );
+  assert.equal(projection.packet_id, first.scene_reports[0].packet_id);
+  assert.ok(Object.isFrozen(first));
+  assert.ok(Object.isFrozen(first.scene_reports));
+  assert.ok(Object.isFrozen(first.scene_reports[0]));
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    'valid shadow integration'
+  );
+});
+
+await test('Stage 4 shadow integration requires the independent composer gate', () => {
+  const input = makeShadowIntegrationInput();
+  input.integration.flags = {
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+  };
+  assertShadowIntegrationFailsClosed(
+    'shadow without composer gate',
+    input,
+    'SCENE_EXECUTION_SHADOW_CORE_DISABLED'
+  );
+});
+
+await test('Stage 4 shadow integration requires exact immutable-contract context coverage', () => {
+  const missing = makeShadowIntegrationInput({ contextBySceneId: {} });
+  assertShadowIntegrationFailsClosed(
+    'missing shadow scene context',
+    missing,
+    'SCENE_EXECUTION_SHADOW_CONTEXT_MISSING'
+  );
+
+  const extra = makeShadowIntegrationInput();
+  extra.integration.contextBySceneId['ch01-s99'] = makeComposerContext();
+  assertShadowIntegrationFailsClosed(
+    'extra shadow scene context',
+    extra,
+    'INVALID_SCENE_EXECUTION_SHADOW'
+  );
+});
+
+await test('Stage 4 shadow integration rejects context-map accessors without invocation', () => {
+  const input = makeShadowIntegrationInput();
+  let invoked = 0;
+  Object.defineProperty(input.integration.contextBySceneId, 'ch01-s01', {
+    get() {
+      invoked += 1;
+      return makeComposerContext();
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assertShadowIntegrationFailsClosed(
+    'shadow context-map accessor',
+    input,
+    'INVALID_SCENE_EXECUTION_SHADOW'
+  );
+  assert.equal(invoked, 0, 'shadow context-map getter must not execute');
+});
+
+await test('Stage 4 shadow integration rejects raw foundation authority', () => {
+  const input = makeShadowIntegrationInput();
+  input.integration.contextBySceneId['ch01-s01'].world_md =
+    'raw story bible';
+  assertShadowIntegrationFailsClosed(
+    'shadow raw foundation',
+    input,
+    'PROHIBITED_KEY'
+  );
+});
+
+await test('Stage 4 shadow integration accepts null-prototype configuration records', () => {
+  const ordinary = makeShadowIntegrationInput();
+  const flags = Object.assign(Object.create(null), ordinary.integration.flags);
+  const context = Object.assign(
+    Object.create(null),
+    ordinary.integration.contextBySceneId['ch01-s01']
+  );
+  const contextBySceneId = Object.create(null);
+  contextBySceneId['ch01-s01'] = context;
+  const integration = Object.assign(Object.create(null), {
+    flags,
+    snapshot: ordinary.integration.snapshot,
+    contextBySceneId,
+  });
+  const input = Object.assign(Object.create(null), {
+    integration,
+    immutableSceneContract: ordinary.immutableSceneContract,
+  });
+  const result = prepareSceneExecutionShadowIntegration(input);
+  assert.equal(result.enabled, true);
+  assert.equal(result.scene_reports[0].scene_id, 'ch01-s01');
+});
+
+await test('Stage 4 shadow integration never exposes later-scene prose', () => {
+  const immutableSceneContract = makeThreeSceneComposerContract();
+  const contextBySceneId = Object.fromEntries(
+    immutableSceneContract.beats.map((beat) => [
+      beat.scene_id,
+      {
+        pov_identity: 'Hero',
+        immediate_continuity: '',
+      },
+    ])
+  );
+  const input = makeShadowIntegrationInput({
+    immutableSceneContract,
+    contextBySceneId,
+  });
+  const result = prepareSceneExecutionShadowIntegration(input);
+  assert.equal(result.scene_reports.length, 3);
+  const firstProjection = result.scene_reports[0].projection;
+  assert.equal(firstProjection.includes('Hero opens the locked room.'), false);
+  assert.equal(firstProjection.includes('Hero opens the chest.'), false);
+  assert.equal(
+    firstProjection.includes('Hero discovers the sealed letter.'),
+    false
+  );
+  const parsed = parsePromptProjection(firstProjection);
+  assert.ok(
+    parsed.future_boundaries.reserved_event_ids.every((eventId) =>
+      /^evt_[a-f0-9]{8}$/.test(eventId)
+    )
+  );
+});
+
+await test('Stage 4 writer seam is shadow-only and has no UI activation', () => {
+  const writer = fs.readFileSync('src/lib/sceneWriter.js', 'utf8');
+  const projectStudio = fs.readFileSync('src/pages/ProjectStudio.jsx', 'utf8');
+  const promptBuilderStart = writer.indexOf('function buildScenePrompt(args)');
+  const promptBuilderEnd = writer.indexOf(
+    'async function generateSceneWithRepair',
+    promptBuilderStart
+  );
+  const promptBuilder = writer.slice(promptBuilderStart, promptBuilderEnd);
+
+  assert.ok(
+    writer.includes('prepareSceneExecutionShadowIntegration'),
+    'sceneWriter must import and invoke the Stage 4 shadow adapter'
+  );
+  assert.equal(
+    writer.includes('composeSceneExecutionPacket'),
+    false,
+    'sceneWriter must not directly compose packets'
+  );
+  assert.equal(
+    writer.includes('renderSceneExecutionPromptProjection'),
+    false,
+    'sceneWriter must not directly render packet projections'
+  );
+  assert.equal(
+    promptBuilder.includes('sceneExecutionShadow'),
+    false,
+    'buildScenePrompt must remain independent of shadow authority'
+  );
+  assert.equal(
+    projectStudio.includes('sceneExecutionShadow'),
+    false,
+    'ProjectStudio must not activate Stage 4'
+  );
+  assert.match(
+    writer,
+    /const prompt = buildScenePrompt\(\{[\s\S]*?prompt,\n\s+model,/,
+    'the existing prompt must still flow directly to the model call'
+  );
+  assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);
+  assert.equal(SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled, false);
 });

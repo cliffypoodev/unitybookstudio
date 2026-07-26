@@ -12,9 +12,15 @@
 export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
 export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v1';
+export const SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION = 'scene-execution-shadow-integration-v1';
 
 export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
   key: 'scene_context_composer_v1',
+  defaultEnabled: false,
+});
+
+export const SCENE_EXECUTION_SHADOW_FEATURE = Object.freeze({
+  key: 'scene_execution_shadow_v1',
   defaultEnabled: false,
 });
 
@@ -29,6 +35,21 @@ export function isSceneContextComposerEnabled(flags) {
   const descriptor = Object.getOwnPropertyDescriptor(flags, SCENE_CONTEXT_COMPOSER_FEATURE.key);
   if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
     return SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled;
+  }
+  return descriptor.value === true;
+}
+
+export function isSceneExecutionShadowEnabled(flags) {
+  if (!flags || typeof flags !== 'object' || Array.isArray(flags)) {
+    return SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled;
+  }
+  const proto = Object.getPrototypeOf(flags);
+  if (proto !== Object.prototype && proto !== null) {
+    return SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled;
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(flags, SCENE_EXECUTION_SHADOW_FEATURE.key);
+  if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
+    return SCENE_EXECUTION_SHADOW_FEATURE.defaultEnabled;
   }
   return descriptor.value === true;
 }
@@ -1944,4 +1965,181 @@ export function renderSceneExecutionPromptProjection(input) {
     JSON.stringify(projection, null, 2),
     '<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>',
   ].join('\n');
+}
+
+// ─── Stage 4: default-off Scene Writer shadow integration ────────────
+// This is the first controlled writer seam. It precomputes validated packet
+// projections for every contracted scene, but it never accepts, rewrites, or
+// returns a model prompt. The writer may observe these projections for
+// diagnostics only; prompt injection remains a later, separately gated stage.
+
+const SHADOW_REQUEST_KEYS = new Set([
+  'integration',
+  'immutableSceneContract',
+]);
+
+const SHADOW_INTEGRATION_KEYS = new Set([
+  'flags',
+  'snapshot',
+  'contextBySceneId',
+]);
+
+function disabledSceneExecutionShadowState() {
+  return deepFreeze({
+    integration_version: SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
+    enabled: false,
+    mode: 'disabled',
+    scene_reports: [],
+  });
+}
+
+function inspectShadowContextMap(contextBySceneId, immutableSceneContract) {
+  requireComposerObject(
+    contextBySceneId,
+    'sceneExecutionShadow.integration.contextBySceneId'
+  );
+
+  const expectedSceneIds = immutableSceneContract.beats.map(
+    (beat) => beat.scene_id
+  );
+  const expectedSceneIdSet = new Set(expectedSceneIds);
+  const actualSceneIds = [];
+
+  for (const key of Reflect.ownKeys(contextBySceneId)) {
+    if (typeof key === 'symbol') {
+      throw composerError(
+        'Symbol-keyed shadow scene context',
+        'INVALID_SCENE_EXECUTION_SHADOW',
+        ['sceneExecutionShadow.integration.contextBySceneId cannot contain symbol-keyed properties']
+      );
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(contextBySceneId, key);
+    if (descriptor.get || descriptor.set || !descriptor.enumerable) {
+      throw composerError(
+        `Unsafe shadow scene context at ${key}`,
+        'INVALID_SCENE_EXECUTION_SHADOW',
+        [`sceneExecutionShadow.integration.contextBySceneId.${key} must be an own enumerable data property without accessors`]
+      );
+    }
+    if (!expectedSceneIdSet.has(key)) {
+      throw composerError(
+        `Unknown shadow scene context: ${key}`,
+        'INVALID_SCENE_EXECUTION_SHADOW',
+        [`sceneExecutionShadow.integration.contextBySceneId.${key} does not match an immutable contract scene`]
+      );
+    }
+    inspectComposerRecord(
+      descriptor.value,
+      `sceneExecutionShadow.integration.contextBySceneId.${key}`,
+      COMPOSER_CONTEXT_KEYS
+    );
+    descriptorSafeInspect(
+      descriptor.value,
+      `sceneExecutionShadow.integration.contextBySceneId.${key}`,
+      new Set()
+    );
+    actualSceneIds.push(key);
+  }
+
+  const actualSceneIdSet = new Set(actualSceneIds);
+  const missingSceneIds = expectedSceneIds.filter(
+    (sceneId) => !actualSceneIdSet.has(sceneId)
+  );
+  if (missingSceneIds.length) {
+    throw composerError(
+      'Shadow scene context coverage is incomplete',
+      'SCENE_EXECUTION_SHADOW_CONTEXT_MISSING',
+      missingSceneIds.map(
+        (sceneId) => `Missing own scene-safe context for immutable contract scene "${sceneId}"`
+      )
+    );
+  }
+}
+
+export function prepareSceneExecutionShadowIntegration(input) {
+  inspectComposerRecord(input, 'sceneExecutionShadow', SHADOW_REQUEST_KEYS);
+
+  const integration = composerOwnDataValue(
+    input,
+    'integration',
+    'sceneExecutionShadow',
+    false
+  );
+  if (integration === undefined || integration === null) {
+    return disabledSceneExecutionShadowState();
+  }
+
+  inspectComposerRecord(
+    integration,
+    'sceneExecutionShadow.integration',
+    SHADOW_INTEGRATION_KEYS
+  );
+  const flags = composerOwnDataValue(
+    integration,
+    'flags',
+    'sceneExecutionShadow.integration',
+    false
+  );
+  if (!isSceneExecutionShadowEnabled(flags)) {
+    return disabledSceneExecutionShadowState();
+  }
+  if (!isSceneContextComposerEnabled(flags)) {
+    throw composerError(
+      'Scene execution shadow integration requires the packet composer gate',
+      'SCENE_EXECUTION_SHADOW_CORE_DISABLED',
+      [`Set both own data flags "${SCENE_EXECUTION_SHADOW_FEATURE.key}" and "${SCENE_CONTEXT_COMPOSER_FEATURE.key}" to true for an explicit shadow-only run`]
+    );
+  }
+
+  const immutableSceneContract = composerOwnDataValue(
+    input,
+    'immutableSceneContract',
+    'sceneExecutionShadow'
+  );
+  const snapshot = composerOwnDataValue(
+    integration,
+    'snapshot',
+    'sceneExecutionShadow.integration'
+  );
+  const contextBySceneId = composerOwnDataValue(
+    integration,
+    'contextBySceneId',
+    'sceneExecutionShadow.integration'
+  );
+
+  inspectContractDescriptorSafe(immutableSceneContract);
+  inspectShadowContextMap(contextBySceneId, immutableSceneContract);
+
+  const sceneReports = immutableSceneContract.beats.map((beat) => {
+    const context = composerOwnDataValue(
+      contextBySceneId,
+      beat.scene_id,
+      'sceneExecutionShadow.integration.contextBySceneId'
+    );
+    const packet = composeSceneExecutionPacket({
+      flags,
+      snapshot,
+      immutableSceneContract,
+      sceneId: beat.scene_id,
+      context,
+    });
+    const projection = renderSceneExecutionPromptProjection({
+      flags,
+      packet,
+      immutableSceneContract,
+    });
+    return {
+      scene_id: beat.scene_id,
+      scene_number: beat.scene_number,
+      packet_id: packet.packet_id,
+      projection,
+    };
+  });
+
+  return deepFreeze({
+    integration_version: SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION,
+    enabled: true,
+    mode: 'shadow',
+    scene_reports: sceneReports,
+  });
 }
