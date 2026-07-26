@@ -13,6 +13,7 @@ import {
   isSceneContextComposerEnabled,
   generateDeterministicEventId,
   generatePacketFingerprint,
+  composeSceneExecutionPacket,
   validateSceneExecutionPacket,
   SCENE_EXECUTION_PACKET_VERSION,
   SCENE_CONTEXT_COMPOSER_FEATURE,
@@ -3062,4 +3063,415 @@ await test('Validator: sparse array on voice_rules rejected', () => {
   const len = p.voice_rules.length;
   p.voice_rules[String(len + 5)] = 'beyond';
   assertFailsClosed('val sparse', p, contract, 'NON_JSON_SAFE_VALUE');
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 2 — Pure Scene Execution Packet composer (default-off, unwired)
+// ═══════════════════════════════════════════════════════════════════════
+
+function makeComposerSnapshot(contract) {
+  const chapter = {
+    id: 'ch-001',
+    chapter_number: contract.chapterNumber,
+    updated_date: '2026-07-25',
+  };
+  return buildGenerationSnapshot({
+    project: {
+      id: 'proj-001',
+      updated_date: '2026-07-25',
+    },
+    chapters: [chapter],
+    chapter,
+  });
+}
+
+function makeComposerContext() {
+  return {
+    pov_identity: 'Hero',
+    immediate_continuity: 'The bell rope is still moving.',
+    future_reserved_event_ids: ['future_evt_001'],
+    scene_authorized_facts: [
+      {
+        fact_id: 'fact-001',
+        summary: 'The hero has a sword',
+        provenance: 'Chapter 1',
+        knowledge_scope: {
+          pov_identity: 'Hero',
+          basis: 'witnessed',
+        },
+      },
+    ],
+    completed_event_ids: ['evt_done'],
+    voice_rules: ['Third person past tense'],
+    current_locations: ['Village'],
+    current_possessions: ['Sword'],
+    current_injuries: [],
+    confirmed_deaths: [],
+    current_separations: [],
+    unavailable_objects: [],
+    canonically_unique_objects: ['The Ancient Sword'],
+    pov_known_fact_ids: ['fact-001'],
+  };
+}
+
+function makeThreeSceneComposerContract() {
+  return createImmutableSceneContract(
+    [
+      {
+        scene_number: 1,
+        scene_id: 'ch01-s01',
+        scene_goal: 'Establish the locked room.',
+        entry_state: 'Hero stands outside the room.',
+        required_events: ['Hero finds the brass latch.'],
+        forbidden_events: ['Do not open the room yet.'],
+        exit_state: 'Hero holds the brass latch.',
+        continuity_dependencies: [],
+      },
+      {
+        scene_number: 2,
+        scene_id: 'ch01-s02',
+        scene_goal: 'Open the locked room.',
+        entry_state: 'Hero holds the brass latch.',
+        required_events: ['Hero opens the locked room.'],
+        forbidden_events: ['Do not reveal what is inside the chest.'],
+        exit_state: 'Hero stands inside the room.',
+        continuity_dependencies: ['Hero holds the brass latch.'],
+      },
+      {
+        scene_number: 3,
+        scene_id: 'ch01-s03',
+        scene_goal: 'Reveal the chest contents.',
+        entry_state: 'Hero stands inside the room.',
+        required_events: [
+          'Hero opens the chest.',
+          'Hero discovers the sealed letter.',
+        ],
+        forbidden_events: [],
+        exit_state: 'Hero holds the sealed letter.',
+        continuity_dependencies: ['Hero stands inside the room.'],
+      },
+    ],
+    { chapterNumber: 1 }
+  );
+}
+
+function makeComposerInput(overrides = {}) {
+  const contract = overrides.immutableSceneContract || makeContract();
+  return {
+    flags: { [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true },
+    snapshot: makeComposerSnapshot(contract),
+    immutableSceneContract: contract,
+    sceneId: contract.beats[0].scene_id,
+    context: makeComposerContext(),
+    ...overrides,
+  };
+}
+
+function assertComposerFailsClosed(label, input, expectedCode) {
+  const before = snapshotDescriptorSafe(input);
+  let caught;
+  try {
+    composeSceneExecutionPacket(input);
+    assert.fail(`${label}: Expected composer to throw`);
+  } catch (error) {
+    caught = error;
+  }
+  assert.equal(caught.code, expectedCode, `${label}: wrong error code`);
+  assert.ok(Array.isArray(caught.issues), `${label}: issues must be an array`);
+  assert.ok(caught.issues.length > 0, `${label}: issues must be nonempty`);
+  assert.ok(Object.isFrozen(caught.issues), `${label}: issues must be frozen`);
+  assertSnapshotsEqual(before, snapshotDescriptorSafe(input), `${label}: input`);
+}
+
+await test('Stage 2 composer feature flag is own-data-only and accessor-safe', () => {
+  const inherited = Object.create({ [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true });
+  assert.equal(isSceneContextComposerEnabled(inherited), false);
+
+  let invoked = 0;
+  const accessorFlags = {};
+  Object.defineProperty(accessorFlags, SCENE_CONTEXT_COMPOSER_FEATURE.key, {
+    get() {
+      invoked += 1;
+      return true;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assert.equal(isSceneContextComposerEnabled(accessorFlags), false);
+  assert.equal(invoked, 0, 'feature-flag getter must not execute');
+
+  const nullPrototypeFlags = Object.create(null);
+  nullPrototypeFlags[SCENE_CONTEXT_COMPOSER_FEATURE.key] = true;
+  assert.equal(isSceneContextComposerEnabled(nullPrototypeFlags), true);
+});
+
+await test('Stage 2 composer remains disabled without explicit opt-in', () => {
+  const input = makeComposerInput({ flags: {} });
+  assertComposerFailsClosed('composer disabled', input, 'SCENE_CONTEXT_COMPOSER_DISABLED');
+});
+
+await test('Stage 2 composer deterministically maps snapshot, contract, and scene-safe context', () => {
+  const input = makeComposerInput();
+  const before = snapshotDescriptorSafe(input);
+  const packet = composeSceneExecutionPacket(input);
+
+  assert.equal(packet.packet_version, SCENE_EXECUTION_PACKET_VERSION);
+  assert.equal(packet.snapshot_id, input.snapshot.snapshotId);
+  assert.equal(packet.source_contract_fingerprint, input.immutableSceneContract.fingerprint);
+  assert.equal(packet.project_id, 'proj-001');
+  assert.equal(packet.chapter_id, 'ch-001');
+  assert.equal(packet.chapter_number, 1);
+  assert.equal(packet.scene_id, 'ch01-s01');
+  assert.equal(packet.scene_number, 1);
+  assert.equal(packet.scene_goal, input.immutableSceneContract.beats[0].scene_goal);
+  assert.equal(packet.entry_state, input.immutableSceneContract.beats[0].entry_state);
+  assert.equal(packet.exit_state, input.immutableSceneContract.beats[0].exit_state);
+  assert.equal(packet.pov_identity, 'Hero');
+  assert.equal(packet.immediate_continuity, 'The bell rope is still moving.');
+  assert.deepEqual(packet.current_scene_forbidden_events, ['Dragon appears']);
+  assert.deepEqual(packet.continuity_dependencies, ['Sword is on the mantle']);
+  assert.deepEqual(packet.future_reserved_events, [{ event_id: 'future_evt_001' }]);
+  assert.deepEqual(packet.completed_events, ['evt_done']);
+  assert.deepEqual(packet.pov_known_facts, ['fact-001']);
+  assert.equal(
+    packet.required_events[0].event_id,
+    generateDeterministicEventId('proj-001', 'ch-001', 'ch01-s01', 'required', 1, 'The bell rings')
+  );
+  assert.equal(packet.packet_id, generatePacketFingerprint(packet));
+  assert.ok(Object.isFrozen(packet));
+  assert.ok(Object.isFrozen(packet.required_events));
+  assert.ok(Object.isFrozen(packet.required_events[0]));
+  assert.ok(Object.isFrozen(packet.scene_authorized_facts[0].knowledge_scope));
+  assertSnapshotsEqual(before, snapshotDescriptorSafe(input), 'valid composer input');
+});
+
+await test('Stage 2 composer output is deterministic and detached from mutable context', () => {
+  const input = makeComposerInput();
+  const first = composeSceneExecutionPacket(input);
+  const second = composeSceneExecutionPacket(input);
+  assert.deepEqual(first, second);
+  assert.equal(first.packet_id, second.packet_id);
+  assert.notStrictEqual(first.current_locations, input.context.current_locations);
+  assert.notStrictEqual(first.scene_authorized_facts, input.context.scene_authorized_facts);
+
+  input.context.current_locations[0] = 'Changed after composition';
+  input.context.scene_authorized_facts[0].summary = 'Changed after composition';
+  assert.deepEqual(first.current_locations, ['Village']);
+  assert.equal(first.scene_authorized_facts[0].summary, 'The hero has a sword');
+});
+
+await test('Stage 2 composer future authority contains IDs only, never event prose', () => {
+  const packet = composeSceneExecutionPacket(makeComposerInput());
+  assert.deepEqual(Object.keys(packet.future_reserved_events[0]), ['event_id']);
+  assert.equal(JSON.stringify(packet).includes('future event prose'), false);
+});
+
+await test('Stage 2 composer derives prior and future event authority from contract order', () => {
+  const contract = makeThreeSceneComposerContract();
+  const context = makeComposerContext();
+  context.future_reserved_event_ids = [];
+  context.completed_event_ids = ['historical_evt_001'];
+  const packet = composeSceneExecutionPacket(makeComposerInput({
+    immutableSceneContract: contract,
+    snapshot: makeComposerSnapshot(contract),
+    sceneId: 'ch01-s02',
+    context,
+  }));
+
+  const priorId = generateDeterministicEventId(
+    'proj-001',
+    'ch-001',
+    'ch01-s01',
+    'required',
+    1,
+    'Hero finds the brass latch.'
+  );
+  const futureIds = [
+    generateDeterministicEventId(
+      'proj-001',
+      'ch-001',
+      'ch01-s03',
+      'required',
+      1,
+      'Hero opens the chest.'
+    ),
+    generateDeterministicEventId(
+      'proj-001',
+      'ch-001',
+      'ch01-s03',
+      'required',
+      2,
+      'Hero discovers the sealed letter.'
+    ),
+  ];
+
+  assert.deepEqual(packet.completed_events, ['historical_evt_001', priorId]);
+  assert.deepEqual(
+    packet.future_reserved_events,
+    futureIds.map((event_id) => ({ event_id }))
+  );
+  assert.deepEqual(
+    packet.required_events.map((event) => event.text),
+    ['Hero opens the locked room.']
+  );
+  const serialized = JSON.stringify(packet);
+  assert.equal(serialized.includes('Hero finds the brass latch.'), false);
+  assert.equal(serialized.includes('Hero opens the chest.'), false);
+  assert.equal(serialized.includes('Hero discovers the sealed letter.'), false);
+});
+
+await test('Stage 2 composer rejects raw future event records instead of copying truth payloads', () => {
+  const input = makeComposerInput();
+  input.context.future_reserved_events = [
+    {
+      event_id: 'future_evt_001',
+      text: 'future event prose',
+      hidden_truth: 'secret outcome',
+    },
+  ];
+  assertComposerFailsClosed('raw future records', input, 'INVALID_COMPOSER_INPUT');
+});
+
+await test('Stage 2 composer rejects raw foundation authority', () => {
+  const input = makeComposerInput();
+  input.context.world_md = 'raw story bible content';
+  assertComposerFailsClosed('raw foundation', input, 'PROHIBITED_KEY');
+});
+
+await test('Stage 2 composer rejects unknown context fields', () => {
+  const input = makeComposerInput();
+  input.context.unapproved_notes = ['not packet authority'];
+  assertComposerFailsClosed('unknown context', input, 'INVALID_COMPOSER_INPUT');
+});
+
+await test('Stage 2 composer rejects context accessors without invocation', () => {
+  const input = makeComposerInput();
+  let invoked = 0;
+  Object.defineProperty(input.context, 'voice_rules', {
+    get() {
+      invoked += 1;
+      return ['hostile'];
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assertComposerFailsClosed('context accessor', input, 'INVALID_COMPOSER_INPUT');
+  assert.equal(invoked, 0, 'context getter must not execute');
+});
+
+await test('Stage 2 composer rejects root accessors without invocation', () => {
+  const input = makeComposerInput();
+  let invoked = 0;
+  Object.defineProperty(input, 'sceneId', {
+    get() {
+      invoked += 1;
+      return 'ch01-s01';
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assertComposerFailsClosed('root accessor', input, 'INVALID_COMPOSER_INPUT');
+  assert.equal(invoked, 0, 'root getter must not execute');
+});
+
+await test('Stage 2 composer rejects snapshot accessors without invocation', () => {
+  const input = makeComposerInput();
+  let invoked = 0;
+  const hostileSnapshot = {
+    project: input.snapshot.project,
+    chapter: input.snapshot.chapter,
+  };
+  Object.defineProperty(hostileSnapshot, 'snapshotId', {
+    get() {
+      invoked += 1;
+      return input.snapshot.snapshotId;
+    },
+    enumerable: true,
+    configurable: false,
+  });
+  Object.freeze(hostileSnapshot);
+  input.snapshot = hostileSnapshot;
+  assertComposerFailsClosed('snapshot accessor', input, 'INVALID_COMPOSER_INPUT');
+  assert.equal(invoked, 0, 'snapshot getter must not execute');
+});
+
+await test('Stage 2 composer rejects snapshot and contract chapter mismatch', () => {
+  const input = makeComposerInput();
+  input.snapshot = buildGenerationSnapshot({
+    project: { id: 'proj-001' },
+    chapters: [{ id: 'ch-002', chapter_number: 2 }],
+    chapter: { id: 'ch-002', chapter_number: 2 },
+  });
+  assertComposerFailsClosed('chapter mismatch', input, 'COMPOSER_SNAPSHOT_MISMATCH');
+});
+
+await test('Stage 2 composer rejects a scene outside the immutable contract', () => {
+  const input = makeComposerInput({ sceneId: 'ch01-s99' });
+  assertComposerFailsClosed('missing scene', input, 'COMPOSER_SCENE_NOT_FOUND');
+});
+
+await test('Stage 2 composer delegates malformed authorized facts to the hardened validator', () => {
+  const input = makeComposerInput();
+  input.context.scene_authorized_facts[0].knowledge_scope.pov_identity = 'Someone Else';
+  assertComposerFailsClosed('wrong fact POV', input, 'KNOWLEDGE_SCOPE_POV_MISMATCH');
+});
+
+await test('Stage 2 composer accepts null-prototype scene-safe context', () => {
+  const input = makeComposerInput();
+  const nullContext = Object.create(null);
+  for (const [key, value] of Object.entries(input.context)) {
+    nullContext[key] = value;
+  }
+  input.context = nullContext;
+  const packet = composeSceneExecutionPacket(input);
+  assert.equal(packet.pov_identity, 'Hero');
+  assert.equal(packet.packet_id, generatePacketFingerprint(packet));
+});
+
+await test('Stage 2 composer accepts buildGenerationSnapshot chapter number alias', () => {
+  const contract = makeContract();
+  const chapter = { id: 'ch-001', number: 1 };
+  const snapshot = buildGenerationSnapshot({
+    project: { id: 'proj-001' },
+    chapters: [chapter],
+    chapter,
+  });
+  const packet = composeSceneExecutionPacket(makeComposerInput({
+    immutableSceneContract: contract,
+    snapshot,
+  }));
+  assert.equal(packet.chapter_number, 1);
+});
+
+await test('Stage 2 composer defaults optional scene-safe arrays and continuity to empty', () => {
+  const input = makeComposerInput({ context: { pov_identity: 'Hero' } });
+  const packet = composeSceneExecutionPacket(input);
+  assert.equal(packet.immediate_continuity, '');
+  assert.deepEqual(packet.future_reserved_events, []);
+  assert.deepEqual(packet.scene_authorized_facts, []);
+  assert.deepEqual(packet.completed_events, []);
+  assert.deepEqual(packet.voice_rules, []);
+  assert.deepEqual(packet.pov_known_facts, []);
+});
+
+await test('Stage 2 composer remains disconnected from live generation paths', () => {
+  const runtimeFiles = [];
+  const collectRuntimeFiles = (directory) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const file = `${directory}/${entry.name}`;
+      if (entry.isDirectory()) collectRuntimeFiles(file);
+      else if (/\.(?:js|jsx|mjs)$/.test(entry.name)) runtimeFiles.push(file);
+    }
+  };
+  collectRuntimeFiles('src');
+  for (const file of runtimeFiles) {
+    if (file === 'src/lib/generationContext.js') continue;
+    const source = fs.readFileSync(file, 'utf8');
+    assert.equal(
+      source.includes('composeSceneExecutionPacket'),
+      false,
+      `${file} must not import or invoke the Stage 2 composer`
+    );
+  }
+  assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);
 });

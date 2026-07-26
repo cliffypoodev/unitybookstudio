@@ -18,8 +18,18 @@ export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
 });
 
 export function isSceneContextComposerEnabled(flags) {
-  if (!flags || typeof flags !== 'object') return SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled;
-  return flags[SCENE_CONTEXT_COMPOSER_FEATURE.key] === true;
+  if (!flags || typeof flags !== 'object' || Array.isArray(flags)) {
+    return SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled;
+  }
+  const proto = Object.getPrototypeOf(flags);
+  if (proto !== Object.prototype && proto !== null) {
+    return SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled;
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(flags, SCENE_CONTEXT_COMPOSER_FEATURE.key);
+  if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
+    return SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled;
+  }
+  return descriptor.value === true;
 }
 
 export const FOUNDATION_FIELDS = Object.freeze([
@@ -1482,4 +1492,306 @@ function _validatePacketInner(packet, immutableSceneContract) {
 
   // ── Return defensive frozen clone ──
   return deepFreeze(JSON.parse(JSON.stringify(packet)));
+}
+
+// ─── Stage 2: pure Scene Execution Packet composer ────────────────────
+// This component is deliberately disconnected from live generation. Callers
+// must opt in with the default-off feature flag, and the function accepts only
+// explicit scene-safe authority rather than raw foundation or manuscript data.
+
+const COMPOSER_INPUT_KEYS = new Set([
+  'flags',
+  'snapshot',
+  'immutableSceneContract',
+  'sceneId',
+  'context',
+]);
+
+const COMPOSER_CONTEXT_KEYS = new Set([
+  'pov_identity',
+  'immediate_continuity',
+  'future_reserved_event_ids',
+  'scene_authorized_facts',
+  'completed_event_ids',
+  'voice_rules',
+  'current_locations',
+  'current_possessions',
+  'current_injuries',
+  'confirmed_deaths',
+  'current_separations',
+  'unavailable_objects',
+  'canonically_unique_objects',
+  'pov_known_fact_ids',
+]);
+
+function composerError(message, code, issues) {
+  return packetError(message, code, issues);
+}
+
+function requireComposerObject(value, path) {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || value instanceof Date) {
+    throw composerError(
+      `Invalid composer object at ${path}`,
+      'INVALID_COMPOSER_INPUT',
+      [`${path} must be a non-null plain object`]
+    );
+  }
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== null) {
+    throw composerError(
+      `Invalid composer prototype at ${path}`,
+      'INVALID_COMPOSER_INPUT',
+      [`${path} must use Object.prototype or a null prototype`]
+    );
+  }
+}
+
+function composerOwnDataValue(object, key, path, required = true) {
+  const descriptor = Object.getOwnPropertyDescriptor(object, key);
+  if (!descriptor) {
+    if (!required) return undefined;
+    throw composerError(
+      `Missing composer input at ${path}.${key}`,
+      'INVALID_COMPOSER_INPUT',
+      [`${path}.${key} must be an own enumerable data property`]
+    );
+  }
+  if (descriptor.get || descriptor.set || !descriptor.enumerable) {
+    throw composerError(
+      `Unsafe composer input at ${path}.${key}`,
+      'INVALID_COMPOSER_INPUT',
+      [`${path}.${key} must be an own enumerable data property without accessors`]
+    );
+  }
+  return descriptor.value;
+}
+
+function inspectComposerRecord(value, path, allowedKeys) {
+  requireComposerObject(value, path);
+  for (const key of Reflect.ownKeys(value)) {
+    if (typeof key === 'symbol') {
+      throw composerError(
+        `Symbol-keyed composer input at ${path}`,
+        'INVALID_COMPOSER_INPUT',
+        [`${path} has a symbol-keyed property: ${String(key)}`]
+      );
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (descriptor.get || descriptor.set || !descriptor.enumerable) {
+      throw composerError(
+        `Unsafe composer input at ${path}.${key}`,
+        'INVALID_COMPOSER_INPUT',
+        [`${path}.${key} must be an own enumerable data property without accessors`]
+      );
+    }
+    if (!allowedKeys.has(key)) {
+      if (PROHIBITED_KEYS.has(key)) {
+        throw composerError(
+          `Prohibited composer input: ${key}`,
+          'PROHIBITED_KEY',
+          [`${path}.${key} is raw foundation, manuscript, prompt, or private authority and cannot enter a Scene Execution Packet`]
+        );
+      }
+      throw composerError(
+        `Unknown composer input: ${key}`,
+        'INVALID_COMPOSER_INPUT',
+        [`${path}.${key} is not an allowed composer field`]
+      );
+    }
+  }
+}
+
+function cloneComposerValue(value, path) {
+  descriptorSafeInspect(value, path, new Set());
+  return canonicalizeValue(value, path, new Set());
+}
+
+function composerArray(context, key) {
+  const value = composerOwnDataValue(context, key, 'composer.context', false);
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) {
+    throw composerError(
+      `Invalid composer array at composer.context.${key}`,
+      'INVALID_COMPOSER_INPUT',
+      [`composer.context.${key} must be an array`]
+    );
+  }
+  return cloneComposerValue(value, `composer.context.${key}`);
+}
+
+export function composeSceneExecutionPacket(input) {
+  inspectComposerRecord(input, 'composer', COMPOSER_INPUT_KEYS);
+
+  const flags = composerOwnDataValue(input, 'flags', 'composer', false);
+  if (!isSceneContextComposerEnabled(flags)) {
+    throw composerError(
+      'Scene context composer is disabled',
+      'SCENE_CONTEXT_COMPOSER_DISABLED',
+      [`Set the own data flag "${SCENE_CONTEXT_COMPOSER_FEATURE.key}" to true for an explicit shadow-mode composer call`]
+    );
+  }
+
+  const snapshot = composerOwnDataValue(input, 'snapshot', 'composer');
+  const immutableSceneContract = composerOwnDataValue(input, 'immutableSceneContract', 'composer');
+  const requestedSceneId = composerOwnDataValue(input, 'sceneId', 'composer');
+  const context = composerOwnDataValue(input, 'context', 'composer');
+
+  requireComposerObject(snapshot, 'composer.snapshot');
+  if (!Object.isFrozen(snapshot)) {
+    throw composerError(
+      'Generation snapshot is not immutable',
+      'INVALID_COMPOSER_INPUT',
+      ['composer.snapshot must be the frozen output of buildGenerationSnapshot()']
+    );
+  }
+  inspectComposerRecord(context, 'composer.context', COMPOSER_CONTEXT_KEYS);
+  descriptorSafeInspect(context, 'composer.context', new Set());
+  inspectContractDescriptorSafe(immutableSceneContract);
+
+  if (typeof requestedSceneId !== 'string' || requestedSceneId.trim() === '') {
+    throw composerError(
+      'Invalid requested scene identity',
+      'INVALID_COMPOSER_INPUT',
+      ['composer.sceneId must be a nonempty string']
+    );
+  }
+
+  const snapshotId = composerOwnDataValue(snapshot, 'snapshotId', 'composer.snapshot');
+  const project = composerOwnDataValue(snapshot, 'project', 'composer.snapshot');
+  const chapter = composerOwnDataValue(snapshot, 'chapter', 'composer.snapshot');
+  requireComposerObject(project, 'composer.snapshot.project');
+  requireComposerObject(chapter, 'composer.snapshot.chapter');
+
+  const projectId = composerOwnDataValue(project, 'id', 'composer.snapshot.project');
+  const chapterId = composerOwnDataValue(chapter, 'id', 'composer.snapshot.chapter');
+  const snapshotChapterNumber =
+    composerOwnDataValue(chapter, 'chapter_number', 'composer.snapshot.chapter', false) ??
+    composerOwnDataValue(chapter, 'number', 'composer.snapshot.chapter', false);
+
+  if (typeof snapshotId !== 'string' || snapshotId.trim() === '') {
+    throw composerError('Invalid snapshot identity', 'INVALID_COMPOSER_INPUT', ['composer.snapshot.snapshotId must be a nonempty string']);
+  }
+  if (typeof projectId !== 'string' || projectId.trim() === '') {
+    throw composerError('Invalid project identity', 'INVALID_COMPOSER_INPUT', ['composer.snapshot.project.id must be a nonempty string']);
+  }
+  if (typeof chapterId !== 'string' || chapterId.trim() === '') {
+    throw composerError('Invalid chapter identity', 'INVALID_COMPOSER_INPUT', ['composer.snapshot.chapter.id must be a nonempty string']);
+  }
+  if (
+    typeof snapshotChapterNumber !== 'number' ||
+    !Number.isFinite(snapshotChapterNumber) ||
+    !Number.isInteger(snapshotChapterNumber) ||
+    snapshotChapterNumber <= 0
+  ) {
+    throw composerError(
+      'Invalid snapshot chapter number',
+      'INVALID_COMPOSER_INPUT',
+      [`composer.snapshot.chapter.chapter_number must be a finite positive integer, got ${snapshotChapterNumber}`]
+    );
+  }
+  if (snapshotChapterNumber !== immutableSceneContract.chapterNumber) {
+    throw composerError(
+      'Snapshot and contract chapter mismatch',
+      'COMPOSER_SNAPSHOT_MISMATCH',
+      [`Snapshot Chapter ${snapshotChapterNumber} does not match contract Chapter ${immutableSceneContract.chapterNumber}`]
+    );
+  }
+
+  const sceneId = requestedSceneId.trim();
+  const beatIndex = immutableSceneContract.beats.findIndex((candidate) => candidate.scene_id === sceneId);
+  if (beatIndex < 0) {
+    throw composerError(
+      'Requested scene is not in the immutable contract',
+      'COMPOSER_SCENE_NOT_FOUND',
+      [`sceneId "${sceneId}" is not present in the immutable scene contract`]
+    );
+  }
+  const beat = immutableSceneContract.beats[beatIndex];
+
+  const povIdentity = composerOwnDataValue(context, 'pov_identity', 'composer.context');
+  const immediateContinuity = composerOwnDataValue(context, 'immediate_continuity', 'composer.context', false);
+  if (typeof povIdentity !== 'string' || povIdentity.trim() === '') {
+    throw composerError(
+      'Missing composer POV identity',
+      'INVALID_COMPOSER_INPUT',
+      ['composer.context.pov_identity must be a nonempty string']
+    );
+  }
+  if (immediateContinuity !== undefined && typeof immediateContinuity !== 'string') {
+    throw composerError(
+      'Invalid composer immediate continuity',
+      'INVALID_COMPOSER_INPUT',
+      ['composer.context.immediate_continuity must be a string when supplied']
+    );
+  }
+
+  const futureReservedEventIds = composerArray(context, 'future_reserved_event_ids');
+  const completedEventIds = composerArray(context, 'completed_event_ids');
+  const povKnownFactIds = composerArray(context, 'pov_known_fact_ids');
+  const sceneAuthorizedFacts = composerArray(context, 'scene_authorized_facts');
+  const contractEventIdsForBeats = (beats) => beats.flatMap((contractBeat) =>
+    contractBeat.required_events.map((eventText, index) =>
+      generateDeterministicEventId(
+        projectId.trim(),
+        chapterId.trim(),
+        contractBeat.scene_id,
+        'required',
+        index + 1,
+        eventText
+      )
+    )
+  );
+  const priorContractEventIds = contractEventIdsForBeats(
+    immutableSceneContract.beats.slice(0, beatIndex)
+  );
+  const futureContractEventIds = contractEventIdsForBeats(
+    immutableSceneContract.beats.slice(beatIndex + 1)
+  );
+
+  const packet = {
+    packet_version: SCENE_EXECUTION_PACKET_VERSION,
+    snapshot_id: snapshotId.trim(),
+    source_contract_fingerprint: immutableSceneContract.fingerprint,
+    project_id: projectId.trim(),
+    chapter_id: chapterId.trim(),
+    chapter_number: immutableSceneContract.chapterNumber,
+    scene_id: beat.scene_id,
+    scene_number: beat.scene_number,
+    scene_goal: beat.scene_goal,
+    entry_state: beat.entry_state,
+    exit_state: beat.exit_state,
+    pov_identity: povIdentity.trim(),
+    immediate_continuity: immediateContinuity === undefined ? '' : immediateContinuity,
+    required_events: beat.required_events.map((eventText, index) => ({
+      event_id: generateDeterministicEventId(
+        projectId.trim(),
+        chapterId.trim(),
+        beat.scene_id,
+        'required',
+        index + 1,
+        eventText
+      ),
+      text: eventText,
+    })),
+    // Later contract events are represented by deterministic IDs only. Their
+    // text and outcome never enter the current scene's packet.
+    future_reserved_events: [...futureContractEventIds, ...futureReservedEventIds]
+      .map((eventId) => ({ event_id: eventId })),
+    scene_authorized_facts: sceneAuthorizedFacts,
+    completed_events: [...completedEventIds, ...priorContractEventIds],
+    voice_rules: composerArray(context, 'voice_rules'),
+    current_locations: composerArray(context, 'current_locations'),
+    current_possessions: composerArray(context, 'current_possessions'),
+    current_injuries: composerArray(context, 'current_injuries'),
+    confirmed_deaths: composerArray(context, 'confirmed_deaths'),
+    current_separations: composerArray(context, 'current_separations'),
+    unavailable_objects: composerArray(context, 'unavailable_objects'),
+    canonically_unique_objects: composerArray(context, 'canonically_unique_objects'),
+    pov_known_facts: povKnownFactIds,
+    current_scene_forbidden_events: beat.forbidden_events.slice(),
+    continuity_dependencies: beat.continuity_dependencies.slice(),
+  };
+
+  packet.packet_id = generatePacketFingerprint(packet);
+  return validateSceneExecutionPacket(packet, immutableSceneContract);
 }
