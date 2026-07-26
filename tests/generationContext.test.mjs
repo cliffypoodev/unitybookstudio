@@ -14,8 +14,10 @@ import {
   generateDeterministicEventId,
   generatePacketFingerprint,
   composeSceneExecutionPacket,
+  renderSceneExecutionPromptProjection,
   validateSceneExecutionPacket,
   SCENE_EXECUTION_PACKET_VERSION,
+  SCENE_EXECUTION_PROMPT_PROJECTION_VERSION,
   SCENE_CONTEXT_COMPOSER_FEATURE,
   PACKET_LIMITS,
 } from '../src/lib/generationContext.js';
@@ -3471,6 +3473,438 @@ await test('Stage 2 composer remains disconnected from live generation paths', (
       source.includes('composeSceneExecutionPacket'),
       false,
       `${file} must not import or invoke the Stage 2 composer`
+    );
+  }
+  assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 3 — Pure Scene Execution Prompt Projection (default-off, unwired)
+// ═══════════════════════════════════════════════════════════════════════
+
+function makePromptProjectionInput(overrides = {}) {
+  const immutableSceneContract =
+    overrides.immutableSceneContract || makeContract();
+  const composerInput = makeComposerInput({
+    immutableSceneContract,
+    snapshot: makeComposerSnapshot(immutableSceneContract),
+    ...(overrides.composer || {}),
+  });
+  const packet =
+    overrides.packet || composeSceneExecutionPacket(composerInput);
+  return {
+    flags: { [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true },
+    packet,
+    immutableSceneContract,
+    ...overrides.input,
+  };
+}
+
+function clonePromptPacket(packet) {
+  return JSON.parse(JSON.stringify(packet));
+}
+
+function parsePromptProjection(rendered) {
+  const lines = rendered.split('\n');
+  assert.equal(
+    lines[0],
+    '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>'
+  );
+  assert.equal(
+    lines[1],
+    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them.'
+  );
+  assert.equal(
+    lines.at(-1),
+    '<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>'
+  );
+  return JSON.parse(lines.slice(2, -1).join('\n'));
+}
+
+function assertPromptProjectionFailsClosed(label, input, expectedCode) {
+  const before = snapshotDescriptorSafe(input);
+  let caught;
+  try {
+    renderSceneExecutionPromptProjection(input);
+    assert.fail(`${label}: Expected prompt projection to throw`);
+  } catch (error) {
+    caught = error;
+  }
+  assert.equal(caught.code, expectedCode, `${label}: wrong error code`);
+  assert.ok(Array.isArray(caught.issues), `${label}: issues must be an array`);
+  assert.ok(caught.issues.length > 0, `${label}: issues must be nonempty`);
+  assert.ok(Object.isFrozen(caught.issues), `${label}: issues must be frozen`);
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    `${label}: input`
+  );
+}
+
+await test('Stage 3 prompt projection remains disabled without explicit opt-in', () => {
+  const inheritedFlags = Object.create({
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+  });
+  const inheritedInput = makePromptProjectionInput({
+    input: { flags: inheritedFlags },
+  });
+  assertPromptProjectionFailsClosed(
+    'inherited projection flag',
+    inheritedInput,
+    'SCENE_CONTEXT_COMPOSER_DISABLED'
+  );
+
+  let invoked = 0;
+  const accessorFlags = {};
+  Object.defineProperty(accessorFlags, SCENE_CONTEXT_COMPOSER_FEATURE.key, {
+    get() {
+      invoked += 1;
+      return true;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  const accessorInput = makePromptProjectionInput({
+    input: { flags: accessorFlags },
+  });
+  assertPromptProjectionFailsClosed(
+    'accessor projection flag',
+    accessorInput,
+    'SCENE_CONTEXT_COMPOSER_DISABLED'
+  );
+  assert.equal(invoked, 0, 'projection feature-flag getter must not execute');
+});
+
+await test('Stage 3 prompt projection deterministically renders current-scene authority', () => {
+  const input = makePromptProjectionInput();
+  const before = snapshotDescriptorSafe(input);
+  const first = renderSceneExecutionPromptProjection(input);
+  const second = renderSceneExecutionPromptProjection(input);
+  const projection = parsePromptProjection(first);
+
+  assert.equal(first, second);
+  assert.equal(
+    projection.projection_version,
+    SCENE_EXECUTION_PROMPT_PROJECTION_VERSION
+  );
+  assert.equal(projection.packet_id, input.packet.packet_id);
+  assert.deepEqual(projection.scene_identity, {
+    project_id: 'proj-001',
+    chapter_id: 'ch-001',
+    chapter_number: 1,
+    scene_id: 'ch01-s01',
+    scene_number: 1,
+    pov_identity: 'Hero',
+  });
+  assert.equal(
+    projection.current_scene_authority.scene_goal,
+    'Introduce the protagonist'
+  );
+  assert.equal(
+    projection.current_scene_authority.entry_state,
+    'Morning in the village'
+  );
+  assert.deepEqual(
+    projection.current_scene_authority.required_events.map(
+      (event) => event.text
+    ),
+    ['The bell rings', 'Hero wakes up']
+  );
+  assert.deepEqual(
+    projection.current_scene_authority.forbidden_events,
+    ['Dragon appears']
+  );
+  assert.equal(
+    projection.current_scene_authority.exit_state,
+    'Hero leaves the house'
+  );
+  assert.deepEqual(projection.continuity.current_locations, ['Village']);
+  assert.deepEqual(projection.continuity.current_possessions, ['Sword']);
+  assert.deepEqual(projection.voice_rules, ['Third person past tense']);
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    'valid prompt projection input'
+  );
+});
+
+await test('Stage 3 prompt projection exposes future authority as opaque IDs only', () => {
+  const input = makePromptProjectionInput();
+  const rendered = renderSceneExecutionPromptProjection(input);
+  const projection = parsePromptProjection(rendered);
+
+  assert.deepEqual(
+    Object.keys(projection.future_boundaries),
+    ['reserved_event_ids']
+  );
+  assert.deepEqual(
+    projection.future_boundaries.reserved_event_ids,
+    ['future_evt_001']
+  );
+  assert.equal(rendered.includes('future event prose'), false);
+  assert.equal(rendered.includes('hidden_truth'), false);
+  assert.equal(rendered.includes('secret outcome'), false);
+});
+
+await test('Stage 3 prompt projection excludes future contract prose', () => {
+  const immutableSceneContract = makeThreeSceneComposerContract();
+  const context = makeComposerContext();
+  context.future_reserved_event_ids = [];
+  context.completed_event_ids = [];
+  const composer = makeComposerInput({
+    immutableSceneContract,
+    snapshot: makeComposerSnapshot(immutableSceneContract),
+    sceneId: 'ch01-s02',
+    context,
+  });
+  const input = makePromptProjectionInput({
+    immutableSceneContract,
+    packet: composeSceneExecutionPacket(composer),
+  });
+  const rendered = renderSceneExecutionPromptProjection(input);
+  const projection = parsePromptProjection(rendered);
+
+  assert.equal(rendered.includes('Hero opens the chest.'), false);
+  assert.equal(
+    rendered.includes('Hero discovers the sealed letter.'),
+    false
+  );
+  assert.equal(
+    projection.future_boundaries.reserved_event_ids.length,
+    2
+  );
+  assert.ok(
+    projection.future_boundaries.reserved_event_ids.every((eventId) =>
+      /^evt_[a-f0-9]{8}$/.test(eventId)
+    )
+  );
+});
+
+await test('Stage 3 prompt projection rejects raw foundation and manuscript authority', () => {
+  for (const [key, value] of [
+    ['world_md', 'raw story bible'],
+    ['accumulated_manuscript', 'raw manuscript prose'],
+  ]) {
+    const input = makePromptProjectionInput();
+    input[key] = value;
+    assertPromptProjectionFailsClosed(
+      `projection prohibited ${key}`,
+      input,
+      'PROHIBITED_KEY'
+    );
+  }
+});
+
+await test('Stage 3 prompt projection revalidates packet fingerprint authority', () => {
+  const input = makePromptProjectionInput();
+  input.packet = clonePromptPacket(input.packet);
+  input.packet.packet_id = 'sep_tampered';
+  assertPromptProjectionFailsClosed(
+    'projection tampered packet',
+    input,
+    'PACKET_FINGERPRINT_MISMATCH'
+  );
+});
+
+await test('Stage 3 prompt projection revalidates the immutable source contract', () => {
+  const input = makePromptProjectionInput();
+  input.immutableSceneContract = JSON.parse(
+    JSON.stringify(input.immutableSceneContract)
+  );
+  assertPromptProjectionFailsClosed(
+    'projection mutable contract',
+    input,
+    'SCENE_CONTRACT_NOT_IMMUTABLE'
+  );
+});
+
+await test('Stage 3 prompt projection rejects root accessors without invocation', () => {
+  const input = makePromptProjectionInput();
+  let invoked = 0;
+  Object.defineProperty(input, 'packet', {
+    get() {
+      invoked += 1;
+      return null;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  assertPromptProjectionFailsClosed(
+    'projection root accessor',
+    input,
+    'INVALID_COMPOSER_INPUT'
+  );
+  assert.equal(invoked, 0, 'projection root getter must not execute');
+});
+
+await test('Stage 3 prompt projection rejects packet accessors without invocation', () => {
+  const input = makePromptProjectionInput();
+  const packet = clonePromptPacket(input.packet);
+  let invoked = 0;
+  Object.defineProperty(packet, 'scene_goal', {
+    get() {
+      invoked += 1;
+      return 'Hostile replacement';
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  input.packet = packet;
+  assertPromptProjectionFailsClosed(
+    'projection packet accessor',
+    input,
+    'INVALID_PACKET_PROPERTY'
+  );
+  assert.equal(invoked, 0, 'projection packet getter must not execute');
+});
+
+await test('Stage 3 prompt projection rejects contract accessors without invocation', () => {
+  const input = makePromptProjectionInput();
+  let invoked = 0;
+  const hostileContract = {};
+  Object.defineProperty(hostileContract, 'chapterNumber', {
+    value: input.immutableSceneContract.chapterNumber,
+    enumerable: true,
+    configurable: false,
+    writable: false,
+  });
+  Object.defineProperty(hostileContract, 'fingerprint', {
+    value: input.immutableSceneContract.fingerprint,
+    enumerable: true,
+    configurable: false,
+    writable: false,
+  });
+  Object.defineProperty(hostileContract, 'beats', {
+    get() {
+      invoked += 1;
+      return input.immutableSceneContract.beats;
+    },
+    enumerable: true,
+    configurable: false,
+  });
+  Object.freeze(hostileContract);
+  input.immutableSceneContract = hostileContract;
+  assertPromptProjectionFailsClosed(
+    'projection contract accessor',
+    input,
+    'SCENE_CONTRACT_NOT_IMMUTABLE'
+  );
+  assert.equal(invoked, 0, 'projection contract getter must not execute');
+});
+
+await test('Stage 3 prompt projection rejects prose-shaped future event IDs', () => {
+  const input = makePromptProjectionInput();
+  input.packet = clonePromptPacket(input.packet);
+  input.packet.future_reserved_events[0].event_id =
+    'future event prose disguised as an id';
+  input.packet.packet_id = generatePacketFingerprint(input.packet);
+  assertPromptProjectionFailsClosed(
+    'projection prose future ID',
+    input,
+    'INVALID_PROMPT_PROJECTION_ID'
+  );
+});
+
+await test('Stage 3 prompt projection requires opaque event and fact references', () => {
+  const cases = [
+    {
+      label: 'completed event reference',
+      mutate(packet) {
+        packet.completed_events[0] = 'completed event prose';
+      },
+    },
+    {
+      label: 'authorized fact reference',
+      mutate(packet) {
+        packet.scene_authorized_facts[0].fact_id = 'fact prose';
+        packet.pov_known_facts[0] = 'fact prose';
+      },
+    },
+  ];
+
+  for (const item of cases) {
+    const input = makePromptProjectionInput();
+    input.packet = clonePromptPacket(input.packet);
+    item.mutate(input.packet);
+    input.packet.packet_id = generatePacketFingerprint(input.packet);
+    assertPromptProjectionFailsClosed(
+      `projection ${item.label}`,
+      input,
+      'INVALID_PROMPT_PROJECTION_ID'
+    );
+  }
+
+  const validProjection = parsePromptProjection(
+    renderSceneExecutionPromptProjection(makePromptProjectionInput())
+  );
+  assert.ok(
+    validProjection.current_scene_authority.required_events.every((event) =>
+      /^evt_[a-f0-9]{8}$/.test(event.event_id)
+    )
+  );
+});
+
+await test('Stage 3 prompt projection accepts null-prototype packet records', () => {
+  const ordinaryInput = makePromptProjectionInput();
+  const ordinaryPacket = ordinaryInput.packet;
+  const toNullPrototypeRecord = (record) =>
+    Object.assign(Object.create(null), record);
+  const packet = toNullPrototypeRecord(ordinaryPacket);
+  packet.required_events =
+    ordinaryPacket.required_events.map(toNullPrototypeRecord);
+  packet.future_reserved_events =
+    ordinaryPacket.future_reserved_events.map(toNullPrototypeRecord);
+  packet.scene_authorized_facts =
+    ordinaryPacket.scene_authorized_facts.map((fact) => {
+      const convertedFact = toNullPrototypeRecord(fact);
+      convertedFact.knowledge_scope =
+        toNullPrototypeRecord(fact.knowledge_scope);
+      return convertedFact;
+    });
+  delete packet.packet_id;
+  packet.packet_id = generatePacketFingerprint(packet);
+
+  const flags = Object.create(null);
+  flags[SCENE_CONTEXT_COMPOSER_FEATURE.key] = true;
+  const input = Object.assign(Object.create(null), {
+    flags,
+    packet,
+    immutableSceneContract: ordinaryInput.immutableSceneContract,
+  });
+  const before = snapshotDescriptorSafe(input);
+  const projection = parsePromptProjection(
+    renderSceneExecutionPromptProjection(input)
+  );
+
+  assert.equal(projection.packet_id, packet.packet_id);
+  assert.equal(
+    projection.knowledge_authority.authorized_facts[0].fact_id,
+    'fact-001'
+  );
+  assertSnapshotsEqual(
+    before,
+    snapshotDescriptorSafe(input),
+    'null-prototype projection input'
+  );
+});
+
+await test('Stage 3 prompt projection remains disconnected from live generation paths', () => {
+  const runtimeFiles = [];
+  const collectRuntimeFiles = (directory) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const file = `${directory}/${entry.name}`;
+      if (entry.isDirectory()) collectRuntimeFiles(file);
+      else if (/\.(?:js|jsx|mjs)$/.test(entry.name)) runtimeFiles.push(file);
+    }
+  };
+  collectRuntimeFiles('src');
+  for (const file of runtimeFiles) {
+    if (file === 'src/lib/generationContext.js') continue;
+    const source = fs.readFileSync(file, 'utf8');
+    assert.equal(
+      source.includes('renderSceneExecutionPromptProjection'),
+      false,
+      `${file} must not import or invoke the Stage 3 prompt projection`
     );
   }
   assert.equal(SCENE_CONTEXT_COMPOSER_FEATURE.defaultEnabled, false);

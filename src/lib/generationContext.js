@@ -11,6 +11,7 @@
 
 export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
+export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v1';
 
 export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
   key: 'scene_context_composer_v1',
@@ -1794,4 +1795,153 @@ export function composeSceneExecutionPacket(input) {
 
   packet.packet_id = generatePacketFingerprint(packet);
   return validateSceneExecutionPacket(packet, immutableSceneContract);
+}
+
+// ─── Stage 3: pure Scene Execution Prompt Projection ─────────────────
+// This renderer is deliberately disconnected from live generation. It accepts
+// only a validated Scene Execution Packet and its immutable source contract,
+// then projects the minimum current-scene authority needed by a future prompt
+// integration. Later-scene authority remains opaque event IDs only.
+
+const PROMPT_PROJECTION_INPUT_KEYS = new Set([
+  'flags',
+  'packet',
+  'immutableSceneContract',
+]);
+
+const OPAQUE_PROMPT_REFERENCE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
+
+function requireOpaquePromptReference(value, path) {
+  if (!OPAQUE_PROMPT_REFERENCE_PATTERN.test(value)) {
+    throw packetError(
+      `Prompt projection reference at ${path} is not opaque`,
+      'INVALID_PROMPT_PROJECTION_ID',
+      [`${path} must contain only letters, numbers, ".", "_", ":", or "-" and cannot contain whitespace or prose`]
+    );
+  }
+}
+
+function assertPromptProjectionReferencesOpaque(packet) {
+  for (let index = 0; index < packet.required_events.length; index += 1) {
+    requireOpaquePromptReference(
+      packet.required_events[index].event_id,
+      `packet.required_events[${index}].event_id`
+    );
+  }
+  for (let index = 0; index < packet.future_reserved_events.length; index += 1) {
+    requireOpaquePromptReference(
+      packet.future_reserved_events[index].event_id,
+      `packet.future_reserved_events[${index}].event_id`
+    );
+  }
+  for (let index = 0; index < packet.completed_events.length; index += 1) {
+    requireOpaquePromptReference(
+      packet.completed_events[index],
+      `packet.completed_events[${index}]`
+    );
+  }
+  for (let index = 0; index < packet.scene_authorized_facts.length; index += 1) {
+    requireOpaquePromptReference(
+      packet.scene_authorized_facts[index].fact_id,
+      `packet.scene_authorized_facts[${index}].fact_id`
+    );
+  }
+  for (let index = 0; index < packet.pov_known_facts.length; index += 1) {
+    requireOpaquePromptReference(
+      packet.pov_known_facts[index],
+      `packet.pov_known_facts[${index}]`
+    );
+  }
+}
+
+function clonePromptProjectionFact(fact) {
+  return {
+    fact_id: fact.fact_id,
+    summary: fact.summary,
+    provenance: fact.provenance,
+    knowledge_scope: {
+      pov_identity: fact.knowledge_scope.pov_identity,
+      basis: fact.knowledge_scope.basis,
+    },
+  };
+}
+
+export function renderSceneExecutionPromptProjection(input) {
+  inspectComposerRecord(input, 'promptProjection', PROMPT_PROJECTION_INPUT_KEYS);
+
+  const flags = composerOwnDataValue(input, 'flags', 'promptProjection', false);
+  if (!isSceneContextComposerEnabled(flags)) {
+    throw packetError(
+      'Scene execution prompt projection is disabled',
+      'SCENE_CONTEXT_COMPOSER_DISABLED',
+      [`Set the own data flag "${SCENE_CONTEXT_COMPOSER_FEATURE.key}" to true for an explicit shadow-mode projection call`]
+    );
+  }
+
+  const packet = composerOwnDataValue(input, 'packet', 'promptProjection');
+  const immutableSceneContract = composerOwnDataValue(
+    input,
+    'immutableSceneContract',
+    'promptProjection'
+  );
+
+  const validatedPacket = validateSceneExecutionPacket(
+    packet,
+    immutableSceneContract
+  );
+  assertPromptProjectionReferencesOpaque(validatedPacket);
+
+  const projection = {
+    projection_version: SCENE_EXECUTION_PROMPT_PROJECTION_VERSION,
+    packet_id: validatedPacket.packet_id,
+    scene_identity: {
+      project_id: validatedPacket.project_id,
+      chapter_id: validatedPacket.chapter_id,
+      chapter_number: validatedPacket.chapter_number,
+      scene_id: validatedPacket.scene_id,
+      scene_number: validatedPacket.scene_number,
+      pov_identity: validatedPacket.pov_identity,
+    },
+    current_scene_authority: {
+      scene_goal: validatedPacket.scene_goal,
+      entry_state: validatedPacket.entry_state,
+      required_events: validatedPacket.required_events.map((event) => ({
+        event_id: event.event_id,
+        text: event.text,
+      })),
+      forbidden_events: validatedPacket.current_scene_forbidden_events.slice(),
+      exit_state: validatedPacket.exit_state,
+    },
+    continuity: {
+      immediate_continuity: validatedPacket.immediate_continuity,
+      dependencies: validatedPacket.continuity_dependencies.slice(),
+      completed_event_ids: validatedPacket.completed_events.slice(),
+      current_locations: validatedPacket.current_locations.slice(),
+      current_possessions: validatedPacket.current_possessions.slice(),
+      current_injuries: validatedPacket.current_injuries.slice(),
+      confirmed_deaths: validatedPacket.confirmed_deaths.slice(),
+      current_separations: validatedPacket.current_separations.slice(),
+      unavailable_objects: validatedPacket.unavailable_objects.slice(),
+      canonically_unique_objects: validatedPacket.canonically_unique_objects.slice(),
+    },
+    knowledge_authority: {
+      authorized_facts: validatedPacket.scene_authorized_facts.map(
+        clonePromptProjectionFact
+      ),
+      pov_known_fact_ids: validatedPacket.pov_known_facts.slice(),
+    },
+    voice_rules: validatedPacket.voice_rules.slice(),
+    future_boundaries: {
+      reserved_event_ids: validatedPacket.future_reserved_events.map(
+        (event) => event.event_id
+      ),
+    },
+  };
+
+  return [
+    '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>',
+    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them.',
+    JSON.stringify(projection, null, 2),
+    '<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>',
+  ].join('\n');
 }
