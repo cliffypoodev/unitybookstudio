@@ -257,7 +257,7 @@ function snapshotDescriptorSafe(value, seen) {
   if (typeof value !== 'object' && typeof value !== 'function') {
     return { type: typeof value, value };
   }
-  if (typeof value === 'function') return { type: 'function', name: value.name };
+  if (typeof value === 'function') return { type: 'function', identity: value };
   if (!seen) seen = new Map();
   if (seen.has(value)) return { type: 'cycle', id: seen.get(value) };
   const id = seen.size;
@@ -277,8 +277,8 @@ function snapshotDescriptorSafe(value, seen) {
       enumerable: desc.enumerable,
       configurable: desc.configurable,
       writable: desc.writable,
-      hasGetter: !!desc.get,
-      hasSetter: !!desc.set,
+      getterFn: desc.get || null,   // getter function identity
+      setterFn: desc.set || null,   // setter function identity
     };
     if (!desc.get && !desc.set) {
       entry.valueSnap = snapshotDescriptorSafe(desc.value, seen);
@@ -296,7 +296,7 @@ function assertSnapshotsEqual(a, b, path) {
     return;
   }
   if (a.type === 'function') {
-    assert.equal(a.name, b.name, `${path}: function name mismatch`);
+    assert.strictEqual(a.identity, b.identity, `${path}: function identity mismatch`);
     return;
   }
   if (a.type === 'cycle') {
@@ -313,8 +313,8 @@ function assertSnapshotsEqual(a, b, path) {
     assert.equal(ak.enumerable, bk.enumerable, `${path}.${String(ak.key)}: enumerable mismatch`);
     assert.equal(ak.configurable, bk.configurable, `${path}.${String(ak.key)}: configurable mismatch`);
     assert.equal(ak.writable, bk.writable, `${path}.${String(ak.key)}: writable mismatch`);
-    assert.equal(ak.hasGetter, bk.hasGetter, `${path}.${String(ak.key)}: getter mismatch`);
-    assert.equal(ak.hasSetter, bk.hasSetter, `${path}.${String(ak.key)}: setter mismatch`);
+    assert.strictEqual(ak.getterFn, bk.getterFn, `${path}.${String(ak.key)}: getter identity mismatch`);
+    assert.strictEqual(ak.setterFn, bk.setterFn, `${path}.${String(ak.key)}: setter identity mismatch`);
     if (ak.valueSnap && bk.valueSnap) {
       assertSnapshotsEqual(ak.valueSnap, bk.valueSnap, `${path}.${String(ak.key)}`);
     }
@@ -526,6 +526,8 @@ await test('Nested getter attempting to mutate scene_goal cannot mutate it', () 
 await test('Nested getter throwing Error("boom") cannot leak that raw error', () => {
   const contract = makeContract();
   const p = makeValidPacket(contract);
+  const packetSnap = snapshotDescriptorSafe(p);
+  const contractSnap = snapshotDescriptorSafe(contract);
   Object.defineProperty(p.future_reserved_events[0], 'bomb', {
     get() { throw new Error('boom'); },
     enumerable: true,
@@ -537,9 +539,14 @@ await test('Nested getter throwing Error("boom") cannot leak that raw error', ()
     assert.fail('Expected to throw');
   } catch (e) { caught = e; }
   assert.notEqual(caught.message, 'boom', 'Raw getter error must not leak');
-  assert.ok(caught.code, 'Must have stable error code');
-  assert.ok(Array.isArray(caught.issues) && caught.issues.length > 0);
-  assert.ok(Object.isFrozen(caught.issues));
+  assert.equal(caught.code, 'INVALID_PACKET_PROPERTY', 'Must produce INVALID_PACKET_PROPERTY code');
+  assert.ok(Array.isArray(caught.issues), 'issues must be an array');
+  assert.ok(caught.issues.length > 0, 'issues must be nonempty');
+  assert.ok(Object.isFrozen(caught.issues), 'issues must be frozen');
+  // Packet snapshot was taken BEFORE defineProperty, so we compare the original
+  // to verify the pre-modification structure was correct. The defineProperty
+  // added a new key, so we only verify contract is unchanged.
+  assertSnapshotsEqual(contractSnap, snapshotDescriptorSafe(contract), 'contract unchanged after boom test');
 });
 
 await test('Nested symbol-keyed property returns INVALID_PACKET_PROPERTY', () => {
@@ -758,6 +765,7 @@ await test('Empty entry_state in frozen beat rejected', () => {
 await test('Side-effecting getter invocation count remains zero', () => {
   const contract = makeContract();
   const p = makeValidPacket(contract);
+  const contractSnap = snapshotDescriptorSafe(contract);
   let invocations = 0;
   // Getter on packet
   Object.defineProperty(p, 'trap_field', {
@@ -765,14 +773,23 @@ await test('Side-effecting getter invocation count remains zero', () => {
     enumerable: true,
     configurable: false,
   });
-  try { validateSceneExecutionPacket(p, contract); } catch (_) {}
+  let caught;
+  try { validateSceneExecutionPacket(p, contract); } catch (e) { caught = e; }
   assert.equal(invocations, 0, 'No getter on packet should be invoked');
+  assert.equal(caught.code, 'INVALID_PACKET_PROPERTY', 'Packet getter must produce INVALID_PACKET_PROPERTY');
+  assert.ok(Array.isArray(caught.issues) && caught.issues.length > 0, 'issues array nonempty');
+  assert.ok(Object.isFrozen(caught.issues), 'issues frozen');
+  assertSnapshotsEqual(contractSnap, snapshotDescriptorSafe(contract), 'contract unchanged');
   // Getter on contract
   const fakeContract = {};
   Object.defineProperty(fakeContract, 'version', { get() { invocations++; return 'fiction-scene-contract-v2'; }, enumerable: true, configurable: false });
   Object.freeze(fakeContract);
-  try { validateSceneExecutionPacket(makeValidPacket(makeContract()), fakeContract); } catch (_) {}
+  let caught2;
+  try { validateSceneExecutionPacket(makeValidPacket(makeContract()), fakeContract); } catch (e) { caught2 = e; }
   assert.equal(invocations, 0, 'No getter on contract should be invoked');
+  assert.equal(caught2.code, 'SCENE_CONTRACT_NOT_IMMUTABLE', 'Contract getter must produce SCENE_CONTRACT_NOT_IMMUTABLE');
+  assert.ok(Array.isArray(caught2.issues) && caught2.issues.length > 0, 'contract issues nonempty');
+  assert.ok(Object.isFrozen(caught2.issues), 'contract issues frozen');
 });
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1417,15 +1434,10 @@ await test('Required event deterministic ID mismatch fails closed', () => {
 await test('Duplicate required event IDs fail closed', () => {
   const contract = makeContract();
   const p = makeValidPacket(contract);
-  // Two events with same text/ID: the first will pass, the second triggers DUPLICATE
-  // But since events are matched by contract order, they must match contract order.
-  // If there are 2 identical events in the contract, then duplicate IDs would occur.
-  // In our contract, the events are different, so the second event text mismatch fires first.
-  // We test by detecting the first error in the chain.
+  // Two events with same ID: duplicate ID detection now runs BEFORE text comparison
   p.required_events[1] = { ...p.required_events[0] };
   p.packet_id = generatePacketFingerprint(p);
-  // The text mismatch fires first (event 2 text doesn't match contract beat event 2)
-  assertFailsClosed('dup req ids', p, contract, 'REQUIRED_EVENTS_MISMATCH');
+  assertFailsClosed('dup req ids', p, contract, 'DUPLICATE_EVENT_ID');
 });
 
 // ── Forbidden events contract matching ──
@@ -1624,10 +1636,16 @@ await test('Tampered packet_id fails closed', () => {
 await test('Malformed contract forbidden_events does NOT mutate contract', () => {
   const contract = makeContract();
   const p = makeValidPacket(contract);
+  const packetSnap = snapshotDescriptorSafe(p);
   const contractSnap = snapshotDescriptorSafe(contract);
   p.current_scene_forbidden_events = ['not; a, comma-separated string but a valid entry'];
   p.packet_id = generatePacketFingerprint(p);
-  try { validateSceneExecutionPacket(p, contract); } catch (_) {}
+  let caught;
+  try { validateSceneExecutionPacket(p, contract); } catch (e) { caught = e; }
+  assert.ok(caught, 'Must throw for mismatched forbidden events');
+  assert.equal(caught.code, 'FORBIDDEN_EVENTS_MISMATCH', 'Expected FORBIDDEN_EVENTS_MISMATCH');
+  assert.ok(Array.isArray(caught.issues) && caught.issues.length > 0, 'issues nonempty');
+  assert.ok(Object.isFrozen(caught.issues), 'issues frozen');
   assertSnapshotsEqual(contractSnap, snapshotDescriptorSafe(contract), 'contract unchanged');
 });
 
@@ -1645,4 +1663,532 @@ await test('PACKET_LIMITS is frozen and exported', () => {
   assert.equal(typeof PACKET_LIMITS.MAX_ARRAY_LENGTH, 'number');
 });
 
-console.log(`\nSTAGE 1D TESTS COMPLETE: ${passed} total passed\n`);
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 1E Tests
+// ═══════════════════════════════════════════════════════════════════════
+
+function clonePacket(packet) {
+  return JSON.parse(JSON.stringify(packet));
+}
+
+// ─── §1E-1. Restored recursive fingerprint tests ─────────────────────
+
+await test('FP1: Changing required-event event_id changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.required_events[0].event_id = 'evt_changed1';
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP2: Changing required-event text changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.required_events[0].text = 'Changed text.';
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP3: Changing future-reserved event_id changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  p.future_reserved_events = [{ event_id: 'evt_future_1' }];
+  p.packet_id = generatePacketFingerprint(p);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.future_reserved_events[0].event_id = 'evt_future_2';
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP4: Changing authorized-fact fact_id changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.scene_authorized_facts[0].fact_id = 'fact-changed';
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP5: Changing authorized-fact summary changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.scene_authorized_facts[0].summary = 'Changed summary.';
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP6: Changing authorized-fact provenance changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.scene_authorized_facts[0].provenance = 'ch99-s99';
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP7: Changing knowledge-scope pov_identity changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.scene_authorized_facts[0].knowledge_scope.pov_identity = 'Marcus';
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP8: Changing knowledge-scope basis changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.scene_authorized_facts[0].knowledge_scope.basis = 'Different basis.';
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP9: Reordering keys inside a required-event record does not change fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  const e = p2.required_events[0];
+  p2.required_events[0] = { text: e.text, event_id: e.event_id };
+  assert.equal(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP10: Reordering keys inside a fact does not change fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  const f = p2.scene_authorized_facts[0];
+  p2.scene_authorized_facts[0] = {
+    summary: f.summary, fact_id: f.fact_id, knowledge_scope: f.knowledge_scope, provenance: f.provenance
+  };
+  assert.equal(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP11: Reordering keys inside knowledge-scope does not change fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  const ks = p2.scene_authorized_facts[0].knowledge_scope;
+  p2.scene_authorized_facts[0].knowledge_scope = { basis: ks.basis, pov_identity: ks.pov_identity };
+  assert.equal(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP12: Reordering top-level properties does not change fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const keys = Object.keys(p).filter(k => k !== 'packet_id');
+  const reversed = {};
+  for (const k of keys.reverse()) reversed[k] = p[k];
+  reversed.packet_id = generatePacketFingerprint(reversed);
+  assert.equal(p.packet_id, reversed.packet_id);
+});
+
+// FP13: Every authority-bearing top-level field changes fingerprint (comprehensive)
+{
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const stringFields = ['scene_goal', 'entry_state', 'exit_state', 'pov_identity',
+    'snapshot_id', 'source_contract_fingerprint', 'project_id', 'chapter_id', 'scene_id',
+    'packet_version', 'immediate_continuity'];
+  for (const field of stringFields) {
+    await test(`FP13: Changing ${field} changes fingerprint`, () => {
+      const p2 = clonePacket(p); delete p2.packet_id;
+      p2[field] = 'changed_value_unique_xyz';
+      assert.notEqual(fp1, generatePacketFingerprint(p2), `Changing ${field} must change fingerprint`);
+    });
+  }
+}
+
+// FP14: Every authority-bearing array field changes fingerprint
+for (const field of ['current_locations', 'current_possessions', 'current_injuries',
+  'confirmed_deaths', 'current_separations', 'unavailable_objects',
+  'canonically_unique_objects', 'voice_rules', 'completed_events',
+  'pov_known_facts', 'current_scene_forbidden_events', 'continuity_dependencies']) {
+  await test(`FP14: Changing ${field} changes fingerprint`, () => {
+    const contract = makeContract();
+    const p = makeValidPacket(contract);
+    const fp1 = p.packet_id;
+    const p2 = clonePacket(p); delete p2.packet_id;
+    p2[field] = [...p2[field], 'extra_item_for_fp_test'];
+    assert.notEqual(fp1, generatePacketFingerprint(p2));
+  });
+}
+
+// FP15: Numeric fields change fingerprint
+await test('FP15: Changing chapter_number changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.chapter_number = 99;
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP15: Changing scene_number changes fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.scene_number = 99;
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP16: Array order is fingerprint-significant', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  p.voice_rules = ['Rule A', 'Rule B'];
+  p.packet_id = generatePacketFingerprint(p);
+  const fp1 = p.packet_id;
+  const p2 = clonePacket(p); delete p2.packet_id;
+  p2.voice_rules = ['Rule B', 'Rule A'];
+  assert.notEqual(fp1, generatePacketFingerprint(p2));
+});
+
+await test('FP17: packet_id itself is excluded from fingerprint', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const p2 = clonePacket(p);
+  p2.packet_id = 'completely_different_id';
+  assert.equal(generatePacketFingerprint(p), generatePacketFingerprint(p2));
+});
+
+// ─── §1E-2. Fingerprint descriptor-safe preinspection ─────────────────
+
+function assertFpFails(label, packet, expectedCode) {
+  const snap = snapshotDescriptorSafe(packet);
+  let caught;
+  try { generatePacketFingerprint(packet); } catch (e) { caught = e; }
+  assert.ok(caught, `${label}: Expected generatePacketFingerprint to throw`);
+  assert.equal(caught.code, expectedCode, `${label}: Expected code ${expectedCode}, got ${caught.code}`);
+  assert.ok(Array.isArray(caught.issues), `${label}: issues must be array`);
+  assert.ok(caught.issues.length > 0, `${label}: issues must be nonempty`);
+  assert.ok(Object.isFrozen(caught.issues), `${label}: issues must be frozen`);
+}
+
+await test('FP-pre: root getter rejected without invocation', () => {
+  const p = {};
+  let invoked = 0;
+  Object.defineProperty(p, 'scene_goal', { get() { invoked++; return 'x'; }, enumerable: true, configurable: false });
+  assertFpFails('root getter', p, 'INVALID_PACKET_PROPERTY');
+  assert.equal(invoked, 0, 'Root getter must not be invoked');
+});
+
+await test('FP-pre: nested getter rejected without invocation', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  let invoked = 0;
+  Object.defineProperty(p.required_events[0], 'trap', { get() { invoked++; return 'x'; }, enumerable: true, configurable: false });
+  assertFpFails('nested getter', p, 'INVALID_PACKET_PROPERTY');
+  assert.equal(invoked, 0, 'Nested getter must not be invoked');
+});
+
+await test('FP-pre: getter attempting mutation cannot mutate packet', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const original = p.scene_goal;
+  let invoked = 0;
+  Object.defineProperty(p.required_events[0], 'mutator', {
+    get() { invoked++; p.scene_goal = 'MUTATED'; return 'x'; },
+    enumerable: true, configurable: false
+  });
+  assertFpFails('mutator getter', p, 'INVALID_PACKET_PROPERTY');
+  assert.equal(invoked, 0, 'Mutator getter must not be invoked');
+  assert.equal(p.scene_goal, original, 'scene_goal unchanged');
+});
+
+await test('FP-pre: symbol-keyed root property fails', () => {
+  const p = { a: 1 };
+  p[Symbol('bad')] = 'x';
+  assertFpFails('symbol root', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP-pre: symbol-keyed nested property fails', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  p.required_events[0][Symbol('nested')] = 'x';
+  assertFpFails('symbol nested', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP-pre: non-enumerable root property fails', () => {
+  const p = { a: 1 };
+  Object.defineProperty(p, 'hidden', { value: 'x', enumerable: false, configurable: true });
+  assertFpFails('non-enum root', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP-pre: non-enumerable nested property fails', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  Object.defineProperty(p.required_events[0], '_hidden', { value: 'x', enumerable: false, configurable: true });
+  assertFpFails('non-enum nested', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP-pre: packet-array custom property fails', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  p.voice_rules.custom = 'extra';
+  assertFpFails('array custom prop', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP-pre: packet-array named accessor fails without invocation', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  let invoked = 0;
+  Object.defineProperty(p.voice_rules, 'trap', { get() { invoked++; return 'x'; }, enumerable: true, configurable: true });
+  assertFpFails('array named accessor', p, 'INVALID_PACKET_PROPERTY');
+  assert.equal(invoked, 0, 'Array named accessor must not be invoked');
+});
+
+await test('FP-pre: packet-array non-enumerable property fails', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  Object.defineProperty(p.voice_rules, '_h', { value: 'x', enumerable: false, configurable: true });
+  assertFpFails('array non-enum', p, 'INVALID_PACKET_PROPERTY');
+});
+
+await test('FP-pre: sparse array fails', () => {
+  const contract = makeContract();
+  const p = makeValidPacket(contract);
+  const sparse = new Array(3);
+  sparse[0] = 'a'; sparse[2] = 'c';
+  p.voice_rules = sparse;
+  assertFpFails('sparse array', p, 'NON_JSON_SAFE_VALUE');
+});
+
+await test('FP-pre: cyclic object fails', () => {
+  const p = { a: {} };
+  p.a.self = p;
+  assertFpFails('cycle', p, 'NON_JSON_SAFE_VALUE');
+});
+
+// ─── §1E-3. Array-property hole (validator) ───────────────────────────
+
+for (const field of ['required_events', 'future_reserved_events', 'scene_authorized_facts', 'voice_rules', 'pov_known_facts']) {
+  await test(`Array custom property on ${field} rejected`, () => {
+    const contract = makeContract();
+    const p = makeValidPacket(contract);
+    p[field].custom_prop = 'injected';
+    p.packet_id = 'sep_dummy';
+    assertFailsClosed(`custom prop ${field}`, p, contract, 'INVALID_PACKET_PROPERTY');
+  });
+
+  await test(`Array named accessor on ${field} rejected without invocation`, () => {
+    const contract = makeContract();
+    const p = makeValidPacket(contract);
+    let invoked = 0;
+    Object.defineProperty(p[field], 'trap', { get() { invoked++; return 'x'; }, enumerable: true, configurable: true });
+    p.packet_id = 'sep_dummy';
+    assertFailsClosed(`named accessor ${field}`, p, contract, 'INVALID_PACKET_PROPERTY');
+    assert.equal(invoked, 0, `${field} named accessor must not be invoked`);
+  });
+
+  await test(`Array non-enumerable property on ${field} rejected`, () => {
+    const contract = makeContract();
+    const p = makeValidPacket(contract);
+    Object.defineProperty(p[field], '_hidden', { value: 'x', enumerable: false, configurable: true });
+    p.packet_id = 'sep_dummy';
+    assertFailsClosed(`non-enum ${field}`, p, contract, 'INVALID_PACKET_PROPERTY');
+  });
+
+  await test(`Array symbol property on ${field} rejected`, () => {
+    const contract = makeContract();
+    const p = makeValidPacket(contract);
+    p[field][Symbol('bad')] = 'x';
+    p.packet_id = 'sep_dummy';
+    assertFailsClosed(`symbol ${field}`, p, contract, 'INVALID_PACKET_PROPERTY');
+  });
+}
+
+// ─── §1E-4. Contract recursive inspection ─────────────────────────────
+
+function makeRawBeat() {
+  return {
+    scene_number: 1,
+    scene_id: 'ch01-s01',
+    scene_goal: 'Goal',
+    entry_state: 'Entry',
+    required_events: ['Event A'],
+    forbidden_events: ['Forbidden A'],
+    exit_state: 'Exit',
+    continuity_dependencies: ['Dep A'],
+  };
+}
+
+function makeFrozenContract(overrides) {
+  const beat = makeRawBeat();
+  const base = {
+    version: 'fiction-scene-contract-v2',
+    fingerprint: 'test-fp',
+    chapterNumber: 1,
+    beats: [beat],
+    ...overrides,
+  };
+  return JSON.parse(JSON.stringify(base));
+}
+
+function deepFreezeAll(obj) {
+  if (!obj || typeof obj !== 'object' || Object.isFrozen(obj)) return obj;
+  Object.freeze(obj);
+  const keys = Reflect.ownKeys(obj);
+  for (const k of keys) {
+    const desc = Object.getOwnPropertyDescriptor(obj, k);
+    if (desc && !desc.get && !desc.set && desc.value && typeof desc.value === 'object') {
+      deepFreezeAll(desc.value);
+    }
+  }
+  return obj;
+}
+
+function assertContractFails(label, contract, packet) {
+  const packetSnap = packet ? snapshotDescriptorSafe(packet) : null;
+  let caught;
+  try {
+    validateSceneExecutionPacket(packet || makeValidPacket(makeContract()), contract);
+  } catch (e) { caught = e; }
+  assert.ok(caught, `${label}: Expected to throw`);
+  assert.equal(caught.code, 'SCENE_CONTRACT_NOT_IMMUTABLE', `${label}: Expected SCENE_CONTRACT_NOT_IMMUTABLE, got ${caught.code}`);
+  assert.ok(Array.isArray(caught.issues), `${label}: issues array`);
+  assert.ok(caught.issues.length > 0, `${label}: issues nonempty`);
+  assert.ok(Object.isFrozen(caught.issues), `${label}: issues frozen`);
+  if (packet && packetSnap) {
+    assertSnapshotsEqual(packetSnap, snapshotDescriptorSafe(packet), `${label}: packet unchanged`);
+  }
+}
+
+await test('Contract: getter at required_events[0] rejected without invocation', () => {
+  const c = makeFrozenContract();
+  let invoked = 0;
+  Object.defineProperty(c.beats[0].required_events, 0, { get() { invoked++; return 'Event A'; }, enumerable: true, configurable: true });
+  deepFreezeAll(c);
+  assertContractFails('re getter', c);
+  assert.equal(invoked, 0, 'required_events[0] getter must not be invoked');
+});
+
+await test('Contract: getter at forbidden_events[0] rejected without invocation', () => {
+  const c = makeFrozenContract();
+  let invoked = 0;
+  Object.defineProperty(c.beats[0].forbidden_events, 0, { get() { invoked++; return 'Forbidden A'; }, enumerable: true, configurable: true });
+  deepFreezeAll(c);
+  assertContractFails('fe getter', c);
+  assert.equal(invoked, 0, 'forbidden_events[0] getter must not be invoked');
+});
+
+await test('Contract: getter at continuity_dependencies[0] rejected without invocation', () => {
+  const c = makeFrozenContract();
+  let invoked = 0;
+  Object.defineProperty(c.beats[0].continuity_dependencies, 0, { get() { invoked++; return 'Dep A'; }, enumerable: true, configurable: true });
+  deepFreezeAll(c);
+  assertContractFails('cd getter', c);
+  assert.equal(invoked, 0, 'continuity_dependencies[0] getter must not be invoked');
+});
+
+await test('Contract: getter attempting to mutate packet rejected', () => {
+  const c = makeFrozenContract();
+  const p = makeValidPacket(makeContract());
+  const originalGoal = p.scene_goal;
+  let invoked = 0;
+  Object.defineProperty(c.beats[0].required_events, 0, {
+    get() { invoked++; p.scene_goal = 'MUTATED'; return 'Event A'; },
+    enumerable: true, configurable: true
+  });
+  deepFreezeAll(c);
+  assertContractFails('mutate packet via contract', c, p);
+  assert.equal(invoked, 0, 'Getter must not be invoked');
+  assert.equal(p.scene_goal, originalGoal, 'Packet scene_goal unchanged');
+});
+
+await test('Contract: named accessor on a contract array rejected', () => {
+  const c = makeFrozenContract();
+  let invoked = 0;
+  Object.defineProperty(c.beats[0].required_events, 'trap', { get() { invoked++; return 'x'; }, enumerable: true, configurable: true });
+  deepFreezeAll(c);
+  assertContractFails('named accessor', c);
+  assert.equal(invoked, 0, 'Named accessor must not be invoked');
+});
+
+await test('Contract: non-enumerable property on a beat rejected', () => {
+  const c = makeFrozenContract();
+  Object.defineProperty(c.beats[0], '_hidden', { value: 'x', enumerable: false, writable: false, configurable: false });
+  deepFreezeAll(c);
+  assertContractFails('non-enum beat', c);
+});
+
+await test('Contract: non-enumerable array property rejected', () => {
+  const c = makeFrozenContract();
+  Object.defineProperty(c.beats[0].required_events, '_h', { value: 'x', enumerable: false, configurable: true });
+  deepFreezeAll(c);
+  assertContractFails('non-enum array', c);
+});
+
+await test('Contract: symbol-keyed contract array property rejected', () => {
+  const c = makeFrozenContract();
+  c.beats[0].required_events[Symbol('bad')] = 'x';
+  deepFreezeAll(c);
+  assertContractFails('symbol array', c);
+});
+
+await test('Contract: cyclic deeply frozen contract data rejected', () => {
+  const c = makeFrozenContract();
+  c.beats[0].cyclic = c.beats[0];
+  // Can't deepFreeze a cycle with Object.freeze, so freeze manually
+  try { deepFreezeAll(c); } catch (_) {}
+  // Even if freeze fails, the contract inspection should reject cycles
+  assertContractFails('cyclic contract', c);
+});
+
+await test('Contract: chapterNumber: null rejected', () => {
+  const c = makeFrozenContract({ chapterNumber: null });
+  deepFreezeAll(c);
+  assertContractFails('null chapterNumber', c);
+});
+
+await test('Contract: missing scene_number rejected', () => {
+  const c = makeFrozenContract();
+  delete c.beats[0].scene_number;
+  deepFreezeAll(c);
+  assertContractFails('missing scene_number', c);
+});
+
+await test('Contract: string-valued scene_number rejected', () => {
+  const c = makeFrozenContract();
+  c.beats[0].scene_number = '1';
+  deepFreezeAll(c);
+  assertContractFails('string scene_number', c);
+});
+
+await test('Contract: missing continuity_dependencies rejected', () => {
+  const c = makeFrozenContract();
+  delete c.beats[0].continuity_dependencies;
+  deepFreezeAll(c);
+  assertContractFails('missing continuity_deps', c);
+});
+
+await test('Contract: empty required_events entry rejected', () => {
+  const c = makeFrozenContract();
+  c.beats[0].required_events = [''];
+  deepFreezeAll(c);
+  assertContractFails('empty req event', c);
+});
+
+await test('Contract: empty forbidden_events entry rejected', () => {
+  const c = makeFrozenContract();
+  c.beats[0].forbidden_events = [''];
+  deepFreezeAll(c);
+  assertContractFails('empty forb event', c);
+});
+
+await test('Contract: empty continuity_dependencies entry rejected', () => {
+  const c = makeFrozenContract();
+  c.beats[0].continuity_dependencies = [''];
+  deepFreezeAll(c);
+  assertContractFails('empty cont dep', c);
+});
+
+console.log(`\nSTAGE 1E TESTS COMPLETE: ${passed} total passed\n`);
+

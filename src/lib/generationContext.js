@@ -669,7 +669,7 @@ function descriptorSafeInspect(value, path, seen) {
   }
   const proto = Object.getPrototypeOf(value);
   if (proto !== Object.prototype && proto !== Array.prototype && proto !== null) {
-    throw packetError(`Class instance at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a class instance (${value.constructor?.name || 'unknown'})`]);
+    throw packetError(`Class instance at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a non-plain object (custom prototype)`]);
   }
   if (seen.has(value)) {
     throw packetError(`Cyclic reference at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a cyclic object reference`]);
@@ -677,25 +677,39 @@ function descriptorSafeInspect(value, path, seen) {
   seen.add(value);
 
   if (Array.isArray(value)) {
-    for (let i = 0; i < value.length; i++) {
-      if (!(i in value)) {
-        throw packetError(`Sparse array at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a sparse array (missing index ${i})`]);
+    // Validate ALL own keys via descriptors: only 'length' and canonical indexes allowed
+    const arrAllKeys = Reflect.ownKeys(value);
+    for (const k of arrAllKeys) {
+      if (typeof k === 'symbol') {
+        throw packetError(`Symbol-keyed property at ${path}`, 'INVALID_PACKET_PROPERTY', [`${path} has a symbol-keyed array property: ${String(k)}`]);
+      }
+      if (k === 'length') continue; // standard array property
+      const idx = Number(k);
+      if (!Number.isInteger(idx) || idx < 0 || String(idx) !== k) {
+        // Named/custom string property on array
+        const kDesc = Object.getOwnPropertyDescriptor(value, k);
+        if (kDesc.get || kDesc.set) {
+          throw packetError(`Named accessor on array at ${path}.${k}`, 'INVALID_PACKET_PROPERTY', [`${path} has a named accessor array property: "${k}"`]);
+        }
+        if (!kDesc.enumerable) {
+          throw packetError(`Non-enumerable array property at ${path}.${k}`, 'INVALID_PACKET_PROPERTY', [`${path} has a non-enumerable array property: "${k}"`]);
+        }
+        throw packetError(`Custom array property at ${path}.${k}`, 'INVALID_PACKET_PROPERTY', [`${path} has an unsupported custom array property: "${k}"`]);
       }
     }
-    // Inspect array elements by descriptor
+    // Validate each index 0..length-1
     for (let i = 0; i < value.length; i++) {
       const desc = Object.getOwnPropertyDescriptor(value, i);
+      if (!desc) {
+        throw packetError(`Sparse array at ${path}`, 'NON_JSON_SAFE_VALUE', [`${path} contains a sparse array (missing index ${i})`]);
+      }
       if (desc.get || desc.set) {
         throw packetError(`Accessor at ${path}[${i}]`, 'INVALID_PACKET_PROPERTY', [`${path}[${i}] has an accessor (getter/setter) property`]);
       }
-      descriptorSafeInspect(desc.value, `${path}[${i}]`, seen);
-    }
-    // Check for symbol keys on the array itself
-    const arrKeys = Reflect.ownKeys(value);
-    for (const k of arrKeys) {
-      if (typeof k === 'symbol') {
-        throw packetError(`Symbol-keyed property at ${path}`, 'INVALID_PACKET_PROPERTY', [`${path} has a symbol-keyed property: ${String(k)}`]);
+      if (!desc.enumerable) {
+        throw packetError(`Non-enumerable index at ${path}[${i}]`, 'INVALID_PACKET_PROPERTY', [`${path}[${i}] has a non-enumerable index descriptor`]);
       }
+      descriptorSafeInspect(desc.value, `${path}[${i}]`, seen);
     }
     seen.delete(value);
     return;
@@ -762,7 +776,7 @@ function canonicalizePacketForFingerprint(packet) {
 
 export function generatePacketFingerprint(packet) {
   try {
-    // Quick root check
+    // Root type check
     if (!packet || typeof packet !== 'object' || Array.isArray(packet)) {
       throw packetError('Invalid packet', 'INVALID_PACKET', ['Packet must be a non-null plain object']);
     }
@@ -771,7 +785,38 @@ export function generatePacketFingerprint(packet) {
     }
     const proto = Object.getPrototypeOf(packet);
     if (proto !== Object.prototype && proto !== null) {
-      throw packetError('Invalid packet: class instance', 'INVALID_PACKET', [`Packet root is a class instance (${packet.constructor?.name || 'unknown'})`]);
+      throw packetError('Invalid packet: class instance', 'INVALID_PACKET', ['Packet root is a non-plain object (custom prototype)']);
+    }
+    // Full recursive descriptor-safe inspection BEFORE canonicalization.
+    // Inspects all properties except packet_id (which is excluded from authority).
+    // First validate packet_id descriptor safely if present.
+    const pidDesc = Object.getOwnPropertyDescriptor(packet, 'packet_id');
+    if (pidDesc) {
+      if (pidDesc.get || pidDesc.set) {
+        throw packetError('Accessor on packet.packet_id', 'INVALID_PACKET_PROPERTY', ['packet.packet_id has an accessor (getter/setter) property']);
+      }
+      if (typeof pidDesc.value !== 'symbol' && typeof pidDesc.value !== 'function') {
+        // packet_id is a normal value, skip from inspection but allow
+      } else {
+        throw packetError('Invalid packet_id value', 'NON_JSON_SAFE_VALUE', [`packet.packet_id contains ${typeof pidDesc.value}`]);
+      }
+    }
+    // Build a proxy view that skips packet_id for inspection
+    const seen = new Set();
+    const allKeys = Reflect.ownKeys(packet);
+    for (const k of allKeys) {
+      if (typeof k === 'symbol') {
+        throw packetError('Symbol-keyed property on packet', 'INVALID_PACKET_PROPERTY', [`packet has a symbol-keyed property: ${String(k)}`]);
+      }
+      if (k === 'packet_id') continue; // excluded from fingerprint authority
+      const desc = Object.getOwnPropertyDescriptor(packet, k);
+      if (!desc.enumerable) {
+        throw packetError(`Non-enumerable property on packet: ${k}`, 'INVALID_PACKET_PROPERTY', [`packet has a non-enumerable property: "${k}"`]);
+      }
+      if (desc.get || desc.set) {
+        throw packetError(`Accessor property on packet: ${k}`, 'INVALID_PACKET_PROPERTY', [`packet has an accessor (getter/setter) property: "${k}"`]);
+      }
+      descriptorSafeInspect(desc.value, `packet.${k}`, seen);
     }
     return `sep_${hashText(canonicalizePacketForFingerprint(packet))}`;
   } catch (e) {
@@ -873,7 +918,7 @@ function requirePlainObject(value, fieldName) {
   }
   const proto = Object.getPrototypeOf(value);
   if (proto !== Object.prototype && proto !== null) {
-    throw packetError(`${fieldName} is a class instance`, 'INVALID_RECORD', [`${fieldName} must be a plain object, got class instance ${value.constructor?.name || 'unknown'}`]);
+    throw packetError(`${fieldName} is a class instance`, 'INVALID_RECORD', [`${fieldName} must be a plain object, got non-plain object (custom prototype)`]);
   }
 }
 
@@ -926,8 +971,8 @@ function isDeepFrozenSafe(value, seen) {
   const keys = Reflect.ownKeys(value);
   for (const k of keys) {
     const desc = Object.getOwnPropertyDescriptor(value, k);
-    // Accessors on frozen objects: we just check if frozen, don't invoke
-    if (desc.get || desc.set) continue;
+    // Accessors are NOT acceptable even on frozen objects
+    if (desc.get || desc.set) return false;
     if (!isDeepFrozenSafe(desc.value, seen)) return false;
   }
   return true;
@@ -937,159 +982,205 @@ function isDeepFrozenSafe(value, seen) {
 // Reads contract authority via property descriptors only. Never invokes
 // getters. Validates exact structure types before calling legacy validation.
 
+function contractError(message, issues) {
+  return packetError(message, 'SCENE_CONTRACT_NOT_IMMUTABLE', issues);
+}
+
+// Recursively inspect a contract value using descriptors only.
+// Never invokes getters. Rejects accessors, symbols, non-enumerables, class instances,
+// cycles, sparse arrays, custom array properties, and non-JSON-safe values.
+function contractDescriptorInspect(value, path, seen) {
+  if (value === null) return;
+  if (typeof value === 'boolean' || typeof value === 'string') return;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      throw contractError(`Non-finite number at ${path}`, [`${path} contains non-finite number: ${value}`]);
+    }
+    return;
+  }
+  if (typeof value === 'undefined') throw contractError(`undefined at ${path}`, [`${path} contains undefined`]);
+  if (typeof value === 'function') throw contractError(`function at ${path}`, [`${path} contains a function`]);
+  if (typeof value === 'symbol') throw contractError(`symbol at ${path}`, [`${path} contains a symbol`]);
+  if (typeof value === 'bigint') throw contractError(`BigInt at ${path}`, [`${path} contains a BigInt`]);
+  if (value instanceof Date) throw contractError(`Date at ${path}`, [`${path} contains a Date object`]);
+  if (typeof value !== 'object') throw contractError(`Unexpected type at ${path}`, [`${path} contains unexpected type: ${typeof value}`]);
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== Array.prototype && proto !== null) {
+    throw contractError(`Non-plain object at ${path}`, [`${path} contains a non-plain object (custom prototype)`]);
+  }
+  if (seen.has(value)) throw contractError(`Cyclic reference at ${path}`, [`${path} contains a cyclic reference`]);
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    const arrKeys = Reflect.ownKeys(value);
+    for (const k of arrKeys) {
+      if (typeof k === 'symbol') throw contractError(`Symbol on array at ${path}`, [`${path} has a symbol-keyed array property: ${String(k)}`]);
+      if (k === 'length') continue;
+      const idx = Number(k);
+      if (!Number.isInteger(idx) || idx < 0 || String(idx) !== k) {
+        const kDesc = Object.getOwnPropertyDescriptor(value, k);
+        if (kDesc.get || kDesc.set) throw contractError(`Named accessor on array at ${path}.${k}`, [`${path} has a named accessor array property: "${k}"`]);
+        if (!kDesc.enumerable) throw contractError(`Non-enumerable array property at ${path}.${k}`, [`${path} has a non-enumerable array property: "${k}"`]);
+        throw contractError(`Custom array property at ${path}.${k}`, [`${path} has an unsupported custom array property: "${k}"`]);
+      }
+    }
+    for (let i = 0; i < value.length; i++) {
+      const desc = Object.getOwnPropertyDescriptor(value, i);
+      if (!desc) throw contractError(`Sparse array at ${path}`, [`${path} is a sparse array (missing index ${i})`]);
+      if (desc.get || desc.set) throw contractError(`Accessor at ${path}[${i}]`, [`${path}[${i}] has an accessor (getter/setter) property`]);
+      if (!desc.enumerable) throw contractError(`Non-enumerable index at ${path}[${i}]`, [`${path}[${i}] has a non-enumerable index`]);
+      contractDescriptorInspect(desc.value, `${path}[${i}]`, seen);
+    }
+    seen.delete(value);
+    return;
+  }
+
+  const allKeys = Reflect.ownKeys(value);
+  for (const k of allKeys) {
+    if (typeof k === 'symbol') throw contractError(`Symbol at ${path}`, [`${path} has a symbol-keyed property: ${String(k)}`]);
+    const desc = Object.getOwnPropertyDescriptor(value, k);
+    if (!desc.enumerable) throw contractError(`Non-enumerable at ${path}.${k}`, [`${path} has a non-enumerable property: "${k}"`]);
+    if (desc.get || desc.set) throw contractError(`Accessor at ${path}.${k}`, [`${path} has an accessor (getter/setter) property: "${k}"`]);
+    contractDescriptorInspect(desc.value, `${path}.${k}`, seen);
+  }
+  seen.delete(value);
+}
+
 function inspectContractDescriptorSafe(contract) {
   if (!contract || typeof contract !== 'object' || Array.isArray(contract)) {
-    throw packetError('Invalid scene contract', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract must be a non-null plain object']);
+    throw contractError('Invalid scene contract', ['Scene contract must be a non-null plain object']);
   }
   if (contract instanceof Date) {
-    throw packetError('Invalid scene contract: Date', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract is a Date object']);
+    throw contractError('Invalid scene contract: Date', ['Scene contract is a Date object']);
   }
   const proto = Object.getPrototypeOf(contract);
   if (proto !== Object.prototype && proto !== null) {
-    throw packetError('Invalid scene contract: class instance', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Scene contract is a class instance (${contract.constructor?.name || 'unknown'})`]);
+    throw contractError('Invalid scene contract: non-plain object', ['Scene contract has a custom prototype (class instance)']);
   }
 
-  // Check root keys via descriptors
-  const rootKeys = Reflect.ownKeys(contract);
-  for (const k of rootKeys) {
-    if (typeof k === 'symbol') {
-      throw packetError('Symbol-keyed property on contract', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Contract has a symbol-keyed property: ${String(k)}`]);
-    }
-    const desc = Object.getOwnPropertyDescriptor(contract, k);
-    if (!desc.enumerable) {
-      throw packetError(`Non-enumerable property on contract: ${k}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Contract has a non-enumerable property: "${k}"`]);
-    }
-    if (desc.get || desc.set) {
-      throw packetError(`Accessor property on contract: ${k}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Contract has an accessor (getter/setter) property: "${k}"`]);
-    }
+  // Full recursive descriptor-safe inspection of the entire contract.
+  // This catches ALL hostile structures before any value is read.
+  contractDescriptorInspect(contract, 'contract', new Set());
+
+  // Deep freeze check (descriptor-safe, rejects accessors)
+  if (!isDeepFrozenSafe(contract, new Set())) {
+    throw contractError('Scene contract is not deeply frozen', ['The supplied scene contract must be deeply frozen (immutable)']);
   }
 
-  // Read authority from descriptors (safe: no getters after check above)
+  // --- Schema validation using only descriptor values (safe after recursive inspection) ---
   const versionDesc = Object.getOwnPropertyDescriptor(contract, 'version');
   if (!versionDesc || versionDesc.value !== 'fiction-scene-contract-v2') {
-    throw packetError('Wrong scene contract version', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Expected version "fiction-scene-contract-v2", got "${versionDesc?.value}"`]);
+    throw contractError('Wrong scene contract version', [`Expected version "fiction-scene-contract-v2", got "${versionDesc?.value}"`]);
   }
 
   const fpDesc = Object.getOwnPropertyDescriptor(contract, 'fingerprint');
   if (!fpDesc || typeof fpDesc.value !== 'string' || !fpDesc.value) {
-    throw packetError('Scene contract missing fingerprint', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract fingerprint is missing or not a string']);
+    throw contractError('Scene contract missing fingerprint', ['Scene contract fingerprint is missing or not a string']);
   }
 
   const cnDesc = Object.getOwnPropertyDescriptor(contract, 'chapterNumber');
   if (!cnDesc) {
-    throw packetError('Scene contract missing chapterNumber', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract chapterNumber is missing']);
+    throw contractError('Scene contract missing chapterNumber', ['Scene contract chapterNumber is missing']);
   }
-  // Legacy createImmutableSceneContract may store chapterNumber: null
-  if (cnDesc.value !== null) {
-    if (typeof cnDesc.value !== 'number' || !Number.isFinite(cnDesc.value) || !Number.isInteger(cnDesc.value) || cnDesc.value <= 0) {
-      throw packetError('Scene contract invalid chapterNumber', 'SCENE_CONTRACT_NOT_IMMUTABLE', [`Scene contract chapterNumber must be null or a finite positive integer, got ${cnDesc.value}`]);
-    }
+  if (typeof cnDesc.value !== 'number' || !Number.isFinite(cnDesc.value) || !Number.isInteger(cnDesc.value) || cnDesc.value <= 0) {
+    throw contractError('Scene contract invalid chapterNumber', [`Scene contract chapterNumber must be a finite positive integer, got ${cnDesc.value}`]);
   }
 
   const beatsDesc = Object.getOwnPropertyDescriptor(contract, 'beats');
   if (!beatsDesc || !Array.isArray(beatsDesc.value)) {
-    throw packetError('Scene contract missing beats array', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['Scene contract beats is missing or not an array']);
+    throw contractError('Scene contract missing beats array', ['Scene contract beats is missing or not an array']);
   }
 
   const beats = beatsDesc.value;
   for (let i = 0; i < beats.length; i++) {
-    // Read beat from array descriptor
     const beatDesc = Object.getOwnPropertyDescriptor(beats, i);
-    if (!beatDesc) {
-      throw packetError(`Sparse beats array at index ${i}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is missing (sparse array)`]);
-    }
-    if (beatDesc.get || beatDesc.set) {
-      throw packetError(`Accessor at beats[${i}]`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] has an accessor (getter/setter) property`]);
+    // After recursive inspection, these are guaranteed to be data descriptors,
+    // but we verify for defense-in-depth.
+    if (!beatDesc || beatDesc.get || beatDesc.set) {
+      throw contractError(`Invalid beat descriptor at ${i}`, [`beats[${i}] has an invalid descriptor`]);
     }
     const b = beatDesc.value;
     if (!b || typeof b !== 'object' || Array.isArray(b)) {
-      throw packetError(`Scene contract beat ${i} is not a plain object`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is not a valid plain object`]);
+      throw contractError(`Scene contract beat ${i} is not a plain object`, [`beats[${i}] is not a valid plain object`]);
     }
     const beatProto = Object.getPrototypeOf(b);
     if (beatProto !== Object.prototype && beatProto !== null) {
-      throw packetError(`Scene contract beat ${i} is a class instance`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is a class instance (${b.constructor?.name || 'unknown'})`]);
-    }
-    if (b instanceof Date) {
-      throw packetError(`Scene contract beat ${i} is a Date`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] is a Date object`]);
+      throw contractError(`Scene contract beat ${i} has custom prototype`, [`beats[${i}] has a custom prototype`]);
     }
 
-    // Check beat keys via descriptors
+    // Check beat keys via descriptors (non-enumerable rejection)
     const beatKeys = Reflect.ownKeys(b);
     for (const k of beatKeys) {
-      if (typeof k === 'symbol') {
-        throw packetError(`Symbol-keyed property on beat ${i}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] has a symbol-keyed property: ${String(k)}`]);
-      }
+      if (typeof k === 'symbol') throw contractError(`Symbol on beat ${i}`, [`beats[${i}] has a symbol-keyed property: ${String(k)}`]);
       const bkDesc = Object.getOwnPropertyDescriptor(b, k);
-      if (bkDesc.get || bkDesc.set) {
-        throw packetError(`Accessor property on beat ${i}: ${k}`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}] has an accessor property: "${k}"`]);
-      }
+      if (!bkDesc.enumerable) throw contractError(`Non-enumerable on beat ${i}: ${k}`, [`beats[${i}] has a non-enumerable property: "${k}"`]);
+      if (bkDesc.get || bkDesc.set) throw contractError(`Accessor on beat ${i}: ${k}`, [`beats[${i}] has an accessor property: "${k}"`]);
     }
 
-    // Read beat authority from descriptors
+    // Schema: scene_number required as finite positive integer number
+    const snDesc = Object.getOwnPropertyDescriptor(b, 'scene_number');
+    if (!snDesc) {
+      throw contractError(`Scene contract beat ${i} missing scene_number`, [`beats[${i}].scene_number is required`]);
+    }
+    if (typeof snDesc.value !== 'number') {
+      throw contractError(`Scene contract beat ${i} scene_number not a number`, [`beats[${i}].scene_number must be a number, got ${typeof snDesc.value}`]);
+    }
+    if (!Number.isFinite(snDesc.value) || !Number.isInteger(snDesc.value) || snDesc.value <= 0) {
+      throw contractError(`Scene contract beat ${i} invalid scene_number`, [`beats[${i}].scene_number must be a finite positive integer, got ${snDesc.value}`]);
+    }
+
     const sidDesc = Object.getOwnPropertyDescriptor(b, 'scene_id');
     if (!sidDesc || typeof sidDesc.value !== 'string' || sidDesc.value.trim() === '') {
-      throw packetError(`Scene contract beat ${i} invalid scene_id`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_id is missing, not a string, or empty`]);
-    }
-    const snDesc = Object.getOwnPropertyDescriptor(b, 'scene_number');
-    if (snDesc) {
-      const sn = snDesc.value;
-      if (typeof sn !== 'number' && typeof sn !== 'string') {
-        throw packetError(`Scene contract beat ${i} invalid scene_number`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_number must be a number or numeric string, got ${typeof sn}`]);
-      }
-      const numSn = Number(sn);
-      if (!Number.isFinite(numSn) || !Number.isInteger(numSn) || numSn <= 0) {
-        throw packetError(`Scene contract beat ${i} invalid scene_number value`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_number must resolve to a finite positive integer, got ${sn}`]);
-      }
+      throw contractError(`Scene contract beat ${i} invalid scene_id`, [`beats[${i}].scene_id is missing, not a string, or empty`]);
     }
     const sgDesc = Object.getOwnPropertyDescriptor(b, 'scene_goal');
     if (!sgDesc || typeof sgDesc.value !== 'string' || sgDesc.value.trim() === '') {
-      throw packetError(`Scene contract beat ${i} invalid scene_goal`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].scene_goal is missing, not a string, or empty`]);
+      throw contractError(`Scene contract beat ${i} invalid scene_goal`, [`beats[${i}].scene_goal is missing, not a string, or empty`]);
     }
     const esDesc = Object.getOwnPropertyDescriptor(b, 'entry_state');
     if (!esDesc || typeof esDesc.value !== 'string' || esDesc.value.trim() === '') {
-      throw packetError(`Scene contract beat ${i} invalid entry_state`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].entry_state is missing, not a string, or empty`]);
+      throw contractError(`Scene contract beat ${i} invalid entry_state`, [`beats[${i}].entry_state is missing, not a string, or empty`]);
     }
     const exDesc = Object.getOwnPropertyDescriptor(b, 'exit_state');
     if (!exDesc || typeof exDesc.value !== 'string' || exDesc.value.trim() === '') {
-      throw packetError(`Scene contract beat ${i} invalid exit_state`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].exit_state is missing, not a string, or empty`]);
+      throw contractError(`Scene contract beat ${i} invalid exit_state`, [`beats[${i}].exit_state is missing, not a string, or empty`]);
     }
-    // required_events must be a string array
+
+    // required_events: array of nonempty strings, read via descriptors
     const reDesc = Object.getOwnPropertyDescriptor(b, 'required_events');
     if (!reDesc || !Array.isArray(reDesc.value)) {
-      throw packetError(`Scene contract beat ${i} required_events not array`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].required_events is not an array`]);
+      throw contractError(`Beat ${i} required_events not array`, [`beats[${i}].required_events is not an array`]);
     }
     for (let j = 0; j < reDesc.value.length; j++) {
-      if (typeof reDesc.value[j] !== 'string') {
-        throw packetError(`Scene contract beat ${i} required_events[${j}] not string`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].required_events[${j}] must be a string, got ${typeof reDesc.value[j]}`]);
-      }
+      const elDesc = Object.getOwnPropertyDescriptor(reDesc.value, j);
+      if (!elDesc || elDesc.get || elDesc.set) throw contractError(`Accessor at beats[${i}].required_events[${j}]`, [`beats[${i}].required_events[${j}] has an invalid descriptor`]);
+      if (typeof elDesc.value !== 'string') throw contractError(`Beat ${i} required_events[${j}] not string`, [`beats[${i}].required_events[${j}] must be a string, got ${typeof elDesc.value}`]);
+      if (elDesc.value.trim() === '') throw contractError(`Beat ${i} required_events[${j}] empty`, [`beats[${i}].required_events[${j}] is empty`]);
     }
-    // forbidden_events must be a string array
+
+    // forbidden_events: array of nonempty strings, read via descriptors
     const feDesc = Object.getOwnPropertyDescriptor(b, 'forbidden_events');
     if (!feDesc || !Array.isArray(feDesc.value)) {
-      throw packetError(`Scene contract beat ${i} forbidden_events not array`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].forbidden_events is not an array`]);
+      throw contractError(`Beat ${i} forbidden_events not array`, [`beats[${i}].forbidden_events is not an array`]);
     }
     for (let j = 0; j < feDesc.value.length; j++) {
-      if (typeof feDesc.value[j] !== 'string') {
-        throw packetError(`Scene contract beat ${i} forbidden_events[${j}] not string`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].forbidden_events[${j}] must be a string, got ${typeof feDesc.value[j]}`]);
-      }
+      const felDesc = Object.getOwnPropertyDescriptor(feDesc.value, j);
+      if (!felDesc || felDesc.get || felDesc.set) throw contractError(`Accessor at beats[${i}].forbidden_events[${j}]`, [`beats[${i}].forbidden_events[${j}] has an invalid descriptor`]);
+      if (typeof felDesc.value !== 'string') throw contractError(`Beat ${i} forbidden_events[${j}] not string`, [`beats[${i}].forbidden_events[${j}] must be a string, got ${typeof felDesc.value}`]);
+      if (felDesc.value.trim() === '') throw contractError(`Beat ${i} forbidden_events[${j}] empty`, [`beats[${i}].forbidden_events[${j}] is empty`]);
     }
-    // continuity_dependencies must be a string array if present
-    const cdDesc = Object.getOwnPropertyDescriptor(b, 'continuity_dependencies');
-    if (cdDesc) {
-      if (!Array.isArray(cdDesc.value)) {
-        throw packetError(`Scene contract beat ${i} continuity_dependencies not array`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].continuity_dependencies is not an array`]);
-      }
-      for (let j = 0; j < cdDesc.value.length; j++) {
-        if (typeof cdDesc.value[j] !== 'string') {
-          throw packetError(`Scene contract beat ${i} continuity_dependencies[${j}] not string`, 'SCENE_CONTRACT_NOT_IMMUTABLE', [`beats[${i}].continuity_dependencies[${j}] must be a string, got ${typeof cdDesc.value[j]}`]);
-        }
-      }
-    }
-  }
 
-  // Deep freeze check (descriptor-safe)
-  if (!isDeepFrozenSafe(contract, new Set())) {
-    throw packetError('Scene contract is not deeply frozen', 'SCENE_CONTRACT_NOT_IMMUTABLE', ['The supplied scene contract must be deeply frozen (immutable)']);
+    // continuity_dependencies: required array of nonempty strings
+    const cdDesc = Object.getOwnPropertyDescriptor(b, 'continuity_dependencies');
+    if (!cdDesc || !Array.isArray(cdDesc.value)) {
+      throw contractError(`Beat ${i} continuity_dependencies not array`, [`beats[${i}].continuity_dependencies is required and must be an array`]);
+    }
+    for (let j = 0; j < cdDesc.value.length; j++) {
+      const cdelDesc = Object.getOwnPropertyDescriptor(cdDesc.value, j);
+      if (!cdelDesc || cdelDesc.get || cdelDesc.set) throw contractError(`Accessor at beats[${i}].continuity_dependencies[${j}]`, [`beats[${i}].continuity_dependencies[${j}] has an invalid descriptor`]);
+      if (typeof cdelDesc.value !== 'string') throw contractError(`Beat ${i} continuity_dependencies[${j}] not string`, [`beats[${i}].continuity_dependencies[${j}] must be a string, got ${typeof cdelDesc.value}`]);
+      if (cdelDesc.value.trim() === '') throw contractError(`Beat ${i} continuity_dependencies[${j}] empty`, [`beats[${i}].continuity_dependencies[${j}] is empty`]);
+    }
   }
 }
 
@@ -1121,7 +1212,7 @@ function _validatePacketInner(packet, immutableSceneContract) {
   }
   const packetProto = Object.getPrototypeOf(packet);
   if (packetProto !== Object.prototype && packetProto !== null) {
-    throw packetError('Invalid packet root: class instance', 'INVALID_PACKET', [`Packet root is a class instance (${packet.constructor?.name || 'unknown'})`]);
+    throw packetError('Invalid packet root: class instance', 'INVALID_PACKET', ['Packet root is a non-plain object (custom prototype)']);
   }
   descriptorSafeInspect(packet, 'packet', new Set());
 
@@ -1290,13 +1381,16 @@ function _validatePacketInner(packet, immutableSceneContract) {
   const requiredEvents = packet.required_events;
   const beatEvents = Array.isArray(beat.required_events) ? beat.required_events : [];
   if (requiredEvents.length !== beatEvents.length) throw packetError('Required events count mismatch', 'REQUIRED_EVENTS_MISMATCH', [`Expected ${beatEvents.length} required events, got ${requiredEvents.length}`]);
+  // Duplicate ID detection FIRST (before text or deterministic-ID comparison)
   const reqEventIds = new Set();
+  for (let i = 0; i < requiredEvents.length; i++) {
+    if (reqEventIds.has(requiredEvents[i].event_id)) throw packetError('Duplicate required event ID', 'DUPLICATE_EVENT_ID', [`Duplicate required event_id "${requiredEvents[i].event_id}"`]);
+    reqEventIds.add(requiredEvents[i].event_id);
+  }
   for (let i = 0; i < requiredEvents.length; i++) {
     if (text(requiredEvents[i].text) !== text(beatEvents[i])) throw packetError('Required event text mismatch', 'REQUIRED_EVENTS_MISMATCH', [`Required event ${i + 1} text does not match contract`]);
     const expectedId = generateDeterministicEventId(packet.project_id, packet.chapter_id, packet.scene_id, 'required', i + 1, beatEvents[i]);
     if (requiredEvents[i].event_id !== expectedId) throw packetError('Event ID mismatch', 'EVENT_ID_MISMATCH', [`Required event ${i + 1} event_id does not match deterministic derivation`]);
-    if (reqEventIds.has(requiredEvents[i].event_id)) throw packetError('Duplicate required event ID', 'DUPLICATE_EVENT_ID', [`Duplicate required event_id "${requiredEvents[i].event_id}"`]);
-    reqEventIds.add(requiredEvents[i].event_id);
   }
 
   // ── Forbidden events ──
