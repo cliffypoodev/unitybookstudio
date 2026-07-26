@@ -43,6 +43,12 @@ import {
   isSceneExecutionShadowEnabled,
   PACKET_LIMITS,
 } from '../src/lib/generationContext.js';
+import {
+  isSceneExecutionLiveCanaryEnabled,
+  runSceneExecutionLiveCanary,
+  SCENE_EXECUTION_LIVE_CANARY_FEATURE,
+  SCENE_EXECUTION_LIVE_CANARY_VERSION,
+} from '../src/lib/sceneExecutionLiveCanary.js';
 let passed = 0;
 const skipWiring = process.env.UBS_SKIP_WIRING === '1';
 function test(name, fn) {
@@ -5707,6 +5713,363 @@ await test('Stage 7 remains offline, default-off, and disconnected from writer a
   assert.equal(SCENE_EXECUTION_CANARY_TRIAL_FEATURE.defaultEnabled, false);
   assert.equal(
     SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.defaultEnabled,
+    false
+  );
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 8 — One real local llama.cpp paired trial (six-gated, test-only)
+// ═══════════════════════════════════════════════════════════════════════
+
+const STAGE8_LEGACY_PROSE = [
+  'Hero gripped the brass latch while the old door trembled in its frame.',
+  'He opened the locked room and crossed the threshold into the dust.',
+  'Cold air pressed against him, but he kept the latch in his hand and stood inside.',
+  'Before stopping, he lifted the chest lid and found the sealed letter waiting beneath a strip of faded cloth.',
+  'The discovery pulled him farther into the room than he had intended to go.',
+].join(' ');
+
+const STAGE8_CANARY_PROSE = [
+  'Hero closed his fingers around the brass latch and felt its worn edge bite his palm.',
+  'The locked door resisted once, then yielded when he turned the latch and leaned into the wood.',
+  'He opened the room without releasing the small brass piece.',
+  'Dust shifted across the floor beyond the threshold.',
+  'He stepped through, stopped inside, and listened to the quiet settle around him.',
+  'Nothing moved behind him, and he let the door rest open at his back.',
+].join(' ');
+
+function makeStage8Flags(overrides = {}) {
+  return {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key]: true,
+    [SCENE_EXECUTION_LIVE_CANARY_FEATURE.key]: true,
+    ...overrides,
+  };
+}
+
+function makeStage8Fetch(options = {}) {
+  const requests = [];
+  let completionCount = 0;
+  const fetchImpl = async (url, request = {}) => {
+    requests.push({ url: String(url), request });
+    if (String(url).endsWith('/models')) {
+      if (options.modelsHttpError) {
+        return {
+          ok: false,
+          status: 503,
+          json: async () => ({}),
+        };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          data: (options.models || ['qwen3.6-35b-uncensored']).map((id) => ({
+            id,
+          })),
+        }),
+      };
+    }
+    completionCount += 1;
+    const body = JSON.parse(request.body);
+    const isCanary = body.messages[0].content.includes(
+      '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>'
+    );
+    const responseModels =
+      options.responseModels || [
+        body.model,
+        body.model,
+      ];
+    const content = options.emptyOutput
+      ? ''
+      : isCanary
+        ? options.canaryProse || STAGE8_CANARY_PROSE
+        : options.legacyProse || STAGE8_LEGACY_PROSE;
+    return {
+      ok: options.completionHttpError ? false : true,
+      status: options.completionHttpError ? 500 : 200,
+      json: options.malformedJson
+        ? async () => {
+            throw new SyntaxError('malformed');
+          }
+        : async () => ({
+            model: responseModels[completionCount - 1],
+            choices: [{ message: { content } }],
+          }),
+    };
+  };
+  return { fetchImpl, requests };
+}
+
+function makeStage8RunInput(overrides = {}) {
+  const fake = overrides.fake || makeStage8Fetch(overrides.fetchOptions);
+  return {
+    input: {
+      integration: {
+        flags: overrides.flags || makeStage8Flags(),
+        mode: 'test-only-local-llama-paired-evaluation',
+        runId: 'live-ch01-s02-test-001',
+        endpoint: 'http://127.0.0.1:8080/v1',
+        ...(overrides.integration || {}),
+      },
+      fetchImpl: fake.fetchImpl,
+    },
+    fake,
+  };
+}
+
+await test('Stage 8 live-canary feature metadata is immutable, own-data-only, and default-disabled', () => {
+  assert.equal(
+    SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
+    'scene_execution_live_canary_v1'
+  );
+  assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
+  assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
+  assert.equal(isSceneExecutionLiveCanaryEnabled(), false);
+  assert.equal(isSceneExecutionLiveCanaryEnabled({}), false);
+  assert.equal(
+    isSceneExecutionLiveCanaryEnabled({
+      [SCENE_EXECUTION_LIVE_CANARY_FEATURE.key]: true,
+    }),
+    true
+  );
+});
+
+await test('Stage 8 executes exactly one matched live legacy-canary pair and holds rollout', async () => {
+  const { input, fake } = makeStage8RunInput();
+  const result = await runSceneExecutionLiveCanary(input);
+  assert.equal(fake.requests.length, 3, 'one discovery plus two model calls');
+  assert.equal(
+    result.attestation.live_canary_version,
+    SCENE_EXECUTION_LIVE_CANARY_VERSION
+  );
+  assert.equal(result.attestation.request_count, 2);
+  assert.equal(result.attestation.live_model_evidence_satisfied, true);
+  assert.equal(result.attestation.mechanical_outcome, 'canary-improvement-signal');
+  assert.equal(result.attestation.broader_rollout_supported, false);
+  assert.equal(result.attestation.manual_quality_review_required, true);
+  assert.equal(result.attestation.rollout_decision, 'hold');
+  assert.equal(result.attestation.raw_content_included, false);
+  assert.ok(Object.isFrozen(result));
+  assert.ok(Object.isFrozen(result.attestation));
+});
+
+await test('Stage 8 sends byte-matched model settings and changes only the paired prompt', async () => {
+  const { input, fake } = makeStage8RunInput();
+  await runSceneExecutionLiveCanary(input);
+  const legacyBody = JSON.parse(fake.requests[1].request.body);
+  const canaryBody = JSON.parse(fake.requests[2].request.body);
+  assert.equal(legacyBody.model, canaryBody.model);
+  assert.equal(legacyBody.seed, canaryBody.seed);
+  assert.equal(legacyBody.temperature, canaryBody.temperature);
+  assert.equal(legacyBody.max_tokens, canaryBody.max_tokens);
+  assert.deepEqual(
+    legacyBody.chat_template_kwargs,
+    canaryBody.chat_template_kwargs
+  );
+  assert.equal(
+    legacyBody.messages[0].content.includes(
+      '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>'
+    ),
+    false
+  );
+  assert.equal(
+    canaryBody.messages[0].content.match(
+      /<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>/g
+    )?.length,
+    1
+  );
+  assert.equal(
+    canaryBody.messages[0].content.match(
+      /<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>/g
+    )?.length,
+    1
+  );
+});
+
+await test('Stage 8 selects an explicitly requested loaded model', async () => {
+  const fake = makeStage8Fetch({ models: ['model-a', 'model-b'] });
+  const { input } = makeStage8RunInput({
+    fake,
+    integration: { model: 'model-b' },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+  assert.equal(result.attestation.selected_model, 'model-b');
+  assert.equal(result.attestation.response_model, 'model-b');
+});
+
+await test('Stage 8 refuses ambiguous model discovery instead of guessing', async () => {
+  const { input, fake } = makeStage8RunInput({
+    fetchOptions: { models: ['model-a', 'model-b'] },
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(input),
+    (error) =>
+      error.code === 'SCENE_EXECUTION_LIVE_CANARY_MODEL_AMBIGUOUS'
+  );
+  assert.equal(fake.requests.length, 1, 'no model call may occur');
+});
+
+await test('Stage 8 refuses a requested model that llama.cpp did not report', async () => {
+  const { input, fake } = makeStage8RunInput({
+    fetchOptions: { models: ['model-a'] },
+    integration: { model: 'missing-model' },
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(input),
+    (error) =>
+      error.code === 'SCENE_EXECUTION_LIVE_CANARY_MODEL_UNAVAILABLE'
+  );
+  assert.equal(fake.requests.length, 1, 'no model call may occur');
+});
+
+await test('Stage 8 is loopback-only and rejects remote endpoints before fetch', async () => {
+  const { input, fake } = makeStage8RunInput({
+    integration: { endpoint: 'https://example.com/v1' },
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(input),
+    (error) =>
+      error.code === 'INVALID_SCENE_EXECUTION_LIVE_CANARY_ENDPOINT'
+  );
+  assert.equal(fake.requests.length, 0);
+});
+
+await test('Stage 8 requires its sixth gate and every prior gate before fetch', async () => {
+  const disabled = makeStage8RunInput({
+    flags: makeStage8Flags({
+      [SCENE_EXECUTION_LIVE_CANARY_FEATURE.key]: false,
+    }),
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(disabled.input),
+    (error) => error.code === 'SCENE_EXECUTION_LIVE_CANARY_DISABLED'
+  );
+  assert.equal(disabled.fake.requests.length, 0);
+
+  const missingPrior = makeStage8RunInput();
+  delete missingPrior.input.integration.flags[
+    SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key
+  ];
+  await assert.rejects(
+    runSceneExecutionLiveCanary(missingPrior.input),
+    (error) =>
+      error.code === 'SCENE_EXECUTION_LIVE_CANARY_PRIOR_GATE_DISABLED'
+  );
+  assert.equal(missingPrior.fake.requests.length, 0);
+});
+
+await test('Stage 8 rejects inherited and accessor gates without invoking them', async () => {
+  const inherited = makeStage8RunInput({
+    flags: Object.create(makeStage8Flags()),
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(inherited.input),
+    (error) => error.code === 'INVALID_SCENE_EXECUTION_LIVE_CANARY_INPUT'
+  );
+  assert.equal(inherited.fake.requests.length, 0);
+
+  let invoked = 0;
+  const accessorFlags = makeStage8Flags();
+  Object.defineProperty(
+    accessorFlags,
+    SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
+    {
+      get() {
+        invoked += 1;
+        return true;
+      },
+      enumerable: true,
+      configurable: true,
+    }
+  );
+  const accessor = makeStage8RunInput({ flags: accessorFlags });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(accessor.input),
+    (error) => error.code === 'INVALID_SCENE_EXECUTION_LIVE_CANARY_INPUT'
+  );
+  assert.equal(invoked, 0);
+  assert.equal(accessor.fake.requests.length, 0);
+});
+
+await test('Stage 8 fails closed on discovery, HTTP, and malformed-JSON failures', async () => {
+  const discovery = makeStage8RunInput({
+    fetchOptions: { modelsHttpError: true },
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(discovery.input),
+    (error) =>
+      error.code === 'SCENE_EXECUTION_LIVE_CANARY_MODEL_DISCOVERY_FAILED'
+  );
+
+  const completion = makeStage8RunInput({
+    fetchOptions: { completionHttpError: true },
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(completion.input),
+    (error) =>
+      error.code === 'SCENE_EXECUTION_LIVE_CANARY_MODEL_CALL_FAILED'
+  );
+
+  const malformed = makeStage8RunInput({
+    fetchOptions: { malformedJson: true },
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(malformed.input),
+    (error) =>
+      error.code === 'SCENE_EXECUTION_LIVE_CANARY_MODEL_CALL_FAILED'
+  );
+});
+
+await test('Stage 8 rejects empty live output and emits no attestation', async () => {
+  const { input } = makeStage8RunInput({
+    fetchOptions: { emptyOutput: true },
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(input),
+    (error) => error.code === 'SCENE_EXECUTION_LIVE_CANARY_EMPTY_OUTPUT'
+  );
+});
+
+await test('Stage 8 rejects a response-model change between paired calls', async () => {
+  const { input } = makeStage8RunInput({
+    fetchOptions: { responseModels: ['model-a', 'model-b'] },
+    integration: { model: 'qwen3.6-35b-uncensored' },
+  });
+  await assert.rejects(
+    runSceneExecutionLiveCanary(input),
+    (error) => error.code === 'SCENE_EXECUTION_LIVE_CANARY_MODEL_MISMATCH'
+  );
+});
+
+await test('Stage 8 keeps raw prompts and prose out of attestation and remains disconnected from writer and UI', async () => {
+  const { input } = makeStage8RunInput();
+  const result = await runSceneExecutionLiveCanary(input);
+  const serializedAttestation = JSON.stringify(result.attestation);
+  assert.equal(serializedAttestation.includes(STAGE8_LEGACY_PROSE), false);
+  assert.equal(serializedAttestation.includes(STAGE8_CANARY_PROSE), false);
+  assert.equal(
+    serializedAttestation.includes('Write one finished fiction scene'),
+    false
+  );
+  assert.equal(
+    result.localReview.legacy.accepted_prose,
+    STAGE8_LEGACY_PROSE
+  );
+  assert.equal(
+    result.localReview.canary.accepted_prose,
+    STAGE8_CANARY_PROSE
+  );
+  const writer = fs.readFileSync('src/lib/sceneWriter.js', 'utf8');
+  const projectStudio = fs.readFileSync('src/pages/ProjectStudio.jsx', 'utf8');
+  assert.equal(writer.includes('runSceneExecutionLiveCanary'), false);
+  assert.equal(writer.includes('sceneExecutionLiveCanary'), false);
+  assert.equal(projectStudio.includes('sceneExecutionLiveCanary'), false);
+  assert.equal(
+    projectStudio.includes(SCENE_EXECUTION_LIVE_CANARY_FEATURE.key),
     false
   );
 });
