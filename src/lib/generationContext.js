@@ -11,13 +11,13 @@
 
 export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
-export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v6';
+export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v7';
 export const SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION = 'scene-execution-shadow-integration-v1';
-export const SCENE_EXECUTION_PROMPT_CANARY_VERSION = 'scene-execution-prompt-canary-v1';
+export const SCENE_EXECUTION_PROMPT_CANARY_VERSION = 'scene-execution-prompt-canary-v2';
 export const SCENE_EXECUTION_CANARY_TRIAL_VERSION = 'scene-execution-canary-trial-v1';
-export const SCENE_EXECUTION_CANARY_EVIDENCE_VERSION = 'scene-execution-canary-evidence-v1';
+export const SCENE_EXECUTION_CANARY_EVIDENCE_VERSION = 'scene-execution-canary-evidence-v2';
 export const SCENE_EXECUTION_LEGACY_EVIDENCE_VERSION = 'scene-execution-legacy-evidence-v1';
-export const SCENE_EXECUTION_CANARY_COMPARISON_VERSION = 'scene-execution-canary-comparison-v1';
+export const SCENE_EXECUTION_CANARY_COMPARISON_VERSION = 'scene-execution-canary-comparison-v2';
 
 export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
   key: 'scene_context_composer_v1',
@@ -30,7 +30,7 @@ export const SCENE_EXECUTION_SHADOW_FEATURE = Object.freeze({
 });
 
 export const SCENE_EXECUTION_PROMPT_CANARY_FEATURE = Object.freeze({
-  key: 'scene_execution_prompt_canary_v1',
+  key: 'scene_execution_prompt_canary_v2',
   defaultEnabled: false,
 });
 
@@ -40,7 +40,7 @@ export const SCENE_EXECUTION_CANARY_TRIAL_FEATURE = Object.freeze({
 });
 
 export const SCENE_EXECUTION_CANARY_COMPARISON_FEATURE = Object.freeze({
-  key: 'scene_execution_canary_comparison_v1',
+  key: 'scene_execution_canary_comparison_v2',
   defaultEnabled: false,
 });
 
@@ -2044,7 +2044,7 @@ export function renderSceneExecutionPromptProjection(input) {
     },
     final_output_contract: {
       minimum_word_count: 0,
-      requested_word_target_is_nonbinding: true,
+      requested_word_target_present: false,
       unlisted_concrete_fact_budget: 0,
       required_sequence: [
         validatedPacket.entry_state,
@@ -2055,13 +2055,13 @@ export function renderSceneExecutionPromptProjection(input) {
       continuity_to_preserve:
         validatedPacket.continuity_dependencies.slice(),
       instruction:
-        `There is no minimum word count. Use only the listed scene authority to enact required_sequence in order. End the response the first time "${validatedPacket.exit_state}" is established, even if the response is shorter than an earlier requested target. Emit no words after the sentence that establishes it.`,
+        `No word-count target applies. Use only the listed scene authority to enact required_sequence in order. End the response the first time "${validatedPacket.exit_state}" is established. Emit no words after the sentence that establishes it.`,
     },
   };
 
   return [
     '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>',
-    'Current-scene authority only. final_output_contract is the controlling last instruction and must be followed literally. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. Exit-state attainment begins at the first clause that establishes the exit-state transition; never postpone the boundary to a later restatement. If the exit state places someone inside a location, entering it or crossing its threshold already attains that state. End that same sentence after only the minimum required continuity confirmation; do not describe or inventory the destination, move farther, look around, react, or close the door afterward. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.',
+    'Current-scene authority only. final_output_contract is the controlling last instruction and must be followed literally. No word-count target is present or valid in this canary prompt. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. Exit-state attainment begins at the first clause that establishes the exit-state transition; never postpone the boundary to a later restatement. If the exit state places someone inside a location, entering it or crossing its threshold already attains that state. End that same sentence after only the minimum required continuity confirmation; do not describe or inventory the destination, move farther, look around, react, or close the door afterward. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.',
     JSON.stringify(projection, null, 2),
     '<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>',
   ].join('\n');
@@ -2261,7 +2261,10 @@ export function prepareSceneExecutionShadowIntegration(input) {
 // The canary is the first controlled use of a validated prompt projection.
 // It accepts only a branded Stage 4 shadow state, requires a third independent
 // default-off feature flag, and may target exactly one immutable-contract
-// scene. Every other scene receives its original prompt byte-for-byte.
+// scene. Every other scene receives its original prompt byte-for-byte. For the
+// selected scene only, recognized scene-length directives are removed before
+// the authority projection is appended so the model never receives two
+// incompatible completion conditions.
 
 const PROMPT_CANARY_REQUEST_KEYS = new Set([
   'integration',
@@ -2282,6 +2285,49 @@ const PROMPT_CANARY_APPLY_KEYS = new Set([
 
 const verifiedSceneExecutionPromptCanaryStates = new WeakSet();
 const verifiedSceneExecutionPromptCanaryResults = new WeakSet();
+
+const FULL_LINE_SCENE_WORD_TARGET_PATTERNS = Object.freeze([
+  /^\s*-?\s*Target\s+length\s*:\s*(?:approximately\s+)?\d[\d,]*(?:\s*(?:-|–|—|to)\s*\d[\d,]*)?\s+words?\.?\s*$/i,
+  /^\s*-\s*(?:Target|Aim\s+for|Hit)\s+(?:approximately\s+)?\d[\d,]*(?:\s*(?:-|–|—|to)\s*\d[\d,]*)?\s+words?\.?\s*$/i,
+]);
+const INLINE_SCENE_WORD_TARGET_PATTERN =
+  /\s+Target\s+length\s*:\s*(?:approximately\s+)?\d[\d,]*(?:\s*(?:-|–|—|to)\s*\d[\d,]*)?\s+words?\.(?=\s|$)/gi;
+const RESIDUAL_SCENE_WORD_TARGET_PATTERN =
+  /\b(?:Target(?:\s+length)?|Aim\s+for|Hit)\b[^\n]{0,40}\b\d[\d,]*(?:\s*(?:-|–|—|to)\s*\d[\d,]*)?\s+words?\b/i;
+
+function removeSceneWordTargetDirectives(prompt) {
+  let removed = 0;
+  const rewrittenLines = prompt.split('\n').flatMap((line) => {
+    if (
+      FULL_LINE_SCENE_WORD_TARGET_PATTERNS.some((pattern) =>
+        pattern.test(line)
+      )
+    ) {
+      removed += 1;
+      return [];
+    }
+    const rewritten = line.replace(
+      INLINE_SCENE_WORD_TARGET_PATTERN,
+      () => {
+        removed += 1;
+        return '';
+      }
+    );
+    return [rewritten.replace(/[ \t]+(?=\r?$)/, '')];
+  });
+  const rewrittenPrompt = rewrittenLines.join('\n');
+  if (RESIDUAL_SCENE_WORD_TARGET_PATTERN.test(rewrittenPrompt)) {
+    throw composerError(
+      'Scene execution prompt canary contains an unsupported word target',
+      'SCENE_EXECUTION_PROMPT_CANARY_WORD_TARGET_CONFLICT',
+      ['The selected scene prompt must not send any numeric word target to the model; add the directive shape to the deterministic canary rewrite before testing it']
+    );
+  }
+  return {
+    prompt: rewrittenPrompt,
+    removed_word_target_directive_count: removed,
+  };
+}
 
 function finalizeSceneExecutionPromptCanaryState(state) {
   const frozen = deepFreeze(state);
@@ -2521,6 +2567,7 @@ export function applySceneExecutionPromptCanary(input) {
     );
   }
 
+  const rewrittenBase = removeSceneWordTargetDirectives(prompt);
   return finalizeSceneExecutionPromptCanaryResult({
     integration_version: SCENE_EXECUTION_PROMPT_CANARY_VERSION,
     enabled: true,
@@ -2529,7 +2576,11 @@ export function applySceneExecutionPromptCanary(input) {
     target_scene_id: state.target_scene_id,
     scene_id: sceneId,
     packet_id: state.packet_id,
-    prompt: `${prompt}\n\n${state.projection}`,
+    source_prompt_fingerprint: hashText(prompt),
+    canary_base_prompt_fingerprint: hashText(rewrittenBase.prompt),
+    removed_word_target_directive_count:
+      rewrittenBase.removed_word_target_directive_count,
+    prompt: `${rewrittenBase.prompt}\n\n${state.projection}`,
   });
 }
 
@@ -2936,22 +2987,30 @@ export function collectSceneExecutionCanaryEvidence(input) {
       ['sceneExecutionCanaryEvidence.issues may contain only strings']
     );
   }
+  const rewrittenBase = removeSceneWordTargetDirectives(basePrompt);
   if (
     promptCanaryResult.prompt !== modelPrompt ||
-    !modelPrompt.startsWith(`${basePrompt}\n\n`) ||
+    promptCanaryResult.source_prompt_fingerprint !== hashText(basePrompt) ||
+    promptCanaryResult.canary_base_prompt_fingerprint !==
+      hashText(rewrittenBase.prompt) ||
+    promptCanaryResult.removed_word_target_directive_count !==
+      rewrittenBase.removed_word_target_directive_count ||
+    !modelPrompt.startsWith(`${rewrittenBase.prompt}\n\n`) ||
     countMarker(basePrompt, CANARY_AUTHORITY_BEGIN) !== 0 ||
     countMarker(basePrompt, CANARY_AUTHORITY_END) !== 0 ||
     countMarker(modelPrompt, CANARY_AUTHORITY_BEGIN) !== 1 ||
     countMarker(modelPrompt, CANARY_AUTHORITY_END) !== 1
   ) {
     throw composerError(
-      'Canary evidence cannot prove one exact authority injection',
+      'Canary evidence cannot prove one exact rewrite and authority injection',
       'SCENE_EXECUTION_CANARY_EVIDENCE_PROMPT_MISMATCH',
-      ['The model prompt must be the verified canary result, preserve the base prompt as an exact prefix, and contain exactly one matched authority marker pair']
+      ['The model prompt must be the verified canary result, remove only deterministic scene word-target directives from the source prompt, and contain exactly one matched authority marker pair']
     );
   }
 
-  const authorityProjection = modelPrompt.slice(basePrompt.length + 2);
+  const authorityProjection = modelPrompt.slice(
+    rewrittenBase.prompt.length + 2
+  );
   return finalizeSceneExecutionCanaryEvidenceRecord({
     evidence_version: SCENE_EXECUTION_CANARY_EVIDENCE_VERSION,
     status: 'accepted',
@@ -2964,8 +3023,11 @@ export function collectSceneExecutionCanaryEvidence(input) {
     packet_id: trialState.packet_id,
     source_contract_fingerprint: trialState.source_contract_fingerprint,
     base_prompt_fingerprint: hashText(basePrompt),
+    canary_base_prompt_fingerprint: hashText(rewrittenBase.prompt),
     model_prompt_fingerprint: hashText(modelPrompt),
     authority_projection_fingerprint: hashText(authorityProjection),
+    removed_word_target_directive_count:
+      rewrittenBase.removed_word_target_directive_count,
     accepted_prose_fingerprint: hashText(acceptedProse),
     accepted_word_count: countCanaryEvidenceWords(acceptedProse),
     repaired,
@@ -3413,8 +3475,14 @@ export function evaluateSceneExecutionCanaryComparison(input) {
       canaryEvidence.base_prompt_fingerprint ||
     legacyEvidence.model_prompt_fingerprint !==
       legacyEvidence.base_prompt_fingerprint ||
+    (canaryEvidence.removed_word_target_directive_count === 0 &&
+      canaryEvidence.canary_base_prompt_fingerprint !==
+        canaryEvidence.base_prompt_fingerprint) ||
+    (canaryEvidence.removed_word_target_directive_count > 0 &&
+      canaryEvidence.canary_base_prompt_fingerprint ===
+        canaryEvidence.base_prompt_fingerprint) ||
     canaryEvidence.model_prompt_fingerprint ===
-      canaryEvidence.base_prompt_fingerprint ||
+      canaryEvidence.canary_base_prompt_fingerprint ||
     legacyEvidence.authority_marker_pairs !== 0 ||
     canaryEvidence.authority_marker_pairs !== 1 ||
     legacyEvidence.raw_content_included !== false ||
@@ -3423,7 +3491,7 @@ export function evaluateSceneExecutionCanaryComparison(input) {
     throw composerError(
       'Scene execution canary comparison cannot prove a matched prompt pair',
       'SCENE_EXECUTION_CANARY_COMPARISON_PROMPT_MISMATCH',
-      ['Both paths must share one base-prompt fingerprint; legacy must preserve it exactly with zero authority markers, and canary must contain exactly one authority marker pair']
+      ['Both paths must share one source-prompt fingerprint; legacy must preserve it exactly, while canary may remove only attested scene word-target directives before adding exactly one authority marker pair']
     );
   }
 
@@ -3455,6 +3523,10 @@ export function evaluateSceneExecutionCanaryComparison(input) {
     packet_id: trialState.packet_id,
     source_contract_fingerprint: trialState.source_contract_fingerprint,
     base_prompt_fingerprint: legacyEvidence.base_prompt_fingerprint,
+    canary_base_prompt_fingerprint:
+      canaryEvidence.canary_base_prompt_fingerprint,
+    removed_word_target_directive_count:
+      canaryEvidence.removed_word_target_directive_count,
     legacy_accepted_prose_fingerprint:
       legacyEvidence.accepted_prose_fingerprint,
     canary_accepted_prose_fingerprint:

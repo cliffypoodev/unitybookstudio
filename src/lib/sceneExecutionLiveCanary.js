@@ -17,10 +17,10 @@ import {
 } from './generationContext.js';
 
 export const SCENE_EXECUTION_LIVE_CANARY_VERSION =
-  'scene-execution-live-canary-v6';
+  'scene-execution-live-canary-v7';
 
 export const SCENE_EXECUTION_LIVE_CANARY_FEATURE = Object.freeze({
-  key: 'scene_execution_live_canary_v6',
+  key: 'scene_execution_live_canary_v7',
   defaultEnabled: false,
 });
 
@@ -1066,6 +1066,10 @@ export async function runSceneExecutionLiveCanary(input) {
     legacy_request_fingerprint: legacyRun.request_fingerprint,
     canary_request_fingerprint: canaryRun.request_fingerprint,
     base_prompt_fingerprint: comparison.base_prompt_fingerprint,
+    canary_base_prompt_fingerprint:
+      comparison.canary_base_prompt_fingerprint,
+    removed_word_target_directive_count:
+      comparison.removed_word_target_directive_count,
     legacy_accepted_prose_fingerprint:
       comparison.legacy_accepted_prose_fingerprint,
     canary_accepted_prose_fingerprint:

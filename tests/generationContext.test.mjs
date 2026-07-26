@@ -3540,7 +3540,7 @@ function parsePromptProjection(rendered) {
   );
   assert.equal(
     lines[1],
-    'Current-scene authority only. final_output_contract is the controlling last instruction and must be followed literally. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. Exit-state attainment begins at the first clause that establishes the exit-state transition; never postpone the boundary to a later restatement. If the exit state places someone inside a location, entering it or crossing its threshold already attains that state. End that same sentence after only the minimum required continuity confirmation; do not describe or inventory the destination, move farther, look around, react, or close the door afterward. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.'
+    'Current-scene authority only. final_output_contract is the controlling last instruction and must be followed literally. No word-count target is present or valid in this canary prompt. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. Exit-state attainment begins at the first clause that establishes the exit-state transition; never postpone the boundary to a later restatement. If the exit state places someone inside a location, entering it or crossing its threshold already attains that state. End that same sentence after only the minimum required continuity confirmation; do not describe or inventory the destination, move farther, look around, react, or close the door afterward. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.'
   );
   assert.equal(
     lines.at(-1),
@@ -3617,7 +3617,7 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   );
   assert.equal(
     projection.projection_version,
-    'scene-execution-prompt-projection-v6'
+    'scene-execution-prompt-projection-v7'
   );
   assert.equal(projection.packet_id, input.packet.packet_id);
   assert.deepEqual(projection.scene_identity, {
@@ -3666,7 +3666,7 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   });
   assert.deepEqual(projection.final_output_contract, {
     minimum_word_count: 0,
-    requested_word_target_is_nonbinding: true,
+    requested_word_target_present: false,
     unlisted_concrete_fact_budget: 0,
     required_sequence: [
       'Morning in the village',
@@ -3677,7 +3677,7 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
     terminal_state: 'Hero leaves the house',
     continuity_to_preserve: ['Sword is on the mantle'],
     instruction:
-      'There is no minimum word count. Use only the listed scene authority to enact required_sequence in order. End the response the first time "Hero leaves the house" is established, even if the response is shorter than an earlier requested target. Emit no words after the sentence that establishes it.',
+      'No word-count target applies. Use only the listed scene authority to enact required_sequence in order. End the response the first time "Hero leaves the house" is established. Emit no words after the sentence that establishes it.',
   });
   assert.equal(
     first.includes(
@@ -3687,7 +3687,7 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   );
   assert.equal(
     first.includes(
-      'This boundary outranks every requested word-count target: return fewer words rather than continue past it.'
+      'No word-count target is present or valid in this canary prompt.'
     ),
     true
   );
@@ -3745,8 +3745,8 @@ await test('Stage 3 final output contract makes the hard stop the last structure
   );
   assert.equal(projection.final_output_contract.minimum_word_count, 0);
   assert.equal(
-    projection.final_output_contract.requested_word_target_is_nonbinding,
-    true
+    projection.final_output_contract.requested_word_target_present,
+    false
   );
   assert.equal(
     projection.final_output_contract.unlisted_concrete_fact_budget,
@@ -4394,7 +4394,7 @@ function assertPromptCanaryFailsClosed(label, input, expectedCode) {
 await test('Stage 5 prompt canary feature metadata is immutable and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key,
-    'scene_execution_prompt_canary_v1'
+    'scene_execution_prompt_canary_v2'
   );
   assert.equal(SCENE_EXECUTION_PROMPT_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_PROMPT_CANARY_FEATURE));
@@ -4613,6 +4613,11 @@ await test('Stage 5 prompt canary appends one validated projection without rewri
   assert.equal(result.mode, 'single-scene-canary');
   assert.equal(result.scene_id, 'ch01-s02');
   assert.equal(result.packet_id, state.packet_id);
+  assert.equal(result.removed_word_target_directive_count, 0);
+  assert.equal(
+    result.source_prompt_fingerprint,
+    result.canary_base_prompt_fingerprint
+  );
   assert.equal(result.prompt.startsWith(`${prompt}\n\n`), true);
   assert.equal(result.prompt.slice(prompt.length + 2), state.projection);
   assert.equal(
@@ -4626,6 +4631,89 @@ await test('Stage 5 prompt canary appends one validated projection without rewri
     before,
     snapshotDescriptorSafe(input),
     'prompt canary apply input'
+  );
+});
+
+await test('Stage 5 prompt canary removes the Stage 8 numeric target before authority injection', () => {
+  const state = prepareSceneExecutionPromptCanary(makePromptCanaryInput());
+  const prompt = [
+    'Write one finished fiction scene.',
+    'Target length: 220-320 words.',
+    '',
+    'CURRENT SCENE:',
+    '- End at the contracted exit state.',
+  ].join('\n');
+  const expectedBase = [
+    'Write one finished fiction scene.',
+    '',
+    'CURRENT SCENE:',
+    '- End at the contracted exit state.',
+  ].join('\n');
+  const result = applySceneExecutionPromptCanary({
+    state,
+    prompt,
+    sceneId: 'ch01-s02',
+  });
+
+  assert.equal(result.removed_word_target_directive_count, 1);
+  assert.notEqual(
+    result.source_prompt_fingerprint,
+    result.canary_base_prompt_fingerprint
+  );
+  assert.equal(result.prompt.includes('220-320 words'), false);
+  assert.equal(result.prompt.startsWith(`${expectedBase}\n\n`), true);
+  assert.equal(
+    result.prompt.slice(expectedBase.length + 2),
+    state.projection
+  );
+});
+
+await test('Stage 5 prompt canary removes both production-shaped fiction targets without altering neighboring rules', () => {
+  const state = prepareSceneExecutionPromptCanary(makePromptCanaryInput());
+  const prompt = [
+    'OUTPUT RULES:',
+    '- Write ONLY the finished fictional prose for this scene.',
+    '- Target approximately 800 words.',
+    '- Begin directly in scene.',
+    '',
+    'SCENE CONTINUITY / RICHNESS PRESERVATION RULES:',
+    '- Current scene number: 2. Target length: approximately 800 words.',
+    '- Prior scene prose already exists. Continue from it.',
+  ].join('\n');
+  const result = applySceneExecutionPromptCanary({
+    state,
+    prompt,
+    sceneId: 'ch01-s02',
+  });
+  const canaryBase = result.prompt.slice(
+    0,
+    result.prompt.length - state.projection.length - 2
+  );
+
+  assert.equal(result.removed_word_target_directive_count, 2);
+  assert.equal(canaryBase.includes('800 words'), false);
+  assert.equal(canaryBase.includes('- Current scene number: 2.'), true);
+  assert.equal(canaryBase.includes('- Begin directly in scene.'), true);
+  assert.equal(
+    canaryBase.includes(
+      '- Prior scene prose already exists. Continue from it.'
+    ),
+    true
+  );
+});
+
+await test('Stage 5 prompt canary fails closed on an unrecognized numeric word target', () => {
+  const state = prepareSceneExecutionPromptCanary(makePromptCanaryInput());
+  assert.throws(
+    () =>
+      applySceneExecutionPromptCanary({
+        state,
+        prompt: 'BASE\nTarget length: roughly 800 words.\nSCENE',
+        sceneId: 'ch01-s02',
+      }),
+    (error) =>
+      error.code ===
+      'SCENE_EXECUTION_PROMPT_CANARY_WORD_TARGET_CONFLICT'
   );
 });
 
@@ -5076,9 +5164,15 @@ await test('Stage 6 selected test scene produces one deterministic content-free 
   assert.equal(first.scene_id, 'ch01-s02');
   assert.equal(first.packet_id, input.trialState.packet_id);
   assert.match(first.base_prompt_fingerprint, /^[a-f0-9]{8}$/);
+  assert.match(first.canary_base_prompt_fingerprint, /^[a-f0-9]{8}$/);
   assert.match(first.model_prompt_fingerprint, /^[a-f0-9]{8}$/);
   assert.match(first.authority_projection_fingerprint, /^[a-f0-9]{8}$/);
   assert.match(first.accepted_prose_fingerprint, /^[a-f0-9]{8}$/);
+  assert.equal(first.removed_word_target_directive_count, 0);
+  assert.equal(
+    first.canary_base_prompt_fingerprint,
+    first.base_prompt_fingerprint
+  );
   assert.equal(first.accepted_word_count, 11);
   assert.equal(first.authority_marker_pairs, 1);
   assert.equal(first.raw_content_included, false);
@@ -5092,6 +5186,28 @@ await test('Stage 6 selected test scene produces one deterministic content-free 
     snapshotDescriptorSafe(input),
     'Stage 6 evidence input'
   );
+});
+
+await test('Stage 6 evidence attests the source prompt and its target-free canary base separately', () => {
+  const input = makeCanaryEvidenceInput({
+    basePrompt: [
+      'WRITE SCENE',
+      'Target length: 220-320 words.',
+      'END AT EXIT STATE',
+    ].join('\n'),
+  });
+  const evidence = collectSceneExecutionCanaryEvidence(input);
+
+  assert.equal(evidence.removed_word_target_directive_count, 1);
+  assert.notEqual(
+    evidence.base_prompt_fingerprint,
+    evidence.canary_base_prompt_fingerprint
+  );
+  assert.notEqual(
+    evidence.canary_base_prompt_fingerprint,
+    evidence.model_prompt_fingerprint
+  );
+  assert.equal(JSON.stringify(evidence).includes('220-320 words'), false);
 });
 
 await test('Stage 6 evidence accepts only branded applied results for the exact trial target', () => {
@@ -5380,7 +5496,7 @@ function assertStage7ComparisonFailsClosed(label, input, expectedCode) {
 await test('Stage 7 comparison feature metadata is immutable, own-data-only, and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key,
-    'scene_execution_canary_comparison_v1'
+    'scene_execution_canary_comparison_v2'
   );
   assert.equal(
     SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.defaultEnabled,
@@ -5674,6 +5790,11 @@ await test('Stage 7 executes the isolated fixture comparison but holds broader r
   assert.equal(first.mode, 'test-only-paired-evaluation');
   assert.equal(first.comparison_id, 'compare-ch01-s02-001');
   assert.equal(first.scene_id, 'ch01-s02');
+  assert.equal(first.removed_word_target_directive_count, 0);
+  assert.equal(
+    first.canary_base_prompt_fingerprint,
+    first.base_prompt_fingerprint
+  );
   assert.equal(first.mechanical_outcome, 'canary-improvement-signal');
   assert.equal(first.broader_rollout_supported, false);
   assert.equal(first.additional_test_only_trials_supported, true);
@@ -5687,6 +5808,25 @@ await test('Stage 7 executes the isolated fixture comparison but holds broader r
     snapshotDescriptorSafe(input),
     'Stage 7 paired comparison input'
   );
+});
+
+await test('Stage 7 accepts only the attested word-target rewrite as a matched canary pair', () => {
+  const input = makeStage7ComparisonInput({
+    basePrompt: [
+      'WRITE SCENE',
+      'Target length: 220-320 words.',
+      'END AT EXIT STATE',
+    ].join('\n'),
+  });
+  const result = evaluateSceneExecutionCanaryComparison(input);
+
+  assert.equal(result.removed_word_target_directive_count, 1);
+  assert.notEqual(
+    result.base_prompt_fingerprint,
+    result.canary_base_prompt_fingerprint
+  );
+  assert.equal(result.mechanical_outcome, 'canary-improvement-signal');
+  assert.equal(result.broader_rollout_supported, false);
 });
 
 await test('Stage 7 stops test-only expansion when the canary evidence regresses', () => {
@@ -5793,7 +5933,7 @@ await test('Stage 7 remains offline, default-off, and disconnected from writer a
     'ProjectStudio must not activate Stage 7'
   );
   assert.equal(
-    projectStudio.includes('scene_execution_canary_comparison_v1'),
+    projectStudio.includes('scene_execution_canary_comparison_v2'),
     false,
     'no UBS UI flag may expose the Stage 7 comparison'
   );
@@ -5914,11 +6054,11 @@ function makeStage8RunInput(overrides = {}) {
 await test('Stage 8 live-canary feature metadata is immutable, own-data-only, and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
-    'scene_execution_live_canary_v6'
+    'scene_execution_live_canary_v7'
   );
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_VERSION,
-    'scene-execution-live-canary-v6'
+    'scene-execution-live-canary-v7'
   );
   assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
@@ -5941,6 +6081,14 @@ await test('Stage 8 executes exactly one matched live legacy-canary pair and hol
     SCENE_EXECUTION_LIVE_CANARY_VERSION
   );
   assert.equal(result.attestation.request_count, 2);
+  assert.equal(
+    result.attestation.removed_word_target_directive_count,
+    1
+  );
+  assert.notEqual(
+    result.attestation.base_prompt_fingerprint,
+    result.attestation.canary_base_prompt_fingerprint
+  );
   assert.equal(result.attestation.live_model_evidence_satisfied, true);
   assert.equal(result.attestation.mechanical_outcome, 'canary-improvement-signal');
   assert.equal(result.attestation.broader_rollout_supported, false);
@@ -6350,6 +6498,18 @@ await test('Stage 8 sends byte-matched model settings and changes only the paire
   assert.deepEqual(
     legacyBody.chat_template_kwargs,
     canaryBody.chat_template_kwargs
+  );
+  assert.equal(
+    legacyBody.messages[0].content.includes(
+      'Target length: 220-320 words.'
+    ),
+    true
+  );
+  assert.equal(
+    canaryBody.messages[0].content.includes(
+      'Target length: 220-320 words.'
+    ),
+    false
   );
   assert.equal(
     legacyBody.messages[0].content.includes(
