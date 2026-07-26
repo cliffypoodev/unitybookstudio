@@ -810,7 +810,8 @@ export function generatePacketFingerprint(packet) {
     }
     // Full recursive descriptor-safe inspection BEFORE canonicalization.
     // Validate packet_id if present: must be an ordinary, enumerable data
-    // property holding a nonempty string.  Absence is valid (generating it).
+    // property holding a nonempty string.  Absence is valid (generating it)
+    // but ONLY when neither the object nor its prototype supplies it.
     const pidDesc = Object.getOwnPropertyDescriptor(packet, 'packet_id');
     if (pidDesc) {
       if (pidDesc.get || pidDesc.set) {
@@ -827,6 +828,9 @@ export function generatePacketFingerprint(packet) {
       if (pidVal.trim() === '') {
         throw packetError('Empty packet_id', 'INVALID_PACKET_PROPERTY', ['packet.packet_id must be a nonempty string after trimming']);
       }
+    } else if (proto && Object.getOwnPropertyDescriptor(proto, 'packet_id')) {
+      // packet_id is not own but is inherited from prototype — reject without reading packet.packet_id
+      throw packetError('Inherited packet_id', 'INVALID_PACKET_PROPERTY', ['packet.packet_id is inherited, not an own property']);
     }
     // Inspect every non-packet_id property via descriptors
     const seen = new Set();
@@ -918,7 +922,7 @@ function requireArray(value, fieldName) {
     throw packetError(`${fieldName} must be an array`, 'INVALID_FIELD_TYPE', [`${fieldName} must be an array, got ${value === null ? 'null' : typeof value}`]);
   }
   for (let i = 0; i < value.length; i++) {
-    if (!(i in value)) {
+    if (!Object.prototype.hasOwnProperty.call(value, i)) {
       throw packetError(`${fieldName} contains a sparse array`, 'NON_JSON_SAFE_VALUE', [`${fieldName} is a sparse array (missing index ${i})`]);
     }
   }
@@ -1256,13 +1260,16 @@ function _validatePacketInner(packet, immutableSceneContract) {
   }
 
   // ── Required field presence ──
+  if (!Object.prototype.hasOwnProperty.call(packet, 'packet_id') && packetProto && Object.getOwnPropertyDescriptor(packetProto, 'packet_id')) {
+    throw packetError('Inherited packet_id', 'INVALID_PACKET_PROPERTY', ['packet.packet_id is inherited, not an own property']);
+  }
   const allRequiredKeys = [
     ...REQUIRED_NONEMPTY_STRING_FIELDS, ...OPTIONAL_STRING_FIELDS,
     ...STRING_ARRAY_FIELDS, ...RECORD_ARRAY_FIELDS, ...ID_ARRAY_FIELDS,
     'chapter_number', 'scene_number', 'packet_id'
   ];
   for (const k of allRequiredKeys) {
-    if (!(k in packet)) {
+    if (!Object.prototype.hasOwnProperty.call(packet, k)) {
       throw packetError(`Missing required field: ${k}`, 'MISSING_REQUIRED_FIELD', [`Field "${k}" is missing from the packet`]);
     }
   }
@@ -1327,8 +1334,8 @@ function _validatePacketInner(packet, immutableSceneContract) {
     for (const k of Object.keys(e)) {
       if (!ALLOWED_REQUIRED_EVENT_KEYS.has(k)) throw packetError(`Unknown key in required event: ${k}`, 'UNKNOWN_NESTED_KEY', [`required_events[${i}] key "${k}" is not allowed; only event_id and text are permitted`]);
     }
-    if (!('event_id' in e)) throw packetError(`required_events[${i}] missing event_id`, 'MISSING_REQUIRED_FIELD', [`required_events[${i}] is missing event_id`]);
-    if (!('text' in e)) throw packetError(`required_events[${i}] missing text`, 'MISSING_REQUIRED_FIELD', [`required_events[${i}] is missing text`]);
+    if (!Object.prototype.hasOwnProperty.call(e, 'event_id')) throw packetError(`required_events[${i}] missing event_id`, 'MISSING_REQUIRED_FIELD', [`required_events[${i}] is missing event_id`]);
+    if (!Object.prototype.hasOwnProperty.call(e, 'text')) throw packetError(`required_events[${i}] missing text`, 'MISSING_REQUIRED_FIELD', [`required_events[${i}] is missing text`]);
     requireString(e.event_id, `required_events[${i}].event_id`, false);
     requireString(e.text, `required_events[${i}].text`, false);
     requireIdLength(e.event_id, `required_events[${i}].event_id`);
@@ -1345,7 +1352,7 @@ function _validatePacketInner(packet, immutableSceneContract) {
       }
       if (!ALLOWED_FUTURE_EVENT_KEYS.has(k)) throw packetError(`Unknown key in future-reserved event: ${k}`, 'UNKNOWN_NESTED_KEY', [`future_reserved_events[${i}] key "${k}" is not allowed; only event_id is permitted`]);
     }
-    if (!('event_id' in e)) throw packetError(`future_reserved_events[${i}] missing event_id`, 'MISSING_REQUIRED_FIELD', [`future_reserved_events[${i}] is missing event_id`]);
+    if (!Object.prototype.hasOwnProperty.call(e, 'event_id')) throw packetError(`future_reserved_events[${i}] missing event_id`, 'MISSING_REQUIRED_FIELD', [`future_reserved_events[${i}] is missing event_id`]);
     requireString(e.event_id, `future_reserved_events[${i}].event_id`, false);
     requireIdLength(e.event_id, `future_reserved_events[${i}].event_id`);
   }
@@ -1361,7 +1368,7 @@ function _validatePacketInner(packet, immutableSceneContract) {
       if (!ALLOWED_FACT_KEYS.has(k)) throw packetError(`Unknown key in authorized fact: ${k}`, 'UNKNOWN_NESTED_KEY', [`scene_authorized_facts[${i}] key "${k}" is not allowed`]);
     }
     for (const reqField of ['fact_id', 'summary', 'provenance', 'knowledge_scope']) {
-      if (!(reqField in f)) throw packetError(`scene_authorized_facts[${i}] missing ${reqField}`, 'MISSING_REQUIRED_FIELD', [`scene_authorized_facts[${i}] is missing ${reqField}`]);
+      if (!Object.prototype.hasOwnProperty.call(f, reqField)) throw packetError(`scene_authorized_facts[${i}] missing ${reqField}`, 'MISSING_REQUIRED_FIELD', [`scene_authorized_facts[${i}] is missing ${reqField}`]);
     }
     requireString(f.fact_id, `scene_authorized_facts[${i}].fact_id`, false);
     requireString(f.summary, `scene_authorized_facts[${i}].summary`, false);
@@ -1373,8 +1380,8 @@ function _validatePacketInner(packet, immutableSceneContract) {
     for (const k of Object.keys(f.knowledge_scope)) {
       if (!ALLOWED_KNOWLEDGE_SCOPE_KEYS.has(k)) throw packetError(`Unknown knowledge_scope key: ${k}`, 'UNKNOWN_NESTED_KEY', [`scene_authorized_facts[${i}].knowledge_scope key "${k}" is not allowed`]);
     }
-    if (!('pov_identity' in f.knowledge_scope)) throw packetError(`scene_authorized_facts[${i}].knowledge_scope missing pov_identity`, 'MISSING_REQUIRED_FIELD', [`scene_authorized_facts[${i}].knowledge_scope is missing pov_identity`]);
-    if (!('basis' in f.knowledge_scope)) throw packetError(`scene_authorized_facts[${i}].knowledge_scope missing basis`, 'MISSING_REQUIRED_FIELD', [`scene_authorized_facts[${i}].knowledge_scope is missing basis`]);
+    if (!Object.prototype.hasOwnProperty.call(f.knowledge_scope, 'pov_identity')) throw packetError(`scene_authorized_facts[${i}].knowledge_scope missing pov_identity`, 'MISSING_REQUIRED_FIELD', [`scene_authorized_facts[${i}].knowledge_scope is missing pov_identity`]);
+    if (!Object.prototype.hasOwnProperty.call(f.knowledge_scope, 'basis')) throw packetError(`scene_authorized_facts[${i}].knowledge_scope missing basis`, 'MISSING_REQUIRED_FIELD', [`scene_authorized_facts[${i}].knowledge_scope is missing basis`]);
     requireString(f.knowledge_scope.pov_identity, `scene_authorized_facts[${i}].knowledge_scope.pov_identity`, false);
     requireString(f.knowledge_scope.basis, `scene_authorized_facts[${i}].knowledge_scope.basis`, false);
     requireStringLength(f.knowledge_scope.basis, `scene_authorized_facts[${i}].knowledge_scope.basis`, PACKET_LIMITS.MAX_BASIS_LENGTH);
