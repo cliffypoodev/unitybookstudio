@@ -16,6 +16,8 @@ export const SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION = 'scene-execution-shado
 export const SCENE_EXECUTION_PROMPT_CANARY_VERSION = 'scene-execution-prompt-canary-v1';
 export const SCENE_EXECUTION_CANARY_TRIAL_VERSION = 'scene-execution-canary-trial-v1';
 export const SCENE_EXECUTION_CANARY_EVIDENCE_VERSION = 'scene-execution-canary-evidence-v1';
+export const SCENE_EXECUTION_LEGACY_EVIDENCE_VERSION = 'scene-execution-legacy-evidence-v1';
+export const SCENE_EXECUTION_CANARY_COMPARISON_VERSION = 'scene-execution-canary-comparison-v1';
 
 export const SCENE_CONTEXT_COMPOSER_FEATURE = Object.freeze({
   key: 'scene_context_composer_v1',
@@ -34,6 +36,11 @@ export const SCENE_EXECUTION_PROMPT_CANARY_FEATURE = Object.freeze({
 
 export const SCENE_EXECUTION_CANARY_TRIAL_FEATURE = Object.freeze({
   key: 'scene_execution_canary_trial_v1',
+  defaultEnabled: false,
+});
+
+export const SCENE_EXECUTION_CANARY_COMPARISON_FEATURE = Object.freeze({
+  key: 'scene_execution_canary_comparison_v1',
   defaultEnabled: false,
 });
 
@@ -99,6 +106,24 @@ export function isSceneExecutionCanaryTrialEnabled(flags) {
   );
   if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
     return SCENE_EXECUTION_CANARY_TRIAL_FEATURE.defaultEnabled;
+  }
+  return descriptor.value === true;
+}
+
+export function isSceneExecutionCanaryComparisonEnabled(flags) {
+  if (!flags || typeof flags !== 'object' || Array.isArray(flags)) {
+    return SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.defaultEnabled;
+  }
+  const proto = Object.getPrototypeOf(flags);
+  if (proto !== Object.prototype && proto !== null) {
+    return SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.defaultEnabled;
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(
+    flags,
+    SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key
+  );
+  if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) {
+    return SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.defaultEnabled;
   }
   return descriptor.value === true;
 }
@@ -2998,4 +3023,437 @@ export function finalizeSceneExecutionCanaryEvidence(input) {
     );
   }
   return Object.freeze(evidenceRecords.slice());
+}
+
+// ─── Stage 7: isolated legacy-versus-canary evidence comparison ────
+// Stage 6 proves that one selected scene can cross the model boundary and
+// produce content-free evidence. Stage 7 adds a separately gated offline
+// comparison against the exact legacy prompt. It can recommend more test-only
+// evidence collection, but one scene can never authorize a broader rollout.
+
+const LEGACY_EVIDENCE_INPUT_KEYS = new Set([
+  'trialState',
+  'basePrompt',
+  'modelPrompt',
+  'acceptedProse',
+  'repaired',
+  'issues',
+]);
+
+const CANARY_COMPARISON_REQUEST_KEYS = new Set([
+  'integration',
+  'trialState',
+  'legacyEvidence',
+  'canaryEvidence',
+]);
+
+const CANARY_COMPARISON_INTEGRATION_KEYS = new Set([
+  'flags',
+  'mode',
+  'comparisonId',
+  'trialId',
+  'projectId',
+  'chapterId',
+  'targetSceneId',
+]);
+
+const CANARY_COMPARISON_MODE = 'test-only-paired-evaluation';
+const verifiedSceneExecutionLegacyEvidenceRecords = new WeakSet();
+const verifiedSceneExecutionCanaryComparisonRecords = new WeakSet();
+
+function requireVerifiedEnabledCanaryTrialState(trialState, path, code) {
+  if (
+    !trialState ||
+    typeof trialState !== 'object' ||
+    !verifiedSceneExecutionCanaryTrialStates.has(trialState) ||
+    !trialState.enabled
+  ) {
+    throw composerError(
+      `Invalid Stage 7 trial state at ${path}`,
+      code,
+      [`${path} must be an enabled state returned by prepareSceneExecutionCanaryTrial in this runtime`]
+    );
+  }
+}
+
+function inspectCanaryEvidenceIssues(issues, path, code) {
+  if (!Array.isArray(issues)) {
+    throw composerError(
+      `Invalid evidence issues at ${path}`,
+      code,
+      [`${path} must be an array of strings`]
+    );
+  }
+  descriptorSafeInspect(issues, path, new Set());
+  if (issues.some((issue) => typeof issue !== 'string')) {
+    throw composerError(
+      `Invalid evidence issue value at ${path}`,
+      code,
+      [`${path} may contain only strings`]
+    );
+  }
+}
+
+function finalizeSceneExecutionLegacyEvidenceRecord(record) {
+  const frozen = deepFreeze(record);
+  verifiedSceneExecutionLegacyEvidenceRecords.add(frozen);
+  return frozen;
+}
+
+export function collectSceneExecutionLegacyEvidence(input) {
+  inspectComposerRecord(
+    input,
+    'sceneExecutionLegacyEvidence',
+    LEGACY_EVIDENCE_INPUT_KEYS
+  );
+
+  const trialState = composerOwnDataValue(
+    input,
+    'trialState',
+    'sceneExecutionLegacyEvidence'
+  );
+  requireVerifiedEnabledCanaryTrialState(
+    trialState,
+    'sceneExecutionLegacyEvidence.trialState',
+    'INVALID_SCENE_EXECUTION_LEGACY_EVIDENCE_TRIAL'
+  );
+
+  const basePrompt = composerOwnDataValue(
+    input,
+    'basePrompt',
+    'sceneExecutionLegacyEvidence'
+  );
+  const modelPrompt = composerOwnDataValue(
+    input,
+    'modelPrompt',
+    'sceneExecutionLegacyEvidence'
+  );
+  const acceptedProse = composerOwnDataValue(
+    input,
+    'acceptedProse',
+    'sceneExecutionLegacyEvidence'
+  );
+  const repaired = composerOwnDataValue(
+    input,
+    'repaired',
+    'sceneExecutionLegacyEvidence'
+  );
+  const issues = composerOwnDataValue(
+    input,
+    'issues',
+    'sceneExecutionLegacyEvidence'
+  );
+
+  if (
+    typeof basePrompt !== 'string' ||
+    basePrompt.trim() === '' ||
+    typeof modelPrompt !== 'string' ||
+    typeof acceptedProse !== 'string' ||
+    acceptedProse.trim() === '' ||
+    typeof repaired !== 'boolean'
+  ) {
+    throw composerError(
+      'Legacy comparison evidence inputs are invalid',
+      'INVALID_SCENE_EXECUTION_LEGACY_EVIDENCE_INPUT',
+      ['basePrompt, modelPrompt, and acceptedProse must be nonempty strings; repaired must be boolean']
+    );
+  }
+  inspectCanaryEvidenceIssues(
+    issues,
+    'sceneExecutionLegacyEvidence.issues',
+    'INVALID_SCENE_EXECUTION_LEGACY_EVIDENCE_INPUT'
+  );
+  if (
+    modelPrompt !== basePrompt ||
+    countMarker(basePrompt, CANARY_AUTHORITY_BEGIN) !== 0 ||
+    countMarker(basePrompt, CANARY_AUTHORITY_END) !== 0
+  ) {
+    throw composerError(
+      'Legacy comparison evidence does not preserve the exact base prompt',
+      'SCENE_EXECUTION_LEGACY_EVIDENCE_PROMPT_MISMATCH',
+      ['The legacy model prompt must equal the base prompt byte-for-byte and contain no Scene Execution Authority markers']
+    );
+  }
+
+  return finalizeSceneExecutionLegacyEvidenceRecord({
+    evidence_version: SCENE_EXECUTION_LEGACY_EVIDENCE_VERSION,
+    status: 'accepted',
+    mode: 'legacy-control',
+    trial_id: trialState.trial_id,
+    project_id: trialState.project_id,
+    chapter_id: trialState.chapter_id,
+    snapshot_id: trialState.snapshot_id,
+    scene_id: trialState.target_scene_id,
+    packet_id: trialState.packet_id,
+    source_contract_fingerprint: trialState.source_contract_fingerprint,
+    base_prompt_fingerprint: hashText(basePrompt),
+    model_prompt_fingerprint: hashText(modelPrompt),
+    accepted_prose_fingerprint: hashText(acceptedProse),
+    accepted_word_count: countCanaryEvidenceWords(acceptedProse),
+    repaired,
+    issue_count: issues.length,
+    authority_marker_pairs: 0,
+    raw_content_included: false,
+  });
+}
+
+function finalizeSceneExecutionCanaryComparisonRecord(record) {
+  const frozen = deepFreeze(record);
+  verifiedSceneExecutionCanaryComparisonRecords.add(frozen);
+  return frozen;
+}
+
+function assertComparisonScopeMatchesTrial(record, trialState, label) {
+  if (
+    record.trial_id !== trialState.trial_id ||
+    record.project_id !== trialState.project_id ||
+    record.chapter_id !== trialState.chapter_id ||
+    record.snapshot_id !== trialState.snapshot_id ||
+    record.scene_id !== trialState.target_scene_id ||
+    record.packet_id !== trialState.packet_id ||
+    record.source_contract_fingerprint !== trialState.source_contract_fingerprint
+  ) {
+    throw composerError(
+      `${label} does not match the Stage 7 trial scope`,
+      'SCENE_EXECUTION_CANARY_COMPARISON_SCOPE_MISMATCH',
+      [`${label} must match the exact trial, project, chapter, snapshot, scene, packet, and contract fingerprint`]
+    );
+  }
+}
+
+export function evaluateSceneExecutionCanaryComparison(input) {
+  inspectComposerRecord(
+    input,
+    'sceneExecutionCanaryComparison',
+    CANARY_COMPARISON_REQUEST_KEYS
+  );
+
+  const integration = composerOwnDataValue(
+    input,
+    'integration',
+    'sceneExecutionCanaryComparison'
+  );
+  inspectComposerRecord(
+    integration,
+    'sceneExecutionCanaryComparison.integration',
+    CANARY_COMPARISON_INTEGRATION_KEYS
+  );
+  const flags = composerOwnDataValue(
+    integration,
+    'flags',
+    'sceneExecutionCanaryComparison.integration'
+  );
+  if (!isSceneExecutionCanaryComparisonEnabled(flags)) {
+    throw composerError(
+      'Scene execution canary comparison is disabled',
+      'SCENE_EXECUTION_CANARY_COMPARISON_DISABLED',
+      [`Set the own data flag "${SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key}" to true for one explicit test-only paired evaluation`]
+    );
+  }
+  if (
+    !isSceneContextComposerEnabled(flags) ||
+    !isSceneExecutionShadowEnabled(flags) ||
+    !isSceneExecutionPromptCanaryEnabled(flags) ||
+    !isSceneExecutionCanaryTrialEnabled(flags)
+  ) {
+    throw composerError(
+      'Scene execution canary comparison requires all prior gates',
+      'SCENE_EXECUTION_CANARY_COMPARISON_PRIOR_GATE_DISABLED',
+      ['The composer, shadow, prompt canary, trial, and comparison flags must all be own enumerable data properties set to true']
+    );
+  }
+
+  const mode = composerOwnDataValue(
+    integration,
+    'mode',
+    'sceneExecutionCanaryComparison.integration'
+  );
+  if (mode !== CANARY_COMPARISON_MODE) {
+    throw composerError(
+      'Scene execution canary comparison mode is not test-only',
+      'INVALID_SCENE_EXECUTION_CANARY_COMPARISON_MODE',
+      [`sceneExecutionCanaryComparison.integration.mode must equal "${CANARY_COMPARISON_MODE}"`]
+    );
+  }
+
+  const comparisonId = requireOpaqueCanaryTrialReference(
+    composerOwnDataValue(
+      integration,
+      'comparisonId',
+      'sceneExecutionCanaryComparison.integration'
+    ),
+    'sceneExecutionCanaryComparison.integration.comparisonId',
+    'INVALID_SCENE_EXECUTION_CANARY_COMPARISON_ID'
+  );
+  const trialState = composerOwnDataValue(
+    input,
+    'trialState',
+    'sceneExecutionCanaryComparison'
+  );
+  requireVerifiedEnabledCanaryTrialState(
+    trialState,
+    'sceneExecutionCanaryComparison.trialState',
+    'INVALID_SCENE_EXECUTION_CANARY_COMPARISON_TRIAL'
+  );
+
+  const requestedScope = {
+    trial_id: requireOpaqueCanaryTrialReference(
+      composerOwnDataValue(
+        integration,
+        'trialId',
+        'sceneExecutionCanaryComparison.integration'
+      ),
+      'sceneExecutionCanaryComparison.integration.trialId',
+      'INVALID_SCENE_EXECUTION_CANARY_COMPARISON_SCOPE'
+    ),
+    project_id: requireOpaqueCanaryTrialReference(
+      composerOwnDataValue(
+        integration,
+        'projectId',
+        'sceneExecutionCanaryComparison.integration'
+      ),
+      'sceneExecutionCanaryComparison.integration.projectId',
+      'INVALID_SCENE_EXECUTION_CANARY_COMPARISON_SCOPE'
+    ),
+    chapter_id: requireOpaqueCanaryTrialReference(
+      composerOwnDataValue(
+        integration,
+        'chapterId',
+        'sceneExecutionCanaryComparison.integration'
+      ),
+      'sceneExecutionCanaryComparison.integration.chapterId',
+      'INVALID_SCENE_EXECUTION_CANARY_COMPARISON_SCOPE'
+    ),
+    scene_id: requireOpaqueCanaryTrialReference(
+      composerOwnDataValue(
+        integration,
+        'targetSceneId',
+        'sceneExecutionCanaryComparison.integration'
+      ),
+      'sceneExecutionCanaryComparison.integration.targetSceneId',
+      'INVALID_SCENE_EXECUTION_CANARY_COMPARISON_SCOPE'
+    ),
+  };
+  if (
+    requestedScope.trial_id !== trialState.trial_id ||
+    requestedScope.project_id !== trialState.project_id ||
+    requestedScope.chapter_id !== trialState.chapter_id ||
+    requestedScope.scene_id !== trialState.target_scene_id
+  ) {
+    throw composerError(
+      'Scene execution canary comparison scope does not match its trial',
+      'SCENE_EXECUTION_CANARY_COMPARISON_SCOPE_MISMATCH',
+      ['The comparison trialId, projectId, chapterId, and targetSceneId must exactly match the verified Stage 6 trial']
+    );
+  }
+
+  const legacyEvidence = composerOwnDataValue(
+    input,
+    'legacyEvidence',
+    'sceneExecutionCanaryComparison'
+  );
+  const canaryEvidence = composerOwnDataValue(
+    input,
+    'canaryEvidence',
+    'sceneExecutionCanaryComparison'
+  );
+  if (
+    !legacyEvidence ||
+    typeof legacyEvidence !== 'object' ||
+    !verifiedSceneExecutionLegacyEvidenceRecords.has(legacyEvidence) ||
+    !canaryEvidence ||
+    typeof canaryEvidence !== 'object' ||
+    !verifiedSceneExecutionCanaryEvidenceRecords.has(canaryEvidence)
+  ) {
+    throw composerError(
+      'Scene execution canary comparison requires branded evidence',
+      'INVALID_SCENE_EXECUTION_CANARY_COMPARISON_EVIDENCE',
+      ['legacyEvidence and canaryEvidence must be returned by their Stage 7 and Stage 6 collectors in this runtime']
+    );
+  }
+  assertComparisonScopeMatchesTrial(
+    legacyEvidence,
+    trialState,
+    'Legacy evidence'
+  );
+  assertComparisonScopeMatchesTrial(
+    canaryEvidence,
+    trialState,
+    'Canary evidence'
+  );
+
+  if (
+    legacyEvidence.base_prompt_fingerprint !==
+      canaryEvidence.base_prompt_fingerprint ||
+    legacyEvidence.model_prompt_fingerprint !==
+      legacyEvidence.base_prompt_fingerprint ||
+    canaryEvidence.model_prompt_fingerprint ===
+      canaryEvidence.base_prompt_fingerprint ||
+    legacyEvidence.authority_marker_pairs !== 0 ||
+    canaryEvidence.authority_marker_pairs !== 1 ||
+    legacyEvidence.raw_content_included !== false ||
+    canaryEvidence.raw_content_included !== false
+  ) {
+    throw composerError(
+      'Scene execution canary comparison cannot prove a matched prompt pair',
+      'SCENE_EXECUTION_CANARY_COMPARISON_PROMPT_MISMATCH',
+      ['Both paths must share one base-prompt fingerprint; legacy must preserve it exactly with zero authority markers, and canary must contain exactly one authority marker pair']
+    );
+  }
+
+  const issueDelta =
+    canaryEvidence.issue_count - legacyEvidence.issue_count;
+  const repairDelta =
+    Number(canaryEvidence.repaired) - Number(legacyEvidence.repaired);
+  let mechanicalOutcome = 'neutral-signal';
+  let additionalTestOnlyTrialsSupported = true;
+  let recommendation = 'collect-live-model-paired-evidence';
+  if (issueDelta > 0 || repairDelta > 0) {
+    mechanicalOutcome = 'canary-regression-signal';
+    additionalTestOnlyTrialsSupported = false;
+    recommendation = 'stop-test-only-canary';
+  } else if (issueDelta < 0 || repairDelta < 0) {
+    mechanicalOutcome = 'canary-improvement-signal';
+  }
+
+  return finalizeSceneExecutionCanaryComparisonRecord({
+    comparison_version: SCENE_EXECUTION_CANARY_COMPARISON_VERSION,
+    status: 'evaluated',
+    mode: CANARY_COMPARISON_MODE,
+    comparison_id: comparisonId,
+    trial_id: trialState.trial_id,
+    project_id: trialState.project_id,
+    chapter_id: trialState.chapter_id,
+    snapshot_id: trialState.snapshot_id,
+    scene_id: trialState.target_scene_id,
+    packet_id: trialState.packet_id,
+    source_contract_fingerprint: trialState.source_contract_fingerprint,
+    base_prompt_fingerprint: legacyEvidence.base_prompt_fingerprint,
+    legacy_accepted_prose_fingerprint:
+      legacyEvidence.accepted_prose_fingerprint,
+    canary_accepted_prose_fingerprint:
+      canaryEvidence.accepted_prose_fingerprint,
+    accepted_outputs_identical:
+      legacyEvidence.accepted_prose_fingerprint ===
+      canaryEvidence.accepted_prose_fingerprint,
+    legacy_word_count: legacyEvidence.accepted_word_count,
+    canary_word_count: canaryEvidence.accepted_word_count,
+    word_count_delta:
+      canaryEvidence.accepted_word_count -
+      legacyEvidence.accepted_word_count,
+    legacy_repaired: legacyEvidence.repaired,
+    canary_repaired: canaryEvidence.repaired,
+    repair_delta: repairDelta,
+    legacy_issue_count: legacyEvidence.issue_count,
+    canary_issue_count: canaryEvidence.issue_count,
+    issue_count_delta: issueDelta,
+    mechanical_outcome: mechanicalOutcome,
+    broader_rollout_supported: false,
+    additional_test_only_trials_supported:
+      additionalTestOnlyTrialsSupported,
+    live_model_evidence_required: true,
+    rollout_decision: 'hold',
+    recommendation,
+    raw_content_included: false,
+  });
 }
