@@ -17,7 +17,7 @@ import {
 } from './generationContext.js';
 
 export const SCENE_EXECUTION_LIVE_CANARY_VERSION =
-  'scene-execution-live-canary-v8';
+  'scene-execution-live-canary-v9';
 
 export const SCENE_EXECUTION_LIVE_CANARY_FEATURE = Object.freeze({
   key: 'scene_execution_live_canary_v8',
@@ -461,6 +461,17 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function hasUnsupportedLatchToLockOperation(normalized) {
+  const directLatchToLockOperation =
+    /\b(?:brass\s+)?latch\b[^.!?;\n]{0,48}\b(?:against|at|in|into|on|onto|through|to|within)\s+(?:the\s+)?lock\b/i;
+  const anaphoricLatchToLockOperation =
+    /\b(?:brass\s+)?latch\b[^.!?;\n]{0,96}[.!?]\s*[^.!?;\n]{0,64}\bit\s+(?:against|at|in|into|on|onto|through|to|within)\s+(?:the\s+)?lock\b/i;
+  return (
+    directLatchToLockOperation.test(normalized) ||
+    anaphoricLatchToLockOperation.test(normalized)
+  );
+}
+
 function assessAuthorityAdherence(source, normalized) {
   const povIdentityPresent = new RegExp(
     `\\b${escapeRegExp(STAGE8_POV_IDENTITY)}\\b`
@@ -471,9 +482,7 @@ function assessAuthorityAdherence(source, normalized) {
     ) ||
     /\bpick(?:ed|s|ing)?\s+(?:at\s+)?the lock\b/i.test(normalized);
   const unsupportedEventOperationDetected =
-    /\b(?:brass\s+)?latch\b[^.!?;\n]{0,48}\b(?:against|at|in|into|on|onto|through|to|within)\s+(?:the\s+)?lock\b/i.test(
-      normalized
-    );
+    hasUnsupportedLatchToLockOperation(normalized);
   const unauthorizedEventInstrumentDetected =
     inventedEventMechanismDetected || unsupportedEventOperationDetected;
   const unsupportedHistoryOrKnowledgeDetected =

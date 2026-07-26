@@ -6058,7 +6058,7 @@ await test('Stage 8 live-canary feature metadata is immutable, own-data-only, an
   );
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_VERSION,
-    'scene-execution-live-canary-v8'
+    'scene-execution-live-canary-v9'
   );
   assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
@@ -6483,6 +6483,52 @@ await test('Stage 8 rejects unsupported latch-to-lock operating details', async 
       .unsupported_event_operation_detected,
     true
   );
+  assert.deepEqual(result.attestation.canary_authority_issue_codes, [
+    'UNAUTHORIZED_EVENT_INSTRUMENT',
+  ]);
+  assert.equal(
+    result.attestation.authority_adherence_mechanical_outcome,
+    'canary-regression-signal'
+  );
+  assert.equal(
+    result.attestation.additional_test_only_trials_supported,
+    false
+  );
+  assert.equal(result.attestation.recommendation, 'stop-live-model-canary');
+});
+
+await test('Stage 8 rejects the exact R7 live pronoun latch-to-lock regression', async () => {
+  const compliantProse =
+    'Hero held the brass latch as the locked door opened, crossed the threshold, and stood inside with the latch still in hand.';
+  const exactR7CanaryProse =
+    'Hero held the brass latch in his hand. He pressed it against the lock, felt the mechanism yield, and pushed the door open. Hero stood inside the room.';
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: compliantProse,
+      canaryProse: exactR7CanaryProse,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+
+  assert.equal(result.localReview.canary.audit.word_count, 28);
+  assert.equal(
+    result.localReview.canary.audit.exit_boundary_overrun_words,
+    0
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .invented_event_mechanism_detected,
+    true
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unsupported_event_operation_detected,
+    true
+  );
+  assert.deepEqual(result.localReview.canary.audit.issue_codes, [
+    'UNAUTHORIZED_EVENT_INSTRUMENT',
+  ]);
+  assert.equal(result.localReview.canary.audit.passed, false);
   assert.deepEqual(result.attestation.canary_authority_issue_codes, [
     'UNAUTHORIZED_EVENT_INSTRUMENT',
   ]);
