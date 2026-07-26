@@ -3540,7 +3540,7 @@ function parsePromptProjection(rendered) {
   );
   assert.equal(
     lines[1],
-    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.'
+    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. Exit-state attainment begins at the first clause that establishes the exit-state transition; never postpone the boundary to a later restatement. If the exit state places someone inside a location, entering it or crossing its threshold already attains that state. End that same sentence after only the minimum required continuity confirmation; do not describe or inventory the destination, move farther, look around, react, or close the door afterward. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.'
   );
   assert.equal(
     lines.at(-1),
@@ -3617,7 +3617,7 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   );
   assert.equal(
     projection.projection_version,
-    'scene-execution-prompt-projection-v4'
+    'scene-execution-prompt-projection-v5'
   );
   assert.equal(projection.packet_id, input.packet.packet_id);
   assert.deepEqual(projection.scene_identity, {
@@ -3660,6 +3660,9 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
     allow_unlisted_event_instruments: false,
     allow_unlisted_history_or_knowledge: false,
     exit_state_is_terminal: true,
+    first_exit_state_attainment_is_terminal: true,
+    entry_or_threshold_crossing_attains_inside_exit_state: true,
+    allow_post_exit_action_or_description: false,
   });
   assert.equal(
     first.includes(
@@ -3670,6 +3673,12 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   assert.equal(
     first.includes(
       'This boundary outranks every requested word-count target: return fewer words rather than continue past it.'
+    ),
+    true
+  );
+  assert.equal(
+    first.includes(
+      'entering it or crossing its threshold already attains that state.'
     ),
     true
   );
@@ -5860,11 +5869,11 @@ function makeStage8RunInput(overrides = {}) {
 await test('Stage 8 live-canary feature metadata is immutable, own-data-only, and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
-    'scene_execution_live_canary_v4'
+    'scene_execution_live_canary_v5'
   );
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_VERSION,
-    'scene-execution-live-canary-v4'
+    'scene-execution-live-canary-v5'
   );
   assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
@@ -6029,6 +6038,48 @@ await test('Stage 8 catches a new action immediately after the exit transition',
   );
 });
 
+await test('Stage 8 treats a gerund threshold crossing as exit attainment and grades all later prose', async () => {
+  const postExit = Array.from(
+    { length: 70 },
+    (_, index) => `aftermath${index + 1}`
+  ).join(' ');
+  const gerundCrossingOverrun = [
+    'Hero held the brass latch and opened the locked room.',
+    'Hero stepped forward, crossing the threshold.',
+    'He looked around and moved deeper.',
+    postExit,
+  ].join(' ');
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: gerundCrossingOverrun,
+      canaryProse: gerundCrossingOverrun,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+
+  assert.equal(
+    result.attestation.canary_issue_codes.includes(
+      'EXIT_STATE_MISSING'
+    ),
+    false
+  );
+  assert.equal(
+    result.attestation.canary_issue_codes.includes(
+      'EXIT_BOUNDARY_OVERRUN'
+    ),
+    true
+  );
+  assert.ok(result.localReview.canary.audit.post_exit_word_count > 60);
+  assert.equal(
+    result.localReview.canary.audit.exit_boundary_overrun_severity,
+    'severe'
+  );
+  assert.equal(
+    result.localReview.canary.audit.post_exit_action_detected,
+    true
+  );
+});
+
 await test('Stage 8 compares exit-overrun severity instead of treating unequal overruns as equivalent', async () => {
   const approach = Array.from(
     { length: 45 },
@@ -6125,6 +6176,46 @@ await test('Stage 8 detects POV substitution, an unauthorized event instrument, 
     result.localReview.canary.audit
       .unsupported_history_or_knowledge_detected,
     true
+  );
+});
+
+await test('Stage 8 authority audit rejects structural setting facts absent from the contract', async () => {
+  const approach = Array.from(
+    { length: 35 },
+    (_, index) => `approach${index + 1}`
+  ).join(' ');
+  const compliantProse =
+    `${approach} Hero opened the locked room and crossed the threshold with the brass latch in hand.`;
+  const settingDrift = [
+    approach,
+    'Hero noticed a stone wall and a window beside the bare furniture.',
+    'Hero opened the locked room and crossed the threshold with the brass latch in hand.',
+  ].join(' ');
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: compliantProse,
+      canaryProse: settingDrift,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+
+  assert.deepEqual(result.attestation.legacy_authority_issue_codes, []);
+  assert.deepEqual(result.attestation.canary_authority_issue_codes, [
+    'UNSUPPORTED_SETTING_DETAIL',
+  ]);
+  assert.equal(
+    result.attestation.authority_adherence_mechanical_outcome,
+    'canary-regression-signal'
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unsupported_setting_detail_detected,
+    true
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unsupported_history_or_knowledge_detected,
+    false
   );
 });
 

@@ -17,10 +17,10 @@ import {
 } from './generationContext.js';
 
 export const SCENE_EXECUTION_LIVE_CANARY_VERSION =
-  'scene-execution-live-canary-v4';
+  'scene-execution-live-canary-v5';
 
 export const SCENE_EXECUTION_LIVE_CANARY_FEATURE = Object.freeze({
-  key: 'scene_execution_live_canary_v4',
+  key: 'scene_execution_live_canary_v5',
   defaultEnabled: false,
 });
 
@@ -36,6 +36,7 @@ const AUTHORITY_ADHERENCE_ISSUE_CODES = new Set([
   'POV_IDENTITY_DRIFT',
   'UNAUTHORIZED_EVENT_INSTRUMENT',
   'UNSUPPORTED_HISTORY_OR_KNOWLEDGE',
+  'UNSUPPORTED_SETTING_DETAIL',
 ]);
 
 const RUN_INPUT_KEYS = new Set(['integration', 'fetchImpl']);
@@ -333,10 +334,10 @@ function hasRequiredRoomOpening(normalized) {
 
 function findExitTransition(normalized) {
   const patterns = [
-    /\b(?:crossed|passed)\s+(?:(?:over|across|through)\s+)?the threshold\b/i,
-    /\bstepped\s+(?:across|over|through|into|inside|in)\b/i,
-    /\bentered\s+(?:the\s+)?(?:room|space)\b/i,
-    /\b(?:stood|stopped|paused|was)\s+inside\b/i,
+    /\b(?:cross(?:ed|es|ing)|pass(?:ed|es|ing))\s+(?:(?:over|across|through)\s+)?the threshold\b/i,
+    /\bstep(?:ped|s|ping)\s+(?:across|over|through|into|inside|in)\b/i,
+    /\benter(?:ed|s|ing)\s+(?:the\s+)?(?:room|space)\b/i,
+    /\b(?:stood|stopped|paused|was|is)\s+inside\b/i,
   ];
   let earliest = null;
   for (const pattern of patterns) {
@@ -480,12 +481,24 @@ function assessAuthorityAdherence(source, normalized) {
       normalized
     ) ||
     /\bdecades?\s+of\b/i.test(normalized);
+  const unsupportedSettingDetailDetected =
+    /\b(?:brick|marble|oak|stone)\s+(?:door|floor|floorboards|wall|walls)\b/i.test(
+      normalized
+    ) ||
+    /\b(?:furniture|shelves|shelving|tapestries|window|windows)\b/i.test(
+      normalized
+    ) ||
+    /\broom\s+(?:was|felt|seemed)\s+(?:bare|cavernous|large|narrow|small|vast)\b/i.test(
+      normalized
+    );
   return {
     pov_identity_present: povIdentityPresent,
     unauthorized_event_instrument_detected:
       unauthorizedEventInstrumentDetected,
     unsupported_history_or_knowledge_detected:
       unsupportedHistoryOrKnowledgeDetected,
+    unsupported_setting_detail_detected:
+      unsupportedSettingDetailDetected,
   };
 }
 
@@ -533,6 +546,9 @@ function assessOutput(prose) {
   if (authorityAdherence.unsupported_history_or_knowledge_detected) {
     issues.push('UNSUPPORTED_HISTORY_OR_KNOWLEDGE');
   }
+  if (authorityAdherence.unsupported_setting_detail_detected) {
+    issues.push('UNSUPPORTED_SETTING_DETAIL');
+  }
   return deepFreeze({
     word_count: wordCount,
     issue_codes: issues,
@@ -549,6 +565,8 @@ function assessOutput(prose) {
       authorityAdherence.unauthorized_event_instrument_detected,
     unsupported_history_or_knowledge_detected:
       authorityAdherence.unsupported_history_or_knowledge_detected,
+    unsupported_setting_detail_detected:
+      authorityAdherence.unsupported_setting_detail_detected,
     passed: issues.length === 0,
   });
 }
