@@ -11,7 +11,7 @@
 
 export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
-export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v3';
+export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v4';
 export const SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION = 'scene-execution-shadow-integration-v1';
 export const SCENE_EXECUTION_PROMPT_CANARY_VERSION = 'scene-execution-prompt-canary-v1';
 export const SCENE_EXECUTION_CANARY_TRIAL_VERSION = 'scene-execution-canary-trial-v1';
@@ -2025,6 +2025,14 @@ export function renderSceneExecutionPromptProjection(input) {
       ),
       pov_known_fact_ids: validatedPacket.pov_known_facts.slice(),
     },
+    execution_constraints: {
+      pov_identity_is_literal: true,
+      require_exact_pov_identity_mention: true,
+      allow_unlisted_personal_names: false,
+      allow_unlisted_event_instruments: false,
+      allow_unlisted_history_or_knowledge: false,
+      exit_state_is_terminal: true,
+    },
     voice_rules: validatedPacket.voice_rules.slice(),
     future_boundaries: {
       reserved_event_ids: validatedPacket.future_reserved_events.map(
@@ -2035,7 +2043,7 @@ export function renderSceneExecutionPromptProjection(input) {
 
   return [
     '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>',
-    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. After a brief same-moment confirmation of the exit state and required continuity, output must end without another action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. Use scene_identity.pov_identity exactly as supplied. Unless continuity or knowledge_authority explicitly authorizes a story fact, omit it instead of inventing a name, prior attempt, elapsed time, object provenance, familiarity, ownership, plan, history, relationship, location detail, or knowledge. Do not perform, imply, or prepare forbidden events.',
+    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.',
     JSON.stringify(projection, null, 2),
     '<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>',
   ].join('\n');

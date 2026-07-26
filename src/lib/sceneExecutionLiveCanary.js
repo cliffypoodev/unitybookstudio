@@ -17,10 +17,10 @@ import {
 } from './generationContext.js';
 
 export const SCENE_EXECUTION_LIVE_CANARY_VERSION =
-  'scene-execution-live-canary-v3';
+  'scene-execution-live-canary-v4';
 
 export const SCENE_EXECUTION_LIVE_CANARY_FEATURE = Object.freeze({
-  key: 'scene_execution_live_canary_v3',
+  key: 'scene_execution_live_canary_v4',
   defaultEnabled: false,
 });
 
@@ -31,6 +31,12 @@ const AUTHORITY_BEGIN =
   '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>';
 const AUTHORITY_END =
   '<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>';
+const STAGE8_POV_IDENTITY = 'Hero';
+const AUTHORITY_ADHERENCE_ISSUE_CODES = new Set([
+  'POV_IDENTITY_DRIFT',
+  'UNAUTHORIZED_EVENT_INSTRUMENT',
+  'UNSUPPORTED_HISTORY_OR_KNOWLEDGE',
+]);
 
 const RUN_INPUT_KEYS = new Set(['integration', 'fetchImpl']);
 const INTEGRATION_KEYS = new Set([
@@ -450,6 +456,39 @@ function hasFutureBoundaryViolation(normalized) {
   return false;
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function assessAuthorityAdherence(source, normalized) {
+  const povIdentityPresent = new RegExp(
+    `\\b${escapeRegExp(STAGE8_POV_IDENTITY)}\\b`
+  ).test(source);
+  const unauthorizedEventInstrumentDetected =
+    /\b(?:key|keycard|crowbar|lockpick|lock-pick|skeleton key)\b/i.test(
+      normalized
+    ) ||
+    /\bpick(?:ed|s|ing)?\s+(?:at\s+)?the lock\b/i.test(normalized);
+  const unsupportedHistoryOrKnowledgeDetected =
+    /\b(?:again|familiar|previously|practiced|recalled|recognized|remembered|retrieved|returned|expected|knew|known)\b/i.test(
+      normalized
+    ) ||
+    /\bhad(?:n't| not)?\s+(?:[\p{L}'’-]+\s+){0,2}(?:been|brought|come|done|expected|felt|found|gone|heard|known|left|made|met|moved|opened|read|retrieved|seen|taken|tried|visited|written)\b/iu.test(
+      normalized
+    ) ||
+    /\b(?:for|over|within|after|in)\s+(?:[\p{L}\p{N}'’-]+\s+){0,2}(?:days?|weeks?|months?|years?|decades?)\b/iu.test(
+      normalized
+    ) ||
+    /\bdecades?\s+of\b/i.test(normalized);
+  return {
+    pov_identity_present: povIdentityPresent,
+    unauthorized_event_instrument_detected:
+      unauthorizedEventInstrumentDetected,
+    unsupported_history_or_knowledge_detected:
+      unsupportedHistoryOrKnowledgeDetected,
+  };
+}
+
 function assessOutput(prose) {
   const source = String(prose || '').trim();
   const normalized = source
@@ -484,6 +523,16 @@ function assessOutput(prose) {
   if (hasFutureBoundaryViolation(normalized)) {
     issues.push('FUTURE_BOUNDARY_VIOLATION');
   }
+  const authorityAdherence = assessAuthorityAdherence(source, normalized);
+  if (!authorityAdherence.pov_identity_present) {
+    issues.push('POV_IDENTITY_DRIFT');
+  }
+  if (authorityAdherence.unauthorized_event_instrument_detected) {
+    issues.push('UNAUTHORIZED_EVENT_INSTRUMENT');
+  }
+  if (authorityAdherence.unsupported_history_or_knowledge_detected) {
+    issues.push('UNSUPPORTED_HISTORY_OR_KNOWLEDGE');
+  }
   return deepFreeze({
     word_count: wordCount,
     issue_codes: issues,
@@ -495,6 +544,11 @@ function assessOutput(prose) {
       exitBoundary.exit_boundary_overrun_severity,
     post_exit_action_detected:
       exitBoundary.post_exit_action_detected,
+    pov_identity_present: authorityAdherence.pov_identity_present,
+    unauthorized_event_instrument_detected:
+      authorityAdherence.unauthorized_event_instrument_detected,
+    unsupported_history_or_knowledge_detected:
+      authorityAdherence.unsupported_history_or_knowledge_detected,
     passed: issues.length === 0,
   });
 }
@@ -516,6 +570,25 @@ function compareExitBoundaryAudits(legacyAudit, canaryAudit) {
     legacyAudit.exit_boundary_overrun_words;
   if (delta > 0) return 'canary-regression-signal';
   if (delta < 0) return 'canary-improvement-signal';
+  return 'neutral-signal';
+}
+
+function authorityIssueCodes(audit) {
+  return audit.issue_codes.filter((code) =>
+    AUTHORITY_ADHERENCE_ISSUE_CODES.has(code)
+  );
+}
+
+function compareAuthorityAudits(legacyAudit, canaryAudit) {
+  const legacyIssues = authorityIssueCodes(legacyAudit);
+  const canaryIssues = authorityIssueCodes(canaryAudit);
+  const legacySet = new Set(legacyIssues);
+  if (canaryIssues.some((code) => !legacySet.has(code))) {
+    return 'canary-regression-signal';
+  }
+  if (canaryIssues.length < legacyIssues.length) {
+    return 'canary-improvement-signal';
+  }
   return 'neutral-signal';
 }
 
@@ -936,13 +1009,19 @@ export async function runSceneExecutionLiveCanary(input) {
     legacyAudit,
     canaryAudit
   );
+  const authorityAdherenceOutcome = compareAuthorityAudits(
+    legacyAudit,
+    canaryAudit
+  );
   const regression =
     comparison.mechanical_outcome === 'canary-regression-signal' ||
-    exitBoundaryOutcome === 'canary-regression-signal';
+    exitBoundaryOutcome === 'canary-regression-signal' ||
+    authorityAdherenceOutcome === 'canary-regression-signal';
   const liveMechanicalOutcome = regression
     ? 'canary-regression-signal'
     : comparison.mechanical_outcome === 'canary-improvement-signal' ||
-        exitBoundaryOutcome === 'canary-improvement-signal'
+        exitBoundaryOutcome === 'canary-improvement-signal' ||
+        authorityAdherenceOutcome === 'canary-improvement-signal'
       ? 'canary-improvement-signal'
       : 'neutral-signal';
   const attestation = deepFreeze({
@@ -993,6 +1072,9 @@ export async function runSceneExecutionLiveCanary(input) {
     canary_exit_boundary_overrun_severity:
       canaryAudit.exit_boundary_overrun_severity,
     exit_boundary_mechanical_outcome: exitBoundaryOutcome,
+    legacy_authority_issue_codes: authorityIssueCodes(legacyAudit),
+    canary_authority_issue_codes: authorityIssueCodes(canaryAudit),
+    authority_adherence_mechanical_outcome: authorityAdherenceOutcome,
     mechanical_outcome: liveMechanicalOutcome,
     live_model_evidence_satisfied: true,
     broader_rollout_supported: false,

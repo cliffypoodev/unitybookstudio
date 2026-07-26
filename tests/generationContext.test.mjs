@@ -3540,7 +3540,7 @@ function parsePromptProjection(rendered) {
   );
   assert.equal(
     lines[1],
-    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. After a brief same-moment confirmation of the exit state and required continuity, output must end without another action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. Use scene_identity.pov_identity exactly as supplied. Unless continuity or knowledge_authority explicitly authorizes a story fact, omit it instead of inventing a name, prior attempt, elapsed time, object provenance, familiarity, ownership, plan, history, relationship, location detail, or knowledge. Do not perform, imply, or prepare forbidden events.'
+    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. The final sentence may only enact or briefly confirm the exit state and required continuity; end the response immediately after it, with no atmospheric coda or further action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder: include that exact string at least once, use only it or compatible pronouns for the POV character, and never substitute or invent a personal name. Treat knowledge_authority.authorized_facts as exhaustive. Unless continuity or knowledge_authority explicitly supplies a story fact, omit it instead of inventing a prior attempt, elapsed time, object provenance, familiarity, ownership, expectation, plan, history, relationship, location detail, or knowledge. Complete required events using only objects or instruments supplied by current-scene authority or continuity; never add a key, tool, mechanism, or source location. Do not perform, imply, or prepare forbidden events.'
   );
   assert.equal(
     lines.at(-1),
@@ -3617,7 +3617,7 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   );
   assert.equal(
     projection.projection_version,
-    'scene-execution-prompt-projection-v3'
+    'scene-execution-prompt-projection-v4'
   );
   assert.equal(projection.packet_id, input.packet.packet_id);
   assert.deepEqual(projection.scene_identity, {
@@ -3653,6 +3653,14 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   assert.deepEqual(projection.continuity.current_locations, ['Village']);
   assert.deepEqual(projection.continuity.current_possessions, ['Sword']);
   assert.deepEqual(projection.voice_rules, ['Third person past tense']);
+  assert.deepEqual(projection.execution_constraints, {
+    pov_identity_is_literal: true,
+    require_exact_pov_identity_mention: true,
+    allow_unlisted_personal_names: false,
+    allow_unlisted_event_instruments: false,
+    allow_unlisted_history_or_knowledge: false,
+    exit_state_is_terminal: true,
+  });
   assert.equal(
     first.includes(
       'Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat.'
@@ -3667,7 +3675,13 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   );
   assert.equal(
     first.includes(
-      'omit it instead of inventing a name, prior attempt, elapsed time, object provenance, familiarity, ownership, plan, history, relationship, location detail, or knowledge.'
+      'scene_identity.pov_identity is a literal canonical identity, never a role label or placeholder'
+    ),
+    true
+  );
+  assert.equal(
+    first.includes(
+      'never add a key, tool, mechanism, or source location.'
     ),
     true
   );
@@ -5846,11 +5860,11 @@ function makeStage8RunInput(overrides = {}) {
 await test('Stage 8 live-canary feature metadata is immutable, own-data-only, and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
-    'scene_execution_live_canary_v3'
+    'scene_execution_live_canary_v4'
   );
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_VERSION,
-    'scene-execution-live-canary-v3'
+    'scene-execution-live-canary-v4'
   );
   assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
@@ -6059,6 +6073,92 @@ await test('Stage 8 compares exit-overrun severity instead of treating unequal o
     'canary-improvement-signal'
   );
   assert.equal(result.attestation.additional_test_only_trials_supported, true);
+});
+
+await test('Stage 8 detects POV substitution, an unauthorized event instrument, and unsupported history', async () => {
+  const compliantLegacy = [
+    'Hero kept the brass latch enclosed in one steady hand while the locked door pressed against its frame.',
+    'Dust shifted in the narrow gap as the latch turned and the door opened inward.',
+    'Hero crossed the threshold without releasing the brass latch and stood inside the room.',
+  ].join(' ');
+  const authorityDrift = [
+    'Mara held the brass latch but used the key she had retrieved from a desk.',
+    'With the practiced motion she remembered, she opened the locked room exactly as expected.',
+    'She crossed the threshold and stood inside with the brass latch still in her hand.',
+  ].join(' ');
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: compliantLegacy,
+      canaryProse: authorityDrift,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+
+  assert.deepEqual(result.attestation.legacy_authority_issue_codes, []);
+  assert.deepEqual(result.attestation.canary_authority_issue_codes, [
+    'POV_IDENTITY_DRIFT',
+    'UNAUTHORIZED_EVENT_INSTRUMENT',
+    'UNSUPPORTED_HISTORY_OR_KNOWLEDGE',
+  ]);
+  assert.equal(
+    result.attestation.authority_adherence_mechanical_outcome,
+    'canary-regression-signal'
+  );
+  assert.equal(
+    result.attestation.mechanical_outcome,
+    'canary-regression-signal'
+  );
+  assert.equal(
+    result.attestation.additional_test_only_trials_supported,
+    false
+  );
+  assert.equal(
+    result.localReview.canary.audit.pov_identity_present,
+    false
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unauthorized_event_instrument_detected,
+    true
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unsupported_history_or_knowledge_detected,
+    true
+  );
+});
+
+await test('Stage 8 authority audit accepts the literal POV identity and authorized scene objects', async () => {
+  const compliantProse = [
+    'Hero held the brass latch firmly while cool air moved through the narrow hallway.',
+    'The latch turned, the locked door yielded, and a thin wash of dust shifted beyond it.',
+    'Hero crossed the threshold and stood inside with the brass latch still in hand.',
+  ].join(' ');
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: compliantProse,
+      canaryProse: compliantProse,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+
+  assert.deepEqual(result.attestation.legacy_authority_issue_codes, []);
+  assert.deepEqual(result.attestation.canary_authority_issue_codes, []);
+  assert.equal(
+    result.attestation.authority_adherence_mechanical_outcome,
+    'neutral-signal'
+  );
+  assert.equal(result.localReview.canary.audit.pov_identity_present, true);
+  assert.equal(
+    result.localReview.canary.audit
+      .unauthorized_event_instrument_detected,
+    false
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unsupported_history_or_knowledge_detected,
+    false
+  );
 });
 
 await test('Stage 8 sends byte-matched model settings and changes only the paired prompt', async () => {
