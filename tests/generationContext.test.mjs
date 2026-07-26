@@ -3540,7 +3540,7 @@ function parsePromptProjection(rendered) {
   );
   assert.equal(
     lines[1],
-    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as a hard stop: end immediately when it is reached, without later action, exploration, plans, reflection, or setup. Do not perform, imply, or prepare forbidden events. Do not assert prior familiarity, ownership, plans, or knowledge unless continuity or knowledge_authority explicitly authorizes it.'
+    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. After a brief same-moment confirmation of the exit state and required continuity, output must end without another action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. Use scene_identity.pov_identity exactly as supplied. Unless continuity or knowledge_authority explicitly authorizes a story fact, omit it instead of inventing a name, prior attempt, elapsed time, object provenance, familiarity, ownership, plan, history, relationship, location detail, or knowledge. Do not perform, imply, or prepare forbidden events.'
   );
   assert.equal(
     lines.at(-1),
@@ -3617,7 +3617,7 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   );
   assert.equal(
     projection.projection_version,
-    'scene-execution-prompt-projection-v2'
+    'scene-execution-prompt-projection-v3'
   );
   assert.equal(projection.packet_id, input.packet.packet_id);
   assert.deepEqual(projection.scene_identity, {
@@ -3655,13 +3655,19 @@ await test('Stage 3 prompt projection deterministically renders current-scene au
   assert.deepEqual(projection.voice_rules, ['Third person past tense']);
   assert.equal(
     first.includes(
-      'Treat current_scene_authority.exit_state as a hard stop: end immediately when it is reached, without later action, exploration, plans, reflection, or setup.'
+      'Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat.'
     ),
     true
   );
   assert.equal(
     first.includes(
-      'Do not perform, imply, or prepare forbidden events. Do not assert prior familiarity, ownership, plans, or knowledge unless continuity or knowledge_authority explicitly authorizes it.'
+      'This boundary outranks every requested word-count target: return fewer words rather than continue past it.'
+    ),
+    true
+  );
+  assert.equal(
+    first.includes(
+      'omit it instead of inventing a name, prior attempt, elapsed time, object provenance, familiarity, ownership, plan, history, relationship, location detail, or knowledge.'
     ),
     true
   );
@@ -5840,11 +5846,11 @@ function makeStage8RunInput(overrides = {}) {
 await test('Stage 8 live-canary feature metadata is immutable, own-data-only, and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
-    'scene_execution_live_canary_v2'
+    'scene_execution_live_canary_v3'
   );
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_VERSION,
-    'scene-execution-live-canary-v2'
+    'scene-execution-live-canary-v3'
   );
   assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
@@ -5975,6 +5981,84 @@ await test('Stage 8 distinguishes a brief landing from genuine post-exit overrun
     ),
     false
   );
+});
+
+await test('Stage 8 catches a new action immediately after the exit transition', async () => {
+  const shortActionOverrun =
+    'Hero opened the locked room and crossed the threshold. He pulled the door shut.';
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: shortActionOverrun,
+      canaryProse: shortActionOverrun,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+  assert.equal(
+    result.localReview.legacy.audit.issue_codes.includes(
+      'EXIT_BOUNDARY_OVERRUN'
+    ),
+    true
+  );
+  assert.equal(
+    result.localReview.canary.audit.issue_codes.includes(
+      'EXIT_BOUNDARY_OVERRUN'
+    ),
+    true
+  );
+  assert.equal(
+    result.localReview.canary.audit.post_exit_action_detected,
+    true
+  );
+  assert.equal(
+    result.localReview.canary.audit.exit_boundary_overrun_severity,
+    'minor'
+  );
+});
+
+await test('Stage 8 compares exit-overrun severity instead of treating unequal overruns as equivalent', async () => {
+  const approach = Array.from(
+    { length: 45 },
+    (_, index) => `approach${index + 1}`
+  ).join(' ');
+  const landing =
+    `${approach} Hero opened the locked room and crossed the threshold.`;
+  const severeOverrun = `${landing} He moved deeper into the room. ${Array.from(
+    { length: 70 },
+    (_, index) => `aftermath${index + 1}`
+  ).join(' ')}`;
+  const minorOverrun = `${landing} He pulled the door shut.`;
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: severeOverrun,
+      canaryProse: minorOverrun,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+  assert.deepEqual(result.attestation.legacy_issue_codes, [
+    'EXIT_BOUNDARY_OVERRUN',
+  ]);
+  assert.deepEqual(result.attestation.canary_issue_codes, [
+    'EXIT_BOUNDARY_OVERRUN',
+  ]);
+  assert.equal(result.attestation.issue_count_delta, 0);
+  assert.equal(
+    result.attestation.legacy_exit_boundary_overrun_severity,
+    'severe'
+  );
+  assert.equal(
+    result.attestation.canary_exit_boundary_overrun_severity,
+    'minor'
+  );
+  assert.ok(result.attestation.exit_boundary_overrun_word_delta < 0);
+  assert.equal(
+    result.attestation.exit_boundary_mechanical_outcome,
+    'canary-improvement-signal'
+  );
+  assert.equal(
+    result.attestation.mechanical_outcome,
+    'canary-improvement-signal'
+  );
+  assert.equal(result.attestation.additional_test_only_trials_supported, true);
 });
 
 await test('Stage 8 sends byte-matched model settings and changes only the paired prompt', async () => {

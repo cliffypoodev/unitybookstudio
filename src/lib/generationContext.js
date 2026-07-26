@@ -11,7 +11,7 @@
 
 export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
-export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v2';
+export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v3';
 export const SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION = 'scene-execution-shadow-integration-v1';
 export const SCENE_EXECUTION_PROMPT_CANARY_VERSION = 'scene-execution-prompt-canary-v1';
 export const SCENE_EXECUTION_CANARY_TRIAL_VERSION = 'scene-execution-canary-trial-v1';
@@ -2035,7 +2035,7 @@ export function renderSceneExecutionPromptProjection(input) {
 
   return [
     '<<< BEGIN VALIDATED SCENE EXECUTION AUTHORITY >>>',
-    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as a hard stop: end immediately when it is reached, without later action, exploration, plans, reflection, or setup. Do not perform, imply, or prepare forbidden events. Do not assert prior familiarity, ownership, plans, or knowledge unless continuity or knowledge_authority explicitly authorizes it.',
+    'Current-scene authority only. Future-reserved event IDs are opaque boundaries; do not infer or expand them. Treat current_scene_authority.exit_state as an absolute hard stop and make the transition into that state the final narrative beat. After a brief same-moment confirmation of the exit state and required continuity, output must end without another action, movement, observation, thought, reflection, dialogue, plan, or setup. This boundary outranks every requested word-count target: return fewer words rather than continue past it. Use scene_identity.pov_identity exactly as supplied. Unless continuity or knowledge_authority explicitly authorizes a story fact, omit it instead of inventing a name, prior attempt, elapsed time, object provenance, familiarity, ownership, plan, history, relationship, location detail, or knowledge. Do not perform, imply, or prepare forbidden events.',
     JSON.stringify(projection, null, 2),
     '<<< END VALIDATED SCENE EXECUTION AUTHORITY >>>',
   ].join('\n');

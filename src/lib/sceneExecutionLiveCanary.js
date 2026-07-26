@@ -17,10 +17,10 @@ import {
 } from './generationContext.js';
 
 export const SCENE_EXECUTION_LIVE_CANARY_VERSION =
-  'scene-execution-live-canary-v2';
+  'scene-execution-live-canary-v3';
 
 export const SCENE_EXECUTION_LIVE_CANARY_FEATURE = Object.freeze({
-  key: 'scene_execution_live_canary_v2',
+  key: 'scene_execution_live_canary_v3',
   defaultEnabled: false,
 });
 
@@ -348,6 +348,41 @@ function findExitTransition(normalized) {
   return earliest;
 }
 
+const POST_EXIT_WORD_ALLOWANCE = 18;
+
+function assessExitBoundary(normalized, transition) {
+  if (!transition) {
+    return {
+      post_exit_word_count: 0,
+      exit_boundary_overrun_words: 0,
+      exit_boundary_overrun_severity: 'not-reached',
+      post_exit_action_detected: false,
+      overrun: false,
+    };
+  }
+  const postExit = normalized.slice(transition.end).trim();
+  const postExitWordCount = countWords(postExit);
+  const postExitActionDetected =
+    /\b(?:advance(?:d|s|ing)?|breathe(?:d|s|ing)?|close(?:d|s|ing)?|decid(?:e|ed|es|ing)|examin(?:e|ed|es|ing)|explor(?:e|ed|es|ing)|hear(?:d|s|ing)?|listen(?:ed|s|ing)?|look(?:ed|s|ing)?|mov(?:e|ed|es|ing)|notic(?:e|ed|es|ing)|open(?:ed|s|ing)?|plan(?:ned|s|ning)?|pull(?:ed|s|ing)?|push(?:ed|s|ing)?|reach(?:ed|es|ing)?|read(?:s|ing)?|search(?:ed|es|ing)?|see(?:s|ing)?|saw|shut(?:s|ting)?|step(?:ped|s|ping)?|survey(?:ed|s|ing)?|think(?:s|ing)?|thought|turn(?:ed|s|ing)?|wait(?:ed|s|ing)?|walk(?:ed|s|ing)?|wonder(?:ed|s|ing)?)\b/i.test(
+      postExit
+    );
+  const overrun =
+    postExitWordCount > POST_EXIT_WORD_ALLOWANCE ||
+    postExitActionDetected;
+  const overrunWords = overrun ? postExitWordCount : 0;
+  let severity = 'none';
+  if (overrunWords > 60) severity = 'severe';
+  else if (overrunWords > 20) severity = 'material';
+  else if (overrunWords > 0) severity = 'minor';
+  return {
+    post_exit_word_count: postExitWordCount,
+    exit_boundary_overrun_words: overrunWords,
+    exit_boundary_overrun_severity: severity,
+    post_exit_action_detected: postExitActionDetected,
+    overrun,
+  };
+}
+
 function actionIsNegated(clause, actionIndex, actionEnd) {
   const prefix = clause.slice(Math.max(0, actionIndex - 55), actionIndex);
   const suffix = clause.slice(actionEnd, Math.min(clause.length, actionEnd + 45));
@@ -442,10 +477,8 @@ function assessOutput(prose) {
   const exitTransition = findExitTransition(normalized);
   const reachesExit = exitTransition !== null;
   if (!reachesExit) issues.push('EXIT_STATE_MISSING');
-  if (
-    exitTransition &&
-    countWords(normalized.slice(exitTransition.end)) > 40
-  ) {
+  const exitBoundary = assessExitBoundary(normalized, exitTransition);
+  if (exitBoundary.overrun) {
     issues.push('EXIT_BOUNDARY_OVERRUN');
   }
   if (hasFutureBoundaryViolation(normalized)) {
@@ -455,8 +488,35 @@ function assessOutput(prose) {
     word_count: wordCount,
     issue_codes: issues,
     issue_count: issues.length,
+    post_exit_word_count: exitBoundary.post_exit_word_count,
+    exit_boundary_overrun_words:
+      exitBoundary.exit_boundary_overrun_words,
+    exit_boundary_overrun_severity:
+      exitBoundary.exit_boundary_overrun_severity,
+    post_exit_action_detected:
+      exitBoundary.post_exit_action_detected,
     passed: issues.length === 0,
   });
+}
+
+function compareExitBoundaryAudits(legacyAudit, canaryAudit) {
+  const legacyMissing = legacyAudit.issue_codes.includes(
+    'EXIT_STATE_MISSING'
+  );
+  const canaryMissing = canaryAudit.issue_codes.includes(
+    'EXIT_STATE_MISSING'
+  );
+  if (legacyMissing !== canaryMissing) {
+    return canaryMissing
+      ? 'canary-regression-signal'
+      : 'canary-improvement-signal';
+  }
+  const delta =
+    canaryAudit.exit_boundary_overrun_words -
+    legacyAudit.exit_boundary_overrun_words;
+  if (delta > 0) return 'canary-regression-signal';
+  if (delta < 0) return 'canary-improvement-signal';
+  return 'neutral-signal';
 }
 
 function buildFixture(flags) {
@@ -872,8 +932,19 @@ export async function runSceneExecutionLiveCanary(input) {
     canaryEvidence,
   });
 
+  const exitBoundaryOutcome = compareExitBoundaryAudits(
+    legacyAudit,
+    canaryAudit
+  );
   const regression =
-    comparison.mechanical_outcome === 'canary-regression-signal';
+    comparison.mechanical_outcome === 'canary-regression-signal' ||
+    exitBoundaryOutcome === 'canary-regression-signal';
+  const liveMechanicalOutcome = regression
+    ? 'canary-regression-signal'
+    : comparison.mechanical_outcome === 'canary-improvement-signal' ||
+        exitBoundaryOutcome === 'canary-improvement-signal'
+      ? 'canary-improvement-signal'
+      : 'neutral-signal';
   const attestation = deepFreeze({
     live_canary_version: SCENE_EXECUTION_LIVE_CANARY_VERSION,
     status: 'live-model-paired-evidence-collected',
@@ -910,7 +981,19 @@ export async function runSceneExecutionLiveCanary(input) {
     legacy_issue_codes: legacyAudit.issue_codes,
     canary_issue_codes: canaryAudit.issue_codes,
     issue_count_delta: comparison.issue_count_delta,
-    mechanical_outcome: comparison.mechanical_outcome,
+    legacy_exit_boundary_overrun_words:
+      legacyAudit.exit_boundary_overrun_words,
+    canary_exit_boundary_overrun_words:
+      canaryAudit.exit_boundary_overrun_words,
+    exit_boundary_overrun_word_delta:
+      canaryAudit.exit_boundary_overrun_words -
+      legacyAudit.exit_boundary_overrun_words,
+    legacy_exit_boundary_overrun_severity:
+      legacyAudit.exit_boundary_overrun_severity,
+    canary_exit_boundary_overrun_severity:
+      canaryAudit.exit_boundary_overrun_severity,
+    exit_boundary_mechanical_outcome: exitBoundaryOutcome,
+    mechanical_outcome: liveMechanicalOutcome,
     live_model_evidence_satisfied: true,
     broader_rollout_supported: false,
     additional_test_only_trials_supported:
