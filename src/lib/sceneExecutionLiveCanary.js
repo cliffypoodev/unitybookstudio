@@ -17,10 +17,10 @@ import {
 } from './generationContext.js';
 
 export const SCENE_EXECUTION_LIVE_CANARY_VERSION =
-  'scene-execution-live-canary-v7';
+  'scene-execution-live-canary-v8';
 
 export const SCENE_EXECUTION_LIVE_CANARY_FEATURE = Object.freeze({
-  key: 'scene_execution_live_canary_v7',
+  key: 'scene_execution_live_canary_v8',
   defaultEnabled: false,
 });
 
@@ -465,11 +465,17 @@ function assessAuthorityAdherence(source, normalized) {
   const povIdentityPresent = new RegExp(
     `\\b${escapeRegExp(STAGE8_POV_IDENTITY)}\\b`
   ).test(source);
-  const unauthorizedEventInstrumentDetected =
-    /\b(?:key|keycard|keyhole|tumblers?|crowbar|lockpick|lock-pick|skeleton key|lock(?:ing)? mechanism)\b/i.test(
+  const inventedEventMechanismDetected =
+    /\b(?:key|keycard|keyhole|tumblers?|crowbar|lockpick|lock-pick|skeleton key|mechanisms?)\b/i.test(
       normalized
     ) ||
     /\bpick(?:ed|s|ing)?\s+(?:at\s+)?the lock\b/i.test(normalized);
+  const unsupportedEventOperationDetected =
+    /\b(?:brass\s+)?latch\b[^.!?;\n]{0,48}\b(?:against|at|in|into|on|onto|through|to|within)\s+(?:the\s+)?lock\b/i.test(
+      normalized
+    );
+  const unauthorizedEventInstrumentDetected =
+    inventedEventMechanismDetected || unsupportedEventOperationDetected;
   const unsupportedHistoryOrKnowledgeDetected =
     /\b(?:again|familiar|previously|practiced|recalled|recognized|remembered|retrieved|returned|expected|knew|known)\b/i.test(
       normalized
@@ -495,6 +501,10 @@ function assessAuthorityAdherence(source, normalized) {
     pov_identity_present: povIdentityPresent,
     unauthorized_event_instrument_detected:
       unauthorizedEventInstrumentDetected,
+    invented_event_mechanism_detected:
+      inventedEventMechanismDetected,
+    unsupported_event_operation_detected:
+      unsupportedEventOperationDetected,
     unsupported_history_or_knowledge_detected:
       unsupportedHistoryOrKnowledgeDetected,
     unsupported_setting_detail_detected:
@@ -562,6 +572,10 @@ function assessOutput(prose) {
     pov_identity_present: authorityAdherence.pov_identity_present,
     unauthorized_event_instrument_detected:
       authorityAdherence.unauthorized_event_instrument_detected,
+    invented_event_mechanism_detected:
+      authorityAdherence.invented_event_mechanism_detected,
+    unsupported_event_operation_detected:
+      authorityAdherence.unsupported_event_operation_detected,
     unsupported_history_or_knowledge_detected:
       authorityAdherence.unsupported_history_or_knowledge_detected,
     unsupported_setting_detail_detected:

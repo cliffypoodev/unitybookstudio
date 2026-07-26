@@ -6054,11 +6054,11 @@ function makeStage8RunInput(overrides = {}) {
 await test('Stage 8 live-canary feature metadata is immutable, own-data-only, and default-disabled', () => {
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_FEATURE.key,
-    'scene_execution_live_canary_v7'
+    'scene_execution_live_canary_v8'
   );
   assert.equal(
     SCENE_EXECUTION_LIVE_CANARY_VERSION,
-    'scene-execution-live-canary-v7'
+    'scene-execution-live-canary-v8'
   );
   assert.equal(SCENE_EXECUTION_LIVE_CANARY_FEATURE.defaultEnabled, false);
   assert.ok(Object.isFrozen(SCENE_EXECUTION_LIVE_CANARY_FEATURE));
@@ -6411,6 +6411,90 @@ await test('Stage 8 treats invented lock anatomy as an unauthorized event mechan
     result.attestation.authority_adherence_mechanical_outcome,
     'canary-regression-signal'
   );
+});
+
+await test('Stage 8 rejects generic mechanism language absent from scene authority', async () => {
+  const compliantProse =
+    'Hero held the brass latch as the locked door opened, crossed the threshold, and stood inside with the latch still in hand.';
+  const inventedMechanism =
+    'Hero held the brass latch and felt the mechanism yield as the locked door opened. Hero crossed the threshold and stood inside with the latch still in hand.';
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: compliantProse,
+      canaryProse: inventedMechanism,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+
+  assert.equal(
+    result.localReview.legacy.audit
+      .invented_event_mechanism_detected,
+    false
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .invented_event_mechanism_detected,
+    true
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unsupported_event_operation_detected,
+    false
+  );
+  assert.deepEqual(result.attestation.canary_authority_issue_codes, [
+    'UNAUTHORIZED_EVENT_INSTRUMENT',
+  ]);
+  assert.equal(
+    result.attestation.authority_adherence_mechanical_outcome,
+    'canary-regression-signal'
+  );
+  assert.equal(
+    result.attestation.additional_test_only_trials_supported,
+    false
+  );
+  assert.equal(result.attestation.recommendation, 'stop-live-model-canary');
+});
+
+await test('Stage 8 rejects unsupported latch-to-lock operating details', async () => {
+  const compliantProse =
+    'Hero held the brass latch as the locked door opened, crossed the threshold, and stood inside with the latch still in hand.';
+  const inventedOperation =
+    'Hero pressed the brass latch against the lock. The locked door opened. Hero crossed the threshold and stood inside with the latch still in hand.';
+  const { input } = makeStage8RunInput({
+    fetchOptions: {
+      legacyProse: compliantProse,
+      canaryProse: inventedOperation,
+    },
+  });
+  const result = await runSceneExecutionLiveCanary(input);
+
+  assert.equal(
+    result.localReview.legacy.audit
+      .unsupported_event_operation_detected,
+    false
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .invented_event_mechanism_detected,
+    false
+  );
+  assert.equal(
+    result.localReview.canary.audit
+      .unsupported_event_operation_detected,
+    true
+  );
+  assert.deepEqual(result.attestation.canary_authority_issue_codes, [
+    'UNAUTHORIZED_EVENT_INSTRUMENT',
+  ]);
+  assert.equal(
+    result.attestation.authority_adherence_mechanical_outcome,
+    'canary-regression-signal'
+  );
+  assert.equal(
+    result.attestation.additional_test_only_trials_supported,
+    false
+  );
+  assert.equal(result.attestation.recommendation, 'stop-live-model-canary');
 });
 
 await test('Stage 8 authority audit rejects structural setting facts absent from the contract', async () => {
