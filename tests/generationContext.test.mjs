@@ -50,6 +50,14 @@ import {
   getSceneExecutionAcceptanceGateDecision,
   isSceneExecutionAcceptanceGateEnabled,
   prepareSceneExecutionAcceptanceState,
+  evaluateSceneExecutionAcceptance,
+  SCENE_EXECUTION_ACCEPTANCE_EVALUATION_VERSION,
+  EVALUATE_ACCEPTANCE_INPUT_KEYS,
+  AUDIT_REQUEST_KEYS,
+  AUDIT_RESPONSE_KEYS,
+  AUDIT_COVERAGE_KEYS,
+  ALLOWED_COVERAGE_STATUSES,
+  EVALUATOR_RESULT_KEYS,
 } from '../src/lib/generationContext.js';
 import {
   isSceneExecutionLiveCanaryEnabled,
@@ -7044,5 +7052,218 @@ await test('Stage 9A Checkpoint 1: unresolvable future event ID preparation thro
         shadowState,
       }),
     (err) => err.code === 'SCENE_ACCEPTANCE_STATE_INVALID'
+  );
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 9A — Scene execution acceptance gate evaluation (Checkpoint 2)
+// ═══════════════════════════════════════════════════════════════════════
+
+function makeStage9AEnabledSetup() {
+  const allFlags = {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key]: true,
+    [SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key]: true,
+  };
+
+  const contract = createImmutableSceneContract(
+    [
+      {
+        scene_number: 1,
+        scene_id: 'ch01-s01',
+        scene_goal: 'Explore room 1',
+        entry_state: 'outside room 1',
+        required_events: ['Hero enters room 1'],
+        forbidden_events: ['Do not reveal secret'],
+        exit_state: 'inside room 1',
+        continuity_dependencies: [],
+      },
+      {
+        scene_number: 2,
+        scene_id: 'ch01-s02',
+        scene_goal: 'Explore room 2',
+        entry_state: 'inside room 1',
+        required_events: ['Hero opens chest in room 2'],
+        forbidden_events: [],
+        exit_state: 'holding artifact',
+        continuity_dependencies: ['Hero enters room 1'],
+      },
+    ],
+    { chapterNumber: 1 }
+  );
+
+  const shadowIntegrationInput = {
+    flags: allFlags,
+    snapshot: makeComposerSnapshot(contract),
+    contextBySceneId: {
+      'ch01-s01': { ...makeComposerContext(), future_reserved_event_ids: [] },
+      'ch01-s02': { ...makeComposerContext(), future_reserved_event_ids: [] },
+    },
+  };
+
+  const shadowState = prepareSceneExecutionShadowIntegration({
+    integration: shadowIntegrationInput,
+    immutableSceneContract: contract,
+  });
+
+  const snapshot = makeComposerSnapshot(contract);
+
+  const acceptanceState = prepareSceneExecutionAcceptanceState({
+    flags: allFlags,
+    snapshot,
+    immutableSceneContract: contract,
+    shadowState,
+  });
+
+  return { allFlags, contract, snapshot, shadowState, acceptanceState };
+}
+
+function makeCleanAuditResponse(auditRequest) {
+  return {
+    version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+    contract_fingerprint: auditRequest.contract_fingerprint,
+    scene_id: auditRequest.scene_id,
+    scene_number: auditRequest.scene_number,
+    packet_id: auditRequest.packet.packet_id,
+    status: 'clean',
+    issues: Object.freeze([]),
+    coverage: {
+      entry_state_satisfied: 'verified',
+      exit_state_attained: 'verified',
+      required_events_satisfied: 'verified',
+      forbidden_events_avoided: 'verified',
+      continuity_satisfied: 'verified',
+    },
+  };
+}
+
+await test('Stage 9A Checkpoint 2: disabled gate bypasses auditRunner and returns bypassed result', async () => {
+  let invoked = 0;
+  const result = await evaluateSceneExecutionAcceptance({
+    flags: {},
+    acceptanceState: null,
+    targetSceneId: 'ch01-s01',
+    prose: 'Some prose text',
+    runners: {
+      auditRunner: async () => {
+        invoked += 1;
+      },
+    },
+  });
+
+  assert.equal(invoked, 0);
+  assert.equal(result.version, SCENE_EXECUTION_ACCEPTANCE_EVALUATION_VERSION);
+  assert.equal(result.enabled, false);
+  assert.equal(result.mode, 'disabled');
+  assert.equal(result.status, 'bypassed');
+  assert.equal(result.contract_fingerprint, null);
+  assert.ok(Object.isFrozen(result));
+  assert.ok(Object.isFrozen(result.issues));
+});
+
+await test('Stage 9A Checkpoint 2: unbranded or disabled acceptance state rejected', async () => {
+  const { allFlags } = makeStage9AEnabledSetup();
+
+  const fakeState = {
+    version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+    enabled: true,
+    contract_fingerprint: 'fp123',
+    records_by_scene_id: {},
+  };
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState: fakeState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: { auditRunner: async () => {} },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_STATE_INVALID'
+  );
+});
+
+await test('Stage 9A Checkpoint 2: valid enabled state invokes auditRunner exactly once with frozen single-scene request', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  let invoked = 0;
+  let capturedRequest;
+
+  const result = await evaluateSceneExecutionAcceptance({
+    flags: allFlags,
+    acceptanceState,
+    targetSceneId: 'ch01-s01',
+    prose: 'Hero entered room 1 carefully.',
+    runners: {
+      auditRunner: async (req) => {
+        invoked += 1;
+        capturedRequest = req;
+        return makeCleanAuditResponse(req);
+      },
+    },
+  });
+
+  assert.equal(invoked, 1);
+  assert.ok(capturedRequest);
+  assert.ok(Object.isFrozen(capturedRequest));
+  assert.equal(capturedRequest.scene_id, 'ch01-s01');
+  assert.equal(capturedRequest.scene_number, 1);
+  assert.ok(capturedRequest.packet);
+  assert.ok(capturedRequest.private_future_authority);
+  assert.equal(capturedRequest.private_future_authority.length, 1);
+  assert.equal(capturedRequest.private_future_authority[0].text, 'Hero opens chest in room 2');
+  assert.equal(capturedRequest.prose, 'Hero entered room 1 carefully.');
+
+  assert.equal(result.version, SCENE_EXECUTION_ACCEPTANCE_EVALUATION_VERSION);
+  assert.equal(result.enabled, true);
+  assert.equal(result.mode, 'acceptance');
+  assert.equal(result.status, 'accepted');
+  assert.equal(result.scene_id, 'ch01-s01');
+  assert.equal(result.scene_number, 1);
+  assert.equal(result.final_prose, 'Hero entered room 1 carefully.');
+  assert.ok(Object.isFrozen(result));
+  assert.ok(Object.isFrozen(result.audit));
+});
+
+await test('Stage 9A Checkpoint 2: auditRunner exception normalized to SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: {
+          auditRunner: async () => {
+            throw new Error('LLM model endpoint offline');
+          },
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED'
+  );
+});
+
+await test('Stage 9A Checkpoint 2: malformed audit response normalized to SCENE_ACCEPTANCE_AUDIT_MALFORMED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: {
+          auditRunner: async () => {
+            return { status: 'clean' };
+          },
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_MALFORMED'
   );
 });
