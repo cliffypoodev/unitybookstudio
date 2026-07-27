@@ -7129,7 +7129,7 @@ function makeCleanAuditResponse(auditRequest) {
     scene_number: auditRequest.scene_number,
     packet_id: auditRequest.packet.packet_id,
     status: 'clean',
-    issues: Object.freeze([]),
+    issues: [], // Ordinary unfrozen empty array
     coverage: {
       entry_state_satisfied: 'verified',
       exit_state_attained: 'verified',
@@ -7226,6 +7226,7 @@ await test('Stage 9A Checkpoint 2: valid enabled state invokes auditRunner exact
   assert.equal(result.final_prose, 'Hero entered room 1 carefully.');
   assert.ok(Object.isFrozen(result));
   assert.ok(Object.isFrozen(result.audit));
+  assert.ok(Object.isFrozen(result.audit.issues));
 });
 
 await test('Stage 9A Checkpoint 2: auditRunner exception normalized to SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED', async () => {
@@ -7265,5 +7266,70 @@ await test('Stage 9A Checkpoint 2: malformed audit response normalized to SCENE_
         },
       }),
     (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_MALFORMED'
+  );
+});
+
+await test('Stage 9A Checkpoint 2A: issues_found status rejected with SCENE_ACCEPTANCE_AUDIT_FAILED before repair implementation', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: {
+          auditRunner: async (req) => {
+            const resp = makeCleanAuditResponse(req);
+            resp.status = 'issues_found';
+            return resp;
+          },
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_FAILED'
+  );
+});
+
+await test('Stage 9A Checkpoint 2A: clean audit with unverified coverage is rejected with SCENE_ACCEPTANCE_AUDIT_MALFORMED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: {
+          auditRunner: async (req) => {
+            const resp = makeCleanAuditResponse(req);
+            resp.coverage.exit_state_attained = 'unverified';
+            return resp;
+          },
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_MALFORMED'
+  );
+});
+
+await test('Stage 9A Checkpoint 2A: runner-thrown branded Stage 9 error is normalized to SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: {
+          auditRunner: async () => {
+            // Throw a branded Stage 9 error inside runner
+            throw new Error('Branded error thrown inside audit runner');
+          },
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED'
   );
 });

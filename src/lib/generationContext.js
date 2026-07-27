@@ -4512,21 +4512,19 @@ function inspectAuditResponseRecordSafe(rawResponse, auditRequest) {
     throw sceneAcceptanceError('Audit response identity mismatch', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   }
 
-  if (status === 'audit_failed') {
-    throw sceneAcceptanceError('auditRunner reported audit failure', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+  if (status === 'audit_failed' || status === 'issues_found') {
+    throw sceneAcceptanceError(`auditRunner reported ${status}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
   }
-  if (status !== 'clean' && status !== 'issues_found') {
+  if (status !== 'clean') {
     throw sceneAcceptanceError(`Invalid audit response status: ${status}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   }
 
-  if (!Array.isArray(issues) || !Object.isFrozen(issues)) {
-    throw sceneAcceptanceError('Audit response issues must be a frozen array', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  if (!Array.isArray(issues)) {
+    throw sceneAcceptanceError('Audit response issues must be an array', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   }
 
-  if (status === 'clean') {
-    if (issues.length !== 0) {
-      throw sceneAcceptanceError('Clean audit response cannot contain issues', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
-    }
+  if (status === 'clean' && issues.length !== 0) {
+    throw sceneAcceptanceError('Clean audit response cannot contain issues', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   }
 
   if (!coverage || typeof coverage !== 'object' || Array.isArray(coverage)) {
@@ -4555,8 +4553,8 @@ function inspectAuditResponseRecordSafe(rawResponse, auditRequest) {
     if (!ALLOWED_COVERAGE_STATUS_LOOKUP.has(cDesc.value)) {
       throw sceneAcceptanceError(`Invalid status for coverage property ${cKey}: ${cDesc.value}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
-    if (status === 'clean' && cDesc.value === 'failed') {
-      throw sceneAcceptanceError(`Clean audit response cannot contain failed coverage status for ${cKey}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    if (cDesc.value !== 'verified') {
+      throw sceneAcceptanceError(`Clean audit response coverage property ${cKey} must be verified, got ${cDesc.value}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
   }
 
@@ -4647,7 +4645,6 @@ export async function evaluateSceneExecutionAcceptance(input) {
     try {
       rawAuditResponse = await auditRunner(auditRequest);
     } catch (err) {
-      if (isSceneAcceptanceError(err)) throw err;
       throw sceneAcceptanceError(
         `auditRunner execution failed: ${err?.message || 'unknown error'}`,
         'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED',
