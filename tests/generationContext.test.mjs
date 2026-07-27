@@ -7519,3 +7519,101 @@ await test('Stage 9A Checkpoint 3A: second audit not clean is rejected with SCEN
 
   assert.equal(auditInvoked, 2);
 });
+
+await test('Stage 9A Checkpoint 3A: initial auditRunner thrown object with throwing getter is normalized', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  const hostileError = {
+    get message() {
+      throw new Error('Hostile message getter escape attempt');
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: {
+          auditRunner: async () => {
+            throw hostileError;
+          },
+        },
+      }),
+    (err) => {
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED');
+      assert.deepEqual(err.details, []);
+      assert.ok(!err.message.includes('Hostile'));
+      return true;
+    }
+  );
+});
+
+await test('Stage 9A Checkpoint 3A: repairRunner secret error message is absent from error message and details', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  const prose = 'Hero entered room 1 carefully. Hero opened chest prematurely.';
+  const excerpt = 'Hero opened chest prematurely.';
+  const offset = prose.indexOf(excerpt);
+
+  const secretMessage = 'TOP_SECRET_INTERNAL_API_KEY_12345';
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose,
+        runners: {
+          auditRunner: async (req) => makeRepairableAuditResponse(req, excerpt, offset),
+          repairRunner: async () => {
+            throw new Error(secretMessage);
+          },
+        },
+      }),
+    (err) => {
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_REPAIR_RUNNER_FAILED');
+      assert.deepEqual(err.details, []);
+      assert.ok(!err.message.includes(secretMessage));
+      return true;
+    }
+  );
+});
+
+await test('Stage 9A Checkpoint 3A: verification auditRunner secret error message is absent from error message and details', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  let auditInvoked = 0;
+  const prose = 'Hero entered room 1 carefully. Hero opened chest prematurely.';
+  const excerpt = 'Hero opened chest prematurely.';
+  const offset = prose.indexOf(excerpt);
+
+  const secretMessage = 'TOP_SECRET_VERIFICATION_FAIL_98765';
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose,
+        runners: {
+          auditRunner: async (req) => {
+            auditInvoked += 1;
+            if (auditInvoked === 1) {
+              return makeRepairableAuditResponse(req, excerpt, offset);
+            }
+            throw new Error(secretMessage);
+          },
+          repairRunner: async (req) => makeRepairResponse(req, 'Hero observed the chest.'),
+        },
+      }),
+    (err) => {
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED');
+      assert.deepEqual(err.details, []);
+      assert.ok(!err.message.includes(secretMessage));
+      return true;
+    }
+  );
+});

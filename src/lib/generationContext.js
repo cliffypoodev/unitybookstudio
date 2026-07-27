@@ -4992,11 +4992,11 @@ export async function evaluateSceneExecutionAcceptance(input) {
     let rawAuditResponse;
     try {
       rawAuditResponse = await auditRunner(auditRequest);
-    } catch (err) {
+    } catch (_err) {
       throw sceneAcceptanceError(
-        `auditRunner execution failed: ${err?.message || 'unknown error'}`,
+        'auditRunner execution failed',
         'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED',
-        [String(err?.message || err)]
+        []
       );
     }
 
@@ -5036,11 +5036,11 @@ export async function evaluateSceneExecutionAcceptance(input) {
     let rawRepairResponse;
     try {
       rawRepairResponse = await repairRunner(repairRequest);
-    } catch (err) {
+    } catch (_err) {
       throw sceneAcceptanceError(
-        `repairRunner execution failed: ${err?.message || 'unknown error'}`,
+        'repairRunner execution failed',
         'SCENE_ACCEPTANCE_REPAIR_RUNNER_FAILED',
-        [String(err?.message || err)]
+        []
       );
     }
 
@@ -5069,11 +5069,11 @@ export async function evaluateSceneExecutionAcceptance(input) {
     let secondRawAuditResponse;
     try {
       secondRawAuditResponse = await auditRunner(secondAuditRequest);
-    } catch (err) {
+    } catch (_err) {
       throw sceneAcceptanceError(
-        `Second auditRunner execution failed: ${err?.message || 'unknown error'}`,
+        'Verification auditRunner execution failed',
         'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED',
-        [String(err?.message || err)]
+        []
       );
     }
 
