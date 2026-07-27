@@ -78,6 +78,8 @@ import {
   prepareSceneExecutionCanaryTrial,
   prepareSceneExecutionPromptCanary,
   prepareSceneExecutionShadowIntegration,
+  prepareSceneExecutionAcceptanceState,
+  evaluateSceneExecutionAcceptance,
 } from '@/lib/generationContext';
 import { buildProjectContinuityLockBlock, validateProjectChapterContent } from '@/lib/projectContentGuard';
 import { auditSceneAgainstLedger, buildSceneContractRepairInstruction } from '@/lib/sceneContractGate';
@@ -2748,6 +2750,7 @@ export async function generateChapterSceneByScene({
   sceneExecutionShadow = null,
   sceneExecutionPromptCanary = null,
   sceneExecutionCanaryTrial = null,
+  sceneExecutionAcceptanceRunners = null,
 }) {
   if (!project) throw new Error('Project is required.');
   if (!chapter) throw new Error('Chapter is required.');
@@ -2871,6 +2874,24 @@ export async function generateChapterSceneByScene({
     immutableSceneContract: immutableContract,
     projectId: project?.id,
     chapterId: chapter?.id,
+  });
+
+  let flags = {};
+  let snapshot = null;
+  if (sceneExecutionShadow && typeof sceneExecutionShadow === 'object' && !Array.isArray(sceneExecutionShadow)) {
+    if (Object.prototype.hasOwnProperty.call(sceneExecutionShadow, 'flags')) {
+      flags = sceneExecutionShadow.flags;
+    }
+    if (Object.prototype.hasOwnProperty.call(sceneExecutionShadow, 'snapshot')) {
+      snapshot = sceneExecutionShadow.snapshot;
+    }
+  }
+
+  const sceneExecutionAcceptanceState = prepareSceneExecutionAcceptanceState({
+    flags,
+    snapshot,
+    immutableSceneContract: immutableContract,
+    shadowState: sceneExecutionShadowState,
   });
 
   const model = pickProseModel(project, proseModelOverride || modelOverride);
@@ -3344,6 +3365,27 @@ remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`
           ...(generated.issues || []),
           'Deterministic scene-state contract repaired',
         ];
+      }
+    }
+
+    const acceptanceResult = await evaluateSceneExecutionAcceptance({
+      flags,
+      acceptanceState: sceneExecutionAcceptanceState,
+      targetSceneId: spec.scene_id,
+      prose: sceneProse,
+      runners: sceneExecutionAcceptanceRunners || {},
+    });
+
+    if (acceptanceResult.status === 'accepted') {
+      if (acceptanceResult.final_prose !== sceneProse) {
+        sceneProse = acceptanceResult.final_prose;
+        if (acceptanceResult.repair) {
+          generated.repaired = true;
+          generated.issues = [
+            ...(generated.issues || []),
+            `Evaluator repaired scene: ${acceptanceResult.repair.replacements[0].issue_code}`
+          ];
+        }
       }
     }
 

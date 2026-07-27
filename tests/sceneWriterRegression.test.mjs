@@ -433,6 +433,217 @@ async function runAll() {
     assert.ok(threw, "Should throw chronology error for missing discovery");
   });
 
+  // -- STAGE 9A ACCEPTANCE INTEGRATION TESTS --
+
+  const mockProjectFor9A = Object.freeze({ id: 'proj-1', book_type: 'fiction', title: 'Acceptance Integration', __chapters: [] });
+  const mockChapterFor9A = Object.freeze({ id: 'ch-9', chapter_number: 9, title: 'Evaluation', scene_beats_json: '[]' });
+  const mockScenesFor9A = Object.freeze([
+    Object.freeze({ 
+      scene_number: 1, 
+      scene_id: 'ch09-s01', 
+      scene_goal: 'Test',
+      required_events: Object.freeze(['A happens.']), 
+      forbidden_events: Object.freeze([]),
+      continuity_dependencies: Object.freeze([]),
+      entry_state: 'unknown',
+      exit_state: 'A is done.',
+      location: 'Test location',
+      characters: Object.freeze([]),
+      emotional_beat: 'Test beat'
+    })
+  ]);
+
+  const shadowIntegrationMock = Object.freeze({
+    flags: Object.freeze({
+      scene_context_composer_v1: true,
+      scene_execution_shadow_v1: true,
+      scene_execution_prompt_canary_v2: true,
+      scene_execution_canary_trial_v1: true,
+      scene_execution_canary_comparison_v2: true,
+      scene_execution_acceptance_gate_v1: true
+    }),
+    snapshot: Object.freeze({ version: 'narrative-connect-v2', snapshotId: 'snap-49', project: mockProjectFor9A, chapter: mockChapterFor9A }),
+    contextBySceneId: Object.freeze({ 'ch09-s01': Object.freeze({ pov_identity: 'POV', immediate_continuity: '' }) })
+  });
+
+  await test('48. Default-disabled bypass', async () => {
+    const originalFetch = global.fetch;
+    global.fetch = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: 'Mocked prose for scene.' } }] }) });
+    let calls = 0;
+    try {
+      const result = await generateChapterSceneByScene({
+        project: mockProjectFor9A,
+        chapter: mockChapterFor9A,
+        scenes: mockScenesFor9A,
+        sceneExecutionAcceptanceRunners: {
+          auditRunner: async () => { calls++; return {}; },
+          repairRunner: async () => { calls++; return {}; }
+        }
+      });
+      assert.equal(calls, 0, 'Runners should not be called when disabled');
+      assert.ok(result.scenes[0].prose?.includes('Mocked prose'), 'Original prose should be preserved');
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
+
+  await test('49. Enabled clean acceptance', async () => {
+    const originalFetch = global.fetch;
+    global.fetch = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: 'Mocked prose for scene.' } }] }) });
+    let auditCalls = 0;
+    let repairCalls = 0;
+    try {
+      const result = await generateChapterSceneByScene({
+        project: mockProjectFor9A,
+        chapter: mockChapterFor9A,
+        scenes: mockScenesFor9A,
+        sceneExecutionShadow: shadowIntegrationMock,
+        sceneExecutionAcceptanceRunners: {
+          auditRunner: async (req) => {
+            auditCalls++;
+            return {
+              version: 'scene-execution-acceptance-gate-v1',
+              contract_fingerprint: req.contract_fingerprint,
+              scene_id: req.scene_id,
+              scene_number: req.scene_number,
+              packet_id: req.packet.packet_id,
+              status: 'clean',
+              issues: [],
+              coverage: {
+                entry_state_satisfied: 'verified',
+                exit_state_attained: 'verified',
+                required_events_satisfied: 'verified',
+                forbidden_events_avoided: 'verified',
+                continuity_satisfied: 'verified'
+              }
+            };
+          },
+          repairRunner: async () => { repairCalls++; return {}; }
+        }
+      });
+      assert.equal(auditCalls, 1, 'Audit runner should be called once');
+      assert.equal(repairCalls, 0, 'Repair runner should not be called');
+      assert.ok(result.scenes[0].prose?.includes('Mocked prose'), 'Original prose should be returned');
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
+
+  await test('50. Enabled surgical repair', async () => {
+    const originalFetch = global.fetch;
+    global.fetch = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: 'Mocked prose for scene.' } }] }) });
+    let auditCalls = 0;
+    let repairCalls = 0;
+    try {
+      const result = await generateChapterSceneByScene({
+        project: mockProjectFor9A,
+        chapter: mockChapterFor9A,
+        scenes: mockScenesFor9A,
+        sceneExecutionShadow: shadowIntegrationMock,
+        sceneExecutionAcceptanceRunners: {
+          auditRunner: async (req) => {
+            auditCalls++;
+            if (auditCalls === 1) {
+              return {
+                version: 'scene-execution-acceptance-gate-v1',
+                contract_fingerprint: req.contract_fingerprint,
+                scene_id: req.scene_id,
+                scene_number: req.scene_number,
+                packet_id: req.packet.packet_id,
+                status: 'issues_found',
+                issues: [
+                  {
+                    code: 'FUTURE_EVENT_EARLY_PERFORMED',
+                    offset: 0,
+                    excerpt: 'Mocked ',
+                    classification: 'repair_eligible'
+                  }
+                ],
+                coverage: {
+                  entry_state_satisfied: 'verified',
+                  exit_state_attained: 'verified',
+                  required_events_satisfied: 'verified',
+                  forbidden_events_avoided: 'failed',
+                  continuity_satisfied: 'verified'
+                }
+              };
+            }
+            return {
+              version: 'scene-execution-acceptance-gate-v1',
+              contract_fingerprint: req.contract_fingerprint,
+              scene_id: req.scene_id,
+              scene_number: req.scene_number,
+              packet_id: req.packet.packet_id,
+              status: 'clean',
+              issues: [],
+              coverage: {
+                entry_state_satisfied: 'verified',
+                exit_state_attained: 'verified',
+                required_events_satisfied: 'verified',
+                forbidden_events_avoided: 'verified',
+                continuity_satisfied: 'verified'
+              }
+            };
+          },
+          repairRunner: async (req) => {
+            repairCalls++;
+            return {
+              version: 'scene-execution-acceptance-gate-v1',
+              contract_fingerprint: req.contract_fingerprint,
+              scene_id: req.scene_id,
+              scene_number: req.scene_number,
+              packet_id: req.packet.packet_id,
+              status: 'repaired',
+              replacements: [
+                {
+                  issue_code: 'FUTURE_EVENT_EARLY_PERFORMED',
+                  start: 0,
+                  end: 7,
+                  original_excerpt: 'Mocked ',
+                  replacement_text: 'Repaired '
+                }
+              ]
+            };
+          }
+        }
+      });
+      assert.equal(auditCalls, 2, 'Audit runner should be called twice');
+      assert.equal(repairCalls, 1, 'Repair runner should be called once');
+      assert.ok(result.scenes[0].prose?.includes('Repaired prose'), 'Repaired prose should be returned');
+      assert.equal(result.scenes[0].repaired, true, 'repaired flag should be set');
+      assert.ok(result.scenes[0].issues.some(i => i.includes('Evaluator repaired scene')), 'repair issue should be logged');
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
+
+  await test('51. Enabled rejection', async () => {
+    const originalFetch = global.fetch;
+    global.fetch = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: 'Mocked prose for scene.' } }] }) });
+    let auditCalls = 0;
+    try {
+      await generateChapterSceneByScene({
+        project: mockProjectFor9A,
+        chapter: mockChapterFor9A,
+        scenes: mockScenesFor9A,
+        sceneExecutionShadow: shadowIntegrationMock,
+        sceneExecutionAcceptanceRunners: {
+          auditRunner: async () => {
+            auditCalls++;
+            return { invalid_schema: true }; // Should cause a SCENE_ACCEPTANCE_AUDIT_MALFORMED error
+          },
+          repairRunner: async () => { return {}; }
+        }
+      });
+      assert.fail('Should have rejected the scene');
+    } catch (err) {
+      assert.equal(auditCalls, 1, 'Audit should run once and fail');
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', 'Should throw branded rejection error');
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
+
   console.log(`\n${passes}/${tests} passed.`);
   if (passes !== tests) process.exit(1);
 }
