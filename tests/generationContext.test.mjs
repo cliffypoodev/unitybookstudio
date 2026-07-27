@@ -42,6 +42,14 @@ import {
   isSceneExecutionPromptCanaryEnabled,
   isSceneExecutionShadowEnabled,
   PACKET_LIMITS,
+  SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE,
+  SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+  EXPECTED_SNAPSHOT_VERSION,
+  EXPECTED_SCENE_CONTRACT_VERSION,
+  PREPARE_ACCEPTANCE_INPUT_KEYS,
+  getSceneExecutionAcceptanceGateDecision,
+  isSceneExecutionAcceptanceGateEnabled,
+  prepareSceneExecutionAcceptanceState,
 } from '../src/lib/generationContext.js';
 import {
   isSceneExecutionLiveCanaryEnabled,
@@ -6843,4 +6851,156 @@ await test('Stage 8 keeps raw prompts and prose out of attestation and remains d
     projectStudio.includes(SCENE_EXECUTION_LIVE_CANARY_FEATURE.key),
     false
   );
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 9A — Scene execution acceptance gate preparation (Checkpoint 1)
+// ═══════════════════════════════════════════════════════════════════════
+
+await test('Stage 9A Checkpoint 1: metadata and feature flag decision tree', () => {
+  assert.equal(SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key, 'scene_execution_acceptance_gate_v1');
+  assert.equal(SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.defaultEnabled, false);
+  assert.equal(SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION, 'scene-execution-acceptance-gate-v1');
+  assert.equal(EXPECTED_SNAPSHOT_VERSION, 'narrative-connect-v2');
+  assert.equal(EXPECTED_SCENE_CONTRACT_VERSION, 'fiction-scene-contract-v2');
+  assert.deepEqual(Array.from(PREPARE_ACCEPTANCE_INPUT_KEYS), [
+    'flags',
+    'snapshot',
+    'immutableSceneContract',
+    'shadowState',
+  ]);
+
+  assert.equal(getSceneExecutionAcceptanceGateDecision(), 'disabled');
+  assert.equal(getSceneExecutionAcceptanceGateDecision({}), 'disabled');
+  assert.equal(
+    getSceneExecutionAcceptanceGateDecision({
+      [SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key]: true,
+    }),
+    'prerequisite_disabled'
+  );
+
+  const allFlags = {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key]: true,
+    [SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key]: true,
+  };
+  assert.equal(getSceneExecutionAcceptanceGateDecision(allFlags), 'enabled');
+  assert.equal(isSceneExecutionAcceptanceGateEnabled(allFlags), true);
+});
+
+await test('Stage 9A Checkpoint 1: disabled and prerequisite-disabled acceptance preparation', () => {
+  const disabledState = prepareSceneExecutionAcceptanceState({
+    flags: {},
+    snapshot: null,
+    immutableSceneContract: null,
+    shadowState: null,
+  });
+  assert.equal(disabledState.version, SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION);
+  assert.equal(disabledState.enabled, false);
+  assert.equal(disabledState.contract_fingerprint, null);
+  assert.equal(Object.getPrototypeOf(disabledState.records_by_scene_id), null);
+  assert.equal(Object.getOwnPropertyNames(disabledState.records_by_scene_id).length, 0);
+  assert.ok(Object.isFrozen(disabledState));
+  assert.ok(Object.isFrozen(disabledState.records_by_scene_id));
+
+  assert.throws(
+    () =>
+      prepareSceneExecutionAcceptanceState({
+        flags: { [SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key]: true },
+        snapshot: null,
+        immutableSceneContract: null,
+        shadowState: null,
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_PREREQUISITE_DISABLED'
+  );
+});
+
+await test('Stage 9A Checkpoint 1: malformed prepare input rejection', () => {
+  const allFlags = {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key]: true,
+    [SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key]: true,
+  };
+
+  assert.throws(
+    () => prepareSceneExecutionAcceptanceState(null),
+    (err) => err.code === 'SCENE_ACCEPTANCE_STATE_INVALID'
+  );
+  assert.throws(
+    () => prepareSceneExecutionAcceptanceState({ flags: allFlags }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_STATE_INVALID'
+  );
+  assert.throws(
+    () =>
+      prepareSceneExecutionAcceptanceState({
+        flags: allFlags,
+        snapshot: {},
+        immutableSceneContract: {},
+        shadowState: {},
+        extra: 123,
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_STATE_INVALID'
+  );
+});
+
+await test('Stage 9A Checkpoint 1: enabled preparation with authentic R8 contract and deep freezing', () => {
+  const allFlags = {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key]: true,
+    [SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key]: true,
+  };
+
+  const contract = makeContract();
+
+  const shadowIntegrationInput = {
+    flags: allFlags,
+    snapshot: makeComposerSnapshot(contract),
+    contextBySceneId: {
+      'ch01-s01': { ...makeComposerContext(), future_reserved_event_ids: [] },
+    },
+  };
+
+  const shadowState = prepareSceneExecutionShadowIntegration({
+    integration: shadowIntegrationInput,
+    immutableSceneContract: contract,
+  });
+
+  const snapshot = makeComposerSnapshot(contract);
+
+  const prepInput = {
+    flags: allFlags,
+    snapshot,
+    immutableSceneContract: contract,
+    shadowState,
+  };
+
+  const state = prepareSceneExecutionAcceptanceState(prepInput);
+
+  assert.equal(state.version, SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION);
+  assert.equal(state.enabled, true);
+  assert.equal(state.contract_fingerprint, contract.fingerprint);
+  assert.ok(Object.isFrozen(state));
+  assert.ok(Object.isFrozen(state.records_by_scene_id));
+
+  const record = state.records_by_scene_id['ch01-s01'];
+  assert.ok(record);
+  assert.equal(record.beat_index, 0);
+  assert.equal(record.scene_number, 1);
+  assert.equal(record.scene_id, 'ch01-s01');
+  assert.ok(record.packet);
+  assert.ok(record.shadow_report);
+  assert.equal(record.packet.entry_state, 'Morning in the village');
+  assert.equal(record.packet.exit_state, 'Hero leaves the house');
+
+  assert.ok(Object.isFrozen(record));
+  assert.ok(Object.isFrozen(record.packet));
 });
