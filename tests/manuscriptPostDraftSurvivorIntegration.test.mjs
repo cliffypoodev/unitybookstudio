@@ -29,9 +29,9 @@ async function runTests() {
       'His pause hitched before he spoke.',
       'She capped it set it aside.'
     ];
-    
+
     const results = inputs.map(t => runFinalHardSurvivorRepairs(t).text);
-    
+
     assert.strictEqual(results[0], 'He moved back in and took a breath.');
     assert.strictEqual(results[1], 'The door swung shut, cutting off the light.');
     assert.strictEqual(results[2], 'His breath hitched before he spoke.');
@@ -46,7 +46,7 @@ async function runTests() {
       'He paused before answering.',
       'His pause lengthened while he considered the question.'
     ];
-    
+
     for (const text of legit) {
       assert.strictEqual(runFinalHardSurvivorRepairs(text).text, text);
     }
@@ -94,7 +94,7 @@ async function runTests() {
       mode: 'fiction',
       allowLLM: false
     });
-    
+
     assert.strictEqual(loaded[0].content, 'She capped it and set it aside.');
     assert.ok(result.changes.some(c => c.includes('Hard survivor repair')));
   });
@@ -108,7 +108,7 @@ async function runTests() {
       mode: 'fiction',
       allowLLM: false
     });
-    
+
     assert.strictEqual(loaded[0].content, 'The door swung shut, cutting off the light.');
     assert.ok(result.changes.some(c => c.includes('Hard survivor repair')));
   });
@@ -122,7 +122,7 @@ async function runTests() {
       mode: 'nonfiction',
       allowLLM: false
     });
-    
+
     assert.strictEqual(loaded[0].content, 'She capped it set it aside.');
   });
 
@@ -132,7 +132,7 @@ async function runTests() {
       { chapter: { id: 'ch1', chapter_number: 1 }, content: 'She capped it set it aside.', original: 'She capped it set it aside.' },
       { chapter: { id: 'ch2', chapter_number: 2 }, content: 'He moved back in took a breath.', original: 'He moved back in took a breath.' }
     ];
-    
+
     // Inject a throw only for chapter 1
     const injectThrow = (text) => {
       if (text.includes('capped')) {
@@ -148,12 +148,12 @@ async function runTests() {
       allowLLM: false,
       _testInjectSurvivorRepair: injectThrow
     });
-    
+
     // Ch 1 should be restored
     assert.strictEqual(loaded[0].content, 'She capped it set it aside.');
     // Ch 2 should be processed
     assert.strictEqual(loaded[1].content, 'He moved back in and took a breath.');
-    
+
     assert.ok(result.changes.some(c => c.includes('Hard survivor repair skipped/error: Simulated failure')));
   });
 
@@ -161,7 +161,7 @@ async function runTests() {
   await test('10. Runner does not import forbidden methods', () => {
     const runnerPath = new URL('../src/lib/manuscriptPolishRunner.js', import.meta.url);
     const runnerCode = readFileSync(runnerPath, 'utf-8');
-    
+
     assert.ok(!runnerCode.includes('runTargetedMalformedSentenceRepair'), 'Should not import runTargetedMalformedSentenceRepair');
     assert.ok(!runnerCode.includes('runSurgicalArtifactRepair'), 'Should not import runSurgicalArtifactRepair');
     // Ensure we only imported runFinalHardSurvivorRepairs, not the entire postDraftCleanup as default
@@ -176,7 +176,7 @@ async function runTests() {
     const funcMatch = pdCode.match(/export function runFinalHardSurvivorRepairs[\s\S]*?return result;\n\}/);
     assert.ok(funcMatch, 'Could not extract function code for static check');
     const code = funcMatch[0];
-    
+
     assert.ok(!code.includes('fetch('));
     assert.ok(!code.includes('callOllama('));
     assert.ok(!code.includes('callAgent('));

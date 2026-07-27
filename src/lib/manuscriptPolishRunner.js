@@ -815,7 +815,7 @@ export async function runManuscriptPolishPipeline({
   verifyInvariant('Sentence Case & Wound Repair');
 
   // PHASE D4: Bounded Post-Draft Survivor Repair
-  // Runs after all prior LLM and deterministic passes to ensure legacy/malformed 
+  // Runs after all prior LLM and deterministic passes to ensure legacy/malformed
   // survivor patterns introduced during rewriting are cleaned before final gate.
   if (mode !== 'nonfiction') {
     onProgress('Polish: Running post-draft survivor repair…');
@@ -829,7 +829,7 @@ export async function runManuscriptPolishPipeline({
         const survivorResult = _testInjectSurvivorRepair
           ? _testInjectSurvivorRepair(f.content)
           : runFinalHardSurvivorRepairs(f.content);
-          
+
         if (survivorResult && typeof survivorResult.text === 'string') {
           f.content = survivorResult.text;
           const afterCount = countParagraphs(f.content);
