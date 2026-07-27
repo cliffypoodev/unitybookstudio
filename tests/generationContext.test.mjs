@@ -7004,3 +7004,45 @@ await test('Stage 9A Checkpoint 1: enabled preparation with authentic R8 contrac
   assert.ok(Object.isFrozen(record));
   assert.ok(Object.isFrozen(record.packet));
 });
+
+await test('Stage 9A Checkpoint 1: unresolvable future event ID preparation throws SCENE_ACCEPTANCE_STATE_INVALID', () => {
+  const allFlags = {
+    [SCENE_CONTEXT_COMPOSER_FEATURE.key]: true,
+    [SCENE_EXECUTION_SHADOW_FEATURE.key]: true,
+    [SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key]: true,
+    [SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key]: true,
+    [SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key]: true,
+  };
+
+  const contract = makeContract();
+
+  const shadowIntegrationInput = {
+    flags: allFlags,
+    snapshot: makeComposerSnapshot(contract),
+    contextBySceneId: {
+      'ch01-s01': {
+        ...makeComposerContext(),
+        future_reserved_event_ids: ['unresolvable_future_event_id'],
+      },
+    },
+  };
+
+  const shadowState = prepareSceneExecutionShadowIntegration({
+    integration: shadowIntegrationInput,
+    immutableSceneContract: contract,
+  });
+
+  const snapshot = makeComposerSnapshot(contract);
+
+  assert.throws(
+    () =>
+      prepareSceneExecutionAcceptanceState({
+        flags: allFlags,
+        snapshot,
+        immutableSceneContract: contract,
+        shadowState,
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_STATE_INVALID'
+  );
+});

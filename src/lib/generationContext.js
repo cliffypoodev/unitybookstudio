@@ -4194,7 +4194,7 @@ export function prepareSceneExecutionAcceptanceState(input) {
         }
 
         if (!resolvedText) {
-          throw sceneAcceptanceError('Unresolvable future event ID', 'SCENE_ACCEPTANCE_FUTURE_ID_UNRESOLVABLE', []);
+          throw sceneAcceptanceError('Unresolvable future event ID', 'SCENE_ACCEPTANCE_STATE_INVALID', []);
         }
 
         const pEntry = Object.create(null);
