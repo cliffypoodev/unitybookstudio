@@ -4609,11 +4609,14 @@ function buildCanonicalCoverageRecord(rawCoverage) {
   for (let cIdx = 0; cIdx < AUDIT_COVERAGE_KEYS.length; cIdx++) {
     const cKey = AUDIT_COVERAGE_KEYS[cIdx];
     if (!covKeys.includes(cKey)) {
-      throw sceneAcceptanceError(`Missing coverage key: ${cKey}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError('Missing coverage key', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
     const cDesc = Object.getOwnPropertyDescriptor(rawCoverage, cKey);
     if (!cDesc || cDesc.get || cDesc.set || !cDesc.enumerable) {
-      throw sceneAcceptanceError(`Invalid descriptor for coverage property ${cKey}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError('Invalid descriptor for coverage property', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
+    if (typeof cDesc.value !== 'string') {
+      throw sceneAcceptanceError('Coverage status must be a string', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
     if (!ALLOWED_COVERAGE_STATUS_LOOKUP.has(cDesc.value)) {
       throw sceneAcceptanceError('Invalid coverage status value', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
@@ -4641,11 +4644,11 @@ function inspectAuditResponseRecordClean(rawResponse, auditRequest) {
   for (let i = 0; i < keys.length; i++) {
     const k = keys[i];
     if (!AUDIT_RESPONSE_KEY_LOOKUP.has(k)) {
-      throw sceneAcceptanceError(`Unknown property in audit response: ${k}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError('Unknown property in audit response', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
     const desc = Object.getOwnPropertyDescriptor(rawResponse, k);
     if (!desc || desc.get || desc.set || !desc.enumerable) {
-      throw sceneAcceptanceError(`Invalid descriptor for property ${k} in audit response`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError('Invalid descriptor for property in audit response', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
   }
 
@@ -4655,6 +4658,7 @@ function inspectAuditResponseRecordClean(rawResponse, auditRequest) {
   const sNum = composerOwnDataValue(rawResponse, 'scene_number', 'inspectAuditResponseRecordClean');
   const pId = composerOwnDataValue(rawResponse, 'packet_id', 'inspectAuditResponseRecordClean');
   const status = composerOwnDataValue(rawResponse, 'status', 'inspectAuditResponseRecordClean');
+  if (typeof status !== 'string') throw sceneAcceptanceError('Audit status must be a string', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   const rawIssues = composerOwnDataValue(rawResponse, 'issues', 'inspectAuditResponseRecordClean');
   const rawCoverage = composerOwnDataValue(rawResponse, 'coverage', 'inspectAuditResponseRecordClean');
 
@@ -4716,11 +4720,11 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
   for (let i = 0; i < keys.length; i++) {
     const k = keys[i];
     if (!AUDIT_RESPONSE_KEY_LOOKUP.has(k)) {
-      throw sceneAcceptanceError(`Unknown property in audit response: ${k}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError('Unknown property in audit response', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
     const desc = Object.getOwnPropertyDescriptor(rawResponse, k);
     if (!desc || desc.get || desc.set || !desc.enumerable) {
-      throw sceneAcceptanceError(`Invalid descriptor for property ${k} in audit response`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError('Invalid descriptor for property in audit response', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
   }
 
@@ -4730,6 +4734,7 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
   const sNum = composerOwnDataValue(rawResponse, 'scene_number', 'inspectAuditResponseRecordForRepair');
   const pId = composerOwnDataValue(rawResponse, 'packet_id', 'inspectAuditResponseRecordForRepair');
   const status = composerOwnDataValue(rawResponse, 'status', 'inspectAuditResponseRecordForRepair');
+  if (typeof status !== 'string') throw sceneAcceptanceError('Audit status must be a string', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   const rawIssues = composerOwnDataValue(rawResponse, 'issues', 'inspectAuditResponseRecordForRepair');
   const rawCoverage = composerOwnDataValue(rawResponse, 'coverage', 'inspectAuditResponseRecordForRepair');
 
@@ -4791,11 +4796,11 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
     for (let iIdx = 0; iIdx < issueKeys.length; iIdx++) {
       const iKey = AUDIT_ISSUE_KEYS[iIdx];
       if (!issueKeys.includes(iKey)) {
-        throw sceneAcceptanceError(`Missing key ${iKey} in audit issue`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+        throw sceneAcceptanceError('Missing key in audit issue', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
       }
       const iDesc = Object.getOwnPropertyDescriptor(rawIssue, iKey);
       if (!iDesc || iDesc.get || iDesc.set || !iDesc.enumerable) {
-        throw sceneAcceptanceError(`Invalid descriptor for issue property ${iKey}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+        throw sceneAcceptanceError('Invalid descriptor for issue property', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
       }
     }
 
@@ -4806,6 +4811,9 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
 
     const code = codeDesc.value;
     const classification = classificationDesc.value;
+    if (typeof code !== 'string' || typeof classification !== 'string') {
+      throw sceneAcceptanceError('Audit issue code and classification must be strings', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
     const excerpt = excerptDesc.value;
     const offset = offsetDesc.value;
 
@@ -4886,11 +4894,11 @@ function inspectRepairResponseRecordSafe(rawResponse, repairRequest, issue) {
   for (let i = 0; i < keys.length; i++) {
     const k = keys[i];
     if (!REPAIR_RESPONSE_KEY_LOOKUP.has(k)) {
-      throw sceneAcceptanceError(`Unknown property in repair response: ${k}`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+      throw sceneAcceptanceError('Unknown property in repair response', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
     }
     const desc = Object.getOwnPropertyDescriptor(rawResponse, k);
     if (!desc || desc.get || desc.set || !desc.enumerable) {
-      throw sceneAcceptanceError(`Invalid descriptor for property ${k} in repair response`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+      throw sceneAcceptanceError('Invalid descriptor for property in repair response', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
     }
   }
 
@@ -4900,6 +4908,7 @@ function inspectRepairResponseRecordSafe(rawResponse, repairRequest, issue) {
   const sNum = composerOwnDataValue(rawResponse, 'scene_number', 'inspectRepairResponseRecordSafe');
   const pId = composerOwnDataValue(rawResponse, 'packet_id', 'inspectRepairResponseRecordSafe');
   const status = composerOwnDataValue(rawResponse, 'status', 'inspectRepairResponseRecordSafe');
+  if (typeof status !== 'string') throw sceneAcceptanceError('Repair status must be a string', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
   const rawReplacements = composerOwnDataValue(rawResponse, 'replacements', 'inspectRepairResponseRecordSafe');
 
   if (
@@ -4939,11 +4948,11 @@ function inspectRepairResponseRecordSafe(rawResponse, repairRequest, issue) {
   for (let rIdx = 0; rIdx < replKeys.length; rIdx++) {
     const rKey = REPAIR_REPLACEMENT_KEYS[rIdx];
     if (!replKeys.includes(rKey)) {
-      throw sceneAcceptanceError(`Missing key ${rKey} in replacement`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+      throw sceneAcceptanceError('Missing key in replacement', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
     }
     const rDesc = Object.getOwnPropertyDescriptor(rawRepl, rKey);
     if (!rDesc || rDesc.get || rDesc.set || !rDesc.enumerable) {
-      throw sceneAcceptanceError(`Invalid descriptor for replacement property ${rKey}`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+      throw sceneAcceptanceError('Invalid descriptor for replacement property', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
     }
   }
 
@@ -5008,14 +5017,14 @@ function createCanonicalRepairRecord({ contractFingerprint, sceneId, sceneNumber
   return deepFreeze(rec);
 }
 
-export async function evaluateSceneExecutionAcceptance({
-  flags,
-  acceptanceState,
-  targetSceneId,
-  prose,
-  runners,
-}) {
+export async function evaluateSceneExecutionAcceptance(input) {
   try {
+    const extractedInput = inspectEvaluateAcceptanceInputRecord(input);
+    const flags = extractedInput.flags;
+    const acceptanceState = extractedInput.acceptanceState;
+    const targetSceneId = extractedInput.targetSceneId;
+    const prose = extractedInput.prose;
+    const runners = extractedInput.runners;
     const decision = getSceneExecutionAcceptanceGateDecision(flags);
     if (decision === 'disabled') {
       return disabledSceneExecutionAcceptanceResult();

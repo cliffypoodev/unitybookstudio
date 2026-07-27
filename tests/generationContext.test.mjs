@@ -7689,23 +7689,24 @@ await test('Stage 9A Checkpoint 3B: actual Proxy trap in audit output is normali
     packet_id: 'ch01-s01-pkt-v1',
     status: 'clean',
     issues: [],
-    coverage: {
+    coverage: new Proxy({
       required_sequence: 'verified',
       exit_state: 'verified',
       scene_identity: 'verified',
       knowledge_authority: 'verified',
       future_reserved_events: 'verified',
-    },
-  };
-
-  const proxyAuditResponse = new Proxy(rawAudit, {
-    get(target, prop) {
-      if (prop === 'coverage') {
+    }, {
+      getPrototypeOf() {
+        throw new Error('Hostile audit proxy trap triggered');
+      },
+      getOwnPropertyDescriptor() {
+        throw new Error('Hostile audit proxy trap triggered');
+      },
+      ownKeys() {
         throw new Error('Hostile audit proxy trap triggered');
       }
-      return Reflect.get(target, prop);
-    },
-  });
+    }),
+  };
 
   await assert.rejects(
     () =>
@@ -7715,7 +7716,7 @@ await test('Stage 9A Checkpoint 3B: actual Proxy trap in audit output is normali
         targetSceneId: 'ch01-s01',
         prose: 'Some prose',
         runners: {
-          auditRunner: async () => proxyAuditResponse,
+          auditRunner: async () => rawAudit,
         },
       }),
     (err) => {
@@ -7740,7 +7741,7 @@ await test('Stage 9A Checkpoint 3B: actual Proxy trap in repair output is normal
     scene_number: 1,
     packet_id: 'ch01-s01-pkt-v1',
     status: 'repaired',
-    replacements: [
+    replacements: new Proxy([
       {
         issue_code: 'FUTURE_EVENT_EARLY_PERFORMED',
         start: offset,
@@ -7748,17 +7749,18 @@ await test('Stage 9A Checkpoint 3B: actual Proxy trap in repair output is normal
         original_excerpt: excerpt,
         replacement_text: 'Hero observed the chest.',
       },
-    ],
-  };
-
-  const proxyRepairResponse = new Proxy(rawRepair, {
-    get(target, prop) {
-      if (prop === 'replacements') {
+    ], {
+      getPrototypeOf() {
+        throw new Error('Hostile repair proxy trap triggered');
+      },
+      getOwnPropertyDescriptor() {
+        throw new Error('Hostile repair proxy trap triggered');
+      },
+      ownKeys() {
         throw new Error('Hostile repair proxy trap triggered');
       }
-      return Reflect.get(target, prop);
-    },
-  });
+    }),
+  };
 
   await assert.rejects(
     () =>
@@ -7769,7 +7771,7 @@ await test('Stage 9A Checkpoint 3B: actual Proxy trap in repair output is normal
         prose,
         runners: {
           auditRunner: async (req) => makeRepairableAuditResponse(req, excerpt, offset),
-          repairRunner: async () => proxyRepairResponse,
+          repairRunner: async () => rawRepair,
         },
       }),
     (err) => {
@@ -7796,10 +7798,12 @@ await test('Stage 9A Checkpoint 3B: proxy trap throwing unrelated branded Stage 
       coverage: {},
     },
     {
-      get(target, prop) {
-        if (prop === 'then') return undefined;
-        throw sceneAcceptanceError('Branded error from audit proxy trap', 'SCENE_ACCEPTANCE_STATE_INVALID', []);
+      getOwnPropertyDescriptor() {
+        prepareSceneExecutionAcceptanceState(null); // throws SCENE_ACCEPTANCE_STATE_INVALID
       },
+      getPrototypeOf() {
+        prepareSceneExecutionAcceptanceState(null);
+      }
     }
   );
 
@@ -7837,10 +7841,12 @@ await test('Stage 9A Checkpoint 3B: proxy trap throwing unrelated branded Stage 
       replacements: [],
     },
     {
-      get(target, prop) {
-        if (prop === 'then') return undefined;
-        throw sceneAcceptanceError('Branded error from repair proxy trap', 'SCENE_ACCEPTANCE_STATE_INVALID', []);
+      getOwnPropertyDescriptor() {
+        prepareSceneExecutionAcceptanceState(null); // throws SCENE_ACCEPTANCE_STATE_INVALID
       },
+      getPrototypeOf() {
+        prepareSceneExecutionAcceptanceState(null);
+      }
     }
   );
 
@@ -7865,22 +7871,9 @@ await test('Stage 9A Checkpoint 3B: proxy trap throwing unrelated branded Stage 
   );
 });
 
-await test('Stage 9A Checkpoint 3B: hostile getter in audit output is sanitized to SCENE_ACCEPTANCE_AUDIT_MALFORMED', async () => {
+await test('Stage 9A Checkpoint 3B: extra input key rejection', async () => {
   const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
-
-  const hostileAuditResponse = {
-    version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
-    contract_fingerprint: acceptanceState.contract_fingerprint,
-    scene_id: 'ch01-s01',
-    scene_number: 1,
-    packet_id: 'ch01-s01-pkt-v1',
-    status: 'clean',
-    issues: [],
-    get coverage() {
-      throw new Error('Hostile audit coverage getter trap');
-    },
-  };
-
+  
   await assert.rejects(
     () =>
       evaluateSceneExecutionAcceptance({
@@ -7888,52 +7881,60 @@ await test('Stage 9A Checkpoint 3B: hostile getter in audit output is sanitized 
         acceptanceState,
         targetSceneId: 'ch01-s01',
         prose: 'Some prose',
-        runners: {
-          auditRunner: async () => hostileAuditResponse,
-        },
+        runners: {},
+        maliciousExtraKey: 123,
       }),
     (err) => {
-      assert.equal(err.code, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED');
-      assert.deepEqual(err.details, []);
-      assert.ok(!err.message.includes('Hostile'));
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_STATE_INVALID');
       return true;
     }
   );
 });
 
-await test('Stage 9A Checkpoint 3B: hostile getter in repair output is sanitized to SCENE_ACCEPTANCE_REPAIR_MALFORMED', async () => {
+await test('Stage 9A Checkpoint 3B: input accessor rejection without execution', async () => {
   const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
-  const prose = 'Hero entered room 1 carefully. Hero opened chest prematurely.';
-  const excerpt = 'Hero opened chest prematurely.';
-  const offset = prose.indexOf(excerpt);
-
-  const hostileRepairResponse = {
-    version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
-    contract_fingerprint: acceptanceState.contract_fingerprint,
-    scene_id: 'ch01-s01',
-    scene_number: 1,
-    packet_id: 'ch01-s01-pkt-v1',
-    status: 'repaired',
-    get replacements() {
-      throw new Error('Hostile repair replacements getter trap');
+  let executed = false;
+  
+  const input = {
+    flags: allFlags,
+    acceptanceState,
+    targetSceneId: 'ch01-s01',
+    prose: 'Some prose',
+    get runners() {
+      executed = true;
+      return {};
     },
   };
 
   await assert.rejects(
-    () =>
-      evaluateSceneExecutionAcceptance({
-        flags: allFlags,
-        acceptanceState,
-        targetSceneId: 'ch01-s01',
-        prose,
-        runners: {
-          auditRunner: async (req) => makeRepairableAuditResponse(req, excerpt, offset),
-          repairRunner: async () => hostileRepairResponse,
-        },
-      }),
+    () => evaluateSceneExecutionAcceptance(input),
     (err) => {
-      assert.equal(err.code, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED');
-      assert.deepEqual(err.details, []);
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_STATE_INVALID');
+      assert.equal(executed, false, 'Accessor should not be executed');
+      return true;
+    }
+  );
+});
+
+await test('Stage 9A Checkpoint 3B: hostile input get trap/reflection trap sanitization to SCENE_ACCEPTANCE_STATE_INVALID', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  const hostileInput = new Proxy({
+    flags: allFlags,
+    acceptanceState,
+    targetSceneId: 'ch01-s01',
+    prose: 'Some prose',
+    runners: {},
+  }, {
+    getOwnPropertyDescriptor(target, prop) {
+      throw new Error('Hostile input trap');
+    }
+  });
+
+  await assert.rejects(
+    () => evaluateSceneExecutionAcceptance(hostileInput),
+    (err) => {
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_STATE_INVALID');
       assert.ok(!err.message.includes('Hostile'));
       return true;
     }
