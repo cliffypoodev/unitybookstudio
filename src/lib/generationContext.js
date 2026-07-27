@@ -4550,11 +4550,12 @@ const STAGE_9A_ISSUE_TAXONOMY_ENTRIES = Object.freeze([
 ]);
 
 const STAGE_9A_ISSUE_TAXONOMY_LOOKUP = (function() {
-  const map = new Map();
-  for (const entry of STAGE_9A_ISSUE_TAXONOMY_ENTRIES) {
-    map.set(entry.code, entry);
+  const record = Object.create(null);
+  for (let i = 0; i < STAGE_9A_ISSUE_TAXONOMY_ENTRIES.length; i++) {
+    const entry = STAGE_9A_ISSUE_TAXONOMY_ENTRIES[i];
+    record[entry.code] = entry;
   }
-  return map;
+  return deepFreeze(record);
 })();
 
 function inspectDenseArrayDescriptorSafe(arr, contextName, errorCode = 'SCENE_ACCEPTANCE_AUDIT_MALFORMED') {
@@ -4615,7 +4616,7 @@ function buildCanonicalCoverageRecord(rawCoverage) {
       throw sceneAcceptanceError(`Invalid descriptor for coverage property ${cKey}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
     if (!ALLOWED_COVERAGE_STATUS_LOOKUP.has(cDesc.value)) {
-      throw sceneAcceptanceError(`Invalid status for coverage property ${cKey}: ${cDesc.value}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError('Invalid coverage status value', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
     canonicalCoverage[cKey] = cDesc.value;
   }
@@ -4640,7 +4641,7 @@ function inspectAuditResponseRecordClean(rawResponse, auditRequest) {
   for (let i = 0; i < keys.length; i++) {
     const k = keys[i];
     if (!AUDIT_RESPONSE_KEY_LOOKUP.has(k)) {
-      throw sceneAcceptanceError(`Unknown property ${k} in audit response`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError(`Unknown property in audit response: ${k}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
     const desc = Object.getOwnPropertyDescriptor(rawResponse, k);
     if (!desc || desc.get || desc.set || !desc.enumerable) {
@@ -4668,7 +4669,7 @@ function inspectAuditResponseRecordClean(rawResponse, auditRequest) {
   }
 
   if (status !== 'clean') {
-    throw sceneAcceptanceError(`Verification audit status must be clean, got ${status}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    throw sceneAcceptanceError('Verification audit status must be clean', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
   }
 
   const extractedIssues = inspectDenseArrayDescriptorSafe(rawIssues, 'inspectAuditResponseRecordClean.issues');
@@ -4680,7 +4681,7 @@ function inspectAuditResponseRecordClean(rawResponse, auditRequest) {
   for (let cIdx = 0; cIdx < AUDIT_COVERAGE_KEYS.length; cIdx++) {
     const cKey = AUDIT_COVERAGE_KEYS[cIdx];
     if (canonicalCoverage[cKey] !== 'verified') {
-      throw sceneAcceptanceError(`Clean audit response coverage property ${cKey} must be verified, got ${canonicalCoverage[cKey]}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError('Clean audit response coverage property must be verified', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
   }
 
@@ -4715,7 +4716,7 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
   for (let i = 0; i < keys.length; i++) {
     const k = keys[i];
     if (!AUDIT_RESPONSE_KEY_LOOKUP.has(k)) {
-      throw sceneAcceptanceError(`Unknown property ${k} in audit response`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      throw sceneAcceptanceError(`Unknown property in audit response: ${k}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
     const desc = Object.getOwnPropertyDescriptor(rawResponse, k);
     if (!desc || desc.get || desc.set || !desc.enumerable) {
@@ -4752,7 +4753,7 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
     for (let cIdx = 0; cIdx < AUDIT_COVERAGE_KEYS.length; cIdx++) {
       const cKey = AUDIT_COVERAGE_KEYS[cIdx];
       if (canonicalCoverage[cKey] !== 'verified') {
-        throw sceneAcceptanceError(`Clean audit response coverage property ${cKey} must be verified, got ${canonicalCoverage[cKey]}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+        throw sceneAcceptanceError('Clean audit response coverage property must be verified', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
       }
     }
     const canonicalCleanResponse = Object.create(null);
@@ -4798,14 +4799,20 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
       }
     }
 
-    const code = rawIssue.code;
-    const classification = rawIssue.classification;
-    const excerpt = rawIssue.excerpt;
-    const offset = rawIssue.offset;
+    const codeDesc = Object.getOwnPropertyDescriptor(rawIssue, 'code');
+    const classificationDesc = Object.getOwnPropertyDescriptor(rawIssue, 'classification');
+    const excerptDesc = Object.getOwnPropertyDescriptor(rawIssue, 'excerpt');
+    const offsetDesc = Object.getOwnPropertyDescriptor(rawIssue, 'offset');
 
-    const taxonomyEntry = STAGE_9A_ISSUE_TAXONOMY_LOOKUP.get(code);
+    const code = codeDesc.value;
+    const classification = classificationDesc.value;
+    const excerpt = excerptDesc.value;
+    const offset = offsetDesc.value;
+
+    const taxonomyEntryDesc = Object.getOwnPropertyDescriptor(STAGE_9A_ISSUE_TAXONOMY_LOOKUP, code);
+    const taxonomyEntry = taxonomyEntryDesc ? taxonomyEntryDesc.value : null;
     if (!taxonomyEntry || classification !== taxonomyEntry.classification) {
-      throw sceneAcceptanceError(`Unrecognized or mispaired issue code/classification: ${code} / ${classification}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+      throw sceneAcceptanceError('Unrecognized or mispaired issue code/classification', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
     }
 
     if (typeof excerpt !== 'string' || excerpt.length === 0) {
@@ -4830,7 +4837,7 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
     const frozenCanonicalIssue = deepFreeze(canonicalIssue);
 
     if (taxonomyEntry.disposition !== 'repair_eligible') {
-      throw sceneAcceptanceError(`Non-repairable issue code: ${code}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+      throw sceneAcceptanceError('Non-repairable issue code', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
     }
 
     const canonicalIssuesFoundResponse = Object.create(null);
@@ -4850,7 +4857,7 @@ function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
     };
   }
 
-  throw sceneAcceptanceError(`auditRunner reported malformed status: ${status}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  throw sceneAcceptanceError('auditRunner reported malformed status', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
 }
 
 function finalizeRepairRunnerRequest(req) {
@@ -4879,7 +4886,7 @@ function inspectRepairResponseRecordSafe(rawResponse, repairRequest, issue) {
   for (let i = 0; i < keys.length; i++) {
     const k = keys[i];
     if (!REPAIR_RESPONSE_KEY_LOOKUP.has(k)) {
-      throw sceneAcceptanceError(`Unknown property ${k} in repair response`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+      throw sceneAcceptanceError(`Unknown property in repair response: ${k}`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
     }
     const desc = Object.getOwnPropertyDescriptor(rawResponse, k);
     if (!desc || desc.get || desc.set || !desc.enumerable) {
@@ -4906,7 +4913,7 @@ function inspectRepairResponseRecordSafe(rawResponse, repairRequest, issue) {
   }
 
   if (status !== 'repaired') {
-    throw sceneAcceptanceError(`Invalid repair response status: ${status}`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+    throw sceneAcceptanceError('Invalid repair response status', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
   }
 
   const extractedReplacements = inspectDenseArrayDescriptorSafe(rawReplacements, 'inspectRepairResponseRecordSafe.replacements', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED');
@@ -4940,11 +4947,17 @@ function inspectRepairResponseRecordSafe(rawResponse, repairRequest, issue) {
     }
   }
 
-  const issueCode = rawRepl.issue_code;
-  const start = rawRepl.start;
-  const end = rawRepl.end;
-  const originalExcerpt = rawRepl.original_excerpt;
-  const replacementText = rawRepl.replacement_text;
+  const issueCodeDesc = Object.getOwnPropertyDescriptor(rawRepl, 'issue_code');
+  const startDesc = Object.getOwnPropertyDescriptor(rawRepl, 'start');
+  const endDesc = Object.getOwnPropertyDescriptor(rawRepl, 'end');
+  const originalExcerptDesc = Object.getOwnPropertyDescriptor(rawRepl, 'original_excerpt');
+  const replacementTextDesc = Object.getOwnPropertyDescriptor(rawRepl, 'replacement_text');
+
+  const issueCode = issueCodeDesc.value;
+  const start = startDesc.value;
+  const end = endDesc.value;
+  const originalExcerpt = originalExcerptDesc.value;
+  const replacementText = replacementTextDesc.value;
 
   if (issueCode !== issue.code) {
     throw sceneAcceptanceError('Replacement issue_code mismatch', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
@@ -4976,6 +4989,13 @@ function inspectRepairResponseRecordSafe(rawResponse, repairRequest, issue) {
 }
 
 function createCanonicalRepairRecord({ contractFingerprint, sceneId, sceneNumber, packetId, replacement }) {
+  if (typeof contractFingerprint !== 'string' || typeof sceneId !== 'string' || typeof sceneNumber !== 'number' || typeof packetId !== 'string') {
+    throw sceneAcceptanceError('Invalid repair record identity inputs', 'SCENE_ACCEPTANCE_STATE_INVALID', []);
+  }
+  if (!replacement || typeof replacement !== 'object' || Object.getPrototypeOf(replacement) !== null || !Object.isFrozen(replacement)) {
+    throw sceneAcceptanceError('Invalid replacement object for repair record', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+
   const rec = Object.create(null);
   rec.version = SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION;
   rec.contract_fingerprint = contractFingerprint;
@@ -4983,20 +5003,19 @@ function createCanonicalRepairRecord({ contractFingerprint, sceneId, sceneNumber
   rec.scene_number = sceneNumber;
   rec.packet_id = packetId;
   rec.status = 'repaired';
-  rec.replacements = Object.freeze([deepFreeze({ ...replacement })]);
-  inspectComposerRecord(rec, 'createCanonicalRepairRecord', REPAIR_RECORD_KEY_LOOKUP);
+  rec.replacements = Object.freeze([replacement]);
+
   return deepFreeze(rec);
 }
 
-export async function evaluateSceneExecutionAcceptance(input) {
+export async function evaluateSceneExecutionAcceptance({
+  flags,
+  acceptanceState,
+  targetSceneId,
+  prose,
+  runners,
+}) {
   try {
-    const extractedInput = inspectEvaluateAcceptanceInputRecord(input);
-    const flags = extractedInput.flags;
-    const acceptanceState = extractedInput.acceptanceState;
-    const targetSceneId = extractedInput.targetSceneId;
-    const prose = extractedInput.prose;
-    const runners = extractedInput.runners;
-
     const decision = getSceneExecutionAcceptanceGateDecision(flags);
     if (decision === 'disabled') {
       return disabledSceneExecutionAcceptanceResult();
@@ -5079,7 +5098,15 @@ export async function evaluateSceneExecutionAcceptance(input) {
       );
     }
 
-    const auditEvaluation = inspectAuditResponseRecordForRepair(rawAuditResponse, auditRequest, prose);
+    let auditEvaluation;
+    try {
+      auditEvaluation = inspectAuditResponseRecordForRepair(rawAuditResponse, auditRequest, prose);
+    } catch (err) {
+      if (isSceneAcceptanceError(err) && err.code === 'SCENE_ACCEPTANCE_AUDIT_FAILED') {
+        throw err;
+      }
+      throw sceneAcceptanceError('Audit response inspection failed', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
 
     if (auditEvaluation.mode === 'clean') {
       return acceptedCleanSceneExecutionAcceptanceResult({
@@ -5123,7 +5150,12 @@ export async function evaluateSceneExecutionAcceptance(input) {
       );
     }
 
-    const replacement = inspectRepairResponseRecordSafe(rawRepairResponse, repairRequest, validatedIssue);
+    let replacement;
+    try {
+      replacement = inspectRepairResponseRecordSafe(rawRepairResponse, repairRequest, validatedIssue);
+    } catch (_err) {
+      throw sceneAcceptanceError('Repair response inspection failed', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+    }
 
     const repairRecord = createCanonicalRepairRecord({
       contractFingerprint: acceptanceState.contract_fingerprint,
@@ -5156,7 +5188,15 @@ export async function evaluateSceneExecutionAcceptance(input) {
       );
     }
 
-    const secondValidatedAuditResponse = inspectAuditResponseRecordClean(secondRawAuditResponse, secondAuditRequest);
+    let secondValidatedAuditResponse;
+    try {
+      secondValidatedAuditResponse = inspectAuditResponseRecordClean(secondRawAuditResponse, secondAuditRequest);
+    } catch (err) {
+      if (isSceneAcceptanceError(err) && err.code === 'SCENE_ACCEPTANCE_AUDIT_FAILED') {
+        throw err;
+      }
+      throw sceneAcceptanceError('Verification audit response inspection failed', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
 
     return acceptedRepairedSceneExecutionAcceptanceResult({
       contractFingerprint: acceptanceState.contract_fingerprint,
