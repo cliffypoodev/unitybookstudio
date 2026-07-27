@@ -66,7 +66,7 @@ import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
 import { safeUppercaseReplace } from './safeUppercase.js';
 import { healLegacyArtifacts } from './legacyArtifactHealer.js';
-
+import { runFinalHardSurvivorRepairs } from './postDraftCleanup.js';
 
 export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.1 — 2026-06-11';
 
@@ -104,6 +104,7 @@ export async function runManuscriptPolishPipeline({
   sceneDuplicateSweep = null,
   _llmOverride = null,
   _testInjectHealer = null,
+  _testInjectSurvivorRepair = null,
 }) {
   const changes = [];
   const isAnthology = isAnthologyProject(project);
@@ -812,6 +813,42 @@ export async function runManuscriptPolishPipeline({
   const woundRepair = healProseWounds(loaded, onProgress);
   changes.push(...woundRepair.changes);
   verifyInvariant('Sentence Case & Wound Repair');
+
+  // PHASE D4: Bounded Post-Draft Survivor Repair
+  // Runs after all prior LLM and deterministic passes to ensure legacy/malformed 
+  // survivor patterns introduced during rewriting are cleaned before final gate.
+  if (mode !== 'nonfiction') {
+    onProgress('Polish: Running post-draft survivor repair…');
+    const survivorAllowances = {};
+    for (let i = 0; i < loaded.length; i++) {
+      const f = loaded[i];
+      const key = getChapterKey(f, i);
+      const chNum = f.chapter?.chapter_number || '?';
+      const snapText = f.content;
+      try {
+        const survivorResult = _testInjectSurvivorRepair
+          ? _testInjectSurvivorRepair(f.content)
+          : runFinalHardSurvivorRepairs(f.content);
+          
+        if (survivorResult && typeof survivorResult.text === 'string') {
+          f.content = survivorResult.text;
+          const afterCount = countParagraphs(f.content);
+          if (afterCount !== countParagraphs(snapText)) {
+            throw new Error(`Paragraph count changed (${countParagraphs(snapText)} -> ${afterCount})`);
+          }
+          if (survivorResult.fixes && survivorResult.fixes.length > 0) {
+            changes.push(`Ch.${chNum}: Hard survivor repair: ${survivorResult.fixes.join('; ')}`);
+          }
+        } else {
+          throw new Error('Invalid result returned from runFinalHardSurvivorRepairs');
+        }
+      } catch (err) {
+        f.content = snapText; // Restore exact text
+        changes.push(`Ch.${chNum}: Hard survivor repair skipped/error: ${err.message}`);
+      }
+    }
+    verifyInvariant('Post-Draft Survivor Repair', survivorAllowances);
+  }
 
   // PHASE E: Quality gate + improvement scoring
   // ══════════════════════════════════════════════════════════════════════════
