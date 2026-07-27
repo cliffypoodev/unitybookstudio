@@ -7520,6 +7520,202 @@ await test('Stage 9A Checkpoint 3A: second audit not clean is rejected with SCEN
   assert.equal(auditInvoked, 2);
 });
 
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 9A — Evaluator Taxonomy and Host-Owned Canonicalization (Checkpoint 3B)
+// ═══════════════════════════════════════════════════════════════════════
+
+await test('Stage 9A Checkpoint 3B: taxonomy table driven dispositions and classification matching', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  const testCases = [
+    // Non-repairable omission issue
+    { code: 'REQUIRED_EVENT_MISSING', classification: 'omission', expectedCode: 'SCENE_ACCEPTANCE_AUDIT_FAILED' },
+    { code: 'SCENE_GOAL_MISSING', classification: 'omission', expectedCode: 'SCENE_ACCEPTANCE_AUDIT_FAILED' },
+    // Non-repairable commission issue
+    { code: 'FORBIDDEN_EVENT_VIOLATION', classification: 'repair_eligible', expectedCode: 'SCENE_ACCEPTANCE_AUDIT_FAILED' },
+    { code: 'UNSUPPORTED_SETTING_DETAIL', classification: 'repair_eligible', expectedCode: 'SCENE_ACCEPTANCE_AUDIT_FAILED' },
+    // Non-repairable classification issue
+    { code: 'VOICE_RULE_VIOLATION', classification: 'non_repairable', expectedCode: 'SCENE_ACCEPTANCE_AUDIT_FAILED' },
+    // Unknown issue code
+    { code: 'UNKNOWN_FABRICATED_CODE', classification: 'omission', expectedCode: 'SCENE_ACCEPTANCE_AUDIT_FAILED' },
+    // Mispaired code/classification
+    { code: 'REQUIRED_EVENT_MISSING', classification: 'repair_eligible', expectedCode: 'SCENE_ACCEPTANCE_AUDIT_FAILED' },
+    { code: 'FUTURE_EVENT_EARLY_PERFORMED', classification: 'omission', expectedCode: 'SCENE_ACCEPTANCE_AUDIT_FAILED' },
+  ];
+
+  for (const tc of testCases) {
+    let repairInvoked = 0;
+
+    await assert.rejects(
+      () =>
+        evaluateSceneExecutionAcceptance({
+          flags: allFlags,
+          acceptanceState,
+          targetSceneId: 'ch01-s01',
+          prose: 'Hero entered room 1.',
+          runners: {
+            auditRunner: async (req) => {
+              const resp = makeCleanAuditResponse(req);
+              resp.status = 'issues_found';
+              resp.issues = [
+                {
+                  code: tc.code,
+                  classification: tc.classification,
+                  excerpt: 'entered',
+                  offset: 5,
+                },
+              ];
+              return resp;
+            },
+            repairRunner: async () => {
+              repairInvoked += 1;
+            },
+          },
+        }),
+      (err) => err.code === tc.expectedCode
+    );
+
+    assert.equal(repairInvoked, 0, `repairRunner must never be invoked for ${tc.code}`);
+  }
+});
+
+await test('Stage 9A Checkpoint 3B: host-owned canonicalization copies frozen structures without returning runner objects by identity', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  let rawAuditOutput;
+  const result = await evaluateSceneExecutionAcceptance({
+    flags: allFlags,
+    acceptanceState,
+    targetSceneId: 'ch01-s01',
+    prose: 'Hero entered room 1.',
+    runners: {
+      auditRunner: async (req) => {
+        rawAuditOutput = makeCleanAuditResponse(req);
+        return rawAuditOutput;
+      },
+    },
+  });
+
+  assert.equal(result.status, 'accepted');
+  assert.ok(result.audit);
+  assert.ok(Object.isFrozen(result.audit));
+  assert.ok(Object.isFrozen(result.audit.coverage));
+
+  // Verify result objects are NOT identical by reference to raw runner output
+  assert.notEqual(result.audit, rawAuditOutput);
+  assert.notEqual(result.audit.coverage, rawAuditOutput.coverage);
+
+  // Raw runner output must remain unfrozen unless frozen by runner
+  assert.ok(!Object.isFrozen(rawAuditOutput));
+});
+
+await test('Stage 9A Checkpoint 3B: hostile getter/proxy in audit output is sanitized to SCENE_ACCEPTANCE_AUDIT_MALFORMED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  const hostileAuditResponse = {
+    version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+    contract_fingerprint: acceptanceState.contract_fingerprint,
+    scene_id: 'ch01-s01',
+    scene_number: 1,
+    packet_id: 'ch01-s01-pkt-v1',
+    status: 'clean',
+    issues: [],
+    get coverage() {
+      throw new Error('Hostile audit coverage getter trap');
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: {
+          auditRunner: async () => hostileAuditResponse,
+        },
+      }),
+    (err) => {
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED');
+      assert.deepEqual(err.details, []);
+      assert.ok(!err.message.includes('Hostile'));
+      return true;
+    }
+  );
+});
+
+await test('Stage 9A Checkpoint 3B: hostile getter/proxy in repair output is sanitized to SCENE_ACCEPTANCE_REPAIR_MALFORMED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  const prose = 'Hero entered room 1 carefully. Hero opened chest prematurely.';
+  const excerpt = 'Hero opened chest prematurely.';
+  const offset = prose.indexOf(excerpt);
+
+  const hostileRepairResponse = {
+    version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+    contract_fingerprint: acceptanceState.contract_fingerprint,
+    scene_id: 'ch01-s01',
+    scene_number: 1,
+    packet_id: 'ch01-s01-pkt-v1',
+    status: 'repaired',
+    get replacements() {
+      throw new Error('Hostile repair replacements getter trap');
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose,
+        runners: {
+          auditRunner: async (req) => makeRepairableAuditResponse(req, excerpt, offset),
+          repairRunner: async () => hostileRepairResponse,
+        },
+      }),
+    (err) => {
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED');
+      assert.deepEqual(err.details, []);
+      assert.ok(!err.message.includes('Hostile'));
+      return true;
+    }
+  );
+});
+
+await test('Stage 9A Checkpoint 3B: outer evaluator catch normalizes unexpected thrown hostile object to SCENE_ACCEPTANCE_STATE_INVALID', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+
+  const hostileOuterError = {
+    get message() {
+      throw new Error('Hostile outer message getter trap');
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Some prose',
+        runners: {
+          auditRunner: async () => {},
+        },
+        get extraPropertyTrap() {
+          throw hostileOuterError;
+        },
+      }),
+    (err) => {
+      assert.equal(err.code, 'SCENE_ACCEPTANCE_STATE_INVALID');
+      assert.deepEqual(err.details, []);
+      assert.ok(!err.message.includes('Hostile'));
+      return true;
+    }
+  );
+});
+
 await test('Stage 9A Checkpoint 3A: initial auditRunner thrown object with throwing getter is normalized', async () => {
   const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
 
