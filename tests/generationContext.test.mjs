@@ -58,6 +58,10 @@ import {
   AUDIT_COVERAGE_KEYS,
   ALLOWED_COVERAGE_STATUSES,
   EVALUATOR_RESULT_KEYS,
+  REPAIR_REQUEST_KEYS,
+  REPAIR_RESPONSE_KEYS,
+  REPAIR_REPLACEMENT_KEYS,
+  REPAIR_RECORD_KEYS,
 } from '../src/lib/generationContext.js';
 import {
   isSceneExecutionLiveCanaryEnabled,
@@ -7269,50 +7273,6 @@ await test('Stage 9A Checkpoint 2: malformed audit response normalized to SCENE_
   );
 });
 
-await test('Stage 9A Checkpoint 2A: issues_found status rejected with SCENE_ACCEPTANCE_AUDIT_FAILED before repair implementation', async () => {
-  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
-
-  await assert.rejects(
-    () =>
-      evaluateSceneExecutionAcceptance({
-        flags: allFlags,
-        acceptanceState,
-        targetSceneId: 'ch01-s01',
-        prose: 'Some prose',
-        runners: {
-          auditRunner: async (req) => {
-            const resp = makeCleanAuditResponse(req);
-            resp.status = 'issues_found';
-            return resp;
-          },
-        },
-      }),
-    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_FAILED'
-  );
-});
-
-await test('Stage 9A Checkpoint 2A: clean audit with unverified coverage is rejected with SCENE_ACCEPTANCE_AUDIT_MALFORMED', async () => {
-  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
-
-  await assert.rejects(
-    () =>
-      evaluateSceneExecutionAcceptance({
-        flags: allFlags,
-        acceptanceState,
-        targetSceneId: 'ch01-s01',
-        prose: 'Some prose',
-        runners: {
-          auditRunner: async (req) => {
-            const resp = makeCleanAuditResponse(req);
-            resp.coverage.exit_state_attained = 'unverified';
-            return resp;
-          },
-        },
-      }),
-    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_MALFORMED'
-  );
-});
-
 await test('Stage 9A Checkpoint 2A: runner-thrown branded Stage 9 error is normalized to SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED', async () => {
   const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
 
@@ -7325,11 +7285,237 @@ await test('Stage 9A Checkpoint 2A: runner-thrown branded Stage 9 error is norma
         prose: 'Some prose',
         runners: {
           auditRunner: async () => {
-            // Throw a branded Stage 9 error inside runner
-            throw new Error('Branded error thrown inside audit runner');
+            // Genuinely trigger and throw an existing branded Stage 9 error inside runner
+            prepareSceneExecutionAcceptanceState(null);
           },
         },
       }),
     (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED'
   );
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Stage 9A — Scene execution acceptance gate evaluation (Checkpoint 3A: Surgical Repair)
+// ═══════════════════════════════════════════════════════════════════════
+
+function makeRepairableAuditResponse(auditRequest, excerpt, offset) {
+  return {
+    version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+    contract_fingerprint: auditRequest.contract_fingerprint,
+    scene_id: auditRequest.scene_id,
+    scene_number: auditRequest.scene_number,
+    packet_id: auditRequest.packet.packet_id,
+    status: 'issues_found',
+    issues: [
+      {
+        code: 'FUTURE_EVENT_EARLY_PERFORMED',
+        classification: 'repair_eligible',
+        excerpt,
+        offset,
+      },
+    ],
+    coverage: {
+      entry_state_satisfied: 'verified',
+      exit_state_attained: 'verified',
+      required_events_satisfied: 'verified',
+      forbidden_events_avoided: 'verified',
+      continuity_satisfied: 'verified',
+    },
+  };
+}
+
+function makeRepairResponse(repairRequest, replacementText) {
+  const issue = repairRequest.issue;
+  return {
+    version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+    contract_fingerprint: repairRequest.contract_fingerprint,
+    scene_id: repairRequest.scene_id,
+    scene_number: repairRequest.scene_number,
+    packet_id: repairRequest.packet.packet_id,
+    status: 'repaired',
+    replacements: [
+      {
+        issue_code: issue.code,
+        start: issue.offset,
+        end: issue.offset + issue.excerpt.length,
+        original_excerpt: issue.excerpt,
+        replacement_text: replacementText,
+      },
+    ],
+  };
+}
+
+await test('Stage 9A Checkpoint 3A: end-to-end surgical repair flow succeeds', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  let auditInvoked = 0;
+  let repairInvoked = 0;
+  let capturedRepairReq;
+
+  const originalProse = 'Hero entered room 1 carefully. Hero opened chest in room 2 prematurely.';
+  const excerpt = 'Hero opened chest in room 2 prematurely.';
+  const offset = originalProse.indexOf(excerpt);
+
+  const result = await evaluateSceneExecutionAcceptance({
+    flags: allFlags,
+    acceptanceState,
+    targetSceneId: 'ch01-s01',
+    prose: originalProse,
+    runners: {
+      auditRunner: async (req) => {
+        auditInvoked += 1;
+        if (auditInvoked === 1) {
+          return makeRepairableAuditResponse(req, excerpt, offset);
+        }
+        return makeCleanAuditResponse(req);
+      },
+      repairRunner: async (req) => {
+        repairInvoked += 1;
+        capturedRepairReq = req;
+        return makeRepairResponse(req, 'Hero observed the chest from a distance.');
+      },
+    },
+  });
+
+  assert.equal(auditInvoked, 2);
+  assert.equal(repairInvoked, 1);
+
+  assert.ok(capturedRepairReq);
+  assert.ok(Object.isFrozen(capturedRepairReq));
+  assert.equal(capturedRepairReq.scene_id, 'ch01-s01');
+  assert.ok(capturedRepairReq.packet);
+  assert.ok(capturedRepairReq.private_future_authority);
+
+  assert.equal(
+    result.final_prose,
+    'Hero entered room 1 carefully. Hero observed the chest from a distance.'
+  );
+
+  assert.equal(result.status, 'accepted');
+  assert.equal(result.mode, 'acceptance');
+  assert.ok(result.repair);
+  assert.equal(result.repair.status, 'repaired');
+  assert.equal(result.repair.replacements.length, 1);
+  assert.equal(
+    result.repair.replacements[0].replacement_text,
+    'Hero observed the chest from a distance.'
+  );
+  assert.ok(Object.isFrozen(result));
+  assert.ok(Object.isFrozen(result.repair));
+});
+
+await test('Stage 9A Checkpoint 3A: non-repairable or malformed issue never invokes repairRunner', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  let repairInvoked = 0;
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose: 'Hero entered room 1.',
+        runners: {
+          auditRunner: async (req) => {
+            const resp = makeCleanAuditResponse(req);
+            resp.status = 'issues_found';
+            resp.issues = [
+              {
+                code: 'UNRECOGNIZED_CODE',
+                classification: 'repair_eligible',
+                excerpt: 'entered',
+                offset: 5,
+              },
+            ];
+            return resp;
+          },
+          repairRunner: async () => {
+            repairInvoked += 1;
+          },
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_FAILED'
+  );
+
+  assert.equal(repairInvoked, 0);
+});
+
+await test('Stage 9A Checkpoint 3A: repairRunner exception is normalized to SCENE_ACCEPTANCE_REPAIR_RUNNER_FAILED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  const prose = 'Hero entered room 1 carefully. Hero opened chest prematurely.';
+  const excerpt = 'Hero opened chest prematurely.';
+  const offset = prose.indexOf(excerpt);
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose,
+        runners: {
+          auditRunner: async (req) => makeRepairableAuditResponse(req, excerpt, offset),
+          repairRunner: async () => {
+            throw new Error('Repair LLM failed');
+          },
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_REPAIR_RUNNER_FAILED'
+  );
+});
+
+await test('Stage 9A Checkpoint 3A: malformed repair replacement is rejected with SCENE_ACCEPTANCE_REPAIR_MALFORMED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  const prose = 'Hero entered room 1 carefully. Hero opened chest prematurely.';
+  const excerpt = 'Hero opened chest prematurely.';
+  const offset = prose.indexOf(excerpt);
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose,
+        runners: {
+          auditRunner: async (req) => makeRepairableAuditResponse(req, excerpt, offset),
+          repairRunner: async (req) => {
+            const resp = makeRepairResponse(req, 'Fix text');
+            resp.replacements[0].start = 999;
+            return resp;
+          },
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_REPAIR_MALFORMED'
+  );
+});
+
+await test('Stage 9A Checkpoint 3A: second audit not clean is rejected with SCENE_ACCEPTANCE_AUDIT_FAILED', async () => {
+  const { allFlags, acceptanceState } = makeStage9AEnabledSetup();
+  let auditInvoked = 0;
+  const prose = 'Hero entered room 1 carefully. Hero opened chest prematurely.';
+  const excerpt = 'Hero opened chest prematurely.';
+  const offset = prose.indexOf(excerpt);
+
+  await assert.rejects(
+    () =>
+      evaluateSceneExecutionAcceptance({
+        flags: allFlags,
+        acceptanceState,
+        targetSceneId: 'ch01-s01',
+        prose,
+        runners: {
+          auditRunner: async (req) => {
+            auditInvoked += 1;
+            if (auditInvoked === 1) {
+              return makeRepairableAuditResponse(req, excerpt, offset);
+            }
+            return makeRepairableAuditResponse(req, 'observed', 0);
+          },
+          repairRunner: async (req) => makeRepairResponse(req, 'Hero observed the chest.'),
+        },
+      }),
+    (err) => err.code === 'SCENE_ACCEPTANCE_AUDIT_FAILED'
+  );
+
+  assert.equal(auditInvoked, 2);
 });

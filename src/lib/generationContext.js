@@ -4301,7 +4301,7 @@ export function prepareSceneExecutionAcceptanceState(input) {
   }
 }
 
-// ─── Stage 9: default-off scene execution acceptance gate (Checkpoint 2: Clean Audit Path) ───
+// ─── Stage 9: default-off scene execution acceptance gate (Checkpoint 3A: Clean & Surgical Repair Paths) ───
 
 export const SCENE_EXECUTION_ACCEPTANCE_EVALUATION_VERSION = 'scene-execution-acceptance-evaluation-v1';
 
@@ -4377,6 +4377,49 @@ export const EVALUATOR_RESULT_KEYS = Object.freeze([
 ]);
 const EVALUATOR_RESULT_KEY_LOOKUP = new Set(EVALUATOR_RESULT_KEYS);
 
+export const REPAIR_REQUEST_KEYS = Object.freeze([
+  'version',
+  'contract_fingerprint',
+  'scene_id',
+  'scene_number',
+  'packet',
+  'prose',
+  'issue',
+  'private_future_authority',
+]);
+const REPAIR_REQUEST_KEY_LOOKUP = new Set(REPAIR_REQUEST_KEYS);
+
+export const REPAIR_RESPONSE_KEYS = Object.freeze([
+  'version',
+  'contract_fingerprint',
+  'scene_id',
+  'scene_number',
+  'packet_id',
+  'status',
+  'replacements',
+]);
+const REPAIR_RESPONSE_KEY_LOOKUP = new Set(REPAIR_RESPONSE_KEYS);
+
+export const REPAIR_REPLACEMENT_KEYS = Object.freeze([
+  'issue_code',
+  'start',
+  'end',
+  'original_excerpt',
+  'replacement_text',
+]);
+const REPAIR_REPLACEMENT_KEY_LOOKUP = new Set(REPAIR_REPLACEMENT_KEYS);
+
+export const REPAIR_RECORD_KEYS = Object.freeze([
+  'version',
+  'contract_fingerprint',
+  'scene_id',
+  'scene_number',
+  'packet_id',
+  'status',
+  'replacements',
+]);
+const REPAIR_RECORD_KEY_LOOKUP = new Set(REPAIR_RECORD_KEYS);
+
 const verifiedSceneExecutionAcceptanceResults = new WeakSet();
 
 function finalizeSceneExecutionAcceptanceResult(result) {
@@ -4419,6 +4462,25 @@ function acceptedCleanSceneExecutionAcceptanceResult({ contractFingerprint, scen
   result.issues = Object.freeze([]);
 
   inspectComposerRecord(result, 'acceptedCleanSceneExecutionAcceptanceResult', EVALUATOR_RESULT_KEY_LOOKUP);
+  return finalizeSceneExecutionAcceptanceResult(result);
+}
+
+function acceptedRepairedSceneExecutionAcceptanceResult({ contractFingerprint, sceneId, sceneNumber, packetId, auditResponse, repairRecord, prose }) {
+  const result = Object.create(null);
+  result.version = SCENE_EXECUTION_ACCEPTANCE_EVALUATION_VERSION;
+  result.enabled = true;
+  result.mode = 'acceptance';
+  result.status = 'accepted';
+  result.contract_fingerprint = contractFingerprint;
+  result.scene_id = sceneId;
+  result.scene_number = sceneNumber;
+  result.packet_id = packetId;
+  result.audit = auditResponse;
+  result.repair = repairRecord;
+  result.final_prose = prose;
+  result.issues = Object.freeze([]);
+
+  inspectComposerRecord(result, 'acceptedRepairedSceneExecutionAcceptanceResult', EVALUATOR_RESULT_KEY_LOOKUP);
   return finalizeSceneExecutionAcceptanceResult(result);
 }
 
@@ -4467,7 +4529,7 @@ function finalizeAuditRunnerRequest(req) {
   return deepFreeze(req);
 }
 
-function inspectAuditResponseRecordSafe(rawResponse, auditRequest) {
+function inspectAuditResponseRecordClean(rawResponse, auditRequest) {
   if (!rawResponse || typeof rawResponse !== 'object' || Array.isArray(rawResponse)) {
     throw sceneAcceptanceError('Audit response must be a plain object', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   }
@@ -4493,14 +4555,14 @@ function inspectAuditResponseRecordSafe(rawResponse, auditRequest) {
     }
   }
 
-  const ver = composerOwnDataValue(rawResponse, 'version', 'inspectAuditResponseRecordSafe');
-  const fp = composerOwnDataValue(rawResponse, 'contract_fingerprint', 'inspectAuditResponseRecordSafe');
-  const sId = composerOwnDataValue(rawResponse, 'scene_id', 'inspectAuditResponseRecordSafe');
-  const sNum = composerOwnDataValue(rawResponse, 'scene_number', 'inspectAuditResponseRecordSafe');
-  const pId = composerOwnDataValue(rawResponse, 'packet_id', 'inspectAuditResponseRecordSafe');
-  const status = composerOwnDataValue(rawResponse, 'status', 'inspectAuditResponseRecordSafe');
-  const issues = composerOwnDataValue(rawResponse, 'issues', 'inspectAuditResponseRecordSafe');
-  const coverage = composerOwnDataValue(rawResponse, 'coverage', 'inspectAuditResponseRecordSafe');
+  const ver = composerOwnDataValue(rawResponse, 'version', 'inspectAuditResponseRecordClean');
+  const fp = composerOwnDataValue(rawResponse, 'contract_fingerprint', 'inspectAuditResponseRecordClean');
+  const sId = composerOwnDataValue(rawResponse, 'scene_id', 'inspectAuditResponseRecordClean');
+  const sNum = composerOwnDataValue(rawResponse, 'scene_number', 'inspectAuditResponseRecordClean');
+  const pId = composerOwnDataValue(rawResponse, 'packet_id', 'inspectAuditResponseRecordClean');
+  const status = composerOwnDataValue(rawResponse, 'status', 'inspectAuditResponseRecordClean');
+  const issues = composerOwnDataValue(rawResponse, 'issues', 'inspectAuditResponseRecordClean');
+  const coverage = composerOwnDataValue(rawResponse, 'coverage', 'inspectAuditResponseRecordClean');
 
   if (
     ver !== SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION ||
@@ -4512,19 +4574,92 @@ function inspectAuditResponseRecordSafe(rawResponse, auditRequest) {
     throw sceneAcceptanceError('Audit response identity mismatch', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   }
 
-  if (status === 'audit_failed' || status === 'issues_found') {
-    throw sceneAcceptanceError(`auditRunner reported ${status}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
-  }
   if (status !== 'clean') {
-    throw sceneAcceptanceError(`Invalid audit response status: ${status}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    throw sceneAcceptanceError(`Verification audit status must be clean, got ${status}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+  }
+
+  if (!Array.isArray(issues) || issues.length !== 0) {
+    throw sceneAcceptanceError('Clean audit response issues must be empty array', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+
+  if (!coverage || typeof coverage !== 'object' || Array.isArray(coverage)) {
+    throw sceneAcceptanceError('Audit response coverage must be a plain object', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+  const covProto = Object.getPrototypeOf(coverage);
+  if (covProto !== Object.prototype && covProto !== null) {
+    throw sceneAcceptanceError('Invalid coverage object prototype', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+  if (Object.getOwnPropertySymbols(coverage).length > 0) {
+    throw sceneAcceptanceError('Symbol properties prohibited on coverage object', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+  const covKeys = Object.getOwnPropertyNames(coverage);
+  if (covKeys.length !== AUDIT_COVERAGE_KEYS.length) {
+    throw sceneAcceptanceError('Coverage key count mismatch', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+  for (let cIdx = 0; cIdx < covKeys.length; cIdx++) {
+    const cKey = AUDIT_COVERAGE_KEYS[cIdx];
+    if (!covKeys.includes(cKey)) {
+      throw sceneAcceptanceError(`Missing coverage key: ${cKey}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
+    const cDesc = Object.getOwnPropertyDescriptor(coverage, cKey);
+    if (!cDesc || cDesc.get || cDesc.set || !cDesc.enumerable) {
+      throw sceneAcceptanceError(`Invalid descriptor for coverage property ${cKey}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
+    if (cDesc.value !== 'verified') {
+      throw sceneAcceptanceError(`Clean audit response coverage property ${cKey} must be verified, got ${cDesc.value}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
+  }
+
+  return deepFreeze(rawResponse);
+}
+
+function inspectAuditResponseRecordForRepair(rawResponse, auditRequest, prose) {
+  if (!rawResponse || typeof rawResponse !== 'object' || Array.isArray(rawResponse)) {
+    throw sceneAcceptanceError('Audit response must be a plain object', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+  const proto = Object.getPrototypeOf(rawResponse);
+  if (proto !== Object.prototype && proto !== null) {
+    throw sceneAcceptanceError('Invalid audit response prototype', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+  if (Object.getOwnPropertySymbols(rawResponse).length > 0) {
+    throw sceneAcceptanceError('Symbol properties prohibited on audit response', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+  const keys = Object.getOwnPropertyNames(rawResponse);
+  if (keys.length !== AUDIT_RESPONSE_KEYS.length) {
+    throw sceneAcceptanceError('Audit response key count mismatch', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
+    if (!AUDIT_RESPONSE_KEY_LOOKUP.has(k)) {
+      throw sceneAcceptanceError(`Unknown property ${k} in audit response`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
+    const desc = Object.getOwnPropertyDescriptor(rawResponse, k);
+    if (!desc || desc.get || desc.set || !desc.enumerable) {
+      throw sceneAcceptanceError(`Invalid descriptor for property ${k} in audit response`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
+  }
+
+  const ver = composerOwnDataValue(rawResponse, 'version', 'inspectAuditResponseRecordForRepair');
+  const fp = composerOwnDataValue(rawResponse, 'contract_fingerprint', 'inspectAuditResponseRecordForRepair');
+  const sId = composerOwnDataValue(rawResponse, 'scene_id', 'inspectAuditResponseRecordForRepair');
+  const sNum = composerOwnDataValue(rawResponse, 'scene_number', 'inspectAuditResponseRecordForRepair');
+  const pId = composerOwnDataValue(rawResponse, 'packet_id', 'inspectAuditResponseRecordForRepair');
+  const status = composerOwnDataValue(rawResponse, 'status', 'inspectAuditResponseRecordForRepair');
+  const issues = composerOwnDataValue(rawResponse, 'issues', 'inspectAuditResponseRecordForRepair');
+  const coverage = composerOwnDataValue(rawResponse, 'coverage', 'inspectAuditResponseRecordForRepair');
+
+  if (
+    ver !== SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION ||
+    fp !== auditRequest.contract_fingerprint ||
+    sId !== auditRequest.scene_id ||
+    sNum !== auditRequest.scene_number ||
+    pId !== auditRequest.packet.packet_id
+  ) {
+    throw sceneAcceptanceError('Audit response identity mismatch', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   }
 
   if (!Array.isArray(issues)) {
     throw sceneAcceptanceError('Audit response issues must be an array', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
-  }
-
-  if (status === 'clean' && issues.length !== 0) {
-    throw sceneAcceptanceError('Clean audit response cannot contain issues', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
   }
 
   if (!coverage || typeof coverage !== 'object' || Array.isArray(coverage)) {
@@ -4553,12 +4688,225 @@ function inspectAuditResponseRecordSafe(rawResponse, auditRequest) {
     if (!ALLOWED_COVERAGE_STATUS_LOOKUP.has(cDesc.value)) {
       throw sceneAcceptanceError(`Invalid status for coverage property ${cKey}: ${cDesc.value}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
     }
-    if (cDesc.value !== 'verified') {
-      throw sceneAcceptanceError(`Clean audit response coverage property ${cKey} must be verified, got ${cDesc.value}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+  }
+
+  if (status === 'clean') {
+    if (issues.length !== 0) {
+      throw sceneAcceptanceError('Clean audit response cannot contain issues', 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+    }
+    for (let cIdx = 0; cIdx < covKeys.length; cIdx++) {
+      const cKey = AUDIT_COVERAGE_KEYS[cIdx];
+      const cDesc = Object.getOwnPropertyDescriptor(coverage, cKey);
+      if (cDesc.value !== 'verified') {
+        throw sceneAcceptanceError(`Clean audit response coverage property ${cKey} must be verified, got ${cDesc.value}`, 'SCENE_ACCEPTANCE_AUDIT_MALFORMED', []);
+      }
+    }
+    return { mode: 'clean', validatedAuditResponse: deepFreeze(rawResponse) };
+  }
+
+  if (status === 'issues_found') {
+    if (issues.length !== 1) {
+      throw sceneAcceptanceError('issues_found status must contain exactly 1 issue for repair', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    const rawIssue = issues[0];
+    if (!rawIssue || typeof rawIssue !== 'object' || Array.isArray(rawIssue)) {
+      throw sceneAcceptanceError('Audit issue must be a plain object', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    const issueProto = Object.getPrototypeOf(rawIssue);
+    if (issueProto !== Object.prototype && issueProto !== null) {
+      throw sceneAcceptanceError('Invalid audit issue prototype', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    if (Object.getOwnPropertySymbols(rawIssue).length > 0) {
+      throw sceneAcceptanceError('Symbol properties prohibited on audit issue', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    const issueKeys = Object.getOwnPropertyNames(rawIssue);
+    if (issueKeys.length !== AUDIT_ISSUE_KEYS.length) {
+      throw sceneAcceptanceError('Audit issue key count mismatch', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    for (let iIdx = 0; iIdx < issueKeys.length; iIdx++) {
+      const iKey = AUDIT_ISSUE_KEYS[iIdx];
+      if (!issueKeys.includes(iKey)) {
+        throw sceneAcceptanceError(`Missing key ${iKey} in audit issue`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+      }
+      const iDesc = Object.getOwnPropertyDescriptor(rawIssue, iKey);
+      if (!iDesc || iDesc.get || iDesc.set || !iDesc.enumerable) {
+        throw sceneAcceptanceError(`Invalid descriptor for issue property ${iKey}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+      }
+    }
+
+    const code = rawIssue.code;
+    const classification = rawIssue.classification;
+    const excerpt = rawIssue.excerpt;
+    const offset = rawIssue.offset;
+
+    if (code !== 'FUTURE_EVENT_EARLY_PERFORMED') {
+      throw sceneAcceptanceError(`Non-repairable issue code: ${code}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    if (classification !== 'repair_eligible') {
+      throw sceneAcceptanceError(`Non-repairable issue classification: ${classification}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    if (typeof excerpt !== 'string' || excerpt.length === 0) {
+      throw sceneAcceptanceError('Audit issue excerpt must be a non-empty string', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    if (!Number.isInteger(offset) || offset < 0) {
+      throw sceneAcceptanceError('Audit issue offset must be a non-negative integer', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    if (offset + excerpt.length > prose.length) {
+      throw sceneAcceptanceError('Audit issue offset out of bounds for prose', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+    const sliced = prose.slice(offset, offset + excerpt.length);
+    if (sliced !== excerpt) {
+      throw sceneAcceptanceError('Audit issue excerpt mismatch with prose slice', 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+    }
+
+    const validatedIssue = deepFreeze({
+      code,
+      classification,
+      excerpt,
+      offset,
+    });
+
+    return {
+      mode: 'repair',
+      validatedIssue,
+      initialAuditResponse: deepFreeze(rawResponse),
+    };
+  }
+
+  throw sceneAcceptanceError(`auditRunner reported failure status: ${status}`, 'SCENE_ACCEPTANCE_AUDIT_FAILED', []);
+}
+
+function finalizeRepairRunnerRequest(req) {
+  if (!req || typeof req !== 'object' || Array.isArray(req)) {
+    throw sceneAcceptanceError('Repair request must be a plain object', 'SCENE_ACCEPTANCE_STATE_INVALID', []);
+  }
+  inspectComposerRecord(req, 'finalizeRepairRunnerRequest', REPAIR_REQUEST_KEY_LOOKUP);
+  return deepFreeze(req);
+}
+
+function inspectRepairResponseRecordSafe(rawResponse, repairRequest, issue) {
+  if (!rawResponse || typeof rawResponse !== 'object' || Array.isArray(rawResponse)) {
+    throw sceneAcceptanceError('Repair response must be a plain object', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  const proto = Object.getPrototypeOf(rawResponse);
+  if (proto !== Object.prototype && proto !== null) {
+    throw sceneAcceptanceError('Invalid repair response prototype', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  if (Object.getOwnPropertySymbols(rawResponse).length > 0) {
+    throw sceneAcceptanceError('Symbol properties prohibited on repair response', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  const keys = Object.getOwnPropertyNames(rawResponse);
+  if (keys.length !== REPAIR_RESPONSE_KEYS.length) {
+    throw sceneAcceptanceError('Repair response key count mismatch', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
+    if (!REPAIR_RESPONSE_KEY_LOOKUP.has(k)) {
+      throw sceneAcceptanceError(`Unknown property ${k} in repair response`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+    }
+    const desc = Object.getOwnPropertyDescriptor(rawResponse, k);
+    if (!desc || desc.get || desc.set || !desc.enumerable) {
+      throw sceneAcceptanceError(`Invalid descriptor for property ${k} in repair response`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
     }
   }
 
-  return deepFreeze(rawResponse);
+  const ver = composerOwnDataValue(rawResponse, 'version', 'inspectRepairResponseRecordSafe');
+  const fp = composerOwnDataValue(rawResponse, 'contract_fingerprint', 'inspectRepairResponseRecordSafe');
+  const sId = composerOwnDataValue(rawResponse, 'scene_id', 'inspectRepairResponseRecordSafe');
+  const sNum = composerOwnDataValue(rawResponse, 'scene_number', 'inspectRepairResponseRecordSafe');
+  const pId = composerOwnDataValue(rawResponse, 'packet_id', 'inspectRepairResponseRecordSafe');
+  const status = composerOwnDataValue(rawResponse, 'status', 'inspectRepairResponseRecordSafe');
+  const replacements = composerOwnDataValue(rawResponse, 'replacements', 'inspectRepairResponseRecordSafe');
+
+  if (
+    ver !== SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION ||
+    fp !== repairRequest.contract_fingerprint ||
+    sId !== repairRequest.scene_id ||
+    sNum !== repairRequest.scene_number ||
+    pId !== repairRequest.packet.packet_id
+  ) {
+    throw sceneAcceptanceError('Repair response identity mismatch', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+
+  if (status !== 'repaired') {
+    throw sceneAcceptanceError(`Invalid repair response status: ${status}`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+
+  if (!Array.isArray(replacements) || replacements.length !== 1) {
+    throw sceneAcceptanceError('Repair response replacements must be an array of length 1', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+
+  const rawRepl = replacements[0];
+  if (!rawRepl || typeof rawRepl !== 'object' || Array.isArray(rawRepl)) {
+    throw sceneAcceptanceError('Replacement must be a plain object', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  const replProto = Object.getPrototypeOf(rawRepl);
+  if (replProto !== Object.prototype && replProto !== null) {
+    throw sceneAcceptanceError('Invalid replacement prototype', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  if (Object.getOwnPropertySymbols(rawRepl).length > 0) {
+    throw sceneAcceptanceError('Symbol properties prohibited on replacement object', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  const replKeys = Object.getOwnPropertyNames(rawRepl);
+  if (replKeys.length !== REPAIR_REPLACEMENT_KEYS.length) {
+    throw sceneAcceptanceError('Replacement key count mismatch', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  for (let rIdx = 0; rIdx < replKeys.length; rIdx++) {
+    const rKey = REPAIR_REPLACEMENT_KEYS[rIdx];
+    if (!replKeys.includes(rKey)) {
+      throw sceneAcceptanceError(`Missing key ${rKey} in replacement`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+    }
+    const rDesc = Object.getOwnPropertyDescriptor(rawRepl, rKey);
+    if (!rDesc || rDesc.get || rDesc.set || !rDesc.enumerable) {
+      throw sceneAcceptanceError(`Invalid descriptor for replacement property ${rKey}`, 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+    }
+  }
+
+  const issueCode = rawRepl.issue_code;
+  const start = rawRepl.start;
+  const end = rawRepl.end;
+  const originalExcerpt = rawRepl.original_excerpt;
+  const replacementText = rawRepl.replacement_text;
+
+  if (issueCode !== issue.code) {
+    throw sceneAcceptanceError('Replacement issue_code mismatch', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  if (start !== issue.offset) {
+    throw sceneAcceptanceError('Replacement start index mismatch with issue offset', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  if (end !== issue.offset + issue.excerpt.length) {
+    throw sceneAcceptanceError('Replacement end index mismatch', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  if (originalExcerpt !== issue.excerpt) {
+    throw sceneAcceptanceError('Replacement original_excerpt mismatch with issue excerpt', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  if (typeof replacementText !== 'string') {
+    throw sceneAcceptanceError('Replacement replacement_text must be a string', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+  if (start < 0 || end > repairRequest.prose.length || start >= end) {
+    throw sceneAcceptanceError('Replacement indices out of bounds for prose', 'SCENE_ACCEPTANCE_REPAIR_MALFORMED', []);
+  }
+
+  return {
+    issue_code: issueCode,
+    start,
+    end,
+    original_excerpt: originalExcerpt,
+    replacement_text: replacementText,
+  };
+}
+
+function createCanonicalRepairRecord({ contractFingerprint, sceneId, sceneNumber, packetId, replacement }) {
+  const rec = Object.create(null);
+  rec.version = SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION;
+  rec.contract_fingerprint = contractFingerprint;
+  rec.scene_id = sceneId;
+  rec.scene_number = sceneNumber;
+  rec.packet_id = packetId;
+  rec.status = 'repaired';
+  rec.replacements = Object.freeze([deepFreeze({ ...replacement })]);
+  inspectComposerRecord(rec, 'createCanonicalRepairRecord', REPAIR_RECORD_KEY_LOOKUP);
+  return deepFreeze(rec);
 }
 
 export async function evaluateSceneExecutionAcceptance(input) {
@@ -4652,15 +5000,93 @@ export async function evaluateSceneExecutionAcceptance(input) {
       );
     }
 
-    const validatedAuditResponse = inspectAuditResponseRecordSafe(rawAuditResponse, auditRequest);
+    const auditEvaluation = inspectAuditResponseRecordForRepair(rawAuditResponse, auditRequest, prose);
 
-    return acceptedCleanSceneExecutionAcceptanceResult({
+    if (auditEvaluation.mode === 'clean') {
+      return acceptedCleanSceneExecutionAcceptanceResult({
+        contractFingerprint: acceptanceState.contract_fingerprint,
+        sceneId: sceneRecord.scene_id,
+        sceneNumber: sceneRecord.scene_number,
+        packetId: sceneRecord.packet_id,
+        auditResponse: auditEvaluation.validatedAuditResponse,
+        prose,
+      });
+    }
+
+    // Repair path
+    const validatedIssue = auditEvaluation.validatedIssue;
+
+    const repairRunnerDesc = Object.getOwnPropertyDescriptor(runners, 'repairRunner');
+    if (!repairRunnerDesc || repairRunnerDesc.get || repairRunnerDesc.set || !repairRunnerDesc.enumerable || typeof repairRunnerDesc.value !== 'function') {
+      throw sceneAcceptanceError('Missing or invalid repairRunner function in runners', 'SCENE_ACCEPTANCE_STATE_INVALID', []);
+    }
+    const repairRunner = repairRunnerDesc.value;
+
+    const repairRequest = finalizeRepairRunnerRequest({
+      version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+      contract_fingerprint: acceptanceState.contract_fingerprint,
+      scene_id: sceneRecord.scene_id,
+      scene_number: sceneRecord.scene_number,
+      packet: sceneRecord.packet,
+      prose,
+      issue: validatedIssue,
+      private_future_authority: privateFutureAuthority,
+    });
+
+    let rawRepairResponse;
+    try {
+      rawRepairResponse = await repairRunner(repairRequest);
+    } catch (err) {
+      throw sceneAcceptanceError(
+        `repairRunner execution failed: ${err?.message || 'unknown error'}`,
+        'SCENE_ACCEPTANCE_REPAIR_RUNNER_FAILED',
+        [String(err?.message || err)]
+      );
+    }
+
+    const replacement = inspectRepairResponseRecordSafe(rawRepairResponse, repairRequest, validatedIssue);
+
+    const repairRecord = createCanonicalRepairRecord({
       contractFingerprint: acceptanceState.contract_fingerprint,
       sceneId: sceneRecord.scene_id,
       sceneNumber: sceneRecord.scene_number,
       packetId: sceneRecord.packet_id,
-      auditResponse: validatedAuditResponse,
-      prose,
+      replacement,
+    });
+
+    const repairedProse = prose.slice(0, replacement.start) + replacement.replacement_text + prose.slice(replacement.end);
+
+    const secondAuditRequest = finalizeAuditRunnerRequest({
+      version: SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION,
+      contract_fingerprint: acceptanceState.contract_fingerprint,
+      scene_id: sceneRecord.scene_id,
+      scene_number: sceneRecord.scene_number,
+      packet: sceneRecord.packet,
+      prose: repairedProse,
+      private_future_authority: privateFutureAuthority,
+    });
+
+    let secondRawAuditResponse;
+    try {
+      secondRawAuditResponse = await auditRunner(secondAuditRequest);
+    } catch (err) {
+      throw sceneAcceptanceError(
+        `Second auditRunner execution failed: ${err?.message || 'unknown error'}`,
+        'SCENE_ACCEPTANCE_AUDIT_RUNNER_FAILED',
+        [String(err?.message || err)]
+      );
+    }
+
+    const secondValidatedAuditResponse = inspectAuditResponseRecordClean(secondRawAuditResponse, secondAuditRequest);
+
+    return acceptedRepairedSceneExecutionAcceptanceResult({
+      contractFingerprint: acceptanceState.contract_fingerprint,
+      sceneId: sceneRecord.scene_id,
+      sceneNumber: sceneRecord.scene_number,
+      packetId: sceneRecord.packet_id,
+      auditResponse: secondValidatedAuditResponse,
+      repairRecord,
+      prose: repairedProse,
     });
   } catch (err) {
     if (isSceneAcceptanceError(err)) throw err;
