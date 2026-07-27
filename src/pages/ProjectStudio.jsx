@@ -45,6 +45,7 @@ import { filterConcreteCriticFindings } from '@/lib/sceneContractGate';
 import { runQualityScan } from '@/lib/qualityScan';
 import { mechanicalScore } from '@/lib/mechanicalScore';
 import { generateChapterByScenes } from '@/lib/sceneWriter';
+import { createSceneExecutionAcceptanceRunners } from '@/lib/sceneExecutionAcceptanceRunners';
 import { validateProjectChapterContent, makeProjectContentGuardError, stripProjectContaminationBlocks } from '@/lib/projectContentGuard';
 import { repairCanonNameDrift } from '@/lib/canonNameLock';
 import { repairManuscriptArtifacts, repairLoadedManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
@@ -3490,7 +3491,12 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
        verifySceneProvenance(parsedForDraft.beats, parsedForDraft.pipeline_contract, 'before-generateChapterByScenes');
     }
 
+    const sceneExecutionAcceptanceRunners = createSceneExecutionAcceptanceRunners({
+      project: draftingProject,
+    });
+
     const sceneResult = await generateChapterByScenes({
+      sceneExecutionAcceptanceRunners,
       project: draftingProject,
       chapter: chapterWithBeats,
       previousChapterTail,
@@ -3870,6 +3876,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       report(`Revising chapter ${chapter.chapter_number}…`);
       // Retry as scene-by-scene again with feedback injected
       const retryResult = await generateChapterByScenes({
+        sceneExecutionAcceptanceRunners,
         project,
         chapter: chapterWithBeats,
         previousChapterTail,
