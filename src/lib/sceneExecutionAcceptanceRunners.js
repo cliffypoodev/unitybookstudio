@@ -29,45 +29,40 @@ export function createSceneExecutionAcceptanceRunners({
           items: {
             type: 'object',
             properties: {
-              code: {
-                type: 'string',
-                enum: [
-                  'REQUIRED_EVENT_MISSING',
-                  'EXIT_STATE_MISSING',
-                  'POV_IDENTITY_MISSING',
-                  'REQUIRED_CONTINUITY_MISSING',
-                  'SCENE_GOAL_MISSING',
-                  'FUTURE_EVENT_EARLY_PERFORMED',
-                  'FUTURE_EVENT_VIOLATION',
-                  'UNSUPPORTED_EVENT_MECHANISM',
-                  'UNSUPPORTED_EVENT_OPERATION',
-                  'FORBIDDEN_EVENT_VIOLATION',
-                  'UNSUPPORTED_HISTORY_OR_KNOWLEDGE',
-                  'UNSUPPORTED_SETTING_DETAIL',
-                  'EXIT_BOUNDARY_OVERRUN',
-                  'POV_IDENTITY_DRIFT',
-                  'VOICE_RULE_VIOLATION'
-                ]
-              },
-              excerpt: { type: 'string' },
-              offset: { type: 'integer' },
-              classification: {
-                type: 'string',
-                enum: ['omission', 'repair_eligible', 'non_repairable']
-              }
+              code: { type: 'string' },
+              classification: { type: 'string' },
+              excerpt: { type: 'string', minLength: 1 },
+              offset: { type: 'integer', minimum: 0 }
             },
-            required: ['code', 'excerpt', 'offset', 'classification'],
-            additionalProperties: false
+            required: ['code', 'classification', 'excerpt', 'offset'],
+            additionalProperties: false,
+            anyOf: [
+              { properties: { code: { const: 'REQUIRED_EVENT_MISSING' }, classification: { const: 'omission' } } },
+              { properties: { code: { const: 'EXIT_STATE_MISSING' }, classification: { const: 'omission' } } },
+              { properties: { code: { const: 'POV_IDENTITY_MISSING' }, classification: { const: 'omission' } } },
+              { properties: { code: { const: 'REQUIRED_CONTINUITY_MISSING' }, classification: { const: 'omission' } } },
+              { properties: { code: { const: 'SCENE_GOAL_MISSING' }, classification: { const: 'omission' } } },
+              { properties: { code: { const: 'FUTURE_EVENT_EARLY_PERFORMED' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'FUTURE_EVENT_VIOLATION' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'UNSUPPORTED_EVENT_MECHANISM' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'UNSUPPORTED_EVENT_OPERATION' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'FORBIDDEN_EVENT_VIOLATION' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'UNSUPPORTED_HISTORY_OR_KNOWLEDGE' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'UNSUPPORTED_SETTING_DETAIL' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'EXIT_BOUNDARY_OVERRUN' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'POV_IDENTITY_DRIFT' }, classification: { const: 'repair_eligible' } } },
+              { properties: { code: { const: 'VOICE_RULE_VIOLATION' }, classification: { const: 'non_repairable' } } }
+            ]
           }
         },
         coverage: {
           type: 'object',
           properties: {
-            entry_state_satisfied: { type: 'string' },
-            exit_state_attained: { type: 'string' },
-            required_events_satisfied: { type: 'string' },
-            forbidden_events_avoided: { type: 'string' },
-            continuity_satisfied: { type: 'string' }
+            entry_state_satisfied: { type: 'string', enum: ['verified', 'unverified', 'failed'] },
+            exit_state_attained: { type: 'string', enum: ['verified', 'unverified', 'failed'] },
+            required_events_satisfied: { type: 'string', enum: ['verified', 'unverified', 'failed'] },
+            forbidden_events_avoided: { type: 'string', enum: ['verified', 'unverified', 'failed'] },
+            continuity_satisfied: { type: 'string', enum: ['verified', 'unverified', 'failed'] }
           },
           required: [
             'entry_state_satisfied',
@@ -80,10 +75,48 @@ export function createSceneExecutionAcceptanceRunners({
         }
       },
       required: ['version', 'contract_fingerprint', 'scene_id', 'scene_number', 'packet_id', 'status', 'issues', 'coverage'],
-      additionalProperties: false
+      additionalProperties: false,
+      if: {
+        properties: { status: { const: 'clean' } }
+      },
+      then: {
+        properties: {
+          issues: { maxItems: 0 },
+          coverage: {
+            properties: {
+              entry_state_satisfied: { const: 'verified' },
+              exit_state_attained: { const: 'verified' },
+              required_events_satisfied: { const: 'verified' },
+              forbidden_events_avoided: { const: 'verified' },
+              continuity_satisfied: { const: 'verified' }
+            }
+          }
+        }
+      },
+      else: {
+        properties: {
+          issues: { minItems: 1, maxItems: 1 }
+        }
+      }
     };
 
     const prompt = `Evaluate the following scene prose against its contract. Return the required JSON object exactly matching the provided schema.
+
+- return clean only when no issue exists
+- clean requires issues: [] and all coverage values: "verified"
+- issues_found requires exactly one highest-priority issue
+- use the taxonomy's listed order when multiple issues exist
+- classification must match that issue code
+- excerpt must be copied byte-for-byte from prose
+- offset is the exact zero-based start position of that excerpt
+- do not invent contract facts
+
+Identity Fields:
+Version: scene-execution-acceptance-gate-v1
+Contract Fingerprint: ${contract_fingerprint}
+Scene ID: ${scene_id}
+Scene Number: ${scene_number}
+Packet ID: ${packet.packet_id}
 
 Packet:
 ${JSON.stringify(packet, null, 2)}
@@ -113,7 +146,8 @@ ${prose}
       scene_number,
       packet,
       prose,
-      issue
+      issue,
+      private_future_authority
     } = request;
 
     const response_json_schema = {
@@ -147,9 +181,30 @@ ${prose}
       additionalProperties: false
     };
 
-    const prompt = `Perform exactly one surgical replacement for the following issue. Do not rewrite the whole scene. Preserve surrounding voice and continuity. Only replacement_text should be newly generated; everything else must strictly match the provided issue details.
+    const prompt = `Perform exactly one surgical replacement for the following issue.
 
-Issue Code: ${issue.code}
+- the issue is FUTURE_EVENT_EARLY_PERFORMED
+- replace only the exact offending excerpt
+- do not perform or reveal the reserved future event
+- preserve surrounding voice, continuity, and established facts
+- do not add unrelated events
+- do not rewrite the scene
+
+Identity Fields:
+Version: scene-execution-acceptance-gate-v1
+Contract Fingerprint: ${contract_fingerprint}
+Scene ID: ${scene_id}
+Scene Number: ${scene_number}
+Packet ID: ${packet.packet_id}
+
+Packet:
+${JSON.stringify(packet, null, 2)}
+
+Private Future Authority:
+${JSON.stringify(private_future_authority, null, 2)}
+
+Issue:
+Code: ${issue.code}
 Excerpt: "${issue.excerpt}"
 Offset: ${issue.offset}
 
