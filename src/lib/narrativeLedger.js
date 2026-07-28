@@ -45,6 +45,21 @@ export function getTrustedCharacters(spec, ledger) {
 
   return trusted;
 }
+// LEDGERFIX-1: capitalised words that are never character names. A death sentence
+// that opens with one of these describes someone already known (or no one at all);
+// recording it as a name poisons every downstream dead-character check.
+const NON_CHARACTER_SUBJECTS = new Set([
+  'he', 'she', 'they', 'it', 'we', 'you', 'i', 'him', 'her', 'them', 'me', 'us',
+  'his', 'their', 'my', 'our', 'your', 'its', 'hers', 'theirs', 'mine', 'ours',
+  'that', 'this', 'these', 'those', 'there', 'then', 'here', 'now',
+  'everyone', 'everybody', 'everything', 'someone', 'somebody', 'something',
+  'anyone', 'anybody', 'anything', 'nobody', 'none', 'nothing', 'no',
+  'one', 'another', 'other', 'others', 'both', 'neither', 'either', 'each',
+  'all', 'some', 'many', 'most', 'few', 'several', 'any',
+  'who', 'whom', 'whose', 'which', 'what', 'when', 'where', 'why', 'how',
+  'and', 'but', 'the', 'a', 'an', 'if', 'because', 'so', 'yet', 'still',
+]);
+
 export function buildInitialLedger() {
   return {
     locations: {},
@@ -95,10 +110,21 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
   for (const str of stateStrings) {
     if (!str) continue;
     
-    // Simplistic but safe deterministic character death match
-    const deathMatch = str.match(/\b([A-Z][a-z]+)\s+(?:is dead|died|is killed|dies|was killed)\b/);
-    if (deathMatch) {
+    // LEDGERFIX-1: /\b([A-Z][a-z]+)\s+(?:died|...)/ captures ANY capitalised word,
+    // including a sentence-initial pronoun. "He died in the accident." registered a
+    // character literally named "He", after which the DEAD_CHARACTER_ACTION gate
+    // built /\bHe\b\s+(?:said|nodded|looked|...)/i and rejected every subsequent
+    // scene — a chapter cannot be rewritten to avoid the word "he", so the bounded
+    // repair could never clear it and drafting died. The object branch below already
+    // guards against exactly this, so match its convention for characters.
+    // Scan EVERY death in the string, not just the first. `String.match` without
+    // /g returns one hit, so "He died in the accident. Reed died beside him."
+    // stopped at the rejected pronoun and lost Reed entirely.
+    const deathPattern = /\b([A-Z][a-z]+)\s+(?:is dead|died|is killed|dies|was killed)\b/g;
+    let deathMatch;
+    while ((deathMatch = deathPattern.exec(str)) !== null) {
       const charName = deathMatch[1];
+      if (NON_CHARACTER_SUBJECTS.has(charName.toLowerCase())) continue;
       if (!ledger.deadCharacters.includes(charName)) {
         ledger.deadCharacters.push(charName);
       }
