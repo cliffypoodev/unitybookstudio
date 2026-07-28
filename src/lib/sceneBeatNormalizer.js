@@ -1093,40 +1093,228 @@ export function buildFutureBoundaryRepairPrompt(prose, spec, violations) {
   ].join('\n');
 }
 
+// REPLAYFIX-1 — closed-world scene-replay detection.
+//
+// The previous implementation tagged each scene with a generic "story function"
+// whenever a single stem appeared ANYWHERE in ~1200 words of prose
+// (revelation <- reveal/discover, escape <- reach/exit, imprisonment_separation
+// <- lock/trap/seal, irreversible_object_loss <- break/drop/snap, ...) and then
+// declared a replay if two scenes in the same chapter shared any one tag AND
+// shared any capitalised token or any 4+ letter keyword. Because recurring
+// characters guarantee the second condition, the gate reduced to "both scenes
+// contain the word 'lock' (or 'reach', or 'drop')" and rejected structurally
+// distinct scenes. Per ARCH-1, per-shape lexical gates do not converge; closed
+// -world checking does.
+//
+// A replay is now reported only when the current prose re-enacts a SPECIFIC
+// required_event drawn from a prior scene's ACCEPTED CONTRACT — a finite,
+// per-chapter fact list. Generic English cannot trigger a rejection, while an
+// actual re-staging of a documented prior event still fails closed.
+// Evidence standard. A re-enactment states the event; a scene that merely
+// features the same cast does not. Requiring the event's content words inside a
+// SINGLE SENTENCE is what separates the two: "Lena hands the brass key to
+// Marcus" re-staged appears as one sentence, whereas a different scene that
+// happens to mention Lena, Marcus and a hand spreads those words across a
+// paragraph and must not be rejected.
+const REPLAY_MIN_EVENT_TOKENS = 4;
+const REPLAY_MIN_MATCHED_TOKENS = 4;
+const REPLAY_MIN_TOKEN_RATIO = 0.8;
+
+// Single source of truth for the irreversible-function stems. Kept identical to
+// the list extractProseEventSignatures has always used.
+const REPLAY_FUNCTION_STEMS = {
+  revelation: ['discover', 'uncover', 'reveal'],
+  confrontation: ['confront', 'accuse', 'challenge'],
+  irreversible_object_loss: ['destroy', 'break', 'discard', 'drop', 'snap', 'snapp', 'snapped'],
+  escape: ['escape', 'escapes', 'escap', 'exit', 'reach'],
+  acquisition: ['retrieve', 'obtain', 'acquire'],
+  abandonment_refusal: ['decide', 'refuse', 'forgive', 'reject', 'abandon', 'leave'],
+  imprisonment_separation: ['imprison', 'lock', 'trap', 'seal'],
+  death_collapse: ['die', 'dead', 'kill', 'collapse', 'collaps', 'destroy'],
+};
+
+function replayEventTokens(event) {
+  const words = normalize(event).split(' ').filter(Boolean);
+  const out = [];
+  const seen = new Set();
+  for (const word of words) {
+    if (word.length < 3 || STOPWORDS.has(word)) continue;
+    const stem = stemWord(word);
+    if (!stem || stem.length < 3 || STOPWORDS.has(stem) || seen.has(stem)) continue;
+    seen.add(stem);
+    out.push(stem);
+  }
+  return out;
+}
+
+function replaySentences(prose) {
+  return String(prose || '')
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 20);
+}
+
+function proseEnactsEvent(prose, event) {
+  const tokens = replayEventTokens(event);
+  // An event described in fewer than four distinctive words is too generic to
+  // test against prose without inviting false positives. Skip it rather than
+  // guess — the deterministic ledger audit still covers those cases.
+  if (tokens.length < REPLAY_MIN_EVENT_TOKENS) return null;
+
+  for (const sentence of replaySentences(prose)) {
+    const stems = new Set(
+      normalize(sentence).split(' ').filter(Boolean).map((w) => stemWord(w))
+    );
+    const matched = tokens.filter((t) => stems.has(t));
+    const ratio = matched.length / tokens.length;
+    if (matched.length >= REPLAY_MIN_MATCHED_TOKENS && ratio >= REPLAY_MIN_TOKEN_RATIO) {
+      return { matched, ratio, tokens, sentence };
+    }
+  }
+  return null;
+}
+
+// Path 2 — locality-bound prose echo.
+//
+// The old rule asked "do these two scenes share a function tag ANYWHERE, and any
+// name or keyword ANYWHERE?" Both halves are satisfied by any two scenes in a
+// chapter with a recurring cast, so it fired constantly. The distinguishing
+// property of a genuine replay is LOCALITY: the same irreversible action lands
+// on the same entities inside a SINGLE SENTENCE in both scenes.
+//
+//   replay     : "Lena abandons Marcus in the dark corridor"
+//              / "Once again, Lena abandons Marcus behind"   -> abandon + lena + marcus
+//   replay     : "He reached into his pocket and pulled out the key"
+//              / "He reached into his pocket and pulled out the brass key"
+//                                                            -> reach + pocket + pull + key
+//   NOT replay : "He didn't lock the door" / "You overrode the lock."
+//                                                            -> only the trigger word
+//
+// A shared trigger stem is therefore necessary but never sufficient: the two
+// sentences must also share a substantive token that is NOT the trigger.
+const REPLAY_MIN_SENTENCE_JACCARD = 0.15;
+
+// normalize() preserves apostrophes and stemWord() clips "n't" to a bare "didn",
+// "wasn", "couldn"... Those are negations, not entities, and must never count as
+// the substantive evidence that turns a shared trigger word into a rejection.
+const REPLAY_CONTRACTION_REMNANTS = new Set([
+  'didn', 'don', 'doesn', 'isn', 'wasn', 'aren', 'weren', 'hasn', 'hadn', 'haven',
+  'couldn', 'wouldn', 'shouldn', 'won', 'can', 'cannot', 'mustn', 'needn', 'ain',
+]);
+
+function replayContentStems(sentence) {
+  const out = [];
+  const seen = new Set();
+  for (const word of normalize(sentence).split(' ').filter(Boolean)) {
+    if (word.length < 3 || STOPWORDS.has(word)) continue;
+    const stem = stemWord(word);
+    if (!stem || stem.length < 3 || STOPWORDS.has(stem) || seen.has(stem)) continue;
+    if (REPLAY_CONTRACTION_REMNANTS.has(stem)) continue;
+    if (!/^[a-z]+$/.test(stem)) continue;
+    seen.add(stem);
+    out.push(stem);
+  }
+  return out;
+}
+
+function replayTriggerSentences(prose) {
+  const map = new Map();
+  for (const sentence of replaySentences(prose)) {
+    const words = normalize(sentence).split(' ').filter(Boolean);
+    for (const [func, stems] of Object.entries(REPLAY_FUNCTION_STEMS)) {
+      const trigger = words.find((w) => stems.includes(w) || stems.includes(stemWord(w)));
+      if (!trigger) continue;
+      if (!map.has(func)) map.set(func, []);
+      map.get(func).push({ sentence, triggerStem: stemWord(trigger) });
+    }
+  }
+  return map;
+}
+
+function detectProseEcho(currentProse, priorProse) {
+  const current = replayTriggerSentences(currentProse);
+  const prior = replayTriggerSentences(priorProse);
+
+  for (const [func, currentHits] of current) {
+    const priorHits = prior.get(func);
+    if (!priorHits) continue;
+
+    for (const a of currentHits) {
+      const aStems = replayContentStems(a.sentence);
+      for (const b of priorHits) {
+        const bStems = replayContentStems(b.sentence);
+        const shared = aStems.filter((s) => bStems.includes(s));
+        const substantive = shared.filter((s) => s !== a.triggerStem && s !== b.triggerStem);
+        if (!substantive.length) continue;
+
+        const union = new Set([...aStems, ...bStems]).size;
+        const jaccard = union ? shared.length / union : 0;
+        if (jaccard < REPLAY_MIN_SENTENCE_JACCARD) continue;
+
+        return { func, jaccard, shared, substantive, currentSentence: a.sentence, priorSentence: b.sentence };
+      }
+    }
+  }
+  return null;
+}
+
 export function validateGeneratedSceneReplay(sceneProse, priorScenes) {
   const proseSig = extractProseEventSignatures(sceneProse);
   const replays = [];
   const detailedMatches = [];
 
-  for (const prior of priorScenes) {
-    if (!prior.acceptedProse) continue;
-    const priorSig = extractProseEventSignatures(prior.acceptedProse);
-    
-    for (const func of proseSig.functions) {
-      if (priorSig.functions.includes(func)) {
-        // If they share an irreversible function, see if they share characters and objects
-        const sharedNames = proseSig.names.filter(n => priorSig.names.includes(n));
-        const sharedObjects = proseSig.objects.filter(o => priorSig.objects.includes(o));
-        
-        if (sharedNames.length > 0 || sharedObjects.length > 0) {
-          replays.push(`Repeated ${func} involving ${sharedNames[0] || 'no name'} and ${sharedObjects[0] || 'no object'}`);
-          detailedMatches.push({
-            priorSceneId: prior.scene_id || null,
-            priorSceneNumber: prior.sceneNumber || null,
-            matchedFunction: func,
-            matchedName: sharedNames[0] || null,
-            matchedObject: sharedObjects[0] || null,
-            rule: 'shared_function_with_name_or_object',
-            priorContract: { ...prior, acceptedProse: undefined },
-            priorAcceptedProse: prior.acceptedProse,
-            priorSignatures: priorSig
-          });
-        }
+  for (const prior of priorScenes || []) {
+    const priorLabel = prior?.sceneNumber ? `scene ${prior.sceneNumber}` : 'an earlier scene';
+
+    // Path 1 — closed world: the prose re-enacts an event this prior scene owns.
+    const priorEvents = Array.isArray(prior?.spec?.required_events)
+      ? prior.spec.required_events.filter((e) => typeof e === 'string' && e.trim())
+      : [];
+    for (const event of priorEvents) {
+      const hit = proseEnactsEvent(sceneProse, event);
+      if (!hit) continue;
+      replays.push(`Re-enacts ${priorLabel}'s required event: "${String(event).trim()}"`);
+      detailedMatches.push({
+        priorSceneId: prior.sceneId || prior.scene_id || null,
+        priorSceneNumber: prior.sceneNumber || null,
+        matchedEvent: String(event).trim(),
+        matchedTokens: hit.matched,
+        matchRatio: Number(hit.ratio.toFixed(3)),
+        matchedSentence: hit.sentence,
+        rule: 'closed_world_prior_required_event_reenacted',
+        priorContract: { ...prior, acceptedProse: undefined },
+        priorAcceptedProse: prior.acceptedProse,
+        priorSignatures: null,
+      });
+    }
+
+    // Path 2 — locality-bound echo of the prior scene's actual prose.
+    if (prior?.acceptedProse) {
+      const echo = detectProseEcho(sceneProse, prior.acceptedProse);
+      if (echo) {
+        replays.push(
+          `Repeats ${priorLabel}'s ${echo.func} (${echo.substantive.join(', ')}) — this scene says ` +
+          `"${echo.currentSentence.trim()}" and ${priorLabel} already said "${echo.priorSentence.trim()}"`
+        );
+        detailedMatches.push({
+          priorSceneId: prior.sceneId || prior.scene_id || null,
+          priorSceneNumber: prior.sceneNumber || null,
+          matchedFunction: echo.func,
+          matchedTokens: echo.substantive,
+          matchRatio: Number(echo.jaccard.toFixed(3)),
+          matchedSentence: echo.currentSentence,
+          priorSentence: echo.priorSentence,
+          rule: 'localized_sentence_echo_with_shared_entity',
+          priorContract: { ...prior, acceptedProse: undefined },
+          priorAcceptedProse: prior.acceptedProse,
+          priorSignatures: extractProseEventSignatures(prior.acceptedProse),
+        });
       }
     }
   }
-  return { 
-    ok: replays.length === 0, 
+
+  return {
+    ok: replays.length === 0,
     replays: Array.from(new Set(replays)),
     detailedMatches,
     currentSignatures: proseSig
