@@ -1245,7 +1245,7 @@ function runMicroCopyeditRepairs(text) {
   return result;
 }
 
-export function runFinalHardSurvivorRepairs(text) {
+function runFinalHardSurvivorRepairs(text) {
   console.log('[POST-DRAFT] runFinalHardSurvivorRepairs() executing');
 
   const replacements = [

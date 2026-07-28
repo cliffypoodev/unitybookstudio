@@ -94,6 +94,49 @@ test('normalizer remains available for detection without owning fiction truth', 
   assert.equal(brassChapter3.length, 3, 'input contract must not be mutated');
 });
 
+test('normalizer overlap metadata does not reject an intact fiction contract', () => {
+  const source = [
+    {
+      scene_number: 1,
+      scene_id: 'ch05-s01',
+      scene_goal: 'Force the confrontation into the open.',
+      entry_state: 'Lena and Marcus face each other in the archive.',
+      required_events: ['Lena confronts Marcus about the hidden report.'],
+      forbidden_events: ['Do not repeat the confrontation.'],
+      exit_state: 'Marcus admits he hid the report.',
+      location: 'Archive',
+      pov_character: 'Lena',
+    },
+    {
+      scene_number: 2,
+      scene_id: 'ch05-s02',
+      scene_goal: 'Show the irreversible consequence of the admission.',
+      entry_state: 'Marcus has admitted he hid the report.',
+      required_events: ['Lena confronts Marcus about what his admission cost her.'],
+      forbidden_events: ['Do not replay the initial accusation.'],
+      exit_state: 'Lena leaves Marcus behind.',
+      location: 'Archive',
+      pov_character: 'Lena',
+    },
+  ];
+  const contract = createImmutableSceneContract({ beats: source }, { chapterNumber: 5 });
+  const report = normalizeSceneBeatsForDrafting(source, {
+    isNonfiction: false,
+    chapterNumber: 5,
+  });
+
+  assert.equal(report.changed, true, 'fixture must exercise the advisory-overlap path');
+  assert.ok(report.reported > 0, 'overlap must be reported');
+  assert.equal(report.beats.length, source.length);
+  assert.deepEqual(
+    report.beats.map((beat) => beat.scene_id),
+    source.map((beat) => beat.scene_id)
+  );
+  assert.doesNotThrow(() => {
+    assertSceneContractUnchanged(contract, report.beats, { chapterNumber: 5 });
+  });
+});
+
 test('dynamic Chapter N and previous-chapter prose leaks are critical', () => {
   const prose = 'He had used the hook since the accident in Chapter 2. She carried the log from the previous chapter.';
   const leak = detectProcessLeaks(prose);

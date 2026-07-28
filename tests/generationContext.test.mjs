@@ -282,7 +282,10 @@ if (!skipWiring) await test('production wiring is fail-closed across planning, b
   assert.match(writer, /SCENE_DUPLICATE_UNRESOLVED/);
   assert.doesNotMatch(writer, /duplicate repair still looked unsafe; keeping original but flagging/);
   assert.match(writer, /NARRATIVE STATE CONTRACT — MANDATORY/);
-  assert.match(writer, /SCENE_CONTRACT_NORMALIZER_CONFLICT/);
+  assert.match(
+    writer,
+    /assertSceneContractUnchanged\(immutableContract,\s*beatPreflight\.beats/
+  );
   assert.match(bible, /OUTLINE_CONTRACT_UNRESOLVED/);
   assert.doesNotMatch(bible, /Accepting best-effort outline with remaining issues/);
   assert.match(auto, /FULL ORDERED CHAPTER CONTRACT/);

@@ -2822,18 +2822,21 @@ export async function generateChapterSceneByScene({
 
   if (beatPreflight?.changed) {
     if (!isNF) {
-      const error = new Error(
-        `Chapter ${chapterNumber} scene contract was rejected before drafting: the normalizer attempted to shrink ${beatPreflight.originalCount} accepted scenes into ${beatPreflight.finalCount} without valid proof. Regenerate the beat plan instead of merging or dropping contracted scenes.`
+      // The fiction normalizer is a detector, not the owner of the accepted
+      // scene contract. It may attach diagnostic metadata while preserving
+      // every semantic contract field. Verify that preservation directly
+      // instead of treating an advisory report as scene loss.
+      assertSceneContractUnchanged(immutableContract, beatPreflight.beats, {
+        chapterNumber,
+      });
+      console.warn(
+        '[NARRATIVE-CONNECT] Fiction overlap reported with the immutable scene contract intact; drafting the accepted contract unchanged.',
+        beatPreflight.report,
+        beatPreflight.warnings || []
       );
-      error.name = 'NarrativeInvariantError';
-      error.code = beatPreflight.finalCount < beatPreflight.originalCount ? 'UNPROVEN_SCENE_MERGE' : 'SCENE_CONTRACT_NORMALIZER_CONFLICT';
-      error.narrativeContract = true;
-      error.contractFingerprint = immutableContract?.fingerprint || null;
-      error.details = beatPreflight;
-      console.error('[NARRATIVE-CONNECT] Refusing to mutate accepted fiction contract:', error);
-      throw error;
+    } else {
+      console.warn('[sceneWriter] Scene beat preflight changed chapter beats:', beatPreflight.report, beatPreflight.warnings || []);
     }
-    console.warn('[sceneWriter] Scene beat preflight changed chapter beats:', beatPreflight.report, beatPreflight.warnings || []);
     onProgress?.({
       stage: 'scene_beat_preflight',
       chapterNumber,
