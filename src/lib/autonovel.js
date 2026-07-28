@@ -1240,7 +1240,7 @@ export function buildChapterPlanPrompt(project) {
   return `${constraintBlock}\n${contextHeader}\n${researchBlock}${spicePlanBlock}\nBuild a clean chapter plan for this project.\n\nProject title: ${project.title || 'Untitled Project'}\nTagline: ${project.tagline || ''}\nSeed concept: ${project.seed_concept}\n\nWorld guide:\n${clipText(project.world_md, 2200)}\n\nCharacter / stakeholder guide:\n${clipText(project.characters_md, 2200)}\n\nOutline guide:\n${clipText(project.outline_md, 2200)}\n\nCanon guide:\n${clipText(project.canon_md, 1800)}\n\nRequirements:\n- Return exactly one chapters array.\n- Create EXACTLY ${chapterCount} chapters — not fewer, not more. The user configured ${chapterCount} chapters and you must deliver all of them.\n- Each item must include chapter_number, title, and beat_summary.\n- Number chapters sequentially from 1 to ${chapterCount}.\n- The plan must match the selected genre, POV, tense, and structure settings.\n- Beat summaries must be specific enough to draft from directly.\n- Structural labels, twist labels, act labels, midpoint markers, and part labels belong in beat_summary only — never in title.\n${CHAPTER_TITLE_HYGIENE_BLOCK}\nCRITICAL: Do NOT stop at 10 chapters. You MUST output all ${chapterCount} chapters.\n\nReturn JSON only.`;
 }
 
-export async function buildSceneBeatPrompt(project, chapter, previousChapter, chapters) {
+export async function buildSceneBeatPrompt(project, chapter, previousChapter, chapters, priorCoverage = '') {
   // Nonfiction projects use the structured nonfiction beat system
   if (project.book_type === 'nonfiction') {
     return buildNonfictionBeatPrompt(project, chapter, previousChapter, chapters);
@@ -1272,6 +1272,22 @@ export async function buildSceneBeatPrompt(project, chapter, previousChapter, ch
       return `Ch.${item.chapter_number}${marker}: ${item.title || 'Untitled'} — ${String(item.beat_summary || '').replace(/\s+/g, ' ').trim()}`;
     })
     .join('\n');
+
+  // NARRATIVE-CONNECT-3: prior-chapter coverage memory.
+  // fullChapterPlanContext above is OUTLINE INTENT ONLY (beat_summary). It does
+  // not say what earlier chapters actually narrated. priorCoverage is the same
+  // rolling-context block the prose writer already receives, built from each
+  // earlier chapter's saved summary_json (falling back to beat_summary). Without
+  // it the planner can hand this chapter an event an earlier chapter consumed.
+  const priorCoverageBlock = (typeof priorCoverage === 'string' && priorCoverage.trim())
+    ? `
+ALREADY NARRATED IN EARLIER CHAPTERS — DO NOT PLAN ANY SCENE THAT REPEATS THIS.
+You may REFERENCE these events in passing. You may NOT re-stage, re-enact, re-reveal,
+or re-summarize them as a scene beat. If this chapter's outline overlaps anything
+below, plan the CONSEQUENCE or ESCALATION instead, never a replay.
+${clipText(priorCoverage, 9000)}
+`
+    : '';
 
   // Scene-count estimate.
   // For NOVELS: use word-count-based formula (~1 scene per 1200 words).
@@ -1468,7 +1484,7 @@ Beat summary: ${chapter.beat_summary}
 
 Previous chapter ending:
 ${previousChapter?.content_md?.slice(-800) || 'No previous chapter yet.'}
-
+${priorCoverageBlock}
 ${SCENE_BEAT_UNIQUENESS_BLOCK}
 Generate approximately ${scenesEstimate} scene beats for this chapter (~${targetWords} words total).
 

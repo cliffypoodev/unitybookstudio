@@ -29,6 +29,10 @@ import useAutoSave from '@/hooks/useAutoSave';
 import { Button } from '@/components/ui/button';
 import { applyGenreDefaults, buildChapterPlanPrompt, buildChapterPrompt, buildChapterReviewPrompt, buildCoverPrompt, buildEvaluationPrompt, buildExpandSettingsPrompt, buildExpandFoundationPrompt, buildFoundationPrompt, buildSceneBeatPrompt, CHAPTER_LENGTH_PRESETS, chapterPlanSchema, chapterReviewSchema, chapterSchema, computeTotalWordTarget, countWords, createInitialProjectSettings, evaluationSchema, expandSettingsSchema, expandFoundationSchema, foundationSchema, sceneBeatSchema, getSceneBeatSchema, getDraftedCount, unwrapIntegrationResult } from '@/lib/autonovel';
 import { invokeLLMWithRetry, invokeResearchLLM, generateImageWithRetry } from '@/lib/integrationRetry';
+// NARRATIVE-CONNECT-3: the beat planner needs the same prior-chapter coverage
+// memory the prose writer already uses, otherwise it re-plans events that
+// earlier chapters already consumed.
+import { buildRollingContext } from '@/lib/chapterCohesion';
 import { parseTwistsToMd } from '@/lib/plotTwists';
 import { buildChapterJudgePrompt, chapterJudgeSchema, checkTenseConsistency, checkPovConsistency, suggestPovTense } from '@/lib/povTense';
 import { mechanicalSlopScore, cleanGeneratedProse } from '@/lib/proseQuality';
@@ -3145,9 +3149,27 @@ Return structured JSON:
     const schema = getSceneBeatSchema(promptProject);
     const beatModel = pickModel('beats', promptProject);
     console.log('[BEATS] Beat model:', beatModel);
+    // NARRATIVE-CONNECT-3: prior-chapter coverage memory for the PLANNER.
+    // buildRollingContext reads each earlier chapter's saved summary_json and
+    // falls back to its beat_summary when the summary is not written yet. The
+    // prose writer has always received this; the beat planner never did, so it
+    // could re-plan an event an earlier chapter already used. Anthologies are
+    // standalone per story, and Ch.1 has no prior chapters.
+    let priorCoverage = '';
+    if (!isAnthologyProject(promptProject) && Number(chapter.chapter_number) > 1) {
+      try {
+        priorCoverage = await buildRollingContext(projectId, Number(chapter.chapter_number));
+      } catch (coverageError) {
+        // Fail open: a coverage lookup failure must not block planning, but it
+        // must be visible in the console rather than silently degrading.
+        console.warn('[NARRATIVE-CONNECT] Prior-chapter coverage unavailable for the beat planner:', coverageError?.message || coverageError);
+        priorCoverage = '';
+      }
+    }
+    console.log('[NARRATIVE-CONNECT] Beat-planner prior coverage chars:', priorCoverage.length);
     let beatResult = null;
     try {
-      const initialBeatPrompt = await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList);
+      const initialBeatPrompt = await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList, priorCoverage);
       let beatPrompt = initialBeatPrompt;
       const maxContractAttempts = isNonfiction ? 1 : 4;
 
