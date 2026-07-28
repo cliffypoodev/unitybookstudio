@@ -371,6 +371,23 @@ function detectEventEnactment(eventText, proseText) {
   };
 }
 
+// DUPEVENTFIX-1: content-stem overlap between two passages. Used to decide whether
+// two paragraphs are the SAME retelling rather than two parts of one unfolding beat.
+const DUPLICATE_PASSAGE_MIN_SIMILARITY = 0.5;
+
+function paragraphSimilarity(a, b) {
+  const A = signature(a || '');
+  const B = signature(b || '');
+  if (!A.length || !B.length) return 0;
+  const bSet = new Set(B);
+  let shared = 0;
+  for (const token of new Set(A)) {
+    if (bSet.has(token)) shared += 1;
+  }
+  const union = new Set([...A, ...B]).size;
+  return union ? shared / union : 0;
+}
+
 function paragraphHits(eventText, proseText) {
   return String(proseText || '')
     .split(/\n\s*\n/)
@@ -586,14 +603,68 @@ export function auditSceneAgainstLedger({
     }
   }
 
-  for (const event of requiredEvents) {
-    const hits = paragraphHits(event, prose);
-    if (hits.length >= 2 && hits[hits.length - 1].index - hits[0].index >= 2) {
+  // DUPEVENTFIX-1 — detect a DUPLICATED PASSAGE, not a "covered" event.
+  //
+  // The old rule flagged an event whenever two separated paragraphs both scored
+  // >= 0.62 bag-of-words `coverage()` against the event TEXT. Measured on real
+  // drafts that primitive fails in both directions at once:
+  //
+  //   false positive — "Lena confronts Marcus and Dr. Vale." is matched by any
+  //     paragraph merely NAMING those three; the verb never has to appear. A clean
+  //     three-hander confrontation self-reported as duplicated in 4 of 5 paragraphs,
+  //     and no rewrite can fix it — you cannot stage a confrontation between three
+  //     named people without naming them more than once.
+  //
+  //   false negative — "Marcus hands Lena the hidden report." scores 3/5 = 0.60
+  //     against the paragraph that literally IS that beat, because the prose never
+  //     calls the report "hidden". Under threshold. So a genuine verbatim repeat of
+  //     that beat was invisible to the old check.
+  //
+  // The defect this gate exists for is the model WRITING THE SAME PASSAGE TWICE.
+  // That is a property of the prose alone and needs no semantic guessing: compare
+  // the paragraphs to EACH OTHER. Measured — distinct paragraphs of one continuous
+  // confrontation score 0.085-0.100 against each other; the same beat written twice
+  // scores 0.941. The bar sits between them with an order of magnitude to spare.
+  // A fully PARAPHRASED second telling scores 0.238 and is not caught: the same
+  // declared gap as REPLAYFIX-2, which needs the persisted ledger to close.
+  //
+  // Unlike the old message, this one is actionable — the repair pass is told which
+  // two passages to merge.
+  {
+    const paragraphs = String(prose || '')
+      .split(/\n\s*\n/)
+      .map((part) => part.trim())
+      .filter((part) => part.length >= 80);
+
+    let duplicatePair = null;
+    for (let a = 0; a < paragraphs.length && !duplicatePair; a += 1) {
+      for (let b = a + 2; b < paragraphs.length; b += 1) {
+        const similarity = paragraphSimilarity(paragraphs[a], paragraphs[b]);
+        if (similarity >= DUPLICATE_PASSAGE_MIN_SIMILARITY) {
+          duplicatePair = { a, b, similarity };
+          break;
+        }
+      }
+    }
+
+    if (duplicatePair) {
+      // Name the required event these passages belong to, when one plainly does.
+      const owningEvent =
+        requiredEvents.find((event) =>
+          coverage(event, paragraphs[duplicatePair.a]).hit ||
+          coverage(event, paragraphs[duplicatePair.b]).hit
+        ) || null;
+
       issues.push({
         code: 'CURRENT_EVENT_DUPLICATED',
-        message: `Repeated this scene's required event in multiple separated passages: ${event}`,
-        event,
-        paragraphHits: hits.map((hit) => hit.index),
+        message:
+          `Passages ${duplicatePair.a + 1} and ${duplicatePair.b + 1} of this scene are ` +
+          `near-identical retellings of the same moment` +
+          (owningEvent ? ` (${owningEvent})` : '') +
+          `. Keep one and cut the other.`,
+        event: owningEvent,
+        paragraphHits: [duplicatePair.a, duplicatePair.b],
+        similarity: Number(duplicatePair.similarity.toFixed(3)),
       });
     }
   }
