@@ -1192,7 +1192,19 @@ function proseEnactsEvent(prose, event) {
 //
 // A shared trigger stem is therefore necessary but never sufficient: the two
 // sentences must also share a substantive token that is NOT the trigger.
-const REPLAY_MIN_SENTENCE_JACCARD = 0.15;
+// Evidence bar for Path 2. Chosen by measurement, not taste: eight labelled
+// sentence pairs drawn from real UBS drafts were scored, and NO threshold on
+// (shared-substantive-count, jaccard) separates real replays from noise —
+// "the station collapses" twice scores (1, 0.167) while a homonym collision on
+// the word "key" scores (1, 0.154). Per ARCH-1, that is the point at which a
+// lexical gate stops converging.
+//
+// So Path 2 no longer claims to detect paraphrased event replay. It detects the
+// failure mode it CAN prove: near-duplicate text — the drafter copying a clause
+// or a whole sentence forward. Paraphrased event replay belongs to Path 1 and to
+// the contract/ledger layer, which reason over documented facts instead of words.
+const REPLAY_MIN_SENTENCE_JACCARD = 0.75;
+const REPLAY_MIN_SUBSTANTIVE_TOKENS = 3;
 
 // normalize() preserves apostrophes and stemWord() clips "n't" to a bare "didn",
 // "wasn", "couldn"... Those are negations, not entities, and must never count as
@@ -1231,9 +1243,15 @@ function replayTriggerSentences(prose) {
   return map;
 }
 
-function detectProseEcho(currentProse, priorProse) {
+// Returns EVERY near-duplicate, not just the first. Reporting one at a time turns
+// the bounded repair pass into whack-a-mole: the model fixes the sentence it was
+// shown, the next audit surfaces a different one, and the chapter dies with the
+// repair budget spent. The repair prompt needs the whole list up front.
+function detectProseEchoes(currentProse, priorProse) {
   const current = replayTriggerSentences(currentProse);
   const prior = replayTriggerSentences(priorProse);
+  const found = [];
+  const seen = new Set();
 
   for (const [func, currentHits] of current) {
     const priorHits = prior.get(func);
@@ -1249,13 +1267,19 @@ function detectProseEcho(currentProse, priorProse) {
 
         const union = new Set([...aStems, ...bStems]).size;
         const jaccard = union ? shared.length / union : 0;
-        if (jaccard < REPLAY_MIN_SENTENCE_JACCARD) continue;
+        // Near-duplicate only: either the sentences are substantially the same
+        // text, or they share enough distinct content words that coincidence is
+        // implausible. One or two shared words is never enough.
+        if (substantive.length < REPLAY_MIN_SUBSTANTIVE_TOKENS && jaccard < REPLAY_MIN_SENTENCE_JACCARD) continue;
 
-        return { func, jaccard, shared, substantive, currentSentence: a.sentence, priorSentence: b.sentence };
+        const key = a.sentence + '\u0000' + b.sentence;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        found.push({ func, jaccard, shared, substantive, currentSentence: a.sentence, priorSentence: b.sentence });
       }
     }
   }
-  return null;
+  return found;
 }
 
 export function validateGeneratedSceneReplay(sceneProse, priorScenes) {
@@ -1290,8 +1314,7 @@ export function validateGeneratedSceneReplay(sceneProse, priorScenes) {
 
     // Path 2 — locality-bound echo of the prior scene's actual prose.
     if (prior?.acceptedProse) {
-      const echo = detectProseEcho(sceneProse, prior.acceptedProse);
-      if (echo) {
+      for (const echo of detectProseEchoes(sceneProse, prior.acceptedProse)) {
         replays.push(
           `Repeats ${priorLabel}'s ${echo.func} (${echo.substantive.join(', ')}) — this scene says ` +
           `"${echo.currentSentence.trim()}" and ${priorLabel} already said "${echo.priorSentence.trim()}"`
