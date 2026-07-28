@@ -3311,18 +3311,16 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
           validateSceneBeatContracts(beatResult, {
             chapterNumber: chapter.chapter_number,
           });
-          
-          break;
 
         if (attempt === maxContractAttempts) {
           if (
-            Array.isArray(overlapReport.normalizedBeats) &&
-            overlapReport.normalizedBeats.length > 0
+            Array.isArray(normalizedBeatPlan) &&
+            normalizedBeatPlan.length > 0
           ) {
             console.warn(
               `[NARRATIVE-CONNECT] Chapter ${chapter.chapter_number} still contained overlapping beats after ${maxContractAttempts} attempts. Using the validated normalized beat plan.`
             );
-            beatResult.beats = overlapReport.normalizedBeats;
+            beatResult.beats = normalizedBeatPlan;
             break;
           }
 
