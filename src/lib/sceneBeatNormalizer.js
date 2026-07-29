@@ -1644,6 +1644,17 @@ export function extractEventSignatures(text, context) {
   });
   return sigs;
 }
+// CHRONOFIX-3: a code, password or combination is KNOWLEDGE, not a physical
+// object. The live Ch.2 failure was "Marcus unlocks the cabinet with a code" —
+// the validator demanded Marcus first ACQUIRE "code", which no rewrite of any
+// scene could ever satisfy, and the repair pass had no move that would help
+// (it returned zero repairs and the chapter died).
+const NON_PHYSICAL_ACCESS_MEANS = /\b(code|codes|passcode|password|passphrase|combination|pin|credential|credentials|login|override|clearance|authorization|authorisation|keypad|cipher|sequence)\b/i;
+export function isNonPhysicalAccessMeans(objectText) {
+  if (!objectText) return false;
+  return NON_PHYSICAL_ACCESS_MEANS.test(String(objectText));
+}
+
 export function validateRawBeatChronology(beats) {
   const context = buildContext(beats);
   const history = {
@@ -1707,7 +1718,7 @@ export function validateRawBeatChronology(beats) {
           }
         }
 
-        if (sig.category === 'unlock_or_access' && sig.object) {
+        if (sig.category === 'unlock_or_access' && sig.object && !isNonPhysicalAccessMeans(sig.object)) {
           let hasObj = false;
           for (const p of history.possessions) {
             const [pActor, pObj] = p.split('_has_');
