@@ -4095,7 +4095,11 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         const draftQuoteRepair = repairChapterQuotes(sceneProse);
         if (draftQuoteRepair.text !== sceneProse) sceneProse = draftQuoteRepair.text;
 
-        const dmFinal = runDialogueMechanicsFinal(sceneProse, { stage: 'pre-save' });
+        // PARABREAK-1: split a collapsed multi-speaker paragraph into one turn per
+        // paragraph BEFORE the line-oriented repairers run. Live Ch.5 shipped a
+        // 748-word paragraph whose four "ambiguous orphan closers" were all dropped
+        // OPENING quotes that the healer could not attribute inside a block that size.
+        const dmFinal = runDialogueMechanicsFinal(sceneProse, { stage: 'pre-save', splitCollapsedParagraphs: true });
         if (dmFinal.text !== sceneProse) sceneProse = dmFinal.text;
         
         finalDmOrphans += (dmFinal.orphanFlagged || 0);
@@ -4159,7 +4163,8 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       const draftQuoteRepair = repairChapterQuotes(chapterContent);
       if (draftQuoteRepair.text !== chapterContent) chapterContent = draftQuoteRepair.text;
 
-      const dmFinal = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save' });
+      // PARABREAK-1: same treatment on the non-structured fallback path.
+      const dmFinal = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save', splitCollapsedParagraphs: true });
       if (dmFinal.text !== chapterContent) chapterContent = dmFinal.text;
 
       // DIALOGUEPOLICY-1: same policy on the non-structured fallback path — report,
