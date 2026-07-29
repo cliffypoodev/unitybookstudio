@@ -2739,6 +2739,12 @@ function buildCleanResult(finalProse, generatedScenes = [], repairReports = [], 
 // only stops a converging repair from being abandoned after one pass.
 const FUTURE_BOUNDARY_REPAIR_PASSES = 3;
 
+// DEADCHARFIX-1: the deterministic narrative-state audit (dead characters acting,
+// unavailable objects, limb contradictions) is an INTEGRITY gate and still fails
+// closed. It just gets the same number of attempts as every other repair loop in
+// this file instead of a single roll of the dice.
+const STATE_CONTRACT_REPAIR_PASSES = 3;
+
 // CHRONOPOLICY-1: beat ORDER is a quality constraint, not an integrity one.
 // A mis-ordered beat produces a weaker chapter; it cannot invent a fact. The
 // integrity gates (quote binding, dead-character, closed-world facts) still fail
@@ -3450,26 +3456,51 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
           buildSceneContractRepairInstruction(contractAudit),
         ].join('\n\n');
 
-        const contractRepair = await generateSceneWithRepair({
-          project,
-          spec: promptSpec,
-          prompt: contractRepairPrompt,
-          model,
-          fallbackModel,
-          disableFallbacks,
-          targetWords: sceneTarget,
-          temperature: 0.48,
-          maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
-        });
+        // DEADCHARFIX-1: this gate STAYS hard — a dead character acting puts
+        // something false on the page. But it was given exactly ONE regeneration,
+        // the same asymmetry BOUNDARYPOLICY-2 and REPLAYPOLICY-1 fixed elsewhere.
+        // Live Ch.4 scene 3: the single repair pass came back carrying non-Latin
+        // drift ([LEAK-GUARD] removed 1 non-Latin drift run ... e.g. 精密), so the
+        // one and only chance was spent on output that was degraded for an entirely
+        // unrelated reason, and a chapter died. Same bounded budget as its
+        // neighbours; still fails closed when the budget is spent.
+        let repairedContractProse = '';
+        let contractRepair = null;
 
-        const repairedContractProse = lightCleanSceneOutput(contractRepair.prose);
+        for (let contractPass = 1; contractPass <= STATE_CONTRACT_REPAIR_PASSES; contractPass += 1) {
+          contractRepair = await generateSceneWithRepair({
+            project,
+            spec: promptSpec,
+            prompt: contractRepairPrompt,
+            model,
+            fallbackModel,
+            disableFallbacks,
+            targetWords: sceneTarget,
+            temperature: 0.48,
+            maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+          });
 
-        contractAudit = auditSceneAgainstLedger({
-          prose: repairedContractProse,
-          accumulatedProse,
-          spec: promptSpec,
-          runtimeLedger,
-        });
+          repairedContractProse = lightCleanSceneOutput(contractRepair.prose);
+
+          if (!repairedContractProse) {
+            console.warn(`[STATE-CONTRACT-REPAIR] pass ${contractPass}/${STATE_CONTRACT_REPAIR_PASSES} produced empty prose.`);
+            continue;
+          }
+
+          contractAudit = auditSceneAgainstLedger({
+            prose: repairedContractProse,
+            accumulatedProse,
+            spec: promptSpec,
+            runtimeLedger,
+          });
+
+          console.log(
+            `[STATE-CONTRACT-REPAIR] pass=${contractPass}/${STATE_CONTRACT_REPAIR_PASSES} ` +
+            `resolved=${contractAudit.ok} ${contractAudit.ok ? '' : 'remaining=' + JSON.stringify(contractAudit.report)}`
+          );
+
+          if (contractAudit.ok) break;
+        }
 
         if (!repairedContractProse || !contractAudit.ok) {
           const contractError = new Error(
