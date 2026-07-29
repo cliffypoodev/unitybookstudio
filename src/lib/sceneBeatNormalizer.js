@@ -1035,6 +1035,7 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
   ].join('\n');
 
   let lastAuditError = null;
+  let lastRawReply = null;
   for (let attempt = 1; attempt <= FUTURE_BOUNDARY_AUDIT_ATTEMPTS; attempt += 1) {
   violations.length = 0;
   try {
@@ -1052,6 +1053,8 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
       // extra headroom costs nothing when the model answers concisely.
       max_tokens: 4000,
     });
+
+    lastRawReply = resultRaw;
 
     // Quick extract JSON
     let text = resultRaw;
@@ -1099,6 +1102,16 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
     console.warn(
       `[auditSceneFutureBoundaries] attempt ${attempt}/${FUTURE_BOUNDARY_AUDIT_ATTEMPTS} returned unusable data:`,
       error?.message || error
+    );
+    // AUDITPROMPT-1: the error message alone cannot tell a refusal from an empty
+    // completion from the model simply continuing the story. Two speculative fixes
+    // have now been aimed at this parse without ever seeing what came back. Print it.
+    const rawForLog = typeof lastRawReply === 'string'
+      ? lastRawReply
+      : (lastRawReply === null || lastRawReply === undefined ? '' : JSON.stringify(lastRawReply));
+    console.warn(
+      `[auditSceneFutureBoundaries] attempt ${attempt} raw reply: type=${typeof lastRawReply} ` +
+      `length=${rawForLog.length} first400=${JSON.stringify(rawForLog.slice(0, 400))}`
     );
   }
   }
