@@ -1007,6 +1007,47 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
 // not the same guarantee as fail-closed — it is fail-on-a-coin-toss.
 const FUTURE_BOUNDARY_AUDIT_ATTEMPTS = 3;
 
+// AUDITARRAY-1: the audit asks for "a JSON array of violations", and when the
+// model finds exactly ONE violation it frequently answers with the bare object
+// instead of a one-element array. Live evidence (Ch.3 scene 1):
+//   {"id": 0, "excerpt": "The ice cracked beneath their feet. ..."}
+// The old parser required a bracket pair, found none, and burned the attempt.
+// A retry papered over it only because the next attempt happened to answer [].
+// Accept every shape the model actually produces; return null when nothing
+// violation-shaped is present so the caller still fails closed.
+export function parseAuditPayload(rawText) {
+  if (rawText === null || rawText === undefined) return null;
+  const text = String(rawText);
+
+  const tryParse = (candidate) => {
+    if (!candidate) return undefined;
+    try {
+      return JSON.parse(candidate);
+    } catch (e) {
+      return undefined;
+    }
+  };
+
+  const normalize = (value) => {
+    if (Array.isArray(value)) return value;
+    if (value && typeof value === 'object') {
+      if (Array.isArray(value.violations)) return value.violations;
+      if ('id' in value || 'excerpt' in value) return [value];
+    }
+    return null;
+  };
+
+  const arrayMatch = text.match(/\[[\s\S]*\]/);
+  const fromArray = normalize(tryParse(arrayMatch && arrayMatch[0]));
+  if (fromArray) return fromArray;
+
+  const objectMatch = text.match(/\{[\s\S]*\}/);
+  const fromObject = normalize(tryParse(objectMatch && objectMatch[0]));
+  if (fromObject) return fromObject;
+
+  return null;
+}
+
 export async function auditSceneFutureBoundaries(sceneProse, spec, model, invokeFn = invokeLLMWithRetry) {
   const violations = [];
   const futureEvents = (spec.future_reserved_event_objects || (spec.future_reserved_events || []).map(e => ({ event: e, sceneId: 'unknown', sceneNumber: 'unknown' })));
@@ -1068,9 +1109,9 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
       .replace(/<think>[\s\S]*?<\/think>/gi, ' ')
       .replace(/<\/?think>/gi, ' ')
       .replace(/[`]{3}(?:json)?/gi, ' ');
-    const match = text.match(/\[[\s\S]*\]/);
-    if (match) {
-      const parsed = JSON.parse(match[0]);
+    const parsedPayload = parseAuditPayload(text);
+    if (parsedPayload) {
+      const parsed = parsedPayload;
       if (Array.isArray(parsed)) {
         for (const item of parsed) {
           const futureObj = futureEvents[item.id];
