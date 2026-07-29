@@ -1024,7 +1024,7 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
     `5. You must extract the exact sentence excerpt that performs the violation.`,
     ``,
     `RESERVED FUTURE EVENTS (Do not perform these):`,
-    futureEvents.map((e, i) => `[ID: ${i}] ${e.event}`).join('\\n'),
+    futureEvents.map((e, i) => `[ID: ${i}] ${e.event}`).join('\n'),
     ``,
     `SCENE PROSE TO EVALUATE:`,
     sceneProse.slice(0, 16000), // Safety truncation
@@ -1032,7 +1032,7 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
     `Return a JSON array of violations. If no violations exist, return [].`,
     `Format each violation as: {"id": <number from list>, "excerpt": "<exact sentence from prose>"}`,
     `Output ONLY valid JSON.`
-  ].join('\\n');
+  ].join('\n');
 
   let lastAuditError = null;
   for (let attempt = 1; attempt <= FUTURE_BOUNDARY_AUDIT_ATTEMPTS; attempt += 1) {
