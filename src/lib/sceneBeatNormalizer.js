@@ -1497,7 +1497,16 @@ export function extractEventSignatures(text, context) {
     sigs.push({ category: 'inspect_evidence', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
   }
   
-  for (const match of text.matchAll(new RegExp(`\\b(discovers|uncovers|reveals|learns)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+  // CHRONOVERB-1: the revelation matcher only accepted third-person singular
+  // present. A beat reading "Marcus unlocks a hidden report REVEALING evidence of
+  // foul play" therefore produced only an `unlock_or_access` signature and no
+  // revelation at all, so the next scene's "Lena confronts Dr. Vale about the
+  // report" hit the evidence_confrontation prerequisite, found no prior revelation,
+  // and hard-threw `Chronology Error: Evidence revelation must precede
+  // evidence-based confrontation` — on a beat plan whose order was correct. There
+  // is no repair pass on this rule: it kills the chapter outright. Past tense and
+  // participles are the same event.
+  for (const match of text.matchAll(new RegExp(`\\b(discovers|discovered|discovering|uncovers|uncovered|uncovering|reveals|revealed|revealing|learns|learned|learning)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'revelation', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
     
