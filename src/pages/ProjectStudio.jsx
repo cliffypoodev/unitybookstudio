@@ -4104,13 +4104,20 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         sceneResult.generatedScenes[i].acceptedProse = sceneProse;
       }
 
-      // Block malformed dialogue globally
+      // DIALOGUEPOLICY-1: report malformed dialogue, do not destroy the chapter.
+      //
+      // Live Ch.3: the repairer found and fixed 15 missing opening quotes, then left
+      // TWO ambiguous orphan closers it could not attribute with confidence — and a
+      // finished 4,141-word chapter was thrown away over them. A stray quotation mark
+      // is a copy-editing defect. It cannot fabricate a fact, and unlike the writer,
+      // the gate cannot tell which line the quote belongs to. Surface it and let the
+      // writer decide; a chapter on the page can be fixed, a discarded one cannot.
       if (finalDmOrphans > 0 || finalDmManualReview > 0) {
-        const error = new Error(`Chapter ${chapter.chapter_number} rejected due to unresolved malformed dialogue (orphans: ${finalDmOrphans}, manual review: ${finalDmManualReview}).`);
-        error.name = 'NarrativeInvariantError';
-        error.code = 'MALFORMED_DIALOGUE_UNRESOLVED';
-        error.narrativeContract = true;
-        throw error;
+        console.warn(
+          `[DIALOGUE-ADVISORY] Ch.${chapter.chapter_number}: unresolved malformed dialogue was NOT enforced ` +
+          `(orphans: ${finalDmOrphans}, manual review: ${finalDmManualReview}). ` +
+          `The chapter was saved; proofread its quotation marks.`
+        );
       }
 
       // Final audit
@@ -4155,12 +4162,14 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       const dmFinal = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save' });
       if (dmFinal.text !== chapterContent) chapterContent = dmFinal.text;
 
+      // DIALOGUEPOLICY-1: same policy on the non-structured fallback path — report,
+      // do not destroy. A stray quotation mark is a copy-editing defect.
       if (dmFinal.orphanFlagged > 0 || (dmFinal.manualReview && dmFinal.manualReview.length > 0)) {
-        const error = new Error(`Chapter ${chapter.chapter_number} rejected due to unresolved malformed dialogue (orphans: ${dmFinal.orphanFlagged}, manual review: ${dmFinal.manualReview?.length}).`);
-        error.name = 'NarrativeInvariantError';
-        error.code = 'MALFORMED_DIALOGUE_UNRESOLVED';
-        error.narrativeContract = true;
-        throw error;
+        console.warn(
+          `[DIALOGUE-ADVISORY] Ch.${chapter.chapter_number}: unresolved malformed dialogue was NOT enforced ` +
+          `(orphans: ${dmFinal.orphanFlagged}, manual review: ${dmFinal.manualReview?.length}). ` +
+          `The chapter was saved; proofread its quotation marks.`
+        );
       }
     }
 
