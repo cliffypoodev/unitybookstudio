@@ -100,5 +100,22 @@ check('a chapter full of handovers raises nothing on its own', accepts([
   scene(3, 'Dr. Vale gives the key back to Lena.'),
 ]));
 
+// ── TRANSFERFIX-2: the recipient must not swallow the rest of the sentence ──
+// Live Ch.1 failure: "give the key to Marcus for further investigation." captured
+// the recipient as "marcus for further investigation", so the actor "marcus" who
+// uses the key next scene never matched and drafting hard-threw.
+for (const [label, text] of [
+  ['trailing purpose clause', 'Lena decides to give the key to Marcus for further investigation.'],
+  ['trailing prepositional',  'Lena hands the key to Marcus before the lights fail.'],
+  ['trailing adverbial',      'Lena gives the key to Marcus without another word.'],
+  ['trailing participle',     'Lena passes the key to Marcus hoping he understands.'],
+]) {
+  check(`recipient survives a ${label}`, accepts(handoverThenUse(text)));
+}
+check('a titled recipient with a trailing clause still works', accepts([
+  scene(1, 'Lena hands the key to Dr. Vale for safekeeping overnight.'),
+  scene(2, 'Vale unlocks the archive with the key.'),
+]));
+
 console.log('\nOBJECT TRANSFER CHRONOLOGY (TRANSFERFIX-1): ' + pass + ' passed, ' + fail + ' failed');
 if (fail > 0) process.exit(1);
