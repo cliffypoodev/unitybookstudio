@@ -514,6 +514,21 @@ export function extractLimbFacts(text) {
   return facts;
 }
 
+// DEADCHARFIX-1: pull the sentence containing a match so a gate can quote its own
+// evidence. A gate that cannot show the offending line cannot be told apart from a
+// gate that is simply wrong.
+function extractSentenceAround(text, index, maxLen = 240) {
+  if (typeof text !== 'string' || !text.length) return '';
+  const safeIndex = Math.max(0, Math.min(index, text.length - 1));
+  let start = safeIndex;
+  while (start > 0 && !'.!?\n'.includes(text[start - 1])) start -= 1;
+  let end = safeIndex;
+  while (end < text.length && !'.!?\n'.includes(text[end])) end += 1;
+  if (end < text.length) end += 1;
+  const sentence = text.slice(start, end).trim().replace(/\s+/g, ' ');
+  return sentence.length > maxLen ? sentence.slice(0, maxLen - 1) + '\u2026' : sentence;
+}
+
 function findLimbContradictions(accumulatedProse, sceneProse) {
   const prior = extractLimbFacts(accumulatedProse);
   const current = extractLimbFacts(sceneProse);
@@ -686,12 +701,22 @@ export function auditSceneAgainstLedger({
   if (runtimeLedger) {
     if (Array.isArray(runtimeLedger.deadCharacters)) {
       for (const deadChar of runtimeLedger.deadCharacters) {
-        // Simplistic check for dead character acting
+        // DEADCHARFIX-1: this is still the same deliberately simple check — a dead
+        // character acting puts something FALSE on the page, so it stays a hard
+        // failure. What was missing is the EVIDENCE. The message said only that
+        // "Vale performed an action" and never showed the sentence, so a real
+        // violation and a false positive (a remembered line, a body being moved)
+        // were indistinguishable from the console, and the repair prompt had
+        // nothing concrete to work from. Quote it.
         const deadRegex = new RegExp(`\\b${deadChar}\\b\\s+(?:said|nodded|walked|looked|sighed|smiled|shook|turned|asked|replied)\\b`, 'i');
-        if (deadRegex.test(prose)) {
+        const deadMatch = deadRegex.exec(prose);
+        if (deadMatch) {
           issues.push({
             code: 'DEAD_CHARACTER_ACTION',
-            message: `Dead character "${deadChar}" performed an action in this scene.`,
+            message:
+              `Dead character "${deadChar}" performed an action in this scene: ` +
+              `"${extractSentenceAround(prose, deadMatch.index)}"`,
+            excerpt: extractSentenceAround(prose, deadMatch.index),
           });
         }
       }
