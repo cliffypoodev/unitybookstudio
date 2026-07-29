@@ -993,6 +993,20 @@ fieldsMerged: exit_hook, merged_duplicate_notes`);
   };
 }
 
+// AUDITRETRY-1: how many times the future-boundary auditor may ask the model for
+// parseable JSON before it gives up and fails closed.
+//
+// The audit asks a local model to return a JSON array. When that single call came
+// back unparseable — "LLM response did not contain a JSON array" — the scene was
+// rejected and the whole chapter died, on scene 1, with the prose never examined.
+// Observed live: the identical audit succeeded on earlier runs of the same chapter,
+// so this is response variance, not a property of the prose.
+//
+// Failing closed is correct and is NOT relaxed here: if every attempt comes back
+// unparseable, the scene is still rejected exactly as before. One attempt is simply
+// not the same guarantee as fail-closed — it is fail-on-a-coin-toss.
+const FUTURE_BOUNDARY_AUDIT_ATTEMPTS = 3;
+
 export async function auditSceneFutureBoundaries(sceneProse, spec, model, invokeFn = invokeLLMWithRetry) {
   const violations = [];
   const futureEvents = (spec.future_reserved_event_objects || (spec.future_reserved_events || []).map(e => ({ event: e, sceneId: 'unknown', sceneNumber: 'unknown' })));
@@ -1020,6 +1034,9 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
     `Output ONLY valid JSON.`
   ].join('\\n');
 
+  let lastAuditError = null;
+  for (let attempt = 1; attempt <= FUTURE_BOUNDARY_AUDIT_ATTEMPTS; attempt += 1) {
+  violations.length = 0;
   try {
     const resultRaw = await invokeFn({
       prompt,
@@ -1063,8 +1080,23 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
     } else {
       throw new Error('LLM response did not contain a JSON array.');
     }
+    lastAuditError = null;
+    break;
   } catch (error) {
-    console.error('[auditSceneFutureBoundaries] LLM check failed or returned malformed data:', error);
+    lastAuditError = error;
+    console.warn(
+      `[auditSceneFutureBoundaries] attempt ${attempt}/${FUTURE_BOUNDARY_AUDIT_ATTEMPTS} returned unusable data:`,
+      error?.message || error
+    );
+  }
+  }
+
+  if (lastAuditError) {
+    console.error(
+      `[auditSceneFutureBoundaries] LLM check failed or returned malformed data after ` +
+      `${FUTURE_BOUNDARY_AUDIT_ATTEMPTS} attempts:`,
+      lastAuditError
+    );
     return { ok: false, auditFailed: true, violations: [] };
   }
 
