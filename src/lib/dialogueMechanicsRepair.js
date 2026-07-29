@@ -631,8 +631,15 @@ export function repairOrphanClosers(text) {
       const ws = (span.match(/^\s*/) || [''])[0];
       const core = span.slice(ws.length);
       const singleSentence = !/[.!?]\u2019?\s+[A-Z\u201c]/.test(core.trimEnd().replace(/[.!?,]$/, ''));
+      // PARABREAK-1: the multi-sentence bar exists ONLY to stop the healer
+      // claiming narration that PRECEDES the speech on the same line. When the
+      // orphan span IS the whole line - nothing before it, nothing after its
+      // closer - there is no preceding narration, so the guard is vacuous and a
+      // multi-sentence speech turn is the only reading left. This is what the
+      // paragraph splitter above manufactures on purpose.
+      const wholeLine = cursor === 0 && para.slice(close + 1).trim() === '';
       const plausible = core.length >= 4 && core.length <= 300 && /^[A-Z\u2018]/.test(core) && /[.!?,]$/.test(core.trimEnd());
-      if (!plausible || !singleSentence) {
+      if (!plausible || (!singleSentence && !wholeLine)) {
         if (core.length >= 4) { flagged += 1; }
         fixed += para.slice(cursor, close + 1);
         cursor = close + 1;
@@ -640,13 +647,15 @@ export function repairOrphanClosers(text) {
       }
       fixed += ws + '\u201c' + core + '\u201d';
       repaired += 1;
+      if (!singleSentence && wholeLine) wholeLineRepaired += 1;
       cursor = close + 1;
     }
     out.push(fixed);
   }
   if (repaired) console.log('[DIALOGUE-MECHANICS-REPAIR] Orphan-closer healer inserted ' + repaired + ' missing opening quote(s)');
+  if (wholeLineRepaired) console.log('[DIALOGUE-MECHANICS-REPAIR] ' + wholeLineRepaired + ' of those were whole-line multi-sentence turns (PARABREAK-1)');
   if (flagged) console.warn('[DIALOGUE-MECHANICS-REPAIR] ' + flagged + ' ambiguous orphan closer(s) left for review');
-  return { text: out.join('\n'), repaired, flagged };
+  return { text: out.join('\n'), repaired, flagged, wholeLineRepaired };
 }
 
 export function runDialogueMechanicsPass(text, options = {}) {
