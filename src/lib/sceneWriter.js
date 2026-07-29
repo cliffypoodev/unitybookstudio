@@ -2739,6 +2739,48 @@ function buildCleanResult(finalProse, generatedScenes = [], repairReports = [], 
 // only stops a converging repair from being abandoned after one pass.
 const FUTURE_BOUNDARY_REPAIR_PASSES = 3;
 
+// CHRONOPOLICY-1: beat ORDER is a quality constraint, not an integrity one.
+// A mis-ordered beat produces a weaker chapter; it cannot invent a fact. The
+// integrity gates (quote binding, dead-character, closed-world facts) still fail
+// closed — this one repairs, then reports, then lets the chapter draft.
+//
+// Live evidence for the change: Ch.2 died on "Marcus unlocks the cabinet with a
+// code" (the validator demanded Marcus first ACQUIRE a code) and Ch.5 died on
+// "Lena destroys the brass key" one scene after she retrieves it — the key had
+// already opened doors back in Ch.2, but this validator only ever sees ONE
+// chapter of beats. BOTH returned ZERO repairs: the complaint was unsatisfiable,
+// not the beat plan wrong. Under the old policy each cost an entire chapter.
+export function applyChronologyPolicy(parsedScenes) {
+  try {
+    validateRawBeatChronology(parsedScenes);
+    return parsedScenes;
+  } catch (err) {
+    if (!(err.name === 'ChronologyError' || String(err.message).includes('Chronology'))) {
+      throw err; // DO NOT catch ReferenceError or TypeError
+    }
+    console.warn('[CHRONOLOGY-VALIDATOR] Chronology overlaps detected:', err.message);
+
+    const repairResult = repairRawContract(parsedScenes);
+    const repairedScenes = repairResult.beats;
+    console.log('[CHRONOLOGY-REPAIR] Repaired scenes report:', JSON.stringify(repairResult.repairs, null, 2));
+
+    try {
+      validateRawBeatChronology(repairedScenes);
+      console.log('[CHRONOLOGY-REPAIR] Repair resolved every chronology complaint.');
+    } catch (residualErr) {
+      if (!(residualErr.name === 'ChronologyError' || String(residualErr.message).includes('Chronology'))) {
+        throw residualErr; // DO NOT swallow ReferenceError or TypeError
+      }
+      console.warn(
+        `[CHRONOLOGY-ADVISORY] Chronology complaint survived repair and was NOT enforced: ` +
+        `${residualErr.message} (repairs applied: ${repairResult.repairs.length}). ` +
+        `Drafting continues; review the beat order for this chapter.`
+      );
+    }
+    return repairedScenes;
+  }
+}
+
 export async function generateChapterSceneByScene({
   project,
   chapter,
@@ -2786,19 +2828,7 @@ export async function generateChapterSceneByScene({
   }
 
   if (!isNF) {
-    try {
-      validateRawBeatChronology(parsedScenes);
-    } catch (err) {
-      if (err.name === 'ChronologyError' || String(err.message).includes('Chronology')) {
-        console.warn('[CHRONOLOGY-VALIDATOR] Chronology overlaps detected:', err.message);
-        const repairResult = repairRawContract(parsedScenes);
-        parsedScenes = repairResult.beats;
-        validateRawBeatChronology(parsedScenes);
-        console.log('[CHRONOLOGY-REPAIR] Repaired scenes report:', JSON.stringify(repairResult.repairs, null, 2));
-      } else {
-        throw err; // DO NOT catch ReferenceError or TypeError
-      }
-    }
+    parsedScenes = applyChronologyPolicy(parsedScenes);
   }
 
   const immutableContract = !isNF
