@@ -513,11 +513,103 @@ function countSentenceBoundaries(line, startIdx, endIdx) {
 // closing curly quote whose span back to the previous quote boundary contains
 // no opening quote is speech missing its opener. Verb-agnostic, curly-only
 // (straight quotes are ambiguous), plausibility-capped.
+// ─── PARABREAK-1: collapsed-dialogue paragraph splitter ─────────────────────
+// The ghostwriter routinely emits an entire multi-speaker exchange as ONE
+// paragraph. Live Brass Meridian Ch.5 shipped a 748-word paragraph holding ~30
+// lines of dialogue inline with narration, and the four orphan closers the
+// repairer gave up on were ALL inside it. Inside a block that size the healer
+// cannot tell which speech a closer belongs to, so a dropped OPENING quote is
+// mislabelled an "ambiguous orphan closer" and left on the page.
+//
+// One speaker turn per paragraph fixes readability AND removes the ambiguity:
+// an orphan span that occupies a whole line cannot have narration in front of
+// it, so it becomes deterministically repairable.
+//
+// Two break rules, both structural:
+//   1. A new speech opens mid-line after a sentence or a speech already ended
+//      ("...", she said. "When I asked...") - break before the opener.
+//   2. An orphan speech span (text between two quote boundaries containing no
+//      opener) - break before it and after its closer, isolating it.
+// A dialogue tag belonging to the speech just closed is never split off:
+// lowercase continuations ("he said") and speaker+speech-verb continuations
+// ("Vale said") both stay attached to their speech.
+const ORPHAN_TAG_CONTINUATION = new RegExp(
+  `^(?:${SPEAKER_PATTERN})\\s+(?:${VERB_PATTERN}|${VERB_PHRASE_PATTERN})\\b`,
+  'i'
+);
+
+function splitCollapsedLine(line) {
+  const OPEN = '\u201c';
+  const CLOSE = '\u201d';
+  if (!line.includes(CLOSE)) return [line];
+  const breaks = new Set();
+  let inSpeech = false;
+  let lastQuoteEnd = 0; // index just past the most recent quote character
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (ch !== OPEN && ch !== CLOSE) continue;
+    if (ch === OPEN) {
+      // Look back over the whole line, not just since the last quote: the
+      // commonest turn boundary is `...approach.” “Time is fluid...`, where the
+      // only text between the closer and the next opener is a single space.
+      if (!inSpeech && i > 0 && /[.!?\u201d]\s+$/.test(line.slice(0, i))) {
+        breaks.add(line.slice(0, i).replace(/\s+$/, '').length);
+      }
+      inSpeech = true;
+      lastQuoteEnd = i + 1;
+      continue;
+    }
+    if (inSpeech) {
+      inSpeech = false;
+      lastQuoteEnd = i + 1;
+      continue;
+    }
+    // Orphan closer: the span back to the previous quote boundary has no opener.
+    const span = line.slice(lastQuoteEnd, i);
+    const lead = (span.match(/^\s*/) || [''])[0].length;
+    const core = span.slice(lead);
+    if (core && !ORPHAN_TAG_CONTINUATION.test(core)) {
+      if (lastQuoteEnd + lead > 0) breaks.add(lastQuoteEnd + lead);
+      if (i + 1 < line.length && /^\s/.test(line.slice(i + 1))) breaks.add(i + 1);
+    }
+    lastQuoteEnd = i + 1;
+  }
+  if (!breaks.size) return [line];
+  const points = [...breaks].sort((a, b) => a - b);
+  const parts = [];
+  let cursor = 0;
+  for (const point of points) {
+    if (point > cursor) {
+      parts.push(line.slice(cursor, point).trim());
+      cursor = point;
+    }
+  }
+  parts.push(line.slice(cursor).trim());
+  return parts.filter(Boolean);
+}
+
+export function splitCollapsedDialogueParagraphs(text) {
+  const src = String(text || '');
+  if (!src.includes('\u201d')) return { text: src, splits: 0 };
+  let splits = 0;
+  const out = src.split('\n').map((line) => {
+    if (!line.trim()) return line;
+    const parts = splitCollapsedLine(line);
+    if (parts.length > 1) splits += parts.length - 1;
+    return parts.join('\n\n');
+  });
+  if (splits) {
+    console.log('[DIALOGUE-MECHANICS-REPAIR] Collapsed-dialogue splitter inserted ' + splits + ' paragraph break(s)');
+  }
+  return { text: out.join('\n'), splits };
+}
+
 export function repairOrphanClosers(text) {
   const src = String(text || '');
-  if (!src.includes('\u201d')) return { text: src, repaired: 0, flagged: 0 };
+  if (!src.includes('\u201d')) return { text: src, repaired: 0, flagged: 0, wholeLineRepaired: 0 };
   let repaired = 0;
   let flagged = 0;
+  let wholeLineRepaired = 0;
   const out = [];
   for (const para of src.split('\n')) {
     if (!para.includes('\u201d')) { out.push(para); continue; }
