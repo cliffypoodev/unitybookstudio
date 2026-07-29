@@ -1519,7 +1519,12 @@ export function extractEventSignatures(text, context) {
   for (const match of text.matchAll(new RegExp(`\\b(give|gives|gave|giving|hand|hands|handed|handing|pass|passes|passed|passing|offer|offers|offered|offering|entrust|entrusts|entrusted|entrusting|return|returns|returned)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)\\s+(?:over\\s+to|to)\\s+${article}(?:(?:dr|mr|mrs|ms|prof)\\.?\\s+)?([a-z0-9\\s\\'\\-]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     // The terminator includes a literal period, so an honorific must be consumed
     // BEFORE the name is captured — otherwise "to Dr. Vale" captures only "dr".
-    const recipient = match[3].trim().toLowerCase();
+    // TRANSFERFIX-2: the recipient capture runs to the sentence terminator, so
+    // "give the key to Marcus for further investigation." captured
+    // "marcus for further investigation" and never matched the actor "marcus"
+    // that uses the object next scene. Actors in this pipeline are single tokens
+    // (resolveActor returns one), so take the first word of the recipient.
+    const recipient = match[3].trim().toLowerCase().split(/\s+/)[0];
     sigs.push({ category: 'acquire_object', actor: recipient, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
   }
   
