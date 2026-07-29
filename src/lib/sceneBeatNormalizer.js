@@ -1045,14 +1045,26 @@ export async function auditSceneFutureBoundaries(sceneProse, spec, model, invoke
       use_gemini_fallback: true,
       use_openai_fallback: true,
       temperature: 0.1,
-      max_tokens: 1000,
+      // AUDITJSON-1: was 1000. All three AUDITRETRY-1 attempts failed IDENTICALLY
+      // with "LLM response did not contain a JSON array" — deterministic, not
+      // variance. A reasoning-capable local model spends its budget on preamble and
+      // the array never arrives. This is an output cap on a short JSON reply; the
+      // extra headroom costs nothing when the model answers concisely.
+      max_tokens: 4000,
     });
-    
+
     // Quick extract JSON
     let text = resultRaw;
     if (typeof resultRaw !== 'string') {
       text = resultRaw?.content || resultRaw?.text || JSON.stringify(resultRaw);
     }
+    // AUDITJSON-1: reasoning models wrap their answer in <think>...</think> and
+    // often fence it. A think block can itself contain bracketed text, so strip it
+    // BEFORE searching for the array or the first match may be the model musing.
+    text = String(text)
+      .replace(/<think>[\s\S]*?<\/think>/gi, ' ')
+      .replace(/<\/?think>/gi, ' ')
+      .replace(/[`]{3}(?:json)?/gi, ' ');
     const match = text.match(/\[[\s\S]*\]/);
     if (match) {
       const parsed = JSON.parse(match[0]);
