@@ -1486,6 +1486,30 @@ export function extractEventSignatures(text, context) {
     const actor = resolveActor(text, context.knownActors, match.index);
     sigs.push({ category: 'acquire_object', actor, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
   }
+
+  // TRANSFERFIX-1: a HANDOVER is an acquisition by the RECIPIENT.
+  //
+  // "Lena decides to give the key to Marcus" was the only reason Marcus could
+  // unlock the archive with it in the next scene, but no matcher understood
+  // transfers, so no acquisition was recorded and drafting hard-threw
+  // "Chronology Error: Acquire object must precede use object" on a plan whose
+  // order was correct. resolveActor() names the giver, so the recipient is taken
+  // from the sentence instead.
+  //
+  // Scope note: this ADDS a missing category rather than widening an existing one.
+  // Widening the other matchers to cover past tense and participles was tried and
+  // reverted — English reuses those forms for intent ("tries to unlock") and for
+  // prevention ("stop her from destroying it"), so a scene exit that PREVENTS a
+  // destruction began registering as a destruction and broke regression test 30.
+  // `acquire_object` is only ever read to SATISFY a prerequisite, never to raise a
+  // violation, so an extra acquisition can unblock a legitimate plan but cannot
+  // manufacture a new failure.
+  for (const match of text.matchAll(new RegExp(`\\b(give|gives|gave|giving|hand|hands|handed|handing|pass|passes|passed|passing|offer|offers|offered|offering|entrust|entrusts|entrusted|entrusting|return|returns|returned)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)\\s+(?:over\\s+to|to)\\s+${article}(?:(?:dr|mr|mrs|ms|prof)\\.?\\s+)?([a-z0-9\\s\\'\\-]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
+    // The terminator includes a literal period, so an honorific must be consumed
+    // BEFORE the name is captured — otherwise "to Dr. Vale" captures only "dr".
+    const recipient = match[3].trim().toLowerCase();
+    sigs.push({ category: 'acquire_object', actor: recipient, object: match[2].trim().toLowerCase(), target: null, raw: match[0] });
+  }
   
   for (const match of text.matchAll(new RegExp(`\\b(destroys|breaks|discards|drops|snaps|crushes|shatters)\\b\\s+${article}([a-z0-9\\s\\'\\-\\.]+?)(?:\\.|\\,|$| and| but)`, 'gi'))) {
     const actor = resolveActor(text, context.knownActors, match.index);
