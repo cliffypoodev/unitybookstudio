@@ -2734,6 +2734,11 @@ function buildCleanResult(finalProse, generatedScenes = [], repairReports = [], 
   };
 }
 
+// BOUNDARYREPAIR-1: how many times the future-boundary repair may iterate while it
+// is still strictly reducing the violation count. Fail-closed is unchanged — this
+// only stops a converging repair from being abandoned after one pass.
+const FUTURE_BOUNDARY_REPAIR_PASSES = 3;
+
 export async function generateChapterSceneByScene({
   project,
   chapter,
@@ -3182,25 +3187,67 @@ sentenceIndex=${v.sentenceIndex}`);
           buildFutureBoundaryRepairPrompt(sceneProse, promptSpec, futureAudit.violations)
         ].join('\n\n');
 
-        const repaired = await generateSceneWithRepair({
-          project,
-          spec,
-          prompt: repairPrompt,
-          model,
-          fallbackModel,
-          disableFallbacks,
-          targetWords: sceneTarget,
-          temperature: 0.48,
-          maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
-        });
+        // BOUNDARYREPAIR-1: repair while it is still making progress.
+        //
+        // This ran exactly ONE pass. Observed live on Ch.2 scene 1: violations went
+        // 6 -> 2 in that single pass — clearly converging — and the chapter was then
+        // thrown away anyway. Every other gate in this file gets a repair attempt;
+        // this one got one shot at a multi-part problem.
+        //
+        // Fail-closed is NOT relaxed: if violations remain when the loop ends, the
+        // same error with the same code is thrown as before. The loop stops early on
+        // a STALL (no strict decrease) so a model that cannot fix the remainder is
+        // not asked repeatedly for nothing.
+        let repairedProse = '';
+        let previousCount = futureAudit.violations.length;
+        let currentPrompt = repairPrompt;
 
-        const repairedProse = lightCleanSceneOutput(repaired.prose);
-        futureAudit = await auditSceneFutureBoundaries(repairedProse, promptSpec, model);
-        
-        console.log(`[SCENE-BOUNDARY-REPAIR-RESULT]
-remainingCount=${futureAudit.violations.length}
-remainingViolations=${JSON.stringify(futureAudit.violations.map(v => v.event))}`);
-        
+        for (let repairPass = 1; repairPass <= FUTURE_BOUNDARY_REPAIR_PASSES; repairPass += 1) {
+          const repaired = await generateSceneWithRepair({
+            project,
+            spec,
+            prompt: currentPrompt,
+            model,
+            fallbackModel,
+            disableFallbacks,
+            targetWords: sceneTarget,
+            temperature: 0.48,
+            maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+          });
+
+          const passProse = lightCleanSceneOutput(repaired.prose);
+          if (!passProse) break;
+
+          const passAudit = await auditSceneFutureBoundaries(passProse, promptSpec, model);
+
+          console.log(`[SCENE-BOUNDARY-REPAIR-RESULT]
+pass=${repairPass}/${FUTURE_BOUNDARY_REPAIR_PASSES}
+remainingCount=${passAudit.violations.length}
+remainingViolations=${JSON.stringify(passAudit.violations.map(v => v.event))}`);
+
+          repairedProse = passProse;
+          futureAudit = passAudit;
+
+          if (passAudit.ok) break;
+
+          // An audit that could not execute is not progress; stop and fail closed.
+          if (passAudit.auditFailed) break;
+
+          if (passAudit.violations.length >= previousCount) {
+            console.warn(
+              `[SCENE-BOUNDARY-REPAIR] pass ${repairPass} made no progress ` +
+              `(${previousCount} -> ${passAudit.violations.length}); stopping.`
+            );
+            break;
+          }
+
+          previousCount = passAudit.violations.length;
+          currentPrompt = [
+            cleanedPrompt,
+            buildFutureBoundaryRepairPrompt(passProse, promptSpec, passAudit.violations)
+          ].join('\n\n');
+        }
+
         if (repairedProse && futureAudit.ok) {
           sceneProse = repairedProse;
           generated.repaired = true;
