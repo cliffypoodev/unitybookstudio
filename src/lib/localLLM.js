@@ -125,6 +125,18 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   const data = await response.json();
   let text = data?.choices?.[0]?.message?.content || '';
 
+  // AUDITPROMPT-1: an empty completion is indistinguishable downstream from a
+  // model that answered badly - both arrive as unusable text. It normally means
+  // the reply landed in reasoning_content instead of content. Say so, here, once.
+  if (!text) {
+    const msg = data?.choices?.[0]?.message || {};
+    console.warn(
+      `[LOCAL-LLM] EMPTY completion from ${model} | message keys: ${Object.keys(msg).join(',') || 'none'}` +
+      ` | finish_reason: ${data?.choices?.[0]?.finish_reason || 'none'}` +
+      ` | reasoning_content length: ${String(msg.reasoning_content || '').length}`
+    );
+  }
+
   // Safety net: strip any thinking-model artifacts if they leak through.
   text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
   text = text.replace(/<\/think>/gi, '');
