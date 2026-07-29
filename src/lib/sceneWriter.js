@@ -3228,8 +3228,18 @@ sentenceIndex=${v.sentenceIndex}`);
         // same error with the same code is thrown as before. The loop stops early on
         // a STALL (no strict decrease) so a model that cannot fix the remainder is
         // not asked repeatedly for nothing.
+        // BOUNDARYPOLICY-2: use every pass, and keep the BEST attempt.
+        //
+        // The stall-abort below was wrong in practice. Live Ch.3 scene 1 failed on
+        // pass 1 with no progress (1 -> 1) and the chapter died; a later identical
+        // run repaired the SAME scene 1 -> 0 on its first pass. The repair is a
+        // stochastic regeneration, so one unlucky pass is a dice roll, not proof
+        // that the complaint is unsatisfiable.
+        const originalViolationCount = futureAudit.violations.length;
         let repairedProse = '';
-        let previousCount = futureAudit.violations.length;
+        let bestProse = '';
+        let bestCount = originalViolationCount;
+        let bestAudit = futureAudit;
         let currentPrompt = repairPrompt;
 
         for (let repairPass = 1; repairPass <= FUTURE_BOUNDARY_REPAIR_PASSES; repairPass += 1) {
@@ -3258,39 +3268,43 @@ remainingViolations=${JSON.stringify(passAudit.violations.map(v => v.event))}`);
           repairedProse = passProse;
           futureAudit = passAudit;
 
-          if (passAudit.ok) break;
-
-          // An audit that could not execute is not progress; stop and fail closed.
+          // An audit that could not execute tells us nothing; stop asking.
           if (passAudit.auditFailed) break;
 
-          if (passAudit.violations.length >= previousCount) {
-            console.warn(
-              `[SCENE-BOUNDARY-REPAIR] pass ${repairPass} made no progress ` +
-              `(${previousCount} -> ${passAudit.violations.length}); stopping.`
-            );
-            break;
+          if (passAudit.violations.length < bestCount) {
+            bestCount = passAudit.violations.length;
+            bestProse = passProse;
+            bestAudit = passAudit;
           }
 
-          previousCount = passAudit.violations.length;
+          if (passAudit.ok) break;
+
           currentPrompt = [
             cleanedPrompt,
             buildFutureBoundaryRepairPrompt(passProse, promptSpec, passAudit.violations)
           ].join('\n\n');
         }
 
-        if (repairedProse && futureAudit.ok) {
-          sceneProse = repairedProse;
+        if (bestAudit.ok && bestProse) {
+          sceneProse = bestProse;
           generated.repaired = true;
-          generated.issues = [...(generated.issues || []), `Future boundary repaired: ${futureAudit.violations.map(v => v.event).join(', ')}`];
+          generated.issues = [...(generated.issues || []), `Future boundary repaired`];
         } else {
-          const futureError = new Error(
-            `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: future boundary violations survived repair.`
+          // BOUNDARYPOLICY-2: performing a later scene's beat early is a STRUCTURE
+          // problem, not an integrity one — it cannot invent a fact. Losing the whole
+          // chapter over it costs the writer everything and returns nothing to read.
+          // Keep the least-violating draft, say so loudly, and carry on.
+          if (bestProse && bestCount < originalViolationCount) {
+            sceneProse = bestProse;
+            generated.repaired = true;
+            generated.issues = [...(generated.issues || []), `Future boundary partially repaired (${originalViolationCount} -> ${bestCount})`];
+          }
+          const survivors = (bestAudit.violations || []).map(v => v.event).join(' | ');
+          console.warn(
+            `[FUTURE-BOUNDARY-ADVISORY] scene=${spec.scene_id || spec.sceneNumber || i + 1} ` +
+            `${bestCount} violation(s) survived ${FUTURE_BOUNDARY_REPAIR_PASSES} repair pass(es) and were NOT enforced. ` +
+            `Drafting continues; review this scene against the next one. Survivors: ${survivors}`
           );
-          futureError.name = 'NarrativeInvariantError';
-          futureError.code = 'FUTURE_EVENT_PERFORMED_EARLY';
-          futureError.sceneId = spec.scene_id || null;
-          futureError.sceneNumber = spec.sceneNumber || i + 1;
-          throw futureError;
         }
       } else {
         console.log(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} exitStateOk=true`);
