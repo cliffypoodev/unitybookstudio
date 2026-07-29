@@ -670,6 +670,19 @@ export function runDialogueMechanicsPass(text, options = {}) {
     };
   }
 
+  // PARABREAK-1: Step 0 - break a collapsed multi-speaker paragraph into one
+  // turn per paragraph BEFORE anything line-oriented runs. Every repairer below
+  // works per line, so a 748-word wall starves all of them at once. Opt-in:
+  // the fiction drafting paths enable it; the nonfiction pre-save path does not.
+  let working = text;
+  let paragraphSplits = 0;
+  if (options.splitCollapsedParagraphs) {
+    const split = splitCollapsedDialogueParagraphs(text);
+    working = split.text;
+    paragraphSplits = split.splits;
+  }
+  text = working;
+
   // Step 1: Detect before repair
   const before = detectDialogueQuoteIssues(text, options);
   const beforeCount = before.count;
@@ -699,10 +712,12 @@ export function runDialogueMechanicsPass(text, options = {}) {
     repairs: repairResult.repairs,
     orphanRepaired: orphan.repaired,
     orphanFlagged: orphan.flagged,
+    orphanWholeLineRepaired: orphan.wholeLineRepaired || 0,
+    paragraphSplits,
     manualReview: repairResult.manualReview,
     beforeCount,
     afterCount,
-    improved: improved || orphan.repaired > 0,
+    improved: improved || orphan.repaired > 0 || paragraphSplits > 0,
   };
 }
 
