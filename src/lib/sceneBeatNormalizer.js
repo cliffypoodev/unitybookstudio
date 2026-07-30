@@ -477,6 +477,15 @@ function extractEventSignature(beat) {
   };
 }
 
+// TRIMFLOOR-1: a destruction word applied to a PERSON is an emotional state, not an
+// object being destroyed. "Lena is emotionally shattered" must not be trimmed as
+// destruction bleed. Deliberately narrow - it matches the shapes that actually appeared,
+// not every possible one, because a missed trim is harmless and a wrong trim is not.
+// NOTE the asymmetry between the two words: a bare "is broken" is almost always an
+// OBJECT ("the console is broken"), so only an explicit adverb makes it emotional.
+// A bare "is shattered" is almost always a PERSON in this register, so it counts.
+const EMOTIONAL_DESTRUCTION = /\b(?:emotionally|utterly|completely|visibly)\s+(?:\w+\s+)?(?:shattered|broken)\b|\b(?:shattered|broken)\s+by\b|\b(?:is|was|are|were|feels?|felt|left)\s+(?:\w+\s+)?shattered\b/i;
+
 export function extractProseEventSignatures(prose) {
   const full = normalize(String(prose));
   const fullWords = full.split(' ').filter(Boolean);
@@ -1942,9 +1951,32 @@ export function repairRawContract(beats) {
       
       const requiresDestroy = clonedBeats[i].required_events.join(' ').match(/destroy|break/);
       if (prevExit.match(/\b(destroyed|broken|shattered|unavailable)\b/i) && requiresDestroy) {
-        prevBeat.exit_state = prevExit.replace(/[^.]*\b(destroyed|broken|shattered|unavailable)\b[^.]*\./ig, '').trim();
-        repairs.push({ type: 'TRIM_BLEED', event: 'exit_state', fromScene: i, toScene: i+1, reason: 'Removed next scene irreversible event from previous exit_state.' });
-        changed = true;
+        // TRIMFLOOR-1: this trim killed Chapter 5 on 2026-07-30. Two faults, both fixed here.
+        //
+        // (1) It read an EMOTIONAL state as object destruction. The real exit_state was
+        //     "Lena is emotionally shattered, and Marcus's attempt to explain his actions
+        //     fails, leading to a breakdown in their relationship." Nothing was destroyed.
+        // (2) The old one-shot global replace consumed EVERY matching sentence, and when
+        //     that was all of them exit_state became the empty string. generationContext
+        //     then rejected "Scene N: exit_state is missing" and the whole chapter was
+        //     thrown away by a repair that cannot put anything false on the page.
+        //
+        // Now: skip sentences where the word describes a person rather than an object, and
+        // never write back an empty field. If the trim would empty it, decline the trim and
+        // say so. A beat-order smell that ships beats a repair that destroys a chapter.
+        const sentences = prevExit.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [prevExit];
+        const kept = sentences.filter((sentence) => {
+          if (!/\b(destroyed|broken|shattered|unavailable)\b/i.test(sentence)) return true;
+          return EMOTIONAL_DESTRUCTION.test(sentence);
+        });
+        const trimmed = kept.join('').trim();
+        if (!trimmed) {
+          console.warn('[TRIM-BLEED-DECLINED] Trimming scene ' + i + ' exit_state would leave it empty; keeping the original. Review the beat order instead. Original: "' + prevExit + '"');
+        } else if (trimmed !== prevExit.trim()) {
+          prevBeat.exit_state = trimmed;
+          repairs.push({ type: 'TRIM_BLEED', event: 'exit_state', fromScene: i, toScene: i+1, reason: 'Removed next scene irreversible event from previous exit_state.' });
+          changed = true;
+        }
       }
     }
   }
