@@ -32,7 +32,7 @@ import { invokeLLMWithRetry, invokeResearchLLM, generateImageWithRetry } from '@
 // NARRATIVE-CONNECT-3: the beat planner needs the same prior-chapter coverage
 // memory the prose writer already uses, otherwise it re-plans events that
 // earlier chapters already consumed.
-import { buildRollingContext } from '@/lib/chapterCohesion';
+import { buildRollingContext, buildPriorLedger, saveChapterLedger } from '@/lib/chapterCohesion';
 import { parseTwistsToMd } from '@/lib/plotTwists';
 import { buildChapterJudgePrompt, chapterJudgeSchema, checkTenseConsistency, checkPovConsistency, suggestPovTense } from '@/lib/povTense';
 import { mechanicalSlopScore, cleanGeneratedProse } from '@/lib/proseQuality';
@@ -3515,6 +3515,11 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       project: draftingProject,
     });
 
+    // LEDGERSCOPE-1: fold every EARLIER chapter's saved ledger into one and hand
+    // it to the writer. Without this the ledger was rebuilt empty per chapter, so
+    // nothing could stop Ch.4 restoring a hand Ch.3 amputated.
+    const priorLedger = await buildPriorLedger(project?.id || projectId, chapter.chapter_number);
+
     const sceneResult = await generateChapterByScenes({
       sceneExecutionAcceptanceRunners,
       project: draftingProject,
@@ -3523,6 +3528,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       onProgress: (label) => report(label),
       proseModelOverride,
       priorChapterSummaries,
+      priorLedger,
     });
 
     console.log('[DRAFT DEBUG] generateChapterByScenes returned. Prose length:', sceneResult?.prose?.length || 0);
@@ -4191,6 +4197,13 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     runProjectContentGuardBeforeSave(chapter, chapterContent, 'draft');
     
     pipelineSnapshot(chapter.id, '8-final-save', chapterContent);
+
+    // LEDGERSCOPE-1: persist this chapter's end state so the NEXT chapter can see
+    // it. Deliberately awaited but never allowed to throw - a failed ledger write
+    // must not cost a drafted chapter.
+    if (sceneResult?.narrativeLedger) {
+      await saveChapterLedger(chapter.id, sceneResult.narrativeLedger, chapter.chapter_number);
+    }
     const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
 
     const stdSavePayload = {
