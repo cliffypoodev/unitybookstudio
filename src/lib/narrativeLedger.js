@@ -120,7 +120,16 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
     // Scan EVERY death in the string, not just the first. `String.match` without
     // /g returns one hit, so "He died in the accident. Reed died beside him."
     // stopped at the rejected pronoun and lost Reed entirely.
-    const deathPattern = /\b([A-Z][a-z]+)\s+(?:is dead|died|is killed|dies|was killed)\b/g;
+    // EXTRACTFIX-1: additional death forms. The NAME-ADJACENT structure is unchanged -
+    // the character name must still be immediately followed by the phrase, which is what
+    // keeps the LEDGERFIX-1 pronoun disaster fixed. These are more ways of saying the same
+    // thing, not a looser match.
+    //
+    // KNOWN GAP, stated so nobody assumes otherwise: this does NOT catch a death phrased
+    // with words between the name and the verb, e.g. the Ch.4 beat "Dr. Vale collapses from
+    // exhaustion and injuries, dying in the corridor." Closing that needs a gap-tolerant
+    // pattern, which is exactly the blind widening that produced LEDGERFIX-1. Not done here.
+    const deathPattern = /\b([A-Z][a-z]+)\s+(?:is dead|died|is killed|dies|was killed|is dying|was dying|lay dying|lies dead|lay dead|bled out|bleeds out)\b/g;
     let deathMatch;
     while ((deathMatch = deathPattern.exec(str)) !== null) {
       const charName = deathMatch[1];
