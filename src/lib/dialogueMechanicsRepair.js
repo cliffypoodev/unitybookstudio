@@ -591,11 +591,23 @@ function splitCollapsedLine(line) {
     }
     // Orphan closer: the span back to the previous quote boundary has no opener.
     const span = line.slice(lastQuoteEnd, i);
-    const lead = (span.match(/^\s*/) || [''])[0].length;
+    let lead = (span.match(/^\s*/) || [''])[0].length;
+    // PARABREAK-2: step over a leading dialogue tag so the break lands on the
+    // speech that actually lost its opener, not in front of the tag.
+    const tagLead = span.slice(lead).match(ORPHAN_TAG_LEAD);
+    if (tagLead) lead += tagLead[0].length;
     const core = span.slice(lead);
     if (core && !ORPHAN_TAG_CONTINUATION.test(core)) {
       if (lastQuoteEnd + lead > 0) breaks.add(lastQuoteEnd + lead);
-      if (i + 1 < line.length && /^\s/.test(line.slice(i + 1))) breaks.add(i + 1);
+      // PARABREAK-2: break AFTER the orphan's closer only when what follows is
+      // NOT this speech's own dialogue tag. Breaking in front of `Marcus asked.`
+      // strands the tag in a paragraph of its own - 21 of those shipped in the
+      // first live run of PARABREAK-1.
+      const after = line.slice(i + 1);
+      const afterCore = after.replace(/^\s+/, '');
+      if (after.length !== afterCore.length && afterCore && !ORPHAN_TAG_CONTINUATION.test(afterCore)) {
+        breaks.add(i + 1);
+      }
     }
     lastQuoteEnd = i + 1;
   }
