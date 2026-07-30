@@ -397,6 +397,19 @@ function paragraphHits(eventText, proseText) {
     .filter((entry) => entry.result.hit);
 }
 
+// DEADSPEECH-1: true when `index` falls inside an open quotation. Counts smart quote
+// boundaries from the start of the text; straight quotes are ambiguous (apostrophes) and
+// are deliberately NOT counted, so a passage using them behaves exactly as before.
+function isInsideQuotedSpan(text, index) {
+  let inside = false;
+  for (let i = 0; i < index && i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === '\u201c') inside = true;
+    else if (ch === '\u201d') inside = false;
+  }
+  return inside;
+}
+
 export function extractLimbFacts(text) {
   const source = String(text || '');
   const facts = [];
@@ -708,8 +721,19 @@ export function auditSceneAgainstLedger({
         // violation and a false positive (a remembered line, a body being moved)
         // were indistinguishable from the console, and the repair prompt had
         // nothing concrete to work from. Quote it.
-        const deadRegex = new RegExp(`\\b${deadChar}\\b\\s+(?:said|nodded|walked|looked|sighed|smiled|shook|turned|asked|replied)\\b`, 'i');
-        const deadMatch = deadRegex.exec(prose);
+        //
+        // DEADSPEECH-1: the verb list is UNCHANGED and the gate still fails closed. The
+        // only thing removed is one false-positive SHAPE: reported speech. On 2026-07-30
+        // this killed Chapter 4. The repair fixed the real violation on pass 1, then the
+        // detector fired on `"Vale said the key opens the archive," Lena said.` - which is
+        // Lena talking ABOUT Vale, not Vale acting - and burned the remaining budget until
+        // the chapter was hard-rejected. A dead man named inside another character's quoted
+        // line is memory, not action. Match only OUTSIDE quoted spans.
+        const deadRegex = new RegExp(`\\b${deadChar}\\b\\s+(?:said|nodded|walked|looked|sighed|smiled|shook|turned|asked|replied)\\b`, 'gi');
+        let deadMatch = null;
+        for (let m = deadRegex.exec(prose); m; m = deadRegex.exec(prose)) {
+          if (!isInsideQuotedSpan(prose, m.index)) { deadMatch = m; break; }
+        }
         if (deadMatch) {
           issues.push({
             code: 'DEAD_CHARACTER_ACTION',
