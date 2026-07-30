@@ -282,3 +282,71 @@ export async function regenerateAllSummaries(projectId, onProgress) {
   console.log('[COHESION] Regenerated summaries for', count, 'chapters');
   return count;
 }
+
+// ── LEDGERSCOPE-1: book-scope narrative ledger persistence ───────────────────
+//
+// Mirrors the summary_json pattern above exactly: write one JSON blob per chapter
+// on the Chapter entity, read the earlier ones back before drafting the next.
+//
+// PARALLEL-SAFE BY DESIGN. "Draft All" drafts siblings concurrently, so Ch.4 may
+// start before Ch.3 has saved its ledger. This reads every EARLIER chapter that
+// HAS a ledger and folds them in chapter order. A missing one means the fold sees
+// fewer facts, never wrong ones - the ledger only ever ADDS constraints (this
+// character is dead, that hand is gone), so a gap degrades to the old behaviour
+// instead of fabricating state. Fails safe in the only direction that matters.
+
+export async function saveChapterLedger(chapterId, ledger, chapterNumber) {
+  if (!chapterId || !ledger) return false;
+  try {
+    const { boundLedger, summarizeLedger } = await import('@/lib/narrativeLedger');
+    const bounded = boundLedger(ledger);
+    await base44.entities.Chapter.update(chapterId, {
+      narrative_ledger_json: JSON.stringify(bounded),
+    });
+    console.log(`[NARRATIVE-LEDGER] Saved Ch.${chapterNumber} ledger: ${summarizeLedger(bounded)}`);
+    return true;
+  } catch (e) {
+    // Never let a telemetry save kill a drafted chapter.
+    console.warn(`[NARRATIVE-LEDGER] Could not save Ch.${chapterNumber} ledger: ${e?.message || e}`);
+    return false;
+  }
+}
+
+export async function buildPriorLedger(projectId, currentChapterNumber) {
+  if (!projectId || !Number.isFinite(Number(currentChapterNumber))) return null;
+  try {
+    const { foldChapterLedgers, summarizeLedger } = await import('@/lib/narrativeLedger');
+    const allChapters = await base44.entities.Chapter.filter(
+      { project_id: projectId },
+      'chapter_number',
+      200
+    );
+    const earlier = (allChapters || [])
+      .filter((c) => Number(c.chapter_number) < Number(currentChapterNumber))
+      .sort((a, b) => Number(a.chapter_number) - Number(b.chapter_number));
+    if (earlier.length === 0) return null;
+
+    const ledgers = [];
+    const missing = [];
+    for (const ch of earlier) {
+      const raw = ch?.narrative_ledger_json;
+      if (!raw) { missing.push(ch.chapter_number); continue; }
+      try {
+        ledgers.push(typeof raw === 'string' ? JSON.parse(raw) : raw);
+      } catch (e) {
+        missing.push(ch.chapter_number);
+      }
+    }
+    if (missing.length > 0) {
+      console.warn(`[NARRATIVE-LEDGER] Ch.${currentChapterNumber}: no saved ledger for chapter(s) ${missing.join(', ')} — continuing with the ${ledgers.length} that exist. State from the missing chapter(s) will not be enforced.`);
+    }
+    if (ledgers.length === 0) return null;
+
+    const folded = foldChapterLedgers(ledgers);
+    console.log(`[NARRATIVE-LEDGER] Ch.${currentChapterNumber}: folded ${ledgers.length} prior chapter ledger(s) → ${summarizeLedger(folded)}`);
+    return folded;
+  } catch (e) {
+    console.warn(`[NARRATIVE-LEDGER] Could not build prior ledger for Ch.${currentChapterNumber}: ${e?.message || e}`);
+    return null;
+  }
+}
