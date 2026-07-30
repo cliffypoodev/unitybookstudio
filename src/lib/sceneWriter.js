@@ -87,7 +87,7 @@ import { buildCanonNameLockBlock, repairCanonNameDrift } from '@/lib/canonNameLo
 import { repairChapterQuotes } from '@/lib/quoteFixPolish';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
-import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger } from '@/lib/narrativeLedger';
+import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger } from '@/lib/narrativeLedger';
 import {
   isAnthologyProject,
   isNonfictionAnthology,
@@ -2804,6 +2804,7 @@ export async function generateChapterSceneByScene({
   sceneExecutionPromptCanary = null,
   sceneExecutionCanaryTrial = null,
   sceneExecutionAcceptanceRunners = null,
+  priorLedger = null,
 }) {
   if (!project) throw new Error('Project is required.');
   if (!chapter) throw new Error('Chapter is required.');
@@ -2969,7 +2970,16 @@ export async function generateChapterSceneByScene({
   const repairReports = [];
   const sceneExecutionCanaryEvidenceRecords = [];
   let lastScenePrompt = '';
-  let runtimeLedger = buildInitialLedger();
+  // LEDGERSCOPE-1: the ledger is BOOK-scoped. `accumulatedProse` above stays
+  // chapter-local on purpose (DRAFTFIX-1) - seeding prose caused stacked drafts.
+  // The ledger carries no prose, only facts, so it is safe to carry forward and
+  // it is the only thing that can stop Ch.4 restoring a hand Ch.3 amputated.
+  let runtimeLedger = priorLedger ? cloneLedger(priorLedger) : buildInitialLedger();
+  if (priorLedger) {
+    console.log(`[NARRATIVE-LEDGER] Ch.${chapterNumber} seeded from prior chapters: ${summarizeLedger(runtimeLedger)}`);
+  } else {
+    console.log(`[NARRATIVE-LEDGER] Ch.${chapterNumber} starting from an empty ledger (no prior chapter state available).`);
+  }
 
   // Contract-Level Replay Validation using semantic signatures
   const isClean = isCleanMetadata;
@@ -3840,6 +3850,10 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
     scenes: generatedScenes,
     generatedScenes,
     repairReports,
+
+    // LEDGERSCOPE-1: hand the ledger back. Before this it died with the function
+    // and no later chapter could ever see what this one established.
+    narrativeLedger: boundLedger(runtimeLedger),
 
     cleanResult,
     sourceAudit: cleanResult?.sourceAudit || null,
