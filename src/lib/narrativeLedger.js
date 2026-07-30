@@ -284,3 +284,114 @@ export function serializeLedger(ledger) {
   
   return out.trim();
 }
+
+// ─── LEDGERSCOPE-1: book-scope ledger ────────────────────────────────────────
+//
+// The ledger was rebuilt from scratch at the top of every chapter
+// (sceneWriter.js `runtimeLedger = buildInitialLedger()`) and was never returned
+// to the caller, so no chapter could ever see what an earlier one established.
+// Proven on the page in Brass Meridian TEST: Marcus's wrist breaks in Ch.3 and
+// becomes a stump one scene later with no amputation ever written, then grows a
+// palm back in Ch.4; the brass key teleports between pockets across the Ch.4/Ch.5
+// boundary; the station is destroyed three separate times.
+//
+// These helpers are PURE - no imports, no I/O - so they can be unit-tested and so
+// `narrativeLedger.js` stays free of the base44 client.
+//
+// Merge semantics are not uniform, and that is the whole design:
+//   IRREVERSIBLE facts union. Death, destruction and a severed limb cannot be
+//   undone by a later chapter, so they accumulate and never drop out.
+//   MUTABLE state is overridden by the later chapter, per key, with untouched
+//   keys preserved. Who holds an object and where people are standing change
+//   constantly; the newest reading wins.
+// Getting this backwards in either direction is a bug: unioning possessions makes
+// one object held by three people at once, and overriding deadCharacters
+// resurrects the dead.
+
+/** Hard cap on stored completed events. serializeLedger only injects the last 10
+ *  into a prompt, but the STORED array would grow without bound across 20+
+ *  chapters and bloat every save. */
+export const LEDGER_MAX_COMPLETED_EVENTS = 40;
+
+const uniq = (arr) => [...new Set((arr || []).filter((x) => x !== null && x !== undefined && x !== ''))];
+const cloneStrMap = (m) => Object.fromEntries(
+  Object.entries(m || {}).map(([k, v]) => [k, Array.isArray(v) ? [...v] : v])
+);
+
+export function cloneLedger(ledger) {
+  const base = buildInitialLedger();
+  if (!ledger || typeof ledger !== 'object') return base;
+  return {
+    locations: { ...(ledger.locations || {}) },
+    objects: { ...(ledger.objects || {}) },
+    objectLocations: { ...(ledger.objectLocations || {}) },
+    characterConditions: cloneStrMap(ledger.characterConditions),
+    possessions: cloneStrMap(ledger.possessions),
+    completedEvents: [...(ledger.completedEvents || [])],
+    deadCharacters: [...(ledger.deadCharacters || [])],
+    unavailableObjects: [...(ledger.unavailableObjects || [])],
+    droppedObjects: [...(ledger.droppedObjects || [])],
+    separatedCharacters: [...(ledger.separatedCharacters || [])],
+  };
+}
+
+/** Trim the stored ledger so it cannot grow without bound. Only completedEvents
+ *  grows monotonically; every other field is bounded by the cast and the props. */
+export function boundLedger(ledger, maxEvents = LEDGER_MAX_COMPLETED_EVENTS) {
+  const out = cloneLedger(ledger);
+  if (out.completedEvents.length > maxEvents) {
+    out.completedEvents = out.completedEvents.slice(-maxEvents);
+  }
+  return out;
+}
+
+/**
+ * Merge `incoming` (the LATER chapter) onto `base` (everything before it).
+ * @param {object|null} base
+ * @param {object|null} incoming
+ * @returns {object} a new ledger; neither argument is mutated
+ */
+export function mergeLedgers(base, incoming) {
+  const a = cloneLedger(base);
+  if (!incoming || typeof incoming !== 'object') return a;
+  const b = cloneLedger(incoming);
+
+  // --- irreversible: union, never drops ---
+  a.deadCharacters = uniq([...a.deadCharacters, ...b.deadCharacters]);
+  a.unavailableObjects = uniq([...a.unavailableObjects, ...b.unavailableObjects]);
+  for (const [char, conds] of Object.entries(b.characterConditions)) {
+    a.characterConditions[char] = uniq([...(a.characterConditions[char] || []), ...(conds || [])]);
+  }
+
+  // --- mutable state: the later chapter wins, per key ---
+  a.locations = { ...a.locations, ...b.locations };
+  a.objects = { ...a.objects, ...b.objects };
+  a.objectLocations = { ...a.objectLocations, ...b.objectLocations };
+  for (const [char, objs] of Object.entries(b.possessions)) {
+    a.possessions[char] = uniq(objs);
+  }
+
+  // --- mutable sets: a later non-empty reading replaces the earlier one ---
+  if (b.droppedObjects.length) a.droppedObjects = uniq(b.droppedObjects);
+  if (b.separatedCharacters.length) a.separatedCharacters = uniq(b.separatedCharacters);
+
+  // --- history: append, dedupe, bound ---
+  a.completedEvents = uniq([...a.completedEvents, ...b.completedEvents]);
+
+  return boundLedger(a);
+}
+
+/** Fold an ordered list of per-chapter ledgers (earliest first) into one. */
+export function foldChapterLedgers(ledgers) {
+  let acc = buildInitialLedger();
+  for (const l of ledgers || []) acc = mergeLedgers(acc, l);
+  return acc;
+}
+
+/** One-line telemetry for the console. */
+export function summarizeLedger(ledger) {
+  const l = cloneLedger(ledger);
+  const conds = Object.values(l.characterConditions).reduce((n, v) => n + (v || []).length, 0);
+  const held = Object.values(l.possessions).reduce((n, v) => n + (v || []).length, 0);
+  return `dead=${l.deadCharacters.length} conditions=${conds} destroyed=${l.unavailableObjects.length} held=${held} events=${l.completedEvents.length}`;
+}
