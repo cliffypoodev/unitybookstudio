@@ -546,6 +546,175 @@ export function extractLimbFacts(text) {
   return facts;
 }
 
+// ─── STATEFIX-1: character state is not just arms ────────────────────────────
+//
+// extractLimbFacts understands exactly four body parts - forearm, arm, hand, wrist -
+// and three conditions - loss, stump, empty sleeve. Everything else a character can
+// permanently become is invisible to the ledger. A character blinded in Chapter 3 is
+// seeing again in Chapter 5 and nothing notices, which is precisely the defect that
+// took nine fixes to kill for a hand.
+//
+// This is a SEPARATE extractor, not a widening of the limb one. extractLimbFacts keeps
+// its exact behaviour because findLimbContradictions and findInstantProsthetics depend
+// on its `side` field and on it never firing outside arms.
+//
+// THREE RULES, all learned the hard way:
+//
+// 1. IRREVERSIBLE ONLY. The ledger unions conditions and never drops them, so anything
+//    recorded here is permanent for the rest of the book. "Marcus was exhausted" must
+//    never land here. Only states a character does not recover from.
+// 2. PRECISION OVER RECALL. A missed condition is drift the author can catch. A FALSE
+//    condition puts a false constraint into every later prompt and actively damages the
+//    prose - it would tell the writer a sighted character is blind. When the phrasing is
+//    ambiguous, record nothing.
+// 3. ADD CATEGORIES, NEVER WIDEN. Each state gets its own explicit pattern plus its own
+//    exclusions. Regression test 30 documents a blind verb-sweep that had to be reverted.
+//
+// The exclusions matter as much as the patterns. "blinded by the glare", "deafening
+// roar", "paralysed with fear", "burned with shame" are all TEMPORARY or figurative and
+// are explicitly refused below.
+
+const TEMPORARY_BLINDNESS = /\bblind(?:ed|ing)?\s+(?:by|with)\s+(?:the\s+)?(?:light|glare|flash|sun|snow|tears|rage|fury|anger|pain|panic)\b|\bblind\s+(?:corner|spot|alley|faith|luck|guess|panic|rage)\b/i;
+const FIGURATIVE_PARALYSIS = /\bparal(?:ysed|yzed)\s+(?:by|with)\s+(?:fear|fright|terror|shock|indecision|doubt|grief|panic)\b/i;
+const FIGURATIVE_BURN = /\bburn(?:ed|ing|t)?\s+(?:with|in)\s+(?:shame|rage|anger|embarrassment|fury|desire|curiosity)\b|\b(?:cheeks|face|ears|eyes|throat|lungs|chest)\s+burn/i;
+
+// Lateral body parts the limb extractor does not cover. Same proven pattern shape as
+// extractLimbFacts: a side, a body part, and an injury word in the same sentence.
+const EXTRA_LATERAL_PARTS = 'leg|foot|ankle|knee|thigh|shin|calf|eye|ear|finger|thumb|toe|shoulder';
+const LIMB_LOSS_WORDS = 'lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone|mangled|mauled|pulped|shredded|maimed|ruined';
+
+/**
+ * STATEFIX-1: durable character states beyond arm injuries.
+ * Returns [{ character, displayName, side, sentence, kind, label }].
+ * `side` is null for conditions that are not lateral (blindness, pregnancy...).
+ */
+export function extractCharacterStateFacts(text) {
+  const source = String(text || '');
+  const facts = [];
+  const sentences = source
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+
+  let lastCharacter = null;
+
+  const ignoredNames = new Set([
+    'The', 'Then', 'When', 'Where', 'After', 'Before', 'Scene', 'Chapter',
+    'His', 'Her', 'He', 'She', 'They', 'It', 'But', 'And', 'That', 'This',
+  ]);
+
+  function canonicalCharacter(sentence) {
+    const possessive = sentence.match(/\b([A-Z][a-z]{2,})['\u2019]s\b/);
+    if (possessive && !ignoredNames.has(possessive[1])) return possessive[1];
+    const direct = sentence.match(/\b([A-Z][a-z]{2,})\b/);
+    if (direct && !ignoredNames.has(direct[1])) return direct[1];
+    if (lastCharacter && /\b(?:he|his|him|she|her|hers|they|their)\b/i.test(sentence)) {
+      return lastCharacter;
+    }
+    return null;
+  }
+
+  // Every pattern must name a PERSON-owned state. `requiresPossessive` demands a
+  // his/her/their or Name's immediately governing the body part, so "the left leg of
+  // the table was crushed" cannot become a character condition.
+  const patterns = [
+    {
+      kind: 'sense-loss',
+      label: 'blind',
+      // NOTE the deliberate absence of a bare `blinded him/her/them`. "The acid blinded
+      // her" and "the glare blinded her" are structurally identical and only one is
+      // permanent, so the bare form is refused and explicit permanence is required.
+      regex: /\b(?:was|is|went|left\s+(?:him|her|them))\s+(?:permanently\s+|completely\s+|totally\s+)?blind\b|\bblinded\s+(?:him|her|them|[A-Z][a-z]{2,})\s+(?:permanently|for\s+life|for\s+good)\b|\blost\s+(?:his|her|their)\s+(?:sight|vision)\b|\bsightless\b/i,
+      // When the sentence NAMES the victim ("blinded Ana for life") take the owner from
+      // the phrase itself. Sentence-level resolution checks only the FIRST capitalised
+      // word and abandons the sentence if it is an article like "The", so "The shard
+      // blinded Ana for life" would otherwise resolve to nobody and record nothing.
+      ownerRegex: /\bblinded\s+([A-Z][a-z]{2,})\s+(?:permanently|for\s+life|for\s+good)\b/,
+      exclude: TEMPORARY_BLINDNESS,
+    },
+    {
+      kind: 'sense-loss',
+      label: 'deaf',
+      // Same refusal as blindness: a bare `deafened him` may be one loud bang.
+      regex: /\b(?:was|is|went|left\s+(?:him|her|them))\s+(?:permanently\s+|completely\s+|stone\s+)?deaf\b|\bdeafened\s+(?:him|her|them|[A-Z][a-z]{2,})\s+(?:permanently|for\s+life|for\s+good)\b|\blost\s+(?:his|her|their)\s+hearing\b/i,
+      ownerRegex: /\bdeafened\s+([A-Z][a-z]{2,})\s+(?:permanently|for\s+life|for\s+good)\b/,
+      exclude: /\bdeafening\b/i,
+    },
+    {
+      kind: 'paralysis',
+      label: 'paralysed',
+      regex: /\bparal(?:ysed|yzed)\b|\bparapleg(?:ic|ia)\b|\bquadripleg(?:ic|ia)\b|\bbroke\s+(?:his|her|their)\s+(?:back|neck|spine)\b/i,
+      exclude: FIGURATIVE_PARALYSIS,
+    },
+    {
+      kind: 'disfigurement',
+      label: 'scarred',
+      regex: /\b(?:badly|permanently|horribly|deeply)\s+scarred\b|\bdisfigur(?:ed|ement)\b|\bscarred\s+for\s+life\b/i,
+      exclude: null,
+    },
+    {
+      kind: 'burn',
+      label: 'burned',
+      regex: /\b(?:severe|third-degree|second-degree|badly)\s+burn(?:s|ed|t)?\b|\bburn(?:s|ed|t)\s+(?:covered|ran\s+down)\s+(?:his|her|their)\b/i,
+      exclude: FIGURATIVE_BURN,
+    },
+    {
+      kind: 'pregnancy',
+      label: 'pregnant',
+      regex: /\b(?:was|is|got|fell)\s+pregnant\b|\b(?:months?)\s+pregnant\b/i,
+      exclude: null,
+    },
+  ];
+
+  const lateralLoss = [
+    new RegExp(`\\b(?:his|her|their|[A-Z][a-z]{2,}['\u2019]s)\\s+(left|right)\\s+(?:${EXTRA_LATERAL_PARTS})\\b[^.!?\\n]{0,70}\\b(?:${LIMB_LOSS_WORDS})\\b`, 'i'),
+    new RegExp(`\\b(?:${LIMB_LOSS_WORDS})\\b[^.!?\\n]{0,70}\\b(?:his|her|their|[A-Z][a-z]{2,}['\u2019]s)\\s+(left|right)\\s+(?:${EXTRA_LATERAL_PARTS})\\b`, 'i'),
+  ];
+
+  for (const sentence of sentences) {
+    const character = canonicalCharacter(sentence);
+    if (character && !/\b(?:he|his|him|she|her|hers|they|their)\b/i.test(character)) {
+      lastCharacter = character;
+    }
+    const owner = character || lastCharacter;
+
+    for (const pattern of patterns) {
+      if (!owner && !pattern.ownerRegex) continue;
+      if (pattern.exclude && pattern.exclude.test(sentence)) continue;
+      if (!pattern.regex.test(sentence)) continue;
+      const named = pattern.ownerRegex ? sentence.match(pattern.ownerRegex) : null;
+      const subject = named && !ignoredNames.has(named[1]) ? named[1] : owner;
+      facts.push({
+        character: subject.toLowerCase(),
+        displayName: subject,
+        side: null,
+        sentence,
+        kind: pattern.kind,
+        label: pattern.label,
+      });
+    }
+
+    if (!owner) continue;
+    for (const regex of lateralLoss) {
+      const match = sentence.match(regex);
+      if (match) {
+        const part = (sentence.match(new RegExp(`(left|right)\\s+(${EXTRA_LATERAL_PARTS})`, 'i')) || [])[2] || 'limb';
+        facts.push({
+          character: owner.toLowerCase(),
+          displayName: owner,
+          side: match[1].toLowerCase(),
+          sentence,
+          kind: 'loss',
+          label: `${part.toLowerCase()} amputated/severed`,
+        });
+        break;
+      }
+    }
+  }
+
+  return facts;
+}
+
 // DEADCHARFIX-1: pull the sentence containing a match so a gate can quote its own
 // evidence. A gate that cannot show the offending line cannot be told apart from a
 // gate that is simply wrong.
