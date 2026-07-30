@@ -1,4 +1,4 @@
-import { extractLimbFacts } from './sceneContractGate.js';
+import { extractLimbFacts, extractCharacterStateFacts } from './sceneContractGate.js';
 
 export function getTrustedCharacters(spec, ledger) {
   const trusted = new Set();
@@ -94,12 +94,29 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
   }
 
   // 2. Parse prose and spec for limb conditions
+  // 2. Parse prose and spec for limb conditions
   const limbFacts = extractLimbFacts(sceneProse);
   for (const fact of limbFacts) {
     if (!ledger.characterConditions[fact.character]) {
       ledger.characterConditions[fact.character] = [];
     }
     const conditionStr = `${fact.side} ${fact.kind === 'loss' ? 'amputated/severed' : fact.kind}`;
+    if (!ledger.characterConditions[fact.character].includes(conditionStr)) {
+      ledger.characterConditions[fact.character].push(conditionStr);
+    }
+  }
+
+  // STATEFIX-1: everything a character can permanently BECOME that is not an arm.
+  // The limb extractor above knows four body parts and three conditions; a character
+  // blinded, deafened, paralysed, scarred, burned, made pregnant, or missing a leg,
+  // foot or eye was invisible to the ledger and therefore recovered silently in the
+  // next chapter. Same storage, same union semantics, same irreversibility.
+  // `side` is null for states that are not lateral, so the label stands alone.
+  for (const fact of extractCharacterStateFacts(sceneProse)) {
+    if (!ledger.characterConditions[fact.character]) {
+      ledger.characterConditions[fact.character] = [];
+    }
+    const conditionStr = fact.side ? `${fact.side} ${fact.label}` : fact.label;
     if (!ledger.characterConditions[fact.character].includes(conditionStr)) {
       ledger.characterConditions[fact.character].push(conditionStr);
     }
