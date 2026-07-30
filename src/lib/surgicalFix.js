@@ -107,7 +107,7 @@ async function callPolishLLM(prompt, _llmOverride) {
  * PROSE FIX — LLM paragraph rewrite with verification
  * ═════════════════════════════════════════════════════════════════════════ */
 
-async function applyProseFix(chapterText, issue, _llmOverride) {
+async function applyProseFix(chapterText, issue, _llmOverride, chapterRecord) {
   // 1. Locate the quote in the chapter
   const location = findContainingParagraph(chapterText, issue.quote);
   if (!location) {
@@ -116,6 +116,28 @@ async function applyProseFix(chapterText, issue, _llmOverride) {
 
   // 2. Extract context
   const { before, target, after } = extractParagraphWithContext(chapterText, location.paragraph);
+
+  // 2b. FIXGUARD-2: read the chapter's own saved narrative ledger, if it has one.
+  let ledgerConstraints = '';
+  try {
+    const raw = chapterRecord?.narrative_ledger_json;
+    const led = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    const lines = [];
+    for (const [character, conditions] of Object.entries(led?.characterConditions || {})) {
+      if (Array.isArray(conditions) && conditions.length) {
+        lines.push(`- ${character}: ${conditions.join(', ')}`);
+      }
+    }
+    if (Array.isArray(led?.deadCharacters) && led.deadCharacters.length) {
+      lines.push(`- DEAD (cannot act or speak): ${led.deadCharacters.join(', ')}`);
+    }
+    if (lines.length) {
+      ledgerConstraints = 'ESTABLISHED CHARACTER STATE (these are FACTS, do not contradict them):\n'
+        + lines.join('\n') + '\n';
+    }
+  } catch (err) {
+    ledgerConstraints = '';
+  }
 
   // 3. Build LLM prompt
   const prompt = [
@@ -128,8 +150,15 @@ async function applyProseFix(chapterText, issue, _llmOverride) {
     `TARGET PARAGRAPH (rewrite this ENTIRE paragraph):\n${target}\n`,
     after ? `FOLLOWING PARAGRAPH (for context, do NOT rewrite this):\n${after}\n` : '',
     '',
+    // FIXGUARD-2: the fixer was blind to everything LEDGERSCOPE-1 / EXTRACTFIX-1 /
+    // STATEFIX-1 established. "Preserve all events, facts, character names" does not tell
+    // a model that Marcus has one hand, Ana is blind, or Vale is dead - so a rewrite could
+    // put an amputated hand back on the page and pass every check. The ledger is already
+    // stored per chapter as narrative_ledger_json; it just was never read here.
+    ledgerConstraints,
     'RULES:',
     '- Rewrite the entire target paragraph, not just the problematic quote.',
+    ledgerConstraints ? '- Do NOT contradict any CHARACTER STATE listed above. These are established facts.' : '',
     '- Preserve all events, facts, character names, and dialogue.',
     '- Keep the revised paragraph within ±10% of the original length.',
     '- Do NOT introduce any of these words: palpable, meticulously, luminous, relentless, tapestry, visceral.',
@@ -266,7 +295,7 @@ export async function applySurgicalFixes({ loaded, issues, project, onProgress, 
       const issueId = `ch${chapterNum}-${results.length}`;
 
       if (issue.fixType === 'prose' && allowLLM) {
-        const fixResult = await applyProseFix(currentContent, issue, _llmOverride);
+        const fixResult = await applyProseFix(currentContent, issue, _llmOverride, entry.chapter);
         results.push({ id: issueId, ...fixResult, chapterNumber: chapterNum });
 
         if (fixResult.status === 'applied') {
