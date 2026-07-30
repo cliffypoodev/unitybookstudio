@@ -625,9 +625,46 @@ function splitCollapsedLine(line) {
   return parts.filter(Boolean);
 }
 
+// PARABREAK-2: a paragraph can never legitimately BEGIN with a dialogue tag -
+// a tag has to attach to the speech it reports. So a paragraph starting with
+// `Marcus asked.` whose predecessor ends in a closing quote belongs to that
+// predecessor. Deterministic, and it repairs text that already shipped damaged
+// as well as preventing new damage.
+export function rejoinOrphanedDialogueTags(text) {
+  const src = String(text || '');
+  if (!src.includes('\u201d')) return { text: src, rejoined: 0 };
+  const lines = src.split('\n');
+  const out = [];
+  let rejoined = 0;
+  for (const line of lines) {
+    const core = line.trim();
+    let lastIdx = -1;
+    for (let k = out.length - 1; k >= 0; k -= 1) {
+      if (out[k].trim()) { lastIdx = k; break; }
+      if (out.length - k > 2) break;
+    }
+    if (
+      core
+      && lastIdx >= 0
+      && ORPHAN_TAG_CONTINUATION.test(core)
+      && out[lastIdx].trimEnd().endsWith('\u201d')
+    ) {
+      out[lastIdx] = out[lastIdx].trimEnd() + ' ' + core;
+      while (out.length > lastIdx + 1) out.pop();
+      rejoined += 1;
+      continue;
+    }
+    out.push(line);
+  }
+  if (rejoined) {
+    console.log('[DIALOGUE-MECHANICS-REPAIR] Rejoined ' + rejoined + ' orphaned dialogue tag(s) to their speech (PARABREAK-2)');
+  }
+  return { text: out.join('\n'), rejoined };
+}
+
 export function splitCollapsedDialogueParagraphs(text) {
   const src = String(text || '');
-  if (!src.includes('\u201d')) return { text: src, splits: 0 };
+  if (!src.includes('\u201d')) return { text: src, splits: 0, rejoined: 0 };
   let splits = 0;
   const out = src.split('\n').map((line) => {
     if (!line.trim()) return line;
@@ -638,7 +675,8 @@ export function splitCollapsedDialogueParagraphs(text) {
   if (splits) {
     console.log('[DIALOGUE-MECHANICS-REPAIR] Collapsed-dialogue splitter inserted ' + splits + ' paragraph break(s)');
   }
-  return { text: out.join('\n'), splits };
+  const healed = rejoinOrphanedDialogueTags(out.join('\n'));
+  return { text: healed.text, splits, rejoined: healed.rejoined };
 }
 
 export function repairOrphanClosers(text) {
