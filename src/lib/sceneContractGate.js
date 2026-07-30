@@ -483,16 +483,35 @@ export function extractLimbFacts(text) {
     const owner = character || lastCharacter;
     if (!owner) continue;
 
+    // EXTRACTFIX-1: the limb vocabulary gained the words real trauma prose actually
+    // uses. Audit of brassmeridiantest 7 (2026-07-30): Chapter 3 amputates Marcus's
+    // left hand on the page, Chapter 4 then writes "the injury in his left hand was
+    // throbbing; she could see the tremor in his fingers" - fingers on a hand that is
+    // gone. Cause was NOT the ledger transport, which works. It was here: the ONE
+    // sentence that establishes the injury is
+    //
+    //   "Marcus stood frozen. His left arm hung at his side, the hand a mangled mess
+    //    of red and white, fingers splayed at unnatural angles..."
+    //
+    // `left arm` matched, the owner resolved correctly to Marcus, and then nothing
+    // fired because `mangled` was not a loss word. So Ch.3 saved conditions=0, Ch.4
+    // was told nothing, and Ch.4 wrote "hand".
+    //
+    // These are ADDITIONS TO AN EXISTING CATEGORY - words that mean this limb is
+    // destroyed - not a widening of the matcher. The structure is untouched: a side
+    // (left|right) and a limb noun are still both required, still within 70 characters,
+    // still in the same sentence, still needing a resolvable owner. Regression test 30
+    // documents a blind chronology-verb widening that had to be reverted; do not repeat it.
     const patterns = [
       {
         kind: 'loss',
         regex:
-          /\b(?:lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone)\b[^.!?\n]{0,70}\b(left|right)\s+(?:forearm|arm|hand|wrist)\b/i,
+          /\b(?:lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone|mangled|mauled|pulped|shredded|maimed|ruined)\b[^.!?\n]{0,70}\b(left|right)\s+(?:forearm|arm|hand|wrist)\b/i,
       },
       {
         kind: 'loss',
         regex:
-          /\b(left|right)\s+(?:forearm|arm|hand|wrist)\b[^.!?\n]{0,70}\b(?:lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone)\b/i,
+          /\b(left|right)\s+(?:forearm|arm|hand|wrist)\b[^.!?\n]{0,70}\b(?:lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone|mangled|mauled|pulped|shredded|maimed|ruined)\b/i,
       },
       {
         kind: 'stump',
