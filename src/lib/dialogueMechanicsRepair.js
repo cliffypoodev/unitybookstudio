@@ -538,6 +538,26 @@ const ORPHAN_TAG_CONTINUATION = new RegExp(
   'i'
 );
 
+// PARABREAK-2: an orphan span can OPEN with the previous speech's dialogue tag,
+// e.g. `"Two words," Lena repeated. That is enough time."` - the dropped opener
+// belongs to "That is enough time", not to "Lena repeated". Match the tag plus its
+// terminating punctuation so the break can step over it and land on the speech.
+const ORPHAN_TAG_LEAD = new RegExp(
+  `^(?:${SPEAKER_PATTERN})\\s+(?:${VERB_PATTERN}|${VERB_PHRASE_PATTERN})\\b[^.!?]*[.!?]\\s+`,
+  'i'
+);
+
+// PARABREAK-2: a dialogue tag ANYWHERE between one closing quote and the next
+// opening quote means the same speaker is still holding the floor:
+//   "Nothing," she said, pulling back. "Just thermal contraction."
+// Breaking there does not just cost readability - it tells the reader the NEXT
+// character spoke the second line. A missing break is a long paragraph; a wrong
+// break is wrong attribution, so when a tag intervenes we leave it joined.
+const DIALOGUE_TAG_ANYWHERE = new RegExp(
+  `(?:^|[\\s,;(])(?:${SPEAKER_PATTERN})\\s+(?:${VERB_PATTERN}|${VERB_PHRASE_PATTERN})\\b`,
+  'i'
+);
+
 function splitCollapsedLine(line) {
   const OPEN = '\u201c';
   const CLOSE = '\u201d';
@@ -552,7 +572,12 @@ function splitCollapsedLine(line) {
       // Look back over the whole line, not just since the last quote: the
       // commonest turn boundary is `...approach.” “Time is fluid...`, where the
       // only text between the closer and the next opener is a single space.
-      if (!inSpeech && i > 0 && /[.!?\u201d]\s+$/.test(line.slice(0, i))) {
+      if (
+        !inSpeech
+        && i > 0
+        && /[.!?\u201d]\s+$/.test(line.slice(0, i))
+        && !DIALOGUE_TAG_ANYWHERE.test(line.slice(lastQuoteEnd, i))
+      ) {
         breaks.add(line.slice(0, i).replace(/\s+$/, '').length);
       }
       inSpeech = true;
