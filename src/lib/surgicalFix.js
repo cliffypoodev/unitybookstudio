@@ -163,7 +163,46 @@ async function applyProseFix(chapterText, issue, _llmOverride) {
     return { status: 'failed', chapterText, detail: `Slop increased: ${beforeSlop} → ${afterSlop}` };
   }
 
-  // 6. Splice
+  // 6. FIXGUARD-1: dialogue mechanics. The polish model demonstrably drops opening
+  // quotes - on 2026-07-30 the draft path healed 27 missing openers and the polisher
+  // then produced 27 MORE in text that was already clean. The draft path survives that
+  // because PARABREAK and the orphan healer run after the model. THIS path had neither,
+  // so a fix could silently unbalance dialogue and still report "applied".
+  //
+  // Proven against the live code with a real Chapter 4 paragraph: an 88-word revision
+  // with one opening quote removed passed the length guard, passed the slop guard, was
+  // marked applied, and was saved. Chapter imbalance went 0 -> 1. The export gate only
+  // hard-blocks above 5 dialogue issues, so damage of this size ships.
+  //
+  // Repair first, reject second. Splitting is deliberately OFF: this operates on a
+  // single paragraph that must splice back as a single paragraph.
+  let repaired = revised;
+  try {
+    const dm = await import('./dialogueMechanicsRepair.js');
+    const pass = dm.runDialogueMechanicsPass(revised, {
+      stage: 'surgical-fix',
+      splitCollapsedParagraphs: false,
+    });
+    if (pass && typeof pass.text === 'string' && pass.text.trim()) repaired = pass.text;
+  } catch (err) {
+    // A repair module failure must not silently pass damaged text through.
+    console.warn('[FIXGUARD-1] dialogue repair unavailable, falling back to balance check only: ' + (err?.message || err));
+  }
+
+  const openCount = (repaired.match(/\u201c/g) || []).length;
+  const closeCount = (repaired.match(/\u201d/g) || []).length;
+  const originalOpen = (target.match(/\u201c/g) || []).length;
+  const originalClose = (target.match(/\u201d/g) || []).length;
+  if (openCount !== closeCount && (originalOpen === originalClose)) {
+    return {
+      status: 'failed',
+      chapterText,
+      detail: `Dialogue damage: revision has ${openCount} opening and ${closeCount} closing quotes (original was balanced at ${originalOpen}). Original paragraph kept.`,
+    };
+  }
+  revised = repaired;
+
+  // 7. Splice
   const spliced = spliceParagraph(chapterText, location.paragraph, revised);
   if (spliced === null) {
     return { status: 'failed', chapterText, detail: 'Exact paragraph match failed during splice' };
