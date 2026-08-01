@@ -1,6 +1,9 @@
 // src/lib/localLLM.js
 import { stripModelControlTokens } from './modelLeakGuard.js';
-// Sends all LLM calls to a local Ollama server.
+// ROUTE-1: every LLM call in this app goes to llama.cpp (llama-server). Ollama is
+// not used anywhere in this stack, on any machine. The endpoint is the
+// OpenAI-compatible POST /v1/chat/completions, which has no num_ctx field and no
+// options object. The Ollama-flavoured function names below are historical.
 
 // NETFIX-1: same-origin path proxied by vite to the Studio's llama.cpp —
 // works identically on localhost and on remote devices over Tailscale.
@@ -47,14 +50,80 @@ export const AGENT_TEMPERATURES = {
   nonfiction_writer: 0.4,
 };
 
-// Context window size sent to Ollama via options.num_ctx on every request.
-// Ollama reloads the model with this context size per-request.
+// ROUTE-1: this number is NOT transmitted. The OpenAI-compatible endpoint
+// (/v1/chat/completions) has no num_ctx field; llama.cpp uses whatever -c it was
+// launched with. AGENT_NUM_CTX is the client-side default assumption only.
 export const AGENT_NUM_CTX = 32768;
 
 // Per-agent overrides (optional). Agents not listed use AGENT_NUM_CTX.
 export const AGENT_NUM_CTX_OVERRIDES = {
   // e.g. researcher: 8192,
 };
+
+// ROUTE-1 -------------------------------------------------------------------
+// Per-role endpoint. Every value is a SAME-ORIGIN proxy prefix declared in
+// vite.config.js. The browser never holds a tailnet hostname or a raw model
+// port, so the dev server stays the only process that talks to a worker.
+// Default: every role points at the Studio, so this table is a no-op until a
+// role is deliberately moved. Moving a role is a one-line data edit here plus
+// one matching proxy entry in vite.config.js. No other file changes.
+export const AGENT_ENDPOINTS = {
+  ghostwriter:       '/llama',
+  ghostwriter_nsfw:  '/llama',
+  architect:         '/llama',
+  researcher:        '/llama',
+  critic:            '/llama',
+  polisher:          '/llama',
+  ideas_chat:        '/llama',
+  nonfiction_writer: '/llama',
+};
+
+// ROUTE-1: the REAL PER-SLOT context window, in tokens, of the machine each role
+// points at. Read it from that machine's GET /props (field n_ctx). Do NOT copy the
+// launch -c flag: llama-server divides -c by --parallel (n_ctx_slot = n_ctx /
+// n_parallel), so a server started with -c 32768 --parallel 2 gives each request
+// only 16384.
+// llama-server does NOT silently truncate an over-long prompt. Prompt truncation
+// was removed, and --context-shift no longer performs it; context shift is off by
+// default. The server returns an HTTP error instead. So a wrong number here does
+// not corrupt prose - it kills the chapter mid-run with a message that names
+// neither the agent nor the endpoint nor the overflow. This table plus the refusal
+// below turn that into a legible pre-flight failure.
+export const AGENT_CTX_TOKENS = {
+  ghostwriter:       32768,
+  ghostwriter_nsfw:  32768,
+  architect:         32768,
+  researcher:        32768,
+  critic:            32768,
+  polisher:          32768,
+  ideas_chat:        32768,
+  nonfiction_writer: 32768,
+};
+
+// ROUTE-1: conservative chars-per-token for English prose. LOWER means we assume
+// MORE tokens per character, so we refuse earlier. Never raise this to make a
+// prompt fit; move the role to a bigger endpoint or shrink the prompt.
+export const ROUTE1_CHARS_PER_TOKEN = 3.6;
+
+// ROUTE-1: measure one request against the endpoint it is about to be sent to.
+// Pure function: no I/O, no imports, directly testable.
+export function checkPromptBudget({ promptChars, reserveTokens, ctxTokens, charsPerToken = ROUTE1_CHARS_PER_TOKEN }) {
+  const cpt = Number(charsPerToken) > 0 ? Number(charsPerToken) : ROUTE1_CHARS_PER_TOKEN;
+  const ctx = Number(ctxTokens) > 0 ? Number(ctxTokens) : 0;
+  const reserve = Number(reserveTokens) > 0 ? Number(reserveTokens) : 0;
+  const chars = Number(promptChars) > 0 ? Number(promptChars) : 0;
+  const promptTokens = Math.ceil(chars / cpt);
+  const needed = promptTokens + reserve;
+  return {
+    promptChars: chars,
+    promptTokens,
+    reserveTokens: reserve,
+    ctxTokens: ctx,
+    needed,
+    headroom: ctx - needed,
+    fits: ctx > 0 && needed <= ctx,
+  };
+}
 
 const AGENT_SYSTEM_PROMPTS = {
   ghostwriter: '',
@@ -66,7 +135,7 @@ const AGENT_SYSTEM_PROMPTS = {
   nonfiction_writer: '',
 };
 
-export async function callOllama({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null, numCtx = AGENT_NUM_CTX }) {
+export async function callOllama({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null, numCtx = AGENT_NUM_CTX, baseUrl = LLAMA_BASE_URL, ctxTokens = AGENT_NUM_CTX, agentKey = null }) {
   const messages = [];
   if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
 
@@ -84,6 +153,36 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
   const isReasoningModel = /deepseek-r1|qwen3/i.test(String(model || '')); // MODELFIX-4: Qwen3 family thinks too
   const effectiveMaxTokens = isReasoningModel ? maxTokens + 4096 : maxTokens;
 
+  // ROUTE-1: refuse before the wire, and say exactly why. llama-server rejects an
+  // over-long prompt with a generic HTTP error naming neither the agent, the
+  // endpoint, the model, nor the size of the overflow - which reaches the operator
+  // as an unexplained chapter death mid-run. Measure locally, refuse locally, and
+  // put all four facts in the message.
+  const route1PromptChars = messages.reduce((n, m) => n + String(m?.content || '').length, 0);
+  const route1 = checkPromptBudget({
+    promptChars: route1PromptChars,
+    reserveTokens: effectiveMaxTokens,
+    ctxTokens,
+  });
+  console.log(
+    `[ROUTE-1] ${agentKey || 'direct'} -> ${baseUrl} | model=${model}` +
+    ` | prompt=${route1.promptChars}c ~${route1.promptTokens}t` +
+    ` | reserve=${route1.reserveTokens}t | ctx=${route1.ctxTokens}t` +
+    ` | headroom=${route1.headroom}t | fits=${route1.fits}`
+  );
+  if (!route1.fits) {
+    const err = new Error(
+      `ROUTE-1 budget refusal: agent ${agentKey || 'direct'} -> ${baseUrl} (${model}). ` +
+      `Prompt ${route1.promptChars} chars (~${route1.promptTokens} tokens) plus ${route1.reserveTokens} reply tokens ` +
+      `needs ${route1.needed} tokens, but that endpoint's context is ${route1.ctxTokens}. ` +
+      `Over by ${route1.needed - route1.ctxTokens}. Nothing was sent.`
+    );
+    err.status = 413;
+    err.response = { status: 413 };
+    err.route1 = route1;
+    throw err;
+  }
+
   const requestBody = {
     model,
     messages,
@@ -97,7 +196,7 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
 
   let response;
   try {
-    response = await fetch(`${LLAMA_BASE_URL}/v1/chat/completions`, {
+    response = await fetch(`${baseUrl}/v1/chat/completions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
@@ -107,7 +206,7 @@ export async function callOllama({ model, prompt, systemPrompt, temperature = 0.
     const isTimeout = fetchErr?.name === 'TimeoutError' || fetchErr?.name === 'AbortError';
     const err = new Error(isTimeout
       ? 'llama serve request timed out after 20 minutes.'
-      : `Cannot reach llama serve at ${LLAMA_BASE_URL}. Is it running? Error: ${fetchErr?.message || 'unknown'}`);
+      : `Cannot reach llama serve at ${baseUrl}. Is it running? Error: ${fetchErr?.message || 'unknown'}`);
     err.status = isTimeout ? 504 : 503;
     err.response = { status: err.status };
     throw err;
@@ -189,10 +288,13 @@ export async function callAgent({ prompt, taskType = 'prose', project = null, te
   const resolvedTemp = temperature ?? AGENT_TEMPERATURES[agentKey] ?? 0.7;
   const systemPrompt = systemPromptOverride || AGENT_SYSTEM_PROMPTS[agentKey] || '';
   const numCtx = AGENT_NUM_CTX_OVERRIDES[agentKey] ?? AGENT_NUM_CTX;
+  // ROUTE-1: endpoint and real context window are per-role data, not code.
+  const baseUrl = AGENT_ENDPOINTS[agentKey] || LLAMA_BASE_URL;
+  const ctxTokens = AGENT_CTX_TOKENS[agentKey] ?? numCtx;
 
-  console.log(`[LOCAL-LLM] Agent: ${agentKey} | Model: ${resolvedModel} | Temp: ${resolvedTemp} | Ctx: ${numCtx} | Task: ${taskType}`);
+  console.log(`[LOCAL-LLM] Agent: ${agentKey} | Model: ${resolvedModel} | Temp: ${resolvedTemp} | Ctx: ${numCtx} | Endpoint: ${baseUrl} | Task: ${taskType}`);
 
-  return callOllama({ model: resolvedModel, prompt, systemPrompt, temperature: resolvedTemp, maxTokens, jsonSchema, numCtx });
+  return callOllama({ model: resolvedModel, prompt, systemPrompt, temperature: resolvedTemp, maxTokens, jsonSchema, numCtx, baseUrl, ctxTokens, agentKey });
 }
 
 export async function checkOllamaHealth() {
@@ -205,4 +307,55 @@ export async function checkOllamaHealth() {
   } catch (err) {
     return { healthy: false, error: err?.message || 'Cannot reach llama serve' };
   }
+}
+
+// ROUTE-1B: health for ONE endpoint. Advisory, never throws.
+export async function checkEndpointHealth(baseUrl) {
+  try {
+    const response = await fetch(`${baseUrl}/v1/models`, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) return { baseUrl, healthy: false, error: `HTTP ${response.status}`, models: [] };
+    const data = await response.json();
+    const models = (data?.data || data?.models || []).map(m => m?.id || m?.name).filter(Boolean).map(String);
+    return { baseUrl, healthy: true, error: null, models };
+  } catch (err) {
+    return { baseUrl, healthy: false, error: err?.message || 'unreachable', models: [] };
+  }
+}
+
+// ROUTE-1B: probe every DISTINCT endpoint once, then report, per role, whether the
+// model that role is assigned to is actually present there. Sequential on purpose:
+// the local server serves one call at a time. Advisory only - this reports, it does
+// not block. The blocking check is the ROUTE-1 budget refusal in callOllama.
+export async function checkAllEndpoints() {
+  const distinct = [...new Set(Object.values(AGENT_ENDPOINTS))];
+  const byUrl = {};
+  for (const url of distinct) {
+    byUrl[url] = await checkEndpointHealth(url);
+  }
+  const roles = Object.keys(AGENT_ENDPOINTS).map((agentKey) => {
+    const baseUrl = AGENT_ENDPOINTS[agentKey];
+    const h = byUrl[baseUrl] || { healthy: false, models: [], error: 'not probed' };
+    const wanted = String(AGENT_MODELS[agentKey] || '');
+    const modelPresent = !!(h.healthy && wanted && h.models.some(
+      m => m === wanted || m.includes(wanted) || wanted.includes(m)
+    ));
+    return {
+      agentKey,
+      baseUrl,
+      model: wanted,
+      ctxTokens: AGENT_CTX_TOKENS[agentKey] ?? AGENT_NUM_CTX,
+      reachable: !!h.healthy,
+      modelPresent,
+      error: h.error || null,
+    };
+  });
+  const broken = roles.filter(r => !r.reachable || !r.modelPresent);
+  console.log(`[ROUTE-1B] endpoints probed: ${distinct.length} | roles OK: ${roles.length - broken.length}/${roles.length}`);
+  for (const r of roles) {
+    console.log(
+      `[ROUTE-1B] ${r.agentKey.padEnd(18)} ${r.baseUrl.padEnd(14)} ctx=${String(r.ctxTokens).padEnd(6)}` +
+      ` reachable=${r.reachable} modelPresent=${r.modelPresent}${r.error ? ' err=' + r.error : ''}`
+    );
+  }
+  return { endpoints: byUrl, roles, allOk: broken.length === 0 };
 }
