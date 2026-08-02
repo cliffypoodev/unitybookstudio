@@ -3346,6 +3346,17 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
             + (Array.isArray(nb?.characters) ? nb.characters.length : 0);
           if (castCount === 0) missing.push('characters_present');
           if (!String(nb?.emotional_arc || nb?.emotional_beat || '').trim()) missing.push('emotional_arc');
+          // BEATEVENT-1: a scene whose required_events are ALL internal
+          // (noticing, reflecting, discussing) hands the writer a word target
+          // and no plot — the ch.1 re-draft proved the writer fills that
+          // vacuum by stealing a later scene's event. Require one concrete,
+          // externally visible event per scene. An event matching neither
+          // verb class gets the benefit of the doubt (precision over recall).
+          const beatEvents = Array.isArray(nb?.required_events) ? nb.required_events.filter(Boolean) : [];
+          const INTERNAL_EVENT = /\b(?:notic\w*|reflect\w*|discuss\w*|consider\w*|realiz\w*|express\w*|feel\w*|felt|think\w*|thought|wonder\w*|remember\w*|observ\w*|watch\w*|sens\w*|contemplat\w*|recall\w*|ponder\w*|worr\w*|fear\w*)\b/i;
+          const CONCRETE_EVENT = /\b(?:find\w*|found|discover\w*|take\w*|took|open\w*|unlock\w*|enter\w*|arriv\w*|leav\w*|left|escap\w*|fight\w*|fought|attack\w*|confront\w*|reveal\w*|give\w*|gave|hand\w*|hide\w*|hid|steal\w*|stole|break\w*|broke|fix\w*|repair\w*|climb\w*|run\w*|ran|grab\w*|read\w*|writ\w*|wrote|send\w*|sent|receiv\w*|kill\w*|die\w*|died|destroy\w*|build\w*|built|search\w*|follow\w*|chas\w*|meet\w*|met|call\w*|answer\w*|refus\w*|decid\w*|agree\w*|demand\w*|threaten\w*|shoot\w*|shot|cut\w*|seal\w*|collaps\w*|explod\w*|trigger\w*|activat\w*|shut\w*|start\w*|stop\w*|us\w*|show\w*|tell\w*|told|ask\w*|warn\w*|reach\w*|cross\w*|push\w*|pull\w*|turn\w*|insert\w*)\b/i;
+          const hasConcreteEvent = beatEvents.some((ev) => CONCRETE_EVENT.test(String(ev)) || !INTERNAL_EVENT.test(String(ev)));
+          if (beatEvents.length > 0 && !hasConcreteEvent) missing.push('a concrete story event (all required_events are internal/verbal)');
           if (missing.length) beatFieldGaps.push(`${nb?.scene_id || 'scene'}: missing ${missing.join(', ')}`);
         }
         if (beatFieldGaps.length) {

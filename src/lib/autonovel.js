@@ -1510,6 +1510,7 @@ Each beat must include:
 Rules:
 - Beats must form a coherent arc across the chapter with rising tension
 - Each beat must advance plot, character, or both — no filler scenes
+- Every scene's required_events must include at least ONE concrete, externally visible event — an action, discovery, confrontation, or physical change in the situation. "Notices", "reflects", "discusses", "realizes" are NOT events; pair them with a concrete event or the plan will be rejected
 - The final beat's exit_hook must create forward momentum into the next chapter
 - Every beat must change the story state. The exit_state of scene N must be compatible with the entry_state of scene N+1.
 - A death, departure, revelation, confrontation, transfer of an important object, climax, or ending has ONE owning scene_id. Never plan an alternate take of the same event.
