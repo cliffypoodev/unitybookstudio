@@ -2944,7 +2944,21 @@ function runGenericSameChapterBranchPass({ loaded, report, onProgress, stage = '
   return { changedChapters, totalFixes, totalRemovedWords, warningCount };
 }
 
-function runGenericBranchCollisionPass({ loaded, report, onProgress, stage = 'generic branch collision guard' }) {
+function runGenericBranchCollisionPass({ loaded, project = null, report, onProgress, stage = 'generic branch collision guard' }) {
+  // POLISHFIX-1: this guard exists for the nonfiction/anthology repeated-route
+  // disease (broker/venue/access branches told twice). Its trip conditions -
+  // >=2 shared proper nouns and route vocabulary between two windows - are
+  // ALWAYS true in a fiction novel with a fixed cast in one setting. Measured
+  // on the live Brass Meridian TEST saves it deleted a 419-word ch.2 scene that
+  // audit #6 proved had zero duplicated 8-grams. Fiction never enters this
+  // pass; duplicate-scene defects in fiction belong to the 8-gram audits and
+  // the CLIMAX-1 plan-time gates. Token overlap may not delete fiction prose.
+  if (project && !isAnthologyProject(project) && !isNonfictionFixerProject(project)) {
+    const message = `${stage} skipped for fiction: route/branch token quarantine is calibrated for nonfiction/anthology repeated-route defects and deletes legitimate fiction scenes.`;
+    console.warn(`[MANUSCRIPT-FIXER][GENERIC-BRANCH] ${message}`);
+    addReportWarning(report, message);
+    return { skipped: true };
+  }
   const adjacent = runGenericAdjacentChapterBleedPass({
     loaded,
     report,
@@ -7746,6 +7760,7 @@ export async function fixEntireManuscript({
 
   runGenericBranchCollisionPass({
     loaded,
+    project,
     report,
     onProgress,
     stage: 'pre-GPT generic branch collision guard',
@@ -7796,6 +7811,7 @@ export async function fixEntireManuscript({
 
   runGenericBranchCollisionPass({
     loaded,
+    project,
     report,
     onProgress,
     stage: 'pre-save generic branch collision guard',
@@ -7831,6 +7847,7 @@ export async function fixEntireManuscript({
 
   runGenericBranchCollisionPass({
     loaded,
+    project,
     report,
     onProgress,
     stage: 'post-grammar generic branch collision guard',
