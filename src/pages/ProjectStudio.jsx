@@ -48,7 +48,7 @@ import { clearRichContentFields } from '@/lib/richContentStorage';
 import { filterConcreteCriticFindings } from '@/lib/sceneContractGate';
 import { runQualityScan } from '@/lib/qualityScan';
 import { mechanicalScore } from '@/lib/mechanicalScore';
-import { generateChapterByScenes } from '@/lib/sceneWriter';
+import { generateChapterByScenes, finalizeChapterProse } from '@/lib/sceneWriter';
 import { createSceneExecutionAcceptanceRunners } from '@/lib/sceneExecutionAcceptanceRunners';
 import { validateProjectChapterContent, makeProjectContentGuardError, stripProjectContaminationBlocks } from '@/lib/projectContentGuard';
 import { repairCanonNameDrift } from '@/lib/canonNameLock';
@@ -3606,7 +3606,11 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       proseModelOverride,
       priorChapterSummaries,
       priorLedger,
-      priorChapterProse,
+      // BOOKECHO-2: priorChapterProse is intentionally NOT passed here anymore.
+      // The scene writer's internal chapter artifact is used for the critic and
+      // then discarded; spending the echo-repair LLM call on it was wasted
+      // (measured live: every BOOKECHO-1 rewrite was lost). The save path below
+      // runs finalizeChapterProse on the joined prose that actually ships.
     });
 
     console.log('[DRAFT DEBUG] generateChapterByScenes returned. Prose length:', sceneResult?.prose?.length || 0);
@@ -4237,6 +4241,18 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         .map(s => s.acceptedProse)
         .filter(Boolean)
         .join('\n\n* * *\n\n');
+
+      // BOOKECHO-2: THIS join is the artifact that gets saved — the chapter-level
+      // dedupers and the cross-chapter echo repair used to run only on the scene
+      // writer's internal artifact, which the save path discards (live ch.5
+      // shipped a verbatim duplicated opening in scenes 1 and 3, and all 19
+      // measured BOOKECHO-1 rewrites were lost). Run the final passes here, on
+      // the prose that ships. Fail open: the chapter saves either way.
+      try {
+        chapterContent = await finalizeChapterProse(chapterContent, draftingProject, priorChapterProse);
+      } catch (echoFinalizeErr) {
+        console.warn('[BOOKECHO-2] finalize failed open; chapter saved without final passes:', echoFinalizeErr?.message || echoFinalizeErr);
+      }
 
     } else {
       // Fallback for non-structured text (e.g. earlier pipeline steps)

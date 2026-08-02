@@ -2550,6 +2550,69 @@ export function buildCrossChapterEchoDetector(priorChapterProse) {
   return { isEchoed, findEchoSentences, echoNorm, priorGramCount: priorGrams.size };
 }
 
+// BOOKECHO-2: the chapter-level final passes, callable on ANY prose artifact.
+// Live measurement (ch.2–ch.5 re-drafts, 2026-08-02) proved the BOOKECHO-1
+// rewrites and the chapter-level dedupers were computed on the critic
+// artifact and then DISCARDED — the saved chapter is ProjectStudio's join of
+// per-scene acceptedProse (live ch.5 shipped a verbatim duplicated opening in
+// scenes 1 and 3 for exactly this reason). Exported so the save path runs
+// dedupe + repetition alarm + cross-chapter echo repair on the artifact that
+// actually ships. Fail-open throughout: this can never block a chapter.
+export async function finalizeChapterProse(prose, project, priorChapterProse = []) {
+  let finalProse = String(prose || '');
+  if (!finalProse) return finalProse;
+  finalProse = dedupeRepeatedSentences(finalProse);
+  finalProse = dedupeRepeatedQuotes(finalProse);
+  repetitionAlarm(finalProse);
+
+  // BOOKECHO-1: detect cross-chapter echoes, then ONE bounded repair pass that
+  // rewrites only the offending sentences. Each replacement applies by exact
+  // match and is re-checked against the prior-gram set before it is accepted
+  // (fail closed per sentence). The gate itself NEVER blocks a chapter.
+  try {
+    if (Array.isArray(priorChapterProse) && priorChapterProse.length) {
+      const echoDet = buildCrossChapterEchoDetector(priorChapterProse);
+      const echoes = echoDet.findEchoSentences(finalProse);
+      if (echoes.length) {
+        const list = echoes.slice(0, 12);
+        const repairPrompt = [
+          'You are line-editing a novel chapter. Each numbered sentence below reuses a distinctive phrase from an EARLIER chapter of the same book. Rewrite each sentence with fresh phrasing while preserving its exact meaning, characters, tone, and tense. Do not add new events or details. If a sentence contains quotation marks, keep the dialogue quoted.',
+          'Return ONLY the rewritten sentences, one per line, numbered to match. No commentary.',
+          '',
+          ...list.map((s, i) => `${i + 1}. ${s}`),
+        ].join('\n');
+        let repairedCount = 0;
+        try {
+          const echoResult = await invokeLLMWithRetry({
+            prompt: repairPrompt,
+            model: pickProseModel(project),
+            temperature: 0.4,
+            max_tokens: 2000,
+          });
+          const raw = extractTextFromLLMResult(echoResult) || '';
+          const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+          for (let i = 0; i < list.length; i += 1) {
+            const line = lines.find((l) => l.startsWith(`${i + 1}.`) || l.startsWith(`${i + 1})`));
+            if (!line) continue;
+            const rewritten = line.replace(/^\d+[.)]\s*/, '').trim();
+            if (rewritten.length < 15) continue;
+            if (echoDet.echoNorm(rewritten) === echoDet.echoNorm(list[i])) continue;
+            if (echoDet.isEchoed(rewritten)) continue;
+            if (!finalProse.includes(list[i])) continue;
+            finalProse = finalProse.replace(list[i], rewritten);
+            repairedCount += 1;
+          }
+        } catch (echoLLMErr) { /* fail open: echoes ship rather than block */ }
+        const remaining = echoDet.findEchoSentences(finalProse).length;
+        console.warn(`[BOOKECHO-1] echoSentences=${echoes.length} repaired=${repairedCount} remaining=${remaining}`);
+      } else {
+        console.log('[BOOKECHO-1] echoSentences=0');
+      }
+    }
+  } catch (echoErr) { /* BOOKECHO-1 never blocks a chapter */ }
+  return finalProse;
+}
+
 // ARCH-1B: CLOSED-WORLD CHECK (nonfiction). Every proper-noun phrase, month-year date,
 // year, and significant number in the prose must exist in the project's evidence
 // (research_data + seed + all bible fields). One principle replaces the per-shape regex
@@ -3734,55 +3797,12 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
     finalProse = dmDraft.text;
   }
 
-  finalProse = dedupeRepeatedSentences(finalProse);
-  finalProse = dedupeRepeatedQuotes(finalProse);
-  repetitionAlarm(finalProse);
-
-  // BOOKECHO-1: detect cross-chapter echoes, then ONE bounded repair pass that
-  // rewrites only the offending sentences. Each replacement applies by exact
-  // match and is re-checked against the prior-gram set before it is accepted
-  // (fail closed per sentence). The gate itself NEVER blocks a chapter.
-  try {
-    if (Array.isArray(priorChapterProse) && priorChapterProse.length) {
-      const echoDet = buildCrossChapterEchoDetector(priorChapterProse);
-      const echoes = echoDet.findEchoSentences(finalProse);
-      if (echoes.length) {
-        const list = echoes.slice(0, 12);
-        const repairPrompt = [
-          'You are line-editing a novel chapter. Each numbered sentence below reuses a distinctive phrase from an EARLIER chapter of the same book. Rewrite each sentence with fresh phrasing while preserving its exact meaning, characters, tone, and tense. Do not add new events or details. If a sentence contains quotation marks, keep the dialogue quoted.',
-          'Return ONLY the rewritten sentences, one per line, numbered to match. No commentary.',
-          '',
-          ...list.map((s, i) => `${i + 1}. ${s}`),
-        ].join('\n');
-        let repairedCount = 0;
-        try {
-          const echoResult = await invokeLLMWithRetry({
-            prompt: repairPrompt,
-            model: pickProseModel(project),
-            temperature: 0.4,
-            max_tokens: 2000,
-          });
-          const raw = extractTextFromLLMResult(echoResult) || '';
-          const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
-          for (let i = 0; i < list.length; i += 1) {
-            const line = lines.find((l) => l.startsWith(`${i + 1}.`) || l.startsWith(`${i + 1})`));
-            if (!line) continue;
-            const rewritten = line.replace(/^\d+[.)]\s*/, '').trim();
-            if (rewritten.length < 15) continue;
-            if (echoDet.echoNorm(rewritten) === echoDet.echoNorm(list[i])) continue;
-            if (echoDet.isEchoed(rewritten)) continue;
-            if (!finalProse.includes(list[i])) continue;
-            finalProse = finalProse.replace(list[i], rewritten);
-            repairedCount += 1;
-          }
-        } catch (echoLLMErr) { /* fail open: echoes ship rather than block */ }
-        const remaining = echoDet.findEchoSentences(finalProse).length;
-        console.warn(`[BOOKECHO-1] echoSentences=${echoes.length} repaired=${repairedCount} remaining=${remaining}`);
-      } else {
-        console.log('[BOOKECHO-1] echoSentences=0');
-      }
-    }
-  } catch (echoErr) { /* BOOKECHO-1 never blocks a chapter */ }
+  // BOOKECHO-2: the final passes now live in finalizeChapterProse so the SAVE
+  // path can run them on the artifact that actually ships (see export below).
+  // This call keeps the critic/fallback artifact clean; the save path in
+  // ProjectStudio passes the prior chapters, so echo repair spends its one
+  // LLM call there, not here.
+  finalProse = await finalizeChapterProse(finalProse, project, priorChapterProse);
 
   // Semantic source verification (nonfiction): one MODEL pass over the whole
   // chapter (semanticSourceCheck — previously defined but never wired) catches
