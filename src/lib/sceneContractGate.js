@@ -1,5 +1,6 @@
 import { getTrustedCharacters } from './narrativeLedger.js';
 import { normalizeCast, resolveReferent, trackLastNamed } from './referentResolver.js';
+import { checkPossessionContinuity } from './objectPossession.js';
 
 const STOPWORDS = new Set([
   'about','after','again','against','before','being','between','could','every',
@@ -789,6 +790,10 @@ export function auditSceneAgainstLedger({
   accumulatedProse = '',
   spec = {},
   runtimeLedger = null,
+  // KEYLEDGER-1d: [{ name, gender }] for the characters in THIS scene. Absent or
+  // empty, the possession and condition checks are skipped entirely (fail-open) —
+  // they cannot resolve a pronoun without a cast, and a guess is worse than silence.
+  sceneCast = null,
 } = {}) {
   const issues = [];
 
@@ -1027,19 +1032,52 @@ export function auditSceneAgainstLedger({
       }
     }
 
-    if (runtimeLedger.possessions) {
-      for (const char in runtimeLedger.possessions) {
-        for (const obj of runtimeLedger.possessions[char]) {
-          // If someone else holds it
-          const objRegex = new RegExp(`\\b([A-Z][a-z]+)\\s+(?:holds|grips|clutches|has|pulls)\\s+(?:the\\s+)?${obj}\\b`, 'i');
-          const match = prose.match(objRegex);
-          if (match && match[1] !== char) {
-            issues.push({
-              code: 'OBJECT_POSSESSION_VIOLATION',
-              message: `Character "${match[1]}" holds "${obj}", but it is possessed by "${char}".`,
-            });
-          }
+    // KEYLEDGER-1d. The block this replaces required a capitalised name plus a
+    // PRESENT-TENSE verb from a five-word list. Measured against the live saves it
+    // never fired once in 21,344 words: the manuscript writes "He held the brass
+    // key.", not "Marcus holds the brass key." The replacement scans EVERY mention
+    // of each tracked object and reports a holder change that has no transfer
+    // written between the two states. Low-confidence referents are ignored by the
+    // scanner, so ambiguity produces silence, not a false accusation.
+    if (runtimeLedger.possessions && Array.isArray(sceneCast) && sceneCast.length) {
+      const tracked = new Set();
+      for (const objs of Object.values(runtimeLedger.possessions)) {
+        for (const obj of objs || []) tracked.add(obj);
+      }
+      for (const obj of Array.isArray(spec?.props_present) ? spec.props_present : []) {
+        if (obj && String(obj).trim().length > 2) tracked.add(String(obj).trim());
+      }
+      for (const obj of tracked) {
+        const entryHolder =
+          Object.keys(runtimeLedger.possessions).find((char) =>
+            (runtimeLedger.possessions[char] || []).some(
+              (held) => String(held).toLowerCase() === String(obj).toLowerCase()
+            )
+          ) || null;
+        const result = checkPossessionContinuity({
+          prose, object: obj, cast: sceneCast, entryHolder,
+        });
+        for (const violation of result.violations) {
+          issues.push({
+            code: violation.code,
+            message: violation.message,
+            object: violation.object,
+            excerpt: violation.sentence,
+          });
         }
+      }
+    }
+
+    // KEYLEDGER-1c: a durable condition may not change owner off-page. Guarded on
+    // the cast for the same reason as the possession check — without it,
+    // extractLimbFacts falls back to nearest-name and would accuse on its own
+    // mis-attribution.
+    if (Array.isArray(sceneCast) && sceneCast.length) {
+      for (const issue of checkConditionAttribution({
+        facts: extractLimbFacts(prose, sceneCast),
+        ledgerConditions: runtimeLedger.characterConditions,
+      })) {
+        issues.push(issue);
       }
     }
 
