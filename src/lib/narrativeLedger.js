@@ -1,4 +1,5 @@
 import { extractLimbFacts, extractCharacterStateFacts } from './sceneContractGate.js';
+import { checkPossessionContinuity } from './objectPossession.js';
 
 export function getTrustedCharacters(spec, ledger) {
   const trusted = new Set();
@@ -75,8 +76,39 @@ export function buildInitialLedger() {
   };
 }
 
-export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
+/**
+ * KEYLEDGER-1e — an object has exactly ONE holder. Setting a holder removes the
+ * object from every other character and from droppedObjects. Passing holder=null
+ * removes it from everyone (the object is in play but unheld).
+ */
+export function setHolderOfRecord(ledger, objName, holder) {
+  const obj = String(objName || '').trim();
+  if (!obj) return ledger;
+  ledger.possessions = ledger.possessions || {};
+  for (const char of Object.keys(ledger.possessions)) {
+    ledger.possessions[char] = (ledger.possessions[char] || []).filter(
+      (o) => String(o).toLowerCase() !== obj.toLowerCase()
+    );
+    if (!ledger.possessions[char].length) delete ledger.possessions[char];
+  }
+  if (holder) {
+    ledger.possessions[holder] = ledger.possessions[holder] || [];
+    ledger.possessions[holder].push(obj);
+    ledger.droppedObjects = (ledger.droppedObjects || []).filter(
+      (o) => String(o).toLowerCase() !== obj.toLowerCase()
+    );
+    if (ledger.objectLocations) delete ledger.objectLocations[obj];
+  }
+  return ledger;
+}
+
+export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options = {}) {
   const ledger = JSON.parse(JSON.stringify(priorLedger)); // deep copy
+  // KEYLEDGER-1e: { sceneCast, trackedObjects }. With both present, the holder of
+  // record for each tracked object is read off the prose scanner's exit holder.
+  // Without them nothing here changes — fail-open, exactly as before.
+  const sceneCast = Array.isArray(options.sceneCast) ? options.sceneCast : null;
+  const trackedObjects = Array.isArray(options.trackedObjects) ? options.trackedObjects : [];
 
   // 1. Add required events and exit state to completed events
   const requiredEvents = Array.isArray(spec?.required_events)
@@ -174,34 +206,12 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
       }
     }
 
-    // Possession: Gives X to Y
-    const givesMatch = str.match(/\b(?:gives|hands|passes)\s+(?:the\s+)?([a-z\s]+)\s+to\s+([A-Z][a-z]+)\b/);
-    if (givesMatch) {
-      const objNameRaw = givesMatch[1].trim().toLowerCase();
-      const objName = objNameRaw.replace(/[.,:;!?]+$/, '');
-      const receiver = givesMatch[2];
-      if (objName.length > 2 && objName.length < 25) {
-        if (!ledger.possessions[receiver]) ledger.possessions[receiver] = [];
-        if (!ledger.possessions[receiver].includes(objName)) ledger.possessions[receiver].push(objName);
-        ledger.droppedObjects = ledger.droppedObjects.filter(o => o !== objName);
-      }
-    }
-
-    // Possession: X takes/grabs Y
-    const takesMatch = str.match(/\b([A-Z][a-z]+)\s+(?:takes|grabs|picks up|retrieves|pockets|snatches)\s+(?:the\s+)?([a-z\s]+)\b/);
-    if (takesMatch) {
-      const taker = takesMatch[1];
-      const objNameRaw = takesMatch[2].trim().toLowerCase();
-      const objName = objNameRaw.replace(/[.,:;!?]+$/, '');
-      if (objName.length > 2 && objName.length < 25) {
-        if (!ledger.possessions[taker]) ledger.possessions[taker] = [];
-        if (!ledger.possessions[taker].includes(objName)) ledger.possessions[taker].push(objName);
-        ledger.droppedObjects = ledger.droppedObjects.filter(o => o !== objName);
-        if (ledger.objectLocations && ledger.objectLocations[objName]) {
-          delete ledger.objectLocations[objName];
-        }
-      }
-    }
+    // KEYLEDGER-1e. The two blocks removed here matched beat-sheet phrasing only
+    // ("hands the key to Lena", "Marcus takes the key") and scored ZERO possession
+    // facts across all five live Brass Meridian saves — 21,344 words. Worse, when
+    // they did fire they were additive: "Marcus takes the brass key" left the key
+    // held by Lena AND Marcus at the same time. Possession is now set by the
+    // prose scanner (see setHolderOfRecord below), which enforces one holder.
 
     // Dropped: placed X on Y, drops X
     const dropMatch = str.match(/\b(?:places|drops|leaves|inserts)\s+(?:the\s+)?([a-z\s]+)\s+(?:on|in|at|inside)\s+(?:the\s+)?([a-z\s]+)\b/i);
@@ -258,6 +268,22 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec) {
     }
   }
 
+  // KEYLEDGER-1e: holder of record, read off the prose, one holder per object.
+  if (sceneCast && sceneCast.length && trackedObjects.length) {
+    for (const obj of trackedObjects) {
+      const entryHolder =
+        Object.keys(ledger.possessions || {}).find((char) =>
+          (ledger.possessions[char] || []).some(
+            (held) => String(held).toLowerCase() === String(obj).toLowerCase()
+          )
+        ) || null;
+      const { exitHolder } = checkPossessionContinuity({
+        prose: sceneProse, object: obj, cast: sceneCast, entryHolder,
+      });
+      if (exitHolder !== entryHolder) setHolderOfRecord(ledger, obj, exitHolder);
+    }
+  }
+
   // Cap size
   if (ledger.completedEvents.length > 30) {
     ledger.completedEvents = ledger.completedEvents.slice(-30);
@@ -284,10 +310,10 @@ export function serializeLedger(ledger) {
 
   const possessors = Object.keys(ledger.possessions || {});
   if (possessors.length > 0) {
-    out += `OBJECT POSSESSIONS:\n`;
+    out += `HOLDER OF RECORD (who physically has each object RIGHT NOW — an object cannot change hands off-page; if it moves, write the handover):\n`;
     for (const char of possessors) {
       if (ledger.possessions[char].length > 0) {
-        out += `- ${char} holds: ${ledger.possessions[char].join(', ')}\n`;
+        out += `- ${char} has: ${ledger.possessions[char].join(', ')}\n`;
       }
     }
   }
