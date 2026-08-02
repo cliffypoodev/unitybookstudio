@@ -116,7 +116,14 @@ export function runPunctuationCleanup(loaded, onProgress) {
     
     const svOriginal = f.content;
     f.content = f.content.replace(
-      new RegExp('(\\b\\w+)\\s*,\\s+(' + SV_VERBS.source.slice(2, -2) + ')', 'g'),
+      // POLISHFIX-5: .slice(2, -2) strips BOTH \b anchors from SV_VERBS, so the
+      // alternation matched bare verb PREFIXES inside longer words: "met" inside
+      // "metallic"/"metal", "set" inside "settling". Measured on the live saves this
+      // stripped correct commas ("his parka, settling" / "faint, metallic tang" /
+      // "single, metal desk") and the ing-guard below never fired because the
+      // captured group was the truncated prefix, not the real word. The trailing
+      // \b restores the whole-word requirement.
+      new RegExp('(\\b\\w+)\\s*,\\s+(' + SV_VERBS.source.slice(2, -2) + ')\\b', 'g'),
       (match, subject, verb, offset) => {
         // Skip participial modifiers: "posture, settling" is correct grammar
         if (/ing$/.test(verb)) return match;
