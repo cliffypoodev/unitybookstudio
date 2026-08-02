@@ -4,6 +4,29 @@ import { callAgent, AGENT_MODELS, resolveAgent, searchWeb } from '@/lib/localLLM
 import { resolveWritingModel, normalizeWritingModel, logWritingModelUsage, isWritingTask } from '@/lib/writingModel';
 import { normalizeModelId } from '@/lib/modelRouting'; // MODELFIX-4
 
+// ROUTERHEAL-1: a 500 "Compute error" from the local router means a wedged
+// worker — retrying against it is useless (three live incidents on
+// 2026-08-02: every retry 500s until the router is restarted). The dev
+// server owns the recovery (POST /api/routerheal); ask it ONCE per
+// invocation, wait out the cold reload, then let the normal retry loop
+// continue. Any other error shape is untouched.
+export function shouldAttemptRouterHeal(error) {
+  return /compute error/i.test(String(error?.message || ''));
+}
+
+async function requestRouterHeal() {
+  try {
+    if (typeof fetch !== 'function') return false;
+    const resp = await fetch('/api/routerheal', { method: 'POST' });
+    const body = await resp.json().catch(() => ({}));
+    console.warn('[ROUTERHEAL-1] heal response:', JSON.stringify(body));
+    return body?.healed === true;
+  } catch (healReqErr) {
+    console.warn('[ROUTERHEAL-1] heal request failed:', healReqErr?.message || healReqErr);
+    return false;
+  }
+}
+
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
@@ -141,6 +164,7 @@ const JSON_RETRY_DELAYS = [500, 1500, 3000];
 export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
   const RETRY_DELAYS = [5000, 10000, 20000];
   let lastError;
+  let routerHealTried = false; // ROUTERHEAL-1: at most one heal per invocation
   const taskType = inferTaskType(payload);
   const maxTokens = normalizeMaxTokens(payload.max_tokens);
   const context = payload.log_context || taskType;
@@ -208,6 +232,18 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
     } catch (error) {
       lastError = error;
       if (!isRetryableError(error) || attempt === maxAttempts) break;
+      // ROUTERHEAL-1: on the wedge signature, trigger the dev-server heal
+      // once, give the router time to cold-load, then keep retrying.
+      if (!routerHealTried && shouldAttemptRouterHeal(error)) {
+        routerHealTried = true;
+        console.warn('[ROUTERHEAL-1] Compute error detected — requesting router restart from dev server...');
+        const healed = await requestRouterHeal();
+        if (healed) {
+          console.warn('[ROUTERHEAL-1] router restarted — waiting 20s for cold load before retry');
+          await wait(20000);
+          continue;
+        }
+      }
       const delay = RETRY_DELAYS[attempt - 1] || 20000;
       console.warn(`[LOCAL-LLM Retry] Attempt ${attempt}/${maxAttempts} failed: ${error?.message || ''}. Retrying in ${delay / 1000}s...`);
       await wait(delay);

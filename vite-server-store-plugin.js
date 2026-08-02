@@ -20,6 +20,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { exec as cpExec, spawn as cpSpawn } from 'node:child_process';
+import { get as httpGet } from 'node:http';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -298,7 +300,10 @@ export default function serverStorePlugin() {
     name: 'server-store',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (req.url && req.url.startsWith('/api/store/')) {
+        if (req.url && req.url.startsWith('/api/routerheal')) {
+          // ROUTERHEAL-1: self-heal endpoint for the wedged llama router.
+          handleRouterHeal(req, res);
+        } else if (req.url && req.url.startsWith('/api/store/')) {
           handleRequest(req, res);
         } else {
           next();
@@ -309,5 +314,90 @@ export default function serverStorePlugin() {
   };
 }
 
+// ── ROUTERHEAL-1 ────────────────────────────────────────────────────────
+// The local llama router wedges intermittently (3× on 2026-08-02): a worker
+// dies, the router keeps proxying to the dead port, and every completion
+// returns 500 "Compute error" until a human kills and relaunches the router.
+// The browser cannot restart a Mac process — but this dev-server middleware
+// can. POST /api/routerheal runs the recorded recovery: kill the LISTEN
+// process on the router port, kill leftover llama workers (NEVER anything
+// named ollama or hermes), relaunch the recorded command, probe /v1/models.
+// Rate-limited to one heal per 5 minutes so a misfiring client can never
+// restart-loop the router. Launch line/port/log are env-overridable.
+const ROUTERHEAL_PORT = Number(process.env.UBS_LLAMA_PORT || 8080);
+const ROUTERHEAL_LAUNCH = process.env.UBS_LLAMA_LAUNCH ||
+  '/Users/cliff/.local/bin/llama serve --models-dir /Users/cliff/llama-models --models-max 2 --models-autoload --host 127.0.0.1 --port 8080 --ctx-size 32768 --parallel 1 --cache-ram 8192';
+const ROUTERHEAL_LOG = process.env.UBS_LLAMA_LOG || '/tmp/llama-router.log';
+const ROUTERHEAL_COOLDOWN_MS = 5 * 60 * 1000;
+let routerHealLastRun = 0;
+
+const routerHealExec = (cmd) => new Promise((resolve) => {
+  cpExec(cmd, { timeout: 15000 }, (err, stdout) => resolve(String(stdout || '').trim()));
+});
+const routerHealSleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function performRouterHeal() {
+  const listenPid = await routerHealExec(`lsof -t -nP -iTCP:${ROUTERHEAL_PORT} -sTCP:LISTEN`);
+  if (listenPid) {
+    for (const pid of listenPid.split(/\s+/).filter(Boolean)) await routerHealExec(`kill ${pid}`);
+    await routerHealSleep(3000);
+  }
+  // Leftover workers: llama processes that are not ollama, not hermes, and
+  // not node/vite tooling. The router does NOT respawn a killed worker, so
+  // orphans must go before relaunch.
+  const psOut = await routerHealExec('ps ax -o pid=,command=');
+  for (const line of psOut.split('\n')) {
+    const m = line.match(/^\s*(\d+)\s+(.*)$/);
+    if (!m) continue;
+    const pid = m[1];
+    const command = m[2];
+    if (!/llama/i.test(command)) continue;
+    if (/ollama|hermes|node|vite|grep/i.test(command)) continue;
+    await routerHealExec(`kill ${pid}`);
+  }
+  await routerHealSleep(1000);
+  const parts = ROUTERHEAL_LAUNCH.split(/\s+/).filter(Boolean);
+  const logFd = fs.openSync(ROUTERHEAL_LOG, 'a');
+  const child = cpSpawn(parts[0], parts.slice(1), { detached: true, stdio: ['ignore', logFd, logFd] });
+  child.unref();
+  fs.closeSync(logFd);
+  await routerHealSleep(5000);
+  const modelsOk = await new Promise((resolve) => {
+    const probe = httpGet({ host: '127.0.0.1', port: ROUTERHEAL_PORT, path: '/v1/models', timeout: 8000 }, (r) => {
+      let body = '';
+      r.on('data', (c) => { body += c; });
+      r.on('end', () => resolve(r.statusCode === 200 && body.includes('"data"')));
+    });
+    probe.on('error', () => resolve(false));
+    probe.on('timeout', () => { probe.destroy(); resolve(false); });
+  });
+  return { killedListenPid: listenPid || null, relaunchPid: child.pid || null, modelsOk };
+}
+
+async function handleRouterHeal(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  if (req.method !== 'POST') {
+    res.statusCode = 405;
+    res.end(JSON.stringify({ error: 'POST only' }));
+    return;
+  }
+  const now = Date.now();
+  if (now - routerHealLastRun < ROUTERHEAL_COOLDOWN_MS) {
+    console.warn('[ROUTERHEAL-1] heal request refused: cooldown active');
+    res.end(JSON.stringify({ healed: false, reason: 'cooldown' }));
+    return;
+  }
+  routerHealLastRun = now;
+  console.warn(`[ROUTERHEAL-1] heal requested — restarting llama router on port ${ROUTERHEAL_PORT}`);
+  try {
+    const result = await performRouterHeal();
+    console.warn('[ROUTERHEAL-1] result:', JSON.stringify(result));
+    res.end(JSON.stringify({ healed: true, ...result }));
+  } catch (healErr) {
+    console.warn('[ROUTERHEAL-1] heal failed:', healErr?.message || healErr);
+    res.end(JSON.stringify({ healed: false, reason: String(healErr?.message || healErr) }));
+  }
+}
+
 // Export for test harness
-export { handleRequest, ENTITY_STORES, DATA_DIR, loadStore, flushStore, cache };
+export { handleRequest, ENTITY_STORES, DATA_DIR, loadStore, flushStore, cache, handleRouterHeal, performRouterHeal };
