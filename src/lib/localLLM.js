@@ -194,6 +194,7 @@ export async function callLlama({ model, prompt, systemPrompt, temperature = 0.7
     chat_template_kwargs: { enable_thinking: false },
   };
 
+  const timingStart = Date.now();
   let response;
   try {
     response = await fetch(`${baseUrl}/v1/chat/completions`, {
@@ -235,6 +236,12 @@ export async function callLlama({ model, prompt, systemPrompt, temperature = 0.7
       ` | reasoning_content length: ${String(msg.reasoning_content || '').length}`
     );
   }
+
+  // TIMING-1: total wall time for this call, including any model load/swap the
+  // llama.cpp router performed to serve it. Bimodal durations for the same
+  // model = swap cost made visible. This is the instrumentation the thrash
+  // hypothesis has been waiting for.
+  console.log(`[TIMING] ${agentKey || 'direct'} | ${model} | ${Date.now() - timingStart}ms`);
 
   // Safety net: strip any thinking-model artifacts if they leak through.
   text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
