@@ -2905,6 +2905,17 @@ function runGenericSameChapterBranchPass({ loaded, report, onProgress, stage = '
 
       for (const fix of fixes) {
         addReportFix(report, `Ch.${item.chapterNumber}: GENERIC BRANCH ${fix.label} (-${fix.removedWords || 0} words)`);
+        // POLISHFIX-6: a cut this size must be reviewable from the report alone.
+        // One generic warning line is how 419 words vanish quietly.
+        if ((fix.removedWords || 0) >= 250) {
+          addReportWarning(
+            report,
+            `Ch.${item.chapterNumber}: quarantine removed ${fix.removedWords} word(s) (${fix.label}). ` +
+              `Cut begins near: "${String(fix.priorMarker || fix.startMarker || '').slice(0, 160)}" ` +
+              `and ends near: "${String(fix.endMarker || '').slice(0, 160)}". ` +
+              `Verify this was a duplicated branch, not story content.`
+          );
+        }
       }
 
       console.warn(`[MANUSCRIPT-FIXER][GENERIC-BRANCH v30] Ch.${item.chapterNumber} same-chapter quarantine`, {
