@@ -820,9 +820,9 @@ scene_goal: ${beat.scene_goal || beat.goal || '?'}
 required_events: ${JSON.stringify(beat.required_events || [])}
 entry_state: ${beat.entry_state || '?'}
 exit_state: ${beat.exit_state || '?'}
-location: ${beat.location || '?'}
-characters: ${JSON.stringify(beat.characters || [])}
-emotional_beat: ${beat.emotional_beat || '?'}`);
+location: ${beat.setting || beat.location || '?'}
+characters: ${JSON.stringify(beat.characters_present || beat.characters || [])}
+emotional_beat: ${beat.emotional_arc || beat.emotional_beat || '?'}`);
   }
 
   const kept = [];
@@ -1465,8 +1465,11 @@ function buildContext(beats) {
   const characters = new Set(['he', 'she', 'they']);
   
   for (const beat of beats) {
-    if (beat.characters) {
-      beat.characters.forEach(c => characters.add(c.toLowerCase()));
+    const castList = Array.isArray(beat.characters_present) && beat.characters_present.length
+      ? beat.characters_present
+      : beat.characters;
+    if (castList) {
+      castList.forEach(c => characters.add(c.toLowerCase()));
     }
     
     const texts = [

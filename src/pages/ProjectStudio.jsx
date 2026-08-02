@@ -3330,7 +3330,29 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         verifySceneProvenance(normalizedBeatPlan, beatResult.pipeline_contract, 'after-normalization');
         verifyContiguousSceneSequence(normalizedBeatPlan, beatResult.pipeline_contract.expected_scene_count, 'after-normalization');
 
-        if (!overlapReport.changed) break;
+        // BEATPLAN-1: the schema marks setting/characters_present/emotional_arc
+        // required, but the local endpoint does not enforce response schemas —
+        // and empty setting/emotion fields also starve the overlap detector
+        // above, which scores scenes by place/emotion keywords. That is how
+        // three retellings of one location scored 0.48 and shipped. Enforce
+        // field presence here, on the same regeneration path as overlap
+        // rejection; at attempt exhaustion the existing fallback still accepts
+        // the plan, so a missing field can never kill a chapter.
+        const beatFieldGaps = [];
+        for (const nb of normalizedBeatPlan) {
+          const missing = [];
+          if (!String(nb?.setting || nb?.location || '').trim()) missing.push('setting');
+          const castCount = (Array.isArray(nb?.characters_present) ? nb.characters_present.length : 0)
+            + (Array.isArray(nb?.characters) ? nb.characters.length : 0);
+          if (castCount === 0) missing.push('characters_present');
+          if (!String(nb?.emotional_arc || nb?.emotional_beat || '').trim()) missing.push('emotional_arc');
+          if (missing.length) beatFieldGaps.push(`${nb?.scene_id || 'scene'}: missing ${missing.join(', ')}`);
+        }
+        if (beatFieldGaps.length) {
+          console.warn(`[BEATPLAN-1] Ch.${chapter.chapter_number} attempt ${attempt}: ${beatFieldGaps.length} beat(s) missing required fields — ${beatFieldGaps.join(' | ')}`);
+        }
+
+        if (!overlapReport.changed && beatFieldGaps.length === 0) break;
 
         const reindexedNormalizedBeats = normalizedBeatPlan; // NARRATIVE-CONNECT: Do not reindex to hide the missing middle scene
 
@@ -3371,7 +3393,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         }
 
         console.warn('[NARRATIVE-CONNECT] Rejecting overlapping beat contract and regenerating:', overlapReport);
-        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}\n\nReturn a completely new JSON beat contract.`;
+        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}${beatFieldGaps.length ? `\nEvery beat MUST fill these required fields — the previous plan left them empty:\n${beatFieldGaps.map((gap) => `- ${gap}`).join('\n')}` : ''}\n\nReturn a completely new JSON beat contract.`;
       }
     } catch (beatError) {
       if (!isNonfiction) throw beatError;

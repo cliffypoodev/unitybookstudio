@@ -1498,7 +1498,8 @@ Each beat must include:
 - exit_state: the concrete changed state handed to the next scene
 - continuity_dependencies: earlier facts this scene must preserve
 - pov_character: who holds the camera (must obey POV mode rules)
-- setting: where and when
+- characters_present: the canonical name of EVERY character physically present in the scene — NEVER an empty list
+- setting: a SPECIFIC named place and time. Consecutive scenes must move to DIFFERENT settings unless a required event pins them to the same place — if two scenes share a setting, the second must state what changed there
 - conflict: the specific tension or obstacle in this scene
 - emotional_arc: the emotional shift from scene start to end (e.g., "hopeful → desperate")
 - tension_level: 1-10 scale for this scene's intensity
