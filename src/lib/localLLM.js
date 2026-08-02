@@ -3,7 +3,7 @@ import { stripModelControlTokens } from './modelLeakGuard.js';
 // ROUTE-1: every LLM call in this app goes to llama.cpp (llama-server). Ollama is
 // not used anywhere in this stack, on any machine. The endpoint is the
 // OpenAI-compatible POST /v1/chat/completions, which has no num_ctx field and no
-// options object. The Ollama-flavoured function names below are historical.
+// options object. The function names below now match the transport.
 
 // NETFIX-1: same-origin path proxied by vite to the Studio's llama.cpp —
 // works identically on localhost and on remote devices over Tailscale.
@@ -135,7 +135,7 @@ const AGENT_SYSTEM_PROMPTS = {
   nonfiction_writer: '',
 };
 
-export async function callOllama({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null, numCtx = AGENT_NUM_CTX, baseUrl = LLAMA_BASE_URL, ctxTokens = AGENT_NUM_CTX, agentKey = null }) {
+export async function callLlama({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null, numCtx = AGENT_NUM_CTX, baseUrl = LLAMA_BASE_URL, ctxTokens = AGENT_NUM_CTX, agentKey = null }) {
   const messages = [];
   if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
 
@@ -294,10 +294,10 @@ export async function callAgent({ prompt, taskType = 'prose', project = null, te
 
   console.log(`[LOCAL-LLM] Agent: ${agentKey} | Model: ${resolvedModel} | Temp: ${resolvedTemp} | Ctx: ${numCtx} | Endpoint: ${baseUrl} | Task: ${taskType}`);
 
-  return callOllama({ model: resolvedModel, prompt, systemPrompt, temperature: resolvedTemp, maxTokens, jsonSchema, numCtx, baseUrl, ctxTokens, agentKey });
+  return callLlama({ model: resolvedModel, prompt, systemPrompt, temperature: resolvedTemp, maxTokens, jsonSchema, numCtx, baseUrl, ctxTokens, agentKey });
 }
 
-export async function checkOllamaHealth() {
+export async function checkLlamaHealth() {
   try {
     const response = await fetch(`${LLAMA_BASE_URL}/v1/models`, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) return { healthy: false, error: `HTTP ${response.status}` };
@@ -325,7 +325,7 @@ export async function checkEndpointHealth(baseUrl) {
 // ROUTE-1B: probe every DISTINCT endpoint once, then report, per role, whether the
 // model that role is assigned to is actually present there. Sequential on purpose:
 // the local server serves one call at a time. Advisory only - this reports, it does
-// not block. The blocking check is the ROUTE-1 budget refusal in callOllama.
+// not block. The blocking check is the ROUTE-1 budget refusal in callLlama.
 export async function checkAllEndpoints() {
   const distinct = [...new Set(Object.values(AGENT_ENDPOINTS))];
   const byUrl = {};

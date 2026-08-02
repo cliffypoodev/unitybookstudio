@@ -18,7 +18,7 @@ let mockCallAgentImpl = async () => '';
 
 vi.mock('@/lib/localLLM.js', () => ({
   callAgent: vi.fn(async (...args) => mockCallAgentImpl(...args)),
-  callOllama: vi.fn(),
+  callLlama: vi.fn(),
   AGENT_MODELS: {
     ghostwriter: 'ghostwriter',
     ghostwriter_nsfw: 'ghostwriter',

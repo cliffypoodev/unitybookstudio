@@ -71,7 +71,7 @@ function runTests() {
 
   test('7. Runner factory source contains zero direct model/network calls', () => {
     assert.strictEqual(runnersCode.includes('fetch('), false, 'Should not contain fetch()');
-    assert.strictEqual(runnersCode.includes('callOllama('), false, 'Should not contain callOllama()');
+    assert.strictEqual(runnersCode.includes('callLlama('), false, 'Should not contain callLlama()');
     assert.strictEqual(runnersCode.includes('callAgent('), false, 'Should not contain callAgent()');
   });
 

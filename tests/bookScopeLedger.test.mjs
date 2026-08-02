@@ -316,7 +316,7 @@ check('SAFETY: the fold is parallel-safe - it reads every earlier chapter that H
   /chapter_number\) < Number\(currentChapterNumber\)/.test(cohesion));
 
 check('SAFETY: no LLM call is added anywhere in the ledger path',
-  !/invokeLLMWithRetry|callAgent|callOllama/.test(
+  !/invokeLLMWithRetry|callAgent|callLlama/.test(
     cohesion.slice(cohesion.indexOf('LEDGERSCOPE-1'))));
 
 console.log('\nBOOK SCOPE LEDGER (LEDGERSCOPE-1): ' + pass + ' passed, ' + fail + ' failed');

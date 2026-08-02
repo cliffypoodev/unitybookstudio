@@ -1,6 +1,6 @@
 // src/lib/integrationRetry.js — FULL REPLACEMENT for local llama.cpp
 
-import { callAgent, callOllama, AGENT_MODELS, resolveAgent, searchWeb } from '@/lib/localLLM';
+import { callAgent, AGENT_MODELS, resolveAgent, searchWeb } from '@/lib/localLLM';
 import { resolveWritingModel, normalizeWritingModel, logWritingModelUsage, isWritingTask } from '@/lib/writingModel';
 import { normalizeModelId } from '@/lib/modelRouting'; // MODELFIX-4
 

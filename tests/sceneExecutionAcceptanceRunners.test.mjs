@@ -190,7 +190,7 @@ async function runTests() {
     assert.strictEqual(sourceCode.includes('sceneWriter.js'), false, 'Should not mention sceneWriter');
     assert.strictEqual(sourceCode.includes('ProjectStudio'), false, 'Should not mention ProjectStudio');
     assert.strictEqual(sourceCode.includes('fetch('), false, 'Should not directly call fetch');
-    assert.strictEqual(sourceCode.includes('callOllama('), false, 'Should not directly call callOllama');
+    assert.strictEqual(sourceCode.includes('callLlama('), false, 'Should not directly call callLlama');
     assert.strictEqual(sourceCode.includes('callAgent('), false, 'Should not directly call callAgent');
     assert.strictEqual(sourceCode.includes('featureFlags'), false, 'Should not mention featureFlags');
   });

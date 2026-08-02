@@ -182,7 +182,7 @@ async function captureWarnings(reply) {
 // If content comes back blank, the reply almost always landed in
 // reasoning_content. Downstream only ever saw "unusable data".
 {
-  const { callOllama } = await import('@/lib/localLLM.js');
+  const { callLlama } = await import('@/lib/localLLM.js');
   const originalFetch = globalThis.fetch;
   const originalWarn = console.warn;
   const originalLog = console.log;
@@ -195,7 +195,7 @@ async function captureWarnings(reply) {
   console.log = () => {};
   let text;
   try {
-    text = await callOllama({ model: 'qwen3.6-35b-uncensored', prompt: 'audit this', maxTokens: 4000 });
+    text = await callLlama({ model: 'qwen3.6-35b-uncensored', prompt: 'audit this', maxTokens: 4000 });
   } finally {
     globalThis.fetch = originalFetch;
     console.warn = originalWarn;
@@ -211,7 +211,7 @@ async function captureWarnings(reply) {
 }
 // A healthy reply must stay silent.
 {
-  const { callOllama } = await import('@/lib/localLLM.js');
+  const { callLlama } = await import('@/lib/localLLM.js');
   const originalFetch = globalThis.fetch;
   const originalWarn = console.warn;
   const originalLog = console.log;
@@ -224,7 +224,7 @@ async function captureWarnings(reply) {
   console.log = () => {};
   let text;
   try {
-    text = await callOllama({ model: 'qwen3.6-35b-uncensored', prompt: 'audit this', maxTokens: 4000 });
+    text = await callLlama({ model: 'qwen3.6-35b-uncensored', prompt: 'audit this', maxTokens: 4000 });
   } finally {
     globalThis.fetch = originalFetch;
     console.warn = originalWarn;
