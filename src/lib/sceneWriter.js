@@ -2144,6 +2144,11 @@ function buildSceneStateContractBlock(spec) {
     `ENTRY STATE (must be true when the scene opens): ${entryState || 'missing'}`,
     `REQUIRED EVENTS FOR THIS SCENE ONLY (each exactly once): ${requiredEvents.length ? requiredEvents.join('; ') : 'missing'}`,
     `FORBIDDEN REPLAYS / REVERSALS: ${forbiddenEvents.length ? forbiddenEvents.join('; ') : 'None listed; still do not replay earlier events.'}`,
+    // SCENESCOPE-1: the reservation list above only covers events some scene
+    // OWNS. Ch.2 proved the writer also invents UNPLANNED threshold events
+    // (arrivals, openings, unlockings) that belong to no scene — staging the
+    // same Sector-7 arrival three times in one chapter. Forbid the class.
+    `UNPLANNED MAJOR EVENTS ARE FORBIDDEN: stage NO arrival at a new location, NO opening/unlocking of any door, vault, hatch, panel, or passage, NO discovery of a new area, and NO major reveal unless it is explicitly listed in REQUIRED EVENTS above. Travel and preparation may approach a threshold; CROSSING it belongs to whichever later scene or chapter owns it. When the required events are done, end the scene at its EXIT STATE — do not escalate past it.`,
     `EXIT STATE (must be true when the scene ends): ${exitState || 'missing'}`,
   ];
   if (priorCompletedEvents.length) {
@@ -3324,6 +3329,16 @@ remainingViolations=${JSON.stringify(passAudit.violations.map(v => v.event))}`);
         }
       } else {
         console.log(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} exitStateOk=true`);
+      }
+
+      // SCENESCOPE-1: advisory telemetry — count threshold-crossing phrasings
+      // in the accepted draft. Deterministic, never blocks; gives the next
+      // chapter run a measurable number for the unplanned-arrival class.
+      {
+        const thresholdMatches = sceneProse.match(/\b(?:unlock(?:ed|s)?|swung open|slid open|door (?:gave|opened)|hatch (?:opened|gave)|vault (?:door )?(?:opened|swung)|stepped (?:inside|through|into)|seal broke)\b/gi) || [];
+        const authorized = (Array.isArray(promptSpec.required_events) ? promptSpec.required_events : []).join(' ').toLowerCase();
+        const authorizedish = /open|unlock|enter|arriv|discover|reveal|breach|inside/.test(authorized);
+        console.log(`[SCENESCOPE-1] scene=${spec.sceneNumber || i + 1} thresholdCrossings=${thresholdMatches.length} authorizedByRequiredEvents=${authorizedish}`);
       }
 
       // PROSE REPLAY AUDIT
