@@ -88,6 +88,8 @@ import { repairChapterQuotes } from '@/lib/quoteFixPolish';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
 import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger } from '@/lib/narrativeLedger';
+import { inferCastGenders } from '@/lib/referentResolver';
+import { trackedObjectsFromSpecs } from '@/lib/objectPossession';
 import {
   isAnthologyProject,
   isNonfictionAnthology,
@@ -2169,6 +2171,14 @@ function buildSceneStateContractBlock(spec) {
     lines.push(linesToAdd.join('\n'));
   }
   if (dependencies.length) lines.push(`CONTINUITY DEPENDENCIES: ${dependencies.join('; ')}`);
+  // KEYLEDGER-1f: possession is an entry condition, not a suggestion.
+  const holders = Array.isArray(spec?.holders_of_record) ? spec.holders_of_record.filter(Boolean) : [];
+  if (holders.length) {
+    lines.push(
+      `OBJECT POSSESSION AT SCENE OPEN (must be true on the first page of this scene): ${holders.join('; ')}. ` +
+      `Nobody else may be holding, pocketing, drawing, or handing over these objects unless this scene WRITES the handover on the page.`
+    );
+  }
 
   return `NARRATIVE STATE CONTRACT — MANDATORY:
 This is one versioned scene, not an alternate take. Write only this scene.
@@ -3082,6 +3092,14 @@ export async function generateChapterSceneByScene({
   // The ledger carries no prose, only facts, so it is safe to carry forward and
   // it is the only thing that can stop Ch.4 restoring a hand Ch.3 amputated.
   let runtimeLedger = priorLedger ? cloneLedger(priorLedger) : buildInitialLedger();
+  // KEYLEDGER-1f: the CLOSED tracked-object set comes from the plan (props_present
+  // across this chapter's scenes) plus anything the ledger already tracks. It is
+  // never derived from prose.
+  const trackedObjects = [...new Set([
+    ...trackedObjectsFromSpecs(normalizedScenes),
+    ...Object.values(runtimeLedger.possessions || {}).flat().map(String),
+  ])].filter((o) => o && o.length > 2 && o.length < 40);
+  console.log(`[KEYLEDGER] Ch.${chapterNumber} tracked objects: ${trackedObjects.join(' | ') || '(none)'}`);
   if (priorLedger) {
     console.log(`[NARRATIVE-LEDGER] Ch.${chapterNumber} seeded from prior chapters: ${summarizeLedger(runtimeLedger)}`);
   } else {
@@ -3098,6 +3116,10 @@ export async function generateChapterSceneByScene({
     const futureScenes = normalizedScenes.slice(i + 1);
     const promptSpec = {
       ...spec,
+      // KEYLEDGER-1f: who has what when this scene opens.
+      holders_of_record: Object.entries(runtimeLedger.possessions || {})
+        .filter(([, objs]) => Array.isArray(objs) && objs.length)
+        .map(([char, objs]) => `${char} has the ${objs.join(' and the ')}`),
       required_events: Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean).filter(isClean) : [],
       prior_completed_events: priorScenes.flatMap((scene) =>
         Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
@@ -3556,12 +3578,25 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
 
     }
 
+    // KEYLEDGER-1f: the scene cast, with genders inferred from the accumulated book
+    // prose — measured stable across all five Brass Meridian saves. When two cast
+    // members share a gender, pronoun references drop to low confidence and the
+    // possession/condition checks stay silent rather than guess.
+    const sceneCastNames = (Array.isArray(promptSpec?.characters_present) && promptSpec.characters_present.length
+      ? promptSpec.characters_present
+      : (Array.isArray(promptSpec?.characters) ? promptSpec.characters : [])
+    ).map((c) => String(c || '').trim()).filter(Boolean);
+    const sceneCast = sceneCastNames.length
+      ? inferCastGenders(`${accumulatedProse}\n\n${sceneProse}`, sceneCastNames)
+      : null;
+
     if (!isNF) {
       let contractAudit = auditSceneAgainstLedger({
         prose: sceneProse,
         accumulatedProse,
         spec: promptSpec,
         runtimeLedger,
+        sceneCast,
       });
 
       if (!contractAudit.ok) {
@@ -3619,6 +3654,7 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
             accumulatedProse,
             spec: promptSpec,
             runtimeLedger,
+            sceneCast,
           });
 
           console.log(
@@ -3690,7 +3726,13 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
     const ledgerBefore = JSON.parse(JSON.stringify(runtimeLedger));
 
     if (!isNF) {
-      runtimeLedger = extractSceneLedgerUpdates(runtimeLedger, sceneProse, promptSpec);
+      runtimeLedger = extractSceneLedgerUpdates(runtimeLedger, sceneProse, promptSpec, {
+        sceneCast,
+        trackedObjects,
+      });
+      const heldNow = Object.entries(runtimeLedger.possessions || {})
+        .map(([char, objs]) => `${char}:${(objs || []).join('/')}`).join(' ');
+      console.log(`[KEYLEDGER] Ch.${chapterNumber} scene ${spec.sceneNumber || i + 1} holder of record: ${heldNow || '(none)'}`);
       console.log(`[NARRATIVE-CONNECT] Updated ledger for scene ${spec.sceneNumber || i + 1}. Dead: ${runtimeLedger.deadCharacters.length}, Unavailable Objects: ${runtimeLedger.unavailableObjects.length}, Completed Events: ${runtimeLedger.completedEvents.length}`);
     }
 
