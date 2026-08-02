@@ -108,7 +108,7 @@ function isRetryableError(error) {
   const message = error?.message || '';
   const status = error?.response?.status || error?.status;
   if (status === 403 || /not have access/i.test(message) || /auth_required/i.test(message)) return false;
-  return /network error/i.test(message) || /timeout/i.test(message) || /Cannot reach Ollama/i.test(message) || /rate limit/i.test(message) || /abort/i.test(message) || status === 422 || status === 429 || status === 502 || status === 503 || status === 504 || (status >= 500 && status < 600);
+  return /network error/i.test(message) || /timeout|timed out/i.test(message) || /Cannot reach llama serve/i.test(message) || /rate limit/i.test(message) || /abort/i.test(message) || status === 422 || status === 429 || status === 502 || status === 503 || status === 504 || (status >= 500 && status < 600);
 }
 
 function shouldForcePrimaryWritingModel(payload = {}) {
