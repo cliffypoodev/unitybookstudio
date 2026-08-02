@@ -1280,6 +1280,20 @@ function appendCleanBlock(existing, block) {
 
 const SCENE_BEATS_ENTITY_CHAR_LIMIT = 6500;
 
+// BEATFIX-1: minified JSON is the same data with the indentation removed —
+// a lossless saving of roughly 13% on these payloads. Always try it before
+// refusing (fiction) or before dropping to a lossier tier (nonfiction).
+function fitOrMinifyForEntity(obj, limit = SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+  const pretty = JSON.stringify(obj, null, 2);
+  if (pretty.length <= limit) return pretty;
+  const minified = JSON.stringify(obj);
+  if (minified.length <= limit) {
+    console.warn(`[BEATFIX-1] entity payload ${pretty.length}c exceeds ${limit}c; losslessly minified to ${minified.length}c`);
+    return minified;
+  }
+  return null;
+}
+
 const NONFICTION_DRAFT_LANE_LIMIT = 4;
 const ANTHOLOGY_DRAFT_LANE_LIMIT = 4;
 const REWRITE_DRAFT_LANE_LIMIT = 1;
@@ -1436,10 +1450,12 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
       title: truncateForEntityField(chapter?.title || raw.title || '', 140),
       beats: sourceUnits.map(compactFictionBeat),
     };
-    const fictionJson = JSON.stringify(fictionContract, null, 2);
-    if (fictionJson.length > SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+    const fictionJson = fitOrMinifyForEntity(fictionContract);
+    if (fictionJson === null) {
+      const prettyLen = JSON.stringify(fictionContract, null, 2).length;
+      const minLen = JSON.stringify(fictionContract).length;
       const err = new Error(
-        `Chapter ${chapter?.chapter_number || '?'} scene contract is ${fictionJson.length} characters and cannot be saved safely. Reduce beat verbosity; the contract was not truncated.`
+        `Chapter ${chapter?.chapter_number || '?'} scene contract is ${prettyLen} characters (${minLen} even without indentation) and cannot be saved safely. Reduce beat verbosity; the contract was not truncated.`
       );
       err.name = 'NarrativeContractError';
       err.code = 'FICTION_SCENE_CONTRACT_TOO_LARGE';
@@ -1478,9 +1494,8 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
       : undefined,
   };
 
-  let compactJson = JSON.stringify(compact, null, 2);
-
-  if (compactJson.length <= SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+  let compactJson = fitOrMinifyForEntity(compact);
+  if (compactJson !== null) {
     return compactJson;
   }
 
@@ -1500,9 +1515,8 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
     source_audit_summary: undefined,
   };
 
-  compactJson = JSON.stringify(tighter, null, 2);
-
-  if (compactJson.length <= SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+  compactJson = fitOrMinifyForEntity(tighter);
+  if (compactJson !== null) {
     return compactJson;
   }
 
@@ -1520,7 +1534,7 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
     })),
   };
 
-  return JSON.stringify(bare, null, 2);
+  return fitOrMinifyForEntity(bare) ?? JSON.stringify(bare);
 }
 
 
