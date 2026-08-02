@@ -3416,6 +3416,17 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         chapterNumber: chapter.chapter_number,
       });
       console.log('[NARRATIVE-CONNECT] Scene contract accepted:', contractReport);
+      // CHAPTERBRIDGE-1: advisory — put the prior chapter's actual ending and
+      // this chapter's opening entry_state side by side in the console, so a
+      // reset like ch.2 opening inside a station ch.1 ended outside of is
+      // visible at plan time instead of after drafting.
+      {
+        const priorTail = String(resolvedPrev?.content_md || '').slice(-220).replace(/\s+/g, ' ').trim();
+        const firstEntry = String(beatResult?.beats?.[0]?.entry_state || '').replace(/\s+/g, ' ').trim();
+        if (priorTail && firstEntry) {
+          console.log(`[CHAPTERBRIDGE-1] prior ending: "...${priorTail}" | ch.${chapter.chapter_number} s1 entry_state: "${firstEntry}"`);
+        }
+      }
     }
 
     const fullBeatsJson = JSON.stringify(beatResult || {}, null, 2);

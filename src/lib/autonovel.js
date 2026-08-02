@@ -1482,8 +1482,10 @@ ${voiceGuide ? `\nVoice guide:\n${voiceGuide}` : ''}
 CHAPTER ${chapter.chapter_number}: "${chapter.title}"
 Beat summary: ${chapter.beat_summary}
 
-Previous chapter ending:
-${previousChapter?.content_md?.slice(-800) || 'No previous chapter yet.'}
+PREVIOUS CHAPTER ENDING — BINDING CONTINUITY CONTRACT:
+${previousChapter?.content_md?.slice(-1600) || 'No previous chapter yet.'}
+
+CHAPTER OPENING RULE (ABSOLUTE): Scene 1's entry_state MUST be continuous with the ending above — either continue directly from that situation, or plan an explicit time/location jump that ACKNOWLEDGES it. NEVER reset, undo, relocate, or ignore what that ending established: location (inside vs outside), sealed or destroyed exits, who holds which objects, injuries, time of day, and active deadlines. If the previous chapter ended with the characters OUTSIDE a place, this chapter does not open with them inside it unless a scene shows how they returned.
 ${priorCoverageBlock}
 ${SCENE_BEAT_UNIQUENESS_BLOCK}
 Generate approximately ${scenesEstimate} scene beats for this chapter (~${targetWords} words total).
