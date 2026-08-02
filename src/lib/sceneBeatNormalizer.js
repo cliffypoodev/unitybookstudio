@@ -697,6 +697,18 @@ function looksLikeAlternateDraft(currentBeat, keptBeat, options = {}) {
     return chronologyConflict;
   }
 
+  // CLIMAX-1: the fiction exemption below requires IDENTICAL story-function
+  // sets before it will even consider a merge — so live ch.5 shipped THREE
+  // takes of the same climax (same two characters, same ice sheet, overlap
+  // 0.65 and 0.70) because each take tripped different verb tags. Same place
+  // + same principal characters + this much overlap IS the same scene,
+  // whatever the tags say: force the duplicate verdict before the exemption
+  // can veto it. Measured separation on the live book: every genuinely
+  // distinct scene pair scored <= 0.55; the duplicate takes scored 0.65-0.82.
+  if (sameLocation && sameMainPeople && overlap.score >= 0.6) {
+    return { duplicate: true, confidence: 'high', reason: `same place/people with climax-level overlap (${overlap.score.toFixed(2)})` };
+  }
+
   if (!options.isNonfiction && !shouldMergeFictionScenes(currentBeat, keptBeat)) {
     return { duplicate: false, confidence: 'none', reason: 'distinct irreversible story functions' };
   }
