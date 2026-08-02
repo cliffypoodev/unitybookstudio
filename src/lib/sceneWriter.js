@@ -2512,6 +2512,44 @@ function repetitionAlarm(prose) {
   return flagged.size;
 }
 
+// BOOKECHO-1: deterministic cross-chapter echo detector. The chapter-level
+// dedupers and repetitionAlarm cannot see other chapters, so the writer
+// reuses its best images verbatim across the book (audit #4: "eardrums like
+// deep water" in ch.1 AND ch.5; "lock disengaged with a heavy thunk" in
+// ch.2 AND ch.5). An echo is any 8-word phrase of this chapter that already
+// appears in a PRIOR chapter's prose. Exported for direct testing.
+export function buildCrossChapterEchoDetector(priorChapterProse) {
+  const echoNorm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const priorGrams = new Set();
+  for (const pc of (Array.isArray(priorChapterProse) ? priorChapterProse : [])) {
+    const w = echoNorm(pc).split(' ');
+    for (let i = 0; i + 8 <= w.length; i += 1) priorGrams.add(w.slice(i, i + 8).join(' '));
+  }
+  const isEchoed = (s) => {
+    const w = echoNorm(s).split(' ');
+    for (let i = 0; i + 8 <= w.length; i += 1) {
+      if (priorGrams.has(w.slice(i, i + 8).join(' '))) return true;
+    }
+    return false;
+  };
+  // A reused phrase's 8-gram often SPANS a sentence boundary ("...a heavy
+  // thunk. The door...") — the audited thunk echo is exactly this shape. So
+  // test each sentence alone AND joined with its successor; a pair-only hit
+  // flags the first sentence (rewriting it breaks the echo either way).
+  const findEchoSentences = (prose) => {
+    const sents = splitSentencesSafe(prose).map((s) => s.trim());
+    const flagged = [];
+    for (let i = 0; i < sents.length; i += 1) {
+      if (sents[i].length <= 20) continue;
+      if (isEchoed(sents[i]) || (i + 1 < sents.length && isEchoed(sents[i] + ' ' + sents[i + 1]))) {
+        flagged.push(sents[i]);
+      }
+    }
+    return flagged;
+  };
+  return { isEchoed, findEchoSentences, echoNorm, priorGramCount: priorGrams.size };
+}
+
 // ARCH-1B: CLOSED-WORLD CHECK (nonfiction). Every proper-noun phrase, month-year date,
 // year, and significant number in the prose must exist in the project's evidence
 // (research_data + seed + all bible fields). One principle replaces the per-shape regex
@@ -2810,6 +2848,7 @@ export async function generateChapterSceneByScene({
   sceneExecutionCanaryTrial = null,
   sceneExecutionAcceptanceRunners = null,
   priorLedger = null,
+  priorChapterProse = [],
 }) {
   if (!project) throw new Error('Project is required.');
   if (!chapter) throw new Error('Chapter is required.');
@@ -3698,6 +3737,52 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
   finalProse = dedupeRepeatedSentences(finalProse);
   finalProse = dedupeRepeatedQuotes(finalProse);
   repetitionAlarm(finalProse);
+
+  // BOOKECHO-1: detect cross-chapter echoes, then ONE bounded repair pass that
+  // rewrites only the offending sentences. Each replacement applies by exact
+  // match and is re-checked against the prior-gram set before it is accepted
+  // (fail closed per sentence). The gate itself NEVER blocks a chapter.
+  try {
+    if (Array.isArray(priorChapterProse) && priorChapterProse.length) {
+      const echoDet = buildCrossChapterEchoDetector(priorChapterProse);
+      const echoes = echoDet.findEchoSentences(finalProse);
+      if (echoes.length) {
+        const list = echoes.slice(0, 12);
+        const repairPrompt = [
+          'You are line-editing a novel chapter. Each numbered sentence below reuses a distinctive phrase from an EARLIER chapter of the same book. Rewrite each sentence with fresh phrasing while preserving its exact meaning, characters, tone, and tense. Do not add new events or details. If a sentence contains quotation marks, keep the dialogue quoted.',
+          'Return ONLY the rewritten sentences, one per line, numbered to match. No commentary.',
+          '',
+          ...list.map((s, i) => `${i + 1}. ${s}`),
+        ].join('\n');
+        let repairedCount = 0;
+        try {
+          const echoResult = await invokeLLMWithRetry({
+            prompt: repairPrompt,
+            model: pickProseModel(project),
+            temperature: 0.4,
+            max_tokens: 2000,
+          });
+          const raw = extractTextFromLLMResult(echoResult) || '';
+          const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+          for (let i = 0; i < list.length; i += 1) {
+            const line = lines.find((l) => l.startsWith(`${i + 1}.`) || l.startsWith(`${i + 1})`));
+            if (!line) continue;
+            const rewritten = line.replace(/^\d+[.)]\s*/, '').trim();
+            if (rewritten.length < 15) continue;
+            if (echoDet.echoNorm(rewritten) === echoDet.echoNorm(list[i])) continue;
+            if (echoDet.isEchoed(rewritten)) continue;
+            if (!finalProse.includes(list[i])) continue;
+            finalProse = finalProse.replace(list[i], rewritten);
+            repairedCount += 1;
+          }
+        } catch (echoLLMErr) { /* fail open: echoes ship rather than block */ }
+        const remaining = echoDet.findEchoSentences(finalProse).length;
+        console.warn(`[BOOKECHO-1] echoSentences=${echoes.length} repaired=${repairedCount} remaining=${remaining}`);
+      } else {
+        console.log('[BOOKECHO-1] echoSentences=0');
+      }
+    }
+  } catch (echoErr) { /* BOOKECHO-1 never blocks a chapter */ }
 
   // Semantic source verification (nonfiction): one MODEL pass over the whole
   // chapter (semanticSourceCheck — previously defined but never wired) catches

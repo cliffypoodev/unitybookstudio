@@ -3561,6 +3561,25 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
           }))
       : [];
 
+    // BOOKECHO-1: full prose of all PRIOR chapters for the cross-chapter
+    // phrase-echo detector in sceneWriter. Resolved sequentially from storage;
+    // any failure leaves that chapter out and the detector simply sees less.
+    const priorChapterProse = [];
+    if (!isAnth && chapter.chapter_number > 1) {
+      try {
+        const echoPriors = generationChapters
+          .filter(c => c && c.chapter_number && c.chapter_number < chapter.chapter_number && isBodyChapter(c))
+          .sort((a, b) => a.chapter_number - b.chapter_number);
+        for (const pc of echoPriors) {
+          try {
+            const t = await resolveChapterContent(pc);
+            if (typeof t === 'string' && t.length > 500) priorChapterProse.push(t);
+          } catch (echoResolveErr) { /* skip this chapter */ }
+        }
+        console.log(`[BOOKECHO-1] prior chapters resolved for echo check: ${priorChapterProse.length}`);
+      } catch (echoPrepErr) { /* detector will skip */ }
+    }
+
     console.log('[DRAFT DEBUG] Calling generateChapterByScenes. Beats parsed:', JSON.parse(chapterWithBeats.scene_beats_json || '{}')?.beats?.length || JSON.parse(chapterWithBeats.scene_beats_json || '{}')?.sections?.length || 0, 'scenes', '| proseModelOverride:', proseModelOverride || 'none', '| coverage summaries:', priorChapterSummaries.length);
     
     // Verify compact parse and before-draft
@@ -3587,6 +3606,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       proseModelOverride,
       priorChapterSummaries,
       priorLedger,
+      priorChapterProse,
     });
 
     console.log('[DRAFT DEBUG] generateChapterByScenes returned. Prose length:', sceneResult?.prose?.length || 0);
