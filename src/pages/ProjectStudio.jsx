@@ -3885,6 +3885,9 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     const preJudgeRewriteContent = chapterContent;
     const preJudgeRewriteWordCount = wordCount;
     const preJudgeRewriteCleanResult = cleanResult;
+    // CRITFIX-1: tracks whether a judge rewrite actually replaced the draft.
+    // Re-judging is only meaningful when the text changed.
+    let judgeRewriteApplied = false;
 
     // Full chapter judge rewrites are disabled.
     // The original draft was generated scene-by-scene through deterministic
@@ -3989,6 +3992,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         chapterContent = rewrittenContent;
         wordCount = rewrittenWordCount;
         cleanResult = rewrittenCleanResult;
+        judgeRewriteApplied = true;
       } else {
         chapterContent = preJudgeRewriteContent;
         wordCount = preJudgeRewriteWordCount;
@@ -4008,7 +4012,11 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     const finalSlop = needsRetry ? mechanicalSlopScore(chapterContent) : slopResult;
     const finalTense = needsRetry ? checkTenseConsistency(chapterContent, project) : tenseViolations;
     const finalPov = needsRetry ? checkPovConsistency(chapterContent, project, chapter.chapter_number) : povViolations;
-    const finalJudge = needsRetry ? unwrapIntegrationResult(await invokeLLMWithRetry({
+    // CRITFIX-1: with the full-chapter rewrite disabled (or rejected), the
+    // draft is byte-identical to what the critic already judged. Re-judging
+    // identical input costs 23-60s per chapter and gives a nondeterministic
+    // second verdict on the same bytes. Reuse the first judgment instead.
+    const finalJudge = (needsRetry && judgeRewriteApplied) ? unwrapIntegrationResult(await invokeLLMWithRetry({
       task_type: 'critique',
       prompt: buildChapterJudgePrompt(project, chapter, chapterContent, [...finalTense, ...finalPov]),
       response_json_schema: chapterJudgeSchema,
