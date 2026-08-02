@@ -98,45 +98,19 @@ export function runDialogueTagCaps(loaded, onProgress) {
   const breathMax = Math.max(5, Math.round(7 * totalWordCount / 10000));
 
   if (breathCount > breathMax) {
-    const breathExcess = breathCount - breathMax;
-    let breathGlobal = 0;
-    let breathRemoved = 0;
-
-    console.log('[POLISH][BREATH] found=' + breathCount + ', max=' + breathMax + ', removing=' + breathExcess);
-
-    const breathReplacements = {
-      'breath': ['air', 'pause', 'beat', 'moment', 'silence'],
-      'breathe': ['steady', 'settle', 'focus', 'pause', 'hold still'],
-      'breathing': ['rhythm', 'chest rising', 'stillness', 'silence between them', 'quiet'],
-      'breathed': ['said', 'whispered', 'let the words out', 'spoke', 'managed'],
-      'breathless': ['spent', 'winded', 'shaking', 'raw', 'undone'],
-    };
-
-    for (const f of loaded) {
-      if (breathRemoved >= breathExcess) break;
-      const chBreathRegex = /\b(breath|breathe|breathing|breathed|breathless)\b/gi;
-      f.content = f.content.replace(chBreathRegex, (match) => {
-        breathGlobal++;
-        if (breathGlobal <= breathMax) return match;
-        if (breathRemoved >= breathExcess) return match;
-        breathRemoved++;
-        breathFixed++;
-
-        const key = match.toLowerCase();
-        const pool = breathReplacements[key] || breathReplacements['breath'];
-        const alt = pool[breathRemoved % pool.length];
-
-        if (match.charAt(0) === match.charAt(0).toUpperCase()) {
-          return alt.charAt(0).toUpperCase() + alt.slice(1);
-        }
-        return alt;
-      });
-    }
-
-    if (breathRemoved > 0) {
-      changes.push('Breath-stem: ' + breathCount + ' → ' + breathMax + ' (' + breathRemoved + ' replaced)');
-      console.log('[POLISH] Breath stem capped:', breathRemoved);
-    }
+    // POLISHFIX-4: flag, never swap. The synonym pools here replaced the WORD
+    // "breath" anywhere in narration - measured on the live Brass Meridian saves
+    // this produced "the station was holding its own pause", "chest rising" for
+    // "breathing", and 35 total context-free swaps in one run. The scar lists in
+    // manuscriptFixer/manuscriptArtifactRepair ("own pause raw", "pause hitched"
+    // -> "breath hitched") exist because of this exact block. Over-cap counts are
+    // now reported for a human or an LLM pass with context; deterministic
+    // word-swaps on narration prose do not converge.
+    changes.push(
+      'Breath-stem over cap: ' + breathCount + ' instance(s), cap ' + breathMax +
+      ' - flagged for review; mechanical synonym swap disabled.'
+    );
+    console.log('[POLISH][BREATH] over cap - flagged only (swap disabled): found=' + breathCount + ', max=' + breathMax);
   }
 
   return { dialogueTagsFixed, breathFixed, changes };
