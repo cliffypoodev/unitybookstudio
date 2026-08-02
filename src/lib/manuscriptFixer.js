@@ -3768,13 +3768,17 @@ function runDeterministicWholeManuscriptPasses({ project, loaded, report, onProg
     fn: () => runStackedClauseVariation(loaded, onProgress),
   });
 
-  runSafePass({
+  // POLISHFIX-3: mechanical pool rewrites produced "She said it, steady" for
+  // "Her voice was steady" and "He spoke - different. Softer." on the live saves.
+  // The scar lists this file already carries for these exact artifact shapes are
+  // the proof the pass does not converge. Same family as the three passes below
+  // that are already diagnostic-only.
+  runDiagnosticOnlyPass({
     label: 'voice pattern cleanup',
-    loaded,
-    project,
     report,
     onProgress,
-    fn: () => fixVoicePatterns(loaded, loaded.length),
+    reason:
+      'direct mutation disabled because pool replacements produced ungrammatical rewrites ("She said it, steady", "He spoke - different") that downstream scar-list regexes then had to chase.',
   });
 
   runSafePass({
