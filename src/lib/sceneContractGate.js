@@ -1134,6 +1134,39 @@ export function classifyCriticFinding(finding, generatedScenes, deterministicRep
     return { hard: false, category: 'advisory_thematic', reason: 'Thematic overlap or redundancy is advisory' };
   }
 
+  // CRITGUARD-1: closed-world sanity check before any hard category fires.
+  // A live ch.3 run was killed by the critic finding "Marcus losing his left
+  // hand occurs in scene 2, which was forbidden in scene 1" — but the accepted
+  // beat contract ASSIGNS that event to scene 2. An event occurring in its OWN
+  // owning scene is the plan being executed, not a violation; the word
+  // "forbidden" alone made it a hard block while every deterministic gate had
+  // passed. If the finding names an occurrence scene and substantially matches
+  // a required event OWNED by that same scene, it is self-refuting: downgrade
+  // to advisory. A real early/replay violation names an occurrence scene that
+  // DIFFERS from the owning scene, so this cannot mask a true finding.
+  if (Array.isArray(generatedScenes) && generatedScenes.length) {
+    const occMatch = v.match(/\b(?:occurs?|occurred|happens?|happened|performed|takes?\s+place)\s+in\s+scene\s+(\d+)/);
+    if (occMatch) {
+      const occScene = Number(occMatch[1]);
+      const normWord = (w) => w.toLowerCase().replace(/(?:ing|ed|es|s)$/, '');
+      const stopWords = new Set(['the','a','an','in','of','to','his','her','their','its','and','or','with','which','was','is','that','this','scene','for','from','was','were']);
+      const findingWords = new Set(v.replace(/[^a-z0-9\s]/gi, ' ').split(/\s+/).filter((w) => w.length > 2 && !stopWords.has(w)).map(normWord));
+      for (const sc of generatedScenes) {
+        const spec = sc?.spec || sc || {};
+        const owningScene = Number(sc?.sceneNumber || spec.scene_number || spec.sceneNumber || 0);
+        if (owningScene !== occScene) continue;
+        for (const ev of (Array.isArray(spec.required_events) ? spec.required_events : [])) {
+          const evWords = String(ev).replace(/[^a-z0-9\s]/gi, ' ').split(/\s+/).filter((w) => w.length > 2 && !stopWords.has(w)).map(normWord);
+          if (!evWords.length) continue;
+          const hits = evWords.filter((w) => findingWords.has(w)).length;
+          if (hits >= 3 || hits / evWords.length >= 0.6) {
+            return { hard: false, category: 'advisory_event_in_owning_scene', reason: `Finding describes a required event of scene ${occScene} occurring in scene ${occScene} — the contract executed as planned` };
+          }
+        }
+      }
+    }
+  }
+
   // Hard Categories
   if (/\b(dead|died)\b/.test(v) && /\b(speaks?|talks?|walks?|acts?|alive)\b/.test(v)) {
     return { hard: true, category: 'hard_dead_character_acts', reason: 'Dead character acts alive' };
