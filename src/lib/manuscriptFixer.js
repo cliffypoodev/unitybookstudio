@@ -3838,13 +3838,18 @@ function runDeterministicWholeManuscriptPasses({ project, loaded, report, onProg
     fn: () => runCopingMechanismCaps(loaded, onProgress),
   });
 
-  runSafePass({
+  // POLISHFIX-2: measured on the live Brass Meridian TEST saves, fixHangingQuotes
+  // collapsed 31-69% of paragraphs in EVERY chapter; the revert gate caught the
+  // three worst chapters but shipped ch.2 (-38%) and ch.3 (-31%) with 13 new
+  // orphan-close-quote paragraphs. This is the PARABREAK-1 collapsed-dialogue
+  // disease created at save time. Diagnostic-only until a paragraph-preserving
+  // quote repair exists.
+  runDiagnosticOnlyPass({
     label: 'hanging quote fixes',
-    loaded,
-    project,
     report,
     onProgress,
-    fn: () => fixHangingQuotes(loaded),
+    reason:
+      'direct mutation disabled because it merged multi-speaker dialogue paragraphs at scale (31-69% paragraph collapse on every measured chapter) and manufactured orphaned close-quotes below the revert threshold.',
   });
 
   for (const item of loaded) {
