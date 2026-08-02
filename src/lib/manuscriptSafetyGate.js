@@ -81,6 +81,17 @@ const PROCESS_LEAK_CANARIES = [
   { phrase: 'TODO', severity: 'high', matchMode: 'standalone' },
 ];
 
+// DIALOGLEAK-1: canary phrases that are also plausible in-world SPOKEN
+// English. Ch.3's export was hard-blocked because Marcus says "Down here,
+// the structure is solid. Until it isn't." — character dialogue, not critic
+// commentary. Real process leaks are narration/labels, not quoted speech,
+// so for ONLY these phrases a match inside an open double-quote span is
+// treated as dialogue and skipped. Every other canary is unaffected.
+const DIALOGUE_PLAUSIBLE_CANARIES = new Set([
+  'the structure is solid',
+  'the next logical step',
+]);
+
 /**
  * Check if a match is a false positive (appears naturally in story prose).
  */
@@ -175,6 +186,17 @@ export function detectProcessLeaks(text, options = {}) {
         const snippetStart = Math.max(0, idx - 30);
         const snippetEnd = Math.min(normalized.length, idx + phraseLower.length + 30);
         const snippet = normalized.substring(snippetStart, snippetEnd);
+
+        // DIALOGLEAK-1: skip a plausible-dialogue canary when the match sits
+        // inside an open quotation (odd number of double quotes before it —
+        // sanitizeForMatching has already normalized smart quotes to ").
+        if (DIALOGUE_PLAUSIBLE_CANARIES.has(phraseLower)) {
+          const quotesBefore = (normalized.slice(0, idx).match(/"/g) || []).length;
+          if (quotesBefore % 2 === 1) {
+            searchFrom = idx + phraseLower.length;
+            continue;
+          }
+        }
 
         if (!isProcessLeakFalsePositive(canary.phrase, snippet, text)) {
           matches.push({
