@@ -1,4 +1,4 @@
-// src/lib/modelRouting.js — FULL REPLACEMENT for local Ollama
+// src/lib/modelRouting.js — FULL REPLACEMENT for local llama.cpp
 import { isNonfictionProject } from '@/lib/manuscriptStats';
 import { isEroticaAnthology, isNonfictionAnthology } from '@/lib/anthologyEngine';
 import { PRIMARY_WRITING_MODEL, WRITING_MODEL_LABEL, normalizeWritingModel } from '@/lib/writingModel';
@@ -74,7 +74,7 @@ export function scrubModelFields(fieldsToSave) {
 }
 
 export function getModelRoutingSummary() {
-  return { writing_model: PRIMARY_WRITING_MODEL, fiction_prose_model: DEFAULT_FICTION_PROSE_MODEL, structured_model: DEFAULT_STRUCTURED_MODEL, nonfiction_prose_model: DEFAULT_NONFICTION_PROSE_MODEL, analytics_model: DEFAULT_ANALYTICS_MODEL, lumimaid_enabled: false, user_model_selection_enabled: false, silent_writing_fallback_enabled: false, provider: 'Ollama (Local)' };
+  return { writing_model: PRIMARY_WRITING_MODEL, fiction_prose_model: DEFAULT_FICTION_PROSE_MODEL, structured_model: DEFAULT_STRUCTURED_MODEL, nonfiction_prose_model: DEFAULT_NONFICTION_PROSE_MODEL, analytics_model: DEFAULT_ANALYTICS_MODEL, lumimaid_enabled: false, user_model_selection_enabled: false, silent_writing_fallback_enabled: false, provider: 'llama.cpp (Local)' };
 }
 
 export const ADULT_PROSE_MODEL = PRIMARY_WRITING_MODEL;

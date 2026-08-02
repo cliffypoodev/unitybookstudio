@@ -1,7 +1,7 @@
 /**
  * recastModelRouting.js — Model routing for anti-chatbot recast pipeline
  *
- * Routes recast tasks to the most appropriate Ollama model based on:
+ * Routes recast tasks to the most appropriate llama.cpp model based on:
  *   - Genre/profile (fiction vs nonfiction)
  *   - Detected weakness types (filter verbs, chatbot patterns, etc.)
  *   - Structure risk (citations, headings)

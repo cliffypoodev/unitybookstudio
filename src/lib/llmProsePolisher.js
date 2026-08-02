@@ -1,5 +1,5 @@
 // src/lib/llmProsePolisher.js — LLM-based prose polish for fiction chapters
-// Calls the local Ollama prose-polisher model through callAgent.
+// Calls the local llama.cpp prose-polisher model through callAgent.
 // Returns polished text for the caller to validate and save.
 // Does NOT save anything directly.
 

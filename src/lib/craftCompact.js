@@ -2,7 +2,7 @@
  * craftCompact.js — PHASE 3 MIGRATION (PARTIAL RE-ACTIVATION)
  *
  * Most universal prose rules were moved to agent system prompts
- * (baked into Ollama Modelfiles via OpenWebUI).
+ * (baked into llama.cpp Modelfile-derived GGUFs).
  *
  * HUMAN_PROSE_PRIORITY_BLOCK has been RE-ACTIVATED with the Signature Voice
  * rules from antiChatbotProse.js. This ensures anti-chatbot prose quality
