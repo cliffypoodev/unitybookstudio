@@ -1,4 +1,5 @@
 import { getTrustedCharacters } from './narrativeLedger.js';
+import { normalizeCast, resolveReferent, trackLastNamed } from './referentResolver.js';
 
 const STOPWORDS = new Set([
   'about','after','again','against','before','being','between','could','every',
@@ -410,8 +411,12 @@ function isInsideQuotedSpan(text, index) {
   return inside;
 }
 
-export function extractLimbFacts(text) {
+export function extractLimbFacts(text, cast = null) {
   const source = String(text || '');
+  // KEYLEDGER-1c: with a cast in hand, ownership is resolved gender-consistently.
+  // Called with no cast, behaviour is unchanged.
+  const roster = cast ? normalizeCast(cast) : [];
+  const lastNamedByGender = {};
   const facts = [];
   const sentences = source
     .split(/(?<=[.!?])\s+|\n+/)
@@ -448,11 +453,18 @@ export function extractLimbFacts(text) {
       return direct[1];
     }
 
-    if (
-      lastCharacter &&
-      /\b(?:he|his|him|she|her|hers)\b/i.test(sentence)
-    ) {
-      return lastCharacter;
+    // KEYLEDGER-1c — GENDER LOCK. The old fallback handed the sentence to whoever
+    // was named last, with no gender check. Measured on the live ch.4 save,
+    // "His left hand, the one missing its fingers, rested against his chest"
+    // was recorded as LENA's limb because Lena was named in the previous
+    // sentence. A male pronoun cannot refer to a female character.
+    const pronoun = sentence.match(/\b(he|his|him|she|her|hers)\b/i);
+    if (pronoun) {
+      if (roster.length) {
+        const ref = resolveReferent(pronoun[1], roster, lastNamedByGender);
+        return ref && ref.confidence === 'high' ? ref.name : null;
+      }
+      if (lastCharacter) return lastCharacter;
     }
 
     return null;
@@ -471,6 +483,7 @@ export function extractLimbFacts(text) {
   }
 
   for (const sentence of sentences) {
+    if (roster.length) trackLastNamed(sentence, roster, lastNamedByGender);
     const character = canonicalCharacter(sentence);
 
     if (
@@ -480,7 +493,10 @@ export function extractLimbFacts(text) {
       lastCharacter = character;
     }
 
-    const owner = character || lastCharacter;
+    // KEYLEDGER-1c: with a cast, an unresolved pronoun sentence is DROPPED rather
+    // than handed to whoever was named last — that fallback is exactly how
+    // Marcus's severed hand was recorded against Lena on the live ch.4 save.
+    const owner = character || (roster.length ? null : lastCharacter);
     if (!owner) continue;
 
     // EXTRACTFIX-1: the limb vocabulary gained the words real trauma prose actually
@@ -1275,4 +1291,56 @@ export function classifyCriticFinding(finding, generatedScenes, deterministicRep
 export function filterConcreteCriticFindings(findings, generatedScenes, deterministicReports) {
   if (!Array.isArray(findings)) return [];
   return findings.filter((finding) => classifyCriticFinding(finding, generatedScenes, deterministicReports).hard === true);
+}
+
+// ─── KEYLEDGER-1c: condition attribution drift ───────────────────────────────
+// A durable condition belongs to the character who acquired it ON THE PAGE. When
+// a later scene attaches the SAME condition to a different character with no
+// acquisition of their own, that is a fabricated fact — measured on ch.5, where
+// Marcus's empty left sleeve reattaches to Lena. Closed-world: the ledger owns
+// the fact, the prose may not reassign it.
+const CONDITION_FAMILIES = {
+  loss: 'arm-gone',
+  stump: 'arm-gone',
+  'empty-sleeve': 'arm-gone',
+};
+
+export function conditionFamily(kindOrLabel) {
+  const k = String(kindOrLabel || '').toLowerCase();
+  if (CONDITION_FAMILIES[k]) return CONDITION_FAMILIES[k];
+  if (/amputat|sever|stump|empty sleeve/.test(k)) return 'arm-gone';
+  return null;
+}
+
+/**
+ * @param facts            output of extractLimbFacts for the CURRENT scene
+ * @param ledgerConditions runtimeLedger.characterConditions
+ * @returns issue objects, [] when clean
+ */
+export function checkConditionAttribution({ facts, ledgerConditions = {} } = {}) {
+  const owners = new Map();
+  for (const [char, conds] of Object.entries(ledgerConditions || {})) {
+    for (const cond of conds || []) {
+      const side = (String(cond).match(/\b(left|right)\b/i) || [])[1] || '';
+      const family = conditionFamily(cond);
+      if (family) owners.set(`${family}:${side.toLowerCase()}`, char);
+    }
+  }
+
+  const issues = [];
+  for (const fact of facts || []) {
+    const family = conditionFamily(fact.kind);
+    if (!family) continue;
+    const owner = owners.get(`${family}:${String(fact.side || '').toLowerCase()}`);
+    if (owner && owner.toLowerCase() !== String(fact.character).toLowerCase()) {
+      issues.push({
+        code: 'CONDITION_ATTRIBUTION_DRIFT',
+        message:
+          `"${String(fact.sentence).trim().slice(0, 150)}" gives ${fact.displayName} the ` +
+          `${fact.side} ${family.replace('-', ' ')} that the ledger records for ${owner}. ` +
+          `Attribute it to ${owner} or cut it.`,
+      });
+    }
+  }
+  return issues;
 }
