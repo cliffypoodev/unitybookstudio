@@ -1054,6 +1054,18 @@ export function parseAuditPayload(rawText) {
   const fromObject = normalize(tryParse(objectMatch && objectMatch[0]));
   if (fromObject) return fromObject;
 
+  // AUDITJSON-1: the local model frequently returns CONCATENATED objects —
+  // `{...}\n{...}\n{...}` — which is not valid JSON and defeated both matchers
+  // above, wasting 2 of 3 audit attempts per scene (measured in the ch.1
+  // re-draft run). Comma-join the roots and parse them as an array.
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    const span = text.slice(firstBrace, lastBrace + 1);
+    const fromConcatenated = normalize(tryParse('[' + span.replace(/\}\s*\{/g, '},{') + ']'));
+    if (fromConcatenated) return fromConcatenated;
+  }
+
   return null;
 }
 
