@@ -95,3 +95,57 @@ export function formatRhythmLine(label, metrics) {
     (flags.length ? ` | ADVISORY: ${flags.join(' ')}` : ' | ok');
   return { line, flags };
 }
+
+// ── RHYTHM-2: severity tier + deterministic take comparison ──────────────────
+//
+// Calibrated on the instrumented ch.1 run (2026-08-03): raw scenes measured
+// 5.8w/64%/run11, 4.9w/74%/run16, 7.6w/45%/run6. The first two are the disease
+// at full strength; the third is the model doing it roughly right. SEVERE is
+// drawn between them, so a chapter like that one regenerates exactly its two
+// worst scenes (~+2 LLM calls) and leaves the near-miss alone.
+export const RHYTHM_SEVERE = {
+  maxMeanLen: 7,
+  minPctShort: 60,
+  maxShortRun: 7,
+  minSentences: 25,
+};
+
+/** True when a raw scene is staccato enough to be worth ONE regeneration. */
+export function isSeverelyFlat(metrics) {
+  const m = metrics || {};
+  if ((m.sentenceCount || 0) < RHYTHM_SEVERE.minSentences) return false;
+  return (
+    (m.meanLen || 0) < RHYTHM_SEVERE.maxMeanLen ||
+    (m.pctShort || 0) > RHYTHM_SEVERE.minPctShort ||
+    (m.maxShortRun || 0) > RHYTHM_SEVERE.maxShortRun
+  );
+}
+
+/** Deterministic comparison of two takes of the same scene, BY RHYTHM ONLY.
+ *  Returns 'candidate' when the regenerated take measurably improves rhythm,
+ *  else 'original'. Ties go to the original - never churn on equal takes. */
+export function pickBetterRhythm(original, candidate) {
+  const a = original || {};
+  const b = candidate || {};
+  const score = (m) =>
+    (m.meanLen || 0) -
+    0.05 * (m.pctShort || 0) -
+    0.3 * (m.maxShortRun || 0) +
+    0.05 * (m.pctLong || 0);
+  return score(b) > score(a) ? 'candidate' : 'original';
+}
+
+/** The one-shot regeneration instruction, quoting the measured numbers. Appended
+ *  to the ORIGINAL scene prompt - it adds a correction, it replaces nothing, and
+ *  the AUTHOR VOICE deference in the base prompt still governs. */
+export function buildRhythmRegenInstruction(metrics) {
+  const m = metrics || {};
+  return `RHYTHM CORRECTION - REGENERATED TAKE (BINDING):
+Your previous take of THIS scene measured: average sentence length ${m.meanLen} words, ${m.pctShort}% of sentences at 5 words or fewer, and a run of ${m.maxShortRun} consecutive short sentences. That is machine-gun staccato, not the configured voice.
+Write the SAME scene again - same events, same entry and exit state, same characters, same facts - with the sentence rhythm the SIGNATURE VOICE rules demand:
+- Average sentence length between 9 and 14 words.
+- Never more than 3 consecutive sentences of 5 words or fewer.
+- Roughly every 150 words, one sentence of 20+ words that moves through space, action, or thought without stopping.
+- Fragments are for impact only - one per beat, not the default cadence.
+Do not summarize. Do not change any event, name, injury, or object. Where the selected AUTHOR VOICE dossier specifies a different rhythm, the AUTHOR VOICE wins.`;
+}
