@@ -1100,8 +1100,16 @@ export function auditSceneAgainstLedger({
     // extractLimbFacts falls back to nearest-name and would accuse on its own
     // mis-attribution.
     if (Array.isArray(sceneCast) && sceneCast.length) {
+      const castLimbFacts = extractLimbFacts(prose, sceneCast);
       for (const issue of checkConditionAttribution({
-        facts: extractLimbFacts(prose, sceneCast),
+        facts: castLimbFacts,
+        ledgerConditions: runtimeLedger.characterConditions,
+      })) {
+        issues.push(issue);
+      }
+      // INJURYSCALE-1b: and it may not GROW off-page either.
+      for (const issue of checkConditionInflation({
+        facts: castLimbFacts,
         ledgerConditions: runtimeLedger.characterConditions,
       })) {
         issues.push(issue);
@@ -1405,6 +1413,64 @@ export function checkConditionAttribution({ facts, ledgerConditions = {} } = {})
           `${fact.side} ${family.replace('-', ' ')} that the ledger records for ${owner}. ` +
           `Attribute it to ${owner} or cut it.`,
       });
+    }
+  }
+  return issues;
+}
+
+// ─── INJURYSCALE-1b: an injury may not GROW off-page ─────────────────────────
+// Measured disease (Brass Meridian export 12): ch.3 severs Marcus's THUMB at the
+// second joint; ch.5 writes "his left sleeve pinned flat ... his empty sleeve" -
+// a whole missing ARM. LEDGERSCOPE-1 killed the wound that HEALS; this is the
+// wound that ESCALATES. Ranks are coarse on purpose and unknown parts are
+// skipped entirely - a false inflation accusation would poison the repair loop
+// (precision over recall, same as every condition rule in this file).
+const PART_SEVERITY = {
+  finger: 1,
+  thumb: 1,
+  hand: 3,
+  wrist: 3,
+  forearm: 4,
+  arm: 5,
+};
+
+export function partSeverity(partOrCondition) {
+  const text = String(partOrCondition || '').toLowerCase();
+  for (const part of ['finger', 'thumb', 'forearm', 'wrist', 'hand', 'arm']) {
+    if (new RegExp(`\\b${part}\\b`).test(text)) return { part, rank: PART_SEVERITY[part] };
+  }
+  return null;
+}
+
+/**
+ * @param facts            extractLimbFacts output for the CURRENT scene
+ * @param ledgerConditions runtimeLedger.characterConditions
+ * @returns issues; [] when clean or when either side's part is unknown
+ */
+export function checkConditionInflation({ facts, ledgerConditions = {} } = {}) {
+  const issues = [];
+  for (const fact of facts || []) {
+    const factSev = fact.part ? partSeverity(fact.part) : (fact.kind === 'empty-sleeve' ? { part: 'arm', rank: PART_SEVERITY.arm } : null);
+    if (!factSev) continue;
+    const charKey = Object.keys(ledgerConditions || {}).find(
+      (c) => c.toLowerCase() === String(fact.character).toLowerCase()
+    );
+    if (!charKey) continue;
+    for (const cond of ledgerConditions[charKey] || []) {
+      if (!new RegExp(`\\b${fact.side}\\b`, 'i').test(cond)) continue;
+      const ledgerSev = partSeverity(cond);
+      if (!ledgerSev) continue;
+      if (factSev.rank - ledgerSev.rank >= 2) {
+        issues.push({
+          code: 'CONDITION_INFLATION',
+          message:
+            `"${String(fact.sentence).trim().slice(0, 150)}" escalates ${fact.displayName}'s documented ` +
+            `${fact.side} ${ledgerSev.part} injury into a missing ${factSev.part}. The ledger records ` +
+            `"${cond}" - the injury is the ${ledgerSev.part}, nothing more. Rewrite the description to ` +
+            `match the documented injury.`,
+        });
+        break;
+      }
     }
   }
   return issues;
