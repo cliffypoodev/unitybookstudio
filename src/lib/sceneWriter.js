@@ -1126,7 +1126,13 @@ function buildOutputRules(project, targetWords) {
 - Target approximately ${targetWords} words.
 - Begin directly in scene.
 - End on a complete sentence.
-- Do not summarize the scene. Dramatize it.`;
+- Do not summarize the scene. Dramatize it.
+
+FINAL RHYTHM CHECK (this enforces the SIGNATURE VOICE sentence-rhythm rules above with concrete numbers - where the selected AUTHOR VOICE dossier specifies a different rhythm, the AUTHOR VOICE wins):
+- Average sentence length for the scene must land between 9 and 14 words. Fragments are seasoning, not the meal.
+- Never write more than 3 consecutive sentences of 5 words or fewer. After two short sentences, the next one must be long - a subordinate clause, an image, a complication.
+- Roughly every 150 words, include at least one sentence of 20+ words that moves through the space or the thought without stopping.
+- Use "looked", "turned", and "nodded" at most 3 times COMBINED per 500 words. Replace them with the specific verbs the SIGNATURE VOICE rules demand - what does this character do that only they would do?`;
 }
 
 function buildManuscriptPurityBlock() {
