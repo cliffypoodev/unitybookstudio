@@ -78,25 +78,63 @@ export function normalizeCast(cast) {
 /** Infer gender per cast member from the prose itself: the pronoun that most often
  *  follows the name within a short window. Deterministic, no model call. Used only
  *  when the story bible does not carry a gender for the character. */
+/**
+ * KEYLEDGER-4a - gender inference rebuilt on high-precision evidence only.
+ *
+ * The original window heuristic ("alias ... pronoun within 60 chars") counted
+ * evidence that is systematically FALSE in two-hander prose, proven on the live
+ * ch.2 run where it voted Marcus Reed FEMALE and thereby handed every "he" to
+ * Dr. Vale (the only confirmed male), fabricating "Dr. Nolan Vale: key" in the
+ * saved ledger while the key never touched Vale's hands on the page:
+ *   - object pronouns: "Marcus had looked at HER" is about Lena, not Marcus
+ *   - vocatives: '"Marcus," she said' is Lena ADDRESSING Marcus
+ *   - cross-referent possessives: "Lena watched HIS hands" is about Marcus
+ * Per-shape exclusions do not converge (ARCH-1 lesson), so the rewrite keeps
+ * only two shapes that BIND to the named character, measured at 95-100%
+ * precision with 19-30 true votes per chapter on the live manuscript:
+ *   E1 subject chain: a sentence whose ONLY cast alias is this character,
+ *      followed by a sentence that OPENS with He/She and names nobody.
+ *      ("Marcus stopped. He turned.")
+ *   E2 absolute construction: same only-alias condition, then ", his/her ..."
+ *      within the sentence - a participial absolute binds to the subject.
+ *      ("Marcus said, his voice low." / "Lena followed, her eyes tracking...")
+ * Quoted dialogue is blanked first so speech content and vocatives produce no
+ * evidence. Thresholds unchanged: 3+ votes and a strict majority, or no verdict.
+ */
 export function inferCastGenders(prose, cast) {
-  const text = String(prose || '');
   const roster = normalizeCast(cast);
-  const allAliases = roster.flatMap((c) => c.aliases).map(escapeRx).join('|');
+  if (!roster.length) return roster;
+  const text = String(prose || '').replace(/[\u201C"][^\u201C\u201D"]{0,400}?[\u201D"]/g, ' ');
+  const sentences = text.split(/(?<=[.!?\u2026])\s+/);
+  const aliasRx = new Map(
+    roster.map((c) => [c.name, new RegExp(`\\b(?:${(c.aliases || [c.name]).map(escapeRx).join('|')})\\b`, 'i')])
+  );
+  const whoIn = (s) => roster.filter((c) => aliasRx.get(c.name).test(s));
+  const votes = new Map(roster.map((c) => [c.name, { m: 0, f: 0 }]));
+
+  for (let i = 0; i < sentences.length; i++) {
+    const s = sentences[i];
+    const present = whoIn(s);
+    if (present.length !== 1) continue;
+    const c = present[0];
+    // E1: next sentence opens with a bare subject pronoun and names nobody.
+    if (i + 1 < sentences.length) {
+      const next = sentences[i + 1].trim();
+      const m = /^(He|She)\b/.exec(next);
+      if (m && whoIn(next).length === 0) votes.get(c.name)[m[1] === 'He' ? 'm' : 'f'] += 1;
+    }
+    // E2: participial absolute after the alias: "Marcus said, his voice low".
+    const abs = new RegExp(
+      `\\b(?:${(c.aliases || [c.name]).map(escapeRx).join('|')})\\b[^,.!?;]{0,40},\\s*(his|her)\\b`, 'i'
+    ).exec(s);
+    if (abs) votes.get(c.name)[abs[1].toLowerCase() === 'his' ? 'm' : 'f'] += 1;
+  }
+
   return roster.map((c) => {
     if (c.gender) return c;
-    // Only count a pronoun that follows one of this character's aliases closely
-    // with NO other cast alias in between - "Marcus turned. Lena watched her
-    // father" must not make Marcus female. Short window, exclusive, or no verdict.
-    let male = 0; let female = 0;
-    for (const alias of c.aliases) {
-      const rx = new RegExp(`\\b${escapeRx(alias)}\\b((?:(?!\\b(?:${allAliases})\\b)[^.!?]){0,60}?)\\b(he|his|him|himself|she|her|hers|herself)\\b`, 'gi');
-      let m;
-      while ((m = rx.exec(text)) !== null) {
-        if (genderOfPronoun(m[2]) === 'm') male += 1; else female += 1;
-      }
-    }
-    if (male >= 3 && male > female) return { ...c, gender: 'm' };
-    if (female >= 3 && female > male) return { ...c, gender: 'f' };
+    const v = votes.get(c.name);
+    if (v.m >= 3 && v.m > v.f) return { ...c, gender: 'm' };
+    if (v.f >= 3 && v.f > v.m) return { ...c, gender: 'f' };
     return c;
   });
 }
@@ -123,7 +161,17 @@ export function resolveReferent(token, cast, lastNamedByGender = {}) {
   if (!g) return null;
 
   const candidates = roster.filter((c) => c.gender === g);
-  if (candidates.length === 1) return { name: candidates[0].name, confidence: 'high' };
+  // KEYLEDGER-4b: gender-uniqueness is only closed-world when every OTHER cast
+  // member has a CONFIRMED different gender. On the live ch.2 run, Marcus had
+  // no verdict yet, Vale was male, and every "he" resolved to Vale at high
+  // confidence - a fabricated holder. Unknown gender means possible candidate,
+  // which means not unique.
+  const othersConfirmedDifferent = roster
+    .filter((c) => c.gender !== g)
+    .every((c) => c.gender && c.gender !== g);
+  if (candidates.length === 1 && othersConfirmedDifferent) {
+    return { name: candidates[0].name, confidence: 'high' };
+  }
   // GENDER LOCK: never hand a male pronoun to a female character, even as a guess.
   const last = lastNamedByGender[g];
   if (last && roster.some((c) => c.name === last && c.gender === g)) {
