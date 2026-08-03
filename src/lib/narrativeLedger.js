@@ -1,5 +1,5 @@
 import { extractLimbFacts, extractCharacterStateFacts } from './sceneContractGate.js';
-import { checkPossessionContinuity } from './objectPossession.js';
+import { checkPossessionContinuity, objectAliases } from './objectPossession.js';
 
 export function getTrustedCharacters(spec, ledger) {
   const trusted = new Set();
@@ -78,6 +78,7 @@ export function buildInitialLedger() {
     droppedObjects: [],
     separatedCharacters: [],
     objectLocations: {},
+    objectConditions: {},
   };
 }
 
@@ -306,6 +307,67 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options
     }
   }
 
+  // OBJECTSTATE-1: physical object condition, read off the PROSE, per tracked
+  // object. Proven need on Brass Meridian TEST: the key SNAPS IN HALF in ch.3
+  // ("The key snapped. ... The bottom half fell into the water") and ch.4-5
+  // depict it whole and working - the ledger tracked who HELD it but not what
+  // STATE it was in. Closed world: only tracked objects can carry a condition;
+  // prose is the sole source (a beat plan asserting damage that never got
+  // written must not bind future chapters); quoted dialogue is skipped (a
+  // spoken claim is not a scene event); break and repair events are applied in
+  // prose order so the LAST written state wins. A repair is stored as the
+  // explicit value ['repaired'] - never as an absence - so the chapter fold
+  // cannot resurrect a cleared break.
+  if (trackedObjects.length && sceneProse) {
+    ledger.objectConditions = ledger.objectConditions || {};
+    const oProse = String(sceneProse);
+    const oQuoteSpans = [];
+    {
+      const qrx = /[\u201c"]([^\u201c\u201d"]{1,600})[\u201d"]/g;
+      let qm;
+      while ((qm = qrx.exec(oProse)) !== null) oQuoteSpans.push([qm.index, qm.index + qm[0].length]);
+    }
+    const oInQuote = (idx) => oQuoteSpans.some(([a, b]) => idx >= a && idx < b);
+    const escapeObjRx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    for (const obj of trackedObjects) {
+      const aliases = objectAliases(obj).map(escapeObjRx);
+      if (!aliases.length) continue;
+      const aliasAlt = aliases.join('|');
+      const breakRx = new RegExp(
+        `\\b(?:the|a|an|his|her|their)\\s+(?:${aliasAlt})\\s+(?:snapped|broke|cracked|split|bent)\\b` +
+        `|\\b(?:the|a|an|his|her|their)\\s+(?:${aliasAlt})\\s+(?:was|is|had)\\s+(?:snapped|broken|cracked|split|bent)\\b` +
+        `|\\b(?:top|bottom|upper|lower)\\s+half\\s+of\\s+the\\s+(?:${aliasAlt})\\b`,
+        'gi'
+      );
+      const repairRx = new RegExp(
+        `\\b(?:repaired|mended|fused|welded|reassembled)\\s+(?:the|a|an|his|her|their)\\s+(?:${aliasAlt})\\b` +
+        `|\\b(?:the|a|an|his|her|their)\\s+(?:${aliasAlt})\\s+(?:was|is|had\\s+been)\\s+(?:repaired|mended|fused|welded|whole\\s+again)\\b`,
+        'gi'
+      );
+      const events = [];
+      let m;
+      while ((m = breakRx.exec(oProse)) !== null) {
+        if (oInQuote(m.index)) continue;
+        const verb = (m[0].match(/(snapped|broke|broken|cracked|split|bent|half)/i) || ['damaged'])[0].toLowerCase();
+        events.push({ idx: m.index, kind: 'break', cond: verb === 'half' ? 'broken - only part of it remains' : `broken (${verb})` });
+      }
+      while ((m = repairRx.exec(oProse)) !== null) {
+        if (oInQuote(m.index)) continue;
+        events.push({ idx: m.index, kind: 'repair' });
+      }
+      events.sort((x, y) => x.idx - y.idx);
+      for (const ev of events) {
+        if (ev.kind === 'repair') {
+          ledger.objectConditions[obj] = ['repaired'];
+        } else {
+          const cur = (ledger.objectConditions[obj] || []).filter((c) => c !== 'repaired');
+          if (!cur.includes(ev.cond)) cur.push(ev.cond);
+          ledger.objectConditions[obj] = cur;
+        }
+      }
+    }
+  }
+
   // Cap size
   if (ledger.completedEvents.length > 30) {
     ledger.completedEvents = ledger.completedEvents.slice(-30);
@@ -352,6 +414,16 @@ export function serializeLedger(ledger) {
         return cond;
       });
       out += `- ${char}: ${rendered.join(', ')}\n`;
+    }
+  }
+
+  const objConds = Object.entries(ledger.objectConditions || {})
+    .map(([obj, conds]) => [obj, (conds || []).filter((c) => c !== 'repaired')])
+    .filter(([, conds]) => conds.length > 0);
+  if (objConds.length > 0) {
+    out += `OBJECT CONDITIONS (physical damage is permanent until a repair is written on the page):\n`;
+    for (const [obj, conds] of objConds) {
+      out += `- ${obj}: ${conds.join(', ')} - it cannot appear or function as an intact object; depict the damage every time it is used\n`;
     }
   }
 
@@ -413,6 +485,7 @@ export function cloneLedger(ledger) {
     unavailableObjects: [...(ledger.unavailableObjects || [])],
     droppedObjects: [...(ledger.droppedObjects || [])],
     separatedCharacters: [...(ledger.separatedCharacters || [])],
+    objectConditions: cloneStrMap(ledger.objectConditions),
   };
 }
 
@@ -450,6 +523,14 @@ export function mergeLedgers(base, incoming) {
   a.objectLocations = { ...a.objectLocations, ...b.objectLocations };
   for (const [char, objs] of Object.entries(b.possessions)) {
     a.possessions[char] = uniq(objs);
+  }
+  // OBJECTSTATE-1: per-key override, NOT union. Saved ledgers are cumulative
+  // (each chapter's ledger starts from the fold of everything before it), so a
+  // later chapter always carries the inherited condition forward - and a repair
+  // is stored as the explicit value ['repaired'], never as an absence, so a
+  // union here would resurrect the break a written repair cleared.
+  for (const [obj, conds] of Object.entries(b.objectConditions)) {
+    a.objectConditions[obj] = uniq(conds);
   }
 
   // --- mutable sets: a later non-empty reading replaces the earlier one ---
