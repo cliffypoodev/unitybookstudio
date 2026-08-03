@@ -149,3 +149,64 @@ Write the SAME scene again - same events, same entry and exit state, same charac
 - Fragments are for impact only - one per beat, not the default cadence.
 Do not summarize. Do not change any event, name, injury, or object. Where the selected AUTHOR VOICE dossier specifies a different rhythm, the AUTHOR VOICE wins.`;
 }
+
+// ── GESTURE-2: severity tier + regeneration instruction for gesture loops ────
+//
+// Calibrated on export 13 per-scene density (gestures = looked/turned/nodded
+// per 1000 words): clean scenes measure 5.1-8.4, diseased scenes 10.2-18.2,
+// with a clear gap between 8.4 and 10.2. SEVERE is drawn in that gap. The
+// advisory cap (6/1kw) proved decorative: ch.2 was drafted WITH the cap in its
+// prompt and shipped 11.5/1kw - the model ignores gesture instructions it is
+// not held to, exactly as it ignored rhythm targets before RHYTHM-2. Same cure:
+// ONE bounded regeneration with the measured numbers quoted, deterministic
+// pick, ties to the original. minWords guards small-sample noise.
+export const GESTURE_SEVERE = {
+  minPer1000: 10,
+  minWords: 400,
+};
+
+/** True when a raw scene is gesture-saturated enough to be worth ONE regeneration. */
+export function isSeverelyGestural(metrics) {
+  const m = metrics || {};
+  if ((m.wordCount || 0) < GESTURE_SEVERE.minWords) return false;
+  const density = (m.gesturesPer1000 && m.gesturesPer1000.combined) || 0;
+  return density >= GESTURE_SEVERE.minPer1000;
+}
+
+/** The gesture regeneration instruction, quoting the measured numbers. Composed
+ *  alongside (or without) the rhythm instruction; AUTHOR VOICE still governs. */
+export function buildGestureRegenInstruction(metrics) {
+  const m = metrics || {};
+  const density = (m.gesturesPer1000 && m.gesturesPer1000.combined) || 0;
+  const perWord = m.gesturesPer1000 || {};
+  return `GESTURE CORRECTION - REGENERATED TAKE (BINDING):
+Your previous take of THIS scene used looked/turned/nodded at ${density} per 1000 words (looked ${perWord.looked ?? 0}, turned ${perWord.turned ?? 0}, nodded ${perWord.nodded ?? 0}). That is stage business standing in for thought.
+Write the SAME scene again - same events, same entry and exit state, same characters, same facts - with the gesture loop broken:
+- looked/turned/nodded: at most ONE of these words per 150 words of prose, and never twice in the same paragraph.
+- Where the old take had a character look/turn/nod, give what they NOTICE, DECIDE, or DO instead - a concrete observation, a thought, an action that moves the scene.
+- Do not swap in synonyms (glanced, pivoted, tilted his head) - that is the same disease wearing a new word. Replace the beat, not the verb.
+Do not summarize. Do not change any event, name, injury, or object. Where the selected AUTHOR VOICE dossier specifies otherwise, the AUTHOR VOICE wins.`;
+}
+
+/** Deterministic comparison of two takes when EITHER severity trigger fired.
+ *  triggers = { flat, gestural }. Rules, in order:
+ *  1. A gesture-only regen must not INTRODUCE severe flatness - keep original.
+ *  2. A flat-only regen must not INTRODUCE severe gesture density - keep original.
+ *  3. Otherwise score each take on the triggered dimensions only; strict
+ *     improvement wins, ties go to the original - never churn on equal takes. */
+export function pickBetterTake(original, candidate, triggers) {
+  const t = triggers || {};
+  const a = original || {};
+  const b = candidate || {};
+  if (t.gestural && !t.flat && isSeverelyFlat(b) && !isSeverelyFlat(a)) return 'original';
+  if (t.flat && !t.gestural && isSeverelyGestural(b) && !isSeverelyGestural(a)) return 'original';
+  const rhythmScore = (m) =>
+    (m.meanLen || 0) -
+    0.05 * (m.pctShort || 0) -
+    0.3 * (m.maxShortRun || 0) +
+    0.05 * (m.pctLong || 0);
+  const gestureDensity = (m) => (m.gesturesPer1000 && m.gesturesPer1000.combined) || 0;
+  const score = (m) =>
+    (t.flat ? rhythmScore(m) : 0) - (t.gestural ? 0.5 * gestureDensity(m) : 0);
+  return score(b) > score(a) ? 'candidate' : 'original';
+}
