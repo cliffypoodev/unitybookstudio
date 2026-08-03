@@ -446,12 +446,28 @@ export function extractLimbFacts(text, cast = null) {
   function canonicalCharacter(sentence) {
     const possessive = sentence.match(/\b([A-Z][a-z]{2,})['’]s\b/);
     if (possessive && !ignoredNames.has(possessive[1])) {
-      return possessive[1];
+      // KEYLEDGER-2e: with a cast in hand, only a cast member can own a condition.
+      if (roster.length) {
+        const ref = resolveReferent(possessive[1], roster, lastNamedByGender);
+        if (ref && ref.confidence === 'high') return ref.name;
+      } else {
+        return possessive[1];
+      }
     }
 
     const direct = sentence.match(/\b([A-Z][a-z]{2,})\b/);
     if (direct && !ignoredNames.has(direct[1])) {
-      return direct[1];
+      // KEYLEDGER-2e: the first capitalised word is often not a person at all.
+      // Measured on the live ch.5 draft: "Now he stood ten feet away, his left
+      // sleeve pinned flat" recorded a character literally named "Now" with an
+      // empty sleeve. With a cast, an unrecognised capitalised word falls
+      // through to the pronoun branch - "Now HE stood" is about HE.
+      if (roster.length) {
+        const ref = resolveReferent(direct[1], roster, lastNamedByGender);
+        if (ref && ref.confidence === 'high') return ref.name;
+      } else {
+        return direct[1];
+      }
     }
 
     // KEYLEDGER-1c — GENDER LOCK. The old fallback handed the sentence to whoever
