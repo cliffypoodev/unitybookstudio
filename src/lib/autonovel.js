@@ -1511,6 +1511,7 @@ Rules:
 - Beats must form a coherent arc across the chapter with rising tension
 - Each beat must advance plot, character, or both — no filler scenes
 - Every scene's required_events must include at least ONE concrete, externally visible event — an action, discovery, confrontation, or physical change in the situation. "Notices", "reflects", "discusses", "realizes" are NOT events; pair them with a concrete event or the plan will be rejected
+- STAKES ARE NOUNS: any reveal, confession, or discovery event must name the SPECIFIC thing revealed — the document, the program, the person, the act — drawn from the story bible or earlier chapters. "Marcus reveals the truth about the cover-up" is INVALID phrasing; "Marcus admits he signed the falsified seal report that blamed Ortiz" is the required shape. Never write "the truth", "the secret", or "the past" as the object of a reveal
 - The final beat's exit_hook must create forward momentum into the next chapter
 - Every beat must change the story state. The exit_state of scene N must be compatible with the entry_state of scene N+1.
 - A death, departure, revelation, confrontation, transfer of an important object, climax, or ending has ONE owning scene_id. Never plan an alternate take of the same event.
