@@ -90,7 +90,7 @@ import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
 import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger } from '@/lib/narrativeLedger';
 import { inferCastGenders } from '@/lib/referentResolver';
 import { trackedObjectsFromSpecs, dedupeTrackedObjects } from '@/lib/objectPossession';
-import { measureRhythm, formatRhythmLine } from '@/lib/proseRhythm';
+import { measureRhythm, formatRhythmLine, isSeverelyFlat, pickBetterRhythm, buildRhythmRegenInstruction } from '@/lib/proseRhythm';
 import {
   isAnthologyProject,
   isNonfictionAnthology,
@@ -3266,9 +3266,53 @@ export async function generateChapterSceneByScene({
     // 0a: Raw LLM output BEFORE any cleaning
     pipelineSnapshot(chapter?.id, `0a-scene-${i + 1}-raw-llm-output`, String(generated?.prose || ''));
     // RHYTHM-1: measured at the RAW output so polish/repair effects are attributable.
+    let rawRhythm = null;
     try {
-      console.log(formatRhythmLine(`Ch.${chapterNumber} scene ${i + 1} raw`, measureRhythm(String(generated?.prose || ''))).line);
+      rawRhythm = measureRhythm(String(generated?.prose || ''));
+      console.log(formatRhythmLine(`Ch.${chapterNumber} scene ${i + 1} raw`, rawRhythm).line);
     } catch (rhythmErr) { /* telemetry only - never blocks drafting */ }
+
+    // RHYTHM-2: ONE bounded regeneration when the raw take is severely flat.
+    // Measured on the instrumented ch.1 run: the prompt-side restatement alone
+    // moved mean sentence length 6.2 -> 6.5 words - the model ignores rhythm
+    // instructions it is not held to. This is a REGENERATION of the same scene
+    // with the measured numbers quoted, judged deterministically, ties to the
+    // original. It never mutates prose (the POLISHFIX lesson) and never runs on
+    // nonfiction. Cost: one extra prose call only on severely flat scenes.
+    if (!isNF && rawRhythm && isSeverelyFlat(rawRhythm)) {
+      try {
+        const regenerated = await generateSceneWithRepair({
+          project,
+          spec: promptSpec,
+          prompt: `${prompt}\n\n${buildRhythmRegenInstruction(rawRhythm)}`,
+          model,
+          fallbackModel,
+          disableFallbacks,
+          targetWords: sceneTarget,
+          temperature: 0.72,
+          maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+        });
+        const regenProse = lightCleanSceneOutput(regenerated?.prose || '');
+        if (regenProse) {
+          const regenRhythm = measureRhythm(String(regenerated.prose || ''));
+          const winner = pickBetterRhythm(rawRhythm, regenRhythm);
+          console.log(
+            `[RHYTHM-2] Ch.${chapterNumber} scene ${i + 1} regen: ` +
+            `raw mean=${rawRhythm.meanLen}w run=${rawRhythm.maxShortRun} -> ` +
+            `regen mean=${regenRhythm.meanLen}w run=${regenRhythm.maxShortRun} | keeping ${winner}`
+          );
+          if (winner === 'candidate') {
+            generated = regenerated;
+            sceneProse = regenProse;
+            pipelineSnapshot(chapter?.id, `0a2-scene-${i + 1}-rhythm-regen-kept`, String(generated?.prose || ''));
+          }
+        } else {
+          console.log(`[RHYTHM-2] Ch.${chapterNumber} scene ${i + 1} regen returned empty - keeping original.`);
+        }
+      } catch (regenErr) {
+        console.warn(`[RHYTHM-2] Ch.${chapterNumber} scene ${i + 1} regen failed - keeping original:`, regenErr?.message || regenErr);
+      }
+    }
     pipelineSnapshot(chapter?.id, `0b-scene-${i + 1}-after-lightClean`, sceneProse);
 
     if (!sceneProse) {
