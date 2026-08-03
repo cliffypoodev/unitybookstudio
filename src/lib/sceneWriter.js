@@ -90,6 +90,7 @@ import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
 import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger } from '@/lib/narrativeLedger';
 import { inferCastGenders } from '@/lib/referentResolver';
 import { trackedObjectsFromSpecs, dedupeTrackedObjects } from '@/lib/objectPossession';
+import { measureRhythm, formatRhythmLine } from '@/lib/proseRhythm';
 import {
   isAnthologyProject,
   isNonfictionAnthology,
@@ -3258,6 +3259,10 @@ export async function generateChapterSceneByScene({
 
     // 0a: Raw LLM output BEFORE any cleaning
     pipelineSnapshot(chapter?.id, `0a-scene-${i + 1}-raw-llm-output`, String(generated?.prose || ''));
+    // RHYTHM-1: measured at the RAW output so polish/repair effects are attributable.
+    try {
+      console.log(formatRhythmLine(`Ch.${chapterNumber} scene ${i + 1} raw`, measureRhythm(String(generated?.prose || ''))).line);
+    } catch (rhythmErr) { /* telemetry only - never blocks drafting */ }
     pipelineSnapshot(chapter?.id, `0b-scene-${i + 1}-after-lightClean`, sceneProse);
 
     if (!sceneProse) {
@@ -3875,6 +3880,10 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
     } catch (e) { /* semantic pass unavailable — ship regex-gated prose */ }
   }
   pipelineSnapshot(chapter?.id, '0e-after-sceneWriter-cleanup', finalProse);
+  // RHYTHM-1: chapter-level reading on what actually ships from the scene writer.
+  try {
+    console.log(formatRhythmLine(`Ch.${chapterNumber} final`, measureRhythm(finalProse)).line);
+  } catch (rhythmErr) { /* telemetry only */ }
 
   // ── Exact final line enforcement ──────────────────────────────
   const chapterLabel = `Ch.${chapterNumber}`;
