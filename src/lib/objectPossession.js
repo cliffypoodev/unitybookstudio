@@ -100,8 +100,17 @@ export function seedTrackedObjectsFromSpecStates(specs) {
       rx.lastIndex = 0;
       let m;
       while ((m = rx.exec(str)) !== null) {
-        const phrase = m[1].trim().toLowerCase().replace(/\s+/g, ' ');
-        const words = phrase.split(' ');
+        let phrase = m[1].trim().toLowerCase().replace(/\s+/g, ' ');
+        // SEPARATION-1c: trim the phrase at the first FUNCTION word - "takes
+        // the key to explore another section" must seed "key", not the phantom
+        // object "key to explore" (which the live ch.3 run tracked, alias
+        // "explore"). Function words end the noun phrase; content stopwords
+        // below still reject the whole phrase.
+        const FN_WORDS = new Set(['to', 'into', 'with', 'for', 'from', 'at', 'on', 'onto', 'toward', 'towards', 'through', 'under', 'behind']);
+        const rawWords = phrase.split(' ');
+        const fnIdx = rawWords.findIndex((w) => FN_WORDS.has(w));
+        if (fnIdx >= 0) phrase = rawWords.slice(0, fnIdx).join(' ');
+        const words = phrase.split(' ').filter(Boolean);
         if (phrase.length < 3 || phrase.length > 40) continue;
         // Any stopword ANYWHERE in the phrase disqualifies it ("takes the stairs
         // down" must not track "stairs down"), and a phrase ending in a direction
