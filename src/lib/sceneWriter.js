@@ -3800,6 +3800,10 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
       const heldNow = Object.entries(runtimeLedger.possessions || {})
         .map(([char, objs]) => `${char}:${(objs || []).join('/')}`).join(' ');
       console.log(`[KEYLEDGER] Ch.${chapterNumber} scene ${spec.sceneNumber || i + 1} holder of record: ${heldNow || '(none)'}`);
+      const objectStateNow = Object.entries(runtimeLedger.objectConditions || {})
+        .filter(([, conds]) => (conds || []).length > 0)
+        .map(([obj, conds]) => `${obj}:${conds.join('/')}`).join(' ');
+      if (objectStateNow) console.log(`[OBJECTSTATE] Ch.${chapterNumber} scene ${spec.sceneNumber || i + 1} object conditions: ${objectStateNow}`);
       console.log(`[NARRATIVE-CONNECT] Updated ledger for scene ${spec.sceneNumber || i + 1}. Dead: ${runtimeLedger.deadCharacters.length}, Unavailable Objects: ${runtimeLedger.unavailableObjects.length}, Completed Events: ${runtimeLedger.completedEvents.length}`);
     }
 
