@@ -281,12 +281,19 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options
       }
     }
     
-    // Character reunion
-    const reunionMatch = str.match(/\b([A-Z][a-z]+)\s+(?:reunites with|finds|returns to|meets back up with)\b/i);
-    if (reunionMatch) {
-      const character = formatName(reunionMatch[1]);
-      if (trusted.has(character)) {
-        ledger.separatedCharacters = ledger.separatedCharacters.filter(c => c !== character);
+    // Character reunion. SEPARATION-1: the old regex was present-tense only
+    // ("finds" never matched the past-tense narration "found") and cleared only
+    // the SUBJECT of the reunion sentence - "Lena reached Marcus" un-separated
+    // Lena, who was never separated, and left Marcus flagged. Now: closed verb
+    // list in both tenses, and every trusted character named in a
+    // reunion-verb sentence is cleared - a reunion reunites everyone in it.
+    const reunionRx = /\b(?:reunites? with|reunited with|finds|found|returns? to|returned to|meets? (?:back )?up with|met (?:back )?up with|joins|joined|reach(?:es|ed)|catch(?:es)? up with|caught up with|rush(?:es|ed) to)\b/i;
+    for (const sentence of str.split(/(?<=[.!?])\s+/)) {
+      if (!reunionRx.test(sentence)) continue;
+      const namesInSentence = (sentence.match(/\b([A-Z][a-z]+)\b/g) || [])
+        .map(formatName).filter((n) => trusted.has(n));
+      if (namesInSentence.length) {
+        ledger.separatedCharacters = ledger.separatedCharacters.filter((c) => !namesInSentence.includes(c));
       }
     }
   }
