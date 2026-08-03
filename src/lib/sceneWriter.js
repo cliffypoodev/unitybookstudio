@@ -90,7 +90,7 @@ import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
 import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger } from '@/lib/narrativeLedger';
 import { inferCastGenders } from '@/lib/referentResolver';
 import { trackedObjectsFromSpecs, dedupeTrackedObjects } from '@/lib/objectPossession';
-import { measureRhythm, formatRhythmLine, isSeverelyFlat, pickBetterRhythm, buildRhythmRegenInstruction } from '@/lib/proseRhythm';
+import { measureRhythm, formatRhythmLine, isSeverelyFlat, isSeverelyGestural, pickBetterTake, buildRhythmRegenInstruction, buildGestureRegenInstruction } from '@/lib/proseRhythm';
 import {
   isAnthologyProject,
   isNonfictionAnthology,
@@ -3279,12 +3279,21 @@ export async function generateChapterSceneByScene({
     // with the measured numbers quoted, judged deterministically, ties to the
     // original. It never mutates prose (the POLISHFIX lesson) and never runs on
     // nonfiction. Cost: one extra prose call only on severely flat scenes.
-    if (!isNF && rawRhythm && isSeverelyFlat(rawRhythm)) {
+    // GESTURE-2: the same ONE-regeneration slot now also fires on severe gesture
+    // density (looked/turned/nodded saturation). Never more than one regen per
+    // scene; when both severities fire, one regen carries both corrections.
+    const regenFlat = !isNF && rawRhythm && isSeverelyFlat(rawRhythm);
+    const regenGestural = !isNF && rawRhythm && isSeverelyGestural(rawRhythm);
+    if (regenFlat || regenGestural) {
       try {
+        const regenInstruction = [
+          regenFlat ? buildRhythmRegenInstruction(rawRhythm) : null,
+          regenGestural ? buildGestureRegenInstruction(rawRhythm) : null,
+        ].filter(Boolean).join('\n\n');
         const regenerated = await generateSceneWithRepair({
           project,
           spec: promptSpec,
-          prompt: `${prompt}\n\n${buildRhythmRegenInstruction(rawRhythm)}`,
+          prompt: `${prompt}\n\n${regenInstruction}`,
           model,
           fallbackModel,
           disableFallbacks,
@@ -3295,11 +3304,12 @@ export async function generateChapterSceneByScene({
         const regenProse = lightCleanSceneOutput(regenerated?.prose || '');
         if (regenProse) {
           const regenRhythm = measureRhythm(String(regenerated.prose || ''));
-          const winner = pickBetterRhythm(rawRhythm, regenRhythm);
+          const winner = pickBetterTake(rawRhythm, regenRhythm, { flat: regenFlat, gestural: regenGestural });
+          const regenTrigger = [regenFlat ? 'flat' : null, regenGestural ? 'gesture' : null].filter(Boolean).join('+');
           console.log(
-            `[RHYTHM-2] Ch.${chapterNumber} scene ${i + 1} regen: ` +
-            `raw mean=${rawRhythm.meanLen}w run=${rawRhythm.maxShortRun} -> ` +
-            `regen mean=${regenRhythm.meanLen}w run=${regenRhythm.maxShortRun} | keeping ${winner}`
+            `[RHYTHM-2] Ch.${chapterNumber} scene ${i + 1} regen (${regenTrigger}): ` +
+            `raw mean=${rawRhythm.meanLen}w run=${rawRhythm.maxShortRun} gest=${rawRhythm.gesturesPer1000.combined}/1k -> ` +
+            `regen mean=${regenRhythm.meanLen}w run=${regenRhythm.maxShortRun} gest=${regenRhythm.gesturesPer1000.combined}/1k | keeping ${winner}`
           );
           if (winner === 'candidate') {
             generated = regenerated;
