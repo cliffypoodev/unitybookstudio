@@ -1018,8 +1018,34 @@ export function auditSceneAgainstLedger({
     }
     if (Array.isArray(runtimeLedger.separatedCharacters)) {
       const trusted = getTrustedCharacters(spec, runtimeLedger);
-      
+      // SEPARATION-1: the PLAN is the closed world for who shares a scene. When
+      // this scene's own contract names the separated character together with
+      // another cast member (scene goal, entry/exit state, or a required
+      // event), the plan has reunited them - co-presence is what the beats
+      // ORDER, not a violation. Without this the scene is unwinnable: the gate
+      // audits against the ENTRY ledger, so no reunion sentence inside the
+      // scene can ever clear the flag, every co-mention sentence fires, the
+      // bounded repair burns all passes, and the chapter hard-blocks (ch.3
+      // live failure, 2026-08-03: s1 exit separated Marcus, s2 required
+      // "Lena and Dr. Vale rush to help Marcus").
+      // Only what the scene must DO counts as authorization: required events and
+      // the scene goal. entry_state/exit_state are POSITION statements and often
+      // name a character precisely to say they are elsewhere ("Marcus is
+      // elsewhere in the station"), which must not read as a reunion.
+      const sepPlanText = [
+        spec?.scene_goal,
+        ...(Array.isArray(spec?.required_events) ? spec.required_events : []),
+      ].filter(Boolean).join(' ');
+      const planReunites = (name) => {
+        if (!new RegExp(`\\b${name}\\b`).test(sepPlanText)) return false;
+        for (const other of trusted) {
+          if (other !== name && new RegExp(`\\b${other}\\b`).test(sepPlanText)) return true;
+        }
+        return false;
+      };
+
       for (const sepChar of runtimeLedger.separatedCharacters) {
+        if (planReunites(sepChar)) continue;
         const nameRegex = new RegExp(`\\b${sepChar}\\b`);
         if (nameRegex.test(prose)) {
           const sentences = prose.split(/(?<=[.!?])\s+/);
