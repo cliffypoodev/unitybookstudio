@@ -72,6 +72,54 @@ export function dedupeTrackedObjects(objects) {
     .map((e) => e.o);
 }
 
+// KEYLEDGER-3: possession verbs whose direct object in a BEAT STATE names a
+// tracked object. This parses the PLAN, never the prose - beat contracts are
+// closed-world by definition. Measured disease: the ch.1 re-draft logged
+// "tracked objects: (none)" while its own exit_state said "Lena holds the brass
+// key" - first-acquisition chapters tracked nothing because the architect
+// omitted props_present and chapter 1 has no prior ledger.
+const SPEC_POSSESSION_RX = /\b(?:holds?|holding|carr(?:y|ies|ying)|has|retrieves?|picks?\s+up|takes?|grabs?|pockets?|clutch(?:es)?|keeps?)\s+(?:the|a|an|his|her|their)\s+((?:[a-z][a-z-]*\s+){0,2}[a-z][a-z-]*)\b/gi;
+const SPEC_POSSESSIVE_RX = /\bthe\s+((?:[a-z][a-z-]*\s+){0,2}[a-z][a-z-]*)\s+(?:is|remains?|stays?)\s+in\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?['’]s\s+possession\b/gi;
+const SPEC_OBJECT_STOPWORDS = new Set([
+  'truth', 'secret', 'secrets', 'past', 'lead', 'way', 'stairs', 'group', 'situation',
+  'moment', 'time', 'silence', 'darkness', 'cold', 'air', 'wall', 'walls', 'floor',
+  'door', 'doors', 'corridor', 'station', 'tunnel', 'chamber', 'room', 'hall',
+  'entrance', 'exit', 'surface', 'ice', 'snow', 'water', 'light', 'lights',
+  // body/idiom objects of possession verbs that are not props
+  'breath', 'breaths', 'hand', 'hands', 'eyes', 'gaze', 'balance', 'ground',
+  'pace', 'step', 'steps', 'distance', 'watch', 'point', 'charge', 'command',
+  'initiative', 'advantage', 'chance', 'risk', 'look', 'seat', 'position',
+]);
+
+/** Extract tracked-object phrases from the beat contract's own state strings. */
+export function seedTrackedObjectsFromSpecStates(specs) {
+  const seen = new Map();
+  const harvest = (text) => {
+    const str = String(text || '');
+    for (const rx of [SPEC_POSSESSION_RX, SPEC_POSSESSIVE_RX]) {
+      rx.lastIndex = 0;
+      let m;
+      while ((m = rx.exec(str)) !== null) {
+        const phrase = m[1].trim().toLowerCase().replace(/\s+/g, ' ');
+        const words = phrase.split(' ');
+        if (phrase.length < 3 || phrase.length > 40) continue;
+        // Any stopword ANYWHERE in the phrase disqualifies it ("takes the stairs
+        // down" must not track "stairs down"), and a phrase ending in a direction
+        // word is motion, not an object.
+        if (words.some((w) => SPEC_OBJECT_STOPWORDS.has(w))) continue;
+        if (/^(?:down|up|back|away|out|off|over|again|inside|outside|forward|ahead)$/.test(words[words.length - 1])) continue;
+        seen.set(phrase, phrase);
+      }
+    }
+  };
+  for (const spec of Array.isArray(specs) ? specs : []) {
+    harvest(spec?.entry_state);
+    harvest(spec?.exit_state);
+    for (const ev of Array.isArray(spec?.required_events) ? spec.required_events : []) harvest(ev);
+  }
+  return dedupeTrackedObjects([...seen.values()]);
+}
+
 /** The CLOSED tracked-object set, derived from the plan and nothing else. */
 export function trackedObjectsFromSpecs(specs) {
   const seen = new Map();
@@ -80,6 +128,11 @@ export function trackedObjectsFromSpecs(specs) {
       const p = String(prop || '').trim();
       if (p.length > 2 && p.length < 40) seen.set(p.toLowerCase(), p);
     }
+  }
+  // KEYLEDGER-3: the plan's own state text fills the gap when props_present is
+  // missing - both sources are plan-side, so the world stays closed.
+  for (const seeded of seedTrackedObjectsFromSpecStates(specs)) {
+    if (!seen.has(seeded.toLowerCase())) seen.set(seeded.toLowerCase(), seeded);
   }
   return dedupeTrackedObjects([...seen.values()]);
 }
