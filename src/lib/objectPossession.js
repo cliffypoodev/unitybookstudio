@@ -54,6 +54,24 @@ export function objectAliases(phrase) {
   return [...out];
 }
 
+/** KEYLEDGER-2d — one object, one tracking stream. "Brass Key" and "key" were
+ *  tracked as two objects on the live ch.4 run; both alias to the head noun
+ *  "key", so every key sentence would produce two violation streams once the
+ *  gate engages. An object whose alias set is contained in another tracked
+ *  object's alias set is the same object - keep the more specific phrase. */
+export function dedupeTrackedObjects(objects) {
+  const entries = [...new Set((objects || []).map((o) => String(o || '').trim()).filter(Boolean))]
+    .map((o) => ({ o, aliases: new Set(objectAliases(o)) }));
+  return entries
+    .filter((e) => !entries.some(
+      (other) => other !== e &&
+        other.aliases.size >= e.aliases.size &&
+        [...e.aliases].every((a) => other.aliases.has(a)) &&
+        (other.aliases.size > e.aliases.size || other.o.length > e.o.length)
+    ))
+    .map((e) => e.o);
+}
+
 /** The CLOSED tracked-object set, derived from the plan and nothing else. */
 export function trackedObjectsFromSpecs(specs) {
   const seen = new Map();
@@ -63,7 +81,7 @@ export function trackedObjectsFromSpecs(specs) {
       if (p.length > 2 && p.length < 40) seen.set(p.toLowerCase(), p);
     }
   }
-  return [...seen.values()];
+  return dedupeTrackedObjects([...seen.values()]);
 }
 
 const objectRx = (aliases) => new RegExp(`\\b(?:${aliases.map(escapeRx).join('|')})\\b`, 'i');
@@ -113,11 +131,45 @@ export function scanObjectTimeline({ prose, object, cast }) {
   const events = [];
   let cursor = 0;
 
+  let lastMentionIndex = -1;
+
   sentences.forEach((sentence, i) => {
     const at = text.indexOf(sentence, cursor);
     if (at >= 0) cursor = at + sentence.length;
     trackLastNamed(sentence, roster, lastNamedByGender);
-    if (!objRx.test(sentence)) return;
+    if (!objRx.test(sentence)) {
+      // KEYLEDGER-2b: a handover written with a PRONOUN object is a real transfer.
+      // Measured on the live ch.4 draft: "He pressed it into her hand." carries the
+      // key from Marcus to Lena but never names the key, so the scanner was blind
+      // to it and the continuity check accused a transfer that WAS on the page.
+      // Only honored within two sentences of the last mention of THIS object, and
+      // only with an explicit recipient - anything looser re-imports ambiguity.
+      if (lastMentionIndex >= 0 && i - lastMentionIndex <= 2 && !(at >= 0 && inSpans(spans, at))) {
+        const give = /\b(handed|hands|gave|gives|passed|passes|pressed|presses|slid|slides|tossed|threw)\s+(?:it|them)\b/i.exec(sentence);
+        const take = /\b(took|takes|grabbed|grabs|snatched|snatches|accepted|accepts)\s+(?:it|them)\b|\bclosed\s+(?:his|her|their)\s+(?:fingers|hand|fist)\s+(?:around|over)\s+(?:it|them)\b/i.exec(sentence);
+        if (give) {
+          const into = /\b(?:into|in)\s+([A-Z][a-z]+(?:'s|\u2019s)|his|her|their)\s+(?:open\s+|gloved\s+|right\s+|left\s+)*(?:palm|hand|hands|fingers|fist)\b/.exec(sentence);
+          const to = /\bto\s+(him|her|[A-Z][a-z]+)\b/.exec(sentence);
+          const raw = (into && into[1]) || (to && to[1]) || null;
+          const recipientRef = resolveReferent(raw, roster, lastNamedByGender);
+          if (recipientRef) {
+            lastMentionIndex = i;
+            events.push({ index: i, kind: 'GIVE', holder: recipientRef.name, sentence, reason: 'pronoun-transfer-out', confidence: recipientRef.confidence });
+            return;
+          }
+        }
+        if (take) {
+          const subjectRef = resolveClauseSubject(sentence, roster, lastNamedByGender);
+          if (subjectRef) {
+            lastMentionIndex = i;
+            events.push({ index: i, kind: 'TAKE', holder: subjectRef.name, sentence, reason: 'pronoun-transfer-in', confidence: subjectRef.confidence });
+            return;
+          }
+        }
+      }
+      return;
+    }
+    lastMentionIndex = i;
 
     const push = (kind, holder, reason, confidence) => {
       events.push({ index: i, kind, holder: holder || null, sentence, reason, confidence: confidence || null });
