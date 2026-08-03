@@ -89,7 +89,7 @@ import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
 import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger } from '@/lib/narrativeLedger';
 import { inferCastGenders } from '@/lib/referentResolver';
-import { trackedObjectsFromSpecs } from '@/lib/objectPossession';
+import { trackedObjectsFromSpecs, dedupeTrackedObjects } from '@/lib/objectPossession';
 import {
   isAnthologyProject,
   isNonfictionAnthology,
@@ -3095,10 +3095,12 @@ export async function generateChapterSceneByScene({
   // KEYLEDGER-1f: the CLOSED tracked-object set comes from the plan (props_present
   // across this chapter's scenes) plus anything the ledger already tracks. It is
   // never derived from prose.
-  const trackedObjects = [...new Set([
+  // KEYLEDGER-2d: the plan set and the ledger-held set can name the same object
+  // two ways ("Brass Key" + "key" on the live ch.4 run) - one object, one stream.
+  const trackedObjects = dedupeTrackedObjects([...new Set([
     ...trackedObjectsFromSpecs(normalizedScenes),
     ...Object.values(runtimeLedger.possessions || {}).flat().map(String),
-  ])].filter((o) => o && o.length > 2 && o.length < 40);
+  ])].filter((o) => o && o.length > 2 && o.length < 40));
   console.log(`[KEYLEDGER] Ch.${chapterNumber} tracked objects: ${trackedObjects.join(' | ') || '(none)'}`);
   if (priorLedger) {
     console.log(`[NARRATIVE-LEDGER] Ch.${chapterNumber} seeded from prior chapters: ${summarizeLedger(runtimeLedger)}`);
