@@ -59,6 +59,11 @@ const NON_CHARACTER_SUBJECTS = new Set([
   'all', 'some', 'many', 'most', 'few', 'several', 'any',
   'who', 'whom', 'whose', 'which', 'what', 'when', 'where', 'why', 'how',
   'and', 'but', 'the', 'a', 'an', 'if', 'because', 'so', 'yet', 'still',
+  // KEYLEDGER-2c: capitalised kinship words. "You're the reason Dad died." on the
+  // live ch.5 draft registered a dead character literally named "Dad", which the
+  // DEAD_CHARACTER_ACTION gate would then hunt through every later memory line.
+  'dad', 'mom', 'mum', 'papa', 'mama', 'father', 'mother', 'grandpa', 'grandma',
+  'uncle', 'aunt', 'son', 'daughter', 'brother', 'sister',
 ]);
 
 export function buildInitialLedger() {
@@ -178,11 +183,25 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options
     // with words between the name and the verb, e.g. the Ch.4 beat "Dr. Vale collapses from
     // exhaustion and injuries, dying in the corridor." Closing that needs a gap-tolerant
     // pattern, which is exactly the blind widening that produced LEDGERFIX-1. Not done here.
+    // KEYLEDGER-2c: a death recounted inside quoted DIALOGUE is memory, not a
+    // scene event. "I told him Ortiz died in the flood." on the live ch.5 draft
+    // registered Ortiz (dead twenty years before page one) as a scene death.
+    // Spec strings (exit_state, required_events) carry no dialogue and are
+    // unaffected; only matches inside quote spans of the PROSE are skipped.
+    const quoteSpans = [];
+    {
+      const qrx = /[\u201c"]([^\u201c\u201d"]{1,600})[\u201d"]/g;
+      let qm;
+      while ((qm = qrx.exec(str)) !== null) quoteSpans.push([qm.index, qm.index + qm[0].length]);
+    }
+    const inQuote = (idx) => quoteSpans.some(([a, b]) => idx >= a && idx < b);
+
     const deathPattern = /\b([A-Z][a-z]+)\s+(?:is dead|died|is killed|dies|was killed|is dying|was dying|lay dying|lies dead|lay dead|bled out|bleeds out)\b/g;
     let deathMatch;
     while ((deathMatch = deathPattern.exec(str)) !== null) {
       const charName = deathMatch[1];
       if (NON_CHARACTER_SUBJECTS.has(charName.toLowerCase())) continue;
+      if (inQuote(deathMatch.index)) continue;
       if (!ledger.deadCharacters.includes(charName)) {
         ledger.deadCharacters.push(charName);
       }
