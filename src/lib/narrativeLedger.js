@@ -137,7 +137,10 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options
     if (!ledger.characterConditions[fact.character]) {
       ledger.characterConditions[fact.character] = [];
     }
-    const conditionStr = `${fact.side} ${fact.kind === 'loss' ? 'amputated/severed' : fact.kind}`;
+    // INJURYSCALE-1a: the stored condition names the body part when the prose
+    // named one - "left thumb amputated/severed" instead of "left
+    // amputated/severed" - so inflation (thumb becoming an arm) is checkable.
+    const conditionStr = `${fact.side}${fact.part ? ` ${fact.part}` : ''} ${fact.kind === 'loss' ? 'amputated/severed' : fact.kind}`;
     if (!ledger.characterConditions[fact.character].includes(conditionStr)) {
       ledger.characterConditions[fact.character].push(conditionStr);
     }
@@ -339,9 +342,16 @@ export function serializeLedger(ledger) {
 
   const conditions = Object.keys(ledger.characterConditions || {});
   if (conditions.length > 0) {
-    out += `CHARACTER CONDITIONS:\n`;
+    out += `CHARACTER CONDITIONS (permanent - the injury is EXACTLY this, no more and no less):\n`;
     for (const char of conditions) {
-      out += `- ${char}: ${ledger.characterConditions[char].join(', ')}\n`;
+      const rendered = ledger.characterConditions[char].map((cond) => {
+        // INJURYSCALE-1a: a small-part loss must not inflate into a missing limb.
+        if (/\b(left|right)\s+(thumb|finger)\b/i.test(cond)) {
+          return `${cond} (ONLY the digit - the hand and arm above it are intact; no empty sleeve, no hand stump)`;
+        }
+        return cond;
+      });
+      out += `- ${char}: ${rendered.join(', ')}\n`;
     }
   }
 

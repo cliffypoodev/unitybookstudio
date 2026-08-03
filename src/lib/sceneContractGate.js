@@ -487,13 +487,14 @@ export function extractLimbFacts(text, cast = null) {
     return null;
   }
 
-  function addFact(character, side, sentence, kind) {
+  function addFact(character, side, sentence, kind, part = null) {
     if (!character || !side) return;
 
     facts.push({
       character: character.toLowerCase(),
       displayName: character,
       side: side.toLowerCase(),
+      part: part ? String(part).toLowerCase() : null,
       sentence,
       kind,
     });
@@ -535,26 +536,33 @@ export function extractLimbFacts(text, cast = null) {
     // (left|right) and a limb noun are still both required, still within 70 characters,
     // still in the same sentence, still needing a resolvable owner. Regression test 30
     // documents a blind chronology-verb widening that had to be reverted; do not repeat it.
+    // INJURYSCALE-1a: each pattern now CAPTURES the body part alongside the side.
+    // Measured disease (Brass Meridian export 12): ch.3 severs Marcus's THUMB at
+    // the second joint, ch.5 gives him an empty pinned SLEEVE - a whole arm. The
+    // ledger stored "left amputated/severed" with no part, so nothing could see
+    // the wound growing. The part list gains thumb|finger (the exact parts the
+    // live book uses); the structure - side + part + loss word, same sentence -
+    // is unchanged, per the EXTRACTFIX-1 rule against blind widening.
     const patterns = [
       {
         kind: 'loss',
         regex:
-          /\b(?:lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone|mangled|mauled|pulped|shredded|maimed|ruined)\b[^.!?\n]{0,70}\b(left|right)\s+(?:forearm|arm|hand|wrist)\b/i,
+          /\b(?:lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone|mangled|mauled|pulped|shredded|maimed|ruined)\b[^.!?\n]{0,70}\b(left|right)\s+(forearm|arm|hand|wrist|thumb|finger)\b/i,
       },
       {
         kind: 'loss',
         regex:
-          /\b(left|right)\s+(?:forearm|arm|hand|wrist)\b[^.!?\n]{0,70}\b(?:lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone|mangled|mauled|pulped|shredded|maimed|ruined)\b/i,
+          /\b(left|right)\s+(forearm|arm|hand|wrist|thumb|finger)\b[^.!?\n]{0,70}\b(?:lost|lose|losing|severed|severing|amputated|amputation|crushed|crushing|missing|gone|mangled|mauled|pulped|shredded|maimed|ruined)\b/i,
       },
       {
         kind: 'stump',
         regex:
-          /\b(?:his|her|the|[A-Z][a-z]{2,}['’]s)?\s*(left|right)\s+(?:forearm|arm|hand|wrist)?\s*stump\b/i,
+          /\b(?:his|her|the|[A-Z][a-z]{2,}['’]s)?\s*(left|right)\s+(forearm|arm|hand|wrist|thumb)?\s*stump\b/i,
       },
       {
         kind: 'stump',
         regex:
-          /\bstump\s+of\s+(?:his|her|the|[A-Z][a-z]{2,}['’]s)?\s*(left|right)\s+(?:forearm|arm|hand|wrist)\b/i,
+          /\bstump\s+of\s+(?:his|her|the|[A-Z][a-z]{2,}['’]s)?\s*(left|right)\s+(forearm|arm|hand|wrist|thumb)\b/i,
       },
       {
         kind: 'empty-sleeve',
@@ -571,7 +579,10 @@ export function extractLimbFacts(text, cast = null) {
     for (const pattern of patterns) {
       const match = sentence.match(pattern.regex);
       if (match) {
-        addFact(owner, match[1], sentence, pattern.kind);
+        // An empty sleeve IS an arm-level loss; a stump with no named part stays
+        // unknown rather than guessed (precision over recall).
+        const part = pattern.kind === 'empty-sleeve' ? 'arm' : (match[2] ? match[2].toLowerCase() : null);
+        addFact(owner, match[1], sentence, pattern.kind, part);
       }
     }
   }
