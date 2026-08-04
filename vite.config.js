@@ -27,6 +27,26 @@ export default defineConfig({
     host: true, // Listen on all network interfaces
     port: 5180,
     strictPort: true,
+    // WATCHLOOP-1 — the data directory is RUNTIME STATE, not source. Never watch it.
+    //
+    // MEASURED on The Gilded Hour, 2026-08-04. serverStorePlugin writes the entity
+    // stores into <root>/data, which sat inside Vite's watch root, so every autosave
+    // triggered a full page reload:
+    //
+    //   3:04:02  [BIBLE-PARALLEL] Starting Batch 1
+    //   3:06:10  [vite] connecting... + module re-executed + Starting Batch 1
+    //   3:10:49  [vite] connecting... + module re-executed + Starting Batch 1
+    //
+    // The generation saves its own progress, the save reloads the page, the reload
+    // kills the generation, the restart saves again. A story bible could never
+    // finish - not for this book, not for any book. Brass Meridian's foundation
+    // predates this, which is why the book the gates were debugged against never
+    // showed it.
+    //
+    // .git is excluded for the same reason: a commit during a run reloaded the app.
+    watch: {
+      ignored: ['**/data/**', '**/.git/**', '**/dist/**'],
+    },
     proxy: {
       // Proxy ComfyUI API requests to avoid CORS in browser
       // Browser hits localhost:5180/comfyui-api/... → forwarded to 127.0.0.1:8000/...
