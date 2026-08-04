@@ -336,11 +336,73 @@ const routerHealExec = (cmd) => new Promise((resolve) => {
 });
 const routerHealSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// ── ROUTERHEAL-2 ────────────────────────────────────────────────────────
+// Two failures observed on the live ch.3 run (2026-08-04), both from the
+// router log and the app console:
+//   1. RELAUNCH RACE. The heal killed the listener, slept a fixed 3s+1s, and
+//      spawned. The new process died on startup with
+//      "couldn't bind HTTP server socket, hostname: 127.0.0.1, port: 8080"
+//      because the port had not been released yet. A fixed sleep cannot know
+//      when the socket is free; polling can.
+//   2. THE HEAL LIED, THEN THE COOLDOWN BLOCKED RECOVERY. `healed: true` was
+//      returned unconditionally - it reported success whenever a PID existed,
+//      even with modelsOk false - and the 5-minute cooldown then refused the
+//      next heal ({"healed":false,"reason":"cooldown"}), so three retries hit
+//      a dead router and the chapter lost its critique pass.
+// Fixes: poll the port until it is genuinely free before relaunching; poll
+// /v1/models until the router actually serves (a 35B cold load takes far
+// longer than the old 5s); retry the spawn once if the first never binds;
+// report healed = modelsOk, never a bare PID; and let the cooldown be bypassed
+// when the router is NOT serving - a cooldown exists to stop thrashing, not to
+// prevent recovery from a dead router.
+const ROUTERHEAL_PORT_FREE_MS = 20000;
+const ROUTERHEAL_SERVING_MS = 90000;
+const ROUTERHEAL_MIN_INTERVAL_MS = 45000;
+
+function routerHealProbe() {
+  return new Promise((resolve) => {
+    const probe = httpGet({ host: '127.0.0.1', port: ROUTERHEAL_PORT, path: '/v1/models', timeout: 8000 }, (r) => {
+      let body = '';
+      r.on('data', (c) => { body += c; });
+      r.on('end', () => resolve(r.statusCode === 200 && body.includes('"data"')));
+    });
+    probe.on('error', () => resolve(false));
+    probe.on('timeout', () => { probe.destroy(); resolve(false); });
+  });
+}
+
+async function routerHealPortFree(maxMs = ROUTERHEAL_PORT_FREE_MS) {
+  const deadline = Date.now() + maxMs;
+  for (;;) {
+    const pids = await routerHealExec(`lsof -t -nP -iTCP:${ROUTERHEAL_PORT} -sTCP:LISTEN`);
+    if (!pids) return true;
+    if (Date.now() >= deadline) return false;
+    await routerHealSleep(1000);
+  }
+}
+
+async function routerHealWaitServing(maxMs = ROUTERHEAL_SERVING_MS) {
+  const deadline = Date.now() + maxMs;
+  for (;;) {
+    if (await routerHealProbe()) return true;
+    if (Date.now() >= deadline) return false;
+    await routerHealSleep(2000);
+  }
+}
+
+function routerHealSpawn() {
+  const parts = ROUTERHEAL_LAUNCH.split(/\s+/).filter(Boolean);
+  const logFd = fs.openSync(ROUTERHEAL_LOG, 'a');
+  const child = cpSpawn(parts[0], parts.slice(1), { detached: true, stdio: ['ignore', logFd, logFd] });
+  child.unref();
+  fs.closeSync(logFd);
+  return child.pid || null;
+}
+
 async function performRouterHeal() {
   const listenPid = await routerHealExec(`lsof -t -nP -iTCP:${ROUTERHEAL_PORT} -sTCP:LISTEN`);
   if (listenPid) {
     for (const pid of listenPid.split(/\s+/).filter(Boolean)) await routerHealExec(`kill ${pid}`);
-    await routerHealSleep(3000);
   }
   // Leftover workers: llama processes that are not ollama, not hermes, and
   // not node/vite tooling. The router does NOT respawn a killed worker, so
@@ -355,23 +417,28 @@ async function performRouterHeal() {
     if (/ollama|hermes|node|vite|grep/i.test(command)) continue;
     await routerHealExec(`kill ${pid}`);
   }
-  await routerHealSleep(1000);
-  const parts = ROUTERHEAL_LAUNCH.split(/\s+/).filter(Boolean);
-  const logFd = fs.openSync(ROUTERHEAL_LOG, 'a');
-  const child = cpSpawn(parts[0], parts.slice(1), { detached: true, stdio: ['ignore', logFd, logFd] });
-  child.unref();
-  fs.closeSync(logFd);
-  await routerHealSleep(5000);
-  const modelsOk = await new Promise((resolve) => {
-    const probe = httpGet({ host: '127.0.0.1', port: ROUTERHEAL_PORT, path: '/v1/models', timeout: 8000 }, (r) => {
-      let body = '';
-      r.on('data', (c) => { body += c; });
-      r.on('end', () => resolve(r.statusCode === 200 && body.includes('"data"')));
-    });
-    probe.on('error', () => resolve(false));
-    probe.on('timeout', () => { probe.destroy(); resolve(false); });
-  });
-  return { killedListenPid: listenPid || null, relaunchPid: child.pid || null, modelsOk };
+  // Wait for the socket to be genuinely released before relaunching.
+  const portFree = await routerHealPortFree();
+  const relaunchPid = routerHealSpawn();
+  let modelsOk = await routerHealWaitServing();
+  let retriedSpawn = false;
+  let relaunchPid2 = null;
+  if (!modelsOk) {
+    // The usual cause is the bind race losing to a socket still in teardown.
+    // One retry, after the port is confirmed free.
+    retriedSpawn = true;
+    await routerHealPortFree();
+    relaunchPid2 = routerHealSpawn();
+    modelsOk = await routerHealWaitServing();
+  }
+  return {
+    killedListenPid: listenPid || null,
+    portFree,
+    relaunchPid,
+    retriedSpawn,
+    relaunchPid2,
+    modelsOk,
+  };
 }
 
 async function handleRouterHeal(req, res) {
@@ -382,17 +449,30 @@ async function handleRouterHeal(req, res) {
     return;
   }
   const now = Date.now();
-  if (now - routerHealLastRun < ROUTERHEAL_COOLDOWN_MS) {
-    console.warn('[ROUTERHEAL-1] heal request refused: cooldown active');
-    res.end(JSON.stringify({ healed: false, reason: 'cooldown' }));
-    return;
+  const sinceLast = now - routerHealLastRun;
+  if (sinceLast < ROUTERHEAL_COOLDOWN_MS) {
+    // ROUTERHEAL-2: a cooldown must never strand a DEAD router. Refuse only
+    // when the router is actually serving (nothing to heal), or when the last
+    // attempt was seconds ago (a tight loop). Otherwise heal.
+    if (await routerHealProbe()) {
+      console.warn('[ROUTERHEAL-2] heal request refused: router is serving, nothing to heal');
+      res.end(JSON.stringify({ healed: false, reason: 'already-serving' }));
+      return;
+    }
+    if (sinceLast < ROUTERHEAL_MIN_INTERVAL_MS) {
+      console.warn('[ROUTERHEAL-2] heal request refused: minimum interval not elapsed');
+      res.end(JSON.stringify({ healed: false, reason: 'cooldown' }));
+      return;
+    }
+    console.warn('[ROUTERHEAL-2] within cooldown but router is DOWN — healing anyway');
   }
   routerHealLastRun = now;
   console.warn(`[ROUTERHEAL-1] heal requested — restarting llama router on port ${ROUTERHEAL_PORT}`);
   try {
     const result = await performRouterHeal();
-    console.warn('[ROUTERHEAL-1] result:', JSON.stringify(result));
-    res.end(JSON.stringify({ healed: true, ...result }));
+    console.warn('[ROUTERHEAL-2] result:', JSON.stringify(result));
+    // healed reflects whether the router actually SERVES, not whether a PID exists.
+    res.end(JSON.stringify({ healed: result.modelsOk === true, ...result }));
   } catch (healErr) {
     console.warn('[ROUTERHEAL-1] heal failed:', healErr?.message || healErr);
     res.end(JSON.stringify({ healed: false, reason: String(healErr?.message || healErr) }));
