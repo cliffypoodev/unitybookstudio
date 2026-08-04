@@ -541,7 +541,29 @@ export const sceneBeatSchema = {
           exit_hook: { type: 'string' },
           intimacy_level: { type: 'number', description: 'Optional 0-4. 0=none, 1=tension/flirting, 2=partial physical contact, 3=explicit sexual content, 4=intensely explicit. Only include when the scene involves romantic/sexual content.' },
         },
-        required: ['scene_number', 'scene_id', 'scene_goal', 'entry_state', 'required_events', 'exit_state', 'characters_present', 'conflict', 'emotional_arc', 'tension_level'],
+        // BEATFIELD-1 — 'setting' belongs here because the validator demands it.
+        //
+        // MEASURED on The Gilded Hour ch.1, 2026-08-04. BEATPLAN-1 rejects any beat
+        // without setting/location (ProjectStudio: `if (!String(nb?.setting ||
+        // nb?.location || '').trim()) missing.push('setting')`), but this schema —
+        // the one the beat request is constrained by — declared `setting` optional.
+        // So the architect legally omitted it on all three scenes, the plan was
+        // rejected, and the chapter re-planned:
+        //
+        //   [TIMING] architect | deepseek-r1-32b | 174846ms
+        //   [BEATPLAN-1] Ch.1 attempt 1: 3 beat(s) missing required fields —
+        //                ch01-s01: missing setting | ch01-s02 | ch01-s03
+        //   [TIMING] architect | deepseek-r1-32b | 153542ms
+        //
+        // maxContractAttempts is 4 for fiction, so a chapter burned ~11 minutes of
+        // local model time and then shipped the flagged plan anyway (attempt
+        // exhaustion accepts it). Every chapter. Every fiction book. A 20-chapter
+        // book loses roughly 3.7 hours to one absent array entry.
+        //
+        // The validator's three demands are setting, characters_present and
+        // emotional_arc; the last two were already required. This makes the list the
+        // decoder is given and the list the app enforces the same list.
+        required: ['scene_number', 'scene_id', 'scene_goal', 'entry_state', 'required_events', 'exit_state', 'setting', 'characters_present', 'conflict', 'emotional_arc', 'tension_level'],
       },
     },
   },
