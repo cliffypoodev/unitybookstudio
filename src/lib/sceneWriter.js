@@ -89,9 +89,9 @@ import { buildCanonNameLockBlock, repairCanonNameDrift } from '@/lib/canonNameLo
 import { repairChapterQuotes } from '@/lib/quoteFixPolish';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
-import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger, canonicalizeLedgerNames } from '@/lib/narrativeLedger';
+import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger, canonicalizeLedgerNames, setHolderOfRecord } from "@/lib/narrativeLedger";
 import { inferCastGenders } from '@/lib/referentResolver';
-import { trackedObjectsFromSpecs, dedupeTrackedObjects } from '@/lib/objectPossession';
+import { trackedObjectsFromSpecs, dedupeTrackedObjects, holdersFromSpecState } from '@/lib/objectPossession';
 import { measureRhythm, formatRhythmLine, isSeverelyFlat, isSeverelyGestural, pickBetterTake, buildRhythmRegenInstruction, buildGestureRegenInstruction } from '@/lib/proseRhythm';
 import {
   isAnthologyProject,
@@ -3127,6 +3127,41 @@ export async function generateChapterSceneByScene({
         console.warn(`[HOLDER-3] Ch.${chapterNumber} holder names resolved against the cast: ${before} -> ${after}`);
       } else {
         console.log(`[HOLDER-3] Ch.${chapterNumber} holder names already canonical: ${after}`);
+      }
+
+      // HOLDER-4: the chapter's OPENING CONTRACT outranks the inherited ledger.
+      // The writer is handed scene 1's entry_state and writes to it; the audit
+      // reads the ledger. When they disagree the audit rejects prose that is doing
+      // exactly what it was told, and no repair can win. The plan is what the page
+      // will say, so the plan sets the opening holder.
+      const opening = holdersFromSpecState(normalizedScenes[0], chapterCast);
+      for (const [obj, holder] of opening) {
+        const current = Object.keys(runtimeLedger.possessions || {}).find((char) =>
+          (runtimeLedger.possessions[char] || []).some((held) => {
+            const a = String(held).toLowerCase();
+            const b = String(obj).toLowerCase();
+            return a === b || a.includes(b) || b.includes(a);
+          })
+        );
+        const probe = canonicalizeLedgerNames(
+          Object.assign(buildInitialLedger(), { possessions: { [holder]: [obj] } }),
+          chapterCast
+        );
+        const canonHolder = Object.keys(probe.possessions)[0] || holder;
+        if (current && current === canonHolder) continue;
+        // Keep the ledger's own richer spelling of the object where it has one.
+        const spelling = current
+          ? (runtimeLedger.possessions[current] || []).find((held) => {
+            const a = String(held).toLowerCase();
+            const b = String(obj).toLowerCase();
+            return a === b || a.includes(b) || b.includes(a);
+          }) || obj
+          : obj;
+        setHolderOfRecord(runtimeLedger, spelling, canonHolder);
+        console.warn(
+          `[HOLDER-4] Ch.${chapterNumber} opening contract overrides the inherited ledger: ` +
+          `"${spelling}" ${current ? `was with ${current}, ` : ''}is with ${canonHolder} per scene 1 entry_state.`
+        );
       }
     }
   }

@@ -14,7 +14,7 @@ import {
   extractSceneLedgerUpdates,
   canonicalizeLedgerNames,
 } from '../src/lib/narrativeLedger.js';
-import { isPortablePropPhrase, trackedObjectsFromSpecs } from '../src/lib/objectPossession.js';
+import { isPortablePropPhrase, trackedObjectsFromSpecs, holdersFromSpecState } from '../src/lib/objectPossession.js';
 import { auditSceneAgainstLedger } from '../src/lib/sceneContractGate.js';
 import { stripModelControlTokens, stripNonLatinDrift } from '../src/lib/modelLeakGuard.js';
 import fs from 'fs';
@@ -248,6 +248,47 @@ check('an empty or malformed input does not throw',
     deadCodes('Vale said nothing. He turned away from the console.') === 1);
   check('DEADCHAR-2: a dead character acting after a closed quote is still caught',
     deadCodes('"We should go," Lena said. Vale nodded at the door.') === 1);
+}
+
+// ── HOLDER-4: the chapter's opening contract outranks the inherited ledger ──
+{
+  const CAST = ['Lena Ortiz', 'Marcus Reed'];
+  const h = (entry_state) => [...holdersFromSpecState({ entry_state }, CAST)];
+  // Verbatim from the live ch.5 scene-1 contract at ef5a0d16.
+  check('HOLDER-4: "Lena holds the broken brass key handle" is read from the plan',
+    JSON.stringify(h('Lena and Marcus are in a dimly lit corridor outside the archive room. '
+      + 'Lena holds the broken brass key handle, while Marcus has a bandaged left hand.'))
+      === JSON.stringify([['broken brass key handle', 'Lena Ortiz']]));
+  check('HOLDER-4: a body part in the same sentence is not a possession',
+    h('Marcus has a bandaged left hand.').length === 0);
+  check('HOLDER-4: a fixture is not a possession',
+    h('Lena holds the console.').length === 0);
+  check('HOLDER-4: a conjoined subject is ambiguous and is SKIPPED, not guessed',
+    h('Lena and Marcus hold the key together.').length === 0);
+  check('HOLDER-4: two cast members in one clause is ambiguous and is skipped',
+    h('Lena holds the key and Marcus has a bandage').length === 0);
+  check('HOLDER-4: prose with no possession claim yields nothing',
+    h('The corridor was dark and cold.').length === 0);
+  check('HOLDER-4: an empty or missing entry_state is safe',
+    h('').length === 0 && [...holdersFromSpecState(null, CAST)].length === 0
+    && [...holdersFromSpecState({ entry_state: 'Lena holds the key.' }, [])].length === 0);
+}
+
+// ── OBJSEED-2d: the audit's own object list is filtered too ──
+{
+  const CAST = ['Lena Ortiz', 'Marcus Reed'];
+  const GEND = CAST.map((n) => ({ name: n, gender: null }));
+  const led = buildInitialLedger();
+  setHolderOfRecord(led, 'Broken brass key handle', 'Marcus Reed');
+  const spec = { characters_present: CAST, props_present: ['Bandaged left hand', 'Hidden console'] };
+  const prose = 'Marcus held the broken brass key handle. His left hand was wrapped in gauze. '
+    + 'Lena ran her hand along the console.';
+  const codes = (auditSceneAgainstLedger({ prose, spec, runtimeLedger: led, sceneCast: GEND }).issues || [])
+    .map((i) => `${i.code}:${i.object || ''}`);
+  check('OBJSEED-2d: a body part in props_present never gets a holder of record',
+    !codes.some((c) => /hand/i.test(c)));
+  check('OBJSEED-2d: a fixture in props_present never gets a holder of record',
+    !codes.some((c) => /console/i.test(c)));
 }
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

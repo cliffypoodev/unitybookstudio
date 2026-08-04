@@ -223,6 +223,61 @@ export function seedTrackedObjectsFromSpecStates(specs) {
   return dedupeTrackedObjects([...seen.values()]);
 }
 
+/**
+ * HOLDER-4 — who holds what when the CHAPTER OPENS, according to the plan.
+ *
+ * The inherited ledger is a record of what previous chapters happened to write.
+ * The first scene's `entry_state` is the contract the writer is actually handed,
+ * and the prose will follow it. When the two disagree, every possession audit in
+ * the chapter fails on the FIRST mention, because the prose obeys the plan and
+ * the audit obeys the ledger.
+ *
+ * Live proof, ch.5 at ef5a0d16: entry_state said "Lena holds the broken brass
+ * key handle"; the folded ledger said Marcus Reed held it. Scene 1 was rejected
+ * on "Lena slipped the broken handle into her pocket." — the writer doing exactly
+ * what it was told. Three repair passes could not fix a scene that was correct.
+ *
+ * Returns { object -> holder } read ONLY from the plan, with the cast as the
+ * closed world of who can hold anything, and the same portability filter applied
+ * to the object. A sentence naming two cast members before the verb is ambiguous
+ * and is skipped rather than guessed at.
+ */
+export function holdersFromSpecState(spec, cast) {
+  const out = new Map();
+  const text = String(spec?.entry_state || '');
+  if (!text.trim()) return out;
+  const roster = (Array.isArray(cast) ? cast : [])
+    .map((c) => (typeof c === 'string' ? c : c?.name))
+    .filter(Boolean);
+  if (!roster.length) return out;
+
+  // Split on clause boundaries so "Lena holds the key, while Marcus has a hand"
+  // is read as two independent claims.
+  // Split on punctuation and "while" ONLY. Splitting on "and" would tear a
+  // conjoined subject in half - "Lena and Marcus hold the key together" would
+  // become a clause naming only Marcus and be credited to him. A clause naming
+  // two cast members is ambiguous and is skipped below; that is the safe answer.
+  const clauses = text.split(/[,.;]|\bwhile\b/i);
+  const VERB = /\b(?:holds?|holding|carr(?:y|ies|ying)|has|keeps?|clutch(?:es)?|grips?)\s+(?:the|a|an|his|her|their)\s+((?:[a-z][a-z-]*\s+){0,5}[a-z][a-z-]*)/i;
+  for (const clause of clauses) {
+    const named = roster.filter((n) => {
+      const first = String(n).split(/\s+/)[0];
+      return new RegExp(`\\b${escapeRx(first)}\\b`, 'i').test(clause);
+    });
+    if (named.length !== 1) continue; // nobody, or ambiguous
+    const m = VERB.exec(clause);
+    if (!m) continue;
+    let phrase = m[1].trim().toLowerCase().replace(/\s+/g, ' ');
+    const FN = new Set(['to', 'into', 'with', 'for', 'from', 'at', 'on', 'onto', 'toward', 'towards', 'through', 'under', 'behind', 'and', 'or', 'but', 'while', 'as', 'so', 'together', 'still', 'tightly', 'loosely']);
+    const words = phrase.split(' ');
+    const fnIdx = words.findIndex((w) => FN.has(w));
+    if (fnIdx >= 0) phrase = words.slice(0, fnIdx).join(' ');
+    if (!phrase || !isPortablePropPhrase(phrase)) continue;
+    out.set(phrase, named[0]);
+  }
+  return out;
+}
+
 /** The CLOSED tracked-object set, derived from the plan and nothing else. */
 export function trackedObjectsFromSpecs(specs) {
   const seen = new Map();

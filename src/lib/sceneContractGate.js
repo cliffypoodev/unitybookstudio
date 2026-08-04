@@ -1,6 +1,6 @@
 import { getTrustedCharacters } from './narrativeLedger.js';
 import { normalizeCast, resolveReferent, trackLastNamed } from './referentResolver.js';
-import { checkPossessionContinuity } from './objectPossession.js';
+import { checkPossessionContinuity, isPortablePropPhrase, dedupeTrackedObjects } from './objectPossession.js';
 
 const STOPWORDS = new Set([
   'about','after','again','against','before','being','between','could','every',
@@ -1111,7 +1111,15 @@ export function auditSceneAgainstLedger({
       for (const obj of Array.isArray(spec?.props_present) ? spec.props_present : []) {
         if (obj && String(obj).trim().length > 2) tracked.add(String(obj).trim());
       }
-      for (const obj of tracked) {
+      // OBJSEED-2d: this audit builds its OWN object list and so bypassed every
+      // filter the seeding path applies. Live ch.5 at ef5a0d16 tracked
+      // "Bandaged left hand" from props_present and then demanded a written
+      // handover of Marcus's hand between him and Lena - a body part with a
+      // holder of record. Same closed world, same rules, both doors.
+      for (const obj of [...tracked]) {
+        if (!isPortablePropPhrase(obj)) tracked.delete(obj);
+      }
+      for (const obj of dedupeTrackedObjects([...tracked])) {
         const entryHolder =
           Object.keys(runtimeLedger.possessions).find((char) =>
             (runtimeLedger.possessions[char] || []).some(
