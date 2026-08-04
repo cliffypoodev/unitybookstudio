@@ -94,6 +94,23 @@ const SPEC_OBJECT_STOPWORDS = new Set([
 /** Extract tracked-object phrases from the beat contract's own state strings. */
 export function seedTrackedObjectsFromSpecStates(specs) {
   const seen = new Map();
+  // SEPARATION-1c/OBJSEED-1: the plan's own cast is the closed world of who is a
+  // PERSON. A seeded phrase containing a character name is never an object -
+  // the live ch.3 run tracked "key and marcus" (head noun "marcus"), which would
+  // have made the possession scanner treat a person as a prop.
+  const castTokens = new Set();
+  for (const spec of Array.isArray(specs) ? specs : []) {
+    const names = [
+      ...(Array.isArray(spec?.characters_present) ? spec.characters_present : []),
+      ...(Array.isArray(spec?.characters) ? spec.characters : []),
+    ];
+    for (const n of names) {
+      for (const tok of String(n || '').toLowerCase().split(/\s+/)) {
+        const t = tok.replace(/[^a-z-]/g, '');
+        if (t.length > 2 && !['dr', 'mr', 'mrs', 'ms', 'the'].includes(t)) castTokens.add(t);
+      }
+    }
+  }
   const harvest = (text) => {
     const str = String(text || '');
     for (const rx of [SPEC_POSSESSION_RX, SPEC_POSSESSIVE_RX]) {
@@ -106,7 +123,7 @@ export function seedTrackedObjectsFromSpecStates(specs) {
         // object "key to explore" (which the live ch.3 run tracked, alias
         // "explore"). Function words end the noun phrase; content stopwords
         // below still reject the whole phrase.
-        const FN_WORDS = new Set(['to', 'into', 'with', 'for', 'from', 'at', 'on', 'onto', 'toward', 'towards', 'through', 'under', 'behind']);
+        const FN_WORDS = new Set(['to', 'into', 'with', 'for', 'from', 'at', 'on', 'onto', 'toward', 'towards', 'through', 'under', 'behind', 'and', 'or', 'but', 'while', 'as', 'so']);
         const rawWords = phrase.split(' ');
         const fnIdx = rawWords.findIndex((w) => FN_WORDS.has(w));
         if (fnIdx >= 0) phrase = rawWords.slice(0, fnIdx).join(' ');
@@ -116,6 +133,7 @@ export function seedTrackedObjectsFromSpecStates(specs) {
         // down" must not track "stairs down"), and a phrase ending in a direction
         // word is motion, not an object.
         if (words.some((w) => SPEC_OBJECT_STOPWORDS.has(w))) continue;
+        if (words.some((w) => castTokens.has(w))) continue;
         if (/^(?:down|up|back|away|out|off|over|again|inside|outside|forward|ahead)$/.test(words[words.length - 1])) continue;
         seen.set(phrase, phrase);
       }
