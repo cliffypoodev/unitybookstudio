@@ -51,6 +51,42 @@ function isUrl(value) {
   return /^https?:\/\//i.test(String(value || '').trim());
 }
 
+/**
+ * STOREDEDUPE-1 — a content fingerprint, so an unchanged field is not re-uploaded.
+ *
+ * MEASURED on the live store, 2026-08-04:
+ *
+ *   entries                      3,770
+ *   total content               80.9 MB
+ *   unique content              24.1 MB
+ *   byte-identical duplicates   56.8 MB  (70%)
+ *   one 38 KB research_md blob stored 324 times = 12.0 MB
+ *
+ * prepareFoundationPayload uploaded a NEW timestamped blob every time a payload
+ * carried an oversized field, whether or not the text had changed. Combined with
+ * the save-triggered reload loop (WATCHLOOP-1) the store grew without bound, and
+ * every load now parses 87 MB of JSON to reach 24 MB of content.
+ *
+ * Web Crypto is deliberately NOT used: crypto.subtle requires a secure context and
+ * Cliff reaches this app over http on a LAN address, where it is undefined. This is
+ * FNV-1a 64-bit, computed in two 32-bit halves so it stays exact in doubles, and it
+ * is paired with the exact byte length. A false "unchanged" verdict would need two
+ * different documents of IDENTICAL length to collide on 64 bits; the fingerprint is
+ * recorded on the payload so the decision is always auditable.
+ */
+export function foundationContentHash(text) {
+  const str = String(text == null ? '' : text);
+  let h1 = 0x811c9dc5;
+  let h2 = 0x01000193;
+  for (let i = 0; i < str.length; i += 1) {
+    const c = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+    h2 = Math.imul(h2 ^ (c + i), 0x85ebca6b) >>> 0;
+  }
+  const hex = (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0');
+  return `len${str.length}-fnv${hex}`;
+}
+
 function makeSafeId(value, fallback = 'foundation') {
   const cleaned = String(value || fallback)
     .replace(/[^a-zA-Z0-9_-]/g, '-')
@@ -169,14 +205,31 @@ async function uploadFoundationField(content, projectId, field) {
   return null;
 }
 
+/**
+ * STOREDEDUPE-1 — blobs are namespaced by PROJECT ID, never by a title.
+ *
+ * The old fallback chain ended in `makeSafeId(payload.title || 'foundation-project')`,
+ * so a payload with no id was filed under a slug of its title, and a payload with
+ * neither was filed under the literal string "foundation-project". Measured on the
+ * live store: 1,308 of 3,770 entries (35%) sit under that placeholder, and the SAME
+ * 13,841-char characters document was written twice 75 seconds apart - once under
+ * "The-Gilded-Hour" and once under "foundation-project" - because two call sites
+ * disagreed about whether a title was present.
+ *
+ * A title is not an identity: two books may share one, and one book's title may
+ * change. When no id is available the namespace is explicitly "unknown-project" and
+ * it is announced, so the condition is visible instead of silently minting a new
+ * namespace per title.
+ */
 function getPayloadProjectId(payload = {}) {
-  return (
-    payload.id ||
-    payload.project_id ||
-    payload.projectId ||
-    payload.novel_project_id ||
-    makeSafeId(payload.title || 'foundation-project', 'foundation-project')
+  const id = payload.id || payload.project_id || payload.projectId || payload.novel_project_id;
+  if (id) return makeSafeId(id, 'unknown-project');
+  console.warn(
+    '[STOREDEDUPE-1] foundation payload has no project id '
+    + `(title: ${JSON.stringify(payload.title || null)}); filing blobs under "unknown-project". `
+    + 'The caller should pass the project id.',
   );
+  return 'unknown-project';
 }
 
 /**
@@ -214,6 +267,24 @@ export async function prepareFoundationPayload(payload = {}) {
       continue;
     }
 
+    // STOREDEDUPE-1: identical content already stored -> keep the blob, skip the write.
+    const hash = foundationContentHash(text);
+    const priorHash = payload[`${field}_storage_hash`] || next[`${field}_storage_hash`] || '';
+    const priorUrl = payload[urlField] || next[urlField] || '';
+    if (priorUrl && priorHash && priorHash === hash) {
+      console.log(
+        `[STOREDEDUPE-1] ${field} unchanged (${text.length} chars, ${hash}) - reusing the stored blob, no upload`,
+      );
+      next[field] = '';
+      next[urlField] = priorUrl;
+      next[`${field}_storage_hash`] = hash;
+      next[`${field}_word_count`] = countWords(text);
+      next[`${field}_char_count`] = text.length;
+      next[`${field}_upload_failed`] = false;
+      next.foundation_storage_version = FOUNDATION_STORAGE_VERSION;
+      continue;
+    }
+
     const uploaded = await uploadFoundationField(text, projectId, field);
     if (!uploaded?.file_url) {
       const existingUrl = payload[urlField] || next[urlField] || '';
@@ -235,6 +306,7 @@ export async function prepareFoundationPayload(payload = {}) {
     next[`${field}_storage_path`] = uploaded.path || '';
     next[`${field}_storage_sha`] = uploaded.sha || '';
     next[`${field}_storage_filename`] = uploaded.filename || '';
+    next[`${field}_storage_hash`] = hash; // STOREDEDUPE-1
     next[`${field}_word_count`] = countWords(text);
     next[`${field}_char_count`] = text.length;
     next[`${field}_upload_failed`] = false;
