@@ -1,5 +1,5 @@
 import { extractLimbFacts, extractCharacterStateFacts } from './sceneContractGate.js';
-import { checkPossessionContinuity, objectAliases } from './objectPossession.js';
+import { checkPossessionContinuity, objectAliases, isPortablePropPhrase } from './objectPossession.js';
 
 export function getTrustedCharacters(spec, ledger) {
   const trusted = new Set();
@@ -506,6 +506,159 @@ export function boundLedger(ledger, maxEvents = LEDGER_MAX_COMPLETED_EVENTS) {
   return out;
 }
 
+// HOLDER-1 — one person, one name; one object, one holder; across chapters too.
+//
+// setHolderOfRecord enforces the single-holder invariant INSIDE one ledger. The
+// cross-chapter fold did not: mergeLedgers walked possessions BY CHARACTER
+// (`for (const [char, objs] of Object.entries(b.possessions))`), so an object
+// held by Lena in ch.4 and by Marcus in ch.5 survived under BOTH. Proven by
+// folding two real ledgers, which reproduces the live ch.5 holder line exactly:
+//
+//   {"Lena Ortiz":["key",...],"Marcus":["key"],"Marcus Reed":["broken brass key"]}
+//
+// Three defects visible in that one line, all fixed here:
+//   1. "key" has two holders.
+//   2. "Marcus" and "Marcus Reed" are one person tracked as two holders.
+//   3. "Hidden console" and "severely injured left" are phantoms OBJSEED-2 stops
+//      generating but cannot retract - they are already written into saved
+//      ledgers, and the fold carries them forward forever.
+//
+// Downstream this is what hard-blocked ch.5: the possession audit found the key
+// "last established with Marcus Reed", demanded a handover Lena never wrote, and
+// the repair could not satisfy it because the premise was an artefact of the
+// split identity, not of the prose.
+
+/** Whitespace-delimited tokens of a character name, lowercased. */
+function nameTokens(name) {
+  return String(name || '').toLowerCase().replace(/[.,]/g, ' ')
+    .split(/\s+/).filter(Boolean);
+}
+
+/**
+ * HOLDER-1a — collapse split identities to one canonical spelling.
+ * Two names are the same person when one's tokens are a subset of the other's
+ * AND either it is a leading prefix ("Marcus" -> "Marcus Reed") or they share a
+ * final token ("Dr. Vale" -> "Dr. Nolan Vale"). The longer spelling wins.
+ * "Marcus Reed" and "Marcus Aurelius" share neither test and stay distinct.
+ */
+export function canonicalizeHolderNames(names) {
+  const list = [...new Set((names || []).map((n) => String(n || '').trim()).filter(Boolean))];
+  const map = new Map();
+  for (const n of list) {
+    const tn = nameTokens(n);
+    let winner = n;
+    for (const other of list) {
+      if (other === n) continue;
+      const to = nameTokens(other);
+      if (to.length <= tn.length) continue;
+      const subset = tn.every((t) => to.includes(t));
+      if (!subset) continue;
+      const isPrefix = tn.every((t, i) => to[i] === t);
+      const sameLast = tn.length > 0 && to.length > 0 && tn[tn.length - 1] === to[to.length - 1];
+      if (!isPrefix && !sameLast) continue;
+      if (nameTokens(winner).length < to.length) winner = other;
+    }
+    map.set(n, winner);
+  }
+  return map;
+}
+
+/** Content words of an object phrase, lowercased, articles removed. */
+function objectWords(obj) {
+  return new Set(
+    String(obj || '').toLowerCase().replace(/[^a-z0-9\s'-]/g, ' ')
+      .split(/\s+/).filter((w) => w && !['the', 'a', 'an', 'his', 'her', 'their'].includes(w))
+  );
+}
+
+/**
+ * HOLDER-1b — group object spellings that name the SAME object.
+ * One phrase's word set being a subset of another's means the same thing more
+ * specifically described: key ⊂ broken brass key ⊂ broken brass key handle, and
+ * cane ⊂ broken cane. Grouping is transitive, so a chain collapses to one entity.
+ * "brass key" and "iron key" are neither a subset of the other and stay apart.
+ *
+ * The live ch.5 ledger carried the same physical prop under four spellings, and
+ * each one accumulated its own holder - which is how the possession audit came
+ * to believe the key was in two places at once.
+ */
+export function groupObjectSpellings(objects) {
+  const items = [...new Set((objects || []).map((o) => String(o || '').trim()).filter(Boolean))]
+    .map((o) => ({ o, w: objectWords(o) }));
+  const parent = items.map((_, i) => i);
+  const find = (i) => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+  const union = (i, j) => { const a = find(i); const b = find(j); if (a !== b) parent[b] = a; };
+  const subset = (small, big) => small.size <= big.size && [...small].every((w) => big.has(w));
+  for (let i = 0; i < items.length; i += 1) {
+    for (let j = i + 1; j < items.length; j += 1) {
+      if (subset(items[i].w, items[j].w) || subset(items[j].w, items[i].w)) union(i, j);
+    }
+  }
+  const groups = new Map();
+  items.forEach((item, i) => {
+    const root = find(i);
+    const g = groups.get(root) || [];
+    g.push(item.o);
+    groups.set(root, g);
+  });
+  // key: the group's most specific spelling; value: every spelling in it
+  const out = new Map();
+  for (const g of groups.values()) {
+    const canonical = g.reduce((best, cur) => (cur.length > best.length ? cur : best), g[0]);
+    for (const spelling of g) out.set(spelling, canonical);
+  }
+  return out;
+}
+
+/**
+ * HOLDER-1 — rebuild a possessions map so that every object has exactly one
+ * holder and every holder has exactly one name. Later assignments win, which is
+ * what a chapter fold means: the most recent chapter is the current state.
+ * Non-portable phrases are dropped, which retires phantoms already written into
+ * saved ledgers.
+ */
+export function normalizePossessions(...maps) {
+  const pairs = [];
+  for (const m of maps) {
+    for (const [char, objs] of Object.entries(m || {})) {
+      for (const obj of Array.isArray(objs) ? objs : []) {
+        const o = String(obj || '').trim();
+        if (o) pairs.push([String(char || '').trim(), o]);
+      }
+    }
+  }
+  const nameMap = canonicalizeHolderNames(pairs.map(([c]) => c));
+  const portable = pairs.filter(([, obj]) => isPortablePropPhrase(obj));
+  const groupMap = groupObjectSpellings(portable.map(([, obj]) => obj));
+
+  // canonical object -> holder ; later pairs overwrite earlier ones, because a
+  // fold is ordered oldest-first and the newest chapter is the current state.
+  const holderOf = new Map();
+  for (const [char, obj] of portable) {
+    const holder = nameMap.get(char) || char;
+    if (!holder) continue;
+    holderOf.set(groupMap.get(obj) || obj, holder);
+  }
+
+  const out = {};
+  for (const [obj, holder] of holderOf) {
+    out[holder] = out[holder] || [];
+    if (!out[holder].some((o) => o.toLowerCase() === obj.toLowerCase())) out[holder].push(obj);
+  }
+  return out;
+}
+
+/** HOLDER-1a — apply canonical names to any character-keyed map. */
+function canonicalizeCharacterMap(map) {
+  const nameMap = canonicalizeHolderNames(Object.keys(map || {}));
+  const out = {};
+  for (const [char, val] of Object.entries(map || {})) {
+    const key = nameMap.get(char) || char;
+    out[key] = uniq([...(out[key] || []), ...(Array.isArray(val) ? val : [val])]);
+  }
+  return out;
+}
+
 /**
  * Merge `incoming` (the LATER chapter) onto `base` (everything before it).
  * @param {object|null} base
@@ -528,9 +681,12 @@ export function mergeLedgers(base, incoming) {
   a.locations = { ...a.locations, ...b.locations };
   a.objects = { ...a.objects, ...b.objects };
   a.objectLocations = { ...a.objectLocations, ...b.objectLocations };
-  for (const [char, objs] of Object.entries(b.possessions)) {
-    a.possessions[char] = uniq(objs);
-  }
+  // HOLDER-1: object-first, not character-first. The old loop copied the later
+  // ledger's characters over the earlier one's WITHOUT removing the object from
+  // whoever held it before, so a handover across a chapter boundary left two
+  // holders standing. Order matters: `a` first, `b` second, so the later chapter
+  // wins each object.
+  a.possessions = normalizePossessions(a.possessions, b.possessions);
   // OBJECTSTATE-1: per-key override, NOT union. Saved ledgers are cumulative
   // (each chapter's ledger starts from the fold of everything before it), so a
   // later chapter always carries the inherited condition forward - and a repair
@@ -547,6 +703,15 @@ export function mergeLedgers(base, incoming) {
   // --- history: append, dedupe, bound ---
   a.completedEvents = uniq([...a.completedEvents, ...b.completedEvents]);
 
+  // HOLDER-1a: a split identity in the condition or death lists causes the same
+  // class of bug as a split holder - a character who is dead under one spelling
+  // and alive under another.
+  a.characterConditions = canonicalizeCharacterMap(a.characterConditions);
+  {
+    const nameMap = canonicalizeHolderNames(a.deadCharacters);
+    a.deadCharacters = uniq(a.deadCharacters.map((n) => nameMap.get(n) || n));
+  }
+
   return boundLedger(a);
 }
 
@@ -554,6 +719,37 @@ export function mergeLedgers(base, incoming) {
 export function foldChapterLedgers(ledgers) {
   let acc = buildInitialLedger();
   for (const l of ledgers || []) acc = mergeLedgers(acc, l);
+
+  // HOLDER-1a: a pairwise merge can only canonicalise against the names present
+  // in those two ledgers. If ch.4 says "Lena Ortiz" and ch.6 says "Lena", the
+  // ch.4 spelling is already gone by the time ch.6 merges. Resolve once more
+  // against every name seen ANYWHERE in the fold, which is the whole cast.
+  const allNames = [];
+  for (const l of ledgers || []) {
+    allNames.push(
+      ...Object.keys(l?.possessions || {}),
+      ...Object.keys(l?.characterConditions || {}),
+      ...(Array.isArray(l?.deadCharacters) ? l.deadCharacters : [])
+    );
+  }
+  const nameMap = canonicalizeHolderNames([...allNames, ...Object.keys(acc.possessions || {})]);
+  const canon = (n) => nameMap.get(n) || n;
+
+  const possessions = {};
+  for (const [char, objs] of Object.entries(acc.possessions || {})) {
+    const key = canon(char);
+    possessions[key] = uniq([...(possessions[key] || []), ...(objs || [])]);
+  }
+  acc.possessions = possessions;
+
+  const conditions = {};
+  for (const [char, conds] of Object.entries(acc.characterConditions || {})) {
+    const key = canon(char);
+    conditions[key] = uniq([...(conditions[key] || []), ...(conds || [])]);
+  }
+  acc.characterConditions = conditions;
+  acc.deadCharacters = uniq((acc.deadCharacters || []).map(canon));
+
   return acc;
 }
 

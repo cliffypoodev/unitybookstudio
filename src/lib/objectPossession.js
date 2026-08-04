@@ -116,6 +116,19 @@ const SPEC_OBJECT_STOPWORDS = new Set([
   'pipes', 'railing', 'handrail', 'seal', 'seals', 'lock', 'machinery',
 ]);
 
+// HOLDER-1c: words that cannot END a noun phrase. A phrase finishing on a
+// modifier is a truncated fragment, not a thing. OBJSEED-2 stopped GENERATING
+// "severely injured left", but that fragment is already written into the saved
+// ch.4 ledger and the chapter fold carries it forward forever unless it is also
+// rejected on READ. Judged at the head-noun position only, so "left boot" and
+// "broken brass key handle" are unaffected.
+const NON_HEAD_WORDS = new Set([
+  'left', 'right', 'upper', 'lower', 'front', 'rear', 'inner', 'outer',
+  'injured', 'broken', 'damaged', 'wounded', 'severed', 'cracked', 'burned',
+  'severely', 'badly', 'partially', 'hidden', 'small', 'large', 'old', 'new',
+  'dark', 'pale', 'empty', 'full', 'heavy', 'light', 'other', 'same', 'own',
+]);
+
 /** OBJSEED-2b — is this phrase something a person could actually hold?
  *  Judged on the WHOLE phrase (head noun included) after any possessive owner
  *  prefix is stripped, so "Dr. Vale's cane" is judged on "cane". */
@@ -126,6 +139,7 @@ export function isPortablePropPhrase(phrase) {
     .replace(/^[a-z][a-z-]*['’]s\s+/, '');
   const words = p.split(/\s+/).filter(Boolean);
   if (!words.length) return false;
+  if (NON_HEAD_WORDS.has(words[words.length - 1])) return false;
   return !words.some((w) => SPEC_OBJECT_STOPWORDS.has(w.replace(/[^a-z-]/g, '')));
 }
 
