@@ -733,6 +733,48 @@ export function repairOrphanClosers(text) {
   return { text: out.join('\n'), repaired, flagged, wholeLineRepaired };
 }
 
+/**
+ * QUOTECLOSE-1 — close dialogue that was OPENED and never CLOSED.
+ *
+ * The whole family above handles two shapes: a missing OPENING quote, and an
+ * orphan CLOSER. Neither sees the third: an opener with no closer at all.
+ * Measured on the live ch.3 re-draft (2026-08-04): 96 opening quotes vs 57
+ * closing, and `detectDialogueQuoteIssues` reported ZERO issues, so the whole
+ * pass — draft-time AND export-time — shipped 41 unclosed quotes to the page.
+ *
+ * Deliberately narrow, because deterministic prose mutation is how POLISHFIX
+ * damage happened. It only ever appends ONE `”` at the END of a paragraph, and
+ * only when all of these hold:
+ *   1. the paragraph has more `“` than `”` (an opener is genuinely unclosed);
+ *   2. the paragraph ends in terminal punctuation, so the speech is complete;
+ *   3. there IS text after the last unmatched `“` (never closes an empty quote).
+ * Anything else is flagged and left alone. No word is added, removed, or moved.
+ *
+ * Run AFTER splitCollapsedDialogueParagraphs: once turns are one-per-paragraph
+ * the unclosed opener is the paragraph's own last speech, which is what makes
+ * end-of-paragraph closure the correct boundary rather than a guess.
+ */
+export function repairUnclosedDialogue(text) {
+  if (!text || typeof text !== 'string') return { text: text || '', repaired: 0, flagged: 0 };
+  let repaired = 0;
+  let flagged = 0;
+  const lines = text.split('\n').map((line) => {
+    const opens = (line.match(/\u201C/g) || []).length;
+    const closes = (line.match(/\u201D/g) || []).length;
+    if (opens <= closes) return line;
+    const trimmed = line.replace(/\s+$/, '');
+    const lastOpen = trimmed.lastIndexOf('\u201C');
+    const spoken = trimmed.slice(lastOpen + 1).trim();
+    if (!spoken || !/[.!?\u2026]$/.test(trimmed)) { flagged += 1; return line; }
+    repaired += 1;
+    return trimmed + '\u201D';
+  });
+  if (repaired || flagged) {
+    console.log(`[DIALOGUE-MECHANICS-REPAIR] Unclosed-dialogue healer closed ${repaired} quote(s), flagged ${flagged}`);
+  }
+  return { text: lines.join('\n'), repaired, flagged };
+}
+
 export function runDialogueMechanicsPass(text, options = {}) {
   if (!text || typeof text !== 'string') {
     return {
@@ -782,8 +824,14 @@ export function runDialogueMechanicsPass(text, options = {}) {
   // (dialogue followed by action beats instead of speech verbs).
   const orphan = repairOrphanClosers(repairResult.text);
 
+  // QUOTECLOSE-1: the third shape — an opener with no closer. Runs last so the
+  // splitter and both existing healers have already normalised the paragraphs.
+  const unclosed = repairUnclosedDialogue(orphan.text);
+
   return {
-    text: orphan.text,
+    text: unclosed.text,
+    unclosedRepaired: unclosed.repaired,
+    unclosedFlagged: unclosed.flagged,
     repairs: repairResult.repairs,
     orphanRepaired: orphan.repaired,
     orphanFlagged: orphan.flagged,
@@ -792,7 +840,7 @@ export function runDialogueMechanicsPass(text, options = {}) {
     manualReview: repairResult.manualReview,
     beforeCount,
     afterCount,
-    improved: improved || orphan.repaired > 0 || paragraphSplits > 0,
+    improved: improved || orphan.repaired > 0 || paragraphSplits > 0 || unclosed.repaired > 0,
   };
 }
 
