@@ -67,17 +67,66 @@ export async function getUsedCharacterNames(excludeProjectId) {
 }
 
 /**
- * Builds the name exclusion instruction block for story bible prompts.
+ * NAMEHYGIENE-1 — the names the AUTHOR chose, taken from their own premise.
+ *
+ * MEASURED on The Gilded Hour, 2026-08-04. The premise names the house steward
+ * **Silas Bram**, and says he hands Nell the key in front of witnesses and is found
+ * dead in chapter 3. "Silas" is on the Tier-1 blocked AI-default list, and
+ * DEFAULT_NAME_REPLACEMENT_SUGGESTIONS offers Silas -> ["Nolan", ...] first. The
+ * exclusion block below ends with "If ANY match the banned list, replace them
+ * immediately", so the architect obeyed and shipped an outline starring
+ * **Nolan Bram** — a character the author never wrote, carrying the first name of
+ * the protagonist's colleague in a completely different book.
+ *
+ * The hygiene system is right in general: "Silas" IS an AI-slop name and banning it
+ * for INVENTED characters is the entire point. But a name in the premise is not the
+ * model's invention, it is a specification. Nothing may silently overwrite what the
+ * author asked for — the same closed-world principle the gates apply to facts,
+ * applied to the brief.
+ *
+ * Deliberately literal: a banned name is exempt only if that exact token appears,
+ * capitalised, in the author's own text. No name inference, no NER, no guessing.
  */
-export function buildNameExclusionBlock(bannedNames) {
+export function extractAuthorChosenNames(authorText) {
+  return new Set(String(authorText || '').match(/\b[A-Z][A-Za-z'’-]+\b/g) || []);
+}
+
+/**
+ * Builds the name exclusion instruction block for story bible prompts.
+ *
+ * NAMEHYGIENE-1: pass the author's premise as `authorText` and any banned name they
+ * used is removed from the ban list and stated positively as required instead.
+ * Defaults to '' so existing callers are unaffected.
+ */
+export function buildNameExclusionBlock(bannedNames, authorText = '') {
   if (!bannedNames || !bannedNames.length) return '';
+
+  const authorNames = extractAuthorChosenNames(authorText);
+  const authorChose = bannedNames.filter((n) => authorNames.has(String(n)));
+  const stillBanned = bannedNames.filter((n) => !authorNames.has(String(n)));
+  if (authorChose.length) {
+    console.warn(
+      `[NAMEHYGIENE-1] ${authorChose.length} banned name(s) appear in the author's own premise `
+      + `and are protected from replacement: ${authorChose.join(', ')}`,
+    );
+  }
+  if (!stillBanned.length && !authorChose.length) return '';
+
+  const authorBlock = authorChose.length
+    ? `
+AUTHOR-SPECIFIED NAMES — USE THESE EXACTLY AS WRITTEN: ${authorChose.join(', ')}
+These names come from the author's own brief. They are NOT AI-default names in this
+book and they are NOT subject to the ban below. Do not substitute, soften, modernise
+or "improve" them. Spell them exactly as given, every time.
+`
+    : '';
 
   return `
 ═══ CHARACTER NAMING RULES (MANDATORY) ═══
-
+${authorBlock}
 You MUST NOT use any of the following names (first OR last) for any character. These have been used in other projects or are AI-default names that appear in machine-generated fiction:
 
-BANNED NAMES: ${bannedNames.join(', ')}
+BANNED NAMES: ${stillBanned.join(', ')}
 
 Instead, choose names that are:
 1. CULTURALLY SPECIFIC to the setting. A book set in 1869 Egypt should have Arabic, Turkish, Coptic, and English colonial names — not fantasy names.

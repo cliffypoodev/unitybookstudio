@@ -2248,7 +2248,9 @@ export default function ProjectStudio() {
     try {
     const _usedNames = await getUsedCharacterNames(project.id);
     const _nameBlock = [
-      buildNameExclusionBlock([...new Set([...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._usedNames])]),
+      // NAMEHYGIENE-1: the author's own premise protects the names they chose.
+      // Without it the ban list renamed Silas Bram to Nolan Bram on the live run.
+      buildNameExclusionBlock([...new Set([...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._usedNames])], _resolvedSeed),
       GLOBAL_NAME_HYGIENE_PROMPT_BLOCK,
     ].filter(Boolean).join('\n\n');
     setBusyLabel('Step 1/2 — Analyzing premise…');
