@@ -814,8 +814,40 @@ function addFunctionWarnings(beats, isNonfiction = true) {
 // scene-boundary audit and the exit-state audit as ground truth, so one leak
 // contaminates three gates and the prose they judge. The identical drift was
 // caught and removed from PROSE in the same run - one stage too late.
+// LEAKSCRUB-2 — a scrubbed field that is left structurally broken is dropped.
+//
+// stripNonLatinDrift removes the drift run AND the beheaded lead-in back to the
+// previous sentence terminal, which is right for prose and wrong for a contract
+// field. Live ch.5 at 88b13fdb produced two of these:
+//   exit_state:  "and determined to confront Marcus. himself to save Lena."
+//   entry_state: "Inside the station's main corridor, cold and dimly lit. himself."
+// Latin-only, as designed - and useless. A stump is worse than an absence,
+// because an absent field makes the downstream gates skip while a stump makes
+// them audit prose against gibberish.
+//
+// Blank beats mangled, exactly like the quote gates.
+const STUMP_LEAD_RX = /^(?:and|but|or|while|so|as|to|of|with|then|himself|herself|themselves|itself)\b/i;
+const ORPHAN_REFLEXIVE_RX = /(?:^|[.!?]\s+)(?:himself|herself|themselves|itself)\s*[.!?]/i;
+
+function isStump(original, scrubbed) {
+  const o = String(original || '').trim();
+  const s = String(scrubbed || '').trim();
+  if (!s) return false; // already empty - nothing to judge
+  // Structural damage is judged on the FIELD, not on whether this run's scrub
+  // caused it. The architect echoes prior contract text, so a stump from an
+  // earlier run comes back in the next one already broken and unchanged - which
+  // is exactly what happened on the live ch.5 run, where `entry_state` arrived
+  // reading "Inside the station's main corridor, cold and dimly lit. himself."
+  if (STUMP_LEAD_RX.test(s)) return true;       // starts mid-clause
+  if (ORPHAN_REFLEXIVE_RX.test(s)) return true; // a bare "himself." left behind
+  // Losing most of the field only counts when THIS scrub did it.
+  if (s !== o && s.length < o.length * 0.6) return true;
+  return false;
+}
+
 export function scrubBeatContract(beats) {
   let scrubbed = 0;
+  let dropped = 0;
   const clean = (v) => {
     if (typeof v !== 'string' || !v) return v;
     const tokens = stripModelControlTokens(v);
@@ -823,6 +855,11 @@ export function scrubBeatContract(beats) {
     const tidy = String(typeof drift === 'string' ? drift : drift.text)
       .replace(/\s{2,}/g, ' ').trim();
     if (tidy !== v) scrubbed += 1;
+    if (isStump(v, tidy)) {
+      dropped += 1;
+      console.warn(`[LEAKSCRUB-2] dropped a field left structurally broken by the scrub: ${JSON.stringify(tidy.slice(0, 90))}`);
+      return '';
+    }
     return tidy;
   };
   const out = (beats || []).map((beat) => {
@@ -837,7 +874,10 @@ export function scrubBeatContract(beats) {
     return copy;
   });
   if (scrubbed) {
-    console.warn(`[LEAKSCRUB-1] scrubbed model drift from ${scrubbed} beat-contract field(s) before drafting`);
+    console.warn(
+      `[LEAKSCRUB-1] scrubbed model drift from ${scrubbed} beat-contract field(s) before drafting` +
+      (dropped ? ` — ${dropped} of them were left structurally broken and were DROPPED (LEAKSCRUB-2)` : '')
+    );
   }
   return out;
 }
