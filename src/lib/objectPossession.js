@@ -109,63 +109,7 @@ export function dedupeTrackedObjects(objects) {
 // back - so the head noun is always present to be judged. Filter the whole
 // phrase, never a fragment of it.
 const SPEC_POSSESSION_RX = /\b(?:holds?|holding|carr(?:y|ies|ying)|has|retrieves?|picks?\s+up|takes?|grabs?|pockets?|clutch(?:es)?|keeps?)\s+(?:the|a|an|his|her|their)\s+((?:[a-z][a-z-]*\s+){0,5}[a-z][a-z-]*)\b/gi;
-const SPEC_POSSESSIVE_RX = /\bthe\s+((?:[\p{L}][\p{L}\p{M}-]*\s+){0,5}[\p{L}][\p{L}\p{M}-]*)\s+(?:is|remains?|stays?)\s+in\s+((?:[\p{L}][\p{L}\p{M}'’.-]*)(?:\s+[\p{L}][\p{L}\p{M}'’.-]*){0,3})['’]s?\s+possession\b/giu;
-// Non-global sibling built from the SAME source so the two can never drift, and
-// so .exec() inside a loop carries no lastIndex state.
-const SPEC_POSSESSIVE_ONE = new RegExp(SPEC_POSSESSIVE_RX.source, 'iu');
-
-// HOLDER-4c: honorific abbreviations, so their trailing period is not mistaken
-// for a clause boundary.
-const HONORIFIC_DOT_RX = /\b(?:mr|mrs|ms|miss|dr|prof|professor|sr|jr|st|lt|sgt|capt|col|gen|maj|rev|hon|madam|lady|lord)\./gi;
-
-// HOLDER-4c: aliases that identify nobody on their own. castNameTokens() admits
-// any whitespace token of 3+ characters, so "Edmund Wexcombe the younger" answers
-// to "the" - which matches every clause ever written and would resolve a holder
-// from a definite article. The full-name alias is never filtered.
-const ALIAS_FUNCTION_WORDS = new Set([
-  'the', 'and', 'but', 'for', 'with', 'from', 'that', 'this', 'who', 'whom',
-  'her', 'his', 'its', 'their', 'they', 'was', 'were', 'are', 'has', 'had',
-  'not', 'all', 'one', 'two', 'new', 'old', 'out', 'off', 'into', 'than',
-  'then', 'when', 'what', 'where', 'which', 'some', 'any', 'own', 'she', 'him',
-]);
-
-/**
- * HOLDER-4c — which cast members does this text name?
- *
- * Uses the SAME identity machinery as every other consumer (normalizeCast /
- * castNameTokens, KEYLEDGER-2a) instead of matching the first whitespace token,
- * which silently resolved nobody for any name the app had not been debugged
- * against: "Mrs. Aldous", "O'Brien", "José Ramírez", "Mary Anne Fitch", and both
- * Edmund Wexcombes.
- *
- * Boundaries are Unicode-safe. \b is ASCII, so \bjosé\b cannot match "José's" -
- * the accented letter is not a word character and the boundary never fires.
- *
- * A match wholly CONTAINED in another member's match is dropped, so
- * "Edmund Wexcombe the younger" is the younger brother and not both brothers.
- * That is HOLDER-1a's prefix rule applied at the resolution layer.
- */
-export function castMembersIn(text, roster) {
-  const str = String(text || '');
-  if (!str.trim()) return [];
-  const spans = [];
-  for (const c of Array.isArray(roster) ? roster : []) {
-    const full = String(c?.name || '').toLowerCase();
-    for (const alias of (c?.aliases || [])) {
-      if (alias !== full && ALIAS_FUNCTION_WORDS.has(alias)) continue;
-      const rx = new RegExp(`(?:^|[^\\p{L}\\p{M}])(${escapeRx(alias)})(?![\\p{L}\\p{M}])`, 'giu');
-      let m;
-      while ((m = rx.exec(str)) !== null) {
-        const start = m.index + m[0].length - m[1].length;
-        spans.push({ name: c.name, start, end: start + m[1].length });
-        rx.lastIndex = m.index + m[0].length;
-      }
-    }
-  }
-  const kept = spans.filter((s) => !spans.some((o) =>
-    o.name !== s.name && o.start <= s.start && o.end >= s.end && (o.end - o.start) > (s.end - s.start)));
-  return [...new Set(kept.map((s) => s.name))];
-}
+const SPEC_POSSESSIVE_RX = /\bthe\s+((?:[a-z][a-z-]*\s+){0,5}[a-z][a-z-]*)\s+(?:is|remains?|stays?)\s+in\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?['’]s\s+possession\b/gi;
 const SPEC_OBJECT_STOPWORDS = new Set([
   'truth', 'secret', 'secrets', 'past', 'lead', 'way', 'stairs', 'group', 'situation',
   'moment', 'time', 'silence', 'darkness', 'cold', 'air', 'wall', 'walls', 'floor',
@@ -302,7 +246,9 @@ export function holdersFromSpecState(spec, cast) {
   const out = new Map();
   const text = String(spec?.entry_state || '');
   if (!text.trim()) return out;
-  const roster = normalizeCast(cast);
+  const roster = (Array.isArray(cast) ? cast : [])
+    .map((c) => (typeof c === 'string' ? c : c?.name))
+    .filter(Boolean);
   if (!roster.length) return out;
 
   // Split on clause boundaries so "Lena holds the key, while Marcus has a hand"
@@ -311,48 +257,49 @@ export function holdersFromSpecState(spec, cast) {
   // conjoined subject in half - "Lena and Marcus hold the key together" would
   // become a clause naming only Marcus and be credited to him. A clause naming
   // two cast members is ambiguous and is skipped below; that is the safe answer.
-  // HOLDER-4c: an honorific's period is not a clause boundary. Splitting raw
-  // text turned "the key is in Mrs. Aldous's possession" into "...is in Mrs"
-  // plus " Aldous's possession", and neither half is a possession claim. The
-  // period is masked for the split and restored immediately, so the split
-  // TOKENS are unchanged - only the false boundary is removed.
-  const MASK = '\u0001';
-  const clauses = text
-    .replace(HONORIFIC_DOT_RX, (h) => h.slice(0, -1) + MASK)
-    .split(/[,.;]|\bwhile\b/i)
-    .map((c) => c.split(MASK).join('.'));
+  const clauses = text.split(/[,.;]|\bwhile\b/i);
   const VERB = /\b(?:holds?|holding|carr(?:y|ies|ying)|has|keeps?|clutch(?:es)?|grips?)\s+(?:the|a|an|his|her|their)\s+((?:[a-z][a-z-]*\s+){0,5}[a-z][a-z-]*)/i;
   for (const clause of clauses) {
-    let holder = null;
-    let raw = null;
-    const m = VERB.exec(clause);
-    if (m) {
-      const named = castMembersIn(clause, roster);
-      if (named.length !== 1) continue; // nobody, or ambiguous
-      holder = named[0];
-      raw = m[1];
-    } else {
-      // HOLDER-4b: the same claim in the PASSIVE voice. The architect writes
-      // "The broken brass key handle is in Lena's possession" as often as it
-      // writes "Lena holds the ...", and the active-only VERB left the opening
-      // ledger empty on the live ch.5 run - HOLDER-4 never fired in production.
-      const pm = SPEC_POSSESSIVE_ONE.exec(clause);
-      if (!pm) continue;
-      // Resolve the possessor NAMED IN THE TEXT, not whoever else the clause
-      // mentions. Without this, "Lena knew the key is in Vale's possession"
-      // credits the key to Lena - the clause names her, the text does not.
-      const owner = castMembersIn(pm[2], roster);
-      if (owner.length !== 1) continue;
-      holder = owner[0];
-      raw = pm[1];
+    const named = roster.filter((n) => {
+      const first = String(n).split(/\s+/)[0];
+      return new RegExp(`\\b${escapeRx(first)}\\b`, 'i').test(clause);
+    });
+    // HOLDER-5: the PASSIVE form counts too.
+    //
+    // The active parser below reads "Lena holds the key". The architect writes the
+    // passive at least as often - the live ch.5 contract at 88b13fdb said "The
+    // broken brass key handle is in Lena's possession", which this function could
+    // not see, so HOLDER-4 never fired in production even once. SPEC_POSSESSIVE_RX
+    // already existed for exactly this shape and was only being used for object
+    // SEEDING; it names the owner in the sentence, so the clause does not need a
+    // separately-resolved subject and an ambiguous multi-name clause is fine here.
+    SPEC_POSSESSIVE_RX.lastIndex = 0;
+    const passive = SPEC_POSSESSIVE_RX.exec(clause);
+    if (passive) {
+      const owner = /\bin\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)['’]s\s+possession\b/.exec(clause);
+      const ownerName = owner && roster.find((n) => {
+        const first = String(n).split(/\s+/)[0];
+        return new RegExp(`\\b${escapeRx(first)}\\b`, 'i').test(owner[1]);
+      });
+      if (ownerName) {
+        const p = passive[1].trim().toLowerCase().replace(/\s+/g, ' ');
+        if (p && isPortablePropPhrase(p)) {
+          out.set(p, ownerName);
+          continue;
+        }
+      }
     }
-    let phrase = raw.trim().toLowerCase().replace(/\s+/g, ' ');
+
+    if (named.length !== 1) continue; // nobody, or ambiguous
+    const m = VERB.exec(clause);
+    if (!m) continue;
+    let phrase = m[1].trim().toLowerCase().replace(/\s+/g, ' ');
     const FN = new Set(['to', 'into', 'with', 'for', 'from', 'at', 'on', 'onto', 'toward', 'towards', 'through', 'under', 'behind', 'and', 'or', 'but', 'while', 'as', 'so', 'together', 'still', 'tightly', 'loosely']);
     const words = phrase.split(' ');
     const fnIdx = words.findIndex((w) => FN.has(w));
     if (fnIdx >= 0) phrase = words.slice(0, fnIdx).join(' ');
     if (!phrase || !isPortablePropPhrase(phrase)) continue;
-    out.set(phrase, holder);
+    out.set(phrase, named[0]);
   }
   return out;
 }

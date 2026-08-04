@@ -27,7 +27,7 @@ import vm from 'vm';
 const NORMALIZER_SRC = fs.readFileSync(
   new URL('../src/lib/sceneBeatNormalizer.js', import.meta.url), 'utf8'
 );
-const scrubStart = NORMALIZER_SRC.indexOf('export function scrubBeatContract(');
+const scrubStart = NORMALIZER_SRC.indexOf('const STUMP_LEAD_RX');
 const scrubEnd = NORMALIZER_SRC.indexOf('export function normalizeSceneBeatsForDrafting');
 if (scrubStart < 0 || scrubEnd < 0) throw new Error('scrubBeatContract anchors not found');
 const scrubCtx = { console, Object, Array, String, JSON, stripModelControlTokens, stripNonLatinDrift };
@@ -289,6 +289,48 @@ check('an empty or malformed input does not throw',
     !codes.some((c) => /hand/i.test(c)));
   check('OBJSEED-2d: a fixture in props_present never gets a holder of record',
     !codes.some((c) => /console/i.test(c)));
+}
+
+
+// ── HOLDER-5: the PASSIVE opening state ──
+{
+  const CAST = ['Lena Ortiz', 'Marcus Reed'];
+  const GILDED = ['Nell Carrow', 'Silas Bram', 'Edmund Wexcombe'];
+  const h = (state, cast = CAST) => [...holdersFromSpecState({ entry_state: state }, cast)];
+
+  // Verbatim from the live ch.5 contract at 88b13fdb - the state HOLDER-4 could not read.
+  check('HOLDER-5: the passive "is in X possession" form is read',
+    JSON.stringify(h("Inside the reactor corridor. The broken brass key handle is in Lena's possession. Dr. Vale is dead."))
+      === JSON.stringify([['broken brass key handle', 'Lena Ortiz']]));
+  check('HOLDER-5: the active form still works',
+    JSON.stringify(h('Lena holds the broken brass key handle, while Marcus has a bandaged left hand.'))
+      === JSON.stringify([['broken brass key handle', 'Lena Ortiz']]));
+  check('HOLDER-5: both forms in one state yield two separate objects',
+    JSON.stringify(h("The brass winding key is in Silas Bram's possession. Nell holds the steel winding key.", GILDED))
+      === JSON.stringify([['brass winding key', 'Silas Bram'], ['steel winding key', 'Nell Carrow']]));
+  check('HOLDER-5: a passive owner who is not in the cast is ignored',
+    h("The key is in Ambrose's possession.").length === 0);
+  check('HOLDER-5: a body part in the passive form is still rejected',
+    h("The bandaged left hand is in Nell's possession.", GILDED).length === 0);
+}
+
+// ── LEAKSCRUB-2: a scrubbed field left broken is dropped ──
+{
+  const stump = scrubBeatContract([{
+    exit_state: 'Lena is\u6124\u6012 and determined to confront Marcus. himself to save Lena.',
+    entry_state: 'The corridor was cold and dark and the lights had failed hours ago.',
+  }])[0];
+  check('LEAKSCRUB-2: a field left starting mid-clause is dropped to empty',
+    stump.exit_state === '');
+  check('LEAKSCRUB-2: a clean field beside it is untouched',
+    stump.entry_state === 'The corridor was cold and dark and the lights had failed hours ago.');
+
+  const untouched = scrubBeatContract([{ exit_state: 'They reach the hatch and stop at the threshold together.' }])[0];
+  check('LEAKSCRUB-2: a field with no drift is kept byte-identical',
+    untouched.exit_state === 'They reach the hatch and stop at the threshold together.');
+
+  check('LEAKSCRUB-2: an orphan reflexive sentence is treated as a stump',
+    scrubBeatContract([{ entry_state: 'Inside the main corridor, cold and dimly lit. himself.' }])[0].entry_state === '');
 }
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
