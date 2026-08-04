@@ -49,6 +49,7 @@ export function assertExportSnapshotIntegrity({
 
 import { runManuscriptSafetyGate } from './manuscriptSafetyGate.js';
 import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
+import { checkStructuralIntegrity, checkBookIntegrity } from './pipelineValidator.js';
 
 // Lazy-loaded to avoid circular imports
 let _detectDialogueQuoteIssues = null;
@@ -184,6 +185,55 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       entry.reasons = [...(entry.reasons || []), `${quoteClusterCount} malformed runs of 3+ consecutive quotation marks (hard blocker)`];
     }
 
+    // BOOKGATE-2: structural integrity of the SAVED text, book-agnostic, hard block.
+    //
+    // Every other check on this path was written against a defect someone noticed
+    // in a draft. This one exists because ch.3 of Brass Meridian TEST could reach
+    // export with 96 opening quotes and 57 closing ones - 39 lines of dialogue
+    // that open and never close - and every gate here said yes. The dialogue check
+    // above counts MISSING OPENERS; nothing counted missing closers.
+    //
+    // Unclosed dialogue is not a style opinion. It is broken text, it is visible
+    // on the page, and no reader-facing artifact should be producible with it.
+    try {
+      const structural = checkStructuralIntegrity(content, entry.chapterNumber);
+      entry.structural = structural;
+      if (!structural.quoteBalance.pass) {
+        entry.ok = false;
+        entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+        entry.reasons = [...(entry.reasons || []),
+          `${structural.quoteBalance.unbalancedParagraphs} paragraph(s) with unclosed dialogue ` +
+          `(${structural.quoteBalance.open} open / ${structural.quoteBalance.close} close) - hard blocker`];
+        entry.snippets = [...(entry.snippets || []), ...structural.quoteBalance.details.slice(0, 3)
+          .map((d) => ({ type: 'unclosed-dialogue', phrase: `${d.open}/${d.close}`, snippet: d.excerpt }))];
+      }
+      if (!structural.gluedWords.pass) {
+        entry.ok = false;
+        entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+        entry.reasons = [...(entry.reasons || []),
+          `${structural.gluedWords.count} glued word(s) from collapsed dialogue: ` +
+          `${structural.gluedWords.details.slice(0, 5).join(', ')} - hard blocker`];
+      }
+      if (!structural.unterminatedParagraphs.pass) {
+        entry.ok = false;
+        entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+        entry.reasons = [...(entry.reasons || []),
+          `${structural.unterminatedParagraphs.count} paragraph(s) end without terminal punctuation - hard blocker`];
+      }
+      console.log(
+        `[BOOKGATE-2] chapter=${entry.chapterNumber} quotes=${structural.quoteBalance.open}/` +
+        `${structural.quoteBalance.close} unbalancedParas=${structural.quoteBalance.unbalancedParagraphs} ` +
+        `glued=${structural.gluedWords.count} unterminated=${structural.unterminatedParagraphs.count} ` +
+        `pass=${structural.pass}`
+      );
+    } catch (e) {
+      // A gate that cannot run must not silently pass the manuscript.
+      entry.ok = false;
+      entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+      entry.reasons = [...(entry.reasons || []), `BOOKGATE-2 structural check failed to execute: ${e?.message || e}`];
+      console.error('[BOOKGATE-2] check threw; blocking export rather than passing unchecked:', e);
+    }
+
     if (!entry.ok) {
       // Log failure snippets
       for (const s of entry.snippets.slice(0, 3)) {
@@ -207,6 +257,44 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         passed.push(entry);
       }
     }
+  }
+
+  // ── BOOKGATE-2: cross-chapter integrity (whole-manuscript, ADVISORY) ──
+  //
+  // Deliberately NOT a hard block. Repeated phrasing and an under-length chapter
+  // are craft problems, not broken text — blocking a finished book on an echo
+  // would make the gate something to route around, and a gate people route
+  // around protects nothing. These surface loudly and go in the report.
+  try {
+    const bookReport = checkBookIntegrity(chapters.map((ch) => ch?.content_md || ''));
+    if (typeof window !== 'undefined') window.__UBS_LAST_BOOK_INTEGRITY = bookReport;
+    console.log(
+      `[BOOKGATE-2] cross-chapter: echoes=${bookReport.crossChapterEchoes.count} ` +
+      `openingEchoes=${bookReport.openingEchoes.count} ` +
+      `shortChapters=${bookReport.shortChapters.details.length} ` +
+      `(median ${bookReport.medianWords} words, floor ${bookReport.shortChapters.floor})`
+    );
+    for (const d of bookReport.openingEchoes.details) {
+      console.warn(`[BOOKGATE-2:OPENING-ECHO] ch${d.chapters[0]} + ch${d.chapters[1]} share ${JSON.stringify(d.shared)}`);
+    }
+    for (const d of bookReport.shortChapters.details) {
+      console.warn(`[BOOKGATE-2:SHORT] ch${d.n} is ${d.words} words, below the ${bookReport.shortChapters.floor}-word floor`);
+    }
+    if (!bookReport.pass) {
+      warnings.push({
+        chapterNumber: 'book',
+        title: 'Cross-chapter integrity',
+        bookIntegrity: true,
+        reasons: [
+          `${bookReport.crossChapterEchoes.count} phrase(s) repeated across chapters`,
+          `${bookReport.openingEchoes.count} chapter pair(s) opening on the same image`,
+          `${bookReport.shortChapters.details.length} chapter(s) below the length floor`,
+        ],
+        details: bookReport,
+      });
+    }
+  } catch (e) {
+    console.error('[BOOKGATE-2] cross-chapter check failed (advisory, not blocking):', e);
   }
 
   // ── Reference Integrity Gate (whole-manuscript) ──
