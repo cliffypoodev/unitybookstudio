@@ -34,7 +34,11 @@ export default defineConfig({
       // server, so remote devices (Tailscale/LAN) reach the Studio's models via
       // the origin they already talk to. Same-origin => CSP-clean everywhere.
       '/llama': {
-        target: 'http://127.0.0.1:8080',
+        // ROUTERSPLIT-1: UBS has its OWN llama router on 8081 (--models-max 1,
+        // one model resident at a time). The 8080 router is left entirely alone
+        // for other agents on this machine, so a UBS chapter run can never
+        // evict their model or take both slots.
+        target: 'http://127.0.0.1:8081',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/llama/, ''),
       },

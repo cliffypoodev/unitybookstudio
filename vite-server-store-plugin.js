@@ -324,9 +324,9 @@ export default function serverStorePlugin() {
 // named ollama or hermes), relaunch the recorded command, probe /v1/models.
 // Rate-limited to one heal per 5 minutes so a misfiring client can never
 // restart-loop the router. Launch line/port/log are env-overridable.
-const ROUTERHEAL_PORT = Number(process.env.UBS_LLAMA_PORT || 8080);
+const ROUTERHEAL_PORT = Number(process.env.UBS_LLAMA_PORT || 8081); // ROUTERSPLIT-1: UBS-only router
 const ROUTERHEAL_LAUNCH = process.env.UBS_LLAMA_LAUNCH ||
-  '/Users/cliff/.local/bin/llama serve --models-dir /Users/cliff/llama-models --models-max 2 --models-autoload --host 127.0.0.1 --port 8080 --ctx-size 32768 --parallel 1 --cache-ram 8192';
+  '/Users/cliff/.local/bin/llama serve --models-dir /Users/cliff/llama-models --models-max 1 --models-autoload --host 127.0.0.1 --port 8081 --ctx-size 65536 --parallel 1 --cache-ram 0';
 const ROUTERHEAL_LOG = process.env.UBS_LLAMA_LOG || '/tmp/llama-router.log';
 const ROUTERHEAL_COOLDOWN_MS = 5 * 60 * 1000;
 let routerHealLastRun = 0;
@@ -359,86 +359,40 @@ const ROUTERHEAL_PORT_FREE_MS = 20000;
 const ROUTERHEAL_SERVING_MS = 90000;
 const ROUTERHEAL_MIN_INTERVAL_MS = 45000;
 
+// ROUTERHEAL-3 — the recovery runs OUT OF PROCESS.
+//
+// The in-process version died mid-request on 2026-08-04 and took the whole dev
+// server with it: /api/routerheal returned ERR_EMPTY_RESPONSE, vite dropped, and
+// a completed 3,594-word chapter had nowhere to save. A repair path must never
+// be able to kill the thing it is repairing. The endpoint now fires a detached
+// shell script and returns immediately; all waiting, killing, relaunching and
+// polling happens in that child. The client already waits and retries.
+//
+// Root cause of the crashes themselves was separate and is fixed in the launch
+// line above: the router ran with --models-max 2, so a 20GB and a 21GB model
+// were resident at once and every swap tried to add a third. One model at a
+// time is what the machine can actually hold.
+const ROUTERHEAL_SCRIPT = process.env.UBS_HEAL_SCRIPT ||
+  '/Users/cliff/Downloads/UBS/scripts/ubs-heal-router.sh';
+
 function routerHealProbe() {
   return new Promise((resolve) => {
-    const probe = httpGet({ host: '127.0.0.1', port: ROUTERHEAL_PORT, path: '/v1/models', timeout: 8000 }, (r) => {
-      let body = '';
-      r.on('data', (c) => { body += c; });
-      r.on('end', () => resolve(r.statusCode === 200 && body.includes('"data"')));
-    });
-    probe.on('error', () => resolve(false));
-    probe.on('timeout', () => { probe.destroy(); resolve(false); });
+    try {
+      const probe = httpGet({ host: '127.0.0.1', port: ROUTERHEAL_PORT, path: '/v1/models', timeout: 4000 }, (r) => {
+        let body = '';
+        r.on('data', (c) => { body += c; });
+        r.on('end', () => resolve(r.statusCode === 200 && body.includes('"data"')));
+      });
+      probe.on('error', () => resolve(false));
+      probe.on('timeout', () => { try { probe.destroy(); } catch { /* ignore */ } resolve(false); });
+    } catch { resolve(false); }
   });
 }
 
-async function routerHealPortFree(maxMs = ROUTERHEAL_PORT_FREE_MS) {
-  const deadline = Date.now() + maxMs;
-  for (;;) {
-    const pids = await routerHealExec(`lsof -t -nP -iTCP:${ROUTERHEAL_PORT} -sTCP:LISTEN`);
-    if (!pids) return true;
-    if (Date.now() >= deadline) return false;
-    await routerHealSleep(1000);
-  }
-}
-
-async function routerHealWaitServing(maxMs = ROUTERHEAL_SERVING_MS) {
-  const deadline = Date.now() + maxMs;
-  for (;;) {
-    if (await routerHealProbe()) return true;
-    if (Date.now() >= deadline) return false;
-    await routerHealSleep(2000);
-  }
-}
-
-function routerHealSpawn() {
-  const parts = ROUTERHEAL_LAUNCH.split(/\s+/).filter(Boolean);
-  const logFd = fs.openSync(ROUTERHEAL_LOG, 'a');
-  const child = cpSpawn(parts[0], parts.slice(1), { detached: true, stdio: ['ignore', logFd, logFd] });
+function spawnDetachedHeal() {
+  const child = cpSpawn('/bin/bash', [ROUTERHEAL_SCRIPT], { detached: true, stdio: 'ignore' });
   child.unref();
-  fs.closeSync(logFd);
   return child.pid || null;
-}
-
-async function performRouterHeal() {
-  const listenPid = await routerHealExec(`lsof -t -nP -iTCP:${ROUTERHEAL_PORT} -sTCP:LISTEN`);
-  if (listenPid) {
-    for (const pid of listenPid.split(/\s+/).filter(Boolean)) await routerHealExec(`kill ${pid}`);
-  }
-  // Leftover workers: llama processes that are not ollama, not hermes, and
-  // not node/vite tooling. The router does NOT respawn a killed worker, so
-  // orphans must go before relaunch.
-  const psOut = await routerHealExec('ps ax -o pid=,command=');
-  for (const line of psOut.split('\n')) {
-    const m = line.match(/^\s*(\d+)\s+(.*)$/);
-    if (!m) continue;
-    const pid = m[1];
-    const command = m[2];
-    if (!/llama/i.test(command)) continue;
-    if (/ollama|hermes|node|vite|grep/i.test(command)) continue;
-    await routerHealExec(`kill ${pid}`);
-  }
-  // Wait for the socket to be genuinely released before relaunching.
-  const portFree = await routerHealPortFree();
-  const relaunchPid = routerHealSpawn();
-  let modelsOk = await routerHealWaitServing();
-  let retriedSpawn = false;
-  let relaunchPid2 = null;
-  if (!modelsOk) {
-    // The usual cause is the bind race losing to a socket still in teardown.
-    // One retry, after the port is confirmed free.
-    retriedSpawn = true;
-    await routerHealPortFree();
-    relaunchPid2 = routerHealSpawn();
-    modelsOk = await routerHealWaitServing();
-  }
-  return {
-    killedListenPid: listenPid || null,
-    portFree,
-    relaunchPid,
-    retriedSpawn,
-    relaunchPid2,
-    modelsOk,
-  };
 }
 
 async function handleRouterHeal(req, res) {
@@ -448,36 +402,27 @@ async function handleRouterHeal(req, res) {
     res.end(JSON.stringify({ error: 'POST only' }));
     return;
   }
-  const now = Date.now();
-  const sinceLast = now - routerHealLastRun;
-  if (sinceLast < ROUTERHEAL_COOLDOWN_MS) {
-    // ROUTERHEAL-2: a cooldown must never strand a DEAD router. Refuse only
-    // when the router is actually serving (nothing to heal), or when the last
-    // attempt was seconds ago (a tight loop). Otherwise heal.
+  try {
     if (await routerHealProbe()) {
-      console.warn('[ROUTERHEAL-2] heal request refused: router is serving, nothing to heal');
       res.end(JSON.stringify({ healed: false, reason: 'already-serving' }));
       return;
     }
-    if (sinceLast < ROUTERHEAL_MIN_INTERVAL_MS) {
-      console.warn('[ROUTERHEAL-2] heal request refused: minimum interval not elapsed');
+    const now = Date.now();
+    if (now - routerHealLastRun < ROUTERHEAL_MIN_INTERVAL_MS) {
       res.end(JSON.stringify({ healed: false, reason: 'cooldown' }));
       return;
     }
-    console.warn('[ROUTERHEAL-2] within cooldown but router is DOWN — healing anyway');
-  }
-  routerHealLastRun = now;
-  console.warn(`[ROUTERHEAL-1] heal requested — restarting llama router on port ${ROUTERHEAL_PORT}`);
-  try {
-    const result = await performRouterHeal();
-    console.warn('[ROUTERHEAL-2] result:', JSON.stringify(result));
-    // healed reflects whether the router actually SERVES, not whether a PID exists.
-    res.end(JSON.stringify({ healed: result.modelsOk === true, ...result }));
+    routerHealLastRun = now;
+    const pid = spawnDetachedHeal();
+    console.warn(`[ROUTERHEAL-3] detached heal started (pid ${pid}) — see /tmp/ubs-heal.log`);
+    res.end(JSON.stringify({ healed: false, started: true, healPid: pid }));
   } catch (healErr) {
-    console.warn('[ROUTERHEAL-1] heal failed:', healErr?.message || healErr);
-    res.end(JSON.stringify({ healed: false, reason: String(healErr?.message || healErr) }));
+    // Never let a repair path take down the server it runs inside.
+    console.warn('[ROUTERHEAL-3] heal dispatch failed:', healErr?.message || healErr);
+    try { res.end(JSON.stringify({ healed: false, reason: String(healErr?.message || healErr) })); } catch { /* ignore */ }
   }
 }
 
+
 // Export for test harness
-export { handleRequest, ENTITY_STORES, DATA_DIR, loadStore, flushStore, cache, handleRouterHeal, performRouterHeal };
+export { handleRequest, ENTITY_STORES, DATA_DIR, loadStore, flushStore, cache, handleRouterHeal, routerHealProbe, spawnDetachedHeal };
