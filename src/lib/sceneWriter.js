@@ -3606,6 +3606,19 @@ remaining=${JSON.stringify((passAudit.violations || []).map((v) => v.excerpt.sli
               bestExitOk = true;
               break;
             }
+            // EXITSTATE-2: stop when a pass makes it WORSE. Measured on the live
+            // ch.5 run: scene 1 went 1 -> 3 -> 6 -> 8 and scene 2 went 6 -> 6 ->
+            // 5 -> 8 across three passes. Each regeneration writes a NEW ending,
+            // so the audit is judging a moving target; asking again after the
+            // count has grown spends a 60-second call to make the draft worse.
+            // The best-so-far draft is already retained, so stopping costs nothing.
+            if (passAudit.violations.length > bestExitCount) {
+              console.warn(
+                `[EXITSTATE-2] scene=${spec.scene_id || spec.sceneNumber || i + 1} repair diverged ` +
+                `(${bestExitCount} -> ${passAudit.violations.length}); keeping the best draft and stopping.`
+              );
+              break;
+            }
 
             exitPrompt = [
               exitBasePrompt,

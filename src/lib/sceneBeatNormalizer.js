@@ -19,6 +19,7 @@
  */
 
 import { invokeLLMWithRetry } from './integrationRetry.js';
+import { stripModelControlTokens, stripNonLatinDrift } from './modelLeakGuard.js';
 
 const STOPWORDS = new Set([
   'the','and','that','this','with','from','into','onto','about','there','their','they','them','then','than','when','where','what','were','was','had','has','have','his','her','she','him','you','your','for','but','not','all','out','one','two','three','four','five','just','like','back','down','over','under','again','very','would','could','should','been','being','through','because','before','after','inside','outside','still','only','really','more','most','some','any','every','each','its','it','he','we','i','a','an','of','to','in','on','at','by','as','is','are','or','if','chapter','scene','beat','must','will','should','begin','end','start','continue','protagonist','character','characters','pov'
@@ -804,8 +805,45 @@ function addFunctionWarnings(beats, isNonfiction = true) {
   });
 }
 
+// LEAKSCRUB-1 — the beat contract is INPUT to every gate; scrub it there.
+//
+// LEAK-GUARD runs on generated PROSE. Nothing scrubbed the architect's own
+// output, so on the live ch.5 run of 2026-08-04 the scene contract itself
+// carried `exit_state: Lena is愤怒 and confronts Marcus` - Chinese characters
+// inside the contract. That string is then handed to the drafting prompt, the
+// scene-boundary audit and the exit-state audit as ground truth, so one leak
+// contaminates three gates and the prose they judge. The identical drift was
+// caught and removed from PROSE in the same run - one stage too late.
+export function scrubBeatContract(beats) {
+  let scrubbed = 0;
+  const clean = (v) => {
+    if (typeof v !== 'string' || !v) return v;
+    const tokens = stripModelControlTokens(v);
+    const drift = stripNonLatinDrift(typeof tokens === 'string' ? tokens : tokens.text);
+    const tidy = String(typeof drift === 'string' ? drift : drift.text)
+      .replace(/\s{2,}/g, ' ').trim();
+    if (tidy !== v) scrubbed += 1;
+    return tidy;
+  };
+  const out = (beats || []).map((beat) => {
+    if (!beat || typeof beat !== 'object') return beat;
+    const copy = { ...beat };
+    for (const [k, v] of Object.entries(copy)) {
+      if (typeof v === 'string') copy[k] = clean(v);
+      else if (Array.isArray(v)) {
+        copy[k] = v.map((item) => (typeof item === 'string' ? clean(item) : item));
+      }
+    }
+    return copy;
+  });
+  if (scrubbed) {
+    console.warn(`[LEAKSCRUB-1] scrubbed model drift from ${scrubbed} beat-contract field(s) before drafting`);
+  }
+  return out;
+}
+
 export function normalizeSceneBeatsForDrafting(rawBeats, options = {}) {
-  const beats = Array.isArray(rawBeats) ? rawBeats.filter(Boolean) : [];
+  const beats = scrubBeatContract(Array.isArray(rawBeats) ? rawBeats.filter(Boolean) : []);
   const isNonfiction = Boolean(options.isNonfiction);
 
   if (!beats.length || isNonfiction) {
@@ -1266,17 +1304,23 @@ export async function auditSceneExitOvershoot(sceneProse, spec, model, invokeFn 
     `CONTRACTED EXIT STATE (the scene must end here, no further):`,
     exitState,
     nextEntry ? `` : null,
-    nextEntry ? `WHERE THE CHARACTERS MUST BE WHEN THIS SCENE ENDS (the next scene opens here):` : null,
+    nextEntry ? `CONTEXT ONLY - the next scene opens from this state. Do NOT audit against it;` : null,
+    nextEntry ? `it is here so you can tell "still on the way" from "already past the end":` : null,
     nextEntry || null,
     ``,
     `RULES:`,
-    `1. A violation is prose that carries the characters PAST the exit state - to a`,
-    `   later location, a later stage of the journey, or a later outcome.`,
-    `2. Reflection, dialogue, description or emotion AT the exit position is NOT a violation.`,
-    `3. Anticipating, fearing, planning or discussing what comes next is NOT a violation.`,
-    `4. Reaching the exit state itself is NOT a violation. Only going beyond it is.`,
-    `5. If the scene ends somewhere that contradicts where the next scene opens, that is a violation.`,
-    `6. You must quote the EXACT sentence from the prose, character for character.`,
+    `1. A violation is prose that carries the story PAST the exit state - it performs`,
+    `   a further irreversible event, or lands the characters somewhere the exit state`,
+    `   and the context above have both already been left behind.`,
+    `2. EXITSTATE-2: movement is not overshoot. Walking, turning, opening a door,`,
+    `   crossing a threshold, or travelling TOWARD the end position is the scene`,
+    `   arriving at its exit state, not passing it. Do not report motion.`,
+    `3. Reflection, dialogue, description or emotion AT the exit position is NOT a violation.`,
+    `4. Anticipating, fearing, planning or discussing what comes next is NOT a violation.`,
+    `5. Reaching the exit state itself is NOT a violation. Only going beyond it is.`,
+    `6. Report only CLEAR overshoot. If you are weighing whether something counts,`,
+    `   it does not. An empty array is the correct answer for most scenes.`,
+    `7. You must quote the EXACT sentence from the prose, character for character.`,
     ``,
     `SCENE PROSE TO EVALUATE:`,
     prose.slice(0, 16000),
