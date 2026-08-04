@@ -78,8 +78,21 @@ export function dedupeTrackedObjects(objects) {
 // "tracked objects: (none)" while its own exit_state said "Lena holds the brass
 // key" - first-acquisition chapters tracked nothing because the architect
 // omitted props_present and chapter 1 has no prior ledger.
-const SPEC_POSSESSION_RX = /\b(?:holds?|holding|carr(?:y|ies|ying)|has|retrieves?|picks?\s+up|takes?|grabs?|pockets?|clutch(?:es)?|keeps?)\s+(?:the|a|an|his|her|their)\s+((?:[a-z][a-z-]*\s+){0,2}[a-z][a-z-]*)\b/gi;
-const SPEC_POSSESSIVE_RX = /\bthe\s+((?:[a-z][a-z-]*\s+){0,2}[a-z][a-z-]*)\s+(?:is|remains?|stays?)\s+in\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?['’]s\s+possession\b/gi;
+// OBJSEED-2: the capture was hard-capped at THREE words, which truncated the
+// noun phrase BEFORE its head noun - and therefore before the only word the
+// stopword filter could have judged. Proven on the live ch.4 beat contract:
+// "Marcus has a severely injured left hand" captured "severely injured left"
+// and stopped. "hand" is in SPEC_OBJECT_STOPWORDS and would have rejected the
+// phrase outright, but the filter never saw it. The fragment entered the CLOSED
+// tracked-object set, acquired a holder, failed the ch.5 possession audit in
+// every scene, and drove three STATE-CONTRACT-REPAIR passes that rewrote real
+// prose to satisfy a constraint describing nothing that exists.
+// The phrase now runs to its natural boundary - punctuation still ends it, and
+// the SEPARATION-1c function-word trim and the stopword filter still cut it
+// back - so the head noun is always present to be judged. Filter the whole
+// phrase, never a fragment of it.
+const SPEC_POSSESSION_RX = /\b(?:holds?|holding|carr(?:y|ies|ying)|has|retrieves?|picks?\s+up|takes?|grabs?|pockets?|clutch(?:es)?|keeps?)\s+(?:the|a|an|his|her|their)\s+((?:[a-z][a-z-]*\s+){0,5}[a-z][a-z-]*)\b/gi;
+const SPEC_POSSESSIVE_RX = /\bthe\s+((?:[a-z][a-z-]*\s+){0,5}[a-z][a-z-]*)\s+(?:is|remains?|stays?)\s+in\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?['’]s\s+possession\b/gi;
 const SPEC_OBJECT_STOPWORDS = new Set([
   'truth', 'secret', 'secrets', 'past', 'lead', 'way', 'stairs', 'group', 'situation',
   'moment', 'time', 'silence', 'darkness', 'cold', 'air', 'wall', 'walls', 'floor',
@@ -89,7 +102,32 @@ const SPEC_OBJECT_STOPWORDS = new Set([
   'breath', 'breaths', 'hand', 'hands', 'eyes', 'gaze', 'balance', 'ground',
   'pace', 'step', 'steps', 'distance', 'watch', 'point', 'charge', 'command',
   'initiative', 'advantage', 'chance', 'risk', 'look', 'seat', 'position',
+  // OBJSEED-2b: FIXTURES. A possession ledger tracks what can change hands. The
+  // live ch.4 plan listed "Hidden console" as a prop; the ch.5 possession audit
+  // then demanded a written handover of a console between two people, and the
+  // repair complied by inventing a detail to make it holdable - "He ran his hand
+  // over the console, feeling the texture of the worn leather." A bolted-down
+  // fixture cannot be carried, so it cannot have a holder. This is a blocklist,
+  // which does not generalise; the durable answer is a portability test on the
+  // prop itself. Until that exists, these are the fixtures the plans produce.
+  'console', 'panel', 'terminal', 'hatch', 'ladder', 'generator', 'pedestal',
+  'shaft', 'vent', 'vents', 'grate', 'reactor', 'core', 'ceiling', 'roof',
+  'window', 'bulkhead', 'lift', 'elevator', 'junction', 'valve', 'beam', 'pipe',
+  'pipes', 'railing', 'handrail', 'seal', 'seals', 'lock', 'machinery',
 ]);
+
+/** OBJSEED-2b — is this phrase something a person could actually hold?
+ *  Judged on the WHOLE phrase (head noun included) after any possessive owner
+ *  prefix is stripped, so "Dr. Vale's cane" is judged on "cane". */
+export function isPortablePropPhrase(phrase) {
+  const p = String(phrase || '').trim().toLowerCase()
+    .replace(/^(?:the|a|an)\s+/, '')
+    .replace(/^(?:dr|mr|mrs|ms|prof|professor|doctor)\.?\s+/, '')
+    .replace(/^[a-z][a-z-]*['’]s\s+/, '');
+  const words = p.split(/\s+/).filter(Boolean);
+  if (!words.length) return false;
+  return !words.some((w) => SPEC_OBJECT_STOPWORDS.has(w.replace(/[^a-z-]/g, '')));
+}
 
 /** Extract tracked-object phrases from the beat contract's own state strings. */
 export function seedTrackedObjectsFromSpecStates(specs) {
@@ -153,7 +191,14 @@ export function trackedObjectsFromSpecs(specs) {
   for (const spec of Array.isArray(specs) ? specs : []) {
     for (const prop of Array.isArray(spec?.props_present) ? spec.props_present : []) {
       const p = String(prop || '').trim();
-      if (p.length > 2 && p.length < 40) seen.set(p.toLowerCase(), p);
+      if (p.length <= 2 || p.length >= 40) continue;
+      // OBJSEED-2b: props_present bypassed the stopword filter entirely - the
+      // same blocklist that guards a SEEDED phrase was never applied to a
+      // DECLARED one, so an architect listing "Hidden console" (or a door, or a
+      // corridor) put a fixture straight into the possession ledger. Same world,
+      // same rules, both doors.
+      if (!isPortablePropPhrase(p)) continue;
+      seen.set(p.toLowerCase(), p);
     }
   }
   // KEYLEDGER-3: the plan's own state text fills the gap when props_present is
