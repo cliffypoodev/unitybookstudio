@@ -1224,6 +1224,174 @@ export function buildFutureBoundaryRepairPrompt(prose, spec, violations) {
   ].join('\n');
 }
 
+// EXITSTATE-1 — a scene must STOP at its contracted exit state.
+//
+// WHY THIS IS NOT COVERED BY THE FUTURE-BOUNDARY AUDIT. That audit asks one
+// question: did this scene perform a LATER scene's named required_event. A scene
+// can sail straight past its own exit state without touching any of them, and
+// nothing notices. Proven on the live ch.5 run (2026-08-04): scene 1's contract
+// said `exit_state: Lena and Marcus enter the maintenance tunnel`. The prose took
+// them THROUGH the tunnel, down a ladder, out a hatch and onto the ice under a
+// night sky - and destroyed the archive on the way ("The station had swallowed
+// the archive room"). Reaching the surface is not a required_event of scene 2 or
+// 3, so the future audit returned ok. Scene 2 then reopened underground and
+// scene 3 walked into the archive room that scene 1 had already destroyed. The
+// chapter escapes, teleports back underground, re-enters a destroyed room, and
+// escapes again. Every gate reported green.
+//
+// The exit state is a CEILING, not a floor. The next scene's entry_state is the
+// independent statement of where the characters must be standing when this scene
+// ends, so it is supplied as ground truth.
+//
+// FAILS SAFE, like the quote gates: a reported excerpt that is not a verbatim
+// span of the prose is a fabricated finding and is dropped. Blank beats invented.
+export async function auditSceneExitOvershoot(sceneProse, spec, model, invokeFn = invokeLLMWithRetry) {
+  const exitState = String(spec?.exit_state || '').trim();
+  const nextEntry = String(spec?.next_entry_state || '').trim();
+  const prose = String(sceneProse || '');
+  if (!exitState || !prose.trim()) return { ok: true, violations: [] };
+
+  // Deterministic verbatim check: normalise whitespace and smart punctuation so
+  // a model that re-typed a quote with straight quotes still matches, but a
+  // model that INVENTED a sentence cannot.
+  const canon = (s) => String(s || '')
+    .replace(/[“”]/g, '"').replace(/[‘’]/g, "'")
+    .replace(/\s+/g, ' ').trim().toLowerCase();
+  const canonProse = canon(prose);
+
+  const prompt = [
+    `You are a strict narrative auditor enforcing a SCENE EXIT BOUNDARY.`,
+    `A scene must stop at its contracted exit state. It must not continue the journey past it.`,
+    ``,
+    `CONTRACTED EXIT STATE (the scene must end here, no further):`,
+    exitState,
+    nextEntry ? `` : null,
+    nextEntry ? `WHERE THE CHARACTERS MUST BE WHEN THIS SCENE ENDS (the next scene opens here):` : null,
+    nextEntry || null,
+    ``,
+    `RULES:`,
+    `1. A violation is prose that carries the characters PAST the exit state - to a`,
+    `   later location, a later stage of the journey, or a later outcome.`,
+    `2. Reflection, dialogue, description or emotion AT the exit position is NOT a violation.`,
+    `3. Anticipating, fearing, planning or discussing what comes next is NOT a violation.`,
+    `4. Reaching the exit state itself is NOT a violation. Only going beyond it is.`,
+    `5. If the scene ends somewhere that contradicts where the next scene opens, that is a violation.`,
+    `6. You must quote the EXACT sentence from the prose, character for character.`,
+    ``,
+    `SCENE PROSE TO EVALUATE:`,
+    prose.slice(0, 16000),
+    ``,
+    `Return a JSON array of violations. If the scene stops at its exit state, return [].`,
+    `Format each violation as: {"excerpt": "<exact sentence from the prose>", "reason": "<why this is past the exit state>"}`,
+    `Output ONLY valid JSON.`,
+  ].filter((line) => line !== null).join('\n');
+
+  let lastAuditError = null;
+  let lastRawReply = null;
+  let violations = [];
+  for (let attempt = 1; attempt <= FUTURE_BOUNDARY_AUDIT_ATTEMPTS; attempt += 1) {
+    violations = [];
+    try {
+      const resultRaw = await invokeFn({
+        prompt,
+        model: model || 'gemini-2.5-flash',
+        disable_fallbacks: false,
+        use_gemini_fallback: true,
+        use_openai_fallback: true,
+        temperature: 0.1,
+        max_tokens: 4000,
+      });
+      lastRawReply = resultRaw;
+
+      let text = resultRaw;
+      if (typeof resultRaw !== 'string') {
+        text = resultRaw?.content || resultRaw?.text || JSON.stringify(resultRaw);
+      }
+      text = String(text)
+        .replace(/<think>[\s\S]*?<\/think>/gi, ' ')
+        .replace(/<\/?think>/gi, ' ')
+        .replace(/[`]{3}(?:json)?/gi, ' ');
+
+      const parsed = parseAuditPayload(text);
+      if (!parsed) throw new Error('LLM response did not contain a JSON array.');
+      if (!Array.isArray(parsed)) throw new Error('LLM response was JSON but not an array.');
+
+      for (const item of parsed) {
+        const excerpt = typeof item?.excerpt === 'string' ? item.excerpt.trim() : '';
+        if (!excerpt) throw new Error('LLM returned invalid or missing excerpt.');
+        violations.push({
+          excerpt,
+          reason: typeof item?.reason === 'string' ? item.reason : '',
+          category: 'exit_state_overshoot',
+          verbatim: canonProse.includes(canon(excerpt)),
+        });
+      }
+      lastAuditError = null;
+      break;
+    } catch (error) {
+      lastAuditError = error;
+      console.warn(
+        `[auditSceneExitOvershoot] attempt ${attempt}/${FUTURE_BOUNDARY_AUDIT_ATTEMPTS} returned unusable data:`,
+        error?.message || error
+      );
+      const rawForLog = typeof lastRawReply === 'string'
+        ? lastRawReply
+        : (lastRawReply === null || lastRawReply === undefined ? '' : JSON.stringify(lastRawReply));
+      console.warn(
+        `[auditSceneExitOvershoot] attempt ${attempt} raw reply: type=${typeof lastRawReply} ` +
+        `length=${rawForLog.length} first400=${JSON.stringify(rawForLog.slice(0, 400))}`
+      );
+    }
+  }
+
+  if (lastAuditError) {
+    console.error(
+      `[auditSceneExitOvershoot] LLM check failed or returned malformed data after ` +
+      `${FUTURE_BOUNDARY_AUDIT_ATTEMPTS} attempts:`,
+      lastAuditError
+    );
+    return { ok: false, auditFailed: true, violations: [] };
+  }
+
+  const fabricated = violations.filter((v) => !v.verbatim);
+  if (fabricated.length) {
+    console.warn(
+      `[EXITSTATE-1] dropped ${fabricated.length} reported violation(s) whose excerpt is not a ` +
+      `verbatim span of the prose: ${fabricated.map((v) => JSON.stringify(v.excerpt.slice(0, 90))).join(' | ')}`
+    );
+  }
+
+  const unique = [];
+  const seen = new Set();
+  for (const v of violations) {
+    if (!v.verbatim) continue;
+    const key = canon(v.excerpt);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(v);
+  }
+
+  return { ok: unique.length === 0, violations: unique, fabricatedDropped: fabricated.length };
+}
+
+export function buildExitOvershootRepairPrompt(prose, spec, violations) {
+  return [
+    `The scene you just generated does not STOP where its contract says it stops.`,
+    `It continues past the exit state. The following passages are past the boundary:`,
+    violations.map((v) => `- "${v.excerpt}"${v.reason ? ` (${v.reason})` : ''}`).join('\n'),
+    '',
+    `Rewrite the scene so it ENDS at this exit state and goes no further:`,
+    `"${spec.exit_state || 'The scene ends.'}"`,
+    spec.next_entry_state
+      ? `When this scene ends, the characters must be exactly here, because the next scene opens here: "${spec.next_entry_state}"`
+      : '',
+    '',
+    `Cut or rewrite the passages listed above. Do not replace them with different`,
+    `forward motion. Do not travel to a new location. Do not resolve anything that`,
+    `belongs after this point. Keep everything that happens up to the exit state.`,
+  ].filter(Boolean).join('\n');
+}
+
 // REPLAYFIX-1 — closed-world scene-replay detection.
 //
 // The previous implementation tagged each scene with a generic "story function"

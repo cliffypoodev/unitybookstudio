@@ -61,6 +61,8 @@ import {
   extractProseEventSignatures, 
   classifyStoryFunction,
   auditSceneFutureBoundaries,
+  auditSceneExitOvershoot,
+  buildExitOvershootRepairPrompt,
   validateGeneratedSceneReplay,
   buildFutureBoundaryRepairPrompt,
   validateRawBeatChronology,
@@ -3139,6 +3141,11 @@ export async function generateChapterSceneByScene({
       future_reserved_events: futureScenes.flatMap((scene) =>
         Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
       ),
+      // EXITSTATE-1: the next scene's entry_state is the independent statement of
+      // where the characters must be standing when THIS scene ends. It is the
+      // ground truth the exit-state audit checks the scene's ending against.
+      next_entry_state: String(normalizedScenes[i + 1]?.entry_state || '').trim(),
+      next_location: String(normalizedScenes[i + 1]?.location || '').trim(),
       future_reserved_event_objects: futureScenes.flatMap((scene) =>
         Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean).map(ev => ({
           event: ev,
@@ -3519,7 +3526,113 @@ remainingViolations=${JSON.stringify(passAudit.violations.map(v => v.event))}`);
           );
         }
       } else {
-        console.log(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} exitStateOk=true`);
+        // EXITSTATE-1: this line used to claim the exit state had been checked.
+        // It was a label for a check that does not exist. The only test here is
+        // auditSceneFutureBoundaries - "did this scene perform a LATER scene's
+        // required_event" - so the else branch means exactly one thing: no future
+        // events were performed. It never looked at the exit state. The ch.5
+        // scene that walked out of the station and onto the ice printed this
+        // line. Report what was actually checked.
+        console.log(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} futureViolations=0`);
+      }
+
+      // EXITSTATE-1 — did the scene STOP where the contract says it stops?
+      // Separate question, separate audit. Structure problem, not an integrity
+      // one, so it follows BOUNDARYPOLICY-2: repair, keep the best draft, and go
+      // loud rather than losing the chapter.
+      if (String(promptSpec.exit_state || '').trim()) {
+        let exitAudit = await auditSceneExitOvershoot(sceneProse, promptSpec, model);
+        if (exitAudit.auditFailed) {
+          console.warn(
+            `[EXITSTATE-1] scene=${spec.scene_id || spec.sceneNumber || i + 1} audit could not execute; ` +
+            `skipping the exit-state check for this scene.`
+          );
+        } else if (exitAudit.ok) {
+          console.log(`[EXITSTATE-1] scene=${spec.sceneNumber || i + 1} stopsAtExitState=true`);
+        } else {
+          const originalExitCount = exitAudit.violations.length;
+          console.warn(
+            `[EXITSTATE-1] scene=${spec.scene_id || spec.sceneNumber || i + 1} ` +
+            `overshoot=${originalExitCount}`
+          );
+          exitAudit.violations.forEach((v) => {
+            console.log(`[EXITSTATE-VIOLATION]
+scene=${spec.scene_id || spec.sceneNumber || i + 1}
+exit_state=${promptSpec.exit_state}
+next_entry_state=${promptSpec.next_entry_state || '(none - last scene)'}
+reason=${v.reason || '(none given)'}
+excerpt=${JSON.stringify(v.excerpt)}`);
+          });
+
+          let bestExitProse = sceneProse;
+          let bestExitCount = originalExitCount;
+          let bestExitOk = false;
+          const exitBasePrompt = prompt.replace(/TWIST \/ REVERSAL CONTEXT:[\s\S]*?(?=\n\n(?:NARRATIVE STATE CONTRACT|THIS SCENE|=== SERIES CONTEXT|[A-Z0-9_\s]+:|$))/i, '');
+          let exitPrompt = [
+            exitBasePrompt,
+            buildExitOvershootRepairPrompt(sceneProse, promptSpec, exitAudit.violations),
+          ].join('\n\n');
+
+          for (let exitPass = 1; exitPass <= FUTURE_BOUNDARY_REPAIR_PASSES; exitPass += 1) {
+            const repairedExit = await generateSceneWithRepair({
+              project,
+              spec,
+              prompt: exitPrompt,
+              model,
+              fallbackModel,
+              disableFallbacks,
+              targetWords: sceneTarget,
+              temperature: 0.48,
+              maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+            });
+            const passProse = lightCleanSceneOutput(repairedExit.prose);
+            if (!passProse || !passProse.trim()) break;
+
+            const passAudit = await auditSceneExitOvershoot(passProse, promptSpec, model);
+            console.log(`[EXITSTATE-REPAIR-RESULT]
+pass=${exitPass}/${FUTURE_BOUNDARY_REPAIR_PASSES}
+remainingCount=${passAudit.violations.length}
+remaining=${JSON.stringify((passAudit.violations || []).map((v) => v.excerpt.slice(0, 120)))}`);
+
+            if (passAudit.auditFailed) break;
+
+            if (passAudit.violations.length < bestExitCount) {
+              bestExitCount = passAudit.violations.length;
+              bestExitProse = passProse;
+            }
+            if (passAudit.ok) {
+              bestExitProse = passProse;
+              bestExitCount = 0;
+              bestExitOk = true;
+              break;
+            }
+
+            exitPrompt = [
+              exitBasePrompt,
+              buildExitOvershootRepairPrompt(passProse, promptSpec, passAudit.violations),
+            ].join('\n\n');
+          }
+
+          if (bestExitCount < originalExitCount && bestExitProse) {
+            sceneProse = bestExitProse;
+            generated.repaired = true;
+            generated.issues = [
+              ...(generated.issues || []),
+              bestExitOk
+                ? 'Exit-state overshoot repaired'
+                : `Exit-state overshoot partially repaired (${originalExitCount} -> ${bestExitCount})`,
+            ];
+          }
+
+          if (!bestExitOk) {
+            console.warn(
+              `[EXITSTATE-ADVISORY] scene=${spec.scene_id || spec.sceneNumber || i + 1} ` +
+              `${bestExitCount} overshoot(s) survived ${FUTURE_BOUNDARY_REPAIR_PASSES} repair pass(es) ` +
+              `and were NOT enforced. Drafting continues; this scene ends past its contracted exit ` +
+              `state and the next scene will open somewhere else.`
+            );
+          }
+        }
       }
 
       // SCENESCOPE-1: advisory telemetry — count threshold-crossing phrasings
