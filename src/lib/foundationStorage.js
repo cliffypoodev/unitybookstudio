@@ -221,8 +221,15 @@ async function uploadFoundationField(content, projectId, field) {
  * it is announced, so the condition is visible instead of silently minting a new
  * namespace per title.
  */
-function getPayloadProjectId(payload = {}) {
-  const id = payload.id || payload.project_id || payload.projectId || payload.novel_project_id;
+function getPayloadProjectId(payload = {}, explicitId = '') {
+  // STOREDEDUPE-2: the caller knows the id — it calls NovelProject.update(project.id, ...)
+  // on the very next line — but all three call sites passed only the field payload,
+  // which carries no id. Measured live 2026-08-04: saving the character sheet logged
+  // "no project id (title: null)" and filed the blob under "unknown-project". An
+  // explicit parameter is used rather than injecting id into the payload, because the
+  // payload becomes the update BODY and must not carry an id field.
+  const id = explicitId
+    || payload.id || payload.project_id || payload.projectId || payload.novel_project_id;
   if (id) return makeSafeId(id, 'unknown-project');
   console.warn(
     '[STOREDEDUPE-1] foundation payload has no project id '
@@ -238,9 +245,9 @@ function getPayloadProjectId(payload = {}) {
  * This prevents Base44 400 errors such as:
  * "Field 'outline_md' exceeds the maximum allowed size."
  */
-export async function prepareFoundationPayload(payload = {}) {
+export async function prepareFoundationPayload(payload = {}, projectIdOverride = '') {
   const next = { ...payload };
-  const projectId = getPayloadProjectId(next);
+  const projectId = getPayloadProjectId(next, projectIdOverride); // STOREDEDUPE-2
 
   for (const field of OVERFLOWABLE_FIELDS) {
     const urlField = `${field}_url`;

@@ -2210,7 +2210,8 @@ export default function ProjectStudio() {
       delete savePayload.twist_intensity;
       delete savePayload.twists;
 
-      const safePayload = await prepareFoundationPayload(savePayload);
+      // STOREDEDUPE-2: pass the id; the update on the next line already has it.
+      const safePayload = await prepareFoundationPayload(savePayload, project.id);
       setBusyLabel('Anthology: Saving story bible…');
       await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, safePayload));
 
@@ -2346,7 +2347,8 @@ export default function ProjectStudio() {
     delete expandSavePayload.twist_count;
     delete expandSavePayload.twist_intensity;
     delete expandSavePayload.twists;
-    const _safeExpandPayload = await prepareFoundationPayload(expandSavePayload);
+    // STOREDEDUPE-2: pass the id; the update on the next line already has it.
+    const _safeExpandPayload = await prepareFoundationPayload(expandSavePayload, project.id);
     await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _safeExpandPayload));
     setBusyLabel('Foundation: Creating chapters…');
     await clearAndCreateChapters(plannedChapters, userChapterTarget, project.id, newDocs.outline_md);
@@ -2358,7 +2360,8 @@ export default function ProjectStudio() {
   };
 
   const handleSaveDocs = async () => {
-    let docsPayload = await prepareFoundationPayload({ ...docDrafts });
+    // STOREDEDUPE-2: without this the manual Save filed blobs under "unknown-project".
+    let docsPayload = await prepareFoundationPayload({ ...docDrafts }, project?.id || projectId);
     if (docsPayload.research_md && docsPayload.research_md.length > 10000) {
       const rf = await prepareResearchContent(docsPayload.research_md, project?.id || projectId); docsPayload.research_md = rf.research_md; docsPayload.research_md_url = rf.research_md_url;
     }

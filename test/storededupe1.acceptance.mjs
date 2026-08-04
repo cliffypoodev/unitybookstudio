@@ -62,7 +62,9 @@ const mk = () => {
   return { ...ctx, uploads, logs };
 };
 
-const BIG = (seed) => (seed + ' ').repeat(3000); // well over the 9000-char inline ceiling
+// Must exceed MAX_INLINE_SIZE (9000). A short seed silently stays inline and the
+// upload never happens — which is how the STOREDEDUPE-2 checks first failed.
+const BIG = (seed) => (seed + ' ').repeat(3000).padEnd(12000, 'z');
 
 // ── the fingerprint ──
 {
@@ -134,6 +136,27 @@ const BIG = (seed) => (seed + ' ').repeat(3000); // well over the 9000-char inli
   await h2.prepareFoundationPayload({ title: 'The Gilded Hour', outline_md: BIG('outline') });
   check('a title-only payload is filed under unknown-project, not a title slug',
     h2.uploads[0].projectId === 'unknown-project', JSON.stringify(h2.uploads[0]));
+}
+
+// ── STOREDEDUPE-2: the caller may pass the id explicitly ──
+// All three call sites in ProjectStudio pass only the field payload, which carries
+// no id, and then call NovelProject.update(project.id, ...) on the next line. The id
+// must NOT be injected into the payload — the payload becomes the update body.
+{
+  const h = mk();
+  const out = await h.prepareFoundationPayload({ world_md: BIG('w') }, 'msf2vp7b-7rlbqchk');
+  check('an explicit project id is used for the blob namespace',
+    h.uploads[0].projectId === 'msf2vp7b-7rlbqchk', JSON.stringify(h.uploads[0]));
+  check('the explicit id is NOT written into the payload body', out.id === undefined);
+  check('an explicit id outranks a stale id in the payload',
+    h.getPayloadProjectId({ id: 'stale' }, 'explicit') === 'explicit');
+  check('with no explicit id the payload id is still honoured',
+    h.getPayloadProjectId({ id: 'from-payload' }, '') === 'from-payload');
+  const h2 = mk();
+  await h2.prepareFoundationPayload({ world_md: BIG('w') });
+  check('omitting the id still warns and files under unknown-project',
+    h2.uploads[0].projectId === 'unknown-project'
+    && h2.logs.some((l) => /WARN.*no project id/.test(l)));
 }
 
 // ── nothing else about the payload path changed ──
