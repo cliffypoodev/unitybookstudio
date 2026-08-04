@@ -25,11 +25,63 @@ export const escapeRx = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /** Normalise a cast list into [{ name, gender }]. Unknown gender = null, which
  *  can never be matched by a pronoun and therefore never mis-attributes. */
 // KEYLEDGER-2a: honorifics never identify a character on their own.
-const HONORIFICS = new Set([
-  'dr', 'mr', 'mrs', 'ms', 'miss', 'sir', 'madam', 'lady', 'lord',
-  'prof', 'professor', 'capt', 'captain', 'sgt', 'sergeant', 'col', 'colonel',
-  'lt', 'lieutenant', 'gen', 'general', 'maj', 'major', 'rev', 'reverend',
+//
+// HONORIFIC-1 — ONE honorific authority for the whole app.
+//
+// There were THREE lists and they disagreed: this one, HONORIFIC_DOT_RX in
+// objectPossession.js (which had sr/jr/st/hon that this one lacked), and an inline
+// ['dr','mr','mrs','ms','the'] inside seedTrackedObjectsFromSpecStates. The
+// recurring defect shape: two components with private opinions about the same fact.
+//
+// It was also short. Measured: a cast containing "Judge Rennard" resolved the bare
+// word "Judge" to that character, because 'judge' was in no list — so a scene that
+// says "The judge nodded" credited an action to a specific person. Nothing about
+// the old list was wrong; it was fitted to one book's cast (a doctor and some
+// soldiers) and every genre outside that book had a title it had never seen.
+//
+// The list is exported so nothing has to keep a private copy again.
+export const HONORIFICS = new Set([
+  // civil
+  'dr', 'doctor', 'mr', 'mister', 'mrs', 'ms', 'miss', 'sir', 'madam', 'madame',
+  'dame', 'lady', 'lord',
+  // academic and clerical
+  'prof', 'professor', 'rev', 'reverend', 'fr', 'father', 'pastor', 'bishop',
+  'cardinal', 'rabbi', 'imam', 'deacon', 'abbot', 'abbess', 'sister', 'brother',
+  'mother', 'elder',
+  // military and uniformed
+  'capt', 'captain', 'sgt', 'sergeant', 'col', 'colonel', 'lt', 'lieutenant',
+  'gen', 'general', 'maj', 'major', 'cpl', 'corporal', 'pvt', 'private',
+  'adm', 'admiral', 'cmdr', 'commander', 'ens', 'ensign', 'chief', 'marshal',
+  'sheriff', 'deputy', 'officer', 'det', 'detective', 'insp', 'inspector',
+  'constable', 'agent', 'warden', 'sarge',
+  // legal and civic
+  'judge', 'justice', 'chancellor', 'magistrate', 'coroner', 'counsellor',
+  'counselor', 'sen', 'senator', 'rep', 'gov', 'governor', 'mayor', 'pres',
+  'president', 'amb', 'ambassador', 'consul', 'alderman', 'provost',
+  // medical and trade
+  'nurse', 'matron', 'surgeon', 'apothecary', 'midwife',
+  // nobility and royalty
+  'king', 'queen', 'prince', 'princess', 'duke', 'duchess', 'earl', 'count',
+  'countess', 'baron', 'baroness', 'viscount', 'viscountess', 'marquess',
+  'archduke', 'tsar', 'emperor', 'empress', 'sultan', 'sheikh', 'khan',
+  'raja', 'maharaja',
+  // saints and place-name leaders
+  'st', 'saint',
 ]);
+
+/** HONORIFIC-1 — tokens that TRAIL a name and identify nobody on their own. */
+export const NAME_SUFFIXES = new Set([
+  'jr', 'sr', 'ii', 'iii', 'iv', 'phd', 'md', 'dds', 'esq', 'ret', 'obe', 'mbe',
+]);
+
+/** HONORIFIC-1 — the abbreviation form, derived from the SAME set, for callers
+ *  that must stop an honorific's period from reading as a sentence boundary.
+ *  Longest-first so "professor." cannot be matched as "prof" plus a stray "essor.".
+ *  Global: callers use it with .replace(), never .exec() in a loop. */
+export const HONORIFIC_ABBREV_RX = new RegExp(
+  '\\b(?:' + [...HONORIFICS, ...NAME_SUFFIXES]
+    .sort((a, b) => b.length - a.length).map(escapeRx).join('|') + ')\\.',
+  'gi');
 
 /** KEYLEDGER-2a — the prose tokens a cast name answers to.
  *  "Dr. Nolan Vale" → ['dr. nolan vale', 'nolan', 'vale']. The full name is
@@ -38,10 +90,23 @@ export function castNameTokens(name) {
   const clean = String(name || '').trim();
   if (!clean) return [];
   const out = new Set([clean.toLowerCase()]);
-  for (const raw of clean.split(/\s+/)) {
-    const token = raw.replace(/[.,]/g, '');
-    if (token.length >= 3 && !HONORIFICS.has(token.toLowerCase())) out.add(token.toLowerCase());
-  }
+  const parts = clean.split(/\s+/);
+  const norm = (raw) => String(raw).replace(/[.,]/g, '').toLowerCase();
+  // HONORIFIC-1: a title LEADS a name; it is not stripped wherever it appears.
+  // The old rule removed the token at any position, so a character surnamed King,
+  // Bishop, Marshall, Chief or Young lost the only name the prose calls them by.
+  // A leading RUN is stripped ("Chief Inspector Morse"), never the last token -
+  // a mononym is always kept, whatever it happens to be.
+  let lead = 0;
+  while (lead < parts.length - 1 && HONORIFICS.has(norm(parts[lead]))) lead += 1;
+  const last = parts.length - 1;
+  parts.forEach((raw, i) => {
+    const token = norm(raw);
+    if (token.length < 3) return;
+    if (i < lead) return;
+    if (i === last && parts.length > 1 && NAME_SUFFIXES.has(token)) return;
+    out.add(token);
+  });
   return [...out];
 }
 

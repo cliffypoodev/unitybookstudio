@@ -17,6 +17,7 @@
 
 import {
   escapeRx, normalizeCast, resolveReferent, resolveClauseSubject, trackLastNamed,
+  HONORIFICS, HONORIFIC_ABBREV_RX,
 } from './referentResolver.js';
 
 const HOLD_V = /\b(held|holds|holding|gripped|grips|gripping|clutched|clutches|clutching|palmed|carried|carries|carrying|kept|keeps)\b/i;
@@ -115,8 +116,8 @@ const SPEC_POSSESSIVE_RX = /\bthe\s+((?:[\p{L}][\p{L}\p{M}-]*\s+){0,5}[\p{L}][\p
 const SPEC_POSSESSIVE_ONE = new RegExp(SPEC_POSSESSIVE_RX.source, 'iu');
 
 // HOLDER-4c: honorific abbreviations, so their trailing period is not mistaken
-// for a clause boundary.
-const HONORIFIC_DOT_RX = /\b(?:mr|mrs|ms|miss|dr|prof|professor|sr|jr|st|lt|sgt|capt|col|gen|maj|rev|hon|madam|lady|lord)\./gi;
+// for a clause boundary. HONORIFIC-1: this was a private list that had drifted
+// from the resolver's; it is now the resolver's list, derived once.
 
 // HOLDER-4c: aliases that identify nobody on their own. castNameTokens() admits
 // any whitespace token of 3+ characters, so "Edmund Wexcombe the younger" answers
@@ -276,7 +277,8 @@ export function seedTrackedObjectsFromSpecStates(specs) {
     for (const n of names) {
       for (const tok of String(n || '').toLowerCase().split(/\s+/)) {
         const t = tok.replace(/[^a-z-]/g, '');
-        if (t.length > 2 && !['dr', 'mr', 'mrs', 'ms', 'the'].includes(t)) castTokens.add(t);
+        // HONORIFIC-1: the shared list, not a private copy of five words.
+        if (t.length > 2 && t !== 'the' && !HONORIFICS.has(t)) castTokens.add(t);
       }
     }
   }
@@ -355,7 +357,7 @@ export function holdersFromSpecState(spec, cast) {
   // TOKENS are unchanged - only the false boundary is removed.
   const MASK = '\u0001';
   const clauses = text
-    .replace(HONORIFIC_DOT_RX, (h) => h.slice(0, -1) + MASK)
+    .replace(HONORIFIC_ABBREV_RX, (h) => h.slice(0, -1) + MASK)
     .split(/[,.;]|\bwhile\b/i)
     .map((c) => c.split(MASK).join('.'));
   const VERB = /\b(?:holds?|holding|carr(?:y|ies|ying)|has|keeps?|clutch(?:es)?|grips?)\s+(?:the|a|an|his|her|their)\s+((?:[a-z][a-z-]*\s+){0,5}[a-z][a-z-]*)/i;
