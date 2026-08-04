@@ -35,8 +35,59 @@ const MEMORY_V = /\b(?:the\s+)?(?:memory|memories|recollection)\s+of\b|\bremembe
 
 const BODY_N = '(?:hand|hands|palm|palms|fist|fingers|grip|pocket|pockets)';
 const BODY_OWNER = new RegExp(
-  `\\b(his|her|their|[A-Z][a-z]+(?:'s|’s))\\s+(?:right\\s+|left\\s+|coat\\s+|jacket\\s+|parka\\s+|open\\s+|gloved\\s+|bare\\s+|front\\s+|breast\\s+)*${BODY_N}\\b`
+  `\\b(his|her|their|[A-Z][a-z]+(?:'s|’s))\\s+(?:right\\s+|left\\s+|coat\\s+|jacket\\s+|parka\\s+|open\\s+|gloved\\s+|bare\\s+|front\\s+|breast\\s+|own\\s+|other\\s+|free\\s+|good\\s+|injured\\s+|bandaged\\s+)*${BODY_N}\\b`
 );
+
+/**
+ * BODYMOD-1 — the adjectives prose actually puts in front of a hand.
+ *
+ * The modifier list above was right|left|coat|jacket|parka|open|gloved|bare|
+ * front|breast, so "into his OWN pocket" matched nothing and the live ch.2
+ * sentence "He slid the key into his own pocket, the movement smooth, practiced."
+ * was scored NEUTRAL/mention - the stow was invisible to the ledger. Same for
+ * "his other hand", "her free hand", "his good hand", "his injured hand", all of
+ * which this app's own injury machinery guarantees will appear.
+ *
+ * This is a list of words, so it will always be incomplete; the head noun is what
+ * carries the meaning. Adding to it is cheap and safe. Removing the whole list in
+ * favour of "any run of adjectives before a body noun" is the real fix and is
+ * deliberately not attempted here.
+ */
+
+/**
+ * LOCATIVE-1 — a hand the object is LEAVING is not a hand that holds it.
+ *
+ * The locative rule below says "the key ... her palm" means she holds it. It is
+ * right most of the time and catastrophically wrong on a handover, because a
+ * handover is the one moment prose names both hands in one sentence.
+ *
+ * MEASURED, live Brass Meridian ch.2 (saved text, 2026-08-04). The handover is
+ * written properly and at length - "He reached out. His hand hovered over hers.
+ * ... Then he closed his fingers around the key. The transfer was slow." - and
+ * then:
+ *
+ *   event 65  TAKE  Marcus Reed  high  "Then he closed his fingers around the key."
+ *   event 68  HOLD  Lena Ortiz   high  "The warmth of the key transferred FROM HER
+ *                                       PALM to his, then to his palm."   <-- wrong
+ *   event 70  HOLD  Marcus Reed  high  "Marcus held the key tight."
+ *
+ * Event 68 hands the key back to Lena on the strength of the word "palm", so
+ * event 70 reads as a teleport and the gate accuses a scene that is correct.
+ * Three more false violations cascade from it in the same chapter.
+ *
+ * The rule: if the matched body phrase is introduced by a DEPARTURE preposition,
+ * or the clause names the object leaving that hand, the locative rule asserts
+ * nothing. It does not guess the destination either - a clause naming two hands
+ * is ambiguous, and this file's own contract is that ambiguity fails silent
+ * rather than loud. A real TAKE or GIVE elsewhere in the passage still moves the
+ * holder; this only stops an in-transit sentence from moving it BACKWARDS.
+ */
+const DEPART_PREP_RX = /\b(?:from|out\s+of|away\s+from|off\s+of)\s*$/i;
+const DEPART_V = new RegExp(
+  `\\b(?:transferred|transfers|passed|passes|slipped|slid|fell|dropped|lifted|left|leaves|leaving|escaped|vanished|disappeared)\\s+(?:from|out\\s+of)\\b|`
+  + `\\b(?:leave|leaves|leaving|left)\\s+(?:his|her|their|[A-Z][a-z]+(?:'s|’s))\\s+(?:right\\s+|left\\s+|open\\s+|gloved\\s+|bare\\s+)*${BODY_N}\\b|`
+  + `\\bno\\s+longer\\s+in\\s+(?:his|her|their|[A-Z][a-z]+(?:'s|’s))\\b`,
+  'i');
 
 export function splitSentences(text) {
   return String(text || '').replace(/\r/g, '')
@@ -543,12 +594,20 @@ export function scanObjectTimeline({ prose, object, cast }) {
     }
 
     const body = BODY_OWNER.exec(objClause);
+    // LOCATIVE-1: is the object LEAVING this hand rather than resting in it?
+    // Computed once, consumed by both body branches below. Deliberately NOT
+    // consulted before STOW or RETRIEVE: "pulled the key FROM her pocket" is a
+    // departure from a container she owns and leaves her holding it.
+    const inTransit = !!body && (
+      DEPART_PREP_RX.test(objClause.slice(Math.max(0, body.index - 20), body.index))
+      || DEPART_V.test(objClause));
     if (body && /pocket/i.test(body[0])) {
       const ownerRef = resolveReferent(body[1], roster, lastNamedByGender);
       const owner = ownerRef ? ownerRef.name : null;
       const conf = ownerRef ? ownerRef.confidence : subjectConf;
       if (STOW_V.test(objClause)) return push('STOW', owner || subject, 'stow', owner ? conf : subjectConf);
       if (RETRIEVE_V.test(objClause)) return push('RETRIEVE', owner || subject, 'retrieve', owner ? conf : subjectConf);
+      if (inTransit) return push('NEUTRAL', null, 'locative-in-transit');
       if (!PERCEPTION_V.test(objClause)) return push('HOLD', owner || subject, 'in-pocket', owner ? conf : subjectConf);
       return push('HOLD', owner, 'perceived-in-pocket', conf);
     }
@@ -556,6 +615,7 @@ export function scanObjectTimeline({ prose, object, cast }) {
     if (OFFER_V.test(objClause)) return push('OFFER', subject, 'offer', subjectConf);
 
     if (body) {
+      if (inTransit) return push('NEUTRAL', null, 'locative-in-transit');
       const ownerRef = resolveReferent(body[1], roster, lastNamedByGender);
       if (ownerRef) return push('HOLD', ownerRef.name, 'locative', ownerRef.confidence);
     }
