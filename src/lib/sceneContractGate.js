@@ -1159,6 +1159,16 @@ export function auditSceneAgainstLedger({
       })) {
         issues.push(issue);
       }
+      // CONDITION-2: nor may it come BACK. Reads the prose directly rather than
+      // the limb facts, because a restored limb produces no injury fact at all -
+      // that is exactly why it was invisible.
+      for (const issue of checkConditionRestoration({
+        prose,
+        cast: sceneCast,
+        ledgerConditions: runtimeLedger.characterConditions,
+      })) {
+        issues.push(issue);
+      }
     }
 
     // "all evidence is gone" violation
@@ -1492,6 +1502,84 @@ export function partSeverity(partOrCondition) {
  * @param ledgerConditions runtimeLedger.characterConditions
  * @returns issues; [] when clean or when either side's part is unknown
  */
+// CONDITION-2 — a lost limb does not grow back.
+//
+// INJURYSCALE-1b already blocks an injury GROWING off-page (a thumb becoming an
+// arm). Nothing blocked the reverse, and the reverse is worse, because it un-does
+// something the reader watched happen.
+//
+// Proven on Brass Meridian TEST. Ch.3, during the field surgery:
+//   "she pressed the cloth against the stump of his left hand"
+//   "She could feel the bone at the end of the stump, sharp against her palm."
+// Ch.4, the very next chapter:
+//   "his left hand - wrapped in thick, blood-stiffened gauze - clutching the wall
+//    for balance"
+// A stump cannot clutch a wall. Both chapters passed every gate.
+//
+// The severity model this sits beside ranks body PARTS (finger < hand < arm). That
+// axis cannot express this defect at all: the part is the same in both chapters.
+// What changed is presence. So this checks a different thing - the ledger records
+// the limb as GONE, and the prose has it gripping something.
+//
+// Deterministic and deliberately narrow. A violation needs all four in ONE
+// sentence: the character NAMED (never a pronoun - an unresolved pronoun is how
+// the possession gate used to accuse the wrong person), the recorded side, a limb
+// noun, and a verb of active use. Anything less stays silent.
+const LOSS_CONDITION_RX = /\b(?:amputat\w*|severed|missing|stump|gone|lost)\b/i;
+const LIMB_NOUN_RX = /\b(hand|hands|arm|arms|fingers?|thumb|wrist|palm|fist|knuckles)\b/i;
+const ACTIVE_USE_RX = /\b(grip\w*|clutch\w*|grabb?\w*|holding|held|holds|reach\w*|press\w*|curl\w*|wrapp?ed around|closed around|lift\w*|push\w*|pull\w*|caught|catch\w*|typ\w*|point\w*|wav\w*|clench\w*|tightened)\b/i;
+
+export function checkConditionRestoration({ prose, cast = null, ledgerConditions = {} } = {}) {
+  const issues = [];
+  const text = String(prose || '');
+  if (!text.trim()) return issues;
+
+  const roster = (Array.isArray(cast) ? cast : [])
+    .map((c) => (typeof c === 'string' ? c : c?.name))
+    .filter(Boolean);
+
+  const sentences = text.split(/(?<=[.!?])\s+|\n+/).filter((s) => s.trim());
+
+  for (const [character, conditions] of Object.entries(ledgerConditions || {})) {
+    for (const cond of conditions || []) {
+      if (!LOSS_CONDITION_RX.test(cond)) continue;
+      const sideMatch = /\b(left|right)\b/i.exec(cond);
+      if (!sideMatch) continue;
+      const side = sideMatch[1].toLowerCase();
+
+      // Name tokens this character answers to, longest first.
+      const rosterHit = roster.find((n) => n.toLowerCase() === String(character).toLowerCase());
+      const nameTokens = [rosterHit || character, String(character).split(/\s+/)[0]]
+        .filter(Boolean)
+        .map((t) => t.replace(/[^A-Za-z-]/g, ''))
+        .filter((t) => t.length > 2);
+      if (!nameTokens.length) continue;
+      const nameRx = new RegExp(`\\b(?:${[...new Set(nameTokens)].join('|')})\\b`, 'i');
+
+      for (const sentence of sentences) {
+        if (!nameRx.test(sentence)) continue;
+        if (!new RegExp(`\\b${side}\\b`, 'i').test(sentence)) continue;
+        if (!LIMB_NOUN_RX.test(sentence)) continue;
+        if (!ACTIVE_USE_RX.test(sentence)) continue;
+        // The sentence may itself be describing the loss - do not accuse it.
+        if (LOSS_CONDITION_RX.test(sentence)) continue;
+        issues.push({
+          code: 'CONDITION_RESTORATION',
+          message:
+            `"${sentence.trim().slice(0, 160)}" has ${character} using a ${side} limb that the ledger ` +
+            `records as lost ("${cond}"). A lost limb does not come back. Either describe the ` +
+            `prosthetic or the other side, or remove the action.`,
+          character,
+          condition: cond,
+          excerpt: sentence.trim().slice(0, 200),
+        });
+        break; // one report per condition; the fix is the same for all of them
+      }
+    }
+  }
+  return issues;
+}
+
 export function checkConditionInflation({ facts, ledgerConditions = {} } = {}) {
   const issues = [];
   for (const fact of facts || []) {
