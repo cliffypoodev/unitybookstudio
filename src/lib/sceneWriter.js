@@ -14,7 +14,7 @@ import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFina
 import { buildProjectContextHeader, unwrapIntegrationResult, countWords, buildAuthorVoiceInstruction } from '@/lib/autonovel';
 import { verifySceneProvenance, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { isNonfictionProject } from '@/lib/manuscriptStats';
-import { buildSetupConstraints } from '@/lib/setupConstraints';
+import { buildSetupConstraints, resolveChapterCount } from '@/lib/setupConstraints';
 import { buildPovTenseBlock } from '@/lib/povTense';
 import { cleanGeneratedProse } from '@/lib/proseQuality';
 import { snapshot as pipelineSnapshot, captureReplayDiagnostic } from '@/lib/pipelineDiag';
@@ -2024,7 +2024,9 @@ async function getVolumeContractBlock(project, chapter) {
     if (!entryContract && !exitContract) return '';
 
     const chapterNumber = chapter?.chapter_number || chapter?.chapterNumber || 1;
-    const totalChapters = project.chapter_count || project.num_chapters || 20;
+    // CHAPCOUNT-1: chapter_target is the canonical field; reading chapter_count
+    // first resolved 20 for every project the current Setup screen creates.
+    const totalChapters = resolveChapterCount(project, 20);
 
     // For standalone flavor, use light guidance only
     if (flavor === 'standalone') {
@@ -4346,7 +4348,9 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
       try { entryContract = project.entry_contract_json ? JSON.parse(project.entry_contract_json) : null; } catch {}
       try { exitContract = project.exit_contract_json ? JSON.parse(project.exit_contract_json) : null; } catch {}
 
-      const totalChapters = project.chapter_count || project.num_chapters || 20;
+      // CHAPCOUNT-1: chapter_target is the canonical field; reading chapter_count
+    // first resolved 20 for every project the current Setup screen creates.
+    const totalChapters = resolveChapterCount(project, 20);
       const isFinalChapter = chapterNumber >= totalChapters;
 
       const seriesGateReport = runSeriesContractGate(finalProse, project, seriesBibleForGate, null, {
