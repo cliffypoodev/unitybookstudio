@@ -1,5 +1,6 @@
 import { extractLimbFacts, extractCharacterStateFacts } from './sceneContractGate.js';
 import { checkPossessionContinuity, objectAliases, isPortablePropPhrase } from './objectPossession.js';
+import { normalizeCast } from './referentResolver.js';
 
 export function getTrustedCharacters(spec, ledger) {
   const trusted = new Set();
@@ -296,6 +297,46 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options
         ledger.separatedCharacters = ledger.separatedCharacters.filter((c) => !namesInSentence.includes(c));
       }
     }
+  }
+
+  // HOLDER-2 — canonicalise INHERITED holder names against the SCENE CAST.
+  //
+  // HOLDER-1a canonicalises during the chapter fold, but it can only choose among
+  // names that already appear in those ledgers. The live ch.5 run showed the
+  // limit: chapters 1-4 recorded the holder as "Marcus" and nowhere as
+  // "Marcus Reed", so the fold had nothing to promote it to and handed the scene
+  // `Marcus:Broken brass key handle`. The prose scanner then resolved the same
+  // person to the CAST name "Marcus Reed" (resolveReferent returns the canonical
+  // roster name), and the audit reported a handover between Marcus and Marcus
+  // Reed - one man passing an object to himself. Three repair passes could not
+  // write that scene, and the chapter was rejected.
+  //
+  // The cast is the authority on who exists, and it is right here. Resolve
+  // inherited names through it BEFORE reading the entry holder, so the ledger and
+  // the scanner speak the same language.
+  if (sceneCast && sceneCast.length) {
+    const roster = normalizeCast(sceneCast);
+    const canonFromCast = (n) => {
+      const lower = String(n || '').trim().toLowerCase();
+      if (!lower) return n;
+      const hit = roster.find((c) => (c.aliases || [c.name.toLowerCase()]).includes(lower));
+      return hit ? hit.name : n;
+    };
+    const remap = (map) => {
+      const out = {};
+      for (const [char, val] of Object.entries(map || {})) {
+        const key = canonFromCast(char);
+        out[key] = uniq([...(out[key] || []), ...(Array.isArray(val) ? val : [val])]);
+      }
+      return out;
+    };
+    ledger.possessions = remap(ledger.possessions);
+    ledger.characterConditions = remap(ledger.characterConditions);
+    ledger.deadCharacters = uniq((ledger.deadCharacters || []).map(canonFromCast));
+    // Deliberately NOT separatedCharacters. The separation gate records and
+    // clears its own names within this same function, and rewriting them here
+    // broke two SEPARATION-1 acceptance checks. Scope this to the defect that
+    // was actually diagnosed: the possession holder.
   }
 
   // KEYLEDGER-1e: holder of record, read off the prose, one holder per object.

@@ -59,15 +59,32 @@ export function objectAliases(phrase) {
  *  "key", so every key sentence would produce two violation streams once the
  *  gate engages. An object whose alias set is contained in another tracked
  *  object's alias set is the same object - keep the more specific phrase. */
+export function objectContentWords(obj) {
+  return new Set(
+    String(obj || '').toLowerCase().replace(/[^a-z0-9\s'-]/g, ' ')
+      .split(/\s+/).filter((w) => w && !['the', 'a', 'an', 'his', 'her', 'their'].includes(w))
+  );
+}
+
 export function dedupeTrackedObjects(objects) {
   const entries = [...new Set((objects || []).map((o) => String(o || '').trim()).filter(Boolean))]
-    .map((o) => ({ o, aliases: new Set(objectAliases(o)) }));
+    .map((o) => ({ o, aliases: new Set(objectAliases(o)), words: objectContentWords(o) }));
+  // HOLDER-2b: the alias rule compares {full phrase, head noun}, so two spellings
+  // with DIFFERENT head nouns never merged - the live ch.5 run tracked
+  // "Broken brass key handle" and "broken key handle" as two objects (heads
+  // "handle" and "handle" but distinct phrases), each accumulating its own
+  // holder. One phrase's content words being a strict subset of another's is the
+  // same thing described more specifically; keep the specific spelling.
+  const strictSubset = (a, b) => a.size < b.size && [...a].every((w) => b.has(w));
   return entries
     .filter((e) => !entries.some(
-      (other) => other !== e &&
-        other.aliases.size >= e.aliases.size &&
-        [...e.aliases].every((a) => other.aliases.has(a)) &&
-        (other.aliases.size > e.aliases.size || other.o.length > e.o.length)
+      (other) => other !== e && (
+        (
+          other.aliases.size >= e.aliases.size &&
+          [...e.aliases].every((a) => other.aliases.has(a)) &&
+          (other.aliases.size > e.aliases.size || other.o.length > e.o.length)
+        ) || strictSubset(e.words, other.words)
+      )
     ))
     .map((e) => e.o);
 }
@@ -114,6 +131,13 @@ const SPEC_OBJECT_STOPWORDS = new Set([
   'shaft', 'vent', 'vents', 'grate', 'reactor', 'core', 'ceiling', 'roof',
   'window', 'bulkhead', 'lift', 'elevator', 'junction', 'valve', 'beam', 'pipe',
   'pipes', 'railing', 'handrail', 'seal', 'seals', 'lock', 'machinery',
+  // HOLDER-2c: ABSTRACTIONS. Nobody hands anyone a decision. The live ch.5 run
+  // seeded "weight of her decision" from the exit_state "Lena carries the weight
+  // of her decision", and the possession audit then wanted a written handover
+  // for it. Carrying a burden is a metaphor; the ledger tracks physical props.
+  'weight', 'decision', 'decisions', 'guilt', 'burden', 'fate', 'blame',
+  'consequence', 'consequences', 'responsibility', 'memory', 'memories',
+  'trust', 'hope', 'fear', 'doubt', 'grief', 'anger', 'silence', 'knowledge',
 ]);
 
 // HOLDER-1c: words that cannot END a noun phrase. A phrase finishing on a

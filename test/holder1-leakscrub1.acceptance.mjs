@@ -11,8 +11,9 @@ import {
   canonicalizeHolderNames,
   groupObjectSpellings,
   normalizePossessions,
+  extractSceneLedgerUpdates,
 } from '../src/lib/narrativeLedger.js';
-import { isPortablePropPhrase } from '../src/lib/objectPossession.js';
+import { isPortablePropPhrase, trackedObjectsFromSpecs } from '../src/lib/objectPossession.js';
 import { stripModelControlTokens, stripNonLatinDrift } from '../src/lib/modelLeakGuard.js';
 import fs from 'fs';
 import vm from 'vm';
@@ -160,6 +161,48 @@ check('an empty or malformed input does not throw',
     scrubBeatContract([{ exit_state: 'They reach the hatch.' }])[0].exit_state === 'They reach the hatch.');
   check('malformed beats do not throw',
     Array.isArray(scrubBeatContract([null, 'x', undefined])) );
+}
+
+// ── HOLDER-2: inherited holder names resolved against the SCENE CAST ──
+{
+  const CAST = ['Lena Ortiz', 'Marcus Reed'];
+  // Exactly the live ch.5 inherited state: chapters 1-4 recorded the holder as
+  // bare "Marcus", so the fold had no full spelling to promote it to.
+  const prior = buildInitialLedger();
+  setHolderOfRecord(prior, 'Broken brass key handle', 'Marcus');
+  const spec = {
+    characters: CAST,
+    entry_state: 'Lena holds the broken key handle. Marcus limps from his earlier injury.',
+    exit_state: 'Lena carries the weight of her decision.',
+    required_events: [],
+    props_present: ['Broken brass key handle', 'broken key handle'],
+  };
+  const tracked = trackedObjectsFromSpecs([spec]);
+  check('HOLDER-2b: "broken key handle" and "Broken brass key handle" are ONE tracked object',
+    tracked.length === 1 && /brass/i.test(tracked[0]));
+  check('HOLDER-2c: "weight of her decision" is never seeded as a prop',
+    !tracked.some((o) => /weight|decision/i.test(o)));
+
+  const out = extractSceneLedgerUpdates(
+    prior,
+    'Marcus held the broken brass key handle. He turned it over. Lena watched him.',
+    spec,
+    { sceneCast: CAST, trackedObjects: tracked }
+  );
+  check('HOLDER-2: an inherited bare "Marcus" is resolved to the cast name "Marcus Reed"',
+    Object.keys(out.possessions).includes('Marcus Reed')
+    && !Object.keys(out.possessions).includes('Marcus'));
+  check('HOLDER-2: the object is not held by two spellings of the same person',
+    Object.keys(out.possessions).length === 1);
+
+  // A name that is NOT in the cast must be left alone rather than force-matched.
+  const p2 = buildInitialLedger();
+  setHolderOfRecord(p2, 'Broken brass key handle', 'Dr. Nolan Vale');
+  const out2 = extractSceneLedgerUpdates(p2, 'The chamber was quiet.', spec, {
+    sceneCast: CAST, trackedObjects: tracked,
+  });
+  check('HOLDER-2: an off-cast holder is preserved, not force-matched to the cast',
+    Object.keys(out2.possessions).includes('Dr. Nolan Vale'));
 }
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
