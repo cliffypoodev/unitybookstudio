@@ -85,7 +85,7 @@ import { runCapitalizationHygiene } from '@/lib/capitalizationPolish';
 import { runStackedClauseVariation } from '@/lib/sentencePatternPolish';
 import { runPunctuationCleanup, runSpellingFixes, runBrokenSentenceFixes, runCopingMechanismCaps, runDialoguePunctuationFix, runDialogueFillerFix } from '@/lib/punctuationPolish';
 import { pickModel, pickFallbackModel, buildFallbackControls, protectedProjectUpdate, foundationSafeUpdate, normalizeModelId, DEFAULT_FICTION_PROSE_MODEL } from '@/lib/modelRouting';
-import { generateBibleParallel } from '@/lib/parallelBibleGenerator';
+import { generateBibleParallel, BIBLE_RESUMABLE_FIELDS } from '@/lib/parallelBibleGenerator';
 import { AI_FAVORITE_NAMES, getUsedCharacterNames, buildNameExclusionBlock } from '@/lib/nameRegistry';
 import { buildBannedNamePromptBlock, getAllBlockedNames } from '@/lib/nameHygieneRules';
 import { repairChapterMetadata } from '@/lib/chapterMetadataRepair';
@@ -2294,10 +2294,29 @@ export default function ProjectStudio() {
 
     // Step 2: Foundation generation — parallel batches
     setBusyLabel('Step 2/2 — Building story bible (sequential — several minutes on local models)…');
+    // RESUME-1: a PARTIAL foundation means the previous attempt was interrupted -
+    // resume it. A COMPLETE one means the user deliberately asked for a rebuild -
+    // regenerate it. Measured on The Gilded Hour: a dropped HMR socket threw away
+    // four minutes of finished work and restarted at world (1/6), because there was
+    // no resume path at all. Fields below their length floor do not count as present,
+    // so a short field can never be carried past the field guard.
+    const _existingDocs = Object.fromEntries(
+      BIBLE_RESUMABLE_FIELDS.map((f) => [f, docDrafts?.[f] || project?.[f] || '']),
+    );
+    const _have = BIBLE_RESUMABLE_FIELDS.filter((f) => String(_existingDocs[f] || '').trim().length > 0);
+    const _resumeFrom = (_have.length > 0 && _have.length < BIBLE_RESUMABLE_FIELDS.length) ? _existingDocs : {};
+    console.log(
+      `[RESUME-1] foundation state: ${_have.length}/${BIBLE_RESUMABLE_FIELDS.length} fields present -> `
+      + (Object.keys(_resumeFrom).length ? 'resuming interrupted run' : 'generating all fields'),
+    );
     const foundation = await generateBibleParallel(
       _resolvedSeed,
       { ...newSettings, book_type: bookType, research_data: project.research_data },
-      { onProgress: (label) => setBusyLabel(formatProgressLabel(label)), nameBlock: _nameBlock }
+      {
+        onProgress: (label) => setBusyLabel(formatProgressLabel(label)),
+        nameBlock: _nameBlock,
+        resumeFrom: _resumeFrom,
+      }
     );
 
     const newDocs = {
