@@ -12,8 +12,10 @@ import {
   groupObjectSpellings,
   normalizePossessions,
   extractSceneLedgerUpdates,
+  canonicalizeLedgerNames,
 } from '../src/lib/narrativeLedger.js';
 import { isPortablePropPhrase, trackedObjectsFromSpecs } from '../src/lib/objectPossession.js';
+import { auditSceneAgainstLedger } from '../src/lib/sceneContractGate.js';
 import { stripModelControlTokens, stripNonLatinDrift } from '../src/lib/modelLeakGuard.js';
 import fs from 'fs';
 import vm from 'vm';
@@ -203,6 +205,49 @@ check('an empty or malformed input does not throw',
   });
   check('HOLDER-2: an off-cast holder is preserved, not force-matched to the cast',
     Object.keys(out2.possessions).includes('Dr. Nolan Vale'));
+}
+
+// ── HOLDER-3: the RUNTIME ledger is canonicalised before any scene is audited ──
+{
+  const CAST = ['Lena Ortiz', 'Marcus Reed'];
+  const led = buildInitialLedger();
+  setHolderOfRecord(led, 'Broken brass key handle', 'Marcus');
+  const canon = canonicalizeLedgerNames(led, CAST);
+  check('HOLDER-3: canonicalizeLedgerNames resolves a bare first name to the cast name',
+    Object.keys(canon.possessions).length === 1 && canon.possessions['Marcus Reed']?.length === 1);
+  check('HOLDER-3: the input ledger is not mutated',
+    Object.keys(led.possessions)[0] === 'Marcus');
+
+  const dead = buildInitialLedger();
+  dead.deadCharacters = ['Vale'];
+  dead.characterConditions = { Vale: ['dead'] };
+  const c2 = canonicalizeLedgerNames(dead, ['Dr. Nolan Vale', 'Lena Ortiz']);
+  check('HOLDER-3: dead-character names are canonicalised too',
+    c2.deadCharacters[0] === 'Dr. Nolan Vale');
+  check('HOLDER-3: an empty cast leaves the ledger untouched',
+    Object.keys(canonicalizeLedgerNames(led, []).possessions)[0] === 'Marcus');
+  check('HOLDER-3: an off-cast holder is preserved',
+    Object.keys(canonicalizeLedgerNames(led, ['Someone Else']).possessions)[0] === 'Marcus');
+}
+
+// ── DEADCHAR-2: straight-quoted dialogue about a dead character ──
+{
+  const CAST = ['Lena Ortiz', 'Marcus Reed'];
+  const GEND = CAST.map((n) => ({ name: n, gender: null }));
+  const dead = buildInitialLedger();
+  dead.deadCharacters = ['Vale'];
+  const deadCodes = (prose) => (auditSceneAgainstLedger({
+    prose, spec: { characters_present: CAST }, runtimeLedger: dead, sceneCast: GEND,
+  }).issues || []).filter((i) => i.code === 'DEAD_CHARACTER_ACTION').length;
+
+  check('DEADCHAR-2: the live ch.5 straight-quoted line is no longer a violation',
+    deadCodes('Marcus leaned on the panel. "Because Vale said it would bury the truth," Marcus said.') === 0);
+  check('DEADCHAR-2: the same line in typographic quotes is still clean',
+    deadCodes('Marcus leaned on the panel. “Because Vale said it would bury the truth,” Marcus said.') === 0);
+  check('DEADCHAR-2: a dead character REALLY acting is still caught',
+    deadCodes('Vale said nothing. He turned away from the console.') === 1);
+  check('DEADCHAR-2: a dead character acting after a closed quote is still caught',
+    deadCodes('"We should go," Lena said. Vale nodded at the door.') === 1);
 }
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

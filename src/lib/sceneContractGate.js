@@ -402,14 +402,25 @@ function paragraphHits(eventText, proseText) {
 // DEADSPEECH-1: true when `index` falls inside an open quotation. Counts smart quote
 // boundaries from the start of the text; straight quotes are ambiguous (apostrophes) and
 // are deliberately NOT counted, so a passage using them behaves exactly as before.
+// DEADCHAR-2: counting ONLY typographic quotes meant a scene written with
+// straight quotes had no quoted spans at all as far as this function was
+// concerned - and draft prose reaches the state-contract audit BEFORE the
+// dialogue-mechanics pass normalises anything. Live ch.5 at 85218aec was
+// hard-rejected on `"Because Vale said it would bury the truth," Marcus said.`
+// - Marcus talking ABOUT a dead man, scored as the dead man acting. That is
+// exactly the false positive DEADCHARFIX-1 exists to prevent.
+// A straight " toggles the span. The apostrophe ambiguity that motivated leaving
+// them out does not apply: ' is not counted, only ".
 function isInsideQuotedSpan(text, index) {
   let inside = false;
+  let straight = false;
   for (let i = 0; i < index && i < text.length; i += 1) {
     const ch = text[i];
     if (ch === '\u201c') inside = true;
     else if (ch === '\u201d') inside = false;
+    else if (ch === '"') straight = !straight;
   }
-  return inside;
+  return inside || straight;
 }
 
 export function extractLimbFacts(text, cast = null) {

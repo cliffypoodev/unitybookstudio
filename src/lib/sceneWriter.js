@@ -89,7 +89,7 @@ import { buildCanonNameLockBlock, repairCanonNameDrift } from '@/lib/canonNameLo
 import { repairChapterQuotes } from '@/lib/quoteFixPolish';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
-import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger } from '@/lib/narrativeLedger';
+import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger, canonicalizeLedgerNames } from '@/lib/narrativeLedger';
 import { inferCastGenders } from '@/lib/referentResolver';
 import { trackedObjectsFromSpecs, dedupeTrackedObjects } from '@/lib/objectPossession';
 import { measureRhythm, formatRhythmLine, isSeverelyFlat, isSeverelyGestural, pickBetterTake, buildRhythmRegenInstruction, buildGestureRegenInstruction } from '@/lib/proseRhythm';
@@ -3101,6 +3101,35 @@ export async function generateChapterSceneByScene({
   // The ledger carries no prose, only facts, so it is safe to carry forward and
   // it is the only thing that can stop Ch.4 restoring a hand Ch.3 amputated.
   let runtimeLedger = priorLedger ? cloneLedger(priorLedger) : buildInitialLedger();
+  // HOLDER-3 — canonicalise the RUNTIME ledger against this chapter's cast, here,
+  // before any scene is drafted or audited.
+  //
+  // HOLDER-2 did this inside extractSceneLedgerUpdates, which is the WRITE path -
+  // it runs after a scene is drafted. The audit that hard-blocks a scene reads
+  // `runtimeLedger` directly, so it was still seeing the un-canonicalised fold.
+  // Live ch.5 at 85218aec: the fold produced holder "Marcus" (chapters 1-4 never
+  // wrote "Marcus Reed"), the prose scanner resolved the same man to the cast name
+  // "Marcus Reed", and the audit reported a handover from Marcus to Marcus Reed -
+  // one man passing an object to himself, three passes, chapter rejected.
+  //
+  // The cast for the whole chapter is known right here. Resolve once, up front, so
+  // every downstream reader sees the same names the scanner produces.
+  {
+    const chapterCast = [...new Set(normalizedScenes.flatMap((s) => [
+      ...(Array.isArray(s?.characters) ? s.characters : []),
+      ...(Array.isArray(s?.characters_present) ? s.characters_present : []),
+    ]).filter(Boolean))];
+    if (chapterCast.length) {
+      const before = JSON.stringify(runtimeLedger.possessions || {});
+      runtimeLedger = canonicalizeLedgerNames(runtimeLedger, chapterCast);
+      const after = JSON.stringify(runtimeLedger.possessions || {});
+      if (before !== after) {
+        console.warn(`[HOLDER-3] Ch.${chapterNumber} holder names resolved against the cast: ${before} -> ${after}`);
+      } else {
+        console.log(`[HOLDER-3] Ch.${chapterNumber} holder names already canonical: ${after}`);
+      }
+    }
+  }
   // KEYLEDGER-1f: the CLOSED tracked-object set comes from the plan (props_present
   // across this chapter's scenes) plus anything the ledger already tracks. It is
   // never derived from prose.

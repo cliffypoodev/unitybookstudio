@@ -109,6 +109,44 @@ export function setHolderOfRecord(ledger, objName, holder) {
   return ledger;
 }
 
+/**
+ * HOLDER-2/3 — resolve every character name in a ledger to its CAST spelling.
+ *
+ * The cast is the authority on who exists. `normalizeCast` already knows each
+ * member's unambiguous name tokens, so "Marcus" resolves to "Marcus Reed" and
+ * "Dr. Vale" to "Dr. Nolan Vale". A name that matches nobody in the cast is left
+ * exactly as it is — an off-cast holder is not force-matched.
+ *
+ * `separatedCharacters` is deliberately untouched: the separation gate records
+ * and clears its own names, and rewriting them here broke two SEPARATION-1
+ * acceptance checks.
+ *
+ * Returns a NEW ledger; the argument is not mutated.
+ */
+export function canonicalizeLedgerNames(ledger, cast) {
+  const out = cloneLedger(ledger);
+  const roster = normalizeCast(Array.isArray(cast) ? cast : []);
+  if (!roster.length) return out;
+  const canon = (n) => {
+    const lower = String(n || '').trim().toLowerCase();
+    if (!lower) return n;
+    const hit = roster.find((c) => (c.aliases || [c.name.toLowerCase()]).includes(lower));
+    return hit ? hit.name : n;
+  };
+  const remap = (map) => {
+    const res = {};
+    for (const [char, val] of Object.entries(map || {})) {
+      const key = canon(char);
+      res[key] = uniq([...(res[key] || []), ...(Array.isArray(val) ? val : [val])]);
+    }
+    return res;
+  };
+  out.possessions = remap(out.possessions);
+  out.characterConditions = remap(out.characterConditions);
+  out.deadCharacters = uniq((out.deadCharacters || []).map(canon));
+  return out;
+}
+
 export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options = {}) {
   const ledger = JSON.parse(JSON.stringify(priorLedger)); // deep copy
   // KEYLEDGER-1e: { sceneCast, trackedObjects }. With both present, the holder of
@@ -300,6 +338,8 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options
   }
 
   // HOLDER-2 — canonicalise INHERITED holder names against the SCENE CAST.
+  // (HOLDER-3 also applies this to the runtime ledger before drafting begins;
+  // this call keeps the write path consistent for any caller that skips that.)
   //
   // HOLDER-1a canonicalises during the chapter fold, but it can only choose among
   // names that already appear in those ledgers. The live ch.5 run showed the
@@ -315,28 +355,10 @@ export function extractSceneLedgerUpdates(priorLedger, sceneProse, spec, options
   // inherited names through it BEFORE reading the entry holder, so the ledger and
   // the scanner speak the same language.
   if (sceneCast && sceneCast.length) {
-    const roster = normalizeCast(sceneCast);
-    const canonFromCast = (n) => {
-      const lower = String(n || '').trim().toLowerCase();
-      if (!lower) return n;
-      const hit = roster.find((c) => (c.aliases || [c.name.toLowerCase()]).includes(lower));
-      return hit ? hit.name : n;
-    };
-    const remap = (map) => {
-      const out = {};
-      for (const [char, val] of Object.entries(map || {})) {
-        const key = canonFromCast(char);
-        out[key] = uniq([...(out[key] || []), ...(Array.isArray(val) ? val : [val])]);
-      }
-      return out;
-    };
-    ledger.possessions = remap(ledger.possessions);
-    ledger.characterConditions = remap(ledger.characterConditions);
-    ledger.deadCharacters = uniq((ledger.deadCharacters || []).map(canonFromCast));
-    // Deliberately NOT separatedCharacters. The separation gate records and
-    // clears its own names within this same function, and rewriting them here
-    // broke two SEPARATION-1 acceptance checks. Scope this to the defect that
-    // was actually diagnosed: the possession holder.
+    const canonical = canonicalizeLedgerNames(ledger, sceneCast);
+    ledger.possessions = canonical.possessions;
+    ledger.characterConditions = canonical.characterConditions;
+    ledger.deadCharacters = canonical.deadCharacters;
   }
 
   // KEYLEDGER-1e: holder of record, read off the prose, one holder per object.
