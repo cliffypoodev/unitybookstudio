@@ -256,13 +256,31 @@ export function checkBookIntegrity(chapters, { gram = 8, lengthFloorRatio = 0.8 
   };
 }
 
-export function validateChapterOutput(text, chapterNum = '?') {
+// BOOKGATE-3 — book-specific vocabulary is DATA, not code.
+//
+// The lists at the top of this file hardcode "the brass key", "Unity Supported
+// Living Services", "care documentation" and other strings from two specific
+// projects. Judging a NEW book against another book's props produces noise, and
+// the "LITERAL OBJECT PRESERVATION" report would tell the next project that its
+// manuscript is missing a brass key it never had.
+//
+// They are now OPT-IN. A caller that knows its project passes its own terms;
+// everyone else gets the structural checks and nothing else. The legacy arrays
+// stay exported so the Brass Meridian / Unity runs remain reproducible, but
+// nothing reaches for them by default.
+const NO_TERMS = { contamination: [], literals: [] };
+
+export function validateChapterOutput(text, chapterNum = '?', projectTerms = NO_TERMS) {
   const words = text.split(/\s+/).filter(Boolean).length;
   const chars = text.length;
 
+  const activeContamination = Array.isArray(projectTerms?.contamination)
+    ? projectTerms.contamination : [];
+  const activeLiterals = Array.isArray(projectTerms?.literals) ? projectTerms.literals : [];
+
   const contamination = {};
   let contaminationTotal = 0;
-  for (const term of CONTAMINATION_TERMS) {
+  for (const term of activeContamination) {
     const count = countOccurrences(text, term);
     if (count > 0) {
       contamination[term] = count;
@@ -282,7 +300,7 @@ export function validateChapterOutput(text, chapterNum = '?') {
 
   const literals = {};
   let literalTotal = 0;
-  for (const obj of LITERAL_OBJECTS) {
+  for (const obj of activeLiterals) {
     const count = countOccurrences(text, obj);
     literals[obj] = count;
     literalTotal += count;
@@ -338,11 +356,11 @@ export function validateChapterOutput(text, chapterNum = '?') {
   return result;
 }
 
-export function validateAllChapters(chapters) {
+export function validateAllChapters(chapters, projectTerms = NO_TERMS) {
   const results = [];
   for (let i = 0; i < chapters.length; i++) {
     const text = typeof chapters[i] === 'string' ? chapters[i] : (chapters[i]?.content || chapters[i]?.content_md || '');
-    results.push(validateChapterOutput(text, i + 1));
+    results.push(validateChapterOutput(text, i + 1, projectTerms));
   }
 
   // Print summary table
@@ -459,6 +477,8 @@ export function validateAllChapters(chapters) {
 if (typeof window !== 'undefined') {
   window.__UBS_VALIDATOR = {
     check: validateChapterOutput,
+    // BOOKGATE-3: pass { contamination: [...], literals: [...] } as the 2nd/3rd arg
+    // to score against THIS project. Default is no book vocabulary at all.
     checkAll: validateAllChapters,
     // BOOKGATE-1: book-agnostic structural checks, usable on any project.
     structural: checkStructuralIntegrity,
