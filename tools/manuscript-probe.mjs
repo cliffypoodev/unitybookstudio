@@ -58,23 +58,35 @@ const project = wanted ? projects.find((p) => p.id === wanted) : withChapters[0]
 if (!project) { console.log(`No project ${wanted}. Try --list.`); process.exit(0); }
 
 // ── chapter text: the entity record first, the file store as fallback ──
+// The Chapter records are the authority on WHICH chapters this book has and what
+// order they are in. The file store is only a place to look up their text.
+//
+// This distinction is not cosmetic: the live Brass Meridian project has 25 chapter
+// FOLDERS in the file store and 5 chapters in the book - twenty are leftovers from
+// an earlier draft of the project. Grouping by folder reported a 25-chapter book
+// with two chapters under the length floor, none of which exist. Ask the entity
+// store what the book is; ask the file store only what the text says.
 const textOf = (c) => String(c?._resolved_content || c?.content_md || c?.content || '');
 let chapters = chaptersFor(project.id).map((c) => ({
-  n: c.chapter_number, title: c.title || '', text: textOf(c),
+  id: c.id, n: c.chapter_number, title: c.title || '', text: textOf(c),
 }));
-if (chapters.some((c) => !c.text)) {
+if (!chapters.length) { console.log(`Project ${project.id} has no chapter records.`); process.exit(0); }
+if (chapters.some((c) => !c.text.trim())) {
   const store = readJson('_FileStore.json') || [];
-  const byFolder = new Map();
+  const latest = new Map();
   for (const e of store) {
     const m = /^([^/]+)\/([^/]+)\/chapter-/.exec(String(e?.id || ''));
     if (!m || m[1] !== project.id) continue;
-    const cur = byFolder.get(m[2]);
-    if (!cur || String(e.id) > String(cur.id)) byFolder.set(m[2], e);
+    const cur = latest.get(m[2]);
+    if (!cur || String(e.id) > String(cur.id)) latest.set(m[2], e);
   }
-  const ordered = [...byFolder.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  if (ordered.length) {
-    chapters = ordered.map(([, e], i) => ({ n: i + 1, title: '(from file store, draft order)', text: String(e.content || '') }));
+  for (const c of chapters) {
+    if (c.text.trim()) continue;
+    const e = latest.get(c.id);
+    if (e) { c.text = String(e.content || ''); c.title = (c.title || '') + ' (text from file store)'; }
   }
+  const orphans = [...latest.keys()].filter((k) => !chapters.some((c) => c.id === k));
+  if (orphans.length) console.log(`note: ${orphans.length} chapter folder(s) in the file store belong to no current chapter record; ignored.`);
 }
 chapters = chapters.filter((c) => c.text.trim());
 if (!chapters.length) { console.log(`Project ${project.id} has no saved chapter text yet.`); process.exit(0); }
