@@ -2569,6 +2569,120 @@ export function buildCrossChapterEchoDetector(priorChapterProse) {
   return { isEchoed, findEchoSentences, echoNorm, priorGramCount: priorGrams.size };
 }
 
+// REPEAT-1: IN-CHAPTER near-duplicate sentences.
+//
+// The existing dedupers are blind exactly where this model repeats itself.
+// dedupeRepeatedSentences drops EXACT sentences of 8+ words; repetitionAlarm
+// reports repeated 8-word phrases. Measured across all five saved Brass Meridian
+// chapters (2026-08-04), the 8-word floor caught ZERO in-chapter repeats. Lower
+// the floor and the disease is everywhere:
+//
+//   floor 8 words -> 0 repeats      floor 5 words -> 7
+//   floor 4 words -> 20 repeats     (dialogue excluded throughout)
+//
+//   ch.1  "he looked at lena"           x3
+//   ch.5  "marcus didn t move"          x3
+//   ch.2  "he didn t look back"         x2
+//   ch.5  "her fingers hovered over the switches"  x2
+//
+// This is not a coincidence: the RHYTHM advisory measures this book at 43-57%
+// sentences of five words or fewer. The gate's floor sat above the register the
+// model actually writes in.
+//
+// NEAR-duplicates are worse than exact ones, because no exact matcher can ever
+// see them. At word-Jaccard >= 0.75, five words or more, every hit in the live
+// book is the model reusing its own image with a word swapped:
+//
+//   0.78  "the blast door GROANED, a heavy metallic SHRIEK that vibrated through
+//          the soles of Lena's boots"
+//         "the blast door SHUDDERED, a heavy metallic GROAN that vibrated through
+//          the soles of Lena's boots"
+//   0.80  "the cane slipped from his grasp, clattering AGAINST the concrete"
+//         "the cane slipped from his grasp, clattering ONTO the concrete"
+//   0.78  "she slipped the key back into her pocket" / "Lena slipped the key ..."
+//
+// RULES, and why each number is what it is - all three were measured, not guessed:
+//   - exact repeat, 4+ words: 20 hits in the live book, every one a tic. At 3 words
+//     it starts collecting "she looked up", which is ordinary prose.
+//   - near repeat, 5+ words and Jaccard >= 0.75: 7 hits, every one a defect, no
+//     judgment calls. At 0.65 it starts collecting "he didn't look at X" families,
+//     which are sometimes one beat described once.
+//   - at least 3 sentences apart: deliberate back-to-back repetition is a craft
+//     device ("He didn't move. He didn't move.") and is none of this gate's business.
+//
+// Dialogue is excluded entirely. Characters repeat themselves on purpose.
+//
+// This detector REPORTS PAIRS; it never deletes. A near-duplicate carries meaning
+// that an exact duplicate does not, so the repair rewrites the LATER sentence and
+// leaves the first alone.
+export const REPEAT_RULES = {
+  exactMinWords: 4,
+  nearMinWords: 5,
+  nearMinJaccard: 0.75,
+  minSentenceGap: 3,
+};
+
+export function findInChapterRepeats(prose, rules = REPEAT_RULES) {
+  const R = { ...REPEAT_RULES, ...(rules || {}) };
+  const norm = (t) => String(t || '').toLowerCase()
+    .replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const jaccard = (a, b) => {
+    const A = new Set(a); const B = new Set(b);
+    let inter = 0;
+    for (const x of A) if (B.has(x)) inter += 1;
+    const uni = A.size + B.size - inter;
+    return uni ? inter / uni : 0;
+  };
+  // A scene-break line rides along on the front of the sentence that follows it,
+  // because the splitter has no reason to treat "* * *" as a sentence. Detection
+  // is unaffected (normalisation drops the asterisks) but the repair replaces its
+  // target by exact string match, so a target carrying the break would rewrite the
+  // break away. Measured on live ch.5, whose two blast-door sentences both open a
+  // scene. Strip the decoration off the target; the remainder is still an exact
+  // substring of the prose, so the replacement lands and the break survives.
+  const SCENE_BREAK_LEAD_RX = /^(?:[*#\u00b7\u2022](?:\s*[*#\u00b7\u2022]){0,4}\s*\n+\s*)+/;
+  const raw = splitSentencesSafe(String(prose || ''))
+    .map((x) => x.trim().replace(SCENE_BREAK_LEAD_RX, '').trim());
+  const items = raw.map((text, idx) => {
+    // A sentence carrying dialogue is out of scope - a character may repeat a line.
+    if (/["\u201c\u201d]/.test(text)) return null;
+    const k = norm(text);
+    const w = k.split(' ').filter(Boolean);
+    return w.length ? { idx, text, k, w } : null;
+  });
+  const pairs = [];
+  const claimed = new Set();
+  for (let i = 0; i < items.length; i += 1) {
+    const a = items[i];
+    if (!a) continue;
+    for (let j = i + 1; j < items.length; j += 1) {
+      const b = items[j];
+      if (!b || claimed.has(j)) continue;
+      if (b.idx - a.idx < R.minSentenceGap) continue;
+      let kind = null; let score = 0;
+      if (a.k === b.k && a.w.length >= R.exactMinWords) { kind = 'exact'; score = 1; }
+      else if (a.w.length >= R.nearMinWords && b.w.length >= R.nearMinWords) {
+        const jac = jaccard(a.w, b.w);
+        if (jac >= R.nearMinJaccard) { kind = 'near'; score = jac; }
+      }
+      if (!kind) continue;
+      // The LATER sentence is the one that gets rewritten, so each later sentence
+      // is claimed once - three copies of one tic produce two repairs, not three.
+      claimed.add(j);
+      pairs.push({ kind, score: Number(score.toFixed(3)), first: a.text, later: b.text, firstIdx: a.idx, laterIdx: b.idx });
+    }
+  }
+  return pairs;
+}
+
+/** True when `candidate` would still repeat `original` under the same rules. */
+export function stillRepeats(candidate, original, rules = REPEAT_RULES) {
+  const probe = findInChapterRepeats(
+    `${original} PLACEHOLDER ONE. PLACEHOLDER TWO. PLACEHOLDER THREE. ${candidate}`,
+    rules);
+  return probe.some((p) => p.first === String(original).trim() && p.later === String(candidate).trim());
+}
+
 // BOOKECHO-2: the chapter-level final passes, callable on ANY prose artifact.
 // Live measurement (ch.2–ch.5 re-drafts, 2026-08-02) proved the BOOKECHO-1
 // rewrites and the chapter-level dedupers were computed on the critic
@@ -2629,6 +2743,54 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
       }
     }
   } catch (echoErr) { /* BOOKECHO-1 never blocks a chapter */ }
+
+  // REPEAT-1: in-chapter near-duplicates, repaired the same way cross-chapter
+  // echoes are - one bounded pass, rewrite the LATER sentence only, apply by exact
+  // match, re-check before accepting, fail open. Runs AFTER the echo repair so a
+  // rewrite cannot reintroduce a repeat the echo pass just created.
+  try {
+    const repeats = findInChapterRepeats(finalProse);
+    if (repeats.length) {
+      const echoDet2 = (Array.isArray(priorChapterProse) && priorChapterProse.length)
+        ? buildCrossChapterEchoDetector(priorChapterProse) : null;
+      const list = repeats.slice(0, 12);
+      const repairPrompt = [
+        'You are line-editing a novel chapter. Each numbered item below is a sentence that repeats an earlier sentence in the SAME chapter, shown after it for reference. Rewrite ONLY the numbered sentence so it no longer echoes the reference, preserving its exact meaning, characters, tone and tense. Do not add new events or details. Do not make it longer.',
+        'Return ONLY the rewritten sentences, one per line, numbered to match. No commentary.',
+        '',
+        ...list.map((p, i) => `${i + 1}. ${p.later}\n   (echoes: ${p.first})`),
+      ].join('\n');
+      let repaired = 0;
+      try {
+        const res = await invokeLLMWithRetry({
+          prompt: repairPrompt,
+          model: pickProseModel(project),
+          temperature: 0.4,
+          max_tokens: 2000,
+        });
+        const raw = extractTextFromLLMResult(res) || '';
+        const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+        for (let i = 0; i < list.length; i += 1) {
+          const line = lines.find((l) => l.startsWith(`${i + 1}.`) || l.startsWith(`${i + 1})`));
+          if (!line) continue;
+          const rewritten = line.replace(/^\d+[.)]\s*/, '').trim();
+          if (rewritten.length < 8) continue;
+          if (rewritten === list[i].later) continue;
+          if (stillRepeats(rewritten, list[i].first)) continue;
+          if (echoDet2 && echoDet2.isEchoed(rewritten)) continue;
+          if (!finalProse.includes(list[i].later)) continue;
+          finalProse = finalProse.replace(list[i].later, rewritten);
+          repaired += 1;
+        }
+      } catch (repeatLLMErr) { /* fail open: repeats ship rather than block */ }
+      const remaining = findInChapterRepeats(finalProse).length;
+      const worst = repeats.slice(0, 3).map((p) => `${p.kind}/${p.score} "${p.later.slice(0, 52)}"`).join(' | ');
+      console.warn(`[REPEAT-1] pairs=${repeats.length} repaired=${repaired} remaining=${remaining} | ${worst}`);
+    } else {
+      console.log('[REPEAT-1] pairs=0');
+    }
+  } catch (repeatErr) { /* REPEAT-1 never blocks a chapter */ }
+
   return finalProse;
 }
 
