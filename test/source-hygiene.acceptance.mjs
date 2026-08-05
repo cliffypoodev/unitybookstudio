@@ -44,9 +44,9 @@ const KNOWN = {
   'autonovel.js': 'TOLERATED — illustrative names inside prompt examples teaching a grammar rule; no logic keys on them.',
   'pipelineValidator.js': 'TOLERATED — LITERAL_OBJECTS is a debug-only export on window.__UBS_VALIDATOR. '
     + 'The gate itself takes projectTerms defaulting to empty (BOOKGATE-3). Move it to data when convenient.',
-  'manuscriptFixer.js': 'VIOLATION, pre-existing — hardcoded fabricated-character scrubbers for ONE nonfiction book '
-    + '(Marcus al-Rashid, Lillian Choi, Franklin Driscoll, ...). This is book-specific LOGIC in code and should move '
-    + 'to that project\'s data. Not removed here because a shipped book depends on it.',
+  'legacyBookScrubRules.data.js': 'CORRECT — this file IS one book\'s scrub data, isolated behind a name that says so. '
+    + 'manuscriptFixer.js is now the mechanism only (BOOKSCRUB-1). Shrink this to nothing by moving the rules '
+    + 'onto that project\'s scrub_rules_json.',
 };
 
 const codeOf = (src) => src.split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
