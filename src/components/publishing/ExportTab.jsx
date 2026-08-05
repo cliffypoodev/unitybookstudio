@@ -2400,15 +2400,28 @@ function repairNonfictionBibliographyExportText(markdown = '', project = {}, cha
     const trimmed = entry.trim();
     if (!trimmed || /^#{1,6}\s+/.test(trimmed)) return false;
     if (/^(?:Bibliography|Sources|Works Cited|References|Articles?|Books?|Academic|Government|Archives?|Court|Newspapers?|Reports?|Web|Oral Histories|Primary Sources|Secondary Sources)\b/i.test(trimmed)) return false;
-    return MISSOURI_GOTHIC_SOURCE_DOMAIN_RE.test(trimmed) || /\b(?:archive|court|newspaper|report|interview|oral\s+history|death\s+certificate|coroner|department|records?|minutes?|plan|memoir)\b/i.test(trimmed);
+    // EXPORTSCRUB-1: one book's subject vocabulary (Missouri State Penitentiary,
+    // Cell Hall, the 1954 riot) was the PRIMARY test for whether a bibliography entry
+    // is credible, so a nonfiction book on any other subject failed the count and had
+    // the blocker note below injected into its Bibliography page. The generic
+    // source-shape test is the real check; the book-specific vocabulary is opt-in.
+    if (exportRuleEnabled(project, 'prisonHistorySources') && MISSOURI_GOTHIC_SOURCE_DOMAIN_RE.test(trimmed)) return true;
+    return /\b(?:archive|court|newspaper|report|interview|oral\s+history|death\s+certificate|coroner|department|records?|minutes?|plan|memoir|university|press|journal|bureau|commission|administration|association|museum|library|society|gazette|times|post|tribune|herald)\b/i.test(trimmed);
   }).length;
 
-  if (/\b(?:bibliography|sources|works\s+cited|references)\b/i.test(next) && credibleEntryCount < 4) {
-    next = `${next}\n\n[EXPORT BLOCKER: Bibliography has too few credible project-relevant sources after contamination cleanup. Rebuild the bibliography from verified project sources before publication.]`;
-  }
+  // EXPORTSCRUB-1: the comment above said the hard gate would catch this marker. It
+  // does not: NONFICTION_EXPORT_PLACEHOLDER_RE does not match "[EXPORT BLOCKER", no
+  // canary matches it either, and the nonfiction placeholder gate was downgraded to
+  // diagnostic-only. So the marker shipped — a DOCX whose Bibliography page ends with
+  // the literal line "[EXPORT BLOCKER: …]", with no block, no warning and no toast.
+  // A note that pretends to be a blocker is worse than no note. This reports the
+  // condition to the caller instead of writing it into the reader's book.
+  const bibliographyUnderfunded = /\b(?:bibliography|sources|works\s+cited|references)\b/i.test(next)
+    && credibleEntryCount < 4;
 
   return {
     text: next,
+    bibliographyUnderfunded,
     changed: removed.length > 0,
     changes: Array.from(new Set(removed)),
   };
@@ -2417,7 +2430,7 @@ function repairNonfictionBibliographyExportText(markdown = '', project = {}, cha
 function applyNonfictionSourceIntegrityExportCleanup(chapters = [], project = {}) {
   const safe = Array.isArray(chapters) ? chapters.filter(Boolean) : [];
 
-  if (!isLikelyNonfictionExportProject(project, safe)) {
+  if (!isLikelyNonfictionExportProject(project)) {
     return safe;
   }
 
@@ -2429,6 +2442,16 @@ function applyNonfictionSourceIntegrityExportCleanup(chapters = [], project = {}
       const repaired = repairNonfictionBibliographyExportText(text, project, safe);
       text = repaired.text;
       changes.push(...repaired.changes);
+      // EXPORTSCRUB-1: surface the underfunded-bibliography condition where the author
+      // can see it, instead of writing "[EXPORT BLOCKER: …]" into the shipped book.
+      if (repaired.bibliographyUnderfunded) {
+        console.warn(
+          `[EXPORTSCRUB-1] Ch.${chapter?.chapter_number ?? '?'} "${chapter?.title || 'Bibliography'}": `
+          + 'fewer than 4 credible source entries survived contamination cleanup. '
+          + 'Rebuild the bibliography from verified project sources before publication.',
+        );
+        changes.push('WARNING: bibliography has fewer than 4 credible source entries');
+      }
     }
 
     const beforeCopyedit = text;

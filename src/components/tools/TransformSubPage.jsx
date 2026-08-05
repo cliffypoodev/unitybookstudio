@@ -28,6 +28,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { parseDocxFile } from '@/lib/docxParser';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-4
 import {
   TRANSFORM_CATEGORIES,
   getTransformPrompt,
@@ -530,8 +531,11 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
 
   const projectType = useMemo(() => {
     if (source === 'upload') return 'fiction';
-    const pt = String(project?.project_type || project?.book_type || 'fiction').toLowerCase();
-    return pt.includes('non') || pt === 'nonfiction' ? 'nonfiction' : 'fiction';
+    // NFCLASS-4: this used `project_type || book_type` — the OPPOSITE precedence from the
+    // authority — plus a substring match on 'non', and it never consulted genre. The
+    // authority answers now; this only maps its verdict onto the two-value string the
+    // format catalogue expects.
+    return isNonfictionProjectAuthority(project) ? 'nonfiction' : 'fiction';
   }, [source, project]);
 
   const visibleFormats = useMemo(() => {

@@ -618,17 +618,32 @@ export function formatsForProjectType(projectType) {
 /**
  * Determine if a format should get nonfiction-aware prompt branches.
  */
+// NFCLASS-4: this was `pt.includes('non')` — substring matching on a type string, the
+// exact failure projectType.js was written to end. It also never saw the project record:
+// the caller collapsed it to `project_type || book_type`, the OPPOSITE precedence from
+// the authority's `book_type || project_type`, and dropped genre inference entirely. So
+// { book_type: 'nonfiction', project_type: 'novel' } was offered Series Bible and
+// Graphic Novel Script, and its audiobook prompt lost the citation handling.
+//
+// This function keeps accepting a plain string because formatsForProjectType is called
+// with one from several places; the caller now resolves that string THROUGH the
+// authority, so there is one answer. 'nonfiction' means nonfiction, nothing else does.
 function isNF(projectType) {
-  const pt = (projectType || '').toLowerCase();
-  return pt.includes('non') || pt === 'nonfiction';
+  return String(projectType || '').toLowerCase().trim() === 'nonfiction';
 }
 
 function cleanText(text) {
   return String(text || '').trim();
 }
 
-function sourceText(chapterText, fullText) {
-  return cleanText(chapterText || fullText || '');
+// NFCLASS-4: an empty chapter used to fall through to the whole manuscript, so running
+// a per-chapter transform on a 20-chapter book with chapter 12 undrafted produced a
+// transform OF THE ENTIRE BOOK, auto-saved and labelled "## Chapter 12", with a success
+// toast. An empty chapter is empty; the caller must not be handed the book instead.
+function sourceText(chapterText, fullText, { allowFullTextFallback = true } = {}) {
+  const chapter = cleanText(chapterText);
+  if (chapter) return chapter;
+  return allowFullTextFallback ? cleanText(fullText) : '';
 }
 
 function bookTitleFromPrompt() {
@@ -643,7 +658,17 @@ function bookTitleFromPrompt() {
  */
 export function getTransformPrompt(formatId, chapterText, fullText, projectType = 'fiction') {
   const nf = isNF(projectType);
-  const src = sourceText(chapterText, fullText);
+  // NFCLASS-4: a per-chapter format must never silently be handed the whole book when
+  // the chapter it was asked for is empty. getTransformFormat carries perChapter.
+  const format = getFormat(formatId);
+  const src = sourceText(chapterText, fullText, { allowFullTextFallback: !format?.perChapter });
+
+  if (format?.perChapter && !src) {
+    throw new Error(
+      `Transform "${formatId}" is a per-chapter format and the chapter it was given is empty. `
+      + 'Draft the chapter before transforming it.',
+    );
+  }
 
   switch (formatId) {
     /* =========================================================================
