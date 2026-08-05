@@ -85,6 +85,7 @@
  */
 
 import { base44 } from '@/api/base44Client';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { resolveScrubRules, EMPTY_SCRUB_RULES } from '@/lib/bookScrubRules'; // BOOKSCRUB-1
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import {
@@ -291,10 +292,9 @@ function applyTransientPolishedContent(chapter, content, storageFields = {}, met
   });
 }
 
+// NFCLASS-1: one authority. See src/lib/projectType.js.
 function isNonfictionProject(project = {}) {
-  const bookType = String(project.book_type || '').toLowerCase();
-  const projectType = String(project.project_type || '').toLowerCase();
-  return bookType === 'nonfiction' || projectType === 'nonfiction';
+  return isNonfictionProjectAuthority(project);
 }
 
 function isEroticProject(project = {}) {
@@ -6253,21 +6253,14 @@ function runFinalSaveGateSurvivorSweep({ loaded, project, report, onProgress }) 
 }
 
 
+// NFCLASS-1 — this used to regex /historical|history|guide|manual|.../ across a
+// haystack that included the project TITLE and SUBTITLE, and so claimed eight
+// declared-fiction novels — every Historical Fiction book in the library, including
+// a 101,400-word drafted one — as nonfiction. It gates the nonfiction integrity
+// gate, which strips invented personas: on a novel that deletes the cast.
+// A declared type is the answer, and a title is never a type.
 function isNonfictionFixerProject(project = {}) {
-  const fields = [
-    project.book_type,
-    project.project_type,
-    project.genre,
-    project.subgenre,
-    project.category,
-    project.nonfiction_type,
-    project.title,
-    project.subtitle,
-  ]
-    .map((value) => safeString(value).toLowerCase())
-    .join(' ');
-
-  return /non[-\s]?fiction|history|true crime|investigative|memoir|biograph|caregiving|religion|civic|policy|medical|training|guide|manual|case study|historical|documentary/.test(fields);
+  return isNonfictionProjectAuthority(project);
 }
 
 function isFinanceFixerProject(project = {}) {

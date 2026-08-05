@@ -13,6 +13,7 @@
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
 import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, findOutlineOffenders, buildOutlineChapterRepairPrompt, spliceOutlineChapters, rebuildOutlineMd } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-2/3
 import { scrubModelLeaks, scrubOutlineChapters } from '@/lib/modelLeakGuard'; // LEAKFIX-2
@@ -38,8 +39,9 @@ function safeString(value = '') {
   return typeof value === 'string' ? value : value == null ? '' : String(value);
 }
 
+// NFCLASS-1: one authority. See src/lib/projectType.js.
 function isNonfictionSettings(settings = {}) {
-  return String(settings.book_type || '').toLowerCase() === 'nonfiction';
+  return isNonfictionProjectAuthority(settings);
 }
 
 function getResearchText(settings = {}) {

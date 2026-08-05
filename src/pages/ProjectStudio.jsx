@@ -74,6 +74,7 @@ import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
 import { extractPremiseEntities, buildPremiseCoverageBlock, reportPremiseCoverage } from '@/lib/premiseFidelity';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
@@ -2062,7 +2063,9 @@ export default function ProjectStudio() {
     });
 
     const makeFallbackStory = (storyNumber) => {
-      const isNonfiction = anthologyProject.book_type === 'nonfiction' || /nonfiction|non-fiction|memoir|history|business|self-help|true crime|investigative|education|caregiving/i.test(String(anthologyProject.genre || ''));
+      // NFCLASS-1: one authority. The old inline regex matched /history/ against the
+      // genre, so an anthology of historical FICTION was treated as nonfiction.
+      const isNonfiction = isNonfictionProjectAuthority(anthologyProject);
       const theme = anthologyProject.anthology_theme || anthologyProject.seed_concept || anthologyProject.title || 'Collection Theme';
       const noun = isNonfiction ? 'Chapter' : 'Story';
       return {

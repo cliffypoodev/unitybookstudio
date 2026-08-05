@@ -1,3 +1,4 @@
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 /**
  * Pure mechanical manuscript analysis — no LLM involved.
  * Used by the Review tab dashboard and chapter issue popups.
@@ -328,10 +329,9 @@ export function isComedyProject(project) {
   return genre.includes('comedy') || genre.includes('satir') || genre.includes('humor') || genre.includes('absurd') || genre.includes('parody') || genre.includes('caper') || beat.includes('comedy') || beat.includes('screwball') || beat.includes('deadpan') || beat.includes('dry wit') || beat.includes('absurdist') || beat.includes('caper');
 }
 
+// NFCLASS-1: one authority. See src/lib/projectType.js.
 export function isNonfictionProject(project) {
-  if (project?.book_type === 'nonfiction') return true;
-  if (project?.project_type === 'nonfiction') return true;
-  return false;
+  return isNonfictionProjectAuthority(project);
 }
 
 export function isEroticaProject(project) {
