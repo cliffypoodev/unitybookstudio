@@ -12,6 +12,8 @@ import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/proje
 
 
 export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
+// CONTRACTVER-1: EXPECTED_SNAPSHOT_VERSION below is defined as the same literal. They
+// are the same fact with two names; the second now derives from the first.
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
 export const SCENE_EXECUTION_PROMPT_PROJECTION_VERSION = 'scene-execution-prompt-projection-v7';
 export const SCENE_EXECUTION_SHADOW_INTEGRATION_VERSION = 'scene-execution-shadow-integration-v1';
@@ -47,13 +49,94 @@ export const SCENE_EXECUTION_CANARY_COMPARISON_FEATURE = Object.freeze({
 });
 
 export const SCENE_EXECUTION_ACCEPTANCE_GATE_VERSION = 'scene-execution-acceptance-gate-v1';
-export const EXPECTED_SNAPSHOT_VERSION = 'narrative-connect-v2';
+export const EXPECTED_SNAPSHOT_VERSION = GENERATION_CONTEXT_VERSION;
 export const EXPECTED_SCENE_CONTRACT_VERSION = 'fiction-scene-contract-v2';
 
 export const SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE = Object.freeze({
   key: 'scene_execution_acceptance_gate_v1',
   defaultEnabled: false,
 });
+
+/* DEADGATE-1 — a validator that never runs may not read as coverage.
+ *
+ * Six feature flags are declared in this file. A grep across src/ and test/ finds
+ * nothing but their declarations: no production code and no test sets any of them.
+ * Proven by executing the shipped functions against the flags object production
+ * actually passes (an empty object, sceneWriter.js `let flags = {}`):
+ *
+ *   scene_context_composer_v1        false
+ *   scene_execution_shadow_v1        false
+ *   scene_execution_prompt_canary_v2 false
+ *   scene_execution_canary_trial_v1  false
+ *   scene_execution_canary_comparison_v2 false
+ *   scene_execution_acceptance_gate_v1   false   -> decision "disabled"
+ *
+ * ProjectStudio.jsx builds a real LLM audit+repair runner pair
+ * (createSceneExecutionAcceptanceRunners) on EVERY draft and hands it to the writer;
+ * evaluateSceneExecutionAcceptance returns { status: 'bypassed' } before it is ever
+ * touched. Roughly 2,000 lines of required-event / exit-state / POV / forbidden-event
+ * checking that reads as coverage in review and executes nothing at runtime.
+ *
+ * Nothing here is switched on by this change — turning untested validators on mid-book
+ * is its own hazard. What changes is that it can no longer be quiet about it, and the
+ * flags become REACHABLE (see resolveSceneExecutionFlags below), because a config
+ * surface with no wire to it cannot be enabled by anyone who wants to.
+ */
+export const SCENE_EXECUTION_FEATURE_KEYS = Object.freeze([
+  SCENE_CONTEXT_COMPOSER_FEATURE.key,
+  SCENE_EXECUTION_SHADOW_FEATURE.key,
+  SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key,
+  SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key,
+  SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key,
+  SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key,
+]);
+
+/**
+ * DEADGATE-1: resolve scene-execution flags for a project.
+ *
+ * sceneWriter used to source `flags` exclusively from `sceneExecutionShadow.flags`, and
+ * ProjectStudio never passes `sceneExecutionShadow` — so the flags were not merely off,
+ * they were unreachable. A project can now declare them on its own record:
+ *
+ *     project.scene_execution_flags = { scene_execution_acceptance_gate_v1: true }
+ *
+ * Default is still every gate off. An unknown key is ignored and named, so a typo
+ * cannot look like an enabled gate.
+ */
+export function resolveSceneExecutionFlags(project, integrationFlags) {
+  const out = {};
+  const sources = [project?.scene_execution_flags, integrationFlags];
+
+  for (const source of sources) {
+    if (!source || typeof source !== 'object' || Array.isArray(source)) continue;
+    for (const key of Object.keys(source)) {
+      if (!SCENE_EXECUTION_FEATURE_KEYS.includes(key)) {
+        console.warn(`[DEADGATE-1] ignoring unknown scene-execution flag "${key}" — known keys: ${SCENE_EXECUTION_FEATURE_KEYS.join(', ')}`);
+        continue;
+      }
+      out[key] = source[key] === true;
+    }
+  }
+
+  return out;
+}
+
+/** DEADGATE-1: say out loud which scene-execution gates are not running. */
+export function reportSceneExecutionGateStatus(flags, label = '') {
+  const off = SCENE_EXECUTION_FEATURE_KEYS.filter((key) => flags?.[key] !== true);
+  if (off.length === SCENE_EXECUTION_FEATURE_KEYS.length) {
+    console.warn(
+      `[DEADGATE-1]${label ? ' ' + label : ''} ALL ${off.length} scene-execution gates are OFF `
+      + '(required-event, exit-state, POV and forbidden-event checking are not running). '
+      + 'Set scene_execution_flags on the project record to enable them.',
+    );
+  } else if (off.length) {
+    console.warn(`[DEADGATE-1]${label ? ' ' + label : ''} scene-execution gates OFF: ${off.join(', ')}`);
+  } else {
+    console.log(`[DEADGATE-1]${label ? ' ' + label : ''} all scene-execution gates are ON.`);
+  }
+  return { off, on: SCENE_EXECUTION_FEATURE_KEYS.filter((k) => flags?.[k] === true) };
+}
 
 export function isSceneContextComposerEnabled(flags) {
   if (!flags || typeof flags !== 'object' || Array.isArray(flags)) {
@@ -633,7 +716,7 @@ export function createImmutableSceneContract(value, options = {}) {
   const clonedBeats = JSON.parse(JSON.stringify(sceneBeatsFrom(parsed)));
   const fingerprint = hashText(stableContractJson(clonedBeats));
   return deepFreeze({
-    version: 'fiction-scene-contract-v2',
+    version: EXPECTED_SCENE_CONTRACT_VERSION, // CONTRACTVER-1: one owner
     fingerprint,
     chapterNumber: report.chapterNumber,
     beats: clonedBeats,
@@ -1311,8 +1394,13 @@ function inspectContractDescriptorSafe(contract) {
 
   // --- Schema validation using only descriptor values (safe after recursive inspection) ---
   const versionDesc = Object.getOwnPropertyDescriptor(contract, 'version');
-  if (!versionDesc || versionDesc.value !== 'fiction-scene-contract-v2') {
-    throw contractError('Wrong scene contract version', [`Expected version "fiction-scene-contract-v2", got "${versionDesc?.value}"`]);
+  // CONTRACTVER-1: EXPECTED_SCENE_CONTRACT_VERSION exists precisely to be the authority,
+  // and two of the three sites that care about the version ignored it in favour of the
+  // string literal. Bumping the constant used to leave the producer stamping v2, this
+  // validator accepting v2, and inspectAndCanonicalizeContractDescriptorSafe rejecting
+  // every contract in the app — half accept, half reject, one edit.
+  if (!versionDesc || versionDesc.value !== EXPECTED_SCENE_CONTRACT_VERSION) {
+    throw contractError('Wrong scene contract version', [`Expected version "${EXPECTED_SCENE_CONTRACT_VERSION}", got "${versionDesc?.value}"`]);
   }
 
   const fpDesc = Object.getOwnPropertyDescriptor(contract, 'fingerprint');
@@ -5086,6 +5174,9 @@ export async function evaluateSceneExecutionAcceptance(input) {
     const runners = extractedInput.runners;
     const decision = getSceneExecutionAcceptanceGateDecision(flags);
     if (decision === 'disabled') {
+      // DEADGATE-1: this return used to be silent, so a draft that ran no acceptance
+      // checking at all looked identical to one that passed them.
+      console.warn('[DEADGATE-1] acceptance gate BYPASSED for this scene — the runners built for it were never invoked.');
       return disabledSceneExecutionAcceptanceResult();
     }
     if (decision === 'prerequisite_disabled') {

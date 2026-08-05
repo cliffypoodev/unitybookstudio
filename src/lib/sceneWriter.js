@@ -82,6 +82,8 @@ import {
   prepareSceneExecutionPromptCanary,
   prepareSceneExecutionShadowIntegration,
   prepareSceneExecutionAcceptanceState,
+  resolveSceneExecutionFlags, // DEADGATE-1
+  reportSceneExecutionGateStatus, // DEADGATE-1
   evaluateSceneExecutionAcceptance,
 } from '@/lib/generationContext';
 import { buildProjectContinuityLockBlock, validateProjectChapterContent } from '@/lib/projectContentGuard';
@@ -3228,16 +3230,21 @@ export async function generateChapterSceneByScene({
     chapterId: chapter?.id,
   });
 
-  let flags = {};
+  // DEADGATE-1: flags used to come ONLY from sceneExecutionShadow.flags, and
+  // ProjectStudio never passes sceneExecutionShadow — so all six scene-execution gates
+  // were not just off, they were unreachable. The project record can declare them now,
+  // and whatever the answer is, it gets said out loud once per chapter.
+  let flags = resolveSceneExecutionFlags(project, null);
   let snapshot = null;
   if (sceneExecutionShadow && typeof sceneExecutionShadow === 'object' && !Array.isArray(sceneExecutionShadow)) {
     if (Object.prototype.hasOwnProperty.call(sceneExecutionShadow, 'flags')) {
-      flags = sceneExecutionShadow.flags;
+      flags = resolveSceneExecutionFlags(project, sceneExecutionShadow.flags);
     }
     if (Object.prototype.hasOwnProperty.call(sceneExecutionShadow, 'snapshot')) {
       snapshot = sceneExecutionShadow.snapshot;
     }
   }
+  reportSceneExecutionGateStatus(flags, `Ch.${chapterNumber}`);
 
   const sceneExecutionAcceptanceState = prepareSceneExecutionAcceptanceState({
     flags,
