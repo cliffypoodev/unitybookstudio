@@ -8,6 +8,8 @@
  * complete foundation, validates the minimum fiction contract, and produces
  * an explicit immutable chapter snapshot for one generation operation.
  */
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
+
 
 export const GENERATION_CONTEXT_VERSION = 'narrative-connect-v2';
 export const SCENE_EXECUTION_PACKET_VERSION = 'scene-execution-packet-v1';
@@ -249,7 +251,10 @@ function hashText(value = '') {
 
 export const NARRATIVE_META_LEAK_PATTERNS = Object.freeze([
   /\b(?:in|from|during|since|after|before)\s+(?:the\s+)?(?:previous|next|following|preceding)\s+chapter\b/gi,
-  /\b(?:in|from|during|since|after|before)\s+Chapter\s+\d+\b/g,
+  // LEAKPATTERN-1: this was the only pattern in the bank without an `i` flag, and it
+  // required a numeral. Proven against the live file: 'She thought back to what
+  // happened in chapter 3.' returned clean and the planning leak shipped.
+  /\b(?:in|from|during|since|after|before)\s+chapter\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b/gi,
   /\b(?:the\s+)?previous\s+chapter\b/gi,
   /\b(?:the\s+)?next\s+chapter\b/gi,
   /\b(?:scene\s+(?:id|number|contract|beat)|chapter\s+(?:contract|beat))\b/gi,
@@ -288,10 +293,17 @@ export function assertNarrativeTextClean(value, options = {}) {
   );
 }
 
+// NFCLASS-3: this was an eighth private project-type detector. It defaulted an
+// undeclared book_type to 'fiction', never consulted genre, and read project_type only
+// for 'anthology' — so it contradicted the authority on exactly the cases the authority
+// exists for. What hangs off it is requiredFieldsFor -> assertGenerationFoundationReady,
+// which runs on EVERY draft: a project declared { project_type: 'nonfiction' } was told
+// it needed the fiction foundation (world_md, characters_md, outline_md, canon_md) and
+// threw FOUNDATION_FIELDS_MISSING, so the book could not be drafted at all.
 function isStandaloneFiction(project = {}) {
   const projectType = String(project.project_type || '').toLowerCase();
-  const bookType = String(project.book_type || 'fiction').toLowerCase();
-  return bookType !== 'nonfiction' && projectType !== 'anthology';
+  if (projectType === 'anthology') return false;
+  return !isNonfictionProjectAuthority(project);
 }
 
 function requiredFieldsFor(project = {}, override) {
@@ -443,8 +455,37 @@ export function getSceneGoal(scene) {
   return text(scene?.scene_goal || scene?.goal);
 }
 
+/**
+ * PROVENANCE-1 — this guard is called eight times across the drafting path and had two
+ * fail-opens and one blind spot, all sandbox-proven against the live file:
+ *
+ *   verifySceneProvenance(beats, { expectedSceneIds: [...] }, 'x')   -> returned clean
+ *     A contract whose key was spelled anything other than expected_scene_ids read as
+ *     verified. A renamed key is a code defect, not an absent contract, and the whole
+ *     recurring bug class in this codebase is one component using a different key from
+ *     another. It must be loud.
+ *
+ *   verifySceneProvenance([s01, s01, s99], { expected_scene_ids: ['s01'] }, 'x') -> clean
+ *     `unexpected` was computed, put in the error payload, and never made a throw
+ *     condition. A duplicated scene and a fabricated scene both passed.
+ *
+ * A genuinely absent contract still returns — some call sites run before one exists —
+ * but it says so, because "no contract" and "verified" must never look the same.
+ */
 export function verifySceneProvenance(actualBeats, pipelineContract, failureStage) {
-  if (!pipelineContract || !Array.isArray(pipelineContract.expected_scene_ids)) return;
+  if (!pipelineContract) {
+    console.warn(`[PROVENANCE-1] no pipeline contract at ${failureStage} — scene loss cannot be detected here.`);
+    return;
+  }
+
+  if (!Array.isArray(pipelineContract.expected_scene_ids)) {
+    const keys = Object.keys(pipelineContract || {});
+    throw new NarrativeInvariantError(
+      `Scene provenance contract at ${failureStage} has no expected_scene_ids array (keys: ${keys.join(', ') || 'none'}).`,
+      { code: 'SCENE_CONTRACT_MALFORMED', failureStage, contractKeys: keys },
+    );
+  }
+
   const expectedIds = pipelineContract.expected_scene_ids;
   const actualIds = (Array.isArray(actualBeats) ? actualBeats : []).map(b => b?.scene_id || b?.id).filter(Boolean);
 
@@ -453,6 +494,24 @@ export function verifySceneProvenance(actualBeats, pipelineContract, failureStag
 
   const missing = expectedIds.filter(id => !actualSet.has(id));
   const unexpected = actualIds.filter(id => !expectedSet.has(id));
+  const duplicated = actualIds.filter((id, i) => actualIds.indexOf(id) !== i);
+
+  if (unexpected.length > 0 || duplicated.length > 0) {
+    throw new NarrativeInvariantError(
+      `Scene provenance violation at ${failureStage}: `
+      + [unexpected.length ? `unexpected ${[...new Set(unexpected)].join(', ')}` : '',
+        duplicated.length ? `duplicated ${[...new Set(duplicated)].join(', ')}` : ''].filter(Boolean).join('; '),
+      {
+        code: 'SCENE_PROVENANCE_VIOLATION',
+        expectedSceneIds: expectedIds,
+        actualSceneIds: actualIds,
+        unexpectedSceneIds: [...new Set(unexpected)],
+        duplicatedSceneIds: [...new Set(duplicated)],
+        lastKnownCompleteStage: pipelineContract.source_stage,
+        failureStage,
+      },
+    );
+  }
 
   if (missing.length > 0) {
     const err = new NarrativeInvariantError(`Scene loss detected at ${failureStage}: Missing ${missing.join(', ')}`, {

@@ -10,6 +10,7 @@
  */
 
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
 import { buildProjectContextHeader, unwrapIntegrationResult, countWords, buildAuthorVoiceInstruction } from '@/lib/autonovel';
 import { verifySceneProvenance, verifyContiguousSceneSequence } from '@/lib/generationContext';
@@ -242,7 +243,12 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
   }
 
   // SEVERE (nonfiction): invented names not present in research → blocking, retry
-  if (project?.book_type === 'nonfiction') {
+  // NFCLASS-3: this was `project?.book_type === 'nonfiction'` — a raw, case-sensitive
+  // equality that ignored project_type entirely, while isNonfictionProject 2,800 lines
+  // below in the same file used the authority. Divergence proven: a project declared
+  // { project_type: 'nonfiction' } (a shape this app produces) drafted as nonfiction and
+  // skipped every anti-fabrication gate. So did { book_type: 'Nonfiction' }.
+  if (isNonfictionProjectAuthority(project)) {
     try {
       const { compositeNames } = labelCompositeCharacters(prose, project, spec?.chapter);
       if (Array.isArray(compositeNames) && compositeNames.length > 0) {
@@ -392,7 +398,7 @@ function buildAuthorVoiceReminder(project) {
   if (project?.author_voice && project.author_voice !== 'Custom / None') {
     reminder = `VOICE LOCK (APPLY NOW AS YOU WRITE): Render this section in the voice of ${project.author_voice}. Honor the PROSE MECHANICS, SENSORY FOCUS, and ANTI-TROPES defined earlier — concrete documented detail over mood, specific named sources over vague phrasing, and absolutely no invented people, quotes, or events. If a fact is not in the supplied research, leave it out rather than dramatize it.`;
   }
-  if (project?.book_type === 'nonfiction') {
+  if (isNonfictionProjectAuthority(project)) {
     const nfRule = `SOURCE FIDELITY (NONFICTION, ABSOLUTE): Use ONLY the proper names, titles, organizations, dates, quotations, and documents that appear verbatim in the supplied research/source pack. You may NOT introduce any named person, officer, clerk, letter, dispatch, or quoted line that is not in that material. If the research does not name someone, write around it ("a Union officer," "a shipping clerk") — never invent a name or a quote. Inventing a source is a critical failure.
 
 ENTITY DISCIPLINE: Never merge facts about two different named people, plantations, holdings, or documents. Every claim about a person must trace to research text about THAT person. If the research describes two people with separate facts, they remain two people with separate facts — do not transfer a number, size, action, or date from one to the other, and never present a difference between two sources' subjects as a "discrepancy" in one subject.
@@ -2335,7 +2341,7 @@ async function generateSceneWithRepair({
   // strip the offending sentences rather than ship them. A clean gap in the prose
   // is always better than a convincing invented document or quote.
   let stripped = false;
-  if (project?.book_type === 'nonfiction') {
+  if (isNonfictionProjectAuthority(project)) {
     // ARCH-1B: deterministic closed-world strip runs FIRST and never depends on an LLM.
     try {
       const cw = closedWorldCheck(prose, project);
@@ -2393,7 +2399,8 @@ async function generateSceneWithRepair({
 // research. Catches unquoted references (e.g. "Department of the Gulf records")
 // that the regex detector cannot. Fails safe (returns [] on any error).
 async function semanticSourceCheck(prose, project) {
-  if (!prose || !project || project.book_type !== 'nonfiction') return [];
+  // NFCLASS-3: see above — the authority decides, not a raw field equality.
+  if (!prose || !project || !isNonfictionProjectAuthority(project)) return [];
   const research = typeof project.research_data === 'string'
     ? project.research_data
     : (project.research_data ? JSON.stringify(project.research_data) : '');
@@ -2807,7 +2814,10 @@ function closedWorldCheck(prose, project) {
     if (!prose || !project) return [];
     const normCW = (s) => String(s || '').toLowerCase().replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
     const EV = ' ' + normCW([project.research_data, project.seed_concept, project.world_md, project.characters_md, project.canon_md, project.mystery_md, project.outline_md, project.voice_md].filter(Boolean).join(' ')) + ' ';
-    if (EV.trim().length < 200) return [];
+    if (EV.trim().length < 200) {
+      console.warn(`[CLOSED-WORLD] evidence corpus is ${EV.trim().length} chars (<200) — skipping the check. This chapter was NOT closed-world verified.`);
+      return [];
+    }
     const MONTHS = 'january february march april may june july august september october november december';
     const STOP = new Set(('the this that these those his her their its it in on at by for no yet but and a an or nor when where while so as if to from with of not never ' + MONTHS + ' monday tuesday wednesday thursday friday saturday sunday').split(' '));
     const inEV = (raw) => {
@@ -2860,11 +2870,18 @@ function closedWorldCheck(prose, project) {
       }
     }
     return out;
-  } catch (e) { return []; }
+  } catch (e) {
+    // ARCH-1 backstop: an empty return is indistinguishable from 'no fabrication found',
+    // so an internal error here reads as a clean chapter. It still returns [] rather than
+    // blocking the draft, but it can no longer be silent about it.
+    console.error('[CLOSED-WORLD] check threw and found nothing as a result — this chapter was NOT closed-world verified:', e);
+    return [];
+  }
 }
 
 function deterministicSourceCheck(prose, project) {
-  if (!prose || !project || project.book_type !== 'nonfiction') return [];
+  // NFCLASS-3: see above — the authority decides, not a raw field equality.
+  if (!prose || !project || !isNonfictionProjectAuthority(project)) return [];
   const research = typeof project.research_data === 'string'
     ? project.research_data
     : (project.research_data ? JSON.stringify(project.research_data) : '');
@@ -3373,7 +3390,10 @@ export async function generateChapterSceneByScene({
       // where the characters must be standing when THIS scene ends. It is the
       // ground truth the exit-state audit checks the scene's ending against.
       next_entry_state: String(normalizedScenes[i + 1]?.entry_state || '').trim(),
-      next_location: String(normalizedScenes[i + 1]?.location || '').trim(),
+      // BEATFIELD-2: the beat schema declares `setting`; there is no `location` property
+      // anywhere in it, so this field was permanently empty for every scene of every
+      // chapter. The neighbouring lines already hedge (`spec.location || spec.setting`).
+      next_location: String(normalizedScenes[i + 1]?.setting || normalizedScenes[i + 1]?.location || '').trim(),
       future_reserved_event_objects: futureScenes.flatMap((scene) =>
         Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean).map(ev => ({
           event: ev,
@@ -4276,7 +4296,7 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
   // unquoted invented sources; the deterministic check runs as a second net.
   // Anything stripped is followed by a quote re-balance, because removing a
   // sentence can orphan quotation marks.
-  if (project?.book_type === 'nonfiction') {
+  if (isNonfictionProjectAuthority(project)) {
     try {
       let semanticFlags = [];
       try { semanticFlags = await semanticSourceCheck(finalProse, project); } catch (e) { semanticFlags = []; }
