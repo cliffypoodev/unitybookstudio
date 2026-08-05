@@ -73,6 +73,7 @@ import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity 
 import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
+import { extractPremiseEntities, buildPremiseCoverageBlock, reportPremiseCoverage } from '@/lib/premiseFidelity';
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
@@ -2248,10 +2249,18 @@ export default function ProjectStudio() {
 
     try {
     const _usedNames = await getUsedCharacterNames(project.id);
+    // PREMISE-FIDELITY-1: the author's brief is a closed world. The project title is
+    // excluded because it appears in nearly every premise and is not a story entity.
+    const _premiseEntities = extractPremiseEntities(_resolvedSeed, { exclude: [project?.title, settingsDrafts?.title].filter(Boolean) });
+    console.log('[PREMISE-FIDELITY-1] brief entities:', _premiseEntities.join(' | ') || '(none found)');
     const _nameBlock = [
       // NAMEHYGIENE-1: the author's own premise protects the names they chose.
       // Without it the ban list renamed Silas Bram to Nolan Bram on the live run.
       buildNameExclusionBlock([...new Set([...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._usedNames])], _resolvedSeed),
+      // PREMISE-FIDELITY-1: state the brief's entities as a requirement up front.
+      // Without it, Silas Bram — named in the premise as the steward who hands over
+      // the key and dies in ch.3 — simply never arrived in the character sheet.
+      buildPremiseCoverageBlock(_premiseEntities),
       GLOBAL_NAME_HYGIENE_PROMPT_BLOCK,
     ].filter(Boolean).join('\n\n');
     setBusyLabel('Step 1/2 — Analyzing premise…');
@@ -2320,6 +2329,14 @@ export default function ProjectStudio() {
         nameBlock: _nameBlock,
         resumeFrom: _resumeFrom,
       }
+    );
+
+    // PREMISE-FIDELITY-1: verify afterwards, so a silent loss becomes a visible one.
+    reportPremiseCoverage(
+      _premiseEntities,
+      [foundation.world_md, foundation.characters_md, foundation.canon_md,
+        foundation.mystery_md, foundation.outline_md].filter(Boolean).join('\n'),
+      'story bible',
     );
 
     const newDocs = {
