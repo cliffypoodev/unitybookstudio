@@ -25,6 +25,7 @@
  * — a bad rule must never be able to kill a manuscript repair run.
  */
 import { LEGACY_BOOK_SCRUB_RULES } from './legacyBookScrubRules.data.js';
+import { LEGACY_PROSE_REPAIRS } from './legacyProseRepairs.data.js'; // PROSEGUARD-1
 
 const EMPTY = Object.freeze({
   cannedParagraphs: [],
@@ -96,3 +97,75 @@ export function resolveScrubRules(project, { allowLegacy = true } = {}) {
 }
 
 export { EMPTY as EMPTY_SCRUB_RULES };
+
+/* ------------------------------------------------------------------------- *
+ * PROSEGUARD-1 — prose repairs.
+ *
+ * Same mechanism-vs-data split, one rule stricter. Persona scrubs above still fall
+ * back to the legacy set so an already-published nonfiction manuscript keeps working.
+ * These do not: they rewrite NARRATIVE PROSE, and the legacy bank is 87 rules written
+ * for one dead manuscript. Every chapter of every book was running through it.
+ *
+ * So the default is EMPTY. A project opts in by putting rules on its own record as
+ * prose_repairs_json, or by setting use_legacy_prose_repairs to reproduce that one
+ * book exactly. Nothing else gets them.
+ * ------------------------------------------------------------------------- */
+
+const EMPTY_PROSE = Object.freeze({
+  microCopyedit: Object.freeze([]),
+  hardSurvivor: Object.freeze([]),
+  articleRepairs: Object.freeze([]),
+  phraseRepairs: Object.freeze([]),
+});
+
+const compileLabelled = (rows, where) => (Array.isArray(rows) ? rows : []).reduce((out, row) => {
+  if (!row || typeof row !== 'object') return out;
+  const rx = compile(row.pattern, row.flags || 'gi', where);
+  if (rx) out.push({ label: String(row.label || where), pattern: rx, replacement: String(row.replacement ?? ''), fixPrefix: row.fixPrefix });
+  return out;
+}, []);
+
+/**
+ * The prose repairs for a project. EMPTY unless the project asks for them.
+ *
+ * Shape of prose_repairs_json (all fields optional):
+ *   {
+ *     "microCopyedit":  [{ "label": "...", "pattern": "<regex source>", "flags": "gi", "replacement": "..." }, ...],
+ *     "hardSurvivor":   [{ ...same, "fixPrefix": "..." }, ...],
+ *     "articleRepairs": [["<regex source>", "<replacement>"], ...],
+ *     "phraseRepairs":  [["<regex source>", "<replacement>"], ...]
+ *   }
+ */
+export function resolveProseRepairs(project) {
+  const raw = project?.prose_repairs_json;
+
+  if (!raw) {
+    if (project?.use_legacy_prose_repairs) {
+      console.warn(
+        `[PROSEGUARD-1] project ${project?.id || '(no id)'} has use_legacy_prose_repairs set — applying the LEGACY prose bank, `
+        + 'which contains one specific book\'s cast, props and broken sentences.',
+      );
+      return LEGACY_PROSE_REPAIRS;
+    }
+    return EMPTY_PROSE;
+  }
+
+  let data = raw;
+  if (typeof raw === 'string') {
+    try { data = JSON.parse(raw); } catch (err) {
+      console.warn(`[PROSEGUARD-1] prose_repairs_json on project ${project?.id || '(no id)'} is not valid JSON — ignoring it. ${err.message}`);
+      return EMPTY_PROSE;
+    }
+  }
+  if (!data || typeof data !== 'object') return EMPTY_PROSE;
+
+  console.log(`[PROSEGUARD-1] project ${project?.id || '(no id)'} is using its own prose repairs`);
+  return Object.freeze({
+    microCopyedit: compileLabelled(data.microCopyedit, 'microCopyedit'),
+    hardSurvivor: compileLabelled(data.hardSurvivor, 'hardSurvivor'),
+    articleRepairs: compilePairs(data.articleRepairs, 'articleRepairs', false),
+    phraseRepairs: compilePairs(data.phraseRepairs, 'phraseRepairs', false),
+  });
+}
+
+export { EMPTY_PROSE as EMPTY_PROSE_REPAIRS };
