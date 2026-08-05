@@ -3407,7 +3407,27 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
           console.warn(`[BEATPLAN-1] Ch.${chapter.chapter_number} attempt ${attempt}: ${beatFieldGaps.length} beat(s) missing required fields — ${beatFieldGaps.join(' | ')}`);
         }
 
-        if (!overlapReport.changed && beatFieldGaps.length === 0) break;
+        // BEATLOOP-1 (2026-08-05): overlapReport.changed is true whenever the normalizer
+        // merely REPORTED a medium/high-confidence overlap. For fiction the normalizer KEEPS
+        // both beats (with a continuity_warning) and merges NOTHING, so a report is advisory —
+        // the plan is already usable. Breaking only on !changed forced a full architect
+        // regeneration on every reported overlap; chapters whose scenes legitimately share
+        // place/cast/function/emotion (resolution & final chapters especially) can never reach
+        // zero reports, so they exhausted all 4 attempts (~12 min of deepseek) and shipped the
+        // attempt-1 plan anyway via the exhaustion fallback below. Break on the absence of a
+        // STRUCTURAL change instead; advisory reports still ride along as continuity_warning on
+        // the kept beats (which is why we adopt normalizedBeatPlan before breaking).
+        const structurallyChanged =
+          (overlapReport.removed || 0) > 0 ||
+          (overlapReport.merged || 0) > 0 ||
+          (overlapReport.chronologyReordered || 0) > 0 ||
+          (typeof overlapReport.finalCount === 'number' &&
+            typeof overlapReport.originalCount === 'number' &&
+            overlapReport.finalCount !== overlapReport.originalCount);
+        if (!structurallyChanged && beatFieldGaps.length === 0) {
+          beatResult.beats = normalizedBeatPlan;
+          break;
+        }
 
         const reindexedNormalizedBeats = normalizedBeatPlan; // NARRATIVE-CONNECT: Do not reindex to hide the missing middle scene
 
