@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { isFrontMatter, isBackMatter, isBodyChapter } from '@/lib/bibliographyGenerator';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-2
 
 const FINANCE_CONTAMINATION_TERMS = [
   'john bogle',
@@ -242,7 +243,13 @@ function clampScore(value) {
 }
 
 function getChapterContent(chapter) {
-  return safeText(chapter?.content_md || chapter?.beat_summary || chapter?.content_html || '');
+  // ExportTab states the rule verbatim: "beat_summary is planning metadata and must
+  // never make Export look ready." Health Check counted it as prose, so a chapter with
+  // no draft but a 400-word beat summary reported 400 words, never fired the critical
+  // "Empty section" finding, and added those words to the book total — while Export
+  // blocked the same book for missing content. Two screens, opposite verdicts, same
+  // chapter. One rule now.
+  return safeText(chapter?.content_md || chapter?.content_html || '');
 }
 
 function getChapterLabel(chapter, index = 0) {
@@ -370,23 +377,17 @@ function countSourceAnchors(content = '') {
   return SOURCE_ANCHOR_TERMS.reduce((sum, term) => sum + countTerm(lower, term), 0);
 }
 
-function isLikelyNonfictionProject(project = {}, chapters = []) {
-  const text = [
-    project?.book_type,
-    project?.project_type,
-    project?.genre,
-    project?.subgenre,
-    project?.title,
-    project?.subtitle,
-    project?.description,
-    project?.seed_concept,
-    chapters.slice(0, 3).map((chapter) => `${chapter?.title || ''} ${getChapterContent(chapter).slice(0, 1200)}`).join(' '),
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
-
-  return /\b(nonfiction|history|historical|true crime|investigative|memoir|biography|policy|religion|caregiving|training|manual|guide|journalism|documentary|civic|medical|psychology|business|self-help)\b/.test(text);
+function isLikelyNonfictionProject(project = {}) {
+  // NFCLASS-2: this survived the first rewire. It was the identical construction the
+  // authority was written to replace — a haystack of book_type, project_type, genre,
+  // subgenre, TITLE, subtitle, description and the first three chapters' PROSE, tested
+  // for a word list containing "historical". That is what called eight of this
+  // library's novels nonfiction. A title is not a type and narration is not metadata.
+  //
+  // The verdict is not cosmetic: it drives report.isNonfiction, the whole score
+  // formula, the category filter set, and a critical "Missing bibliography/sources
+  // section" finding that is nonsense on a novel.
+  return isNonfictionProjectAuthority(project);
 }
 
 function hasBibliography(backMatter = []) {

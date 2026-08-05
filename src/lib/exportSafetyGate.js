@@ -86,15 +86,19 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   const hardFailures = [];
   const warnings = [];
   const passed = [];
+  const skipped = [];
 
   for (const ch of chapters) {
     const content = ch?.content_md || '';
     if (content.length < 100) {
-      passed.push({
+      // EXPORTSCRUB-1: this used to push onto `passed`, so a stub chapter was counted
+      // in the "All N chapter(s) passed safety gate" line and never reached BOOKGATE-2.
+      // Unscanned is not passed. It goes in its own bucket and is reported by name.
+      skipped.push({
         chapterNumber: ch?.chapter_number,
         title: ch?.title || '',
         skipped: true,
-        reason: 'Too short to scan',
+        reason: `Too short to scan (${content.length} chars)`,
       });
       continue;
     }
@@ -219,6 +223,19 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
         entry.reasons = [...(entry.reasons || []),
           `${structural.unterminatedParagraphs.count} paragraph(s) end without terminal punctuation - hard blocker`];
+      }
+      // EXPORTSCRUB-1: checkStructuralIntegrity returns four verdicts and folds all
+      // four into structural.pass; the gate acted on three. The typography verdict —
+      // mixed straight and curly quotes, a hard failure by that function's own
+      // contract — was computed, printed as pass=false, and then ignored, so the book
+      // shipped with inconsistent quotes while the console said it had failed. Mixed
+      // typography is visible on the page, so it blocks like the other three.
+      if (structural.typography && !structural.typography.pass) {
+        entry.ok = false;
+        entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+        entry.reasons = [...(entry.reasons || []),
+          `mixed straight and curly quotation marks (${structural.typography.straightQuotes} straight / `
+          + `${structural.typography.curlyOpen} curly) - hard blocker`];
       }
       console.log(
         `[BOOKGATE-2] chapter=${entry.chapterNumber} quotes=${structural.quoteBalance.open}/` +
@@ -431,13 +448,20 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         warnings.map(w =>
           `  Ch.${w.chapterNumber} (${w.title}): ${w.reasons.join('; ')}`
         ).join('\n')
-      : `EXPORT CLEAR: All ${passed.length} chapter(s) passed safety gate.`;
+      : `EXPORT CLEAR: ${passed.length} chapter(s) passed safety gate.`
+        // EXPORTSCRUB-1: never say "All N passed" while N excludes the chapters
+        // that were too short to scan. A silent cap reads as full coverage.
+        + (skipped.length
+          ? `\n${skipped.length} chapter(s) were NOT scanned: `
+            + skipped.map((k) => `Ch.${k.chapterNumber} (${k.title || 'untitled'}) - ${k.reason}`).join('; ')
+          : '');
 
   const report = {
     blocked,
     hardFailures,
     warnings,
     passed,
+    skipped,
     summary,
     timestamp,
     stage,
