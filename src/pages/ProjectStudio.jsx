@@ -2829,18 +2829,10 @@ Return structured JSON:
       }
       setResearchData(data);
 
-      const researchMd = formatNonfictionResearchMarkdown(data, subject);
-      const researchFields = await prepareResearchContent(researchMd, project.id);
-
-      setDocDrafts((current) => ({
-        ...current,
-        research_md: researchMd,
-      }));
-
-      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, {
-        research_data: JSON.stringify(data),
-        ...researchFields,
-      }));
+      // RESEARCHORDER-1: the save used to happen HERE — before the duplicate-quote
+      // guard and the verbatim/attribution-binding guard (GATEFIX-13) below. Their
+      // blanking then happened in memory only, and refreshAll() reloaded the
+      // UN-blanked quotes from the DB. The save now runs after the guards.
 
       // EXTRACTION INTEGRITY: a verbatim quote belongs to exactly one narrator. If the
       // extractor assigned the same quote to multiple people, only the first keeps it —
@@ -2892,6 +2884,20 @@ Return structured JSON:
           f.quote = '';
         }
       }
+
+      // RESEARCHORDER-1: persist AFTER the integrity guards so blanked quotes stay blanked.
+      const researchMd = formatNonfictionResearchMarkdown(data, subject);
+      const researchFields = await prepareResearchContent(researchMd, project.id);
+
+      setDocDrafts((current) => ({
+        ...current,
+        research_md: researchMd,
+      }));
+
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, {
+        research_data: JSON.stringify(data),
+        ...researchFields,
+      }));
 
       const figs = (data.key_figures || []).length;
       const evs = (data.key_events || []).length;
