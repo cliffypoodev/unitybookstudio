@@ -288,9 +288,17 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
     blockingIssues.push(`Degenerate output: ${cjkMatches.length} non-Latin (CJK) characters detected. Rewrite the section as clean English prose only.`);
   }
 
-  // SEVERE: empty or stub output → blocking
-  if (words.length < targetWords * 0.5 && words.length < 300) {
-    blockingIssues.push(`Scene is only ${words.length} words — target was ${targetWords}. Write full prose, not a summary.`);
+  // SEVERE: under-target output → blocking
+  // LENGTHGATE-1A: the old rule (< 50% of target AND < 300 absolute) let a scene at
+  // 46% of an 800-word target pass because it cleared 300 words. Measured live: a
+  // 5-section nonfiction chapter delivered ~366-word sections against 800-word
+  // targets, assembled 1,830 words against a 4,000-word chapter target, and no gate
+  // fired anywhere. Under-delivery now blocks relative to the target itself and
+  // enters the existing repair loop. The absolute floor survives only as a lower
+  // bound so tiny intentional targets cannot thrash the repair loop.
+  const sceneWordFloor = Math.max(150, Math.round(targetWords * 0.6));
+  if (words.length < sceneWordFloor) {
+    blockingIssues.push(`Scene is only ${words.length} words — target was ${targetWords} (minimum ${sceneWordFloor}). Write complete, fully developed prose to the target length, not a summary or a compressed overview.`);
   }
 
   // SEVERE: tense drift → blocking
