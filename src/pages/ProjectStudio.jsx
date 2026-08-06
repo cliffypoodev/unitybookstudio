@@ -2579,7 +2579,9 @@ export default function ProjectStudio() {
             hits.push(res);
           }
         }
-        await new Promise((r) => setTimeout(r, 300));
+        // RESEARCHQUALITY-1: pace searches so the searxng engines do not
+        // rate-limit and suspend mid-run (the 300ms burst did exactly that).
+        await new Promise((r) => setTimeout(r, 2000));
       }
 
       if (!hits.length) {
