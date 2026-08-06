@@ -122,6 +122,20 @@ function proseParagraphs(text) {
     .filter((p) => p && !SCENE_SEPARATOR_RX.test(p));
 }
 
+// EPISTOLARY-1 — a letter's salutation and sign-off legitimately end without
+// terminal punctuation ("My dearest Elise," / "Yours, always, / Wexcombe").
+// They are letter format, not truncated prose, so they must not trip the
+// unterminated-paragraph hard block. Deliberately narrow: a salutation is a short
+// greeting line ending in a comma; a closing STARTS with a valediction. Genuine
+// mid-thought stops ("She turned the key and") match neither and stay blocked.
+const SALUTATION_RX = /^(?:my\s+)?(?:dear(?:est)?|beloved)\b[^!?\n]{0,50},\s*$/i;
+const VALEDICTION_RX = /^(?:yours|sincerely|faithfully|respectfully|fondly|warmly|affectionately|regards|ever(?:\s+yours)?|with\s+(?:love|affection|respect|regard|gratitude)|your\s+(?:loving|devoted|obedient|humble|ever[-\s]?faithful|friend|servant))\b/i;
+function isEpistolaryLine(paragraph) {
+  const text = String(paragraph || '').trim();
+  const firstLine = text.split('\n')[0].trim();
+  return SALUTATION_RX.test(text) || VALEDICTION_RX.test(firstLine);
+}
+
 /** BOOKGATE-1 — structural checks on ONE chapter. Every finding is a hard failure. */
 export function checkStructuralIntegrity(text, chapterNum = '?') {
   const src = String(text || '');
@@ -150,7 +164,7 @@ export function checkStructuralIntegrity(text, chapterNum = '?') {
 
   // 3. Paragraphs that simply stop mid-thought.
   const unterminated = paras
-    .filter((p) => !/[.!?”"’')\]]$/.test(p))
+    .filter((p) => !/[.!?”"’')\]]$/.test(p) && !isEpistolaryLine(p))
     .map((p) => ({ excerpt: p.slice(-120) }));
 
   // 4. Mixed quote typography - a manuscript should pick one and keep it.
