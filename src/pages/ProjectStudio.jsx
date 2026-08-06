@@ -5383,7 +5383,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         loaded,
         project,
         onProgress: (label) => setBusyLabel(formatProgressLabel(label)),
-        allowLLM: true,
+        allowLLM: false,
         mode: 'nonfiction',
       });
 
@@ -5617,7 +5617,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       loaded,
       project,
       onProgress: (label) => setBusyLabel(label),
-      allowLLM: true,
+      allowLLM: false,
       mode: 'fiction',
       sceneDuplicateSweep: runSceneDuplicateSweep,
     });
