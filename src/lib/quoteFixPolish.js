@@ -465,9 +465,44 @@ export function normalizeSmartQuotesOnly(text) {
   return { text: out, changed };
 }
 
+/**
+ * QUOTECLOSE-2 — close a paragraph's trailing unclosed dialogue quote.
+ *
+ * Paragraph-safe and structure-safe: never splits, merges, or reorders
+ * paragraphs (so the polish runner's STRUCTURE-GUARD cannot revert it), and only
+ * ever APPENDS one closing curly quote. Fires on a paragraph only when ALL hold:
+ * exactly one more “ than ” (one net unclosed open), the text after the LAST “
+ * contains no ”, and the paragraph ends in sentence-terminal punctuation. That is
+ * the "dialogue opened, sentence finished, close-quote dropped" shape —
+ * e.g. `“It did not.` → `“It did not.”`. Other imbalance shapes are left
+ * untouched. Word and paragraph counts are invariant. Returns { text, changed }.
+ */
+export function closeTrailingUnclosedQuotes(text) {
+  if (typeof text !== 'string' || !text) return { text: text || '', changed: 0 };
+  let changed = 0;
+  const parts = text.split(/(\n\s*\n)/);
+  const out = parts.map((seg) => {
+    if (/^\n\s*\n$/.test(seg) || !seg.trim()) return seg;
+    const open = (seg.match(/“/g) || []).length;
+    const close = (seg.match(/”/g) || []).length;
+    if (open === close + 1) {
+      const lastOpen = seg.lastIndexOf('“');
+      const afterLastOpen = seg.slice(lastOpen + 1);
+      const trimmedEnd = seg.replace(/\s+$/, '');
+      if (!afterLastOpen.includes('”') && /[.!?…]$/.test(trimmedEnd)) {
+        changed++;
+        return trimmedEnd + '”' + seg.slice(trimmedEnd.length);
+      }
+    }
+    return seg;
+  }).join('');
+  return { text: out, changed };
+}
+
 export default {
   repairChapterQuotes,
   analyzeQuoteIntegrity,
   fixHangingQuotes,
   normalizeSmartQuotesOnly,
+  closeTrailingUnclosedQuotes,
 };

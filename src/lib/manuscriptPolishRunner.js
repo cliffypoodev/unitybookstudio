@@ -37,7 +37,7 @@ import { runAntiDetectionPolish } from './antiDetectionPolish.js';
 import { countParagraphs } from './structureUtils.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
-import { fixHangingQuotes, normalizeSmartQuotesOnly } from './quoteFixPolish.js';
+import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes } from './quoteFixPolish.js';
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
 import { repairCanonNameDrift } from './canonNameLock.js';
 import { runPerChapter } from './anthologyPolishHelper.js';
@@ -984,6 +984,24 @@ export async function runManuscriptPolishPipeline({
     changes.push(`Typography: normalized ${smartQuotesNormalized} straight quote mark(s) to curly (QUOTENORM-1)`);
   }
   console.log(`[POLISH-RUNNER] [QUOTENORM-1] normalized ${smartQuotesNormalized} straight quote mark(s) across ${loaded.length} chapter(s)`);
+
+  // QUOTECLOSE-2: close any trailing unclosed dialogue quote left in a paragraph.
+  // Runs AFTER typography is uniform (all curly). Paragraph-count-preserving, so
+  // STRUCTURE-GUARD has nothing to revert; it only appends a closing ”.
+  let trailingQuotesClosed = 0;
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const before = f.content || '';
+    const res = closeTrailingUnclosedQuotes(before);
+    if (res.changed > 0 && res.text !== before) {
+      f.content = res.text;
+      trailingQuotesClosed += res.changed;
+    }
+  }
+  if (trailingQuotesClosed > 0) {
+    changes.push(`Dialogue: closed ${trailingQuotesClosed} trailing unclosed quote(s) (QUOTECLOSE-2)`);
+  }
+  console.log(`[POLISH-RUNNER] [QUOTECLOSE-2] closed ${trailingQuotesClosed} trailing unclosed quote(s) across ${loaded.length} chapter(s)`);
 
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 
