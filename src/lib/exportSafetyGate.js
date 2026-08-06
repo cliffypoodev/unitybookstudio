@@ -103,6 +103,31 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       continue;
     }
 
+    // LENGTHGATE-1B: a chapter that assembled far under its explicit target does not
+    // ship. Draft-time repair (LENGTHGATE-1A) is best-effort; this is the guarantee.
+    // The target comes from chapter/project fields (book data), so the check is
+    // book-agnostic. Enforced ONLY when an explicit length target exists — books with
+    // no configured target keep the advisory median-relative shortChapters check in
+    // checkBookIntegrity and nothing more. Deliberately NOT in the chain:
+    // project.chapter_target — that field holds the CHAPTER COUNT, not a word length.
+    const explicitChapterTarget = Number(
+      ch?.target_words || ch?.targetWords ||
+      project?.target_chapter_words || project?.chapter_length_target || 0
+    );
+    if (explicitChapterTarget > 0) {
+      const chapterWordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+      const chapterWordFloor = Math.round(explicitChapterTarget * 0.75);
+      if (chapterWordCount < chapterWordFloor) {
+        console.error(`[LENGTHGATE-1B] Ch.${ch?.chapter_number} BLOCKED: ${chapterWordCount} words against a ${explicitChapterTarget}-word target (floor ${chapterWordFloor}).`);
+        hardFailures.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          reasons: [`[LENGTHGATE-1B] Chapter assembled at ${chapterWordCount} words against a ${explicitChapterTarget}-word target (floor ${chapterWordFloor}). Under-length chapters do not export — expand or redraft this chapter.`],
+        });
+        continue;
+      }
+    }
+
     const gate = runManuscriptSafetyGate(content, {
       project,
       chapter: ch,
