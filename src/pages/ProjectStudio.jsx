@@ -13,6 +13,7 @@ import ReviewChapterList from '@/components/review/ReviewChapterList';
 import ManuscriptDashboard from '@/components/review/ManuscriptDashboard';
 
 import { searchWeb } from '@/lib/localLLM';
+import { buildResearchQueries } from '@/lib/researchQueryBuilder';
 
 import HomeDashboard from '@/components/novel/HomeDashboard';
 import StudioOverview from '@/components/novel/StudioOverview';
@@ -2920,65 +2921,16 @@ Return structured JSON:
       return;
     }
 
-    // Derive a clean search subject from the brief (title/first line), not the whole document.
-    const rawTitle = (project.title || '').trim();
-    const firstLine = (topic.split('\n').find((l) => l.trim().length > 0) || topic).trim();
-    let subject = (rawTitle || firstLine)
-      .replace(/^(author|book title|title)\s*[:\-]?\s*/i, '')
-      .replace(/[*_#>]/g, '')
-      .replace(/["“”']/g, '')
-      .split(/[:\-—]/)[0]
-      .trim()
-      .slice(0, 80);
-    if (!subject) subject = firstLine.slice(0, 80);
-
-    const queries = [
-      subject,
-      `${subject} history`,
-      `${subject} primary sources documents`,
-      `${subject} archival records collection`,
-      `${subject} named people figures`,
-      `${subject} eyewitness testimony accounts`,
-      `${subject} firsthand narratives survivors`,
-      `${subject} timeline dates events`,
-      `${subject} official government records`,
-      `${subject} court records legal proceedings`,
-      `${subject} newspaper coverage period press`,
-      `${subject} letters correspondence diaries`,
-      `${subject} academic research scholarship`,
-      `${subject} historical context social political`,
-    ];
-
-    const STOP = new Set(['the','this','that','these','those','and','but','some','many','most','when','while','after','before','during','although','however','their','there','they','his','her','our','your','its','it','is','was','were','chapter','book','volume','part','section']);
-    const focusTerms = Array.from(
-      new Set(
-        (topic.match(/\b[A-Z][a-zA-Z'.]+(?:\s+[A-Z][a-zA-Z'.]+){0,3}\b/g) || [])
-          .map((s) => s.trim())
-          .filter((s) => {
-            const first = s.split(/\s+/)[0].toLowerCase();
-            return s.length >= 4 && !STOP.has(first) && s.toLowerCase() !== subject.toLowerCase();
-          })
-      )
-    ).slice(0, 4);
-    for (const t of focusTerms) {
-      queries.push(`${subject} ${t}`);
-      queries.push(`${t} primary sources records testimony`);
-    }
-
-    if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
-      const archiveAngles = [
-        `${subject} oral history interview transcript`,
-        `${subject} firsthand testimony eyewitness account`,
-        `${subject} archival collection primary documents`,
-        `${subject} interviews narratives survivors`,
-        `${subject} proclamation order official full text`,
-      ];
-      for (const t of focusTerms) {
-        archiveAngles.push(`${t} oral history testimony`);
-        archiveAngles.push(`${t} archival records interview`);
-      }
-      for (const q of archiveAngles) queries.push(q);
-    }
+    // RESEARCHQUALITY-1: focus-term queries first, capped total, built by the
+    // pure query builder (src/lib/researchQueryBuilder.js). The old title-first
+    // 14-35 query burst suspended the searxng engines before the high-signal
+    // queries ran.
+    const { subject, focusTerms, queries } = buildResearchQueries({
+      title: project.title,
+      topic,
+      nfStructureMode: project.nf_structure_mode,
+    });
+    console.log(`[RESEARCH] [RESEARCHQUALITY-1] ${queries.length} queries (focus terms: ${focusTerms.join(', ') || 'none'})`);
 
     await executeResearchPipeline(queries, subject, topic, false);
   };
