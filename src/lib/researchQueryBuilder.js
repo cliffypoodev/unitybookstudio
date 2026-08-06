@@ -80,3 +80,48 @@ export function buildResearchQueries({ title, topic, nfStructureMode }) {
   const deduped = Array.from(new Set(queries));
   return { subject, focusTerms, queries: deduped.slice(0, MAX_RESEARCH_QUERIES) };
 }
+
+// RESEARCHFETCH-1 — rank search hits for the deep-content FETCH phase by RELEVANCE
+// to the book's subject + focus terms. The old fetch phase used a blind
+// archive-first slice: every loc.gov / Chronicling-America URL sorted ahead of
+// every open-web URL, so keyword-noise newspapers (unrelated 1891 D.C. and 1920s
+// Idaho papers) filled all 24 fetch slots and starved the genuinely on-topic
+// sources (root cause of the empty "Molasses File" brief). Relevance is the
+// primary sort key; archive-ness is only a tiebreak among equally-relevant hits,
+// which preserves the "primary sources survive" intent without letting irrelevant
+// archive pages crowd out the real ones. Falls back to input order when nothing
+// scores (no regression). Book-agnostic: tokens come from the caller's
+// subject/focusTerms data, never hardcoded.
+export const ARCHIVE_HOST_RE = /loc\.gov|archives\.gov|gutenberg\.org|hathitrust\.org|chroniclingamerica/i;
+export const DEFAULT_FETCH_LIMIT = 24;
+
+export function relevanceTokens(subject, focusTerms) {
+  const raw = [subject || '', ...(focusTerms || [])].join(' ').toLowerCase();
+  return Array.from(new Set((raw.match(/[a-z]{4,}/g) || []).filter((t) => !STOP.has(t))));
+}
+
+export function scoreHit(hit, tokens) {
+  const hay = ((hit && hit.title || '') + ' ' + (hit && hit.snippet || '') + ' ' + (hit && hit.url || '')).toLowerCase();
+  let s = 0;
+  // Word-boundary match, not substring: the subject token "file" (from a title
+  // like "The Molasses File") must NOT match "Filer" in an unrelated newspaper.
+  // Tokens are [a-z]{4,} only, so they are regex-safe.
+  for (const t of tokens) if (new RegExp('\\b' + t + '\\b').test(hay)) s += 1;
+  return s;
+}
+
+export function rankFetchCandidates({ hits, subject, focusTerms, limit = DEFAULT_FETCH_LIMIT }) {
+  const tokens = relevanceTokens(subject, focusTerms);
+  const scored = (hits || []).map((h, i) => ({
+    h,
+    i,
+    score: scoreHit(h, tokens),
+    archive: ARCHIVE_HOST_RE.test((h && h.url) || ''),
+  }));
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;      // relevance first
+    if (a.archive !== b.archive) return a.archive ? -1 : 1; // archive tiebreak
+    return a.i - b.i;                                        // stable order
+  });
+  return scored.slice(0, limit).map((s) => s.h);
+}

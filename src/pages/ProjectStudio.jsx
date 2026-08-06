@@ -13,7 +13,7 @@ import ReviewChapterList from '@/components/review/ReviewChapterList';
 import ManuscriptDashboard from '@/components/review/ManuscriptDashboard';
 
 import { searchWeb } from '@/lib/localLLM';
-import { buildResearchQueries } from '@/lib/researchQueryBuilder';
+import { buildResearchQueries, extractFocusTerms, rankFetchCandidates } from '@/lib/researchQueryBuilder';
 
 import HomeDashboard from '@/components/novel/HomeDashboard';
 import StudioOverview from '@/components/novel/StudioOverview';
@@ -2593,15 +2593,15 @@ export default function ProjectStudio() {
       // Fetch full page text for many sources (deep content for grounding).
       const TOP_TO_FETCH = 24;
       const pages = [];
-      // For forensic/narrative books, fetch real archive items first so primary
-      // testimony always survives into the fetched set instead of being crowded
-      // out by glossier web pages.
-      let ordered = hits;
-      if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
-        const isArchive = (h) => /loc\.gov|archives\.gov|gutenberg\.org|hathitrust\.org|chroniclingamerica/i.test(h.url || '');
-        ordered = [...hits.filter(isArchive), ...hits.filter((h) => !isArchive(h))];
-      }
-      const toFetch = ordered.slice(0, TOP_TO_FETCH);
+      // RESEARCHFETCH-1: rank the fetch set by RELEVANCE to the book's subject +
+      // focus terms so genuinely on-topic sources are fetched, instead of letting
+      // keyword-noise archive pages (loc.gov / Chronicling-America newspapers) fill
+      // every slot and starve the real sources (root cause of the empty Molasses
+      // brief: 20 loc.gov items crowded out every relevant open-web source).
+      // Archive-ness is only a tiebreak among equally-relevant hits; falls back to
+      // input order when nothing scores. Book-agnostic (relevance from the brief).
+      const fetchFocusTerms = extractFocusTerms(topic, subject);
+      const toFetch = rankFetchCandidates({ hits, subject, focusTerms: fetchFocusTerms, limit: TOP_TO_FETCH });
       for (let i = 0; i < toFetch.length; i++) {
         const h = toFetch[i];
         setBusyLabel(`Deep research — reading sources ${i + 1}/${toFetch.length}…`);
