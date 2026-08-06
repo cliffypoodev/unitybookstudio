@@ -136,6 +136,16 @@ function isEpistolaryLine(paragraph) {
   return SALUTATION_RX.test(text) || VALEDICTION_RX.test(firstLine);
 }
 
+// BACKMATTER-1 — a structural heading legitimately ends without terminal
+// punctuation ("Sources", "Bibliography", "Appendix B", "# Notes"). Closed
+// vocabulary of structural words plus markdown headings only — genuine
+// mid-thought truncation ("She turned the key and") matches neither and
+// stays a hard block.
+const BACKMATTER_HEADING_RX = /^(?:#{1,6}\s+.*|(?:sources|bibliography|references|works cited|further reading|notes|endnotes|acknowledgm?ents|about the author|glossary|index|appendix(?:\s+[A-Z0-9]+)?|epilogue|prologue|introduction|foreword|preface|afterword|part\s+(?:[IVXLC]+|\d+|one|two|three|four|five|six|seven|eight|nine|ten))\s*)$/i;
+function isStructuralHeadingLine(paragraph) {
+  return BACKMATTER_HEADING_RX.test(String(paragraph || '').trim());
+}
+
 /** BOOKGATE-1 — structural checks on ONE chapter. Every finding is a hard failure. */
 export function checkStructuralIntegrity(text, chapterNum = '?') {
   const src = String(text || '');
@@ -164,7 +174,7 @@ export function checkStructuralIntegrity(text, chapterNum = '?') {
 
   // 3. Paragraphs that simply stop mid-thought.
   const unterminated = paras
-    .filter((p) => !/[.!?”"’')\]]$/.test(p) && !isEpistolaryLine(p))
+    .filter((p) => !/[.!?”"’')\]]$/.test(p) && !isEpistolaryLine(p) && !isStructuralHeadingLine(p))
     .map((p) => ({ excerpt: p.slice(-120) }));
 
   // 4. Mixed quote typography - a manuscript should pick one and keep it.
