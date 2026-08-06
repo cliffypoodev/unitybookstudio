@@ -829,10 +829,15 @@ export function runAntiDetectionPolish(loaded, onProgress, options = {}) {
   const isNF = project.book_type === 'nonfiction';
   const isFiction = !isNF;
 
-  // Step A: Triplet list detection — ALL project types
-  onProgress?.('Polish: Breaking triplet sensory lists…');
-  const tripletResult = detectAndFixTriplets(loaded);
-  allChanges.push(...tripletResult.changes);
+  // Step A: Triplet list rewrites — RETIRED FOR ALL PROJECT TYPES (TRIPLETRETIRE-1)
+  // detectAndFixTriplets deleted the middle item of factual three-item lists
+  // ("the freight sheds, the firehouse, and the elevated railway trestle" lost
+  // "the firehouse") and its fragment-merge rule semicolon-merged initials and
+  // citation lines ("later. W. E. B. Du Bois" -> "later; w. E. B; du Bois").
+  // Measured 2026-08-06 on the real pipeline. A list is content, not an AI
+  // tell; deletion is not variation. Same retirement as Steps B and C.
+  const tripletResult = { fixed: 0, changes: [] };
+  console.log('[POLISH] Step A (triplet rewrites): RETIRED — content deletion measured 2026-08-06; flag-only via proofreader');
 
   // Step B: Parallel sentence detection — RETIRED FOR ALL PROJECT TYPES
   // Injected transition openers at 12-26x each across long manuscripts,
