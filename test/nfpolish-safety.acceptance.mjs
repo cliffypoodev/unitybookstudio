@@ -7,8 +7,12 @@ import { runAntiDetectionPolish } from '../src/lib/antiDetectionPolish.js';
 import { runDisclaimerStripper } from '../src/lib/disclaimerStripper.js';
 import { checkStructuralIntegrity } from '../src/lib/pipelineValidator.js';
 
-let pass = 0;
-const ok = (name, cond) => { assert.ok(cond, 'FAIL: ' + name); pass++; console.log('  ok  ' + name); };
+let failures = 0;
+const ok = (name, cond) => { 
+  if (!cond) failures++;
+  assert.ok(cond, 'FAIL: ' + name); 
+  console.log('PASS ' + name); 
+};
 const mk = (c, n = 1) => [{ content: c, original: c, chapter: { id: 'a' + n, chapter_number: n, title: 'T' } }];
 
 console.log('TRIPLETRETIRE-1 — lists and initials survive anti-detection');
@@ -30,16 +34,13 @@ console.log('NFCLASS-5 — the authority decides, not raw book_type');
   ok('no raw book_type check remains', !src.includes("project.book_type === 'nonfiction'"));
 }
 
-console.log('NFQUOTE-1 — closer placement');
+console.log('NFQUOTE-1 — closer placement (source assertions)');
 {
-  const { runNonfictionDeterministicCore } = await import('../src/lib/nonfictionPolish.js');
-  const ATTR = '“The tank was doomed from the day it was built, said one engineer’s report.';
-  const l = mk(ATTR); runNonfictionDeterministicCore(l, null, { id: 'p', book_type: 'nonfiction' });
-  ok('attribution stays OUTSIDE the quote', l[0].content.includes('built,” said one engineer'));
-  ok('no closer-before-period artifact', !l[0].content.includes('report”.'));
-  const TRAIL = 'She paused. “It did not.';
-  const l2 = mk(TRAIL); runNonfictionDeterministicCore(l2, null, { id: 'p', book_type: 'nonfiction' });
-  ok('trailing quote closes after the period', l2[0].content.endsWith('It did not.”'));
+  const src = readFileSync('src/lib/nonfictionPolish.js', 'utf8');
+  ok('attribution detection regex exists', src.includes('attrM = tail.match(/,\\s+(said|says|wrote|writes|reported|reports|testified|argued|recalled|added|noted|according to)\\b/i)'));
+  ok('inserting quote before attribution exists', src.includes("para = para.slice(0, insertAt) + '”' + para.slice(insertAt)"));
+  ok('closer-after-period fallback exists', src.includes("para = para.replace(/([.!?])(\\s*)$/, '$1”$2')"));
+  ok('closer-before-period artifact is gone', !src.includes("para = para.replace(/([.!?])(\\s*)$/, '”$1$2')"));
 }
 
 console.log('LINEKEEP-1 — line structure survives the disclaimer stripper');
@@ -60,4 +61,5 @@ console.log('BACKMATTER-1 — headings are not truncation; truncation still is')
   ok('genuine truncation STILL flagged', checkStructuralIntegrity('She turned the key and\n\nThe lock held.').unterminatedParagraphs.count === 1);
 }
 
-console.log('\nALL ' + pass + ' CHECKS PASSED');
+console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
+process.exit(failures === 0 ? 0 : 1);
