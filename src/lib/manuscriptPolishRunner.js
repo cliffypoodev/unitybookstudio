@@ -37,7 +37,7 @@ import { runAntiDetectionPolish } from './antiDetectionPolish.js';
 import { countParagraphs } from './structureUtils.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
-import { fixHangingQuotes } from './quoteFixPolish.js';
+import { fixHangingQuotes, normalizeSmartQuotesOnly } from './quoteFixPolish.js';
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
 import { repairCanonNameDrift } from './canonNameLock.js';
 import { runPerChapter } from './anthologyPolishHelper.js';
@@ -960,6 +960,30 @@ export async function runManuscriptPolishPipeline({
       throw new Error(`CRITICAL: Model control token leaked through final scrub in Ch.${chNum}: "${remainingLeak[0].token}"`);
     }
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PHASE H: Typography normalization — QUOTENORM-1.
+  // The last mutating step. Deterministic passes (and, when enabled, the LLM)
+  // can emit straight quotes; this makes quote typography uniform (all curly) so
+  // the export gate's typography verdict cannot hard-block a finished book on
+  // mixed straight/curly quotes. Character-for-character only — word and
+  // paragraph counts are invariant by construction.
+  // ══════════════════════════════════════════════════════════════════════════
+  onProgress('Polish: Typography normalization (quotes)…');
+  let smartQuotesNormalized = 0;
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const before = f.content || '';
+    const res = normalizeSmartQuotesOnly(before);
+    if (res.changed > 0 && res.text !== before) {
+      f.content = res.text;
+      smartQuotesNormalized += res.changed;
+    }
+  }
+  if (smartQuotesNormalized > 0) {
+    changes.push(`Typography: normalized ${smartQuotesNormalized} straight quote mark(s) to curly (QUOTENORM-1)`);
+  }
+  console.log(`[POLISH-RUNNER] [QUOTENORM-1] normalized ${smartQuotesNormalized} straight quote mark(s) across ${loaded.length} chapter(s)`);
 
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 
