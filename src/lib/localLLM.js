@@ -32,7 +32,7 @@ export const AGENT_MODELS = {
   ghostwriter:       'qwen3.6-35b-uncensored',   // fiction prose (all non-nonfiction)
   ghostwriter_nsfw:  'qwen3.6-35b-uncensored',   // adult fiction — same uncensored model
   architect:         'deepseek-r1-32b',                                  // fiction outlines/bibles (reasoning model)
-  researcher:        'phi4',                                             // factual gathering
+  researcher:        'deepseek-r1-14b',                                  // RESEARCHMODEL-1: factual gathering. 'phi4' is not in the served catalog — every extraction batch 404'd. R1-14b is the proven fast reasoning alias already used by the critic, and R1's JSON path is proven by the architect.
   critic:            'deepseek-r1-14b',                                  // QA/critique (faster R1)
   polisher:          'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K_XL', // faithful line edits
   ideas_chat:        'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K_XL', // CHATFIX-1: chat assistants — fast MoE instruct, strict format adherence
