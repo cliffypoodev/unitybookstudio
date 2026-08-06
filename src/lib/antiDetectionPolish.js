@@ -7,6 +7,7 @@
 
 import { runExtraPolishChecks } from './extraPolishChecks.js';
 import { ABBREVIATION_TOKENS } from './safeUppercase.js';
+import { isNonfictionProject } from './projectType.js';
 
 /**
  * Abbreviation-aware sentence splitter.
@@ -825,8 +826,10 @@ function detectAndFixTellingTags(loaded) {
 export function runAntiDetectionPolish(loaded, onProgress, options = {}) {
   const allChanges = [];
   const project = options.project || {};
-  // Determine if this is a nonfiction project (including nonfiction anthologies)
-  const isNF = project.book_type === 'nonfiction';
+  // NFCLASS-5: one authority for fiction vs nonfiction — a raw book_type check
+  // here read {project_type:'nonfiction'} records as fiction and ran the
+  // fiction-only auto-rewrites on factual prose.
+  const isNF = isNonfictionProject(project);
   const isFiction = !isNF;
 
   // Step A: Triplet list rewrites — RETIRED FOR ALL PROJECT TYPES (TRIPLETRETIRE-1)
