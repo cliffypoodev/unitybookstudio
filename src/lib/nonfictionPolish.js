@@ -957,8 +957,23 @@ export function runNonfictionDeterministicCore(loaded, onProgress, project) {
       const smartClose = (para.match(/\u201d/g) || []).length;
       if (smartOpen > smartClose) {
         for (let d = 0; d < smartOpen - smartClose; d++) {
-          if (para.match(/[.!?]\s*$/)) para = para.replace(/([.!?])(\s*)$/, '\u201d$1$2');
-          else para = para.trimEnd() + '\u201d';
+          // NFQUOTE-1: if the unquoted tail after the last opening quote is an
+          // attribution ("...built, said one engineer's report."), the closer
+          // goes AFTER the comma and BEFORE the attribution. Closing at the end
+          // swallowed the attribution into the quote — which silently breaks
+          // the verbatim-substring property the nonfiction quote gate enforces.
+          // Otherwise close after the terminal punctuation (".”", not "”.").
+          const lastOpenIdx = para.lastIndexOf('“');
+          const tail = lastOpenIdx >= 0 ? para.slice(lastOpenIdx + 1) : '';
+          const attrM = tail.match(/,\s+(said|says|wrote|writes|reported|reports|testified|argued|recalled|added|noted|according to)\b/i);
+          if (lastOpenIdx >= 0 && !tail.includes('”') && attrM) {
+            const insertAt = lastOpenIdx + 1 + attrM.index + 1;
+            para = para.slice(0, insertAt) + '”' + para.slice(insertAt);
+          } else if (para.match(/[.!?]\s*$/)) {
+            para = para.replace(/([.!?])(\s*)$/, '$1”$2');
+          } else {
+            para = para.trimEnd() + '”';
+          }
           grammarFixed++;
         }
       } else if (smartClose > smartOpen) {
