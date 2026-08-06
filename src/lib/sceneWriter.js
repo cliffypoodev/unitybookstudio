@@ -2823,7 +2823,18 @@ function closedWorldCheck(prose, project) {
   try {
     if (!prose || !project) return [];
     const normCW = (s) => String(s || '').toLowerCase().replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
-    const EV = ' ' + normCW([project.research_data, project.seed_concept, project.world_md, project.characters_md, project.canon_md, project.mystery_md, project.outline_md, project.voice_md].filter(Boolean).join(' ')) + ' ';
+    // EVIDENCE-1: the closed world is the RESEARCH, not the bible. world_md,
+    // characters_md, canon_md, mystery_md, outline_md and voice_md are AI-generated
+    // downstream of the research and can carry hallucinated atoms; including them
+    // whitelisted the exact fabrications this gate exists to catch (proven live: an
+    // event appearing nowhere in the research reached a drafted chapter through a
+    // bible field, with an invented chronology attached, and every closed-world pass
+    // accepted it because the bible was inside the evidence). This is the same rule
+    // crossCheckResearchFabrication already applies and documents. research_md — the
+    // full research brief, hydrated by foundationStorage — joins the corpus so
+    // legitimately researched atoms that the distilled research_data summary omits do
+    // not false-positive. seed_concept stays: operator-written, not generated.
+    const EV = ' ' + normCW([project.research_data, project.research_md, project.seed_concept].filter(Boolean).join(' ')) + ' ';
     if (EV.trim().length < 200) {
       console.warn(`[CLOSED-WORLD] evidence corpus is ${EV.trim().length} chars (<200) — skipping the check. This chapter was NOT closed-world verified.`);
       return [];
