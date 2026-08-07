@@ -1702,9 +1702,7 @@ function normalizeManuscriptParagraphs(prose, project) {
   const wordCount = countWords(text);
 
   if (isNF && paragraphCount <= 1 && wordCount > 350) {
-    const sentences = text
-      .replace(/\s+/g, ' ')
-      .match(/[^.!?]+[.!?]+(?:[”"']+)?|[^.!?]+$/g) || [text];
+    const sentences = splitSentencesSafe(text.replace(/\s+/g, ' '));
 
     const paragraphs = [];
     let bucket = [];
@@ -2557,10 +2555,29 @@ export function splitSentencesSafe(text) {
   // and match() DROPS unmatched spans. Measured live: every "2.3 million"
   // sentence in a shipped book lost its head through this splitter.
   work = work.replace(/(\d)\.(?=\d)/g, '$1' + PROT);
-  const parts = work.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [work];
-  // DRAFTGATE-3A LOSSLESS INVARIANT: a sentence splitter may never eat text.
-  // If the parts do not reassemble to the input, refuse to split — every
-  // consumer (dedupe, strips) treats a single-part return as a safe no-op.
+  // DRAFTGATE-3E: partition by construction. String.match DROPS spans that fit
+  // no alternative — measured live: raw scene text with markdown emphasis after
+  // terminal punctuation ("…looked wrong.**") refused ~22 times in one chapter
+  // run, and every refusal downgraded dedupe, the closed-world strip, and the
+  // 3D re-breaker to no-ops, shipping fabrications and mega-paragraphs.
+  // Instead of enumerating breaker shapes, iterate the terminator matches and
+  // emit every inter-match gap as its own part: parts.join('') === work on
+  // EVERY input, by construction. Untokenizable spans survive as single parts,
+  // which every consumer already treats as sentence units.
+  const SENT_RE = /[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)/g;
+  const parts = [];
+  let last = 0;
+  let mt;
+  while ((mt = SENT_RE.exec(work)) !== null) {
+    if (mt.index > last) parts.push(work.slice(last, mt.index));
+    parts.push(mt[0]);
+    last = mt.index + mt[0].length;
+    if (mt[0].length === 0) SENT_RE.lastIndex++; // unreachable ([.!?]+ needs a char) — loop safety only
+  }
+  if (last < work.length) parts.push(work.slice(last));
+  if (parts.length === 0) parts.push(work);
+  // DRAFTGATE-3A LOSSLESS INVARIANT — retained as a dead-man's switch: the
+  // partition makes loss impossible; if this ever fires, the tokenizer regressed.
   if (parts.join('') !== work) {
     console.error('[DRAFTGATE-3A] splitSentencesSafe would have LOST text (' + (work.length - parts.join('').length) + ' chars) — returning input unsplit. Fix the tokenizer, never ship the loss.');
     return [String(text || '')];
