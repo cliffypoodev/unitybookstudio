@@ -5342,7 +5342,23 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
           allowBusinessTerms: true,
         });
         logSafetyGateResult('pre-polish-nf', f.chapter?.chapter_number, f.chapter?.title, gate);
+        const onlyDroppedWordFailures = !gate.ok
+          && Array.isArray(gate.reasons) && gate.reasons.length > 0
+          && gate.reasons.every((r) => {
+            const s = String(r);
+            if (!s.startsWith('Malformed grammar')) return false;
+            const phrases = s.match(/"[^"]+"/g) || [];
+            return phrases.length > 0 && phrases.every((p) => p.includes('dropped word'));
+          });
         if (gate.ok) {
+          nfSafeLoaded.push(f);
+        } else if (onlyDroppedWordFailures) {
+          // POLISHFIX-9: every hard failure on this chapter is the dropped-word
+          // shape, which the polish pre-pass strips deterministically
+          // (DRAFTGATE-2B). Rejecting it here deadlocked the repair — the
+          // chapter was too broken to enter the fixer that fixes exactly that
+          // brokenness. Admitted loudly; the post-polish save gate re-checks.
+          console.warn('[POLISH-NF-SAFETY-GATE] ADMITTED Ch.' + (f.chapter?.chapter_number || '?') + ' for deterministic dropped-word repair (' + gate.reasons.length + ' reason(s))');
           nfSafeLoaded.push(f);
         } else {
           nfSafetyRejected.push({ chapter: f.chapter, reasons: gate.reasons });
