@@ -9,6 +9,7 @@
  * - Calls chapter summary save with the correct chapterId/content/chapterNumber signature.
  */
 
+import { stripDroppedWordSentences } from './nfContentGuard.js'; // DRAFTGATE-2
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
@@ -2371,6 +2372,18 @@ async function generateSceneWithRepair({
   // is always better than a convincing invented document or quote.
   let stripped = false;
   if (isNonfictionProjectAuthority(project)) {
+    // DRAFTGATE-2A: dropped-word sentences that survived every repair are
+    // stripped, never shipped. The model re-drops banned nouns on every
+    // regeneration, so this deterministic last resort is what converges.
+    try {
+      const dw = stripDroppedWordSentences(prose);
+      if (dw.removed.length > 0) {
+        console.warn(`[DRAFTGATE-2] Stripped ${dw.removed.length} dropped-word sentence(s) after repairs failed: ${dw.removed.slice(0, 2).join(' | ')}`);
+        prose = dw.text;
+        stripped = true;
+        evalResult = quickSceneEval(prose, spec, targetWords, project);
+      }
+    } catch (e) { /* strip unavailable — continue */ }
     // ARCH-1B: deterministic closed-world strip runs FIRST and never depends on an LLM.
     try {
       const cw = closedWorldCheck(prose, project);

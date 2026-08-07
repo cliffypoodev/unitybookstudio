@@ -62,7 +62,7 @@ import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
-import { nfContentEquivalent } from './nfContentGuard.js'; // NFGUARD-1 (POLISHFIX-8)
+import { nfContentEquivalent, stripDroppedWordSentences } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
 import { safeUppercaseReplace } from './safeUppercase.js';
@@ -340,6 +340,22 @@ export async function runManuscriptPolishPipeline({
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE B: Per-chapter style/voice cleanup (manuscript-level dispatch)
   // ══════════════════════════════════════════════════════════════════════════
+
+  // DRAFTGATE-2B: heal dropped-word holes in SAVED chapters. Deterministic,
+  // provable (article+preposition+the is never valid prose), runs before the
+  // NFGUARD snapshot on purpose — this is a sanctioned pre-pass repair, and it
+  // is loud. See nfContentGuard.js stripDroppedWordSentences.
+  if (mode === 'nonfiction') {
+    for (const f of loaded) {
+      const dw = stripDroppedWordSentences(String(f.content || ''));
+      if (dw.removed.length > 0) {
+        const chNumDw = f.chapter?.chapter_number || '?';
+        console.warn(`[DRAFTGATE-2] Ch.${chNumDw}: stripped ${dw.removed.length} dropped-word sentence(s): ${dw.removed.slice(0, 2).join(' | ')}`);
+        changes.push(`Ch.${chNumDw}: DRAFTGATE-2 stripped ${dw.removed.length} dropped-word (broken-grammar) sentence(s)`);
+        f.content = dw.text;
+      }
+    }
+  }
 
   // NFGUARD-1 (POLISHFIX-8): snapshot every chapter before any style/voice pass
   // touches it. The guard before PHASE H reverts any chapter whose CONTENT
