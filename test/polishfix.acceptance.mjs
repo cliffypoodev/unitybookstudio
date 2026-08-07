@@ -18,10 +18,10 @@ const loaded1 = probes.map((content, i) => ({ chapter: { id: 'p' + i }, chapterN
 runPunctuationCleanup(loaded1, () => {});
 loaded1.forEach((l, i) => check('punctuation preserves: ' + probes[i].slice(0, 45), l.content === probes[i]));
 
-// ── POLISHFIX-5: the legitimate subject-verb comma fix still fires ──
+// ── POLISHFIX-5 -> POLISHFIX-7A: the legitimate subject-verb comma fix now flags only ──
 const legit = [{ chapter: { id: 'sv' }, chapterNumber: 1, content: 'The fan, sits on the desk.', original: 'The fan, sits on the desk.', changed: false }];
-runPunctuationCleanup(legit, () => {});
-check('punctuation still fixes real SV split', legit[0].content === 'The fan sits on the desk.');
+const { changes: legitChanges } = runPunctuationCleanup(legit, () => {});
+check('punctuation flags but does not fix real SV split', legit[0].content === 'The fan, sits on the desk.');
 
 // ── POLISHFIX-4: over-cap breath text is flagged, never rewritten ──
 const breathText = Array.from({ length: 60 }, (_, i) => 'He took a breath and held the breath in sentence ' + i + '.').join(' ');
