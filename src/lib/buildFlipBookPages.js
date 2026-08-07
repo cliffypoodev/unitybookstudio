@@ -92,7 +92,7 @@ export function buildFlipBookPages(project, chapters) {
       <div class="inner-page title-page">
         <div class="tp-title">${escapeHtml(project?.title || 'Untitled')}</div>
         <div class="tp-subtitle">${escapeHtml(project?.tagline || '')}</div>
-        <div class="tp-author">by ${escapeHtml(project?.author_name || 'Author')}</div>
+        ${project?.author_name ? `<div class="tp-author">by ${escapeHtml(project.author_name)}</div>` : ''}
       </div>
     `,
   });
