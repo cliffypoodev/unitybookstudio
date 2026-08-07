@@ -13,7 +13,10 @@ import { isFrontMatter } from '@/lib/bibliographyGenerator';
  */
 export function buildCopyrightText(project) {
   const title = project.title || 'Untitled';
-  const author = project.author_name || 'Unknown Author';
+  // BYLINE-2: nothing invents an author. Blank field → the author-attribution
+  // lines are omitted entirely (the © line falls back to the publisher name,
+  // which has its own default), never filled with a placeholder name.
+  const author = String(project.author_name || '').trim();
   const year = new Date().getFullYear();
   const isNF = isNonfictionProject(project);
   const publisherName = project.publisher_name || 'Self-Published';
@@ -26,7 +29,7 @@ export function buildCopyrightText(project) {
   if (isNF) {
     return `${title}
 
-Copyright © ${year} by ${author}
+Copyright © ${year}${author ? ` by ${author}` : ''}
 All rights reserved.
 
 No part of this publication may be reproduced, distributed, or transmitted in any form or by any means, including photocopying, recording, or other electronic or mechanical methods, without the prior written permission of the publisher, except as permitted by U.S. copyright law.
@@ -44,14 +47,12 @@ ${isbn ? `\nISBN: ${isbn}\n` : ''}
 Published by ${publisherName}
 ${editionText}, ${year}
 
-Cover design by ${author}
-
-Printed in the United States of America`;
+${author ? `Cover design by ${author}\n\n` : ''}Printed in the United States of America`;
   }
 
   return `${title}
 ${seriesName ? `${seriesName}${seriesNumber ? ', Book ' + seriesNumber : ''}\n` : ''}
-Copyright © ${year} by ${author}
+Copyright © ${year}${author ? ` by ${author}` : ''}
 All rights reserved.
 
 No part of this publication may be reproduced, distributed, or transmitted in any form or by any means, including photocopying, recording, or other electronic or mechanical methods, without the prior written permission of the publisher, except as permitted by U.S. copyright law.
