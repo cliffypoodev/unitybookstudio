@@ -62,6 +62,7 @@ import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
+import { nfContentEquivalent } from './nfContentGuard.js'; // NFGUARD-1 (POLISHFIX-8)
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
 import { safeUppercaseReplace } from './safeUppercase.js';
@@ -339,6 +340,11 @@ export async function runManuscriptPolishPipeline({
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE B: Per-chapter style/voice cleanup (manuscript-level dispatch)
   // ══════════════════════════════════════════════════════════════════════════
+
+  // NFGUARD-1 (POLISHFIX-8): snapshot every chapter before any style/voice pass
+  // touches it. The guard before PHASE H reverts any chapter whose CONTENT
+  // (not typography) changed. See nfContentGuard.js for why.
+  const nfGuardSnapshots = mode === 'nonfiction' ? loaded.map((f) => String(f.content || '')) : null;
 
   // NF-SPECIFIC: Run NF deterministic core
   let nfCoreStats = {};
@@ -962,6 +968,23 @@ export async function runManuscriptPolishPipeline({
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // NFGUARD-1 (POLISHFIX-8): on nonfiction, any pass that changed prose CONTENT
+  // (beyond quote glyphs / whitespace / collapsed doubled punctuation) is
+  // reverted here, per chapter, loudly. Typography (PHASE H below) then runs on
+  // the reverted text, so quote normalization is preserved. Flag-only passes
+  // are unaffected — their changes[] entries survive.
+  if (nfGuardSnapshots) {
+    loaded.forEach((f, gi) => {
+      const beforeText = nfGuardSnapshots[gi];
+      const afterText = String(f.content || '');
+      if (!nfContentEquivalent(beforeText, afterText)) {
+        console.error(`[NFGUARD-1] Ch.${f.chapter?.chapter_number ?? gi + 1}: a polish pass changed prose content — REVERTED. Deterministic NF polish may alter typography only; rewrite passes must flag, not fix.`);
+        changes.push(`Ch.${f.chapter?.chapter_number ?? gi + 1}: NFGUARD-1 reverted content changes made by style passes (typography-only policy)`);
+        f.content = beforeText;
+      }
+    });
+  }
+
   // PHASE H: Typography normalization — QUOTENORM-1.
   // The last mutating step. Deterministic passes (and, when enabled, the LLM)
   // can emit straight quotes; this makes quote typography uniform (all curly) so
