@@ -296,7 +296,7 @@ export default function RewriteFromManuscript({ onCreated, onCancel }) {
         title: structure.title || 'Untitled Rewrite',
         tagline: 'Rewritten from uploaded manuscript',
         seed_concept: structure.premise || 'Rewrite of uploaded manuscript',
-        author_name: 'Hermes Agent',
+        author_name: '',
         book_type: rewriteType === 'nonfiction' ? 'nonfiction' : 'fiction',
         project_type: rewriteType,
         genre: bible.genre || structure.genre || '',

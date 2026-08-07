@@ -105,8 +105,8 @@ assert(anthDefaults.chapter_target === 12 && anthDefaults.anthology_variety === 
 assert(fictionDefaults.spice_level === 0 && fictionDefaults.language_intensity === 2,
   'Fiction defaults have spice_level=0 and language_intensity=2');
 
-assert(fictionDefaults.author_name === 'Hermes Agent' && nfDefaults.author_name === 'Hermes Agent' && anthDefaults.author_name === 'Hermes Agent',
-  'All defaults have author_name=Hermes Agent');
+assert(fictionDefaults.author_name === '' && nfDefaults.author_name === '' && anthDefaults.author_name === '',
+  'All defaults have blank author_name (BYLINE-1: no injected byline)');
 
 // ════════════════════════════════════════════════════════════════
 // SECTION 3: buildProjectContextHeader includes setup fields
@@ -172,9 +172,9 @@ assert(constraints.includes('past'), 'Constraints contain past (tense)');
 assert(constraints.includes('Sparse Noir'), 'Constraints contain Sparse Noir (author voice)');
 assert(constraints.includes('NON-NEGOTIABLE'), 'Constraints contain NON-NEGOTIABLE');
 
-const projWithAuthor = { ...proj, author_name: 'Hermes Agent' };
+const projWithAuthor = { ...proj, author_name: 'Test Pen Name' };
 const constraintsAuthor = buildSetupConstraints(projWithAuthor);
-assert(constraintsAuthor.includes('Hermes Agent'), 'Constraints contain Hermes Agent (author name)');
+assert(constraintsAuthor.includes('Test Pen Name'), 'Constraints contain Test Pen Name (author name)');
 
 const projWithArc = { ...proj, story_arc: 'romance_arc' };
 const constraintsArc = buildSetupConstraints(projWithArc);
