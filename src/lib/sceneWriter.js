@@ -301,6 +301,19 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
     blockingIssues.push(`Scene is only ${words.length} words — target was ${targetWords} (minimum ${sceneWordFloor}). Write complete, fully developed prose to the target length, not a summary or a compressed overview.`);
   }
 
+  // SEVERE: dropped-word hole → blocking, force regeneration (DRAFTGATE-1A).
+  // Article + preposition + article ("a to the", "an of the") is never valid
+  // English prose — it is the fingerprint of the model dropping a banned or
+  // skipped noun mid-phrase ("a [testament] to the…"). Measured live: four such
+  // holes across three saved chapters, caught only by the export gate. Repairing
+  // deterministically would mean inventing the missing word, so the scene is
+  // blocked and the model rewrites the sentence itself. Mode-independent: this
+  // is grammar, not a nonfiction rule.
+  const droppedWordHoles = prose.match(/\b(?:a|an)\s+(?:to|of|in|on|for|with|from|by|at)\s+the\b/gi);
+  if (droppedWordHoles && droppedWordHoles.length > 0) {
+    blockingIssues.push(`Malformed sentence — dropped word (${droppedWordHoles.length} instance(s): ${droppedWordHoles.slice(0, 3).join(' | ')}). An article followed directly by a preposition means a noun was omitted. Rewrite each affected sentence with complete grammar; do not skip nouns after articles.`);
+  }
+
   // SEVERE: tense drift → blocking
   if (spec.tense === 'past') {
     const stripped = prose.replace(/[""\u201C][^""\u201D]*[""\u201D]/g, '');
@@ -1866,6 +1879,12 @@ function cleanSceneOutput(rawResult, project) {
   prose = applyHardNonfictionSourceLedger(prose, project);
   prose = tightenNonfictionThesisEchoes(prose, project);
   prose = normalizeManuscriptParagraphs(prose, project);
+
+  // DRAFTGATE-1B: strip stray markdown emphasis/scene-break markers left
+  // dangling after terminal punctuation at line or paragraph end ("…it broke. *").
+  // They are provable artifacts, never prose, and they fail the export gate's
+  // unterminated-paragraph check.
+  prose = String(prose || '').replace(/([.!?…”])[ \t]*[*_]+[ \t]*(?=\n|$)/g, '$1');
 
   return String(prose || '').trim();
 }
