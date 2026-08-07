@@ -978,7 +978,7 @@ export default function SetupTab({
             <Input
               value={values.author_name || ''}
               onChange={(e) => onFieldChange('author_name', e.target.value)}
-              placeholder="Hermes Agent"
+              placeholder="Enter pen name"
             />
           </Field>
 

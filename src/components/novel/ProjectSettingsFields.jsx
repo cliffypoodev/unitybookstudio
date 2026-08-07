@@ -186,7 +186,7 @@ export default function ProjectSettingsFields({
         <div className="mt-3 sm:mt-5 grid gap-3 sm:gap-5 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="author-name">Author Name</Label>
-            <Input id="author-name" value={values.author_name} onChange={(event) => onFieldChange('author_name', event.target.value)} placeholder="Hermes Agent" />
+            <Input id="author-name" value={values.author_name} onChange={(event) => onFieldChange('author_name', event.target.value)} placeholder="Enter pen name" />
           </div>
 
           <div className="space-y-2">
