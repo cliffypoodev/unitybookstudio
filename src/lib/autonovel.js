@@ -1737,7 +1737,7 @@ Return JSON only.`;
 export function buildCoverPrompt(project) {
   const typeDescriptor = project.book_type === 'nonfiction' ? 'premium nonfiction book' : 'premium fiction book';
 
-  return `Design a sophisticated cover for a ${typeDescriptor} titled "${project.title}" by ${project.author_name || 'Hermes Agent'}.\n\nGenre: ${project.genre || 'General'}\nTagline: ${project.tagline}\nSeed concept: ${project.seed_concept}\n\nArt direction:\n- elegant, premium publishing feel\n- moody, atmospheric composition\n- symbolic imagery over literal scene recreation\n- rich texture and strong shelf presence\n- no mockup, only cover artwork\n- no readable text baked into the image`;
+  return `Design a sophisticated cover for a ${typeDescriptor} titled "${project.title}"${project.author_name ? ` by ${project.author_name}` : ''}.\n\nGenre: ${project.genre || 'General'}\nTagline: ${project.tagline}\nSeed concept: ${project.seed_concept}\n\nArt direction:\n- elegant, premium publishing feel\n- moody, atmospheric composition\n- symbolic imagery over literal scene recreation\n- rich texture and strong shelf presence\n- no mockup, only cover artwork\n- no readable text baked into the image`;
 }
 
 export function formatPhase(phase = 'foundation') {
