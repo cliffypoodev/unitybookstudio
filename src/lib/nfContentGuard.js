@@ -27,7 +27,8 @@ export function nfContentEquivalent(before, after) {
 // entirely. Blank beats broken; nothing is invented. Splits on sentence
 // boundaries, preserves paragraph breaks, and returns what was removed so every
 // call site can log loudly.
-export const DROPPED_WORD_RX = /\b(?:a|an)\s+(?:to|of|in|on|for|with|from|by|at)\s+the\b/i;
+// DRAFTGATE-3B: widened dropped-word object net
+export const DROPPED_WORD_RX = /\b(?:a|an)\s+(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b/i;
 
 export function stripDroppedWordSentences(text) {
   const removed = [];
@@ -43,4 +44,26 @@ export function stripDroppedWordSentences(text) {
     if (kept.length !== sentences.length) paragraphs[pi] = kept.join(' ');
   }
   return { text: paragraphs.join(''), removed };
+}
+
+// DRAFTGATE-3C: a/an agreement — the one grammar fix that is provably safe to
+// automate. Sound-based with the standard closed exception lexicon; anything
+// ambiguous is left alone. Measured live: "a effort", "a enduring" shipped.
+const AN_BEFORE = /^(?:[aeio]|u(?![a-z])|un(?!i)|honest|honor|hour|heir|herb\b|umbrella|uncle|urgent|ultimate)/i;
+const A_BEFORE = /^(?:uni|use|user|usual|utility|utop|euro|eu|ewe|one\b|once\b|u[a-z]?-)/i;
+export function fixIndefiniteArticles(text) {
+  let fixed = 0;
+  const out = String(text || '').replace(/\b(a|an|A|An)\s+([a-z][a-z-]*)\b/g, (m, art, word) => {
+    const wantsAn = A_BEFORE.test(word) ? false : AN_BEFORE.test(word);
+    const isAn = art.toLowerCase() === 'an';
+    if (wantsAn === isAn) return m;
+    if (!wantsAn && !A_BEFORE.test(word) && !/^[aeiou]/i.test(word)) {
+      // "an" before consonant-initial word — always wrong
+      fixed++;
+      return (art[0] === 'A' ? 'A' : 'a') + ' ' + word;
+    }
+    if (wantsAn) { fixed++; return (art[0] === 'A' ? 'An' : 'an') + ' ' + word; }
+    return m;
+  });
+  return { text: out, fixed };
 }

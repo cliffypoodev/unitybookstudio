@@ -9,7 +9,7 @@
  * - Calls chapter summary save with the correct chapterId/content/chapterNumber signature.
  */
 
-import { stripDroppedWordSentences } from './nfContentGuard.js'; // DRAFTGATE-2
+import { stripDroppedWordSentences, fixIndefiniteArticles } from './nfContentGuard.js'; // DRAFTGATE-2 & 3
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
@@ -310,7 +310,8 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
   // deterministically would mean inventing the missing word, so the scene is
   // blocked and the model rewrites the sentence itself. Mode-independent: this
   // is grammar, not a nonfiction rule.
-  const droppedWordHoles = prose.match(/\b(?:a|an)\s+(?:to|of|in|on|for|with|from|by|at)\s+the\b/gi);
+  // DRAFTGATE-3B: widened dropped-word object net (possessives and demonstratives)
+  const droppedWordHoles = prose.match(/\b(?:a|an)\s+(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b/gi);
   if (droppedWordHoles && droppedWordHoles.length > 0) {
     blockingIssues.push(`Malformed sentence — dropped word (${droppedWordHoles.length} instance(s): ${droppedWordHoles.slice(0, 3).join(' | ')}). An article followed directly by a preposition means a noun was omitted. Rewrite each affected sentence with complete grammar; do not skip nouns after articles.`);
   }
@@ -1881,6 +1882,52 @@ function cleanSceneOutput(rawResult, project) {
   prose = tightenNonfictionThesisEchoes(prose, project);
   prose = normalizeManuscriptParagraphs(prose, project);
 
+  // DRAFTGATE-3C: heal a/an agreement deterministically
+  const healedArt = fixIndefiniteArticles(prose);
+  prose = healedArt.text;
+  if (healedArt.fixed > 0) {
+    console.log(`[DRAFTGATE-3C] Ch.? (draft assembly): fixed ${healedArt.fixed} indefinite article(s)`);
+  }
+
+  // DRAFTGATE-3D: rebreak mega-paragraphs (>250 words) into ~120-word paragraphs
+  const paras = prose.split(/\n{2,}/);
+  let rebroke = 0;
+  for (let i = 0; i < paras.length; i++) {
+    const p = paras[i];
+    const words = p.split(/\s+/).filter(Boolean).length;
+    if (words > 250) {
+      const sents = splitSentencesSafe(p);
+      if (sents.length > 1) {
+        const newParas = [];
+        let curr = [];
+        let currWords = 0;
+        for (const s of sents) {
+          const w = s.split(/\s+/).filter(Boolean).length;
+          curr.push(s);
+          currWords += w;
+          if (currWords >= 120) {
+            newParas.push(curr.join(' '));
+            curr = [];
+            currWords = 0;
+          }
+        }
+        if (curr.length > 0) {
+          if (newParas.length > 0) {
+            newParas[newParas.length - 1] += ' ' + curr.join(' ');
+          } else {
+            newParas.push(curr.join(' '));
+          }
+        }
+        paras[i] = newParas.join('\n\n');
+        rebroke++;
+      }
+    }
+  }
+  if (rebroke > 0) {
+    prose = paras.join('\n\n');
+    console.log(`[DRAFTGATE-3D] Ch.? (draft assembly): re-broke ${rebroke} oversized paragraph(s)`);
+  }
+
   // DRAFTGATE-1B: strip stray markdown emphasis/scene-break markers left
   // dangling after terminal punctuation at line or paragraph end ("…it broke. *").
   // They are provable artifacts, never prose, and they fail the export gate's
@@ -2495,7 +2542,7 @@ async function semanticSourceCheck(prose, project) {
 // Sentence splitter that will not break on rank abbreviations or single-letter
 // name initials ("Major William S. Pease"). Shared by the source check and the
 // fabrication strip so flagged snippets and removed sentences align 1:1.
-function splitSentencesSafe(text) {
+export function splitSentencesSafe(text) {
   const PROT = '\u0001';
   const ABBR = /(?<!\u0001)\b(D\.\s?C|U\.\s?S|Gen|Maj|Brig|Col|Capt|Lt|Sgt|Gov|Sec|Dr|Mr|Mrs|Ms|St|Mt|Jr|Sr|No|vs|etc|a\.m|p\.m)\.(?=\s|$)/gi;
   // GATEFIX-22: protect dotted domain names (archives.gov, loc.gov, blogs.loc.gov) so a
@@ -2504,7 +2551,20 @@ function splitSentencesSafe(text) {
   work = work.replace(ABBR, (m) => m.replace('.', PROT));
   // Single-letter initials followed by a capitalized word: "William S. Pease"
   work = work.replace(/\b([A-Z])\.(?=\s+[A-Z])/g, '$1' + PROT);
+  // DRAFTGATE-3A: protect decimals ("2.3 million", "3.5%"), decimal-dotted
+  // enumerations, and any digit.digit shape — an unprotected decimal made the
+  // period a sentence terminator that neither match alternative could consume,
+  // and match() DROPS unmatched spans. Measured live: every "2.3 million"
+  // sentence in a shipped book lost its head through this splitter.
+  work = work.replace(/(\d)\.(?=\d)/g, '$1' + PROT);
   const parts = work.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [work];
+  // DRAFTGATE-3A LOSSLESS INVARIANT: a sentence splitter may never eat text.
+  // If the parts do not reassemble to the input, refuse to split — every
+  // consumer (dedupe, strips) treats a single-part return as a safe no-op.
+  if (parts.join('') !== work) {
+    console.error('[DRAFTGATE-3A] splitSentencesSafe would have LOST text (' + (work.length - parts.join('').length) + ' chars) — returning input unsplit. Fix the tokenizer, never ship the loss.');
+    return [String(text || '')];
+  }
   return parts.map((s) => s.split(PROT).join('.'));
 }
 

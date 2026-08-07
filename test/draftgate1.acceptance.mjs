@@ -44,6 +44,14 @@ const f1 = makeFixture("The pier was a to the dangers of expansion.");
 const res1 = quickSceneEval(f1, {}, 100, {});
 check('1. "a to the" blocks with dropped word issue', res1.hasBlockingIssue && res1.issues.some(i => i.includes('dropped word')));
 
+const f1b = makeFixture("It was less a to its quality.");
+const res1b = quickSceneEval(f1b, {}, 100, {});
+check('1b. "a to its" blocks with dropped word issue', res1b.hasBlockingIssue && res1b.issues.some(i => i.includes('dropped word')));
+
+const f1c = makeFixture("We took a trip to the market.");
+const res1c = quickSceneEval(f1c, {}, 100, {});
+check('1c. "a trip to the" does NOT block', !res1c.issues.some(i => i.includes('dropped word')));
+
 // 2. "a monument to the" does NOT block
 const f2 = makeFixture("The pier was a monument to the dangers of expansion.");
 const res2 = quickSceneEval(f2, {}, 100, {});
@@ -69,7 +77,7 @@ check('4. trailing strip: own line untouched', strip("* * *") === "* * *");
 
 // 5. Source assertions
 const cleanSrc = src.split('\n').filter(l => !/^\s*(\/\/|\/\*|\*)/.test(l)).join('\n');
-check('5. regex literal present in quickSceneEval', cleanSrc.includes('(?:a|an)\\s+(?:to|of|in|on|for|with|from|by|at)\\s+the'));
+check('5. regex literal present in quickSceneEval', cleanSrc.includes("(?:a|an)\\s+(?:to|of|in|on|for|with|from|by|at)\\s+(?:the|its|this|that|their|his|her|these|those|a|an)"));
 check('5. trailing strip replace present in source', cleanSrc.includes('/([.!?…”])[ \\t]*[*_]+[ \\t]*(?=\\n|$)/g, \'$1\''));
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

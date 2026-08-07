@@ -32,7 +32,13 @@ const res4a = stripDroppedWordSentences("This is a to-the-point reply.");
 check('4. hyphenated does NOT strip', res4a.removed.length === 0 && res4a.text === "This is a to-the-point reply.");
 
 const res4b = stripDroppedWordSentences("It was an of the biggest problems.");
-check('4. "an of the" DOES strip', res4b.removed.length === 1);
+check('4b. "an of the" DOES strip', res4b.removed.length === 1);
+
+const res4c = stripDroppedWordSentences("It was less a to its quality.");
+check('4c. "a to its" DOES strip', res4c.removed.length === 1);
+
+const res4d = stripDroppedWordSentences("We took a trip to the market.");
+check('4d. "a trip to the" does NOT strip', res4d.removed.length === 0);
 
 // 5. Source assertions
 const DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -42,13 +48,13 @@ const polishRunnerSrc = fs.readFileSync(path.join(ROOT, 'src/lib/manuscriptPolis
 
 const swClean = sceneWriterSrc.split('\n').filter(l => !/^\s*(\/\/|\/\*|\*)/.test(l)).join('\n');
 check('5. sceneWriter calls stripDroppedWordSentences in backstop', swClean.includes('const dw = stripDroppedWordSentences('));
-check('5. sceneWriter imports from nfContentGuard', swClean.includes("import { stripDroppedWordSentences } from './nfContentGuard.js'"));
+check('5. sceneWriter imports from nfContentGuard', swClean.includes("stripDroppedWordSentences") && swClean.includes("'./nfContentGuard.js'"));
 
 const prClean = polishRunnerSrc.split('\n').filter(l => !/^\s*(\/\/|\/\*|\*)/.test(l)).join('\n');
 const callIndex = prClean.indexOf('const dw = stripDroppedWordSentences');
 const snapshotIndex = prClean.indexOf('const nfGuardSnapshots');
 check('5. polishRunner calls BEFORE nfGuardSnapshots', callIndex !== -1 && snapshotIndex !== -1 && callIndex < snapshotIndex);
-check('5. polishRunner imports from nfContentGuard', prClean.includes("import { nfContentEquivalent, stripDroppedWordSentences } from './nfContentGuard.js'"));
+check('5. polishRunner imports from nfContentGuard', prClean.includes("stripDroppedWordSentences") && prClean.includes("'./nfContentGuard.js'"));
 
 // POLISHFIX-10 Tests
 const pfx10Index = prClean.indexOf('[POLISHFIX-10]');

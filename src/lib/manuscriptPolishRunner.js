@@ -62,7 +62,8 @@ import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
-import { nfContentEquivalent, stripDroppedWordSentences } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2
+import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3
+import { splitSentencesSafe } from './sceneWriter.js';
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
 import { safeUppercaseReplace } from './safeUppercase.js';
@@ -359,6 +360,57 @@ export async function runManuscriptPolishPipeline({
         changes.push(`Ch.${chNumEm}: POLISHFIX-10 stripped trailing emphasis artifact(s)`);
         f.content = afterEmph;
       }
+
+      // DRAFTGATE-3C: heal a/an agreement deterministically
+      const healedArt = fixIndefiniteArticles(String(f.content || ''));
+      f.content = healedArt.text;
+      if (healedArt.fixed > 0) {
+        const chNum = f.chapter?.chapter_number || '?';
+        console.log(`[DRAFTGATE-3C] Ch.${chNum}: fixed ${healedArt.fixed} indefinite article(s)`);
+        changes.push(`Ch.${chNum}: DRAFTGATE-3C fixed ${healedArt.fixed} indefinite article(s)`);
+      }
+
+      // DRAFTGATE-3D: rebreak mega-paragraphs (>250 words) into ~120-word paragraphs
+      const paras = String(f.content || '').split(/\n{2,}/);
+      let rebroke = 0;
+      for (let i = 0; i < paras.length; i++) {
+        const p = paras[i];
+        const words = p.split(/\s+/).filter(Boolean).length;
+        if (words > 250) {
+          const sents = splitSentencesSafe(p);
+          if (sents.length > 1) {
+            const newParas = [];
+            let curr = [];
+            let currWords = 0;
+            for (const s of sents) {
+              const w = s.split(/\s+/).filter(Boolean).length;
+              curr.push(s);
+              currWords += w;
+              if (currWords >= 120) {
+                newParas.push(curr.join(' '));
+                curr = [];
+                currWords = 0;
+              }
+            }
+            if (curr.length > 0) {
+              if (newParas.length > 0) {
+                newParas[newParas.length - 1] += ' ' + curr.join(' ');
+              } else {
+                newParas.push(curr.join(' '));
+              }
+            }
+            paras[i] = newParas.join('\n\n');
+            rebroke++;
+          }
+        }
+      }
+      if (rebroke > 0) {
+        f.content = paras.join('\n\n');
+        const chNum = f.chapter?.chapter_number || '?';
+        console.log(`[DRAFTGATE-3D] Ch.${chNum}: re-broke ${rebroke} oversized paragraph(s)`);
+        changes.push(`Ch.${chNum}: DRAFTGATE-3D re-broke ${rebroke} oversized paragraph(s)`);
+      }
+
       const dw = stripDroppedWordSentences(String(f.content || ''));
       if (dw.removed.length > 0) {
         const chNumDw = f.chapter?.chapter_number || '?';
