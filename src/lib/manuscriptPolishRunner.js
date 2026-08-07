@@ -347,6 +347,18 @@ export async function runManuscriptPolishPipeline({
   // is loud. See nfContentGuard.js stripDroppedWordSentences.
   if (mode === 'nonfiction') {
     for (const f of loaded) {
+      // POLISHFIX-10: same provable-artifact strip as DRAFTGATE-1B, applied to
+      // SAVED chapters — a stray emphasis marker dangling after terminal
+      // punctuation ("…it broke. *") fails the export unterminated check and
+      // chapters saved before DRAFTGATE-1B never re-pass through assembly.
+      const beforeEmph = String(f.content || '');
+      const afterEmph = beforeEmph.replace(/([.!?…”])[ \t]*[*_]+[ \t]*(?=\n|$)/g, '$1');
+      if (afterEmph !== beforeEmph) {
+        const chNumEm = f.chapter?.chapter_number || '?';
+        console.warn(`[POLISHFIX-10] Ch.${chNumEm}: stripped trailing emphasis artifact(s) after terminal punctuation`);
+        changes.push(`Ch.${chNumEm}: POLISHFIX-10 stripped trailing emphasis artifact(s)`);
+        f.content = afterEmph;
+      }
       const dw = stripDroppedWordSentences(String(f.content || ''));
       if (dw.removed.length > 0) {
         const chNumDw = f.chapter?.chapter_number || '?';

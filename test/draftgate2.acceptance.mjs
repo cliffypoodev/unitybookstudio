@@ -45,10 +45,23 @@ check('5. sceneWriter calls stripDroppedWordSentences in backstop', swClean.incl
 check('5. sceneWriter imports from nfContentGuard', swClean.includes("import { stripDroppedWordSentences } from './nfContentGuard.js'"));
 
 const prClean = polishRunnerSrc.split('\n').filter(l => !/^\s*(\/\/|\/\*|\*)/.test(l)).join('\n');
-const callIndex = prClean.indexOf('stripDroppedWordSentences');
+const callIndex = prClean.indexOf('const dw = stripDroppedWordSentences');
 const snapshotIndex = prClean.indexOf('const nfGuardSnapshots');
 check('5. polishRunner calls BEFORE nfGuardSnapshots', callIndex !== -1 && snapshotIndex !== -1 && callIndex < snapshotIndex);
 check('5. polishRunner imports from nfContentGuard', prClean.includes("import { nfContentEquivalent, stripDroppedWordSentences } from './nfContentGuard.js'"));
+
+// POLISHFIX-10 Tests
+const pfx10Index = prClean.indexOf('[POLISHFIX-10]');
+const emphStripIndex = prClean.indexOf("afterEmph = beforeEmph.replace");
+check('6. runner contains [POLISHFIX-10]', pfx10Index !== -1);
+check('6. emphasis strip appears BEFORE stripDroppedWordSentences', emphStripIndex !== -1 && callIndex !== -1 && emphStripIndex < callIndex);
+
+const stripRe10 = /([.!?…”])[ \t]*[*_]+[ \t]*(?=\n|$)/g;
+const strip10 = (s) => s.replace(stripRe10, '$1');
+check('7. trailing strip: "It broke. *\\n"', strip10("It broke. *\n") === "It broke.\n");
+check('7. trailing strip: end of string', strip10("It broke. *") === "It broke.");
+check('7. trailing strip: mid-sentence untouched', strip10("It was rated 5* on the form.") === "It was rated 5* on the form.");
+check('7. trailing strip: own line untouched', strip10("* * *") === "* * *");
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
