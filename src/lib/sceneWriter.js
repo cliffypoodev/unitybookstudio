@@ -2870,11 +2870,24 @@ function closedWorldCheck(prose, project) {
         const words = ph.split(/\s+/).filter((w) => !/^(of|the|and)$/i.test(w));
         if (words.length === 1 && (isSentInitial || STOP.has(normCW(words[0])))) continue;
         if (!inEV(ph)) {
-          // Conjunction split: "Galveston and Houston" is two verified atoms,
-          // not one compound name. If the joint phrase is not in evidence,
-          // every "and"-separated segment must be — otherwise flag.
-          const segs = ph.split(/\s+and\s+/i);
-          if (segs.length < 2 || !segs.every((seg) => inEV(seg))) bad.push(ph);
+          // EVIDENCE-2: a compound phrase is innocent when every content segment is
+          // independently in evidence. The old path split only on "and", so a phrase
+          // like a descriptor + researched name + "of" + researched unit failed as a
+          // unit and the sentence was flagged — false positives that drive pointless
+          // repair cycles and can strip researched people from prose. Compounds now
+          // split on connectives, and leading descriptor tokens that the evidence
+          // itself contains as ordinary words are stripped before the retest (the
+          // closed world doubles as the descriptor lexicon — nothing hardcoded).
+          // A phrase with any genuinely-unresearched content segment still flags,
+          // and a wholly-unresearched phrase flags exactly as before.
+          const segs = ph.split(/\s+(?:and|of|at|in|on|for|the)\s+/i).filter(Boolean);
+          const segOk = (seg) => {
+            if (inEV(seg)) return true;
+            const toks = normCW(seg).split(' ').filter(Boolean);
+            while (toks.length > 1 && EV.includes(' ' + toks[0] + ' ')) toks.shift();
+            return toks.length > 0 && inEV(toks.join(' '));
+          };
+          if (!segs.length || !segs.every(segOk)) bad.push(ph);
         }
       }
       MRE.lastIndex = 0;
