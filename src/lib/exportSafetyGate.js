@@ -50,6 +50,7 @@ export function assertExportSnapshotIntegrity({
 import { runManuscriptSafetyGate } from './manuscriptSafetyGate.js';
 import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { checkStructuralIntegrity, checkBookIntegrity } from './pipelineValidator.js';
+import { analyzeProse } from './proseGrammarGate.js';
 
 // Lazy-loaded to avoid circular imports
 let _detectDialogueQuoteIssues = null;
@@ -102,6 +103,26 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       });
       continue;
     }
+
+    // PROSEGATE-1B: no hard grammar defect ships. POS-aware analysis (retext) —
+    // high-precision classes only (a/an mismatch, doubled words, dropped nouns);
+    // everything softer stays advisory. Flag-not-fix: repair happens upstream
+    // (DRAFTGATE-3C healer, redraft); the gate is the guarantee.
+    try {
+      const prose = await analyzeProse(content);
+      if (prose.hard.length > 0) {
+        console.error(`[PROSEGATE-1] Ch.${ch?.chapter_number} BLOCKED: ${prose.hard.length} hard grammar defect(s): ` + prose.hard.slice(0, 3).map((h) => `[p${h.paragraph}] ${h.rule}: "${h.snippet}"`).join(' | '));
+        hardFailures.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          reasons: prose.hard.map((h) => `Grammar (${h.rule}) paragraph ${h.paragraph}: "${h.snippet}"`),
+        });
+        continue;
+      }
+      if (prose.advisory.length > 0) {
+        warnings.push({ chapterNumber: ch?.chapter_number, title: ch?.title || '', reasons: [`${prose.advisory.length} prose advisories (PROSEGATE-1)`] });
+      }
+    } catch (e) { console.error('[PROSEGATE-1] analyzer unavailable — chapter NOT grammar-verified:', e?.message); }
 
     // LENGTHGATE-1B: a chapter that assembled far under its explicit target does not
     // ship. Draft-time repair (LENGTHGATE-1A) is best-effort; this is the guarantee.
