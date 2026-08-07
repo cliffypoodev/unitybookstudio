@@ -238,16 +238,13 @@ export function runSentenceStarterVariationNF(loaded, onProgress, { targetPct = 
         if (!/^The\s/.test(trimmed)) continue;
         if (/["“”]/.test(trimmed)) continue;              // sentence carries a quote — hands off
 
-        // ── S1: temporal fronting ──
-        const m = trimmed.match(/^The\s+(.{8,120}?)\s+(in|on|by|during|after|before)\s+((?:the\s+)?[\w’',\- ]{3,40}?)([.;])$/);
-        if (m && NF_TEMPORAL_HEAD.test(m[3])) {
-          const prep = m[2].charAt(0).toUpperCase() + m[2].slice(1);
-          const lead = sent.match(/^\s*/)[0];
-          const trail = sent.match(/\s*$/)[0];
-          sentences[si] = lead + prep + ' ' + m[3] + ', the ' + m[1] + m[4] + trail;
-          fixed++; totalFixed++; changed = true;
-          continue;
-        }
+        // ── S1: temporal fronting — REMOVED (POLISHFIX-7B). The rewrite
+        // `The …… in <temporal>.` → `In <temporal>, the ……` is blind to
+        // prepositional-phrase attachment: when the temporal binds to an inner
+        // noun ("since its construction in 1915"), fronting it states something
+        // false. Measured on a live NF polish save 2026-08-07. PP attachment is
+        // not decidable by regex; starter variety on NF now comes only from S2
+        // (referent-checked demonstrative) and S3 (guarded adjacent join).
 
         // ── S2: anaphoric demonstrative (capped at 4 per chapter) ──
         if (demonstratives < 4 && si > 0) {
