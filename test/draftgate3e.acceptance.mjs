@@ -1,10 +1,22 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { splitSentencesSafe } from '../src/lib/sceneWriter.js';
+import vm from 'vm';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(DIR, '..');
+
+const swSrc = fs.readFileSync(path.join(ROOT, 'src/lib/sceneWriter.js'), 'utf8');
+const swMatch = swSrc.match(/export function splitSentencesSafe[\s\S]*?\n\}/);
+if (!swMatch) {
+  console.error("Could not find splitSentencesSafe in sceneWriter.js");
+  process.exit(1);
+}
+const splitSentencesSafeCode = swMatch[0].replace('export ', '');
+const sandbox = { console };
+vm.createContext(sandbox);
+vm.runInContext(splitSentencesSafeCode + '; this.splitSentencesSafe = splitSentencesSafe;', sandbox);
+const splitSentencesSafe = sandbox.splitSentencesSafe;
 
 let failures = 0;
 function check(name, pass) {
