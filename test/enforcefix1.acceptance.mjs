@@ -34,6 +34,34 @@ function runTest() {
   const hasUtilize = MANDATORY_ENFORCEMENT_BLOCK.includes('utilize');
   check("3. Tier-1 still bans tapestry, utilize", hasTapestry && hasUtilize);
 
+  // 4a
+  const swSrc = fs.readFileSync(path.join(ROOT, 'src/lib/sceneWriter.js'), 'utf8');
+  const atLeastMatches = swSrc.match(/AT LEAST \$\{targetWords\}/g) || [];
+  check("4a. sceneWriter.js contains AT LEAST ${targetWords} at least 4 times", atLeastMatches.length >= 4);
+
+  // 4b
+  const approxRx = /approximately \$\{targetWords\} words/g;
+  const approxMatches = [...swSrc.matchAll(approxRx)];
+  const hasExactApprox = approxMatches.length === 2;
+
+  let hasFictionContext = false;
+  let hasRepairContext = false;
+  
+  if (hasExactApprox) {
+    const idx1 = approxMatches[0].index;
+    const idx2 = approxMatches[1].index;
+    const ctx1 = swSrc.substring(Math.max(0, idx1 - 400), idx1 + 400);
+    const ctx2 = swSrc.substring(Math.max(0, idx2 - 400), idx2 + 400);
+    
+    // Check which context has which strings
+    if (ctx1.includes('finished fictional prose')) hasFictionContext = true;
+    if (ctx2.includes('finished fictional prose')) hasFictionContext = true;
+    if (ctx1.includes('Do NOT expand, pad')) hasRepairContext = true;
+    if (ctx2.includes('Do NOT expand, pad')) hasRepairContext = true;
+  }
+
+  check("4b. sceneWriter.js contains EXACTLY 2 remaining occurrences of 'approximately ${targetWords} words', in fiction and repair contexts", hasExactApprox && hasFictionContext && hasRepairContext);
+
   if (failures === 0) {
     console.log('ACCEPTANCE: ALL CHECKS MATCHED');
   }

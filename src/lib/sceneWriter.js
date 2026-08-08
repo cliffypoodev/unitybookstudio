@@ -967,7 +967,7 @@ NON-NEGOTIABLE RULES:
 - Begin after the last written paragraph below.
 - Move the story into the next distinct action, consequence, reversal, or decision.
 - Output ONLY finished prose for the corrected next scene.
-- Target approximately ${targetWords} words.
+- Length: AT LEAST ${targetWords} words.
 
 LAST WRITTEN PARAGRAPH:
 ${compact(getLastParagraph(accumulatedProse, 1200), 1200)}
@@ -1135,7 +1135,7 @@ function buildOutputRules(project, targetWords) {
 - Write ONLY the nonfiction manuscript prose for this scene/section.
 - Do not include headings unless the chapter plan explicitly requires them.
 - Do not include analysis, notes, apologies, explanations, markdown fences, or self-checks.
-- Target approximately ${targetWords} words.
+- Length: AT LEAST ${targetWords} words — do not stop before reaching that count; develop the material fully rather than summarizing.
 - Use grounded, verifiable phrasing.
 - Break paragraphs naturally every 3–5 sentences.
 - Keep every paragraph purposeful: new fact, source category, contradiction, mechanism, consequence, or unresolved question.
@@ -1194,7 +1194,7 @@ function buildSceneContinuityExpansionBlock({ accumulatedProse = '', spec = {}, 
 - If a symbolic object appears, make it change pressure or meaning by the end of the scene; do not just mention it repeatedly.
 - If the beat involves a major decision, show the external pressure and the private cost once, then move to the next consequence.
 - Prefer layered conflict over direct explanation: what the character says, what they avoid saying, what the room/object/body betrays.
-- Current scene number: ${sceneNumber}. Target length: approximately ${targetWords} words.${hasPrior ? '\n- Prior scene prose already exists. Continue from it. Do not summarize it, restate it, or offer another version of its central event.' : ''}`;
+- Current scene number: ${sceneNumber}. Length: AT LEAST ${targetWords} words — do not end the scene before reaching that count; develop the material fully rather than summarizing.${hasPrior ? '\n- Prior scene prose already exists. Continue from it. Do not summarize it, restate it, or offer another version of its central event.' : ''}`;
 }
 
 function buildNoSlopBlock() {
@@ -1249,7 +1249,7 @@ function buildNonfictionSectionNonOverlapBlock({ accumulatedProse = '', spec = {
   const escalationQuestion = String(spec?.escalation_question || spec?.next_question || '').trim();
 
   return `NONFICTION SECTION CONTRACT — v6 PUBLICATION QUALITY / ESCALATION:
-- This output is ONLY section ${sectionNumber}, approximately ${targetWords} words. Do not write a whole-chapter overview.
+- This output is ONLY section ${sectionNumber}, AT LEAST ${targetWords} words — do not stop short of that count. Do not write a whole-chapter overview.
 - Format this section as manuscript prose with paragraph breaks every 3–5 sentences. Never return one giant paragraph.
 - This section must ADVANCE the investigation. It cannot merely rephrase the premise, the contradiction, the institutional silence, or the locked-door question.
 ${sectionPurpose ? `- Section purpose: ${sectionPurpose}` : '- Follow the assigned section purpose only.'}
