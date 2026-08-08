@@ -132,5 +132,35 @@ check('18. export hard gate wired', esg.includes('[ARCH-1C] ${v.type} not in evi
 check('19. BOOKGATE-3B: dead field read gone', !esg.includes("String(ch?.content || '')"));
 check('19. BOOKGATE-3B: content_md read present', esg.includes("String(ch?.content_md || ch?.content || '')"));
 
+// 20 — RESEARCHQUALITY-2E: era fate vocabulary is closed-world too.
+// Measured before widening (2026-08-08): zero occurrences of the era words in
+// 97k words of real prose, so zero false positives are introduced; and zero
+// occurrences in the flagship evidence, so widening BEFORE enrichment would
+// only thrash repair. "executed"/"execution" are deliberately NOT death words:
+// the fate check tests individual words, and active-voice "executed the order"
+// — near-certain phrasing around military orders — would flag valid prose.
+const projectE = {
+  research_data: JSON.stringify({ key_figures: [
+    { name: 'Abram Voss', role: 'president', documented_actions: 'Issued the proclamation.', fate_notes: '"Voss was assassinated in the spring of 1865." [https://example.com/a] (sources: 2)' },
+    { name: 'Eli Trent', role: 'freedman', documented_actions: 'Interviewed in 1937.' },
+    { name: 'Gordon Marsh', role: 'general', documented_actions: 'Marsh issued the order at the port city garrison.' },
+  ] }),
+  research_md: 'The order was read aloud in the port city and copied into the county ledgers that same week by clerks. '.repeat(4),
+  seed_concept: 'A documented history of delayed emancipation.',
+};
+const LE = buildFactLedger(projectE);
+const voss = LE.figures.find((f) => f.surname === 'Voss');
+check('20. fate_notes attests death via widened word (assassinated)', voss && voss.attested.death === true);
+check('20. attested claim passes: "Voss was assassinated"', checkFateViolations('Abram Voss was assassinated that April.', LE).length === 0);
+check('20. un-attested "lynched" flags', checkFateViolations('Eli Trent was lynched that summer.', LE).length === 1);
+check('20. un-attested "murdered" flags', checkFateViolations('Trent was murdered on the road home.', LE).length === 1);
+check('20. un-attested "slain" flags', checkFateViolations('Trent was slain before the harvest.', LE).length === 1);
+check('20. un-attested "hanged" flags', checkFateViolations('Trent was hanged at the crossroads.', LE).length === 1);
+check('20. un-attested "assassination" flags', checkFateViolations('The assassination of Trent went unrecorded.', LE).length === 1);
+check('20. EXCLUDED: "executed the order" near a surname does NOT flag', checkFateViolations('Marsh executed the order without delay.', LE).length === 0);
+check('20. "the Executive" never flags', checkFateViolations('Trent heard the proclamation of the Executive read aloud.', LE).length === 0);
+check('20. number-quantified widened word stays exempt', checkFateViolations('The rolls named Trent among counties where hundreds murdered left no record.', LE).length === 0);
+check('20. original vocabulary unchanged: un-attested "died" still flags', checkFateViolations('Eli Trent died that winter.', LE).length === 1);
+
 if (failures === 0) console.log('ACCEPTANCE: ALL CHECKS MATCHED');
 process.exit(failures === 0 ? 0 : 1);

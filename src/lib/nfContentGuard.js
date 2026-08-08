@@ -148,7 +148,7 @@ export function stripCrossChapterDuplicates(chapterTexts) {
 // times before membership testing. This ledger closes both holes with the
 // same principle: the fact is in the evidence or it does not ship.
 const FATE_CLASSES = [
-  { key: 'death', rx: /\b(?:died|dead|death|perished|drowned|killed|fatal(?:ly)?|succumbed|victims?)\b/i },
+  { key: 'death', rx: /\b(?:died|dead|death|perished|drowned|killed|fatal(?:ly)?|succumbed|victims?|assassinat(?:ed|ion)|lynch(?:ed|ing|ings)?|murder(?:ed|s)?|slain|hanged)\b/i },
   { key: 'survival', rx: /\b(?:survived|survivor|rescued|saved|escaped?|unharmed|uninjured)\b/i },
   { key: 'injury', rx: /\b(?:injured|injur(?:y|ies)|wounded|maimed|hospitalized)\b/i },
 ];
