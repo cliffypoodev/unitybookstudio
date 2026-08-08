@@ -5,7 +5,13 @@ import retextIndefiniteArticle from 'retext-indefinite-article';
 import retextRepeatedWords from 'retext-repeated-words';
 import { toString } from 'nlcst-to-string';
 
-const ADJ_LEXICON = new Set(['silent', 'quiet', 'final', 'brief', 'direct', 'mute', 'lasting', 'living', 'fitting', 'moving', 'open', 'standing']);
+// PROSEGATE-1D: only adjectives with NO standard noun sense. The rest of the
+// original lexicon nominalizes ("a living" = livelihood, "a brief" = filing,
+// "a fitting" = pipe part, "the quiet" = stillness) and produced a false
+// EXPORT BLOCK on valid prose ("the extraction of the living from the
+// sinking streets"). High precision beats coverage: the gate must never
+// block correct English.
+const ADJ_LEXICON = new Set(['silent', 'lasting', 'direct']);
 const ARTICLES = new Set(['a', 'an', 'the']);
 const PREPOSITIONS = new Set(['to', 'of', 'in', 'on', 'for', 'with', 'from', 'by', 'at']);
 const DET_POSS = new Set(['the', 'its', 'this', 'that', 'their', 'his', 'her', 'these', 'those', 'a', 'an']);
@@ -54,7 +60,10 @@ function droppedNounPlugin() {
             } else if (i < words.length - 3) {
               // Check for [Article] [Adj] [Preposition] [Det/Poss]
               const w4 = words[i+3].text;
-              if (ADJ_LEXICON.has(w2) && PREPOSITIONS.has(w3) && DET_POSS.has(w4)) {
+              // PROSEGATE-1D: a/an only — "the + adjective" nominalizes freely
+              // in English ("the living", "the dead", "the open"), so the
+              // definite-article variant cannot be decided without semantics.
+              if (w1 !== 'the' && ADJ_LEXICON.has(w2) && PREPOSITIONS.has(w3) && DET_POSS.has(w4)) {
                 const m = file.message('Dropped noun (article + adj + preposition)', words[i].node, 'prosegate:dropped-noun');
                 m.paragraph = paragraphIndex;
                 m.actual = words.slice(i, i+4).map(w => w.text).join(' ');
