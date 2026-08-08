@@ -34,6 +34,34 @@ export function nfContentEquivalent(before, after) {
 // det-only so "an at sign" never flags.
 export const DROPPED_WORD_RX = /\b(?:a|an)\s+(?:(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b|(?:to|of|in|on|for|with|from|by)\s+(?=[a-z]))/i;
 
+// DRAFTGATE-3H: model-mangle shapes that are broken beyond repair.
+// (a) aux BE + past-tense intransitive that never takes a passive
+//     ("bodies were remained embedded").
+// (b) adjective censor-hole: a/an + noun-less adjective + preposition + object
+//     ("served as a grim to the proximity") — the PROSEGATE lexicon, in regex form.
+export const MANGLE_RX = /\b(?:was|were|is|are|be|been|being)\s+(?:remained|existed|persisted|lingered|elapsed|occurred|happened)\b|\b(?:a|an)\s+(?:silent|lasting|direct|grim|stark|solemn|enduring|poignant|somber|tangible)\s+(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b/i;
+// (c) citation stump: a sentence unit ending " v." is a truncated case name.
+export const CITATION_STUMP_RX = /\bv\.$/;
+export function stripMangledSentences(text) {
+  const removed = [];
+  const paragraphs = String(text || '').split(/(\n{2,})/);
+  for (let pi = 0; pi < paragraphs.length; pi += 2) {
+    const para = paragraphs[pi];
+    if (!para || !para.trim()) continue;
+    const sentences = para.split(/(?<=[.!?…”])\s+/);
+    const kept = sentences.filter((s) => {
+      const trimmed = s.trim();
+      if (MANGLE_RX.test(trimmed) || CITATION_STUMP_RX.test(trimmed)) {
+        removed.push(trimmed.slice(0, 90));
+        return false;
+      }
+      return true;
+    });
+    if (kept.length !== sentences.length) paragraphs[pi] = kept.join(' ');
+  }
+  return { text: paragraphs.join(''), removed };
+}
+
 export function stripDroppedWordSentences(text) {
   const removed = [];
   const paragraphs = String(text || '').split(/(\n{2,})/);

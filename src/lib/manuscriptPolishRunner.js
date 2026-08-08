@@ -62,7 +62,7 @@ import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
-import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles, stripCrossChapterDuplicates } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3
+import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles, stripCrossChapterDuplicates, stripMangledSentences } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3
 import { splitSentencesSafe } from './sceneWriter.js';
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
@@ -432,6 +432,14 @@ export async function runManuscriptPolishPipeline({
         console.warn(`[DRAFTGATE-2] Ch.${chNumDw}: stripped ${dw.removed.length} dropped-word sentence(s): ${dw.removed.slice(0, 2).join(' | ')}`);
         changes.push(`Ch.${chNumDw}: DRAFTGATE-2 stripped ${dw.removed.length} dropped-word (broken-grammar) sentence(s)`);
         f.content = dw.text;
+      }
+
+      const mang = stripMangledSentences(String(f.content || ''));
+      if (mang.removed.length > 0) {
+        const chNumMang = f.chapter?.chapter_number || '?';
+        console.warn(`[DRAFTGATE-3H] Ch.${chNumMang}: stripped ${mang.removed.length} mangled sentence(s): ${mang.removed.slice(0, 2).join(' | ')}`);
+        changes.push(`Ch.${chNumMang}: DRAFTGATE-3H stripped ${mang.removed.length} mangled sentence(s)`);
+        f.content = mang.text;
       }
     }
   }

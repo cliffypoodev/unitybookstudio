@@ -11,7 +11,11 @@ import { toString } from 'nlcst-to-string';
 // EXPORT BLOCK on valid prose ("the extraction of the living from the
 // sinking streets"). High precision beats coverage: the gate must never
 // block correct English.
-const ADJ_LEXICON = new Set(['silent', 'lasting', 'direct']);
+// DRAFTGATE-3H: + measured censor-hole adjectives with no standard noun sense
+// ("a grim to the proximity" shipped). Every entry must fail the noun test:
+// "a <word>" must have no idiomatic noun reading (which is why quiet, living,
+// brief, fitting, final stay excluded — see PROSEGATE-1D).
+const ADJ_LEXICON = new Set(['silent', 'lasting', 'direct', 'grim', 'stark', 'solemn', 'enduring', 'poignant', 'somber', 'tangible']);
 const ARTICLES = new Set(['a', 'an', 'the']);
 const PREPOSITIONS = new Set(['to', 'of', 'in', 'on', 'for', 'with', 'from', 'by', 'at']);
 const DET_POSS = new Set(['the', 'its', 'this', 'that', 'their', 'his', 'her', 'these', 'those', 'a', 'an']);

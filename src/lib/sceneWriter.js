@@ -9,7 +9,7 @@
  * - Calls chapter summary save with the correct chapterId/content/chapterNumber signature.
  */
 
-import { stripDroppedWordSentences, fixIndefiniteArticles } from './nfContentGuard.js'; // DRAFTGATE-2 & 3
+import { stripDroppedWordSentences, stripMangledSentences, fixIndefiniteArticles } from './nfContentGuard.js'; // DRAFTGATE-2 & 3
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
@@ -2425,6 +2425,15 @@ async function generateSceneWithRepair({
       if (dw.removed.length > 0) {
         console.warn(`[DRAFTGATE-2] Stripped ${dw.removed.length} dropped-word sentence(s) after repairs failed: ${dw.removed.slice(0, 2).join(' | ')}`);
         prose = dw.text;
+        stripped = true;
+        evalResult = quickSceneEval(prose, spec, targetWords, project);
+      }
+    } catch (e) { /* strip unavailable — continue */ }
+    try {
+      const mang = stripMangledSentences(prose);
+      if (mang.removed.length > 0) {
+        console.warn(`[DRAFTGATE-3H] Stripped ${mang.removed.length} mangled sentence(s) after repairs failed: ${mang.removed.slice(0, 2).join(' | ')}`);
+        prose = mang.text;
         stripped = true;
         evalResult = quickSceneEval(prose, spec, targetWords, project);
       }
