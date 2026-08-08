@@ -76,6 +76,21 @@ export async function prepareResearchContent(content, projectId) {
 export async function resolveResearchContent(project) {
   if (!project) return '';
 
+  // RESEARCHKEY-1: INLINE research beats the URL whenever inline is the real
+  // brief. The upload path files every research blob under ONE constant key per
+  // project (`research-<projectId>`), the server store's create() pushes
+  // duplicate ids, and get() returns the FIRST match — so a "live" URL resolves
+  // to the OLDEST blob ever stored (measured on the flagship 2026-08-08: the
+  // URL returned a 10,232-char June brief while inline held the current
+  // 73,137-char one; the writer's prompt lane got the stale copy). Since
+  // RESEARCHQUALITY-2B research_md is stored FULL and INLINE on every save, so
+  // inline is always at least as fresh as any blob. The URL remains a fallback
+  // for legacy records whose inline is empty or the historical truncation stub
+  // (same stub heuristics checkResearchIntegrity documents below).
+  const inlineText = project.research_md || '';
+  const inlineIsStub = inlineText.includes('[Full research stored externally]') || inlineText.length < 600;
+  if (inlineText && !inlineIsStub) return inlineText;
+
   // Prefer URL — it has the most recently saved full version
   if (project.research_md_url) {
     if (project.research_md_url.startsWith('local://')) {
