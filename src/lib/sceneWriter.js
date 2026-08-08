@@ -9,7 +9,7 @@
  * - Calls chapter summary save with the correct chapterId/content/chapterNumber signature.
  */
 
-import { stripDroppedWordSentences, stripMangledSentences, fixIndefiniteArticles } from './nfContentGuard.js'; // DRAFTGATE-2 & 3
+import { stripDroppedWordSentences, stripMangledSentences, fixIndefiniteArticles, buildFactLedger, checkClockTimeViolations, checkFateViolations, stripFactLedgerViolations, buildFactLedgerPromptBlock } from './nfContentGuard.js'; // DRAFTGATE-2 & 3 + ARCH-1C
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
@@ -281,6 +281,21 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
         blockingIssues.push(`Sources cited that are NOT in the research: ${srcFlags.map((v) => v.snippet).join(' | ')}. Rewrite this section citing ONLY sources named in the supplied research. Do not cite any archive, record, report, log, document, newspaper, or statistic that is not in the research — where no source exists, omit the claim entirely (do not narrate silences or gaps in the record). Also remove or rewrite any sentence that refers back to a source you are removing.`);
       }
     } catch (e) { /* detector unavailable — do not block */ }
+    // ARCH-1C: clock times and figure fates are closed-world. Both checkers are
+    // deterministic and were measured at zero false positives on 97k words of
+    // real prose before wiring, so they block (rewrite-first) rather than
+    // strip-only.
+    try {
+      const ledger = buildFactLedger(project);
+      const clockV = checkClockTimeViolations(prose, ledger);
+      if (clockV.length > 0) {
+        blockingIssues.push(`Clock times not present in the research: ${clockV.slice(0, 3).map((v) => v.atom).join(', ')}. The research is the only permitted source for a time of day. Rewrite each affected sentence using either a clock time that appears in the research or general phrasing (that morning, around midday) — never invent a specific time.`);
+      }
+      const fateV = checkFateViolations(prose, ledger);
+      if (fateV.length > 0) {
+        blockingIssues.push(`Life-outcome claims not attested in the research: ${fateV.slice(0, 3).map((v) => v.atom).join(', ')}. The research does not state this person's death, survival, rescue, or injury. Rewrite each affected sentence to say only what the research documents about them — do not state or imply whether they lived, died, escaped, or were hurt.`);
+      }
+    } catch (e) { /* ledger unavailable — do not block */ }
   }
 
   // SEVERE: degenerate non-Latin output (model loop) → blocking, force retry
@@ -1146,7 +1161,8 @@ function buildOutputRules(project, targetWords) {
 - For numbers, death counts, casualty categories, dates, names, source titles, quotes, court outcomes, and locations: do not improvise. State only what the supplied material supports, or explicitly say the available record is unclear.
 - Rotate evidence verbs naturally: "indicate", "suggest", "describe", "point to", "reveal", "reflect", "document", "outline". Never use the same evidence construction more than once per section. BANNED phrases (never use): "the available accounts indicate", "the available accounts suggest", "the surviving record shows", "what remains unclear is", "the record suggests", "this suggests" (as a sentence opener), "the question therefore shifts".
 - If a casualty count or death location appears contradictory, do NOT resolve it and do NOT insert a generic caution paragraph. Keep the uncertainty concise and tied to the immediate paragraph.
-- Do not repeat the same thesis sentence in different words. Advance the investigation.`;
+- Do not repeat the same thesis sentence in different words. Advance the investigation.
+${buildFactLedgerPromptBlock(buildFactLedger(project))}`;
   }
 
   return `OUTPUT RULES:
@@ -2447,6 +2463,19 @@ async function generateSceneWithRepair({
         if (prose !== beforeCw) { stripped = true; evalResult = quickSceneEval(prose, spec, targetWords, project); }
       }
     } catch (e) { /* closed-world unavailable — continue */ }
+    // ARCH-1C: clock/fate ledger strip — if an un-evidenced clock time or
+    // life-outcome claim survived every repair, the sentence is removed.
+    // Blank beats fabricated.
+    try {
+      const flLedger = buildFactLedger(project);
+      const fl = stripFactLedgerViolations(prose, flLedger);
+      if (fl.removed.length > 0) {
+        console.warn(`[FATE-GATE] Stripped ${fl.removed.length} un-evidenced clock/fate sentence(s) after repairs failed: ${fl.removed.slice(0, 2).join(' | ')}`);
+        prose = fl.text;
+        stripped = true;
+        evalResult = quickSceneEval(prose, spec, targetWords, project);
+      }
+    } catch (e) { /* fact-ledger strip unavailable — continue */ }
     // SCAFFOLDFIX-1: scaffold/meta sentences that survived every repair are stripped, never shipped.
     try {
       const SCAFFOLD_STRIP_RX = [
