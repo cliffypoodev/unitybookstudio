@@ -7,8 +7,13 @@
  * @module parallelDraftPool
  */
 
-/** Default number of concurrent lanes. */
-export const PARALLEL_DRAFT_LANE_LIMIT = 4;
+/** Default number of concurrent lanes.
+ * SEQFIX-1: capped at 1 — every caller drives the same one-slot local llama
+ * (HARD RULE: one LLM call at a time). Measured 2026-08-07: 4 lanes × one
+ * slot × 20-min request timeout = guaranteed cascade failure, 0/4 chapters,
+ * 71 minutes burned. Raise ONLY if the model server ever gains true
+ * multi-slot serving. */
+export const PARALLEL_DRAFT_LANE_LIMIT = 1;
 
 /**
  * Run `worker` over every item in `items` using a work-stealing pool

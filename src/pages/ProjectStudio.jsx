@@ -1297,8 +1297,10 @@ function fitOrMinifyForEntity(obj, limit = SCENE_BEATS_ENTITY_CHAR_LIMIT) {
   return null;
 }
 
-const NONFICTION_DRAFT_LANE_LIMIT = 4;
-const ANTHOLOGY_DRAFT_LANE_LIMIT = 4;
+// SEQFIX-1: one LLM call at a time — see parallelDraftPool.js. 4-lane batch
+// against the local llama cascade-timed-out live (0/4 chapters drafted).
+const NONFICTION_DRAFT_LANE_LIMIT = 1;
+const ANTHOLOGY_DRAFT_LANE_LIMIT = 1;
 const REWRITE_DRAFT_LANE_LIMIT = 1;
 
 
