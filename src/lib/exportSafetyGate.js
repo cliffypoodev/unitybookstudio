@@ -350,7 +350,13 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     const seenX = new Map();
     const dupX = [];
     for (const ch of chapters) {
-      const contentX = String(ch?.content || '');
+      // BOOKGATE-3B: resolved export chapters carry content_md (see
+      // applyFinalExportCleanup), never a bare content field — the live store
+      // has zero Chapter records with one. Reading ch.content scanned empty
+      // strings, so this hard gate had been dead code since it landed; the
+      // polish pre-pass heal masked it. content stays as a fallback for any
+      // caller that shapes chapters that way.
+      const contentX = String(ch?.content_md || ch?.content || '');
       const sentsX = contentX.split(/(?<=[.!?…”])\s+/);
       for (const s of sentsX) {
         const normX = s.replace(/\s+/g, ' ').trim();

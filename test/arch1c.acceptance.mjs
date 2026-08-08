@@ -156,6 +156,9 @@ function runTest() {
   const esgSrc = fs.readFileSync(path.join(ROOT, 'src/lib/exportSafetyGate.js'), 'utf8');
   check("18. exportSafetyGate.js contains ARCH-1C items", esgSrc.includes('[ARCH-1C] ${v.type} not in evidence') && esgSrc.includes("from './nfContentGuard.js'; // ARCH-1C"));
 
+  // 19
+  check("19. exportSafetyGate.js BOOKGATE-3B fix", !esgSrc.includes("String(ch?.content || '')") && esgSrc.includes("String(ch?.content_md || ch?.content || '')"));
+
   if (failures === 0) {
     console.log('ACCEPTANCE: ALL CHECKS MATCHED');
   }
