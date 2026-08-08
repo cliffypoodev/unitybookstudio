@@ -77,7 +77,7 @@ check('4. trailing strip: own line untouched', strip("* * *") === "* * *");
 
 // 5. Source assertions
 const cleanSrc = src.split('\n').filter(l => !/^\s*(\/\/|\/\*|\*)/.test(l)).join('\n');
-check('5. regex literal present in quickSceneEval', cleanSrc.includes("(?:a|an)\\s+(?:to|of|in|on|for|with|from|by|at)\\s+(?:the|its|this|that|their|his|her|these|those|a|an)"));
+check('5. regex literal present in quickSceneEval', cleanSrc.includes("(?:(?:to|of|in|on|for|with|from|by|at)\\s+(?:the|its|this|that|their|his|her|these|those|a|an)\\b|(?:to|of|in|on|for|with|from|by)\\s+(?=[a-z]))"));
 check('5. trailing strip replace present in source', cleanSrc.includes('/([.!?…”])[ \\t]*[*_]+[ \\t]*(?=\\n|$)/g, \'$1\''));
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

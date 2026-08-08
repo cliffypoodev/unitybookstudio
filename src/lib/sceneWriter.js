@@ -311,7 +311,7 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
   // blocked and the model rewrites the sentence itself. Mode-independent: this
   // is grammar, not a nonfiction rule.
   // DRAFTGATE-3B: widened dropped-word object net (possessives and demonstratives)
-  const droppedWordHoles = prose.match(/\b(?:a|an)\s+(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b/gi);
+  const droppedWordHoles = prose.match(/\b(?:a|an)\s+(?:(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b|(?:to|of|in|on|for|with|from|by)\s+(?=[a-z]))/gi);
   if (droppedWordHoles && droppedWordHoles.length > 0) {
     blockingIssues.push(`Malformed sentence — dropped word (${droppedWordHoles.length} instance(s): ${droppedWordHoles.slice(0, 3).join(' | ')}). An article followed directly by a preposition means a noun was omitted. Rewrite each affected sentence with complete grammar; do not skip nouns after articles.`);
   }

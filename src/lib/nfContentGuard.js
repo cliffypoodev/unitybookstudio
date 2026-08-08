@@ -28,7 +28,11 @@ export function nfContentEquivalent(before, after) {
 // boundaries, preserves paragraph breaks, and returns what was removed so every
 // call site can log loudly.
 // DRAFTGATE-3B: widened dropped-word object net
-export const DROPPED_WORD_RX = /\b(?:a|an)\s+(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b/i;
+// DRAFTGATE-3G: + bare-noun objects ("a to industrial might" — measured in a
+// shipped export). a/an + preposition + word is never valid English; the space
+// requirement excludes hyphenated compounds ("a to-do list"), and "at" stays
+// det-only so "an at sign" never flags.
+export const DROPPED_WORD_RX = /\b(?:a|an)\s+(?:(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b|(?:to|of|in|on|for|with|from|by)\s+(?=[a-z]))/i;
 
 export function stripDroppedWordSentences(text) {
   const removed = [];
@@ -66,4 +70,33 @@ export function fixIndefiniteArticles(text) {
     return m;
   });
   return { text: out, fixed };
+}
+
+// BOOKGATE-3: exact 12+-word sentences appearing in MORE THAN ONE chapter are
+// duplicated text, not echoes. Keep the first chapter's copy; strip the rest.
+// Measured live: 15 such sentences shipped in one export — an entire rescue
+// passage re-appeared one chapter later.
+export function stripCrossChapterDuplicates(chapterTexts) {
+  const seen = new Map(); // normalized sentence -> first chapter index
+  const removedPerChapter = chapterTexts.map(() => []);
+  const out = chapterTexts.map((text, ci) => {
+    const paragraphs = String(text || '').split(/(\n{2,})/);
+    for (let pi = 0; pi < paragraphs.length; pi += 2) {
+      const para = paragraphs[pi];
+      if (!para || !para.trim()) continue;
+      const sentences = para.split(/(?<=[.!?…”])\s+/);
+      const kept = sentences.filter((s) => {
+        const norm = s.replace(/\s+/g, ' ').trim();
+        if (norm.split(' ').length < 12) return true;
+        const firstCi = seen.get(norm);
+        if (firstCi === undefined) { seen.set(norm, ci); return true; }
+        if (firstCi === ci) return true;
+        removedPerChapter[ci].push(norm.slice(0, 90));
+        return false;
+      });
+      if (kept.length !== sentences.length) paragraphs[pi] = kept.join(' ');
+    }
+    return paragraphs.join('');
+  });
+  return { texts: out, removedPerChapter };
 }

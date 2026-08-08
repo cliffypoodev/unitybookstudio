@@ -53,7 +53,11 @@ function droppedNounPlugin() {
             const w2 = words[i+1].text;
             const w3 = words[i+2].text;
             
-            if (PREPOSITIONS.has(w2) && DET_POSS.has(w3)) {
+            // DRAFTGATE-3G: for a/an, article + preposition is invalid with ANY
+            // following word (bare-noun holes like "a to industrial might");
+            // "at" keeps the det requirement ("an at sign" is valid English).
+            // For "the", the det requirement stands ("the to the").
+            if (PREPOSITIONS.has(w2) && (DET_POSS.has(w3) || (w1 !== 'the' && w2 !== 'at'))) {
               const m = file.message('Dropped noun (article + preposition)', words[i].node, 'prosegate:dropped-noun');
               m.paragraph = paragraphIndex;
               m.actual = words.slice(i, i+3).map(w => w.text).join(' ');
