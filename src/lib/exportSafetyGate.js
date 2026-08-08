@@ -541,7 +541,10 @@ export function formatExportSafetyFailure(report) {
 
   for (const f of report.hardFailures) {
     lines.push(`  Chapter ${f.chapterNumber}: ${f.title}`);
-    lines.push(`    Action: ${f.recommendedAction}`);
+    lines.push(`    Action: ${f.recommendedAction || 'FIX_OR_REDRAFT'}`);
+    for (const r of (f.reasons || []).slice(0, 3)) {
+      lines.push(`    → ${r}`);
+    }
     if (f.processLeakCount > 0) lines.push(`    Process leaks: ${f.processLeakCount}`);
     if (f.contaminationCount > 0) lines.push(`    Contamination: ${f.contaminationCount}`);
     if (f.malformedCount > 0) lines.push(`    Malformed grammar: ${f.malformedCount}`);

@@ -41,9 +41,39 @@ async function runTest() {
   const t8 = await analyzeProse("They took a trip to the store before the hearing began.");
   check('8. "a trip" (valid)', t8.hard.length === 0);
 
-    if (failures > 0) {
+  // COMMIT 2: vm-extract formatExportSafetyFailure from src/lib/exportSafetyGate.js
+  import('vm').then(vm => {
+    const esSrc = fs.readFileSync(path.join(ROOT, 'src/lib/exportSafetyGate.js'), 'utf8');
+    const esMatch = esSrc.match(/(?:export\s+)?function\s+formatExportSafetyFailure[\s\S]*?\n\}/);
+    if (!esMatch) {
+      console.error("Could not find formatExportSafetyFailure in exportSafetyGate.js");
       process.exit(1);
     }
+    const formatExportSafetyFailureCode = esMatch[0].replace(/export\s+/, '');
+    const sandbox = {};
+    vm.createContext(sandbox);
+    vm.runInContext(formatExportSafetyFailureCode + '; this.formatExportSafetyFailure = formatExportSafetyFailure;', sandbox);
+    
+    const output = sandbox.formatExportSafetyFailure({
+      blocked: true,
+      hardFailures: [{
+        chapterNumber: 2,
+        title: 'T',
+        reasons: ['Grammar (dropped-noun) paragraph 3: "a silent to this"']
+      }]
+    });
+    
+    check('9. export-block dialog names the reason and defaults Action',
+      output.includes('FIX_OR_REDRAFT') &&
+      output.includes('→ Grammar (dropped-noun) paragraph 3: "a silent to this"') &&
+      !output.includes('undefined')
+    );
+
+    if (failures === 0) {
+      console.log('ACCEPTANCE: ALL CHECKS MATCHED');
+    }
+    process.exit(failures === 0 ? 0 : 1);
+  });
 }
 
 runTest();
