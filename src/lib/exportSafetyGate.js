@@ -49,6 +49,7 @@ export function assertExportSnapshotIntegrity({
 
 import { runManuscriptSafetyGate } from './manuscriptSafetyGate.js';
 import { buildFactLedger, checkClockTimeViolations, checkFateViolations } from './nfContentGuard.js'; // ARCH-1C
+import { ensureResearchEvidence } from './researchStorage.js'; // RESEARCHQUALITY-2C
 import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { checkStructuralIntegrity, checkBookIntegrity } from './pipelineValidator.js';
 import { analyzeProse } from './proseGrammarGate.js';
@@ -82,7 +83,10 @@ async function getDialogueDetector() {
  * }}
  */
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
-  const { project, stage = 'pre-export' } = options;
+  let { project, stage = 'pre-export' } = options;
+  // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the export-lane
+  // ledger sees the same closed world as drafting. Fail-open.
+  project = await ensureResearchEvidence(project);
   const timestamp = new Date().toISOString();
 
   const hardFailures = [];

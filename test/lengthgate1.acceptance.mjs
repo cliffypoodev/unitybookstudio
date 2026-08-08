@@ -44,6 +44,7 @@ const gcCtx = {
     malformed: { matches: [] }
   }),
   runReferenceIntegrityGate: () => ({ blocked: false, blockingIssues: [], advisoryIssues: [], warnings: [] }),
+  ensureResearchEvidence: async (p) => p, // RESEARCHQUALITY-2C: lane hydration is a pass-through in this harness
   checkStructuralIntegrity: () => [],
   checkBookIntegrity: () => ({ shortChapters: [] }),
   __e: {},

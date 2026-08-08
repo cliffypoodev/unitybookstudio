@@ -63,6 +63,7 @@ import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
 import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles, stripCrossChapterDuplicates, stripMangledSentences, buildFactLedger, stripFactLedgerViolations } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3 + ARCH-1C
+import { ensureResearchEvidence } from './researchStorage.js'; // RESEARCHQUALITY-2C
 import { splitSentencesSafe } from './sceneWriter.js';
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
@@ -106,6 +107,9 @@ export async function runManuscriptPolishPipeline({
   _llmOverride = null,
   _testInjectHealer = null,
 }) {
+  // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the polish-lane
+  // ledger sees the same closed world as drafting. Fail-open.
+  project = await ensureResearchEvidence(project);
   const changes = [];
   const isAnthology = isAnthologyProject(project);
   const isComedy = isComedyProject(project);

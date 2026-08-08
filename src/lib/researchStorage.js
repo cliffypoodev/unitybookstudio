@@ -109,6 +109,28 @@ export async function resolveResearchContent(project) {
 }
 
 /**
+ * RESEARCHQUALITY-2C: one evidence corpus for every lane. The closed-world
+ * gates read project.research_md RAW; the draft lane hydrates it from
+ * research_md_url but the polish and export lanes passed the raw record, so
+ * a URL-backed brief silently thinned their closed world (measured live
+ * 2026-08-08: flagship fate attestation 2/31 raw vs 14/31 with the brief).
+ * Fail-open: on any resolution failure the project is returned unchanged.
+ */
+export async function ensureResearchEvidence(project) {
+  if (!project || project.research_md || !project.research_md_url) return project;
+  try {
+    const full = await resolveResearchContent(project);
+    if (full && full.length > 50) {
+      console.log('[RESEARCH-EVIDENCE] hydrated research_md from URL for gate evaluation (' + full.length + ' chars)');
+      return { ...project, research_md: full };
+    }
+  } catch (e) {
+    console.warn('[RESEARCH-EVIDENCE] hydration failed — gates run on inline evidence only:', e?.message);
+  }
+  return project;
+}
+
+/**
  * Checks if a project has any research content (inline or via URL).
  */
 export function projectHasResearch(project) {
