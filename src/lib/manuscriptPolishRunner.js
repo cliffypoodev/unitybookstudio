@@ -62,7 +62,7 @@ import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
-import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles, stripCrossChapterDuplicates, stripMangledSentences } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3
+import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles, stripCrossChapterDuplicates, stripMangledSentences, buildFactLedger, stripFactLedgerViolations } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3 + ARCH-1C
 import { splitSentencesSafe } from './sceneWriter.js';
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
@@ -440,6 +440,17 @@ export async function runManuscriptPolishPipeline({
         console.warn(`[DRAFTGATE-3H] Ch.${chNumMang}: stripped ${mang.removed.length} mangled sentence(s): ${mang.removed.slice(0, 2).join(' | ')}`);
         changes.push(`Ch.${chNumMang}: DRAFTGATE-3H stripped ${mang.removed.length} mangled sentence(s)`);
         f.content = mang.text;
+      }
+
+      // ARCH-1C: heal un-evidenced clock times and life-outcome claims in SAVED
+      // chapters. Deterministic, closed-world, loud. Runs before the NFGUARD
+      // snapshot on purpose — this is a sanctioned pre-pass repair.
+      const flPolish = stripFactLedgerViolations(String(f.content || ''), buildFactLedger(project));
+      if (flPolish.removed.length > 0) {
+        const chNumFl = f.chapter?.chapter_number || '?';
+        console.warn(`[FATE-GATE] Ch.${chNumFl}: stripped ${flPolish.removed.length} un-evidenced clock/fate sentence(s): ${flPolish.removed.slice(0, 2).join(' | ')}`);
+        changes.push(`Ch.${chNumFl}: ARCH-1C stripped ${flPolish.removed.length} un-evidenced clock/fate sentence(s)`);
+        f.content = flPolish.text;
       }
     }
   }

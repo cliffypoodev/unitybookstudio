@@ -144,7 +144,17 @@ function runTest() {
   const L_url = buildFactLedger(projectUrl);
   check("15. URL-slug filter regression", L_url.figures.some(f => f.surname === 'Marsh'));
 
-  // Assertions 16-19 will be tested via regex of source files in subsequent commits
+  // 16
+  const swSrc = fs.readFileSync(path.join(ROOT, 'src/lib/sceneWriter.js'), 'utf8');
+  check("16. sceneWriter.js contains ARCH-1C items", swSrc.includes('buildFactLedgerPromptBlock(buildFactLedger(project))') && swSrc.includes('stripFactLedgerViolations(prose, flLedger)') && swSrc.includes('Clock times not present in the research'));
+
+  // 17
+  const mprSrc = fs.readFileSync(path.join(ROOT, 'src/lib/manuscriptPolishRunner.js'), 'utf8');
+  check("17. manuscriptPolishRunner.js contains ARCH-1C items", mprSrc.includes('ARCH-1C stripped') && mprSrc.includes('stripFactLedgerViolations'));
+
+  // 18
+  const esgSrc = fs.readFileSync(path.join(ROOT, 'src/lib/exportSafetyGate.js'), 'utf8');
+  check("18. exportSafetyGate.js contains ARCH-1C items", esgSrc.includes('[ARCH-1C] ${v.type} not in evidence') && esgSrc.includes("from './nfContentGuard.js'; // ARCH-1C"));
 
   if (failures === 0) {
     console.log('ACCEPTANCE: ALL CHECKS MATCHED');

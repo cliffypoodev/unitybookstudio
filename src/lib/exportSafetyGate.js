@@ -48,6 +48,7 @@ export function assertExportSnapshotIntegrity({
 }
 
 import { runManuscriptSafetyGate } from './manuscriptSafetyGate.js';
+import { buildFactLedger, checkClockTimeViolations, checkFateViolations } from './nfContentGuard.js'; // ARCH-1C
 import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { checkStructuralIntegrity, checkBookIntegrity } from './pipelineValidator.js';
 import { analyzeProse } from './proseGrammarGate.js';
@@ -148,6 +149,25 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         continue;
       }
     }
+
+    // ARCH-1C: no un-evidenced clock time or life-outcome claim ships. The
+    // draft lane blocks and strips; polish heals saved chapters; this is the
+    // guarantee. Ledger-driven: projects without research build no ledger and
+    // skip cleanly.
+    try {
+      const flLedger = buildFactLedger(project);
+      const flClock = checkClockTimeViolations(content, flLedger);
+      const flFate = checkFateViolations(content, flLedger);
+      if (flClock.length + flFate.length > 0) {
+        console.error(`[FATE-GATE] Ch.${ch?.chapter_number} BLOCKED: ${flClock.length} clock-time + ${flFate.length} fate violation(s): ` + [...flClock, ...flFate].slice(0, 3).map((v) => `[${v.atom}] "${v.snippet.slice(0, 60)}"`).join(' | '));
+        hardFailures.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          reasons: [...flClock, ...flFate].slice(0, 5).map((v) => `[ARCH-1C] ${v.type} not in evidence (${v.atom}): "${v.snippet.slice(0, 90)}"`),
+        });
+        continue;
+      }
+    } catch (e) { console.error('[FATE-GATE] check unavailable — clock/fate NOT verified:', e?.message); }
 
     const gate = runManuscriptSafetyGate(content, {
       project,
