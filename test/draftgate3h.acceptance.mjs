@@ -31,13 +31,24 @@ async function runTest() {
   check('2. "were remained": stripped by stripMangledSentences', res2.removed.length === 1 && res2.text.trim() === "");
 
   // 3
-  const c3 = "The case of Dorr v. The next sentence stands.";
+  const c3 = "Oversight mattered here. The case went to Dorr v.";
   const res3 = stripMangledSentences(c3);
-  check('3. "Dorr v.": CITATION_STUMP_RX strips stump, following sentence survives', res3.removed.length === 1 && res3.text.trim() === "The next sentence stands.");
+  check('3. "Dorr v." end of paragraph: exactly 1 removal, "Dorr v." gone, valid sentence survives', res3.removed.length === 1 && !res3.text.includes("Dorr v.") && res3.text.includes("Oversight mattered here."));
 
-  // 4
-  const c4 = "The case of Dorr, trustee, v. United States Industrial Alcohol Company set precedent.";
-  check('4. "v." mid-sentence: NOT stripped', !CITATION_STUMP_RX.test(c4));
+  // 4a
+  const c4a = "The case of Dorr, trustee, v. United States Industrial Alcohol Company set a precedent that endured for decades. The ruling mattered.";
+  const res4a = stripMangledSentences(c4a);
+  check('4a. "v." mid-sentence: ZERO removals, output byte-identical', res4a.removed.length === 0 && res4a.text === c4a);
+
+  // 4b
+  const c4b = "The disaster served as a wake-up call for the state. The case of Dorr v. The story of the flood is a reminder of the fragility of human life. It is a story of negligence and consequence.";
+  const res4b = stripMangledSentences(c4b);
+  check('4b. fused stump: exactly 1 removal, keeps valid sentences', res4b.removed.length === 1 && res4b.text.includes("wake-up call") && res4b.text.includes("negligence and consequence") && !res4b.text.includes("Dorr v.") && !res4b.text.includes("reminder of the fragility"));
+
+  // 4c
+  const c4c = "They cited Smith v. Commonwealth in the brief that morning. It held.";
+  const res4c = stripMangledSentences(c4c);
+  check('4c. valid proper noun defendant: ZERO removals', res4c.removed.length === 0 && res4c.text === c4c);
 
   // 5
   const c5 = "A grim reminder of the day remained with them.";

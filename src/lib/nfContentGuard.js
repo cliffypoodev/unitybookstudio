@@ -40,15 +40,25 @@ export const DROPPED_WORD_RX = /\b(?:a|an)\s+(?:(?:to|of|in|on|for|with|from|by|
 // (b) adjective censor-hole: a/an + noun-less adjective + preposition + object
 //     ("served as a grim to the proximity") — the PROSEGATE lexicon, in regex form.
 export const MANGLE_RX = /\b(?:was|were|is|are|be|been|being)\s+(?:remained|existed|persisted|lingered|elapsed|occurred|happened)\b|\b(?:a|an)\s+(?:silent|lasting|direct|grim|stark|solemn|enduring|poignant|somber|tangible)\s+(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b/i;
-// (c) citation stump: a sentence unit ending " v." is a truncated case name.
-export const CITATION_STUMP_RX = /\bv\.$/;
+// DRAFTGATE-3H-FIXUP: two decidable stump shapes — a unit that ENDS with "v."
+// (paragraph-final truncation), and a fused unit where "v." is followed by a
+// sentence-starter function word ("Dorr v. The story of…") — real defendants
+// are proper nouns (United States, Commonwealth), never articles/pronouns.
+export const CITATION_STUMP_RX = /\bv\.$|\bv\.\s+(?:The|A|An|It|This|That|But|And|However|Yet)\s/;
 export function stripMangledSentences(text) {
   const removed = [];
   const paragraphs = String(text || '').split(/(\n{2,})/);
   for (let pi = 0; pi < paragraphs.length; pi += 2) {
     const para = paragraphs[pi];
     if (!para || !para.trim()) continue;
-    const sentences = para.split(/(?<=[.!?…”])\s+/);
+    // DRAFTGATE-3H-FIXUP: protect legal "v." from the lightweight split so a
+    // valid case name stays ONE unit (mirrors the DRAFTGATE-3F tokenizer rule).
+    // Without this, "Dorr, trustee, v. United States…" split at "v." and the
+    // stump rule beheaded the valid sentence — measured in sandbox before any
+    // polish ran on this build.
+    const PROT_V = String.fromCharCode(1);
+    const work = para.replace(/\bv\.(?=\s)/g, 'v' + PROT_V);
+    const sentences = work.split(/(?<=[.!?…”])\s+/).map((s) => s.split(PROT_V).join('.'));
     const kept = sentences.filter((s) => {
       const trimmed = s.trim();
       if (MANGLE_RX.test(trimmed) || CITATION_STUMP_RX.test(trimmed)) {
