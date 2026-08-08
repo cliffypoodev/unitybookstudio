@@ -74,6 +74,7 @@ import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity 
 import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
+import { selectFateSentences, formatFateNotes, figuresNeedingFates } from '@/lib/fateEnrichment'; // RESEARCHQUALITY-2D
 import { extractPremiseEntities, buildPremiseCoverageBlock, reportPremiseCoverage } from '@/lib/premiseFidelity';
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
@@ -2890,6 +2891,24 @@ Return structured JSON:
         }
       }
 
+      // RESEARCHQUALITY-2D: deterministic fate enrichment from the already-fetched
+      // pages. For each figure, sentences containing BOTH the figure's surname and a
+      // fate-class word are COPIED verbatim (whitespace-collapsed) into that figure's
+      // own entry as fate_notes, with the page URL and a cross-page source count —
+      // single-source fates stay visibly weak. No LLM call, no summarization, no new
+      // claims: the corpus sentence is the note. Existing fate_notes are never
+      // overwritten. The ledger's own-entry attestation reads fate_notes with zero
+      // ledger changes.
+      try {
+        let enrichedCount = 0;
+        for (const fig of data.key_figures || []) {
+          if (!fig || fig.fate_notes) continue;
+          const notes = selectFateSentences({ pages: richPages, figureName: fig.name });
+          if (notes.length) { fig.fate_notes = formatFateNotes(notes); enrichedCount++; }
+        }
+        console.log('[FATE-ENRICH] ' + enrichedCount + ' figure(s) gained fate notes from ' + richPages.length + ' fetched page(s)');
+      } catch (feErr) { console.warn('[FATE-ENRICH] enrichment pass failed safely:', feErr?.message); }
+
       // RESEARCHORDER-1: persist AFTER the integrity guards so blanked quotes stay blanked.
       const researchMd = formatNonfictionResearchMarkdown(data, subject);
       const researchFields = await prepareResearchContent(researchMd, project.id);
@@ -2977,6 +2996,45 @@ Return structured JSON:
     for (const m of missingTopics) {
       queries.push(`${subject} ${m}`);
       if (queries.length > 20) break; // cap to 20 queries so we don't spam the bridge
+    }
+
+    await executeResearchPipeline(queries, subject, topic, true);
+  };
+
+  // RESEARCHQUALITY-2D: targeted fate research. Builds one query per figure that
+  // carries no fate evidence yet (capped at 24), fetches through the standard
+  // pipeline in append mode, and lets the deterministic enrichment pass copy
+  // fate sentences from whatever the queries bring back.
+  const handleFateResearch = async () => {
+    if (!project) return;
+
+    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
+    if (!topic.trim()) {
+      toast.error('Add a seed concept/topic before running fate research.');
+      return;
+    }
+
+    const rawTitle = (project.title || '').trim();
+    const firstLine = (topic.split('\n').find((l) => l.trim().length > 0) || topic).trim();
+    let subject = (rawTitle || firstLine)
+      .replace(/^(author|book title|title)\s*[:\-]?\s*/i, '')
+      .replace(/[*_#>]/g, '')
+      .replace(/["“”']/g, '')
+      .split(/[:\-—]/)[0]
+      .trim()
+      .slice(0, 80);
+    if (!subject) subject = firstLine.slice(0, 80);
+
+    const needing = figuresNeedingFates(project.research_data);
+    if (!needing.length) {
+      toast.success('Every researched figure already carries fate evidence.');
+      return;
+    }
+
+    const queries = [];
+    for (const name of needing) {
+      queries.push(name + ' ' + subject);
+      if (queries.length >= 24) break;
     }
 
     await executeResearchPipeline(queries, subject, topic, true);
@@ -6297,6 +6355,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                   researchData={researchData}
                   onResearch={handleResearch}
                   onOutlineResearch={handleOutlineResearch}
+                  onFateResearch={handleFateResearch}
                   onReResearch={handleResearch}
                   onResearchChange={handleSaveResearch}
                   onGenerateCopyright={handleGenerateCopyright}
@@ -6322,6 +6381,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                   researchData={researchData}
                   onResearch={handleResearch}
                   onOutlineResearch={handleOutlineResearch}
+                  onFateResearch={handleFateResearch}
                   onReResearch={handleResearch}
                   onResearchChange={handleSaveResearch}
                   onGenerateCopyright={handleGenerateCopyright}

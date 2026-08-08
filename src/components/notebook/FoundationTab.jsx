@@ -45,6 +45,7 @@ export default function FoundationTab({
   researchData,
   onResearch,
   onOutlineResearch,
+  onFateResearch,
   onReResearch,
   onResearchChange,
   onGenerateCopyright,
@@ -119,6 +120,7 @@ export default function FoundationTab({
             researchData={researchData}
             onResearch={onResearch}
             onOutlineResearch={onOutlineResearch}
+            onFateResearch={onFateResearch}
             onReResearch={onReResearch}
             onResearchChange={onResearchChange}
             busyLabel={busyLabel}
