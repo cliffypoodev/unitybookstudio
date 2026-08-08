@@ -322,6 +322,34 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     }
   }
 
+  // ── BOOKGATE-3: verbatim cross-chapter duplication (whole-manuscript, HARD) ──
+  // Exact 12+-word sentences in 2+ chapters are duplicated text a reader will
+  // catch — different class from BOOKGATE-2's advisory echoes. The polish
+  // pre-pass heals these; the gate guarantees none survive to export.
+  try {
+    const seenX = new Map();
+    const dupX = [];
+    for (const ch of chapters) {
+      const contentX = String(ch?.content || '');
+      const sentsX = contentX.split(/(?<=[.!?…”])\s+/);
+      for (const s of sentsX) {
+        const normX = s.replace(/\s+/g, ' ').trim();
+        if (normX.split(' ').length < 12) continue;
+        const firstX = seenX.get(normX);
+        if (firstX === undefined) seenX.set(normX, ch?.chapter_number);
+        else if (firstX !== ch?.chapter_number) dupX.push({ a: firstX, b: ch?.chapter_number, s: normX.slice(0, 80) });
+      }
+    }
+    if (dupX.length > 0) {
+      console.error(`[BOOKGATE-3] BLOCKED: ${dupX.length} verbatim cross-chapter duplicate sentence(s): ` + dupX.slice(0, 3).map((d) => `ch${d.a}=ch${d.b} "${d.s}"`).join(' | '));
+      hardFailures.push({
+        chapterNumber: dupX[0].b,
+        title: 'Cross-chapter duplication',
+        reasons: dupX.slice(0, 5).map((d) => `Verbatim sentence in ch.${d.a} and ch.${d.b}: "${d.s}"`),
+      });
+    }
+  } catch (e) { console.error('[BOOKGATE-3] check unavailable — duplication NOT verified:', e?.message); }
+
   // ── BOOKGATE-2: cross-chapter integrity (whole-manuscript, ADVISORY) ──
   //
   // Deliberately NOT a hard block. Repeated phrasing and an under-length chapter

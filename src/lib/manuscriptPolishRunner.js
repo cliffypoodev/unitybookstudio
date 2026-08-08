@@ -62,7 +62,7 @@ import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
-import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3
+import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles, stripCrossChapterDuplicates } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3
 import { splitSentencesSafe } from './sceneWriter.js';
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
@@ -347,6 +347,21 @@ export async function runManuscriptPolishPipeline({
   // NFGUARD snapshot on purpose — this is a sanctioned pre-pass repair, and it
   // is loud. See nfContentGuard.js stripDroppedWordSentences.
   if (mode === 'nonfiction') {
+    // BOOKGATE-3: strip exact cross-chapter duplicate sentences (12+ words),
+    // keeping the earliest chapter's copy. Runs before NFGUARD snapshots so
+    // the heal is baseline. Loud per chapter.
+    {
+      const ccd = stripCrossChapterDuplicates(loaded.map((f) => String(f.content || '')));
+      ccd.removedPerChapter.forEach((removed, i) => {
+        if (removed.length > 0) {
+          const chNumCcd = loaded[i].chapter?.chapter_number || '?';
+          console.warn(`[BOOKGATE-3] Ch.${chNumCcd}: stripped ${removed.length} cross-chapter duplicate sentence(s): ${removed.slice(0, 2).join(' | ')}`);
+          changes.push(`Ch.${chNumCcd}: BOOKGATE-3 stripped ${removed.length} cross-chapter duplicate sentence(s)`);
+          loaded[i].content = ccd.texts[i];
+        }
+      });
+    }
+
     for (const f of loaded) {
       // POLISHFIX-10: same provable-artifact strip as DRAFTGATE-1B, applied to
       // SAVED chapters — a stray emphasis marker dangling after terminal
