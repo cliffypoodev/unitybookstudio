@@ -19,6 +19,11 @@ console.log(`[FOUNDATION-STORAGE] Loaded ${FOUNDATION_STORAGE_VERSION}`);
 const MAX_INLINE_SIZE = 9000;
 
 // Fields that may overflow and have corresponding *_url fields on NovelProject.
+// RESEARCHQUALITY-2B: fields listed here are NEVER blanked into a *_url by
+// prepareFoundationPayload. They stay in OVERFLOWABLE_FIELDS so URL-backed
+// legacy records still hydrate on read; only the offload-and-blank is retired.
+const INLINE_ALWAYS_FIELDS = ['research_md'];
+
 const OVERFLOWABLE_FIELDS = [
   'outline_md',
   'characters_md',
@@ -263,6 +268,19 @@ export async function prepareFoundationPayload(payload = {}, projectIdOverride =
     if (!text) {
       // Do not erase an existing URL unless caller explicitly supplied a new inline value.
       if (next[urlField]) next[urlField] = String(next[urlField] || '').trim();
+      continue;
+    }
+
+    // RESEARCHQUALITY-2B: research evidence is never blanked out of the record.
+    // The closed-world gates (buildFactLedger, closedWorldCheck) read
+    // project.research_md RAW; offload-and-blank thinned the polish/export
+    // closed world (measured live 2026-08-08: flagship fate attestation 2/31
+    // raw vs 14/31 with the brief; the Molasses record was re-blanked the same
+    // day by a bible save). The local server store has no field-size ceiling
+    // (research_data 23,758 chars lives inline on the flagship record).
+    // researchStorage.prepareResearchContent owns research_md sizing.
+    if (INLINE_ALWAYS_FIELDS.includes(field)) {
+      next[field] = text;
       continue;
     }
 

@@ -174,9 +174,16 @@ const BIG = (seed) => (seed + ' ').repeat(3000).padEnd(12000, 'z');
 {
   const h = mk();
   const text = BIG('research');
-  let payload = { id: 'p', research_md: text };
-  for (let i = 0; i < 20; i += 1) payload = { ...(await h.prepareFoundationPayload(payload)), id: 'p', research_md: text };
+  // RESEARCHQUALITY-2B: research_md no longer offloads at all (INLINE_ALWAYS_FIELDS),
+  // so the dedupe lock moved to canon_md — same machinery, still-offloadable field —
+  // and research_md now locks the stronger property: twenty saves, ZERO uploads.
+  let payload = { id: 'p', canon_md: text };
+  for (let i = 0; i < 20; i += 1) payload = { ...(await h.prepareFoundationPayload(payload)), id: 'p', canon_md: text };
   check('twenty identical saves produce exactly ONE blob', h.uploads.length === 1, `uploads=${h.uploads.length}`);
+  const h2 = mk();
+  let rp = { id: 'p', research_md: text };
+  for (let i = 0; i < 20; i += 1) rp = { ...(await h2.prepareFoundationPayload(rp)), id: 'p', research_md: text };
+  check('twenty research_md saves produce ZERO uploads (inline-always)', h2.uploads.length === 0, `uploads=${h2.uploads.length}`);
 }
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
