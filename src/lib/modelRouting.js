@@ -40,7 +40,14 @@ export function isAdultCreativeTask(task) { return ['prose','prose_continuation'
 export function shouldDisableFallbacks() { return true; }
 export function shouldDisableCreativeFallbacks() { return true; }
 export function buildFallbackControls() { return { fallback_model: null, fallback_models: [], disable_fallbacks: true, use_gemini_fallback: false, use_openai_fallback: false }; }
-const NONFICTION_INSTRUCT_MODEL = 'HauhauCS/Qwen3.6-27B-Uncensored-HauhauCS-Aggressive:Q5_K_P'; // MODELFIX-3
+// MODELTEST-1: the comment below always demanded an instruction-following model;
+// the constant now finally points at one. ghostwriter-nf = stock Qwen3-14B
+// (verified via gguf metadata: Apache-2.0, base Qwen3-14B-Base, no abliteration),
+// served by llama-swap with ctx 65536. The uncensored 27B remains available for
+// the fiction/adult lanes, which are untouched. Measured driver: the de-aligned
+// 27B produced censor-hole artifacts ("was a to the") in every NF generation of
+// the acceptance arc — omission instead of rephrase under vocabulary bans.
+const NONFICTION_INSTRUCT_MODEL = 'ghostwriter-nf'; // MODELFIX-3 → MODELTEST-1
 export function pickModel(task = '', settings = null) {
   // Nonfiction foundation/outline drafts on an instruction-following model that respects the
   // supplied research, not the creative ghostwriter which fabricates evidence to dramatize.
