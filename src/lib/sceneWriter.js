@@ -2549,6 +2549,15 @@ export function splitSentencesSafe(text) {
   work = work.replace(ABBR, (m) => m.replace('.', PROT));
   // Single-letter initials followed by a capitalized word: "William S. Pease"
   work = work.replace(/\b([A-Z])\.(?=\s+[A-Z])/g, '$1' + PROT);
+  // DRAFTGATE-3F: consecutive initials with NO space ("J.P. Morgan", "U.S.A.").
+  // The space-requiring rule above missed them, so the tokenizer split
+  // MID-NAME and the closed-world strip removed only the tail — shipping
+  // stumps like "…in the basement of the J." (measured in a live export).
+  // Protected, the whole sentence stays one part and strips remove it whole.
+  work = work.replace(/\b([A-Z])\.(?=[A-Z]\b|[A-Z]\.)/g, '$1' + PROT);
+  // DRAFTGATE-3F: legal-citation "v." ("Dorr, trustee, v. United States…") —
+  // a lowercase single-letter abbreviation, never a sentence terminator.
+  work = work.replace(/\b(v)\.(?=\s)/g, '$1' + PROT);
   // DRAFTGATE-3A: protect decimals ("2.3 million", "3.5%"), decimal-dotted
   // enumerations, and any digit.digit shape — an unprotected decimal made the
   // period a sentence terminator that neither match alternative could consume,
