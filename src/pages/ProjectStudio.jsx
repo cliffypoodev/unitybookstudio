@@ -3699,7 +3699,14 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     // LEDGERSCOPE-1: fold every EARLIER chapter's saved ledger into one and hand
     // it to the writer. Without this the ledger was rebuilt empty per chapter, so
     // nothing could stop Ch.4 restoring a hand Ch.3 amputated.
-    const priorLedger = await buildPriorLedger(project?.id || projectId, chapter.chapter_number);
+    // ANTHOLOGYBLEED-1: anthology stories are standalone — folding a prior STORY's
+    // ledger cross-contaminates casts (foldChapterLedgers canonicalises holder names
+    // across all prior ledgers, merging e.g. Story-2 "Marcus" onto Story-5 "Marcus")
+    // and injects another story's held-object facts into this story's prompt. The
+    // within-story ledger is unaffected: with priorLedger null the writer seeds a
+    // fresh buildInitialLedger() per story (sceneWriter.js) and builds scene-to-scene
+    // continuity inside the one story exactly as before.
+    const priorLedger = isAnth ? null : await buildPriorLedger(project?.id || projectId, chapter.chapter_number);
 
     const sceneResult = await generateChapterByScenes({
       sceneExecutionAcceptanceRunners,
@@ -4407,7 +4414,11 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     // LEDGERSCOPE-1: persist this chapter's end state so the NEXT chapter can see
     // it. Deliberately awaited but never allowed to throw - a failed ledger write
     // must not cost a drafted chapter.
-    if (sceneResult?.narrativeLedger) {
+    // ANTHOLOGYBLEED-1: never persist an anthology story's ledger — nothing may
+    // fold it into a sibling story. priorLedger is already null for anthology above;
+    // this is defense in depth so a saved ledger cannot leak even if the fold guard
+    // regresses.
+    if (sceneResult?.narrativeLedger && !isAnth) {
       await saveChapterLedger(chapter.id, sceneResult.narrativeLedger, chapter.chapter_number);
     }
     const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
