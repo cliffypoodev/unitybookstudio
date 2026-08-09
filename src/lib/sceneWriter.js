@@ -1021,6 +1021,16 @@ ${lines}`;
 function buildFoundationBlock(project) {
   const parts = [];
 
+  // ANTHOLOGYBLEED-2: for an anthology, every "chapter" is a STANDALONE story with its own
+  // cast. The whole-book bible (world_md/characters_md/outline_md/canon_md/mystery_md/
+  // twists_md/canon_cast) aggregates ALL stories, so injecting it into a scene prompt leaks
+  // one story's protagonist and setting into another (measured live 2026-08-09: Story 1's
+  // security guard "Marcus" surfaced in Story 3 via BOOK OUTLINE). Each story's own isolated
+  // context is already supplied separately as anthologyContext (getAnthologyContext ->
+  // buildAnthologyStoryContext), so the shared foundation is redundant here and MUST be
+  // omitted. Closed-world isolation — same principle as ANTHOLOGYBLEED-1's ledger blanking.
+  if (isAnthologyProject(project)) return '';
+
   if (project?.seed_concept) parts.push(`PROJECT BRAIN / SEED CONCEPT:\n${compact(sanitizeNonfictionContextScarTissue(project.seed_concept), 3000)}`);
   if (project?.world_md) parts.push(`WORLD / SETTING:\n${compact(sanitizeNonfictionContextScarTissue(project.world_md), 3000)}`);
   if (project?.characters_md) parts.push(`CHARACTERS:\n${compact(sanitizeNonfictionContextScarTissue(project.characters_md), 3000)}`);
