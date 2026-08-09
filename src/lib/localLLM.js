@@ -31,7 +31,7 @@ export async function searchWeb(query, n = 5) {
 export const AGENT_MODELS = {
   ghostwriter:       'qwen3.6-35b-uncensored',   // fiction prose (all non-nonfiction)
   ghostwriter_nsfw:  'qwen3.6-35b-uncensored',   // adult fiction — same uncensored model
-  architect:         'deepseek-r1-32b',                                  // fiction outlines/bibles (reasoning model)
+  architect:         'deepseek-r1-14b',                                  // ARCHITECTSPEED-1: fiction outlines/bibles (reasoning model). Was deepseek-r1-32b; on the single-slot local rig the 32B (~20GB) cold-loads on every swap and its long reasoning blew past the anthology batch 300s cap (anthologyBatchOutline.js), so multi-story outline gen never produced a usable batch. R1-14b is the proven fast reasoning alias (already the researcher/critic model) with a proven JSON path; it loads and generates fast enough to fit the cap. Affects fiction outline/bible gen only (nonfiction foundation routes to NONFICTION_INSTRUCT_MODEL and never hits the architect override).
   researcher:        'deepseek-r1-14b',                                  // RESEARCHMODEL-1: factual gathering. 'phi4' is not in the served catalog — every extraction batch 404'd. R1-14b is the proven fast reasoning alias already used by the critic, and R1's JSON path is proven by the architect.
   critic:            'deepseek-r1-14b',                                  // QA/critique (faster R1)
   polisher:          'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K_XL', // faithful line edits
