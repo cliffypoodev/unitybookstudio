@@ -3285,6 +3285,33 @@ Return structured JSON:
 
         if (isNonfiction) break;
 
+        // BEATIDCANON-1: scene_id and scene_number are POSITIONAL — fully determined by the
+        // chapter number and the beat's index — so assign them deterministically here rather
+        // than trust the architect model, which (esp. r1-14b) emits loose/wrong ids
+        // ("ch1-s1" for Chapter 2) that the NO-RETRY contract validator rejects, killing
+        // every chapter. Also backfill the four hard-required narrative fields the same
+        // validator demands (scene_goal, entry_state, exit_state, one non-empty
+        // required_events) when the terse reasoning model omits them, so a missing field
+        // degrades to a generic placeholder instead of failing the chapter with no retry.
+        // Runs on the SAME container the raw-provenance capture reads next, so pipeline_contract,
+        // extraction, provenance and validateSceneBeatContracts all agree. Fiction only
+        // (nonfiction broke out above; its beats use a different agent and path).
+        {
+          const _bc = Array.isArray(beatResult) ? beatResult : (beatResult?.beats || beatResult?.scenes || beatResult?.sections || []);
+          const _cn = String(chapter.chapter_number).padStart(2, '0');
+          _bc.forEach((_el, _i) => {
+            if (!_el || typeof _el !== 'object') return;
+            _el.scene_id = `ch${_cn}-s${String(_i + 1).padStart(2, '0')}`;
+            _el.scene_number = _i + 1;
+            if (!String(_el.scene_goal || '').trim()) _el.scene_goal = `Advance the story through beat ${_i + 1}.`;
+            if (!String(_el.entry_state || '').trim()) _el.entry_state = _i === 0 ? 'The story opens.' : 'Continues directly from the previous scene.';
+            if (!String(_el.exit_state || '').trim()) _el.exit_state = 'The scene resolves and hands off to what follows.';
+            if (!Array.isArray(_el.required_events) || !_el.required_events.some((_e) => String(_e || '').trim())) {
+              _el.required_events = [String(_el.scene_goal || '').trim() || `Beat ${_i + 1} occurs.`];
+            }
+          });
+        }
+
         // 1. CAPTURE RAW ARCHITECT STRUCTURE BEFORE EXTRACTION
         const rawContainer = Array.isArray(beatResult) ? beatResult : (beatResult?.beats || beatResult?.scenes || beatResult?.sections || []);
         const rawCount = rawContainer.length;
