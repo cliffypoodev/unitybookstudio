@@ -3285,6 +3285,39 @@ Return structured JSON:
 
         if (isNonfiction) break;
 
+        // LENGTHTUNE-2: this model writes ~1100-1300 words per scene almost regardless of the
+        // per-scene word target, so a story's length is driven by its SCENE COUNT — and the
+        // architect over-generates scenes for short pieces (asks ~2, returns 3-7), which is why
+        // anthology stories ran 1900-3361 words against a 1500 target. For an anthology, cap the
+        // scene count to the target (~round(target/1200): one scene per ~1200 words of realistic
+        // output) by MERGING excess beats into that many contiguous groups — no plot beat is
+        // dropped, the retained scenes each cover more of the arc. Runs BEFORE BEATIDCANON-1 so
+        // the merged beats get renumbered/canonicalized next. Fiction anthology only; regular
+        // novels and nonfiction keep the architect's scene count.
+        if (isAnthologyProject(promptProject)) {
+          const _lc = Array.isArray(beatResult) ? beatResult : (beatResult?.beats || beatResult?.scenes || beatResult?.sections || []);
+          const _lt = Number(chapter.target_words || promptProject.chapter_length_target || promptProject.target_chapter_words || 0);
+          const _cap = Math.max(1, Math.round(_lt / 1200));
+          if (Array.isArray(_lc) && _lt > 0 && _lc.length > _cap) {
+            const _uniq = (arr) => Array.from(new Set(arr.map((x) => String(x || '').trim()).filter(Boolean)));
+            const _groups = Array.from({ length: _cap }, () => []);
+            _lc.forEach((_b, _i) => { _groups[Math.floor((_i * _cap) / _lc.length)].push(_b); });
+            const _merged = _groups.filter((g) => g.length).map((g) => {
+              const _first = g[0] || {};
+              const _last = g[g.length - 1] || {};
+              return {
+                ..._first,
+                scene_goal: _uniq(g.map((b) => b && b.scene_goal)).join(' Then: ') || String(_first.scene_goal || ''),
+                entry_state: String(_first.entry_state || '').trim(),
+                exit_state: String(_last.exit_state || _first.exit_state || '').trim(),
+                required_events: _uniq(g.flatMap((b) => (Array.isArray(b && b.required_events) ? b.required_events : []))),
+                forbidden_events: _uniq(g.flatMap((b) => (Array.isArray(b && b.forbidden_events) ? b.forbidden_events : []))),
+              };
+            });
+            _lc.splice(0, _lc.length, ..._merged);
+          }
+        }
+
         // BEATIDCANON-1: scene_id and scene_number are POSITIONAL — fully determined by the
         // chapter number and the beat's index — so assign them deterministically here rather
         // than trust the architect model, which (esp. r1-14b) emits loose/wrong ids
