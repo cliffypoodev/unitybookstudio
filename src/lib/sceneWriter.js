@@ -21,6 +21,7 @@ import { buildPovTenseBlock } from '@/lib/povTense';
 import { cleanGeneratedProse } from '@/lib/proseQuality';
 import { snapshot as pipelineSnapshot, captureReplayDiagnostic } from '@/lib/pipelineDiag';
 import { runDialogueMechanicsPass } from '@/lib/dialogueMechanicsRepair'; // DIALOGUEFIX-1
+import { applyAnthologyNameRenames } from '@/lib/anthologyRenamePass'; // RENAMEPASS-1
 import { scrubModelLeaks } from '@/lib/modelLeakGuard'; // LEAKFIX-1
 import { labelCompositeCharacters, fixFoiaAnachronisms, flagUnverifiedStats } from '@/lib/postClean';
 import { crossCheckResearchFabrication } from '@/lib/qualityScan';
@@ -4487,6 +4488,20 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
   if (dmDraft.text !== finalProse) {
     console.warn('[DIALOGUE-MECHANICS-REPAIR] Draft-time repairs: ' + (dmDraft.repairs?.length || 0) + ' verb-tag, ' + (dmDraft.orphanRepaired || 0) + ' orphan-closer');
     finalProse = dmDraft.text;
+  }
+
+  // RENAMEPASS-1: deterministic anthology cross-story name de-collision. USEDNAMES-1 bans other
+  // stories' names in the PROMPT, but the model can defy the ban on its strongest associations
+  // (e.g. a Latino janitor's wife -> "Maria" even when "Maria" is banned for that story). This
+  // runs on the FINISHED prose: any name owned by a DIFFERENT story in the collection (never this
+  // story's own) is renamed consistently across every occurrence, gender preserved from nearby
+  // pronouns, to a fresh name used by no story. Anthology only; deterministic.
+  if (isAnthology) {
+    const renamePass = applyAnthologyNameRenames(finalProse, chapter, allProjectChapters);
+    if (renamePass.renames.length) {
+      console.warn('[RENAMEPASS-1] De-collided cross-story names: ' + renamePass.renames.map((r) => `${r.from}->${r.to}(${r.count})`).join(', '));
+      finalProse = renamePass.prose;
+    }
   }
 
   // BOOKECHO-2: the final passes now live in finalizeChapterProse so the SAVE
