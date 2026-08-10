@@ -109,8 +109,11 @@ const NEUTRAL_POOL = ['Emerson', 'Marlowe', 'Sterling', 'Ellery', 'Sutton', 'Len
 // 8 — source wiring in sceneWriter.
 const sw = fs.readFileSync(path.join(ROOT, 'src/lib/sceneWriter.js'), 'utf8');
 check('8. sceneWriter imports applyAnthologyNameRenames', sw.includes("import { applyAnthologyNameRenames } from '@/lib/anthologyRenamePass'"));
-check('8. RENAMEPASS-1 runs on finalProse for anthology', /if \(isAnthology\) \{[\s\S]{0,400}applyAnthologyNameRenames\(finalProse, chapter, allProjectChapters\)/.test(sw));
+check('8. RENAMEPASS-1 runs on finalProse for anthology', /if \(isAnthology && !isNF\) \{[\s\S]{0,400}applyAnthologyNameRenames\(finalProse, chapter, allProjectChapters\)/.test(sw));
 check('8. rename result is written back to finalProse', sw.includes('finalProse = renamePass.prose;'));
+// SCOPINGFIX-1: the gate is fiction-anthology-only — nonfiction anthologies (isNF true) must never
+// be de-collided, or a real recurring name would be renamed to an invented one (fabrication).
+check('8. RENAMEPASS-1 is scoped to fiction anthology (isNF excluded)', sw.includes('if (isAnthology && !isNF) {') && !/if \(isAnthology\) \{[\s\S]{0,400}applyAnthologyNameRenames/.test(sw));
 
 if (failures === 0) console.log('ACCEPTANCE: ALL CHECKS MATCHED');
 process.exit(failures === 0 ? 0 : 1);
