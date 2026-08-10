@@ -8,6 +8,10 @@
  * chapter drafting without requiring another expensive LLM pass.
  */
 
+// SCOPINGFIX-1: single nonfiction authority (NFCLASS-1). Relative import (not the @/ alias) so the
+// Node acceptance batteries that import this module resolve it without a bundler.
+import { isNonfictionProject } from './projectType.js';
+
 const SETTING_TYPES = [
   'public spectacle',
   'private domestic room',
@@ -185,6 +189,12 @@ export function buildAnthologyChapterVarietyBlock(project, chapter, chapters = [
     /antholog/i.test(`${project?.project_type || ''} ${project?.project_format || ''} ${project?.genre || ''} ${project?.subgenre || ''}`);
 
   if (!isAnthology) return '';
+
+  // SCOPINGFIX-1: the variety / anti-template matrix and the BANNED CHARACTER NAMES block are
+  // FICTION devices. On a documented-nonfiction anthology (e.g. real reincarnation cases) they
+  // would impose invented dramatic templates on real events and forbid real recurring names or
+  // researchers that legitimately appear across cases — fabrication. Never run them on nonfiction.
+  if (isNonfictionProject(project)) return '';
 
   const chapterNumber = getChapterNumber(chapter);
   const slots = getAnthologyVarietySlots(chapterNumber);

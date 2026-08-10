@@ -4495,8 +4495,11 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
   // (e.g. a Latino janitor's wife -> "Maria" even when "Maria" is banned for that story). This
   // runs on the FINISHED prose: any name owned by a DIFFERENT story in the collection (never this
   // story's own) is renamed consistently across every occurrence, gender preserved from nearby
-  // pronouns, to a fresh name used by no story. Anthology only; deterministic.
-  if (isAnthology) {
+  // pronouns, to a fresh name used by no story. FICTION anthology only; deterministic.
+  // SCOPINGFIX-1: never run on a documented-nonfiction anthology. A real recurring name — a
+  // researcher who appears across cases, a real person two stories legitimately share — would be
+  // renamed to an invented one, which is fabrication. The isNF gate confines this to fiction.
+  if (isAnthology && !isNF) {
     const renamePass = applyAnthologyNameRenames(finalProse, chapter, allProjectChapters);
     if (renamePass.renames.length) {
       console.warn('[RENAMEPASS-1] De-collided cross-story names: ' + renamePass.renames.map((r) => `${r.from}->${r.to}(${r.count})`).join(', '));
