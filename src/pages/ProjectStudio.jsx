@@ -2002,7 +2002,10 @@ export default function ProjectStudio() {
         seed_concept: prev.seed_concept || initial.seed_concept,
         author_name: prev.author_name || initial.author_name,
         author_style_id: prev.author_style_id || '',
-        project_type: prev.project_format === 'anthology' ? 'anthology' : (bookType === 'nonfiction' ? 'nonfiction' : 'novel'),
+        // WAVE2-ENUMFIX: 'novel' is not in the project_type enum
+        // (fiction|nonfiction|erotica|anthology) — it broke every
+        // project_type === 'fiction' routing check downstream.
+        project_type: prev.project_format === 'anthology' ? 'anthology' : (bookType === 'nonfiction' ? 'nonfiction' : 'fiction'),
       });
     });
   };
