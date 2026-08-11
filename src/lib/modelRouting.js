@@ -4,6 +4,7 @@ import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/proje
 import { FOUNDATION_FIELDS as SHARED_FOUNDATION_FIELDS } from '@/lib/generationContext'; // NFCLASS-3
 import { isEroticaAnthology, isNonfictionAnthology } from '@/lib/anthologyEngine';
 import { PRIMARY_WRITING_MODEL, WRITING_MODEL_LABEL, normalizeWritingModel } from '@/lib/writingModel';
+import { AGENT_MODELS } from '@/lib/localLLM'; // WAVE5-MODELPICKER
 
 export function isEroticaProject(project) {
   if (!project) return false;
@@ -79,25 +80,43 @@ export function protectedProjectUpdate(fieldsToSave) {
   return safe;
 }
 
-export const FICTION_PROSE_MODELS = [{ id: PRIMARY_WRITING_MODEL, label: WRITING_MODEL_LABEL, description: 'Local Gemma 4 — primary prose model' }];
+// WAVE5-MODELPICKER: the picker now lists the actually-installed prose-capable
+// local models (derived from localLLM AGENT_MODELS + the llama-swap NF alias)
+// instead of one entry with a stale "Gemma 4" description for a Qwen model.
+export const FICTION_PROSE_MODELS = [
+  { id: PRIMARY_WRITING_MODEL, label: WRITING_MODEL_LABEL, description: 'Qwen 3.6 35B uncensored — primary fiction prose model' },
+  { id: AGENT_MODELS.nonfiction_writer, label: 'Qwen 3.6 27B (aggressive)', description: 'HauhauCS 27B uncensored — denser, more aggressive prose register' },
+  { id: NONFICTION_INSTRUCT_MODEL, label: 'Qwen3 14B instruct (fast)', description: 'Stock instruction-following 14B via llama-swap — fastest, most literal' },
+];
+
+// The single validation authority for prose-model overrides.
+export const PROSE_MODEL_IDS = new Set(FICTION_PROSE_MODELS.map((m) => m.id));
+export function isWhitelistedProseModel(id) {
+  return PROSE_MODEL_IDS.has(normalizeModelId(id));
+}
 
 export function foundationSafeUpdate(fieldsToSave, existingProject) {
   const safe = { ...(fieldsToSave || {}) };
   for (const field of SETUP_PROTECTED_FIELDS) delete safe[field];
-  if (existingProject) { for (const field of SETUP_PROTECTED_FIELDS) { const v = existingProject[field]; if (v !== undefined && v !== null && v !== '') safe[field] = field === 'default_prose_model' ? PRIMARY_WRITING_MODEL : v; } }
+  // WAVE5-MODELPICKER: default_prose_model is restored VERBATIM like every
+  // other protected field. The old special-case reset it to the primary model
+  // on every Build/Expand Story Bible — the picker "randomly" losing its value.
+  if (existingProject) { for (const field of SETUP_PROTECTED_FIELDS) { const v = existingProject[field]; if (v !== undefined && v !== null && v !== '') safe[field] = v; } }
   return safe;
 }
 
 export function scrubModelFields(fieldsToSave) {
   const safe = { ...(fieldsToSave || {}) };
-  if (safe.default_prose_model) safe.default_prose_model = PRIMARY_WRITING_MODEL;
-  if (safe.prose_model) safe.prose_model = PRIMARY_WRITING_MODEL;
+  // WAVE5-MODELPICKER: validate against the whitelist instead of clamping —
+  // a legitimate user choice survives; only unknown/stale ids reset.
+  if (safe.default_prose_model && !isWhitelistedProseModel(safe.default_prose_model)) safe.default_prose_model = PRIMARY_WRITING_MODEL;
+  if (safe.prose_model && !isWhitelistedProseModel(safe.prose_model)) safe.prose_model = PRIMARY_WRITING_MODEL;
   if (safe.model) safe.model = normalizeModelId(safe.model);
   return safe;
 }
 
 export function getModelRoutingSummary() {
-  return { writing_model: PRIMARY_WRITING_MODEL, fiction_prose_model: DEFAULT_FICTION_PROSE_MODEL, structured_model: DEFAULT_STRUCTURED_MODEL, nonfiction_prose_model: DEFAULT_NONFICTION_PROSE_MODEL, analytics_model: DEFAULT_ANALYTICS_MODEL, lumimaid_enabled: false, user_model_selection_enabled: false, silent_writing_fallback_enabled: false, provider: 'llama.cpp (Local)' };
+  return { writing_model: PRIMARY_WRITING_MODEL, fiction_prose_model: DEFAULT_FICTION_PROSE_MODEL, structured_model: DEFAULT_STRUCTURED_MODEL, nonfiction_prose_model: DEFAULT_NONFICTION_PROSE_MODEL, analytics_model: DEFAULT_ANALYTICS_MODEL, lumimaid_enabled: false, user_model_selection_enabled: true /* WAVE5-MODELPICKER */, silent_writing_fallback_enabled: false, provider: 'llama.cpp (Local)' };
 }
 
 export const ADULT_PROSE_MODEL = PRIMARY_WRITING_MODEL;
