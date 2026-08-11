@@ -242,7 +242,7 @@ function SeriesCard({ bible, volumes, unlinkedProjects, onSequelFromBible, onSer
           if (!matches || matches.length === 0) continue;
           const newContent = content.replace(rx, frNewName.trim());
           totalReplaced += matches.length; volChanged = true;
-          const contentFields = await prepareChapterContent(newContent);
+          const contentFields = await prepareChapterContent(newContent, vol.id, freshCh.id, freshCh);
           await base44.entities.Chapter.update(freshCh.id, { ...contentFields });
         }
         if (volChanged) volumesChanged++;

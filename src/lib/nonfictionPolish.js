@@ -868,7 +868,7 @@ export async function runNonfictionPolish({ loaded, onProgress, project }) {
     if (f.content === f.original) { unchangedCount++; continue; }
     onProgress?.(`Polish (NF): Saving chapter ${chNum}…`);
     try {
-      const contentFields = await prepareChapterContent(f.content);
+      const contentFields = await prepareChapterContent(f.content, project?.id, f.chapter.id, f.chapter);
       await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, { ...contentFields, word_count: countWords(f.content) }));
       savedCount++;
     } catch (err) {

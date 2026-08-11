@@ -235,7 +235,8 @@ Return ONLY the fixed version of the FLAGGED TEXT. No explanation, no quotes aro
         return;
       }
 
-      const contentFields = await prepareChapterContent(newContent);
+      const existingCh = chapters.find((c) => c.id === chapterId) || null;
+      const contentFields = await prepareChapterContent(newContent, project?.id, chapterId, existingCh);
       await runWithNetworkRetry(() => base44.entities.Chapter.update(chapterId, {
         ...contentFields,
         word_count: countWords(newContent),
@@ -781,11 +782,11 @@ Return ONLY the fixed version of the FLAGGED TEXT. No explanation, no quotes aro
         if (f.content === f.original) { unchangedCount++; console.log('[POLISH-TOOLS] Ch.' + chNum + ': UNCHANGED (lengths: ' + f.original.length + ' → ' + f.content.length + ')'); continue; }
         console.log('[POLISH-TOOLS] Ch.' + chNum + ': CHANGED (lengths: ' + f.original.length + ' → ' + f.content.length + ')');
         setBusyLabel(`Polish: Saving chapter ${chNum}…`);
-        const contentFields = await prepareChapterContent(f.content);
+        const contentFields = await prepareChapterContent(f.content, project?.id, f.chapter.id, f.chapter);
         // Only backup if chapter doesn't already have a backup (preserve original pre-polish backup)
         const backupFields = f.chapter.backup_content || f.chapter.backup_content_url
           ? {}
-          : await prepareBackupContent(f.original);
+          : await prepareBackupContent(f.original, project?.id, f.chapter.id, f.chapter);
         await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, {
           ...contentFields,
           ...backupFields,
@@ -1018,7 +1019,7 @@ Return ONLY the replacement prose. No preamble, no commentary.`;
 
       // Save
       setBusyLabel('Saving Ch.' + removeChNum + '…');
-      const contentFields = await prepareChapterContent(newContent);
+      const contentFields = await prepareChapterContent(newContent, project?.id, removeFresh.id, removeFresh);
       await runWithNetworkRetry(() => base44.entities.Chapter.update(removeFresh.id, {
         ...contentFields,
         word_count: countWords(newContent),
@@ -1066,7 +1067,7 @@ Return ONLY the replacement prose. No preamble, no commentary.`;
         totalReplaced += matches.length;
 
         setBusyLabel(`Renaming: Ch.${ch.chapter_number || (i+1)} (${matches.length} instances)…`);
-        const contentFields = await prepareChapterContent(newContent);
+        const contentFields = await prepareChapterContent(newContent, project?.id, freshCh.id, freshCh);
         await runWithNetworkRetry(() => base44.entities.Chapter.update(freshCh.id, {
           ...contentFields,
           word_count: countWords(newContent),
@@ -1190,7 +1191,7 @@ Return ONLY the replacement prose. No preamble, no commentary.`;
       // Save the chapter if any rewrites were applied
       if (contentChanged) {
         try {
-          const contentFields = await prepareChapterContent(content);
+          const contentFields = await prepareChapterContent(content, project?.id, ch.id, ch);
           await runWithNetworkRetry(() => base44.entities.Chapter.update(ch.id, {
             ...contentFields,
             word_count: countWords(content),

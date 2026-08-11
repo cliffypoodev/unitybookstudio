@@ -106,7 +106,7 @@ export default function AnthologyPolishView({ project, chapters, busyLabel, setB
         console.warn(`[ANTHOLOGY-SAVE] Ch.${chNum}: CHANGED. Diff: ${lenDiff} chars. original=${f.original.length} → content=${f.content.length}`);
         setBusyLabel(`Anthology Polish: Saving Ch.${chNum} (${savedCount + 1})…`);
 
-        const contentFields = await prepareChapterContent(f.content);
+        const contentFields = await prepareChapterContent(f.content, project?.id, f.chapter.id, f.chapter);
         const newWordCount = countWords(f.content);
 
         const updatePayload = {
@@ -141,7 +141,7 @@ export default function AnthologyPolishView({ project, chapters, busyLabel, setB
         let dedupSaved = 0;
         for (const f of loaded) {
           if (f.content !== f.original) {
-            const cf = await prepareChapterContent(f.content);
+            const cf = await prepareChapterContent(f.content, project?.id, f.chapter.id, f.chapter);
             await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, {
               content_md: cf.content_md || '', content_md_url: cf.content_md_url || '', word_count: countWords(f.content),
             }));
