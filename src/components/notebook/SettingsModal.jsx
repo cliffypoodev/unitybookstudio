@@ -74,32 +74,12 @@ function Slider({ value, onChange, min, max, step = 1, suffix = '' }) {
   );
 }
 
-function PersonasTab({ personas, activePersona, addPersona, updatePersona, deletePersona, setActivePersona }) {
-  const [editingId, setEditingId] = useState(null);
-  const [draft, setDraft] = useState({});
-  const [adding, setAdding] = useState(false);
-
-  const startEdit = (persona) => { setEditingId(persona.id); setDraft({ ...persona }); };
-  const cancelEdit = () => { setEditingId(null); setDraft({}); setAdding(false); };
-
-  const saveEdit = async () => {
-    if (adding) {
-      const created = await addPersona(draft);
-      if (created) toast.success('Persona created');
-      setAdding(false);
-    } else {
-      await updatePersona(editingId, draft);
-      toast.success('Persona updated');
-    }
-    setEditingId(null); setDraft({});
-  };
-
-  const startAdd = () => {
-    setAdding(true); setEditingId('new');
-    setDraft({ persona_name: '', pen_name: '', bio: '', genres: '', default_genre: '', default_beat_style: 'Fast-Paced Thriller', default_language_intensity: 2, default_pov: 'third-close', default_tense: 'past', voice_notes: '' });
-  };
-
-  const Field = ({ label, field, type = 'text', options }) => (
+// WAVE1-PERSONAS: PersonaField lives at module level. It was previously defined
+// INSIDE PersonasTab, creating a new component type on every render — React
+// remounted the input subtree per keystroke and the caret was lost after one
+// character.
+function PersonaField({ label, field, type = 'text', options, draft, setDraft }) {
+  return (
     <div className="flex items-center gap-2 text-xs">
       <label className="w-28 shrink-0 text-muted-foreground">{label}</label>
       {type === 'select' ? (
@@ -119,6 +99,40 @@ function PersonasTab({ personas, activePersona, addPersona, updatePersona, delet
       )}
     </div>
   );
+}
+
+function PersonasTab({ personas, activePersona, addPersona, updatePersona, deletePersona, setActivePersona }) {
+  const [editingId, setEditingId] = useState(null);
+  const [draft, setDraft] = useState({});
+  const [adding, setAdding] = useState(false);
+
+  const startEdit = (persona) => { setEditingId(persona.id); setDraft({ ...persona }); };
+  const cancelEdit = () => { setEditingId(null); setDraft({}); setAdding(false); };
+
+  const saveEdit = async () => {
+    if (!(draft.persona_name || '').trim() && !(draft.pen_name || '').trim()) {
+      toast.error('Give the persona a name or pen name first.');
+      return;
+    }
+    try {
+      if (adding) {
+        const created = await addPersona(draft);
+        if (created) toast.success('Persona created');
+        setAdding(false);
+      } else {
+        await updatePersona(editingId, draft);
+        toast.success('Persona updated');
+      }
+      setEditingId(null); setDraft({});
+    } catch (err) {
+      toast.error('Could not save persona: ' + (err?.message || 'unknown error'));
+    }
+  };
+
+  const startAdd = () => {
+    setAdding(true); setEditingId('new');
+    setDraft({ persona_name: '', pen_name: '', bio: '', genres: '', default_genre: '', default_beat_style: 'Fast-Paced Thriller', default_language_intensity: 2, default_pov: 'third-close', default_tense: 'past', voice_notes: '' });
+  };
 
   return (
     <div className="space-y-3">
@@ -130,17 +144,17 @@ function PersonasTab({ personas, activePersona, addPersona, updatePersona, delet
         <div key={p.id} className={'rounded-lg border p-3 ' + (p.id === activePersona?.id ? 'border-primary bg-primary/5' : 'border-border/50')}>
           {editingId === p.id ? (
             <div className="space-y-2">
-              <Field label="Persona Name" field="persona_name" />
-              <Field label="Pen Name" field="pen_name" />
-              <Field label="Genres" field="genres" />
-              <Field label="Default Genre" field="default_genre" />
-              <Field label="Beat Style" field="default_beat_style" type="select" options={BEAT_STYLES} />
-              <Field label="Language (0-4)" field="default_language_intensity" type="number" />
-              <Field label="POV" field="default_pov" type="select" options={['third-close','third-multi','first','second','omniscient','nf-direct','nf-reported']} />
-              <Field label="Tense" field="default_tense" type="select" options={['past','present']} />
-              <Field label="Author Bio" field="bio" type="textarea" />
-              <Field label="Voice Notes" field="voice_notes" type="textarea" />
-              <Field label="BISAC Codes" field="bisac_categories" />
+              <PersonaField draft={draft} setDraft={setDraft} label="Persona Name" field="persona_name" />
+              <PersonaField draft={draft} setDraft={setDraft} label="Pen Name" field="pen_name" />
+              <PersonaField draft={draft} setDraft={setDraft} label="Genres" field="genres" />
+              <PersonaField draft={draft} setDraft={setDraft} label="Default Genre" field="default_genre" />
+              <PersonaField draft={draft} setDraft={setDraft} label="Beat Style" field="default_beat_style" type="select" options={BEAT_STYLES} />
+              <PersonaField draft={draft} setDraft={setDraft} label="Language (0-4)" field="default_language_intensity" type="number" />
+              <PersonaField draft={draft} setDraft={setDraft} label="POV" field="default_pov" type="select" options={['third-close','third-multi','first','second','omniscient','nf-direct','nf-reported']} />
+              <PersonaField draft={draft} setDraft={setDraft} label="Tense" field="default_tense" type="select" options={['past','present']} />
+              <PersonaField draft={draft} setDraft={setDraft} label="Author Bio" field="bio" type="textarea" />
+              <PersonaField draft={draft} setDraft={setDraft} label="Voice Notes" field="voice_notes" type="textarea" />
+              <PersonaField draft={draft} setDraft={setDraft} label="BISAC Codes" field="bisac_categories" />
               <div className="flex gap-2 mt-2">
                 <Button size="sm" onClick={saveEdit} className="text-xs h-7 gap-1"><Check className="h-3 w-3" /> Save</Button>
                 <Button size="sm" variant="ghost" onClick={cancelEdit} className="text-xs h-7">Cancel</Button>
@@ -149,7 +163,7 @@ function PersonasTab({ personas, activePersona, addPersona, updatePersona, delet
           ) : (
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-semibold text-sm">{p.pen_name || p.persona_name || 'Unnamed'}</div>
+                <div className="font-semibold text-sm">{p.pen_name || p.persona_name || p.name || 'Unnamed'}</div>
                 <div className="text-[10px] text-muted-foreground">{p.genres || 'No genres'} · {p.default_beat_style || '—'} · Lang {p.default_language_intensity ?? '—'}</div>
               </div>
               <div className="flex items-center gap-1">
@@ -165,15 +179,15 @@ function PersonasTab({ personas, activePersona, addPersona, updatePersona, delet
       {adding && editingId === 'new' && (
         <div className="rounded-lg border border-primary/50 bg-primary/5 p-3 space-y-2">
           <div className="text-xs font-medium text-primary mb-1">New Persona</div>
-          <Field label="Persona Name" field="persona_name" />
-          <Field label="Pen Name" field="pen_name" />
-          <Field label="Genres" field="genres" />
-          <Field label="Beat Style" field="default_beat_style" type="select" options={BEAT_STYLES} />
-          <Field label="Language (0-4)" field="default_language_intensity" type="number" />
-          <Field label="POV" field="default_pov" type="select" options={['third-close','third-multi','first','second','omniscient']} />
-          <Field label="Tense" field="default_tense" type="select" options={['past','present']} />
-          <Field label="Author Bio" field="bio" type="textarea" />
-          <Field label="Voice Notes" field="voice_notes" type="textarea" />
+          <PersonaField draft={draft} setDraft={setDraft} label="Persona Name" field="persona_name" />
+          <PersonaField draft={draft} setDraft={setDraft} label="Pen Name" field="pen_name" />
+          <PersonaField draft={draft} setDraft={setDraft} label="Genres" field="genres" />
+          <PersonaField draft={draft} setDraft={setDraft} label="Beat Style" field="default_beat_style" type="select" options={BEAT_STYLES} />
+          <PersonaField draft={draft} setDraft={setDraft} label="Language (0-4)" field="default_language_intensity" type="number" />
+          <PersonaField draft={draft} setDraft={setDraft} label="POV" field="default_pov" type="select" options={['third-close','third-multi','first','second','omniscient']} />
+          <PersonaField draft={draft} setDraft={setDraft} label="Tense" field="default_tense" type="select" options={['past','present']} />
+          <PersonaField draft={draft} setDraft={setDraft} label="Author Bio" field="bio" type="textarea" />
+          <PersonaField draft={draft} setDraft={setDraft} label="Voice Notes" field="voice_notes" type="textarea" />
           <div className="flex gap-2 mt-2">
             <Button size="sm" onClick={saveEdit} className="text-xs h-7 gap-1"><Check className="h-3 w-3" /> Create</Button>
             <Button size="sm" variant="ghost" onClick={cancelEdit} className="text-xs h-7">Cancel</Button>
@@ -272,7 +286,9 @@ function BackupTab() {
         setProgress(`Exporting ${pi + 1}/${projects.length}: ${safeTitle}…`);
 
         const chapters = await base44.entities.Chapter.filter({ project_id: project.id }, 'chapter_number', 200);
-        const bodyChapters = chapters.filter(ch => chapterHasContent(ch)).sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
+        // WAVE1-BACKUPBODY: isBodyChapter was imported but never applied, so DOCX
+        // backups interleaved copyright/bibliography pages into the manuscript body.
+        const bodyChapters = chapters.filter(ch => chapterHasContent(ch) && isBodyChapter(ch)).sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
 
         const docChildren = [
           new Paragraph({ text: project.title || 'Untitled', heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER }),
@@ -460,14 +476,11 @@ function BackupTab() {
 
 export default function SettingsModal({ open, onOpenChange }) {
   const { settings: themeSettings, updateSettings: updateTheme } = useNotebookTheme();
-  const { settings, authorPersonas, loading, saveSettings } = useUserSettings();
+  // WAVE1-PERSONAS: CRUD now really persists (localStorage via userSettings.js)
+  // and useUserSettings is a real stateful hook — no more fake success toasts.
+  const { settings, authorPersonas, activePersona, loading, saveSettings, addPersona, updatePersona, deletePersona, setActivePersona } = useUserSettings();
   const personas = authorPersonas || [];
-  const activePersona = personas[0] || null;
   const updateSettings = saveSettings;
-  const addPersona = async (p) => { console.warn('[SETTINGS] addPersona not persisted in local mode', p); return p; };
-  const updatePersona = async (id, p) => { console.warn('[SETTINGS] updatePersona not persisted in local mode', id); return p; };
-  const deletePersona = async (id) => { console.warn('[SETTINGS] deletePersona not persisted in local mode', id); };
-  const setActivePersona = (id) => { console.warn('[SETTINGS] setActivePersona not persisted in local mode', id); };
   const { logout } = useAuth();
   const [tab, setTab] = useState('personas');
 
