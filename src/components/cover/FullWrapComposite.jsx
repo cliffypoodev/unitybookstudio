@@ -309,6 +309,10 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
 
   const [showGuides, setShowGuides] = useState(savedSettings.showGuides ?? true);
   const [showBarcode, setShowBarcode] = useState(savedSettings.showBarcode ?? true);
+  // WAVE4-BARCODE: the real EAN-13 the ISBNBarcode component generates.
+  // Previously discarded — exports shipped a gray "BARCODE / ISBN" box that
+  // KDP/IngramSpark would reject.
+  const [barcodeDataUrl, setBarcodeDataUrl] = useState('');
 
   const [backArtUrl, setBackArtUrl] = useState(savedSettings.backArtUrl || '');
   const [backArtPrompt, setBackArtPrompt] = useState(savedSettings.backArtPrompt || '');
@@ -574,24 +578,37 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
         barcodeH
       );
 
-      ctx.strokeStyle = '#d8d8d8';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(
-        backX + dims.pxTrimW - barcodeW - margin,
-        backY + dims.pxTrimH - barcodeH - margin,
-        barcodeW,
-        barcodeH
-      );
+      if (barcodeDataUrl) {
+        // WAVE4-BARCODE: draw the real EAN-13 inside the white quiet zone.
+        const pad = Math.round(barcodeW * 0.05);
+        await drawImageStretch(
+          ctx,
+          barcodeDataUrl,
+          backX + dims.pxTrimW - barcodeW - margin + pad,
+          backY + dims.pxTrimH - barcodeH - margin + pad,
+          barcodeW - pad * 2,
+          barcodeH - pad * 2
+        );
+      } else {
+        ctx.strokeStyle = '#d8d8d8';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(
+          backX + dims.pxTrimW - barcodeW - margin,
+          backY + dims.pxTrimH - barcodeH - margin,
+          barcodeW,
+          barcodeH
+        );
 
-      ctx.fillStyle = '#999999';
-      ctx.font = `${Math.max(18, barcodeW * 0.055)}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        'BARCODE / ISBN',
-        backX + dims.pxTrimW - barcodeW / 2 - margin,
-        backY + dims.pxTrimH - barcodeH / 2 - margin
-      );
-      ctx.textAlign = 'left';
+        ctx.fillStyle = '#999999';
+        ctx.font = `${Math.max(18, barcodeW * 0.055)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          'BARCODE / ISBN',
+          backX + dims.pxTrimW - barcodeW / 2 - margin,
+          backY + dims.pxTrimH - barcodeH / 2 - margin
+        );
+        ctx.textAlign = 'left';
+      }
     }
 
     for (const rawLayer of layers) {
@@ -646,6 +663,7 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
     backArtUrl,
     backBgColor,
     backOverlay,
+    barcodeDataUrl,
     dims,
     frontImageUrl,
     layers,
@@ -761,8 +779,13 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
     }
   }, []);
 
-  const handleGeneratedBarcode = useCallback(() => {
-    toast.info('Barcode generation is available, but this version uses the fixed barcode placeholder for export.');
+  const handleGeneratedBarcode = useCallback((dataUrl) => {
+    // WAVE4-BARCODE: keep the generated EAN-13 and use it on the wrap + export.
+    if (dataUrl && typeof dataUrl === 'string') {
+      setBarcodeDataUrl(dataUrl);
+      setShowBarcode(true);
+      toast.success('Barcode generated — it will print on the wrap and in the export.');
+    }
   }, []);
 
   const handleSave = useCallback(async () => {
@@ -1053,7 +1076,11 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
                   height: '9.5%',
                 }}
               >
-                BARCODE / ISBN
+                {barcodeDataUrl ? (
+                  <img src={barcodeDataUrl} alt="ISBN barcode" className="h-full w-full object-contain" />
+                ) : (
+                  'BARCODE / ISBN'
+                )}
               </div>
             )}
 
@@ -1373,7 +1400,7 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
             </p>
 
             <ISBNBarcode project={project} onBarcodeGenerated={handleGeneratedBarcode} />
-            <ToggleRow label="Show barcode placeholder" checked={showBarcode} onChange={setShowBarcode} />
+            <ToggleRow label="Show barcode" checked={showBarcode} onChange={setShowBarcode} />
           </div>
 
           <div className="rounded-xl border border-border/60 bg-card/50 p-3 space-y-2">
