@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE5-DEADSTAMP, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app —
+ * past AI sessions repeatedly wasted hours "fixing" components like this one.
+ * Live implementation: the live toolbar is inside ExportTab.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
 import React from 'react';
 import { Save, Settings, Printer, Download, FileText, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
