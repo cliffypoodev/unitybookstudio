@@ -141,6 +141,12 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
   const [parsed, setParsed] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [packageData, setPackageData] = useState({});
+  // WAVE3-PKGRACE: the debounced save used setPackageData as a synchronous
+  // getter (updater assigning to a captured variable) — outside an event
+  // handler React batches it, so the first save read {} and a whole-blob
+  // rebuild wiped every sibling field. A ref always holds the latest data.
+  const packageDataRef = useRef({});
+  useEffect(() => { packageDataRef.current = packageData; }, [packageData]);
   const [generating, setGenerating] = useState({});
   const [saving, setSaving] = useState({});
   const [assetRefreshKey, setAssetRefreshKey] = useState(0);
@@ -208,14 +214,7 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
       }
 
       saveTimersRef.current[itemId] = setTimeout(async () => {
-        let currentPackage = {};
-
-        setPackageData((cur) => {
-          currentPackage = cur;
-          return cur;
-        });
-
-        const patch = buildUpdatePatch(itemId, value, currentPackage);
+        const patch = buildUpdatePatch(itemId, value, packageDataRef.current); // WAVE3-PKGRACE
         if (!patch) return;
 
         setSaving((s) => ({ ...s, [itemId]: true }));

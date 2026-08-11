@@ -93,8 +93,7 @@ function getFrontImageUrl(frontCanvas, project) {
     frontCanvas ||
     project?.cover_art_url ||
     project?.cover_image_url ||
-    project?.cover_url ||
-    ''
+    '' // WAVE3-WRAPFIELD: cover_url never existed on the entity
   );
 }
 
@@ -812,8 +811,8 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
 
       await base44.entities.NovelProject.update(project.id, {
         wrap_canvas_json: JSON.stringify(payload),
+        // WAVE3-WRAPFIELD: single canonical field, now declared in the schema.
         full_wrap_cover_url: fileUrl || project?.full_wrap_cover_url || '',
-        cover_fullwrap_url: fileUrl || project?.cover_fullwrap_url || '',
       });
 
       setLayers(cleanLayers);
