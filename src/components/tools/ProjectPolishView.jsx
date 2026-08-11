@@ -9,6 +9,7 @@ import { isBodyChapter } from '@/lib/bibliographyGenerator';
 import { calculateManuscriptStats, calculateManuscriptStatsNonfiction, detectHighFreqPhrases, isNonfictionProject, isComedyProject } from '@/lib/manuscriptStats';
 import { countWords } from '@/lib/autonovel';
 import { prepareChapterContent, prepareBackupContent } from '@/lib/chapterStorage';
+import { refreshProjectWordCount } from '@/lib/projectWordCount';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { runNonfictionPolish } from '@/lib/nonfictionPolish';
@@ -795,6 +796,8 @@ Return ONLY the fixed version of the FLAGGED TEXT. No explanation, no quotes aro
         savedCount++;
         console.log('[POLISH-TOOLS] Saved Ch.' + chNum);
       }
+
+      if (savedCount > 0) refreshProjectWordCount(project?.id); // WAVE2-WORDCOUNT
 
       window.alert('POLISH SAVE REPORT: ' + savedCount + ' chapters saved, ' + unchangedCount + ' unchanged out of ' + loaded.length + ' total');
 

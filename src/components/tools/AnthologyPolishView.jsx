@@ -27,6 +27,7 @@ import {
 } from '@/lib/anthologyPolishChecks';
 
 import AnthologyPolishReport from './AnthologyPolishReport';
+import { refreshProjectWordCount } from '@/lib/projectWordCount';
 
 export default function AnthologyPolishView({ project, chapters, busyLabel, setBusyLabel, onRefreshAll }) {
   const [report, setReport] = useState(null);
@@ -124,6 +125,7 @@ export default function AnthologyPolishView({ project, chapters, busyLabel, setB
       }
 
       console.warn(`[ANTHOLOGY-SAVE] COMPLETE: ${savedCount} saved, ${skippedCount} unchanged`);
+      if (savedCount > 0) refreshProjectWordCount(project?.id); // WAVE2-WORDCOUNT
 
       // Refresh cache immediately after saves so Export tab picks up changes
       if (savedCount > 0 && onRefreshAll) {

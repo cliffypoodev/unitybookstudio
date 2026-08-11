@@ -356,6 +356,11 @@
       "type": "number",
       "default": 70000
     },
+    "total_word_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Rolled-up manuscript word count across body chapters — maintained by refreshProjectWordCount (WAVE2-WORDCOUNT)"
+    },
     "chapter_count": {
       "type": "number",
       "default": 0
