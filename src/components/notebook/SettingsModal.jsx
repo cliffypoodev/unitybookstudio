@@ -9,7 +9,7 @@ import { isBodyChapter } from '@/lib/bibliographyGenerator';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 import { useUserSettings } from '@/lib/userSettings';
 import { useAuth } from '@/lib/AuthContext';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner'; // TOASTMOUNT-1: unify on sonner (react-hot-toast had no mounted Toaster)
 
 const TABS = [
   { id: 'personas', label: 'Author Personas', icon: User },

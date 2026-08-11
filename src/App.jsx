@@ -1,5 +1,10 @@
 import './styles/globals-notebook.css';
-import { Toaster } from "@/components/ui/toaster"
+// TOASTMOUNT-1: the app fires toast.* from sonner in 31+ files, but only the
+// unused shadcn toaster (driven by useToast, which nothing calls) was mounted —
+// every success/error notification was silently swallowed. Mount sonner's
+// Toaster directly (not the ui/sonner wrapper: that one calls next-themes'
+// useTheme, and this app uses its own ThemeProvider, not next-themes).
+import { Toaster } from "sonner"
 import { QueryClientProvider } from '@tanstack/react-query'
 import ThemeProvider from '@/components/notebook/ThemeProvider';
 import { queryClientInstance } from '@/lib/query-client'
@@ -109,7 +114,7 @@ function App() {
             <MigrationBanner />
             <AuthenticatedApp />
           </Router>
-          <Toaster />
+          <Toaster richColors closeButton />
         </QueryClientProvider>
       </AuthProvider>
     </ThemeProvider>
