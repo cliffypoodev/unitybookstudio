@@ -41,6 +41,7 @@ import {
 import SpineCalculator from '@/components/cover/SpineCalculator';
 import ISBNBarcode from '@/components/cover/ISBNBarcode';
 import PublisherPresets, { PUBLISHER_PRESETS } from '@/components/cover/PublisherPresets';
+import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
 
 const SAVE_VERSION = 14;
 
@@ -291,7 +292,7 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
   const backArtInputRef = useRef(null);
   const imageLayerInputRef = useRef(null);
 
-  const defaultTrim = suggestTrimSize(project?.book_type);
+  const defaultTrim = suggestTrimSize(project?.book_type, getSetting('default_trim_size', '')); // WAVE5-SETTINGS
   const saved = safeParse(project?.wrap_canvas_json);
   const savedSettings = saved?.settings || {};
 

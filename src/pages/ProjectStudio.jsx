@@ -44,6 +44,8 @@ import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup } from '@/lib/chapterStorage';
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
+import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
+import { maybeAutoPolishChapter, maybeFinalCheckAfterPolish } from '@/lib/autoPolishHook'; // WAVE5-SETTINGS
 import { computeDraftIntegrityReport } from '@/lib/draftIntegrityReport';
 import { clearRichContentFields } from '@/lib/richContentStorage';
 import { filterConcreteCriticFindings } from '@/lib/sceneContractGate';
@@ -3201,10 +3203,11 @@ Return structured JSON:
     }
   };
 
-  // Auto-save hooks (debounced 3s after last edit)
-  const settingsAutoSave = useAutoSave(settingsDrafts, handleSaveSettings, { delay: 60000, enabled: !!project });
-  const docsAutoSave = useAutoSave(docDrafts, handleSaveDocs, { delay: 60000, enabled: !!project });
-  const chapterAutoSave = useAutoSave(chapterDraft, handleSaveChapter, { delay: 60000, enabled: !!selectedChapter });
+  // Auto-save hooks — WAVE5-SETTINGS: interval comes from Settings (10–120s, default 60)
+  const autosaveMs = Math.min(120, Math.max(10, Number(getSetting('autosave_interval', 60)))) * 1000;
+  const settingsAutoSave = useAutoSave(settingsDrafts, handleSaveSettings, { delay: autosaveMs, enabled: !!project });
+  const docsAutoSave = useAutoSave(docDrafts, handleSaveDocs, { delay: autosaveMs, enabled: !!project });
+  const chapterAutoSave = useAutoSave(chapterDraft, handleSaveChapter, { delay: autosaveMs, enabled: !!selectedChapter });
 
   // Expose safe replacement handler on window for browser console use.
   // Usage: window.__UBS_SAFE_REPLACE(chapterNumber, repairedText)
@@ -3921,6 +3924,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       if (!nfVerify.ok) {
         throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${nfVerify.reason}`);
       }
+      await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
       if (chapter.id === selectedChapterId) {
         setChapterDraft(chapterContent);
@@ -3958,7 +3962,10 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         task_type: 'prose',
         prompt: contPrompt,
         response_json_schema: chapterSchema,
-        model: pickModel('prose_continuation', draftingProject),
+        // WAVE5-MODELPICKER: honor the chapter's model override for the top-up
+        // continuation too — a chapter should never be drafted by model A and
+        // extended by model B.
+        model: proseModelOverride || pickModel('prose_continuation', draftingProject),
         spec: draftingProject,
         ...buildFallbackControls('prose_continuation', draftingProject),
       });
@@ -4058,6 +4065,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       if (!fastVerify.ok) {
         throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${fastVerify.reason}`);
       }
+      await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
       if (chapter.id === selectedChapterId) {
         setChapterDraft(chapterContent);
@@ -4514,6 +4522,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     if (!stdVerify.ok) {
       throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${stdVerify.reason}`);
     }
+    await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
     // Immediately update the draft textarea if this is the selected chapter
     if (chapter.id === selectedChapterId) {
@@ -5611,7 +5620,9 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       const nfCoreStats = ps.nfCore || {};
       const report = `NF Polish v2: ${savedCount} saved, ${unchangedCount} unchanged | Banned: -${ps.bannedRecastCount || 0} | Cap: ${ps.capFixed || 0} | Voice: ${ps.voiceFixed || 0} | Reps: ${nfCoreStats.repFixed || 0} | Scaffolds: ${nfCoreStats.scaffoldsRemoved || 0} | Disclaimers: ${nfCoreStats.disclaimersRemoved || 0} | Grammar(NF): ${nfCoreStats.grammarFixed || 0} | Spelling: ${nfCoreStats.spellingFixed || 0} | Vocab: ${ps.vocabCapped || 0} | Quotes: ${ps.quotesFixed || 0} | ExtAI: ${ps.externalPatternsFixed || 0}
 ` + changes.join('\n') + (saveFailures.length > 0 ? '\n\n\ud83d\udea8 SAVE FAILED for ' + saveFailures.length + ' chapter(s): ' + saveFailures.map(sf => sf.reason?.includes('paragraph count mismatch') ? `Ch.${sf.chNum} (${sf.reason}: expected ${sf.expectedLen}, got ${sf.actualLen})` : `Ch.${sf.chNum} (${sf.reason})`).join(', ') : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n\u2705 Re-export to get the updated manuscript.' : '');
-      toast.info(report, { duration: 30000 });
+      // WAVE5-SETTINGS: optional post-polish quality scan appended to the report.
+      const nfFinalCheck = await maybeFinalCheckAfterPolish({ project, loaded, onProgress: setBusyLabel });
+      toast.info(report + (nfFinalCheck?.length ? '\n\n\ud83d\udd0e Final check: ' + nfFinalCheck.length + ' finding(s)\n' + nfFinalCheck.slice(0, 10).join('\n') : (nfFinalCheck ? '\n\n\ud83d\udd0e Final check: clean' : '')), { duration: 30000 });
     } catch (err) {
       console.error('[POLISH-NF] FATAL:', err);
       toast.error('NF Polish failed: ' + (err.message || 'Unknown error'));
@@ -5970,7 +5981,9 @@ Scene Duplicate Sweep skipped ${ps.sceneDuplicate.skippedUnsafe} candidate(s) be
 
 Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n✅ Re-export to get the updated manuscript.' : '');
 
-    toast.info(report, { duration: 30000 });
+    // WAVE5-SETTINGS: optional post-polish quality scan appended to the report.
+    const fictionFinalCheck = await maybeFinalCheckAfterPolish({ project, loaded, onProgress: setBusyLabel });
+    toast.info(report + (fictionFinalCheck?.length ? '\n\n🔎 Final check: ' + fictionFinalCheck.length + ' finding(s)\n' + fictionFinalCheck.slice(0, 10).join('\n') : (fictionFinalCheck ? '\n\n🔎 Final check: clean' : '')), { duration: 30000 });
 
     } catch (polishError) {
       console.error('[POLISH] FATAL ERROR:', polishError);
