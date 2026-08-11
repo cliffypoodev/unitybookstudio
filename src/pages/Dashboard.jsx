@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 import { FolderPlus, Home, ChevronRight, Search, FilePlus, Library, Settings, Loader2, Trash2, MoreHorizontal, FolderInput, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -162,6 +163,12 @@ export default function Dashboard() {
     mutationFn: async (folderId) => {
       const assigned = projects.filter(p => p.folder_id === folderId || p.series_id === folderId);
       for (const p of assigned) { const u = {}; if (p.folder_id === folderId) u.folder_id = ''; if (p.series_id === folderId) u.series_id = ''; await base44.entities.NovelProject.update(p.id, u); }
+      // WAVE1-FOLDERORPHAN: child folders kept a dangling parent_id after their
+      // parent was deleted, making them (and their projects) unreachable forever.
+      // Re-parent them to the deleted folder's own parent (or root).
+      const deletedFolder = folders.find(f => f.id === folderId);
+      const childFolders = folders.filter(f => f.parent_id === folderId);
+      for (const cf of childFolders) await base44.entities.ProjectFolder.update(cf.id, { parent_id: deletedFolder?.parent_id || '' });
       await base44.entities.ProjectFolder.delete(folderId);
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['project-folders'] }); queryClient.invalidateQueries({ queryKey: ['novel-projects'] }); if (currentFolderId) setCurrentFolderId(null); },
@@ -192,6 +199,7 @@ export default function Dashboard() {
 
   const handleCreateProject = async (projectType, seriesOverrides) => {
     setShowNewProjectModal(false);
+    try {
     if (projectType === 'ideas') { const p = await base44.entities.NovelProject.create({ title: 'Untitled Project', seed_concept: '', author_name: '', book_type: 'fiction', project_type: 'fiction', beat_style: 'Tension-Driven', scene_beat_style: 'Tension-Driven', chapter_target: 20, chapter_length_preset: 'standard', chapter_length_target: 3500, target_chapter_words: 3500, total_word_target: 70000, phase: 'foundation', status: 'idle' }); queryClient.invalidateQueries({ queryKey: ['novel-projects'] }); navigate(`/projects/${p.id}?tab=tools`); return; }
     const shared = { title: 'Untitled Project', seed_concept: '', author_name: '', beat_style: 'Tension-Driven', scene_beat_style: 'Tension-Driven', chapter_target: 20, chapter_length_preset: 'standard', chapter_length_target: 3500, target_chapter_words: 3500, total_word_target: 70000, phase: 'foundation', status: 'idle' };
     const typeDefaults = { fiction: { book_type: 'fiction', project_type: 'fiction', genre: '', pov_mode: 'Third Person Limited', tense: 'Past', spice_level: 0, language_intensity: 0, protagonist_pronouns: 'she/her' }, nonfiction: { book_type: 'nonfiction', project_type: 'nonfiction', genre: '', pov_mode: 'First Person', tense: 'Past', spice_level: 0, language_intensity: 0 }, erotica: { book_type: 'fiction', project_type: 'erotica', genre: '', pov_mode: 'Third Person Limited', tense: 'Past', spice_level: 3, language_intensity: 2, erotica_register: 1, protagonist_pronouns: 'she/her' }, anthology: { book_type: 'fiction', project_type: 'anthology', genre: '', pov_mode: 'third-close', tense: 'past', beat_style: 'Character Study', scene_beat_style: 'Character Study', chapter_target: 12, chapter_length_preset: 'standard', chapter_length_target: 3500, target_chapter_words: 3500, total_word_target: 42000, spice_level: 0, language_intensity: 2, anthology_theme: '', anthology_theme_type: 'topic', anthology_story_length: 'short', anthology_variety: 'high' } };
@@ -200,6 +208,12 @@ export default function Dashboard() {
     if (seriesFields.series_bible_id) { try { const bibles = await base44.entities.SeriesBible.filter({ id: seriesFields.series_bible_id }); const bible = bibles?.[0]; if (bible) { const { formatCharactersForStoryBible, buildCanonFromSeriesBible, formatUnresolvedThreads } = await import('@/lib/seriesBible'); let characters = []; try { characters = JSON.parse(bible.characters_json || '[]'); } catch {} let unresolvedThreads = []; try { unresolvedThreads = JSON.parse(bible.unresolved_threads || '[]'); } catch {} let resolvedThreads = []; try { resolvedThreads = JSON.parse(bible.resolved_threads || '[]'); } catch {} let deathsAndLosses = []; try { deathsAndLosses = JSON.parse(bible.deaths_and_losses || '[]'); } catch {} let secretsRevealed = []; try { secretsRevealed = JSON.parse(bible.secrets_revealed || '[]'); } catch {} seriesStoryFields = { characters_md: formatCharactersForStoryBible(characters), world_md: bible.world_state || '', canon_md: buildCanonFromSeriesBible({ characters, rules_and_systems: bible.rules_and_systems, deaths_and_losses: deathsAndLosses, secrets_revealed: secretsRevealed, resolved_threads: resolvedThreads }), voice_md: bible.voice_profile || '', mystery_md: formatUnresolvedThreads(unresolvedThreads), seed_concept: 'Continuation of ' + (seriesFields.series_name || 'the series'), title: (seriesFields.series_name || 'Series') + ' — Book ' + (seriesFields.series_number || 2) }; } } catch (e) { console.warn('[SERIES] Failed:', e.message); } }
     const p = await base44.entities.NovelProject.create({ ...shared, ...typeDefaults[projectType], ...seriesFields, ...seriesStoryFields });
     queryClient.invalidateQueries({ queryKey: ['novel-projects'] }); navigate(`/projects/${p.id}`);
+    } catch (err) {
+      // WAVE1-CREATECATCH: the modal closes before the awaits, so without this
+      // catch a failed create was completely silent — no toast, no navigation.
+      console.error('[DASHBOARD] Project create failed:', err);
+      toast.error('Could not create the project: ' + (err?.message || 'unknown error'));
+    }
   };
 
   return (

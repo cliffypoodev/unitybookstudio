@@ -2244,6 +2244,10 @@ export default function ProjectStudio() {
     if (!project) return; if (!(settingsDrafts.seed_concept?.trim() || project.seed_concept?.trim())) { toast.error('Enter a premise in Setup first.'); return; }
     captureSnapshot('Expand');
     const bookType = settingsDrafts.book_type || 'fiction';
+    try {
+    // WAVE1-EXPANDPRETRY: the pre-save awaits below used to sit above this try,
+    // so a network throw in prepareSeedConcept/update/resolveSeedConcept was an
+    // unhandled rejection with no toast — the button just "did nothing".
     // Force save settings before generation to eliminate auto-save race condition
     const _expandSave = normalizeSetupRoutingDraft({ ...settingsDrafts }); if (!_expandSave.series_number && _expandSave.series_number !== 0) delete _expandSave.series_number; else _expandSave.series_number = Number(_expandSave.series_number); delete _expandSave.num_twists; delete _expandSave.twist_count; delete _expandSave.twist_intensity;
     if (_expandSave.seed_concept) { const sc = await prepareSeedConcept(_expandSave.seed_concept, project.id); _expandSave.seed_concept = sc.seed_concept; _expandSave.seed_concept_url = sc.seed_concept_url; }
@@ -2254,7 +2258,6 @@ export default function ProjectStudio() {
       return;
     }
 
-    try {
     const _usedNames = await getUsedCharacterNames(project.id);
     // PREMISE-FIDELITY-1: the author's brief is a closed world. The project title is
     // excluded because it appears in nearly every premise and is not a story entity.

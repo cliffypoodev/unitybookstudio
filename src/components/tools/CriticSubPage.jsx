@@ -8,6 +8,7 @@ import { isAnthologyProject } from '@/lib/anthologyEngine';
 import { countWords } from '@/lib/autonovel';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { loadManuscriptChapters, getFullText } from '@/lib/manuscriptLoader';
+import { parseDocxFile } from '@/lib/docxParser';
 import { base44 } from '@/api/base44Client';
 import CriticConsensus from '@/components/tools/CriticConsensus';
 import CriticReviewCard from '@/components/tools/CriticReviewCard';
@@ -344,10 +345,26 @@ export default function CriticSubPage({ project, chapters, busyLabel, setBusyLab
 
   const isBusy = !!busyLabel;
 
-  const handleFileLoaded = (parsed) => {
-    setUploadedContent(parsed);
-    setCritiqueResults(null);
-    setPanelResults(null);
+  // WAVE1-UPLOADZONE: UploadZone's API is onFileSelect(file) — the old
+  // onFileLoaded wiring threw "onFileSelect is not a function" on any upload.
+  const [uploading, setUploading] = useState(false);
+  const handleFileSelect = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const parsed = await parseDocxFile(file);
+      setUploadedContent({
+        ...parsed,
+        text: parsed.fullText,
+        title: (file.name || '').replace(/\.(docx?|txt)$/i, ''),
+      });
+      setCritiqueResults(null);
+      setPanelResults(null);
+    } catch (err) {
+      toast.error('Parse failed: ' + (err?.message || 'Unknown'));
+    } finally {
+      setUploading(false);
+    }
   };
 
   const toggleFix = useCallback((fixId, fix) => {
@@ -592,7 +609,7 @@ export default function CriticSubPage({ project, chapters, busyLabel, setBusyLab
       <SourceSelector source={source} setSource={setSource} project={project} />
 
       {source === 'upload' && (
-        <UploadZone onFileLoaded={handleFileLoaded} loaded={uploadedContent} />
+        <UploadZone onFileSelect={handleFileSelect} uploading={uploading} />
       )}
 
       {/* Tab switcher */}
