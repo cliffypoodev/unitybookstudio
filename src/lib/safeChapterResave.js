@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE9-DEADSTAMP2, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app.
+ * Superseded by lib/verifiedChapterSave, which writes, reads back and retries on mismatch.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
+
 // =============================================================
 // safeChapterResave.js — Safe stale-chapter re-save utility
 //

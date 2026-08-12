@@ -5,7 +5,9 @@ import { base44 } from '@/api/base44Client';
 import { bypassUploadFile } from '@/lib/coreBypasses';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import ChatMessage from '@/components/notebook/ChatMessage';
+import CreateProjectFromIdeaDialog from '@/components/notebook/CreateProjectFromIdeaDialog';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { CHAT_FACT_DISCIPLINE } from '@/lib/chatPromptDiscipline';
 
@@ -112,6 +114,7 @@ ${CHAT_FACT_DISCIPLINE}`;
 const GREETING = "Hey — I'm your Ideas Architect. Thirty years of developmental editing, zero patience for clichés. Tell me what's rattling around in your head — a genre, a character, a \"what if,\" a vague feeling you can't shake. Or say 'surprise me' and I'll throw something at you that you haven't seen before. What are we building?";
 
 export default function IdeasChatbot({ onUseIdea, projectId }) {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([{ role: 'assistant', content: GREETING }]);
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -301,6 +304,31 @@ export default function IdeasChatbot({ onUseIdea, projectId }) {
     }
   };
 
+  // WAVE9-IDEATONEWBOOK: CreateProjectFromIdeaDialog was written for exactly the
+  // [USE_IDEA] payload this chatbot emits — field for field — and then never
+  // imported anywhere. Without it the only thing you could do with a finished
+  // concept was overwrite the book you already had open.
+  const [newBookBlueprint, setNewBookBlueprint] = useState(null);
+  const [creatingProject, setCreatingProject] = useState(false);
+
+  const handleConfirmCreate = async (fields) => {
+    setCreatingProject(true);
+    try {
+      const created = await runWithNetworkRetry(() => base44.entities.NovelProject.create({
+        ...fields,
+        status: 'setup',
+      }));
+      toast.success(`Created "${fields.title || 'Untitled'}"`);
+      setNewBookBlueprint(null);
+      navigate(`/projects/${created.id}`);
+    } catch (err) {
+      console.error('[IDEAS] create from blueprint failed:', err);
+      toast.error('Could not create the book: ' + (err?.message || 'unknown error'));
+    } finally {
+      setCreatingProject(false);
+    }
+  };
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -322,7 +350,12 @@ export default function IdeasChatbot({ onUseIdea, projectId }) {
           </div>
         )}
         {!isLoadingHistory && messages.map((msg, idx) => (
-          <ChatMessage key={idx} message={msg} onUseIdea={handleUseIdea} />
+          <ChatMessage
+            key={idx}
+            message={msg}
+            onUseIdea={handleUseIdea}
+            onStartNewProject={(data) => setNewBookBlueprint(data)}
+          />
         ))}
 
         {isGenerating && (
@@ -370,6 +403,13 @@ export default function IdeasChatbot({ onUseIdea, projectId }) {
           </Button>
         </div>
       </div>
+
+      <CreateProjectFromIdeaDialog
+        open={!!newBookBlueprint}
+        onOpenChange={(open) => { if (!open && !creatingProject) setNewBookBlueprint(null); }}
+        blueprint={newBookBlueprint}
+        onConfirmCreate={handleConfirmCreate}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, User, Zap } from 'lucide-react';
+import { Sparkles, User, Zap, FilePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function parseIdeaMarkers(text) {
@@ -66,7 +66,7 @@ function parseIdeaMarkers(text) {
   return parts.length ? parts : [{ type: 'text', content: text }];
 }
 
-export default function ChatMessage({ message, onUseIdea }) {
+export default function ChatMessage({ message, onUseIdea, onStartNewProject }) {
   const isUser = message.role === 'user';
   const [visible, setVisible] = useState(false);
 
@@ -96,16 +96,32 @@ export default function ChatMessage({ message, onUseIdea }) {
       <div className={`max-w-[85%] space-y-2 ${isUser ? 'items-end' : 'items-start'}`}>
         {parts.map((part, idx) => {
           if (part.type === 'idea') {
+            // WAVE9-IDEATONEWBOOK: "Use This Idea" overwrites the premise, genre
+            // and book type of the project you currently have open, with no
+            // warning and no alternative. Starting a NEW book from an idea is
+            // the obvious other thing to want, and the dialog for it has been
+            // sitting unimported since it was written.
             return (
-              <Button
-                key={idx}
-                variant="outline"
-                size="sm"
-                onClick={() => onUseIdea?.(part.data)}
-                className="gap-1.5 rounded-full border-chart-1/40 bg-chart-1/10 text-chart-1 hover:bg-chart-1/20 text-xs"
-              >
-                <Zap className="h-3 w-3" /> Use This Idea
-              </Button>
+              <div key={idx} className="flex flex-wrap items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onUseIdea?.(part.data)}
+                  className="gap-1.5 rounded-full border-chart-1/40 bg-chart-1/10 text-chart-1 hover:bg-chart-1/20 text-xs"
+                >
+                  <Zap className="h-3 w-3" /> Use in This Book
+                </Button>
+                {onStartNewProject && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onStartNewProject(part.data)}
+                    className="gap-1.5 rounded-full border-border/60 text-xs"
+                  >
+                    <FilePlus className="h-3 w-3" /> Start a New Book
+                  </Button>
+                )}
+              </div>
             );
           }
           return (

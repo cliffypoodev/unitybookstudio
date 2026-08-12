@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE9-DEADSTAMP2, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app.
+ * Superseded. The live series-bible extraction is extractSeriesBible() driven from pages/SeriesManager (upload a manuscript, or merge a book into an existing bible) and components/notebook/SeriesSection.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
+
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Loader2, CheckCircle, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';

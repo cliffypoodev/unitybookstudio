@@ -1,12 +1,17 @@
-/**
- * Quick validation of dialogueMechanicsRepair.js against the required test cases.
- */
+// DIALOGUEMECHANICS-1 acceptance.
+//
+// WAVE9-TESTPROMOTE: this lived at src/lib/dialogueMechanicsRepair.test.js — 27
+// real assertions against a module that IS live (exportSafetyGate and
+// surgicalFix both import it at export time), sitting in the source tree where
+// no runner ever looked at it. It passed, and had been passing unobserved.
+// Moved into the suite and given the house summary line so a regression in
+// dialogue-quote repair fails the batteries instead of nobody.
 import {
   detectDialogueQuoteIssues,
   repairMissingDialogueOpeners,
   runDialogueMechanicsPass,
   VERSION,
-} from './dialogueMechanicsRepair.js';
+} from '../src/lib/dialogueMechanicsRepair.js';
 
 const PASS = '\x1b[32m✓\x1b[0m';
 const FAIL = '\x1b[31m✗\x1b[0m';
@@ -148,5 +153,6 @@ assert(orchResult.repairs.length === 2, `Orchestration: repairs = ${orchResult.r
 
 // ─── Summary ─────────────────────────────────────────────────────────────────
 
-console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
+console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
+console.log(failed === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failed} CHECK(S) FAILED`);
 process.exit(failed > 0 ? 1 : 0);
