@@ -9,6 +9,8 @@
  * Enhanced punctuation artifact cleanup.
  * Mutates loaded[].content in place.
  */
+import { getSetting } from './settingsRead.js'; // WAVE5-SETTINGS
+
 export function runPunctuationCleanup(loaded, onProgress) {
   onProgress?.('Polish: Cleaning punctuation artifacts…');
   const changes = [];
@@ -222,11 +224,12 @@ export function runEmDashReducer(loaded, onProgress) {
     const dashes = (f.content.match(/\u2014/g) || []).length;
     const per1k = dashes / (wordCount / 1000);
 
-    // Only reduce if above 6 per 1K (give some headroom above the 4 target)
-    if (per1k <= 6) continue;
+    // WAVE5-SETTINGS: trigger threshold comes from Settings (default 6/1K);
+    // target stays one below the trigger, preserving the historical 6→5 gap.
+    const emdashTrigger = Math.max(2, Number(getSetting('emdash_target', 6)));
+    if (per1k <= emdashTrigger) continue;
 
-    // Target: reduce to ~5 per 1K
-    const targetDashes = Math.round(5 * wordCount / 1000);
+    const targetDashes = Math.round((emdashTrigger - 1) * wordCount / 1000);
     const excess = dashes - targetDashes;
     if (excess <= 0) continue;
 
@@ -424,10 +427,12 @@ export function runProgressiveReducer(loaded, onProgress) {
     const per10k = allProg / (wordCount / 10000);
 
     // Fire on ANY chapter with progressive > 8/10K (published norm)
-    if (per10k <= 8) { chaptersSkipped++; continue; }
+    // WAVE5-SETTINGS: trigger from Settings (default 8/10K); target keeps the 8→6 gap.
+    const progTrigger = Math.max(3, Number(getSetting('progressive_threshold', 8)));
+    if (per10k <= progTrigger) { chaptersSkipped++; continue; }
 
     // Target: reduce to 6/10K — aggressive
-    const target = Math.round(6 * wordCount / 10000);
+    const target = Math.round(Math.max(1, progTrigger - 2) * wordCount / 10000);
     const toConvert = allProg - target;
     if (toConvert <= 0) { chaptersSkipped++; continue; }
 

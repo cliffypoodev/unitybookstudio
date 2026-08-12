@@ -79,6 +79,21 @@ export default function CriticReviewCard({ review }) {
           {review.audience_reasoning}
         </div>
       )}
+      {/* WAVE7-TOPFIXES: every reviewer is asked for up to 5 ranked, actionable
+          revision instructions. They were generated on every run and never shown —
+          the most useful output of the panel. */}
+      {review.topFixes?.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-border/50">
+          <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+            What this reviewer would fix
+          </div>
+          <ol className="space-y-1 list-decimal list-inside">
+            {review.topFixes.map((fix, i) => (
+              <li key={i} className="text-[11px] leading-relaxed text-foreground/80">{fix}</li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }
