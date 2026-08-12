@@ -508,6 +508,16 @@
     "publishSettings": {
       "type": "object"
     },
+    // WAVE6-DEADGATE: resolveSceneExecutionFlags() reads this off the project
+    // record, but it was never declared — so the only way to switch the
+    // scene-execution validators on was to hand-edit storage. Declared here and
+    // surfaced in Setup. Default stays OFF, per the DEADGATE-1 note in
+    // generationContext.js: turning unproven validators on mid-book is its own
+    // hazard, so this is opt-in per project.
+    "scene_execution_flags": {
+      "type": "object",
+      "description": "Per-project scene-execution gate toggles, e.g. { scene_execution_acceptance_gate_v1: true }. Keys must match SCENE_EXECUTION_FEATURE_KEYS in src/lib/generationContext.js."
+    },
     "folder_id": {
       "type": "string"
     },
