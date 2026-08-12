@@ -61,6 +61,8 @@ import {
 import { backupExportChapterIfChanged } from '@/lib/exportVersionSafety';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { runPreExportSafetyGate, formatExportSafetyFailure, assertExportSafetyAllowed, assertExportSnapshotIntegrity } from '@/lib/exportSafetyGate';
+import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
+import { normalizeTrimSize } from '@/lib/kdpCover'; // WAVE5-SETTINGS
 
 console.log('[EXPORT] ExportTab HARDFIX v47 loaded: read-only export with strict safety gate');
 
@@ -76,7 +78,14 @@ export default function ExportTab({
   }, [chapters]);
 
   const [publishSettings, setPublishSettings] = useState(
-    project?.publishSettings || DEFAULT_PUBLISH_SETTINGS
+    // WAVE5-SETTINGS: when the project has no saved publish settings, seed the
+    // defaults from the user's Settings (font + trim size) instead of the
+    // hardcoded constants. A project's own saved settings always win.
+    project?.publishSettings || {
+      ...DEFAULT_PUBLISH_SETTINGS,
+      paragraphFont: getSetting('default_export_font', DEFAULT_PUBLISH_SETTINGS.paragraphFont),
+      trimSize: normalizeTrimSize(getSetting('default_trim_size', ''), DEFAULT_PUBLISH_SETTINGS.trimSize),
+    }
   );
 
   const [selectedChapterId, setSelectedChapterId] = useState(safeChapters[0]?.id || null);
@@ -3696,9 +3705,12 @@ function buildDocxDocument(project = {}, chapters = [], settings = {}, dim = { w
     );
   }
 
-  const frontMatter = safeDocChapters.filter((chapter) => isFrontMatter(chapter));
+  // WAVE5-SETTINGS: front/back matter inclusion is user-controllable.
+  const frontMatter = getSetting('include_front_matter', true)
+    ? safeDocChapters.filter((chapter) => isFrontMatter(chapter)) : [];
   const bodyMatter = safeDocChapters.filter((chapter) => isBodyChapter(chapter));
-  const backMatter = safeDocChapters.filter((chapter) => isBackMatter(chapter));
+  const backMatter = getSetting('include_back_matter', true)
+    ? safeDocChapters.filter((chapter) => isBackMatter(chapter)) : [];
 
   frontMatter.forEach((chapter) => {
     const raw = normalizeDocxMarkdown(chapter.content_md || '');

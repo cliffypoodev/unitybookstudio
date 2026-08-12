@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE5-DEADSTAMP, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app —
+ * past AI sessions repeatedly wasted hours "fixing" components like this one.
+ * Live implementation: nothing imports this; cover composition happens in FullWrapComposite.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
 import { base44 } from '@/api/base44Client';
 import { buildTypographyPlan, clamp } from '@/lib/coverTypography';
 

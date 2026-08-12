@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE5-DEADSTAMP, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app —
+ * past AI sessions repeatedly wasted hours "fixing" components like this one.
+ * Live implementation: the live implementation is the inline fork in pages/ProjectStudio.jsx (see its header comment).
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
 /**
  * Scene Duplicate / Alternate Draft Sweep v2 — Universal Structure Guard
  *
