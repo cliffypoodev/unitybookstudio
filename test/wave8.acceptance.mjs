@@ -8,7 +8,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { locatePassage, flexibleMatcher } from '../src/lib/passageLocator.js';
+import { locatePassage, flexibleMatcher, assessReplacement } from '../src/lib/passageLocator.js';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(DIR, '..');
@@ -66,6 +66,31 @@ check('1h. the returned offsets splice cleanly',
   applied.includes('Marta lost count. She felt a sense of dread.') &&
   !applied.includes('Marta counted the tiles again.'));
 
+// ── WAVE8-PROPORTION ─────────────────────────────────────────────────────────
+// The end-to-end run caught this live: asked to humanize one 88-character
+// sentence, the model returned 19,122 characters and the app applied all of it.
+const SENTENCE = 'Marigold unlatched the vestry threshold before evensong, and Marigold said nothing at all.';
+const CHAPTER_SIZED = 'x'.repeat(19122);
+
+check('1i. a chapter-sized "rewrite" of one sentence is refused',
+  assessReplacement(SENTENCE, CHAPTER_SIZED).ok === false &&
+  /rewritten more than the passage/.test(assessReplacement(SENTENCE, CHAPTER_SIZED).reason));
+check('1j. a legitimate show-don\'t-tell expansion still passes',
+  assessReplacement(
+    'She felt afraid.',
+    'Her hand would not stay flat on the table, so she put it in her lap where nobody could watch it.'
+  ).ok === true);
+check('1k. a rewrite that doubles a long passage still passes',
+  assessReplacement('a'.repeat(400), 'b'.repeat(800)).ok === true);
+check('1l. a one-word "summary" of a long passage is refused',
+  assessReplacement('a '.repeat(200), 'Fine.').ok === false &&
+  /summarized rather than rewritten/.test(assessReplacement('a '.repeat(200), 'Fine.').reason));
+check('1m. short passages get absolute headroom, not just a ratio',
+  assessReplacement('He ran.', 'He ran until the stitch in his side made him stop.').ok === true);
+check('1n. empty and unchanged rewrites are refused',
+  assessReplacement(SENTENCE, '').ok === false &&
+  assessReplacement(SENTENCE, SENTENCE).ok === false);
+
 // ── WAVE8-SNAPSHOT ───────────────────────────────────────────────────────────
 const backup = read('src/lib/chapterBackup.js');
 check('2. the shared snapshot module exports the full guarded surface',
@@ -93,13 +118,21 @@ check('3c. the chapter risk table carries ids too (for the editor route)',
 check('4. the humanize panel can write the rewrite back to the chapter',
   /applyPassageToChapter\(\{/.test(pf) && /Apply to Chapter/.test(pf));
 check('4b. apply is gated on there being a real saved chapter to write to',
-  /const canApply = source === 'project' && !!targetChapter;/.test(pf));
+  /const canApply = source === 'project' && !!targetChapter && scale\.ok;/.test(pf));
 check('4c. an upload-sourced finding explains why it can only be copied',
   /read-only here/.test(pf));
 check('4d. a stale rewrite cannot be applied to a different passage',
   /React\.useEffect\(\(\) => \{ setRewrite\(''\); \}, \[selected\?\.chapterId, selected\?\.index, selected\?\.text\]\);/.test(pf));
 check('4e. the user is told the write is undoable, and how',
   /Restore Original/.test(pf));
+check('4f. a disproportionate rewrite is caught before it reaches the manuscript',
+  /const scale = assessReplacement\(/.test(backup) &&
+  /if \(!scale\.ok\) return \{ ok: false, reason: scale\.reason \};/.test(backup));
+check('4g. and it is shown in the panel rather than only on Apply',
+  /assessReplacement\(selected\?\.text, rewrite\)/.test(pf) &&
+  /&& scale\.ok;/.test(pf) && /Can&rsquo;t apply/.test(pf));
+check('4h. the same guard protects the manual editor',
+  /assessReplacement\(selection\.text, rewritten\)/.test(read('src/components/tools/FixPassagesEditor.jsx')));
 
 // ── WAVE8-FIXEDITOR ──────────────────────────────────────────────────────────
 check('5. FixPassagesEditor finally has an importer',

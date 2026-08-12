@@ -3,6 +3,7 @@ import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
+import { assessReplacement } from '@/lib/passageLocator';
 import analyzeChapter from '@/lib/analyzeChapter';
 import ChapterAnalysisPanel from '@/components/tools/ChapterAnalysisPanel';
 
@@ -87,7 +88,13 @@ Rewrite now:`;
       });
       const rewritten = typeof response === 'string' ? response : (response?.text || response?.content || response?.data || String(response || ''));
 
-      if (rewritten.trim()) {
+      // WAVE8-PROPORTION: a local model asked to rewrite one sentence sometimes
+      // returns a whole chapter. Dumping that into the textarea over a
+      // highlighted line is not a rewrite the writer can review.
+      const scale = assessReplacement(selection.text, rewritten);
+      if (rewritten.trim() && !scale.ok) {
+        toast.error(`Rewrite rejected — ${scale.reason}`);
+      } else if (rewritten.trim()) {
         const newText = text.substring(0, selection.start) + rewritten.trim() + text.substring(selection.end);
         setText(newText);
         setSelection(null);

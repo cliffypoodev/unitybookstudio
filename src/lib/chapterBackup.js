@@ -32,9 +32,9 @@ import { clearRichContentFields } from '@/lib/richContentStorage.js';
 import { runWithNetworkRetry } from '@/lib/requestRetry.js';
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave.js';
 import { countWords } from '@/lib/autonovel.js';
-import { locatePassage } from '@/lib/passageLocator.js';
+import { locatePassage, assessReplacement } from '@/lib/passageLocator.js';
 
-export { locatePassage } from '@/lib/passageLocator.js';
+export { locatePassage, assessReplacement } from '@/lib/passageLocator.js';
 
 /**
  * Snapshot a chapter's current content into its backup slot.
@@ -125,6 +125,11 @@ export async function applyPassageToChapter({ chapter, projectId, original, repl
 
   const next = String(replacement || '').trim();
   if (!next) return { ok: false, reason: 'replacement text is empty' };
+
+  // WAVE8-PROPORTION: refuse a "rewrite" that is plainly not a rewrite of this
+  // passage, before it reaches the manuscript.
+  const scale = assessReplacement(original, next);
+  if (!scale.ok) return { ok: false, reason: scale.reason };
 
   let content;
   try {

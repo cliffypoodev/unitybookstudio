@@ -26,6 +26,7 @@ import { resolveChapterContent, chapterHasContent } from '@/lib/chapterStorage';
 import { isBodyChapter } from '@/lib/bibliographyGenerator';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { applyPassageToChapter, replaceChapterContent } from '@/lib/chapterBackup';
+import { assessReplacement } from '@/lib/passageLocator';
 
 import SourceSelector from '@/components/tools/SourceSelector';
 import UploadZone from '@/components/tools/UploadZone';
@@ -766,7 +767,10 @@ function HumanizePanel({ selected, project, chapters, source, onClose, onApplied
     return (chapters || []).find((c) => c.id === selected.chapterId) || null;
   }, [chapters, selected?.chapterId]);
 
-  const canApply = source === 'project' && !!targetChapter;
+  // WAVE8-PROPORTION: judged as soon as the rewrite lands, so the writer is not
+  // told "no" only after committing to Apply.
+  const scale = rewrite ? assessReplacement(selected?.text, rewrite) : { ok: true };
+  const canApply = source === 'project' && !!targetChapter && scale.ok;
 
   React.useEffect(() => { setRewrite(''); }, [selected?.chapterId, selected?.index, selected?.text]);
 
@@ -901,7 +905,12 @@ function HumanizePanel({ selected, project, chapters, source, onClose, onApplied
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
-        {rewrite && !canApply && (
+        {rewrite && !scale.ok && (
+          <span className="mr-auto text-[11px] font-medium text-red-600 dark:text-red-400">
+            Can&rsquo;t apply — {scale.reason}. Regenerate, or copy the part you want.
+          </span>
+        )}
+        {rewrite && scale.ok && !canApply && (
           <span className="mr-auto text-[11px] text-muted-foreground">
             {source === 'upload'
               ? 'Uploaded documents are read-only here — copy the rewrite into your manuscript.'

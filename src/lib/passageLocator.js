@@ -13,6 +13,48 @@
  * @module passageLocator
  */
 
+/**
+ * WAVE8-PROPORTION — is this rewrite plausibly a rewrite of THAT passage?
+ *
+ * Found by the end-to-end run: asked to humanize one 88-character sentence, the
+ * model returned 19,122 characters — an entire chapter's worth of prose — and
+ * the app pasted all of it in over the sentence. Nothing objected, because
+ * verifiedChapterSave only checks that what persisted matches what we told it
+ * to write, and we told it to write the wrong thing.
+ *
+ * A local model that loses the plot on a line-edit request is a normal Tuesday,
+ * so the size of what comes back is worth checking before it lands in somebody's
+ * manuscript. The bounds are deliberately loose: a legitimate "show, don't tell"
+ * rewrite can easily run several times the original, and short passages need
+ * absolute headroom that a pure ratio would not give them. This is here to catch
+ * the model answering a different question, not to police style.
+ */
+export function assessReplacement(original, replacement) {
+  const from = String(original || '').trim();
+  const to = String(replacement || '').trim();
+
+  if (!to) return { ok: false, reason: 'the rewrite is empty' };
+  if (to === from) return { ok: false, reason: 'the rewrite is identical to the original' };
+
+  const ceiling = from.length * 4 + 200;
+  if (to.length > ceiling) {
+    return {
+      ok: false,
+      reason: `the rewrite is ${to.length} characters for a ${from.length}-character passage — the model appears to have rewritten more than the passage`,
+    };
+  }
+
+  const floor = Math.floor(from.length / 4) - 40;
+  if (from.length > 120 && to.length < floor) {
+    return {
+      ok: false,
+      reason: `the rewrite is ${to.length} characters for a ${from.length}-character passage — the model appears to have summarized rather than rewritten`,
+    };
+  }
+
+  return { ok: true };
+}
+
 export function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
