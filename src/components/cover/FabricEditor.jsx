@@ -26,6 +26,7 @@ import RichTextToolbar from '@/components/cover/RichTextToolbar';
 import AlignmentToolbar from '@/components/cover/AlignmentToolbar';
 import ZoomControl from '@/components/cover/ZoomControl';
 import TemplatesPicker from '@/components/cover/TemplatesPicker';
+import PublisherLogoUpload from '@/components/cover/PublisherLogoUpload';
 
 import { createHistory } from '@/lib/coverHistory';
 import { createSnapGuides } from '@/lib/coverSnapGuides';
@@ -805,6 +806,9 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
         />
 
         <TemplatesPicker onApply={handleApplyTemplate} />
+        {/* WAVE4-COVERWIRING: the logo uploader finally gets the project prop
+            it always needed — uploading no longer throws on project.id. */}
+        <PublisherLogoUpload project={project} />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">

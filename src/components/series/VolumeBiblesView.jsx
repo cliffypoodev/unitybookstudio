@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ArrowLeft, Loader2, BookOpen, ChevronDown, ChevronRight, RefreshCw, CheckCircle, AlertTriangle, Users, Globe, Clock, Skull, Zap, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -119,6 +119,12 @@ function VolumeCard({ project, projects }) {
   const [extracting, setExtracting] = useState(false);
   const [progress, setProgress] = useState('');
   const [data, setData] = useState(() => loadVolumeBible(project));
+
+  // WAVE3-EXTRACTALL: "Extract All" saves bibles and calls refreshAll(), but the
+  // card key never changes, so the lazy initializer above never re-ran — five
+  // finished extractions still showed "Extract Bible" until a full page reload.
+  // Re-derive from the refreshed project prop.
+  useEffect(() => { setData(loadVolumeBible(project)); }, [project]);
 
   const handleExtract = useCallback(async () => {
     setExtracting(true);

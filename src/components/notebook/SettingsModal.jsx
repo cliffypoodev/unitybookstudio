@@ -8,6 +8,7 @@ import { resolveChapterContent, chapterHasContent } from '@/lib/chapterStorage';
 import { isBodyChapter } from '@/lib/bibliographyGenerator';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 import { useUserSettings } from '@/lib/userSettings';
+import { FONT_OPTIONS } from '@/lib/publishConstants'; // WAVE5-SETTINGS
 import { useAuth } from '@/lib/AuthContext';
 import { toast } from 'sonner'; // TOASTMOUNT-1: unify on sonner (react-hot-toast had no mounted Toaster)
 
@@ -15,7 +16,6 @@ const TABS = [
   { id: 'personas', label: 'Author Personas', icon: User },
   { id: 'polish', label: 'Polish & Quality', icon: Sparkles },
   { id: 'publishing', label: 'Publishing', icon: BookOpen },
-  { id: 'api', label: 'API Keys', icon: Key },
   { id: 'export', label: 'Export', icon: FileText },
   { id: 'workspace', label: 'Workspace', icon: Layout },
   { id: 'theme', label: 'Theme', icon: Settings },
@@ -527,23 +527,20 @@ export default function SettingsModal({ open, onOpenChange }) {
             )}
             {tab === 'publishing' && (
               <div>
-                <SettingRow label="Default Trim Size"><Select value={settings.default_trim_size} onChange={(v) => updateSettings({ default_trim_size: v })} options={['5x8','5.25x8','5.5x8.5','6x9','6.14x9.21','6.69x9.61','7x10','8.5x11']} className="w-36" /></SettingRow>
-                <SettingRow label="Marketplace"><Select value={settings.default_marketplace} onChange={(v) => updateSettings({ default_marketplace: v })} options={[{id:'amazon_us',label:'Amazon US'},{id:'amazon_uk',label:'Amazon UK'},{id:'amazon_de',label:'Amazon DE'},{id:'amazon_ca',label:'Amazon CA'}]} className="w-40" /></SettingRow>
+                <SettingRow label="Default Trim Size" description="Used by the cover wrap and export when a project has no saved publish settings"><Select value={settings.default_trim_size} onChange={(v) => updateSettings({ default_trim_size: v })} options={['5x8','5.25x8','5.5x8.5','6x9','6.14x9.21','6.69x9.61','7x10','8.5x11']} className="w-36" /></SettingRow>
+                {/* WAVE5-SETTINGS: Marketplace control removed — no marketplace
+                    feature exists anywhere in the app to consume it. */}
                 <SettingRow label="Active Pen Name"><span className="text-sm font-medium">{activePersona?.pen_name || activePersona?.persona_name || '—'}</span></SettingRow>
               </div>
             )}
-            {tab === 'api' && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-3">API keys are stored on your account. Keep them private.</p>
-                <SettingRow label="OpenRouter API Key"><input type="password" value={settings.openrouter_api_key} onChange={(e) => updateSettings({ openrouter_api_key: e.target.value })} className="w-64 h-8 rounded border border-border bg-background px-2 text-xs font-mono" placeholder="sk-or-..." /></SettingRow>
-                <SettingRow label="OpenAI API Key"><input type="password" value={settings.openai_api_key} onChange={(e) => updateSettings({ openai_api_key: e.target.value })} className="w-64 h-8 rounded border border-border bg-background px-2 text-xs font-mono" placeholder="sk-..." /></SettingRow>
-                <SettingRow label="Gemini API Key"><input type="password" value={settings.gemini_api_key} onChange={(e) => updateSettings({ gemini_api_key: e.target.value })} className="w-64 h-8 rounded border border-border bg-background px-2 text-xs font-mono" placeholder="AIza..." /></SettingRow>
-              </div>
-            )}
+            {/* WAVE5-SETTINGS: API Keys tab removed. The app is fully local —
+                the cloud LLM functions were deliberately deleted (base44Client
+                throws on their names), so these fields stored secrets in
+                plaintext localStorage that nothing could ever use. */}
             {tab === 'export' && (
               <div>
                 <SettingRow label="Default Format"><Select value={settings.default_export_format} onChange={(v) => updateSettings({ default_export_format: v })} options={['docx','epub','pdf','md']} className="w-32" /></SettingRow>
-                <SettingRow label="Default Font"><Select value={settings.default_export_font} onChange={(v) => updateSettings({ default_export_font: v })} options={['Garamond','Times New Roman','Georgia','Palatino','Book Antiqua','Cambria','Crimson Text','Libre Baskerville']} className="w-44" /></SettingRow>
+                <SettingRow label="Default Font" description="Seeds new projects' export settings"><Select value={settings.default_export_font} onChange={(v) => updateSettings({ default_export_font: v })} options={FONT_OPTIONS.map((f) => f.value || f.id || f)} className="w-44" /></SettingRow>
                 <SettingRow label="Front Matter"><Toggle checked={settings.include_front_matter} onChange={(v) => updateSettings({ include_front_matter: v })} /></SettingRow>
                 <SettingRow label="Back Matter"><Toggle checked={settings.include_back_matter} onChange={(v) => updateSettings({ include_back_matter: v })} /></SettingRow>
               </div>
@@ -552,7 +549,7 @@ export default function SettingsModal({ open, onOpenChange }) {
               <div>
                 <SettingRow label="Auto-Save Interval"><Slider value={settings.autosave_interval} onChange={(v) => updateSettings({ autosave_interval: v })} min={10} max={120} step={10} suffix="s" /></SettingRow>
                 <SettingRow label="Floating Brainstorm"><Toggle checked={settings.enable_floating_brainstorm} onChange={(v) => updateSettings({ enable_floating_brainstorm: v })} /></SettingRow>
-                <SettingRow label="Default Project Type"><Select value={settings.default_project_type} onChange={(v) => updateSettings({ default_project_type: v })} options={['fiction','nonfiction','anthology']} className="w-32" /></SettingRow>
+                <SettingRow label="Default Project Type" description="Highlighted first in the New Project dialog"><Select value={settings.default_project_type} onChange={(v) => updateSettings({ default_project_type: v })} options={['fiction','nonfiction','erotica','ideas']} className="w-32" /></SettingRow>
               </div>
             )}
             {tab === 'theme' && (

@@ -137,6 +137,21 @@
     "drafted_with_model": {
       "type": "string",
       "description": "Model ID used to draft this chapter (e.g. deepseek/deepseek-chat)"
+    },
+    // WAVE3-SCHEMA: written by the draft pipeline and chapterStorage but never declared
+    "draft_all_mode": {
+      "type": "string",
+      "description": "Draft mode used for this chapter (standard/fast) — set by Draft All"
+    },
+    "content_md_preview_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when content_md holds only a truncated preview because the full-content upload failed"
+    },
+    "content_md_upload_failed": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when the large-content upload failed and content needs re-save"
     }
   },
   "required": [

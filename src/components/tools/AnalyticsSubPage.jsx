@@ -14,6 +14,7 @@ import SourceSelector from '@/components/tools/SourceSelector';
 import UploadZone from '@/components/tools/UploadZone';
 import { runForensicAnalysis, MARKER_LABELS } from '@/lib/forensicAnalytics';
 import { buildManuscriptEvidenceReport } from '@/lib/manuscriptEvidence';
+import { downloadMarkdown, reportFilename, buildAnalyticsMarkdown } from '@/lib/reportExport'; // WAVE7-REPORTEXPORT
 
 function fleschKincaid(text) {
   const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 3);
@@ -376,6 +377,33 @@ export default function AnalyticsSubPage({ project, chapters }) {
 
       {report && (
         <div className="space-y-4">
+
+          {/* WAVE7-REPORTEXPORT: analytics had no export at all — no CSV, no PDF,
+              no markdown. An editorial letter or beta-reader packet could not be
+              produced from this page. */}
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadMarkdown(
+                reportFilename(project, 'analytics'),
+                buildAnalyticsMarkdown(
+                  project,
+                  report.aggregates,
+                  (report.chapterData || []).map((c) => ({
+                    chapterNumber: c.num, title: c.title, wordCount: c.wordCount,
+                    dialogueRatio: c.dialogueRatio, readability: c.readability,
+                    vocabDiversity: c.vocabDiversity, aiRisk: c.aiRisk,
+                  })),
+                  forensic,
+                  evidenceReport,
+                ),
+              )}
+              className="rounded-full text-xs"
+            >
+              Export analytics (.md)
+            </Button>
+          </div>
 
           {/* ───────── FORENSIC AUDIT SECTION (NEW) ───────── */}
           <div className="rounded-2xl border-2 border-primary/30 bg-card/90 p-5 backdrop-blur-sm shadow-sm">

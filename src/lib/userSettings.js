@@ -26,6 +26,23 @@ const DEFAULT_SETTINGS = {
   preferred_cover_mood: 'Muted',
   default_export_format: 'docx',
   active_persona_id: 'default',
+  // WAVE5-SETTINGS: every SettingsModal control is now declared with a default
+  // matching the value that was previously hardcoded at its consumer, so
+  // nothing renders undefined and consumers always get a sane number/string.
+  progressive_threshold: 8,       // per-10k trigger for the progressive reducer (nonfiction polish)
+  emdash_target: 6,               // per-1k trigger for the em-dash reducer (nonfiction polish)
+  the_starter_target: 14,         // target % for sentence-starter variation
+  auto_polish_after_gen: false,   // run a deterministic polish pass on each chapter right after drafting
+  auto_final_check_after_polish: false, // run a quality scan after manuscript polish
+  custom_banned_words: '',        // comma-separated; use word=replacement to auto-recast, bare word to flag
+  custom_banned_names: '',        // comma-separated character names to ban from generation
+  default_trim_size: '6x9',
+  default_export_font: 'Times New Roman',
+  include_front_matter: true,
+  include_back_matter: true,
+  autosave_interval: 60,          // seconds
+  enable_floating_brainstorm: false,
+  default_project_type: 'fiction',
 };
 
 const DEFAULT_AUTHOR_PERSONA = {
@@ -110,6 +127,45 @@ function safeWritePersonas(personas) {
 
 export function getDefaultSettings() {
   return { ...DEFAULT_SETTINGS };
+}
+
+/**
+ * WAVE5-SETTINGS: synchronous read for non-React code (polish runners, export
+ * builders). Returns the stored value or the fallback (which defaults to the
+ * declared DEFAULT_SETTINGS value).
+ */
+export function getSetting(key, fallback = DEFAULT_SETTINGS[key]) {
+  const v = safeReadLocalSettings()[key];
+  return v === undefined || v === null || v === '' ? fallback : v;
+}
+
+/**
+ * WAVE5-SETTINGS: parse the custom_banned_words textarea.
+ * "utilize=use, tapestry, endeavor=try" →
+ *   { recastMap: { utilize: ['use'], endeavor: ['try'] }, flagWords: ['tapestry'] }
+ * Bare words are FLAGGED in reports (never blind-deleted — that was bug B4);
+ * word=replacement entries are auto-recast during polish.
+ */
+export function parseCustomBannedWords(raw = getSetting('custom_banned_words', '')) {
+  const recastMap = {};
+  const flagWords = [];
+  for (const entry of String(raw || '').split(/[,\n]/)) {
+    const trimmed = entry.trim().toLowerCase();
+    if (!trimmed) continue;
+    const [word, replacement] = trimmed.split('=').map((s) => s.trim());
+    if (!word) continue;
+    if (replacement) recastMap[word] = [replacement];
+    else flagWords.push(word);
+  }
+  return { recastMap, flagWords };
+}
+
+/** WAVE5-SETTINGS: parse custom_banned_names into a clean array. */
+export function parseCustomBannedNames(raw = getSetting('custom_banned_names', '')) {
+  return String(raw || '')
+    .split(/[,\n]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export function getDefaultAuthorPersona() {
