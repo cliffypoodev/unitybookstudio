@@ -423,8 +423,86 @@ export function fixHangingQuotes(loaded = []) {
   return { quotesFixed, changes };
 }
 
+/**
+ * QUOTENORM-1 — typography-only smart-quote normalization.
+ *
+ * The last mutating step of the polish pipeline. Character-for-character:
+ * - straight double quotes -> directional curly (“ opening / ” closing)
+ * - straight apostrophes -> ’ ONLY in contraction/possessive positions
+ *   (a letter or digit on the left). Opening single quotes that begin nested
+ *   dialogue are left exactly as authored — zero-risk.
+ *
+ * It never inserts, deletes, or reorders anything except swapping one quote
+ * glyph for its curly equivalent, so word counts and paragraph counts are
+ * invariant by construction. Idempotent: fully-curly input returns unchanged.
+ * Returns { text, changed }.
+ */
+export function normalizeSmartQuotesOnly(text) {
+  if (typeof text !== 'string' || !text) return { text: text || '', changed: 0 };
+  let changed = 0;
+  let out = '';
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      const prev = i > 0 ? text[i - 1] : '';
+      const opening = prev === '' || /[\s(\[{—–‘“]/.test(prev);
+      out += opening ? '“' : '”';
+      changed++;
+    } else if (ch === "'") {
+      const prev = i > 0 ? text[i - 1] : '';
+      const next = i + 1 < text.length ? text[i + 1] : '';
+      const ld = /[A-Za-z0-9]/;
+      if (ld.test(prev) && (ld.test(next) || next === '' || /[\s.,;:!?)\]—–]/.test(next))) {
+        out += '’';
+        changed++;
+      } else {
+        out += ch;
+      }
+    } else {
+      out += ch;
+    }
+  }
+  return { text: out, changed };
+}
+
+/**
+ * QUOTECLOSE-2 — close a paragraph's trailing unclosed dialogue quote.
+ *
+ * Paragraph-safe and structure-safe: never splits, merges, or reorders
+ * paragraphs (so the polish runner's STRUCTURE-GUARD cannot revert it), and only
+ * ever APPENDS one closing curly quote. Fires on a paragraph only when ALL hold:
+ * exactly one more “ than ” (one net unclosed open), the text after the LAST “
+ * contains no ”, and the paragraph ends in sentence-terminal punctuation. That is
+ * the "dialogue opened, sentence finished, close-quote dropped" shape —
+ * e.g. `“It did not.` → `“It did not.”`. Other imbalance shapes are left
+ * untouched. Word and paragraph counts are invariant. Returns { text, changed }.
+ */
+export function closeTrailingUnclosedQuotes(text) {
+  if (typeof text !== 'string' || !text) return { text: text || '', changed: 0 };
+  let changed = 0;
+  const parts = text.split(/(\n\s*\n)/);
+  const out = parts.map((seg) => {
+    if (/^\n\s*\n$/.test(seg) || !seg.trim()) return seg;
+    const open = (seg.match(/“/g) || []).length;
+    const close = (seg.match(/”/g) || []).length;
+    if (open === close + 1) {
+      const lastOpen = seg.lastIndexOf('“');
+      const afterLastOpen = seg.slice(lastOpen + 1);
+      const trimmedEnd = seg.replace(/\s+$/, '');
+      if (!afterLastOpen.includes('”') && /[.!?…]$/.test(trimmedEnd)) {
+        changed++;
+        return trimmedEnd + '”' + seg.slice(trimmedEnd.length);
+      }
+    }
+    return seg;
+  }).join('');
+  return { text: out, changed };
+}
+
 export default {
   repairChapterQuotes,
   analyzeQuoteIntegrity,
   fixHangingQuotes,
+  normalizeSmartQuotesOnly,
+  closeTrailingUnclosedQuotes,
 };

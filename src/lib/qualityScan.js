@@ -3,7 +3,7 @@
  * Produces warnings (not auto-fixes) for the Review tab.
  */
 
-import { stripDialogue } from '@/lib/povTense';
+import { stripDialogue, normalizePovMode } from '@/lib/povTense';
 
 // Common stop words to exclude from repetition scanning
 const STOP_WORDS = new Set([
@@ -67,7 +67,7 @@ export function scanPovDrift(text, project, chapterNumber) {
   const warnings = [];
   if (!text || !project?.pov_mode) return warnings;
 
-  const pov = project.pov_mode;
+  const pov = normalizePovMode(project.pov_mode, project.book_type); // WAVE2-POVNORMALIZE
   // Only check third-person modes
   if (pov !== 'third-close' && pov !== 'third-omni' && pov !== 'third-multi') {
     return warnings;

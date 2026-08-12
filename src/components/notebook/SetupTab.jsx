@@ -66,6 +66,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import AuthorStyleManager from '@/components/notebook/AuthorStyleManager';
 import SeriesSection from '@/components/notebook/SeriesSection';
+import { SCENE_EXECUTION_FEATURE_INFO } from '@/lib/generationContext'; // WAVE6-DEADGATE
 import {
   getAnthologyThemeTypes,
   ANTHOLOGY_STORY_LENGTHS,
@@ -131,6 +132,52 @@ function FanfictionWarning() {
           Fan fiction mode is for noncommercial transformative work unless you own the rights, have permission,
           or the source material is public domain. Publishing tools should treat this project differently from original IP.
         </p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * WAVE6-DEADGATE: per-project scene-execution gate toggles.
+ * Writes project.scene_execution_flags, which resolveSceneExecutionFlags() reads.
+ * Everything defaults to OFF; the acceptance gate is marked as the one to try.
+ */
+function SceneExecutionGates({ values, onFieldChange }) {
+  const flags = (values && typeof values.scene_execution_flags === 'object' && values.scene_execution_flags) || {};
+  const enabledCount = SCENE_EXECUTION_FEATURE_INFO.filter((f) => flags[f.key] === true).length;
+  const toggle = (key, on) => onFieldChange('scene_execution_flags', { ...flags, [key]: on });
+
+  return (
+    <div className="mt-3 rounded-xl border border-border/60 bg-background/50 p-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium">Scene execution gates</Label>
+        <span className="text-[10px] text-muted-foreground">
+          {enabledCount ? `${enabledCount} of ${SCENE_EXECUTION_FEATURE_INFO.length} on` : 'all off (default)'}
+        </span>
+      </div>
+      <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+        Extra per-scene validation during drafting. These ship disabled because they have
+        not been proven on a full book — switching them on mid-manuscript can change or
+        reject scenes. Start with the acceptance gate on a test project.
+      </p>
+      <div className="mt-2 space-y-1.5">
+        {SCENE_EXECUTION_FEATURE_INFO.map((f) => (
+          <label key={f.key} className="flex cursor-pointer items-start gap-2 rounded-lg px-1.5 py-1 hover:bg-accent/30">
+            <input
+              type="checkbox"
+              checked={flags[f.key] === true}
+              onChange={(e) => toggle(f.key, e.target.checked)}
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-primary"
+            />
+            <span className="min-w-0">
+              <span className="block text-[11px] font-medium">
+                {f.label}
+                {f.recommended && <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] text-primary">start here</span>}
+              </span>
+              <span className="block text-[10px] leading-snug text-muted-foreground">{f.description}</span>
+            </span>
+          </label>
+        ))}
       </div>
     </div>
   );
@@ -978,7 +1025,7 @@ export default function SetupTab({
             <Input
               value={values.author_name || ''}
               onChange={(e) => onFieldChange('author_name', e.target.value)}
-              placeholder="Hermes Agent"
+              placeholder="Enter pen name"
             />
           </Field>
 
@@ -1221,6 +1268,13 @@ export default function SetupTab({
               </p>
             </Field>
           )}
+
+          {/* WAVE6-DEADGATE: the scene-execution validators log "set
+              scene_execution_flags on the project record" on every draft, but
+              until now there was no way to do that from the app. Off by
+              default and clearly labelled — enabling unproven validators
+              mid-book is a real hazard, so this is a deliberate opt-in. */}
+          <SceneExecutionGates values={values} onFieldChange={onFieldChange} />
 
           <SeriesSection
             values={values}

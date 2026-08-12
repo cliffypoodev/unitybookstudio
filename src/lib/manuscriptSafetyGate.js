@@ -1,6 +1,7 @@
 // =============================================================
 // manuscriptSafetyGate.js — Unified manuscript safety gate v1
 import { detectModelControlTokens } from './modelLeakGuard.js';
+import { findNarrativeMetaLeaks } from './generationContext.js';
 //
 // Shared safety module for the three active UI paths:
 //   1. Draft/Rewrite → draftChapter() save path
@@ -79,6 +80,17 @@ const PROCESS_LEAK_CANARIES = [
   { phrase: 'Thinking...', severity: 'high', matchMode: 'standalone' },
   { phrase: 'TODO', severity: 'high', matchMode: 'standalone' },
 ];
+
+// DIALOGLEAK-1: canary phrases that are also plausible in-world SPOKEN
+// English. Ch.3's export was hard-blocked because Marcus says "Down here,
+// the structure is solid. Until it isn't." — character dialogue, not critic
+// commentary. Real process leaks are narration/labels, not quoted speech,
+// so for ONLY these phrases a match inside an open double-quote span is
+// treated as dialogue and skipped. Every other canary is unaffected.
+const DIALOGUE_PLAUSIBLE_CANARIES = new Set([
+  'the structure is solid',
+  'the next logical step',
+]);
 
 /**
  * Check if a match is a false positive (appears naturally in story prose).
@@ -175,6 +187,17 @@ export function detectProcessLeaks(text, options = {}) {
         const snippetEnd = Math.min(normalized.length, idx + phraseLower.length + 30);
         const snippet = normalized.substring(snippetStart, snippetEnd);
 
+        // DIALOGLEAK-1: skip a plausible-dialogue canary when the match sits
+        // inside an open quotation (odd number of double quotes before it —
+        // sanitizeForMatching has already normalized smart quotes to ").
+        if (DIALOGUE_PLAUSIBLE_CANARIES.has(phraseLower)) {
+          const quotesBefore = (normalized.slice(0, idx).match(/"/g) || []).length;
+          if (quotesBefore % 2 === 1) {
+            searchFrom = idx + phraseLower.length;
+            continue;
+          }
+        }
+
         if (!isProcessLeakFalsePositive(canary.phrase, snippet, text)) {
           matches.push({
             phrase: canary.phrase,
@@ -197,6 +220,20 @@ export function detectProcessLeaks(text, options = {}) {
       snippet: ct.snippet,
       severity: 'critical',
       type: 'model-control-token'
+    });
+  }
+
+  // NARRATIVE-CONNECT-2: chapter-number and adjacent-chapter phrases are
+  // dynamic, so a fixed canary list cannot catch them. They exposed the
+  // planning contract directly in the Brass Meridian manuscript.
+  for (const leak of findNarrativeMetaLeaks(text)) {
+    if (matches.some((match) => match.index === leak.index && match.phrase === leak.phrase)) continue;
+    matches.push({
+      phrase: leak.phrase,
+      index: leak.index,
+      snippet: leak.snippet,
+      severity: 'critical',
+      type: 'narrative-process-leak',
     });
   }
 
@@ -363,6 +400,7 @@ export function detectProjectContamination(text, options = {}) {
 const MALFORMED_CANARIES = [
   { pattern: /\bfrom to the\b/gi, name: 'from to the' },
   { pattern: /\b(?:a|an) to the\b/g, name: 'dropped word: a/an to the' },
+  { pattern: /\b(?:was|were|is|are|be|been|being)\s+(?:remained|existed|persisted|lingered|elapsed|occurred|happened)\b/gi, name: 'aux-verb mashup: was/were + intransitive past' },
   { pattern: /\bgaze from to\b/gi, name: 'gaze from to' },
   { pattern: /\blooked at;/gi, name: 'looked at;' },
   { pattern: /\bfixed on,/gi, name: 'fixed on,' },
@@ -482,6 +520,17 @@ export function runManuscriptSafetyGate(text, options = {}) {
   const processLeaks = detectProcessLeaks(text, options);
   const contamination = detectProjectContamination(text, options);
   const malformed = detectMalformedGrammar(text);
+
+  if (text.includes('<<<SCENE_BOUNDARY>>>')) {
+    return {
+      ok: false,
+      recommendedAction: 'REJECT_REGENERATE',
+      reasons: ['CRITICAL internal scene boundary sentinel leakage detected (<<<SCENE_BOUNDARY>>>).'],
+      processLeaks: { hasLeak: true, matches: [{ phrase: '<<<SCENE_BOUNDARY>>>', severity: 'critical' }] },
+      contamination,
+      malformed,
+    };
+  }
 
   const reasons = [];
   let recommendedAction = 'PASS';

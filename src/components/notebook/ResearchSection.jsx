@@ -27,7 +27,7 @@ function formatResearchValue(value) {
   return String(value);
 }
 
-export default function ResearchSection({ researchData, onResearch, onReResearch, onOutlineResearch, onResearchChange, busyLabel }) {
+export default function ResearchSection({ researchData, onResearch, onReResearch, onOutlineResearch, onFateResearch, onResearchChange, busyLabel }) {
   const [expanded, setExpanded] = React.useState({});
   const isResearching = !!busyLabel && busyLabel.includes('research');
   const hasResearch = researchData && Object.keys(researchData).length > 0;
@@ -81,6 +81,13 @@ export default function ResearchSection({ researchData, onResearch, onReResearch
                 <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Researching Gaps…</>
               ) : (
                 <><Search className="mr-2 h-3.5 w-3.5" /> Research Outline Gaps</>
+              )}
+            </Button>
+            <Button onClick={onFateResearch} disabled={isResearching} variant="outline" className="rounded-full" size="sm">
+              {isResearching ? (
+                <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Researching Fates…</>
+              ) : (
+                <><Search className="mr-2 h-3.5 w-3.5" /> Research Figure Fates</>
               )}
             </Button>
           </>

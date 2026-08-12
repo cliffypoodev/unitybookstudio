@@ -37,7 +37,7 @@ import { runAntiDetectionPolish } from './antiDetectionPolish.js';
 import { countParagraphs } from './structureUtils.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
-import { fixHangingQuotes } from './quoteFixPolish.js';
+import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes } from './quoteFixPolish.js';
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
 import { repairCanonNameDrift } from './canonNameLock.js';
 import { runPerChapter } from './anthologyPolishHelper.js';
@@ -62,11 +62,13 @@ import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { polishChapterWithLLM } from './llmProsePolisher.js';
 import { countWords } from './autonovel.js';
 import { runNonfictionDeterministicCore } from './nonfictionPolish.js';
+import { nfContentEquivalent, stripDroppedWordSentences, fixIndefiniteArticles, stripCrossChapterDuplicates, stripMangledSentences, buildFactLedger, stripFactLedgerViolations } from './nfContentGuard.js'; // NFGUARD-1 + DRAFTGATE-2 & 3 + ARCH-1C
+import { ensureResearchEvidence } from './researchStorage.js'; // RESEARCHQUALITY-2C
+import { splitSentencesSafe } from './sceneWriter.js';
 import { detectEssayImbalance } from './unifiedProseRefinement.js';
 import { runAntiChatbotRecastPipeline } from './antiChatbotRecastPipeline.js';
 import { safeUppercaseReplace } from './safeUppercase.js';
 import { healLegacyArtifacts } from './legacyArtifactHealer.js';
-
 
 export const VERSION = 'MANUSCRIPT-POLISH-RUNNER v1.1 — 2026-06-11';
 
@@ -105,6 +107,9 @@ export async function runManuscriptPolishPipeline({
   _llmOverride = null,
   _testInjectHealer = null,
 }) {
+  // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the polish-lane
+  // ledger sees the same closed world as drafting. Fail-open.
+  project = await ensureResearchEvidence(project);
   const changes = [];
   const isAnthology = isAnthologyProject(project);
   const isComedy = isComedyProject(project);
@@ -340,6 +345,124 @@ export async function runManuscriptPolishPipeline({
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE B: Per-chapter style/voice cleanup (manuscript-level dispatch)
   // ══════════════════════════════════════════════════════════════════════════
+
+  // DRAFTGATE-2B: heal dropped-word holes in SAVED chapters. Deterministic,
+  // provable (article+preposition+the is never valid prose), runs before the
+  // NFGUARD snapshot on purpose — this is a sanctioned pre-pass repair, and it
+  // is loud. See nfContentGuard.js stripDroppedWordSentences.
+  if (mode === 'nonfiction') {
+    // BOOKGATE-3: strip exact cross-chapter duplicate sentences (12+ words),
+    // keeping the earliest chapter's copy. Runs before NFGUARD snapshots so
+    // the heal is baseline. Loud per chapter.
+    {
+      const ccd = stripCrossChapterDuplicates(loaded.map((f) => String(f.content || '')));
+      ccd.removedPerChapter.forEach((removed, i) => {
+        if (removed.length > 0) {
+          const chNumCcd = loaded[i].chapter?.chapter_number || '?';
+          console.warn(`[BOOKGATE-3] Ch.${chNumCcd}: stripped ${removed.length} cross-chapter duplicate sentence(s): ${removed.slice(0, 2).join(' | ')}`);
+          changes.push(`Ch.${chNumCcd}: BOOKGATE-3 stripped ${removed.length} cross-chapter duplicate sentence(s)`);
+          loaded[i].content = ccd.texts[i];
+        }
+      });
+    }
+
+    for (const f of loaded) {
+      // POLISHFIX-10: same provable-artifact strip as DRAFTGATE-1B, applied to
+      // SAVED chapters — a stray emphasis marker dangling after terminal
+      // punctuation ("…it broke. *") fails the export unterminated check and
+      // chapters saved before DRAFTGATE-1B never re-pass through assembly.
+      const beforeEmph = String(f.content || '');
+      const afterEmph = beforeEmph.replace(/([.!?…”])[ \t]*[*_]+[ \t]*(?=\n|$)/g, '$1');
+      if (afterEmph !== beforeEmph) {
+        const chNumEm = f.chapter?.chapter_number || '?';
+        console.warn(`[POLISHFIX-10] Ch.${chNumEm}: stripped trailing emphasis artifact(s) after terminal punctuation`);
+        changes.push(`Ch.${chNumEm}: POLISHFIX-10 stripped trailing emphasis artifact(s)`);
+        f.content = afterEmph;
+      }
+
+      // DRAFTGATE-3C: heal a/an agreement deterministically
+      const healedArt = fixIndefiniteArticles(String(f.content || ''));
+      f.content = healedArt.text;
+      if (healedArt.fixed > 0) {
+        const chNum = f.chapter?.chapter_number || '?';
+        console.log(`[DRAFTGATE-3C] Ch.${chNum}: fixed ${healedArt.fixed} indefinite article(s)`);
+        changes.push(`Ch.${chNum}: DRAFTGATE-3C fixed ${healedArt.fixed} indefinite article(s)`);
+      }
+
+      // DRAFTGATE-3D: rebreak mega-paragraphs (>250 words) into ~120-word paragraphs
+      const paras = String(f.content || '').split(/\n{2,}/);
+      let rebroke = 0;
+      for (let i = 0; i < paras.length; i++) {
+        const p = paras[i];
+        const words = p.split(/\s+/).filter(Boolean).length;
+        if (words > 250) {
+          const sents = splitSentencesSafe(p);
+          if (sents.length > 1) {
+            const newParas = [];
+            let curr = [];
+            let currWords = 0;
+            for (const s of sents) {
+              const w = s.split(/\s+/).filter(Boolean).length;
+              curr.push(s);
+              currWords += w;
+              if (currWords >= 120) {
+                newParas.push(curr.join(' '));
+                curr = [];
+                currWords = 0;
+              }
+            }
+            if (curr.length > 0) {
+              if (newParas.length > 0) {
+                newParas[newParas.length - 1] += ' ' + curr.join(' ');
+              } else {
+                newParas.push(curr.join(' '));
+              }
+            }
+            paras[i] = newParas.join('\n\n');
+            rebroke++;
+          }
+        }
+      }
+      if (rebroke > 0) {
+        f.content = paras.join('\n\n');
+        const chNum = f.chapter?.chapter_number || '?';
+        console.log(`[DRAFTGATE-3D] Ch.${chNum}: re-broke ${rebroke} oversized paragraph(s)`);
+        changes.push(`Ch.${chNum}: DRAFTGATE-3D re-broke ${rebroke} oversized paragraph(s)`);
+      }
+
+      const dw = stripDroppedWordSentences(String(f.content || ''));
+      if (dw.removed.length > 0) {
+        const chNumDw = f.chapter?.chapter_number || '?';
+        console.warn(`[DRAFTGATE-2] Ch.${chNumDw}: stripped ${dw.removed.length} dropped-word sentence(s): ${dw.removed.slice(0, 2).join(' | ')}`);
+        changes.push(`Ch.${chNumDw}: DRAFTGATE-2 stripped ${dw.removed.length} dropped-word (broken-grammar) sentence(s)`);
+        f.content = dw.text;
+      }
+
+      const mang = stripMangledSentences(String(f.content || ''));
+      if (mang.removed.length > 0) {
+        const chNumMang = f.chapter?.chapter_number || '?';
+        console.warn(`[DRAFTGATE-3H] Ch.${chNumMang}: stripped ${mang.removed.length} mangled sentence(s): ${mang.removed.slice(0, 2).join(' | ')}`);
+        changes.push(`Ch.${chNumMang}: DRAFTGATE-3H stripped ${mang.removed.length} mangled sentence(s)`);
+        f.content = mang.text;
+      }
+
+      // ARCH-1C: heal un-evidenced clock times and life-outcome claims in SAVED
+      // chapters. Deterministic, closed-world, loud. Runs before the NFGUARD
+      // snapshot on purpose — this is a sanctioned pre-pass repair.
+      const flPolish = stripFactLedgerViolations(String(f.content || ''), buildFactLedger(project));
+      if (flPolish.removed.length > 0) {
+        const chNumFl = f.chapter?.chapter_number || '?';
+        console.warn(`[FATE-GATE] Ch.${chNumFl}: stripped ${flPolish.removed.length} un-evidenced clock/fate sentence(s): ${flPolish.removed.slice(0, 2).join(' | ')}`);
+        changes.push(`Ch.${chNumFl}: ARCH-1C stripped ${flPolish.removed.length} un-evidenced clock/fate sentence(s)`);
+        f.content = flPolish.text;
+      }
+    }
+  }
+
+  // NFGUARD-1 (POLISHFIX-8): snapshot every chapter before any style/voice pass
+  // touches it. The guard before PHASE H reverts any chapter whose CONTENT
+  // (not typography) changed. See nfContentGuard.js for why.
+  const nfGuardSnapshots = mode === 'nonfiction' ? loaded.map((f) => String(f.content || '')) : null;
 
   // NF-SPECIFIC: Run NF deterministic core
   let nfCoreStats = {};
@@ -961,6 +1084,65 @@ export async function runManuscriptPolishPipeline({
       throw new Error(`CRITICAL: Model control token leaked through final scrub in Ch.${chNum}: "${remainingLeak[0].token}"`);
     }
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // NFGUARD-1 (POLISHFIX-8): on nonfiction, any pass that changed prose CONTENT
+  // (beyond quote glyphs / whitespace / collapsed doubled punctuation) is
+  // reverted here, per chapter, loudly. Typography (PHASE H below) then runs on
+  // the reverted text, so quote normalization is preserved. Flag-only passes
+  // are unaffected — their changes[] entries survive.
+  if (nfGuardSnapshots) {
+    loaded.forEach((f, gi) => {
+      const beforeText = nfGuardSnapshots[gi];
+      const afterText = String(f.content || '');
+      if (!nfContentEquivalent(beforeText, afterText)) {
+        console.error(`[NFGUARD-1] Ch.${f.chapter?.chapter_number ?? gi + 1}: a polish pass changed prose content — REVERTED. Deterministic NF polish may alter typography only; rewrite passes must flag, not fix.`);
+        changes.push(`Ch.${f.chapter?.chapter_number ?? gi + 1}: NFGUARD-1 reverted content changes made by style passes (typography-only policy)`);
+        f.content = beforeText;
+      }
+    });
+  }
+
+  // PHASE H: Typography normalization — QUOTENORM-1.
+  // The last mutating step. Deterministic passes (and, when enabled, the LLM)
+  // can emit straight quotes; this makes quote typography uniform (all curly) so
+  // the export gate's typography verdict cannot hard-block a finished book on
+  // mixed straight/curly quotes. Character-for-character only — word and
+  // paragraph counts are invariant by construction.
+  // ══════════════════════════════════════════════════════════════════════════
+  onProgress('Polish: Typography normalization (quotes)…');
+  let smartQuotesNormalized = 0;
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const before = f.content || '';
+    const res = normalizeSmartQuotesOnly(before);
+    if (res.changed > 0 && res.text !== before) {
+      f.content = res.text;
+      smartQuotesNormalized += res.changed;
+    }
+  }
+  if (smartQuotesNormalized > 0) {
+    changes.push(`Typography: normalized ${smartQuotesNormalized} straight quote mark(s) to curly (QUOTENORM-1)`);
+  }
+  console.log(`[POLISH-RUNNER] [QUOTENORM-1] normalized ${smartQuotesNormalized} straight quote mark(s) across ${loaded.length} chapter(s)`);
+
+  // QUOTECLOSE-2: close any trailing unclosed dialogue quote left in a paragraph.
+  // Runs AFTER typography is uniform (all curly). Paragraph-count-preserving, so
+  // STRUCTURE-GUARD has nothing to revert; it only appends a closing ”.
+  let trailingQuotesClosed = 0;
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const before = f.content || '';
+    const res = closeTrailingUnclosedQuotes(before);
+    if (res.changed > 0 && res.text !== before) {
+      f.content = res.text;
+      trailingQuotesClosed += res.changed;
+    }
+  }
+  if (trailingQuotesClosed > 0) {
+    changes.push(`Dialogue: closed ${trailingQuotesClosed} trailing unclosed quote(s) (QUOTECLOSE-2)`);
+  }
+  console.log(`[POLISH-RUNNER] [QUOTECLOSE-2] closed ${trailingQuotesClosed} trailing unclosed quote(s) across ${loaded.length} chapter(s)`);
 
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 

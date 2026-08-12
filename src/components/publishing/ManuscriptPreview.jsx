@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE5-DEADSTAMP, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app —
+ * past AI sessions repeatedly wasted hours "fixing" components like this one.
+ * Live implementation: the live preview is inside ExportTab.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
 import React from 'react';
 import { buildManuscriptHtml } from '@/lib/manuscript-html';
 import { compileThemeCSS } from '@/lib/theme-compiler';

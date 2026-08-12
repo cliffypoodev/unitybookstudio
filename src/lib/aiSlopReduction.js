@@ -77,6 +77,7 @@ function countMatches(rx, text) {
  * Curly-apostrophe variants (\u2019) are included alongside straight ones.
  * ═════════════════════════════════════════════════════════════════════════ */
 
+import { parseCustomBannedWords } from './settingsRead.js'; // WAVE5-SETTINGS
 const SLOP_PATTERNS = [
   // ── "not just" family ──
   { key: 'not just',          label: 'not just',                regex: /\bnot\s+just\b/gi },
@@ -831,6 +832,11 @@ export function recastBannedVocabulary(text) {
     return { text: result, recasts };
   }
 
+  // WAVE5-SETTINGS: user-supplied word=replacement entries join the recast map
+  // (bare words without a replacement are flag-only and handled in reporting —
+  // never blind-deleted; that was bug B4).
+  const userRecastMap = parseCustomBannedWords().recastMap;
+
   // ── Special phrase handling: "testament to" needs preposition-aware recast ──
   let testamentToIdx = 0;
   result = result.replace(/\btestament\s+to\b/gi, (match) => {
@@ -851,7 +857,7 @@ export function recastBannedVocabulary(text) {
   // Track per-word cycling index
   const cycleIndex = {};
 
-  for (const [word, synonyms] of Object.entries(BANNED_VOCAB_MAP)) {
+  for (const [word, synonyms] of Object.entries({ ...BANNED_VOCAB_MAP, ...userRecastMap })) {
     const rx = new RegExp('\\b' + word + '\\b', 'gi');
     cycleIndex[word] = 0;
 

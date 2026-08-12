@@ -13,6 +13,7 @@ import ReviewChapterList from '@/components/review/ReviewChapterList';
 import ManuscriptDashboard from '@/components/review/ManuscriptDashboard';
 
 import { searchWeb } from '@/lib/localLLM';
+import { buildResearchQueries, extractFocusTerms, rankFetchCandidates } from '@/lib/researchQueryBuilder';
 
 import HomeDashboard from '@/components/novel/HomeDashboard';
 import StudioOverview from '@/components/novel/StudioOverview';
@@ -29,6 +30,10 @@ import useAutoSave from '@/hooks/useAutoSave';
 import { Button } from '@/components/ui/button';
 import { applyGenreDefaults, buildChapterPlanPrompt, buildChapterPrompt, buildChapterReviewPrompt, buildCoverPrompt, buildEvaluationPrompt, buildExpandSettingsPrompt, buildExpandFoundationPrompt, buildFoundationPrompt, buildSceneBeatPrompt, CHAPTER_LENGTH_PRESETS, chapterPlanSchema, chapterReviewSchema, chapterSchema, computeTotalWordTarget, countWords, createInitialProjectSettings, evaluationSchema, expandSettingsSchema, expandFoundationSchema, foundationSchema, sceneBeatSchema, getSceneBeatSchema, getDraftedCount, unwrapIntegrationResult } from '@/lib/autonovel';
 import { invokeLLMWithRetry, invokeResearchLLM, generateImageWithRetry } from '@/lib/integrationRetry';
+// NARRATIVE-CONNECT-3: the beat planner needs the same prior-chapter coverage
+// memory the prose writer already uses, otherwise it re-plans events that
+// earlier chapters already consumed.
+import { buildRollingContext, buildPriorLedger, saveChapterLedger } from '@/lib/chapterCohesion';
 import { parseTwistsToMd } from '@/lib/plotTwists';
 import { buildChapterJudgePrompt, chapterJudgeSchema, checkTenseConsistency, checkPovConsistency, suggestPovTense } from '@/lib/povTense';
 import { mechanicalSlopScore, cleanGeneratedProse } from '@/lib/proseQuality';
@@ -39,11 +44,15 @@ import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup } from '@/lib/chapterStorage';
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
+import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
+import { maybeAutoPolishChapter, maybeFinalCheckAfterPolish } from '@/lib/autoPolishHook'; // WAVE5-SETTINGS
 import { computeDraftIntegrityReport } from '@/lib/draftIntegrityReport';
 import { clearRichContentFields } from '@/lib/richContentStorage';
+import { filterConcreteCriticFindings } from '@/lib/sceneContractGate';
 import { runQualityScan } from '@/lib/qualityScan';
 import { mechanicalScore } from '@/lib/mechanicalScore';
-import { generateChapterByScenes } from '@/lib/sceneWriter';
+import { generateChapterByScenes, finalizeChapterProse } from '@/lib/sceneWriter';
+import { createSceneExecutionAcceptanceRunners } from '@/lib/sceneExecutionAcceptanceRunners';
 import { validateProjectChapterContent, makeProjectContentGuardError, stripProjectContaminationBlocks } from '@/lib/projectContentGuard';
 import { repairCanonNameDrift } from '@/lib/canonNameLock';
 import { repairManuscriptArtifacts, repairLoadedManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
@@ -67,6 +76,11 @@ import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity 
 import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
+import { selectFateSentences, formatFateNotes, figuresNeedingFates } from '@/lib/fateEnrichment'; // RESEARCHQUALITY-2D
+import { extractPremiseEntities, buildPremiseCoverageBlock, reportPremiseCoverage } from '@/lib/premiseFidelity';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
+import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
+import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
 import { runParallelDraftPool, PARALLEL_DRAFT_LANE_LIMIT } from '@/lib/parallelDraftPool';
@@ -77,7 +91,7 @@ import { runCapitalizationHygiene } from '@/lib/capitalizationPolish';
 import { runStackedClauseVariation } from '@/lib/sentencePatternPolish';
 import { runPunctuationCleanup, runSpellingFixes, runBrokenSentenceFixes, runCopingMechanismCaps, runDialoguePunctuationFix, runDialogueFillerFix } from '@/lib/punctuationPolish';
 import { pickModel, pickFallbackModel, buildFallbackControls, protectedProjectUpdate, foundationSafeUpdate, normalizeModelId, DEFAULT_FICTION_PROSE_MODEL } from '@/lib/modelRouting';
-import { generateBibleParallel } from '@/lib/parallelBibleGenerator';
+import { generateBibleParallel, BIBLE_RESUMABLE_FIELDS } from '@/lib/parallelBibleGenerator';
 import { AI_FAVORITE_NAMES, getUsedCharacterNames, buildNameExclusionBlock } from '@/lib/nameRegistry';
 import { buildBannedNamePromptBlock, getAllBlockedNames } from '@/lib/nameHygieneRules';
 import { repairChapterMetadata } from '@/lib/chapterMetadataRepair';
@@ -1272,8 +1286,24 @@ function appendCleanBlock(existing, block) {
 
 const SCENE_BEATS_ENTITY_CHAR_LIMIT = 6500;
 
-const NONFICTION_DRAFT_LANE_LIMIT = 4;
-const ANTHOLOGY_DRAFT_LANE_LIMIT = 4;
+// BEATFIX-1: minified JSON is the same data with the indentation removed —
+// a lossless saving of roughly 13% on these payloads. Always try it before
+// refusing (fiction) or before dropping to a lossier tier (nonfiction).
+function fitOrMinifyForEntity(obj, limit = SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+  const pretty = JSON.stringify(obj, null, 2);
+  if (pretty.length <= limit) return pretty;
+  const minified = JSON.stringify(obj);
+  if (minified.length <= limit) {
+    console.warn(`[BEATFIX-1] entity payload ${pretty.length}c exceeds ${limit}c; losslessly minified to ${minified.length}c`);
+    return minified;
+  }
+  return null;
+}
+
+// SEQFIX-1: one LLM call at a time — see parallelDraftPool.js. 4-lane batch
+// against the local llama cascade-timed-out live (0/4 chapters drafted).
+const NONFICTION_DRAFT_LANE_LIMIT = 1;
+const ANTHOLOGY_DRAFT_LANE_LIMIT = 1;
 const REWRITE_DRAFT_LANE_LIMIT = 1;
 
 
@@ -1393,6 +1423,55 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
         ? raw.scenes
         : [];
 
+  console.log(`[BEAT-PIPELINE] architect-parsed: ${sourceUnits.length} scenes`);
+
+  // NARRATIVE-CONNECT-1: the old universal compactor converted fiction
+  // {beats:[...]} into nonfiction-shaped {sections:[...]} and silently dropped
+  // scene_goal, conflict, emotional_arc, cast, and every state-transition
+  // field. Preserve the validated fiction contract exactly enough to redraft,
+  // inspect, and verify later.
+  if (Array.isArray(raw.beats)) {
+    const compactFictionBeat = (unit = {}, index = 0) => ({
+      scene_number: Number(unit.scene_number || index + 1),
+      scene_id: truncateForEntityField(unit.scene_id, 40),
+      scene_goal: truncateForEntityField(unit.scene_goal, 420),
+      entry_state: truncateForEntityField(unit.entry_state, 520),
+      required_events: slimArrayForEntityField(unit.required_events || [], 8, 240),
+      forbidden_events: slimArrayForEntityField(unit.forbidden_events || [], 8, 240),
+      exit_state: truncateForEntityField(unit.exit_state, 520),
+      continuity_dependencies: slimArrayForEntityField(unit.continuity_dependencies || [], 8, 220),
+      pov_character: truncateForEntityField(unit.pov_character, 100),
+      setting: truncateForEntityField(unit.setting, 220),
+      characters_present: slimArrayForEntityField(unit.characters_present || [], 12, 100),
+      props_present: slimArrayForEntityField(unit.props_present || [], 12, 100),
+      conflict: truncateForEntityField(unit.conflict, 380),
+      emotional_arc: truncateForEntityField(unit.emotional_arc, 300),
+      tension_level: Number(unit.tension_level || 0),
+      exit_hook: truncateForEntityField(unit.exit_hook, 300),
+      word_target: Number(unit.word_target || unit.target_words || 0) || undefined,
+    });
+
+    const fictionContract = {
+      compacted_for_entity_field: true,
+      compact_version: 'fiction-scene-contract-v1',
+      chapter_number: chapter?.chapter_number || raw.chapter_number || null,
+      title: truncateForEntityField(chapter?.title || raw.title || '', 140),
+      beats: sourceUnits.map(compactFictionBeat),
+    };
+    const fictionJson = fitOrMinifyForEntity(fictionContract);
+    if (fictionJson === null) {
+      const prettyLen = JSON.stringify(fictionContract, null, 2).length;
+      const minLen = JSON.stringify(fictionContract).length;
+      const err = new Error(
+        `Chapter ${chapter?.chapter_number || '?'} scene contract is ${prettyLen} characters (${minLen} even without indentation) and cannot be saved safely. Reduce beat verbosity; the contract was not truncated.`
+      );
+      err.name = 'NarrativeContractError';
+      err.code = 'FICTION_SCENE_CONTRACT_TOO_LARGE';
+      throw err;
+    }
+    return fictionJson;
+  }
+
   const compact = {
     compacted_for_entity_field: true,
     compact_version: 'scene-beats-compact-v15.5',
@@ -1423,9 +1502,8 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
       : undefined,
   };
 
-  let compactJson = JSON.stringify(compact, null, 2);
-
-  if (compactJson.length <= SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+  let compactJson = fitOrMinifyForEntity(compact);
+  if (compactJson !== null) {
     return compactJson;
   }
 
@@ -1445,9 +1523,8 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
     source_audit_summary: undefined,
   };
 
-  compactJson = JSON.stringify(tighter, null, 2);
-
-  if (compactJson.length <= SCENE_BEATS_ENTITY_CHAR_LIMIT) {
+  compactJson = fitOrMinifyForEntity(tighter);
+  if (compactJson !== null) {
     return compactJson;
   }
 
@@ -1465,7 +1542,7 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
     })),
   };
 
-  return JSON.stringify(bare, null, 2);
+  return fitOrMinifyForEntity(bare) ?? JSON.stringify(bare);
 }
 
 
@@ -1558,6 +1635,9 @@ const PROJECT_SETTING_FIELDS = [
 
   // Model routing
   'default_prose_model',
+
+  // WAVE6-DEADGATE: per-project scene-execution gate toggles (Setup → Model & Series)
+  'scene_execution_flags',
 ];
 
 export default function ProjectStudio() {
@@ -1592,6 +1672,9 @@ export default function ProjectStudio() {
   const [chapterProseModels, setChapterProseModels] = React.useState({});
   const stopRequestedRef = React.useRef(false);
   const skipProjectSyncRef = React.useRef(false);
+  // WAVE6-GENREKEEP: Setup fields the author has explicitly edited this session.
+  // Genre defaults may fill anything untouched, but never overwrite these.
+  const userTouchedSetupFieldsRef = React.useRef(new Set());
   const notebookRef = React.useRef(null);
   const undoSnapshotRef = React.useRef(null);
   const [isUndoing, setIsUndoing] = React.useState(false);
@@ -1855,6 +1938,28 @@ export default function ProjectStudio() {
     queryClient.invalidateQueries({ queryKey: ['novel-projects'] }),
   ]);
 
+  // WAVE6-GENREKEEP: fields applyGenreDefaults() overwrites, and the label shown
+  // in the "kept your ..." toast (null = preserve silently, it is derived).
+  const GENRE_DEFAULTED_FIELDS = {
+    chapter_target: 'chapter count',
+    chapter_length_target: 'chapter length',
+    chapter_length_preset: null,
+    target_chapter_words: null,
+    total_word_target: null,
+    pov_mode: 'POV',
+    tense: 'tense',
+    beat_style: 'beat style',
+    scene_beat_style: null,
+    nf_structure_mode: 'structure',
+    spice_level: 'spice level',
+    violence_level: 'violence level',
+    erotica_register: 'prose register',
+  };
+
+  const markSetupFieldsTouched = (...fields) => {
+    for (const f of fields) if (f) userTouchedSetupFieldsRef.current.add(f);
+  };
+
   const updateSettingsDrafts = (updater) => {
     setSettingsDrafts((current) => {
       const next = typeof updater === 'function' ? updater(current) : { ...current, ...updater };
@@ -1877,6 +1982,7 @@ export default function ProjectStudio() {
   };
 
   const handleSettingFieldChange = (field, value) => {
+    markSetupFieldsTouched(field); // WAVE6-GENREKEEP
     updateSettingsDrafts({ [field]: value });
 
     // These fields affect project routing, Setup conditionals, and downstream
@@ -1927,12 +2033,26 @@ export default function ProjectStudio() {
         seed_concept: prev.seed_concept || initial.seed_concept,
         author_name: prev.author_name || initial.author_name,
         author_style_id: prev.author_style_id || '',
-        project_type: prev.project_format === 'anthology' ? 'anthology' : (bookType === 'nonfiction' ? 'nonfiction' : 'novel'),
+        // WAVE2-ENUMFIX: 'novel' is not in the project_type enum
+        // (fiction|nonfiction|erotica|anthology) — it broke every
+        // project_type === 'fiction' routing check downstream.
+        project_type: prev.project_format === 'anthology' ? 'anthology' : (bookType === 'nonfiction' ? 'nonfiction' : 'fiction'),
       });
     });
   };
 
   const handleGenreChange = (genre) => {
+    // WAVE6-GENREKEEP: work out what will be kept from the CURRENT state, before
+    // the state updater runs. The updater is deferred (and re-invoked under
+    // StrictMode), so collecting labels inside it left the toast empty.
+    const keptLabels = Object.entries(GENRE_DEFAULTED_FIELDS)
+      .filter(([field, label]) => {
+        if (!label || !userTouchedSetupFieldsRef.current.has(field)) return false;
+        const v = settingsDrafts?.[field];
+        return v !== undefined && v !== null && v !== '';
+      })
+      .map(([, label]) => label);
+
     updateSettingsDrafts((current) => {
       const protectedRouting = {
         content_lane: current.content_lane,
@@ -1948,6 +2068,23 @@ export default function ProjectStudio() {
         canon_characters: current.canon_characters,
         canon_boundary: current.canon_boundary,
       };
+      // WAVE6-GENREKEEP: applyGenreDefaults overwrites the whole length/intensity
+      // /narration block with genre defaults. That is right for a project whose
+      // values are still untouched, and wrong for one where the author already
+      // made a deliberate choice: setting "4 chapters x 1,200 words" and THEN
+      // picking a genre silently restored 22 x 3,600 with no prompt and no toast
+      // (found in the end-to-end run, 2026-08-12). The protectedRouting block
+      // above already establishes that deliberate choices survive a genre change
+      // — these fields simply were not on the list. Anything the author has
+      // actually edited is now preserved; everything untouched still takes the
+      // genre default.
+      const preserved = {};
+      for (const field of Object.keys(GENRE_DEFAULTED_FIELDS)) {
+        if (!userTouchedSetupFieldsRef.current.has(field)) continue;
+        const v = current[field];
+        if (v === undefined || v === null || v === '') continue;
+        preserved[field] = v;
+      }
       const suggestion = suggestPovTense(current.book_type, genre);
       const next = applyGenreDefaults({ ...current, genre, subgenre: '' }, genre);
       return normalizeSetupRoutingDraft({
@@ -1957,11 +2094,17 @@ export default function ProjectStudio() {
         subgenre: '',
         pov_mode: suggestion.pov,
         tense: suggestion.tense,
+        ...preserved,
       });
     });
+    if (keptLabels.length) {
+      const unique = [...new Set(keptLabels)];
+      toast.success(`${genre} defaults applied — kept your ${unique.join(', ')}.`);
+    }
   };
 
   const handleLengthPresetChange = (preset) => {
+    markSetupFieldsTouched('chapter_length_preset', 'chapter_length_target'); // WAVE6-GENREKEEP
     updateSettingsDrafts({
       chapter_length_preset: preset,
       chapter_length_target: CHAPTER_LENGTH_PRESETS[preset]?.words || 3500,
@@ -1969,6 +2112,7 @@ export default function ProjectStudio() {
   };
 
   const handleApplyPovPreset = (preset) => {
+    markSetupFieldsTouched('pov_mode', 'tense'); // WAVE6-GENREKEEP
     updateSettingsDrafts({ pov_mode: preset.pov, tense: preset.tense });
   };
 
@@ -1992,7 +2136,9 @@ export default function ProjectStudio() {
     });
 
     const makeFallbackStory = (storyNumber) => {
-      const isNonfiction = anthologyProject.book_type === 'nonfiction' || /nonfiction|non-fiction|memoir|history|business|self-help|true crime|investigative|education|caregiving/i.test(String(anthologyProject.genre || ''));
+      // NFCLASS-1: one authority. The old inline regex matched /history/ against the
+      // genre, so an anthology of historical FICTION was treated as nonfiction.
+      const isNonfiction = isNonfictionProjectAuthority(anthologyProject);
       const theme = anthologyProject.anthology_theme || anthologyProject.seed_concept || anthologyProject.title || 'Collection Theme';
       const noun = isNonfiction ? 'Chapter' : 'Story';
       return {
@@ -2141,7 +2287,8 @@ export default function ProjectStudio() {
       delete savePayload.twist_intensity;
       delete savePayload.twists;
 
-      const safePayload = await prepareFoundationPayload(savePayload);
+      // STOREDEDUPE-2: pass the id; the update on the next line already has it.
+      const safePayload = await prepareFoundationPayload(savePayload, project.id);
       setBusyLabel('Anthology: Saving story bible…');
       await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, safePayload));
 
@@ -2166,6 +2313,10 @@ export default function ProjectStudio() {
     if (!project) return; if (!(settingsDrafts.seed_concept?.trim() || project.seed_concept?.trim())) { toast.error('Enter a premise in Setup first.'); return; }
     captureSnapshot('Expand');
     const bookType = settingsDrafts.book_type || 'fiction';
+    try {
+    // WAVE1-EXPANDPRETRY: the pre-save awaits below used to sit above this try,
+    // so a network throw in prepareSeedConcept/update/resolveSeedConcept was an
+    // unhandled rejection with no toast — the button just "did nothing".
     // Force save settings before generation to eliminate auto-save race condition
     const _expandSave = normalizeSetupRoutingDraft({ ...settingsDrafts }); if (!_expandSave.series_number && _expandSave.series_number !== 0) delete _expandSave.series_number; else _expandSave.series_number = Number(_expandSave.series_number); delete _expandSave.num_twists; delete _expandSave.twist_count; delete _expandSave.twist_intensity;
     if (_expandSave.seed_concept) { const sc = await prepareSeedConcept(_expandSave.seed_concept, project.id); _expandSave.seed_concept = sc.seed_concept; _expandSave.seed_concept_url = sc.seed_concept_url; }
@@ -2176,10 +2327,19 @@ export default function ProjectStudio() {
       return;
     }
 
-    try {
     const _usedNames = await getUsedCharacterNames(project.id);
+    // PREMISE-FIDELITY-1: the author's brief is a closed world. The project title is
+    // excluded because it appears in nearly every premise and is not a story entity.
+    const _premiseEntities = extractPremiseEntities(_resolvedSeed, { exclude: [project?.title, settingsDrafts?.title].filter(Boolean) });
+    console.log('[PREMISE-FIDELITY-1] brief entities:', _premiseEntities.join(' | ') || '(none found)');
     const _nameBlock = [
-      buildNameExclusionBlock([...new Set([...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._usedNames])]),
+      // NAMEHYGIENE-1: the author's own premise protects the names they chose.
+      // Without it the ban list renamed Silas Bram to Nolan Bram on the live run.
+      buildNameExclusionBlock([...new Set([...AI_FAVORITE_NAMES, ...getAllBlockedNames(), ..._usedNames])], _resolvedSeed),
+      // PREMISE-FIDELITY-1: state the brief's entities as a requirement up front.
+      // Without it, Silas Bram — named in the premise as the steward who hands over
+      // the key and dies in ch.3 — simply never arrived in the character sheet.
+      buildPremiseCoverageBlock(_premiseEntities),
       GLOBAL_NAME_HYGIENE_PROMPT_BLOCK,
     ].filter(Boolean).join('\n\n');
     setBusyLabel('Step 1/2 — Analyzing premise…');
@@ -2225,10 +2385,37 @@ export default function ProjectStudio() {
 
     // Step 2: Foundation generation — parallel batches
     setBusyLabel('Step 2/2 — Building story bible (sequential — several minutes on local models)…');
+    // RESUME-1: a PARTIAL foundation means the previous attempt was interrupted -
+    // resume it. A COMPLETE one means the user deliberately asked for a rebuild -
+    // regenerate it. Measured on The Gilded Hour: a dropped HMR socket threw away
+    // four minutes of finished work and restarted at world (1/6), because there was
+    // no resume path at all. Fields below their length floor do not count as present,
+    // so a short field can never be carried past the field guard.
+    const _existingDocs = Object.fromEntries(
+      BIBLE_RESUMABLE_FIELDS.map((f) => [f, docDrafts?.[f] || project?.[f] || '']),
+    );
+    const _have = BIBLE_RESUMABLE_FIELDS.filter((f) => String(_existingDocs[f] || '').trim().length > 0);
+    const _resumeFrom = (_have.length > 0 && _have.length < BIBLE_RESUMABLE_FIELDS.length) ? _existingDocs : {};
+    console.log(
+      `[RESUME-1] foundation state: ${_have.length}/${BIBLE_RESUMABLE_FIELDS.length} fields present -> `
+      + (Object.keys(_resumeFrom).length ? 'resuming interrupted run' : 'generating all fields'),
+    );
     const foundation = await generateBibleParallel(
       _resolvedSeed,
       { ...newSettings, book_type: bookType, research_data: project.research_data },
-      { onProgress: (label) => setBusyLabel(formatProgressLabel(label)), nameBlock: _nameBlock }
+      {
+        onProgress: (label) => setBusyLabel(formatProgressLabel(label)),
+        nameBlock: _nameBlock,
+        resumeFrom: _resumeFrom,
+      }
+    );
+
+    // PREMISE-FIDELITY-1: verify afterwards, so a silent loss becomes a visible one.
+    reportPremiseCoverage(
+      _premiseEntities,
+      [foundation.world_md, foundation.characters_md, foundation.canon_md,
+        foundation.mystery_md, foundation.outline_md].filter(Boolean).join('\n'),
+      'story bible',
     );
 
     const newDocs = {
@@ -2256,7 +2443,8 @@ export default function ProjectStudio() {
     delete expandSavePayload.twist_count;
     delete expandSavePayload.twist_intensity;
     delete expandSavePayload.twists;
-    const _safeExpandPayload = await prepareFoundationPayload(expandSavePayload);
+    // STOREDEDUPE-2: pass the id; the update on the next line already has it.
+    const _safeExpandPayload = await prepareFoundationPayload(expandSavePayload, project.id);
     await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, _safeExpandPayload));
     setBusyLabel('Foundation: Creating chapters…');
     await clearAndCreateChapters(plannedChapters, userChapterTarget, project.id, newDocs.outline_md);
@@ -2268,7 +2456,8 @@ export default function ProjectStudio() {
   };
 
   const handleSaveDocs = async () => {
-    let docsPayload = await prepareFoundationPayload({ ...docDrafts });
+    // STOREDEDUPE-2: without this the manual Save filed blobs under "unknown-project".
+    let docsPayload = await prepareFoundationPayload({ ...docDrafts }, project?.id || projectId);
     if (docsPayload.research_md && docsPayload.research_md.length > 10000) {
       const rf = await prepareResearchContent(docsPayload.research_md, project?.id || projectId); docsPayload.research_md = rf.research_md; docsPayload.research_md_url = rf.research_md_url;
     }
@@ -2465,7 +2654,9 @@ export default function ProjectStudio() {
             hits.push(res);
           }
         }
-        await new Promise((r) => setTimeout(r, 300));
+        // RESEARCHQUALITY-1: pace searches so the searxng engines do not
+        // rate-limit and suspend mid-run (the 300ms burst did exactly that).
+        await new Promise((r) => setTimeout(r, 2000));
       }
 
       if (!hits.length) {
@@ -2477,15 +2668,15 @@ export default function ProjectStudio() {
       // Fetch full page text for many sources (deep content for grounding).
       const TOP_TO_FETCH = 24;
       const pages = [];
-      // For forensic/narrative books, fetch real archive items first so primary
-      // testimony always survives into the fetched set instead of being crowded
-      // out by glossier web pages.
-      let ordered = hits;
-      if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
-        const isArchive = (h) => /loc\.gov|archives\.gov|gutenberg\.org|hathitrust\.org|chroniclingamerica/i.test(h.url || '');
-        ordered = [...hits.filter(isArchive), ...hits.filter((h) => !isArchive(h))];
-      }
-      const toFetch = ordered.slice(0, TOP_TO_FETCH);
+      // RESEARCHFETCH-1: rank the fetch set by RELEVANCE to the book's subject +
+      // focus terms so genuinely on-topic sources are fetched, instead of letting
+      // keyword-noise archive pages (loc.gov / Chronicling-America newspapers) fill
+      // every slot and starve the real sources (root cause of the empty Molasses
+      // brief: 20 loc.gov items crowded out every relevant open-web source).
+      // Archive-ness is only a tiebreak among equally-relevant hits; falls back to
+      // input order when nothing scores. Book-agnostic (relevance from the brief).
+      const fetchFocusTerms = extractFocusTerms(topic, subject);
+      const toFetch = rankFetchCandidates({ hits, subject, focusTerms: fetchFocusTerms, limit: TOP_TO_FETCH });
       for (let i = 0; i < toFetch.length; i++) {
         const h = toFetch[i];
         setBusyLabel(`Deep research — reading sources ${i + 1}/${toFetch.length}…`);
@@ -2624,6 +2815,7 @@ export default function ProjectStudio() {
           '- DATES DISCIPLINE: For dates_active, use ONLY years or dates that appear in the source text for that person (e.g., a stated birth year, or the interview year). If the source states no dates for that person, write "UNVERIFIED". NEVER infer, estimate, or invent birth or death years. A quote belongs to exactly ONE person — the narrator whose own section contains it. NEVER assign the same quote to more than one person; if you cannot tell whose section a quote belongs to, leave "quote" empty for all uncertain people.'
         : '- Do NOT include verbatim quotes. Leave the "quote" field empty for every figure; record only who each person was and what they documented or described.';
 
+      let failedBatches = 0; // RESEARCHFAIL-1
       for (let b = 0; b < batches.length; b++) {
         setBusyLabel(`Deep research — extracting facts (batch ${b + 1}/${batches.length})…`);
         const batch = batches[b];
@@ -2687,6 +2879,7 @@ Return structured JSON:
             mergeBucket('key_documents', partial.key_documents);
           }
         } catch (batchErr) {
+          failedBatches++; // RESEARCHFAIL-1
           console.warn('[RESEARCH] batch ' + (b + 1) + '/' + batches.length + ' failed, skipping: ' + (batchErr?.message || batchErr));
         }
 
@@ -2694,20 +2887,30 @@ Return structured JSON:
       }
 
       const data = merged;
+
+      // RESEARCHFAIL-1: a research run that extracted nothing must FAIL, loudly,
+      // before anything is saved or marked complete. Measured 2026-08-06: the
+      // researcher model did not exist, all 10 extraction batches errored, and the
+      // run still saved an empty brief and toasted success — one click away from a
+      // story bible generated from an empty closed world (i.e., pure fabrication).
+      // Failing loud is the standing design rule ("nothing was saved").
+      const totalExtracted = ['key_figures', 'key_events', 'institutions', 'timeline', 'primary_sources', 'competing_narratives', 'key_documents']
+        .reduce((n, k) => n + ((data[k] || []).length), 0);
+      if (failedBatches >= batches.length && batches.length > 0) {
+        throw new Error('research extraction failed: all ' + batches.length + ' batches errored (check the researcher model routing) — nothing was saved');
+      }
+      if (totalExtracted === 0) {
+        throw new Error('research extracted zero documented items from ' + pages.filter((p) => p.content).length + ' fetched sources — nothing was saved');
+      }
+      if (failedBatches > 0) {
+        toast.warning('Research completed with ' + failedBatches + '/' + batches.length + ' failed extraction batches — coverage may be thin.');
+      }
       setResearchData(data);
 
-      const researchMd = formatNonfictionResearchMarkdown(data, subject);
-      const researchFields = await prepareResearchContent(researchMd, project.id);
-
-      setDocDrafts((current) => ({
-        ...current,
-        research_md: researchMd,
-      }));
-
-      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, {
-        research_data: JSON.stringify(data),
-        ...researchFields,
-      }));
+      // RESEARCHORDER-1: the save used to happen HERE — before the duplicate-quote
+      // guard and the verbatim/attribution-binding guard (GATEFIX-13) below. Their
+      // blanking then happened in memory only, and refreshAll() reloaded the
+      // UN-blanked quotes from the DB. The save now runs after the guards.
 
       // EXTRACTION INTEGRITY: a verbatim quote belongs to exactly one narrator. If the
       // extractor assigned the same quote to multiple people, only the first keeps it —
@@ -2760,6 +2963,38 @@ Return structured JSON:
         }
       }
 
+      // RESEARCHQUALITY-2D: deterministic fate enrichment from the already-fetched
+      // pages. For each figure, sentences containing BOTH the figure's surname and a
+      // fate-class word are COPIED verbatim (whitespace-collapsed) into that figure's
+      // own entry as fate_notes, with the page URL and a cross-page source count —
+      // single-source fates stay visibly weak. No LLM call, no summarization, no new
+      // claims: the corpus sentence is the note. Existing fate_notes are never
+      // overwritten. The ledger's own-entry attestation reads fate_notes with zero
+      // ledger changes.
+      try {
+        let enrichedCount = 0;
+        for (const fig of data.key_figures || []) {
+          if (!fig || fig.fate_notes) continue;
+          const notes = selectFateSentences({ pages: richPages, figureName: fig.name });
+          if (notes.length) { fig.fate_notes = formatFateNotes(notes); enrichedCount++; }
+        }
+        console.log('[FATE-ENRICH] ' + enrichedCount + ' figure(s) gained fate notes from ' + richPages.length + ' fetched page(s)');
+      } catch (feErr) { console.warn('[FATE-ENRICH] enrichment pass failed safely:', feErr?.message); }
+
+      // RESEARCHORDER-1: persist AFTER the integrity guards so blanked quotes stay blanked.
+      const researchMd = formatNonfictionResearchMarkdown(data, subject);
+      const researchFields = await prepareResearchContent(researchMd, project.id);
+
+      setDocDrafts((current) => ({
+        ...current,
+        research_md: researchMd,
+      }));
+
+      await runWithNetworkRetry(() => base44.entities.NovelProject.update(project.id, {
+        research_data: JSON.stringify(data),
+        ...researchFields,
+      }));
+
       const figs = (data.key_figures || []).length;
       const evs = (data.key_events || []).length;
       toast.success(`Deep research saved — ${pages.filter((p) => p.content).length} sources read, ${figs} figures, ${evs} events.`);
@@ -2781,65 +3016,16 @@ Return structured JSON:
       return;
     }
 
-    // Derive a clean search subject from the brief (title/first line), not the whole document.
-    const rawTitle = (project.title || '').trim();
-    const firstLine = (topic.split('\n').find((l) => l.trim().length > 0) || topic).trim();
-    let subject = (rawTitle || firstLine)
-      .replace(/^(author|book title|title)\s*[:\-]?\s*/i, '')
-      .replace(/[*_#>]/g, '')
-      .replace(/["“”']/g, '')
-      .split(/[:\-—]/)[0]
-      .trim()
-      .slice(0, 80);
-    if (!subject) subject = firstLine.slice(0, 80);
-
-    const queries = [
-      subject,
-      `${subject} history`,
-      `${subject} primary sources documents`,
-      `${subject} archival records collection`,
-      `${subject} named people figures`,
-      `${subject} eyewitness testimony accounts`,
-      `${subject} firsthand narratives survivors`,
-      `${subject} timeline dates events`,
-      `${subject} official government records`,
-      `${subject} court records legal proceedings`,
-      `${subject} newspaper coverage period press`,
-      `${subject} letters correspondence diaries`,
-      `${subject} academic research scholarship`,
-      `${subject} historical context social political`,
-    ];
-
-    const STOP = new Set(['the','this','that','these','those','and','but','some','many','most','when','while','after','before','during','although','however','their','there','they','his','her','our','your','its','it','is','was','were','chapter','book','volume','part','section']);
-    const focusTerms = Array.from(
-      new Set(
-        (topic.match(/\b[A-Z][a-zA-Z'.]+(?:\s+[A-Z][a-zA-Z'.]+){0,3}\b/g) || [])
-          .map((s) => s.trim())
-          .filter((s) => {
-            const first = s.split(/\s+/)[0].toLowerCase();
-            return s.length >= 4 && !STOP.has(first) && s.toLowerCase() !== subject.toLowerCase();
-          })
-      )
-    ).slice(0, 4);
-    for (const t of focusTerms) {
-      queries.push(`${subject} ${t}`);
-      queries.push(`${t} primary sources records testimony`);
-    }
-
-    if (project.nf_structure_mode === 'investigative' || project.nf_structure_mode === 'narrative') {
-      const archiveAngles = [
-        `${subject} oral history interview transcript`,
-        `${subject} firsthand testimony eyewitness account`,
-        `${subject} archival collection primary documents`,
-        `${subject} interviews narratives survivors`,
-        `${subject} proclamation order official full text`,
-      ];
-      for (const t of focusTerms) {
-        archiveAngles.push(`${t} oral history testimony`);
-        archiveAngles.push(`${t} archival records interview`);
-      }
-      for (const q of archiveAngles) queries.push(q);
-    }
+    // RESEARCHQUALITY-1: focus-term queries first, capped total, built by the
+    // pure query builder (src/lib/researchQueryBuilder.js). The old title-first
+    // 14-35 query burst suspended the searxng engines before the high-signal
+    // queries ran.
+    const { subject, focusTerms, queries } = buildResearchQueries({
+      title: project.title,
+      topic,
+      nfStructureMode: project.nf_structure_mode,
+    });
+    console.log(`[RESEARCH] [RESEARCHQUALITY-1] ${queries.length} queries (focus terms: ${focusTerms.join(', ') || 'none'})`);
 
     await executeResearchPipeline(queries, subject, topic, false);
   };
@@ -2882,6 +3068,45 @@ Return structured JSON:
     for (const m of missingTopics) {
       queries.push(`${subject} ${m}`);
       if (queries.length > 20) break; // cap to 20 queries so we don't spam the bridge
+    }
+
+    await executeResearchPipeline(queries, subject, topic, true);
+  };
+
+  // RESEARCHQUALITY-2D: targeted fate research. Builds one query per figure that
+  // carries no fate evidence yet (capped at 24), fetches through the standard
+  // pipeline in append mode, and lets the deterministic enrichment pass copy
+  // fate sentences from whatever the queries bring back.
+  const handleFateResearch = async () => {
+    if (!project) return;
+
+    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
+    if (!topic.trim()) {
+      toast.error('Add a seed concept/topic before running fate research.');
+      return;
+    }
+
+    const rawTitle = (project.title || '').trim();
+    const firstLine = (topic.split('\n').find((l) => l.trim().length > 0) || topic).trim();
+    let subject = (rawTitle || firstLine)
+      .replace(/^(author|book title|title)\s*[:\-]?\s*/i, '')
+      .replace(/[*_#>]/g, '')
+      .replace(/["“”']/g, '')
+      .split(/[:\-—]/)[0]
+      .trim()
+      .slice(0, 80);
+    if (!subject) subject = firstLine.slice(0, 80);
+
+    const needing = figuresNeedingFates(project.research_data);
+    if (!needing.length) {
+      toast.success('Every researched figure already carries fate evidence.');
+      return;
+    }
+
+    const queries = [];
+    for (const name of needing) {
+      queries.push(name + ' ' + subject);
+      if (queries.length >= 24) break;
     }
 
     await executeResearchPipeline(queries, subject, topic, true);
@@ -3042,10 +3267,11 @@ Return structured JSON:
     }
   };
 
-  // Auto-save hooks (debounced 3s after last edit)
-  const settingsAutoSave = useAutoSave(settingsDrafts, handleSaveSettings, { delay: 60000, enabled: !!project });
-  const docsAutoSave = useAutoSave(docDrafts, handleSaveDocs, { delay: 60000, enabled: !!project });
-  const chapterAutoSave = useAutoSave(chapterDraft, handleSaveChapter, { delay: 60000, enabled: !!selectedChapter });
+  // Auto-save hooks — WAVE5-SETTINGS: interval comes from Settings (10–120s, default 60)
+  const autosaveMs = Math.min(120, Math.max(10, Number(getSetting('autosave_interval', 60)))) * 1000;
+  const settingsAutoSave = useAutoSave(settingsDrafts, handleSaveSettings, { delay: autosaveMs, enabled: !!project });
+  const docsAutoSave = useAutoSave(docDrafts, handleSaveDocs, { delay: autosaveMs, enabled: !!project });
+  const chapterAutoSave = useAutoSave(chapterDraft, handleSaveChapter, { delay: autosaveMs, enabled: !!selectedChapter });
 
   // Expose safe replacement handler on window for browser console use.
   // Usage: window.__UBS_SAFE_REPLACE(chapterNumber, repairedText)
@@ -3074,9 +3300,18 @@ Return structured JSON:
     await handleExpand();
   };
 
-  const generateSceneBeats = async (chapter, allChapters) => {
-    const chapterList = allChapters || chapters;
-    const promptProject = buildNameHygieneEnhancedProject(project);
+  const generateSceneBeats = async (chapter, allChapters, generationProjectOverride) => {
+    // NARRATIVE-CONNECT-1: beat planning must use a fresh chapter list and the
+    // fully resolved foundation. URL-backed bible fields are blank on the raw
+    // entity by design; sending that raw entity to the architect silently
+    // removes the story bible from the prompt.
+    const chapterList = allChapters || await base44.entities.Chapter.filter(
+      { project_id: projectId },
+      'chapter_number',
+      200
+    );
+    const generationProject = generationProjectOverride || await hydrateProjectForGeneration(project);
+    const promptProject = buildNameHygieneEnhancedProject(generationProject);
     // Anthology: each story is standalone — no previous chapter context for beats
     const previousChapter = isAnthologyProject(promptProject) ? null : chapterList.find((item) => item.chapter_number === chapter.chapter_number - 1);
     const isNonfiction = promptProject.book_type === 'nonfiction';
@@ -3085,18 +3320,329 @@ Return structured JSON:
     const schema = getSceneBeatSchema(promptProject);
     const beatModel = pickModel('beats', promptProject);
     console.log('[BEATS] Beat model:', beatModel);
+    // NARRATIVE-CONNECT-3: prior-chapter coverage memory for the PLANNER.
+    // buildRollingContext reads each earlier chapter's saved summary_json and
+    // falls back to its beat_summary when the summary is not written yet. The
+    // prose writer has always received this; the beat planner never did, so it
+    // could re-plan an event an earlier chapter already used. Anthologies are
+    // standalone per story, and Ch.1 has no prior chapters.
+    let priorCoverage = '';
+    if (!isAnthologyProject(promptProject) && Number(chapter.chapter_number) > 1) {
+      try {
+        priorCoverage = await buildRollingContext(projectId, Number(chapter.chapter_number));
+      } catch (coverageError) {
+        // Fail open: a coverage lookup failure must not block planning, but it
+        // must be visible in the console rather than silently degrading.
+        console.warn('[NARRATIVE-CONNECT] Prior-chapter coverage unavailable for the beat planner:', coverageError?.message || coverageError);
+        priorCoverage = '';
+      }
+    }
+    console.log('[NARRATIVE-CONNECT] Beat-planner prior coverage chars:', priorCoverage.length);
     let beatResult = null;
     try {
-      const beatResponse = await invokeLLMWithRetry({
-        task_type: 'outline',
-        prompt: await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList),
-        response_json_schema: schema,
-        spec: promptProject,
-        model: beatModel,
-        max_tokens: beatModel?.includes('lumimaid') ? 4096 : 8192,
-        ...buildFallbackControls('beats', promptProject),
-      });
-      beatResult = unwrapIntegrationResult(beatResponse);
+      const initialBeatPrompt = await buildSceneBeatPrompt(promptProject, chapter, resolvedPrev, chapterList, priorCoverage);
+      let beatPrompt = initialBeatPrompt;
+      const maxContractAttempts = isNonfiction ? 1 : 4;
+
+      for (let attempt = 1; attempt <= maxContractAttempts; attempt += 1) {
+        const beatResponse = await invokeLLMWithRetry({
+          task_type: 'outline',
+          prompt: beatPrompt,
+          response_json_schema: schema,
+          spec: promptProject,
+          model: beatModel,
+          max_tokens: beatModel?.includes('lumimaid') ? 4096 : 8192,
+          ...buildFallbackControls('beats', promptProject),
+        });
+        beatResult = unwrapIntegrationResult(beatResponse);
+
+        if (isNonfiction) break;
+
+        // LENGTHTUNE-2: this model writes ~1100-1300 words per scene almost regardless of the
+        // per-scene word target, so a story's length is driven by its SCENE COUNT — and the
+        // architect over-generates scenes for short pieces (asks ~2, returns 3-7), which is why
+        // anthology stories ran 1900-3361 words against a 1500 target. For an anthology, cap the
+        // scene count to the target (~round(target/1200): one scene per ~1200 words of realistic
+        // output) by MERGING excess beats into that many contiguous groups — no plot beat is
+        // dropped, the retained scenes each cover more of the arc. Runs BEFORE BEATIDCANON-1 so
+        // the merged beats get renumbered/canonicalized next. Fiction anthology only; regular
+        // novels and nonfiction keep the architect's scene count.
+        if (isAnthologyProject(promptProject)) {
+          const _lc = Array.isArray(beatResult) ? beatResult : (beatResult?.beats || beatResult?.scenes || beatResult?.sections || []);
+          const _lt = Number(chapter.target_words || promptProject.chapter_length_target || promptProject.target_chapter_words || 0);
+          const _cap = Math.max(1, Math.round(_lt / 1200));
+          if (Array.isArray(_lc) && _lt > 0 && _lc.length > _cap) {
+            const _uniq = (arr) => Array.from(new Set(arr.map((x) => String(x || '').trim()).filter(Boolean)));
+            const _groups = Array.from({ length: _cap }, () => []);
+            _lc.forEach((_b, _i) => { _groups[Math.floor((_i * _cap) / _lc.length)].push(_b); });
+            const _merged = _groups.filter((g) => g.length).map((g) => {
+              const _first = g[0] || {};
+              const _last = g[g.length - 1] || {};
+              return {
+                ..._first,
+                scene_goal: _uniq(g.map((b) => b && b.scene_goal)).join(' Then: ') || String(_first.scene_goal || ''),
+                entry_state: String(_first.entry_state || '').trim(),
+                exit_state: String(_last.exit_state || _first.exit_state || '').trim(),
+                required_events: _uniq(g.flatMap((b) => (Array.isArray(b && b.required_events) ? b.required_events : []))),
+                forbidden_events: _uniq(g.flatMap((b) => (Array.isArray(b && b.forbidden_events) ? b.forbidden_events : []))),
+              };
+            });
+            _lc.splice(0, _lc.length, ..._merged);
+          }
+        }
+
+        // BEATIDCANON-1: scene_id and scene_number are POSITIONAL — fully determined by the
+        // chapter number and the beat's index — so assign them deterministically here rather
+        // than trust the architect model, which (esp. r1-14b) emits loose/wrong ids
+        // ("ch1-s1" for Chapter 2) that the NO-RETRY contract validator rejects, killing
+        // every chapter. Also backfill the four hard-required narrative fields the same
+        // validator demands (scene_goal, entry_state, exit_state, one non-empty
+        // required_events) when the terse reasoning model omits them, so a missing field
+        // degrades to a generic placeholder instead of failing the chapter with no retry.
+        // Runs on the SAME container the raw-provenance capture reads next, so pipeline_contract,
+        // extraction, provenance and validateSceneBeatContracts all agree. Fiction only
+        // (nonfiction broke out above; its beats use a different agent and path).
+        {
+          const _bc = Array.isArray(beatResult) ? beatResult : (beatResult?.beats || beatResult?.scenes || beatResult?.sections || []);
+          const _cn = String(chapter.chapter_number).padStart(2, '0');
+          _bc.forEach((_el, _i) => {
+            if (!_el || typeof _el !== 'object') return;
+            _el.scene_id = `ch${_cn}-s${String(_i + 1).padStart(2, '0')}`;
+            _el.scene_number = _i + 1;
+            if (!String(_el.scene_goal || '').trim()) _el.scene_goal = `Advance the story through beat ${_i + 1}.`;
+            if (!String(_el.entry_state || '').trim()) _el.entry_state = _i === 0 ? 'The story opens.' : 'Continues directly from the previous scene.';
+            if (!String(_el.exit_state || '').trim()) _el.exit_state = 'The scene resolves and hands off to what follows.';
+            if (!Array.isArray(_el.required_events) || !_el.required_events.some((_e) => String(_e || '').trim())) {
+              _el.required_events = [String(_el.scene_goal || '').trim() || `Beat ${_i + 1} occurs.`];
+            }
+          });
+        }
+
+        // 1. CAPTURE RAW ARCHITECT STRUCTURE BEFORE EXTRACTION
+        const rawContainer = Array.isArray(beatResult) ? beatResult : (beatResult?.beats || beatResult?.scenes || beatResult?.sections || []);
+        const rawCount = rawContainer.length;
+        const rawIndexes = [];
+        const rawSceneNumbers = [];
+        const rawSceneIds = [];
+        const invalidIndexes = [];
+        const invalidReasons = [];
+
+        for (let i = 0; i < rawContainer.length; i++) {
+          const el = rawContainer[i];
+          rawIndexes.push(i);
+          const sNum = Number(el?.scene_number || el?.sceneNumber || 0);
+          if (sNum > 0) rawSceneNumbers.push(sNum);
+          
+          const sId = el?.scene_id || el?.id || `?`; // if undefined, preserve length
+          if (sId !== '?') rawSceneIds.push(sId);
+
+          const reasons = [];
+          if (!el || typeof el !== 'object') reasons.push('Element is not an object');
+          else {
+            if (!sNum) reasons.push('Missing scene_number');
+            if (sId === '?') reasons.push('Missing scene_id');
+            if (!el.required_events || !Array.isArray(el.required_events)) reasons.push('Missing required_events array');
+          }
+
+          if (reasons.length > 0) {
+            invalidIndexes.push(i);
+            invalidReasons.push(reasons.join(', '));
+          }
+        }
+
+        console.log(`[BEAT-PIPELINE-RAW]
+rawCount=${rawCount}
+rawIndexes=${JSON.stringify(rawIndexes)}
+rawSceneNumbers=${JSON.stringify(rawSceneNumbers)}
+rawSceneIds=${JSON.stringify(rawSceneIds)}
+invalidIndexes=${JSON.stringify(invalidIndexes)}
+invalidReasons=${JSON.stringify(invalidReasons)}`);
+
+        // 2. DETECT NUMBER GAPS
+        const expectedCountForGapCheck = rawSceneNumbers.length > 0 ? Math.max(...rawSceneNumbers) : rawCount;
+        const expectedSequence = Array.from({ length: expectedCountForGapCheck }, (_, i) => i + 1);
+        
+        if (JSON.stringify(rawSceneNumbers) !== JSON.stringify(expectedSequence) && expectedCountForGapCheck > 1) {
+          const missingSceneNumbers = expectedSequence.filter(n => !rawSceneNumbers.includes(n));
+          throw new NarrativeInvariantError(`SCENE_SEQUENCE_GAP: Expected sequence ${JSON.stringify(expectedSequence)}, got ${JSON.stringify(rawSceneNumbers)}`, {
+            code: 'SCENE_SEQUENCE_GAP',
+            expectedSequence,
+            actualSequence: rawSceneNumbers,
+            missingSceneNumbers,
+            failureStage: 'architect-raw'
+          });
+        }
+
+        if (invalidIndexes.length > 0) {
+          throw new NarrativeInvariantError(`SCENE_MALFORMED_IN_PIPELINE: Element at index ${invalidIndexes[0]} is malformed`, {
+            code: 'SCENE_MALFORMED_IN_PIPELINE',
+            malformedIndex: invalidIndexes[0],
+            expectedSceneNumber: invalidIndexes[0] + 1,
+            validationReasons: invalidReasons
+          });
+        }
+
+        // 3. ESTABLISH PROVENANCE FROM RAW ARRAY POSITIONS
+        if (!beatResult.pipeline_contract) {
+          beatResult.pipeline_contract = {
+            raw_scene_count: rawCount,
+            expected_scene_count: rawCount,
+            expected_scene_ids: rawSceneIds,
+            expected_scene_numbers: rawSceneNumbers,
+            raw_indexes: rawIndexes,
+            source_stage: 'architect-raw'
+          };
+        }
+
+        // 4. COMPARE RAW AGAINST EXTRACTED UNITS
+        const parsedUnits = extractSceneBeatUnitsForValidation(beatResult);
+        
+        const extractedCount = parsedUnits.length;
+        const extractedNumbers = parsedUnits.map(b => Number(b?.scene_number || b?.sceneNumber || 0)).filter(n => n > 0);
+        const extractedIds = parsedUnits.map(b => b?.scene_id || b?.id).filter(Boolean);
+
+        if (rawCount !== extractedCount || JSON.stringify(rawSceneNumbers) !== JSON.stringify(extractedNumbers) || JSON.stringify(rawSceneIds) !== JSON.stringify(extractedIds)) {
+          throw new NarrativeInvariantError(`Loss detected during extractSceneBeatUnitsForValidation`, {
+            code: 'SCENE_LOST_IN_PIPELINE',
+            expectedSceneIds: rawSceneIds,
+            actualSceneIds: extractedIds,
+            missingSceneIds: rawSceneIds.filter(id => !extractedIds.includes(id)),
+            failureStage: 'scene-unit-extraction'
+          });
+        }
+
+        verifySceneProvenance(parsedUnits, beatResult.pipeline_contract, 'architect-parsed');
+        verifyContiguousSceneSequence(parsedUnits, beatResult.pipeline_contract.expected_scene_count, 'architect-parsed');
+
+        validateSceneBeatContracts(beatResult || {}, {
+          chapterNumber: chapter.chapter_number,
+        });
+        const proposedBeats = Array.isArray(beatResult?.beats) ? beatResult.beats : [];
+        verifySceneProvenance(proposedBeats, beatResult.pipeline_contract, 'before-normalization');
+        verifyContiguousSceneSequence(proposedBeats, beatResult.pipeline_contract.expected_scene_count, 'before-normalization');
+        const overlapReport = normalizeSceneBeatsForDrafting(proposedBeats, {
+          isNonfiction: false,
+          chapterNumber: chapter.chapter_number,
+          chapterTitle: chapter.title || '',
+          projectTitle: promptProject.title || '',
+        });
+
+        const normalizedBeatPlan = Array.isArray(overlapReport?.beats)
+          ? overlapReport.beats
+          : Array.isArray(overlapReport?.normalizedBeats)
+            ? overlapReport.normalizedBeats
+            : [];
+
+        const originalCount = proposedBeats.length;
+        const newCount = normalizedBeatPlan.length;
+        if (newCount < originalCount && (!overlapReport.merged || overlapReport.merged < (originalCount - newCount))) {
+          throw new NarrativeInvariantError(`Refusing to accept normalized beat contract for Ch.${chapter.chapter_number}: ${originalCount} → ${newCount} scenes without sufficient merge records. Loss detected.`, {
+            code: 'SCENE_LOST_IN_PIPELINE',
+            failureStage: 'after-normalization'
+          });
+        } else {
+          console.log(`[BEAT-PIPELINE] Accepting normalized beat contract for Ch.${chapter.chapter_number}: ${originalCount} → ${newCount} distinct scenes.`);
+        }
+
+        verifySceneProvenance(normalizedBeatPlan, beatResult.pipeline_contract, 'after-normalization');
+        verifyContiguousSceneSequence(normalizedBeatPlan, beatResult.pipeline_contract.expected_scene_count, 'after-normalization');
+
+        // BEATPLAN-1: the schema marks setting/characters_present/emotional_arc
+        // required, but the local endpoint does not enforce response schemas —
+        // and empty setting/emotion fields also starve the overlap detector
+        // above, which scores scenes by place/emotion keywords. That is how
+        // three retellings of one location scored 0.48 and shipped. Enforce
+        // field presence here, on the same regeneration path as overlap
+        // rejection; at attempt exhaustion the existing fallback still accepts
+        // the plan, so a missing field can never kill a chapter.
+        const beatFieldGaps = [];
+        for (const nb of normalizedBeatPlan) {
+          const missing = [];
+          if (!String(nb?.setting || nb?.location || '').trim()) missing.push('setting');
+          const castCount = (Array.isArray(nb?.characters_present) ? nb.characters_present.length : 0)
+            + (Array.isArray(nb?.characters) ? nb.characters.length : 0);
+          if (castCount === 0) missing.push('characters_present');
+          if (!String(nb?.emotional_arc || nb?.emotional_beat || '').trim()) missing.push('emotional_arc');
+          // BEATEVENT-1: a scene whose required_events are ALL internal
+          // (noticing, reflecting, discussing) hands the writer a word target
+          // and no plot — the ch.1 re-draft proved the writer fills that
+          // vacuum by stealing a later scene's event. Require one concrete,
+          // externally visible event per scene. An event matching neither
+          // verb class gets the benefit of the doubt (precision over recall).
+          const beatEvents = Array.isArray(nb?.required_events) ? nb.required_events.filter(Boolean) : [];
+          const INTERNAL_EVENT = /\b(?:notic\w*|reflect\w*|discuss\w*|consider\w*|realiz\w*|express\w*|feel\w*|felt|think\w*|thought|wonder\w*|remember\w*|observ\w*|watch\w*|sens\w*|contemplat\w*|recall\w*|ponder\w*|worr\w*|fear\w*)\b/i;
+          const CONCRETE_EVENT = /\b(?:find\w*|found|discover\w*|take\w*|took|open\w*|unlock\w*|enter\w*|arriv\w*|leav\w*|left|escap\w*|fight\w*|fought|attack\w*|confront\w*|reveal\w*|give\w*|gave|hand\w*|hide\w*|hid|steal\w*|stole|break\w*|broke|fix\w*|repair\w*|climb\w*|run\w*|ran|grab\w*|read\w*|writ\w*|wrote|send\w*|sent|receiv\w*|kill\w*|die\w*|died|destroy\w*|build\w*|built|search\w*|follow\w*|chas\w*|meet\w*|met|call\w*|answer\w*|refus\w*|decid\w*|agree\w*|demand\w*|threaten\w*|shoot\w*|shot|cut\w*|seal\w*|collaps\w*|explod\w*|trigger\w*|activat\w*|shut\w*|start\w*|stop\w*|us\w*|show\w*|tell\w*|told|ask\w*|warn\w*|reach\w*|cross\w*|push\w*|pull\w*|turn\w*|insert\w*)\b/i;
+          const hasConcreteEvent = beatEvents.some((ev) => CONCRETE_EVENT.test(String(ev)) || !INTERNAL_EVENT.test(String(ev)));
+          if (beatEvents.length > 0 && !hasConcreteEvent) missing.push('a concrete story event (all required_events are internal/verbal)');
+          if (missing.length) beatFieldGaps.push(`${nb?.scene_id || 'scene'}: missing ${missing.join(', ')}`);
+        }
+        if (beatFieldGaps.length) {
+          console.warn(`[BEATPLAN-1] Ch.${chapter.chapter_number} attempt ${attempt}: ${beatFieldGaps.length} beat(s) missing required fields — ${beatFieldGaps.join(' | ')}`);
+        }
+
+        // BEATLOOP-1 (2026-08-05): overlapReport.changed is true whenever the normalizer
+        // merely REPORTED a medium/high-confidence overlap. For fiction the normalizer KEEPS
+        // both beats (with a continuity_warning) and merges NOTHING, so a report is advisory —
+        // the plan is already usable. Breaking only on !changed forced a full architect
+        // regeneration on every reported overlap; chapters whose scenes legitimately share
+        // place/cast/function/emotion (resolution & final chapters especially) can never reach
+        // zero reports, so they exhausted all 4 attempts (~12 min of deepseek) and shipped the
+        // attempt-1 plan anyway via the exhaustion fallback below. Break on the absence of a
+        // STRUCTURAL change instead; advisory reports still ride along as continuity_warning on
+        // the kept beats (which is why we adopt normalizedBeatPlan before breaking).
+        const structurallyChanged =
+          (overlapReport.removed || 0) > 0 ||
+          (overlapReport.merged || 0) > 0 ||
+          (overlapReport.chronologyReordered || 0) > 0 ||
+          (typeof overlapReport.finalCount === 'number' &&
+            typeof overlapReport.originalCount === 'number' &&
+            overlapReport.finalCount !== overlapReport.originalCount);
+        if (!structurallyChanged && beatFieldGaps.length === 0) {
+          beatResult.beats = normalizedBeatPlan;
+          break;
+        }
+
+        const reindexedNormalizedBeats = normalizedBeatPlan; // NARRATIVE-CONNECT: Do not reindex to hide the missing middle scene
+
+        beatResult = {
+            ...(beatResult || {}),
+            beats: reindexedNormalizedBeats,
+          };
+
+          console.warn(
+            `[NARRATIVE-CONNECT] Keeping original scene IDs for Ch.${chapter.chapter_number}: ` +
+            reindexedNormalizedBeats.map((beat) => beat.scene_id).join(', ')
+          );
+
+          validateSceneBeatContracts(beatResult, {
+            chapterNumber: chapter.chapter_number,
+          });
+
+        if (attempt === maxContractAttempts) {
+          if (
+            Array.isArray(normalizedBeatPlan) &&
+            normalizedBeatPlan.length > 0
+          ) {
+            console.warn(
+              `[NARRATIVE-CONNECT] Chapter ${chapter.chapter_number} still contained overlapping beats after ${maxContractAttempts} attempts. Using the validated normalized beat plan.`
+            );
+            beatResult.beats = normalizedBeatPlan;
+            break;
+          }
+
+          const error = new Error(
+            `Chapter ${chapter.chapter_number} beat contract rejected: scenes still overlap or compete for the same story function after regeneration. ${overlapReport.report}`
+          );
+          error.name = 'NarrativeInvariantError';
+          error.code = 'SCENE_CONTRACT_OVERLAP_UNRESOLVED';
+          error.narrativeContract = true;
+          error.details = overlapReport;
+          throw error;
+        }
+
+        console.warn('[NARRATIVE-CONNECT] Rejecting overlapping beat contract and regenerating:', overlapReport);
+        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}${beatFieldGaps.length ? `\nEvery beat MUST fill these required fields — the previous plan left them empty:\n${beatFieldGaps.map((gap) => `- ${gap}`).join('\n')}` : ''}\n\nReturn a completely new JSON beat contract.`;
+      }
     } catch (beatError) {
       if (!isNonfiction) throw beatError;
 
@@ -3113,10 +3659,37 @@ Return structured JSON:
 
     if (isNonfiction) {
       validateNonfictionBeatPlanForDrafting(beatResult || {}, chapter);
+    } else {
+      const contractReport = validateSceneBeatContracts(beatResult || {}, {
+        chapterNumber: chapter.chapter_number,
+      });
+      console.log('[NARRATIVE-CONNECT] Scene contract accepted:', contractReport);
+      // CHAPTERBRIDGE-1: advisory — put the prior chapter's actual ending and
+      // this chapter's opening entry_state side by side in the console, so a
+      // reset like ch.2 opening inside a station ch.1 ended outside of is
+      // visible at plan time instead of after drafting.
+      {
+        const priorTail = String(resolvedPrev?.content_md || '').slice(-220).replace(/\s+/g, ' ').trim();
+        const firstEntry = String(beatResult?.beats?.[0]?.entry_state || '').replace(/\s+/g, ' ').trim();
+        if (priorTail && firstEntry) {
+          console.log(`[CHAPTERBRIDGE-1] prior ending: "...${priorTail}" | ch.${chapter.chapter_number} s1 entry_state: "${firstEntry}"`);
+        }
+      }
     }
 
     const fullBeatsJson = JSON.stringify(beatResult || {}, null, 2);
+    
+    let parsedCount = 0;
+    try {
+      const parsed = typeof beatResult === 'string' ? JSON.parse(beatResult) : beatResult;
+      parsedCount = (parsed.beats || parsed.scenes || parsed.sections || []).length;
+    } catch(e) {}
+    console.log(`[BEAT-PIPELINE] before-compact-save: ${parsedCount} scenes`);
+
+    verifySceneProvenance(extractSceneBeatUnitsForValidation(beatResult), beatResult?.pipeline_contract, 'before-compact-save');
     const compactBeatsJson = compactSceneBeatsForEntity(beatResult || {}, chapter);
+
+    console.log(`[BEAT-PIPELINE] after-compact-save: compacted length ${compactBeatsJson.length}`);
 
     console.log(
       `[BEATS][COMPACT-SAVE v15.8] Ch.${chapter.chapter_number}: full=${fullBeatsJson.length} chars, entity=${compactBeatsJson.length} chars`
@@ -3135,6 +3708,28 @@ Return structured JSON:
   };
 
   const draftChapter = async (chapter, shouldRefresh = true, modelOverride, onProgress, options = {}) => {
+    // NARRATIVE-CONNECT-1: capture one explicit, fully hydrated generation
+    // snapshot. Never let beat/scene generation read the React closure's stale
+    // chapter list or blank URL-backed foundation fields.
+    const generationSnapshot = await loadGenerationSnapshot({
+      project,
+      chapter,
+      fetchChapters: () => base44.entities.Chapter.filter(
+        { project_id: projectId },
+        'chapter_number',
+        200
+      ),
+    });
+    chapter = generationSnapshot.chapter;
+    const generationChapters = generationSnapshot.chapters;
+    const generationProject = generationSnapshot.project;
+    console.log('[NARRATIVE-CONNECT] Generation snapshot ready:', {
+      snapshotId: generationSnapshot.snapshotId,
+      chapter: chapter.chapter_number,
+      chapters: generationChapters.length,
+      foundation: generationProject.__generationContext,
+    });
+
     // When called with onProgress callback (from parallel Draft All), route
     // progress through it to the per-chapter slot. Otherwise use global busyLabel.
     const report = (value) => {
@@ -3146,10 +3741,10 @@ Return structured JSON:
       console.log(`[DRAFT-CH-${chapter.chapter_number}] draftChapter received onProgress callback`);
     }
     // Anthology: each story is standalone — no previous chapter context
-    const isAnthologyDraft = isAnthologyProject(project);
-    const previousChapter = isAnthologyDraft ? null : chapters.find((item) => item.chapter_number === chapter.chapter_number - 1);
+    const isAnthologyDraft = isAnthologyProject(generationProject);
+    const previousChapter = isAnthologyDraft ? null : generationSnapshot.previousChapter;
     const resolvedPrev = previousChapter ? { ...previousChapter, content_md: await resolveChapterContent(previousChapter) } : null;
-    const draftingProject = { ...buildNameHygieneEnhancedProject(project), __chapters: chapters };
+    const draftingProject = { ...buildNameHygieneEnhancedProject(generationProject), __chapters: generationChapters };
     const targetWords = draftingProject.chapter_length_target || draftingProject.target_chapter_words || 3500;
     const minAcceptable = Math.round(targetWords * 0.7);
     // Track generated prose for emergency save if a later step fails
@@ -3173,7 +3768,7 @@ Return structured JSON:
 
     // Generate scene beats before drafting
     report(`Generating beats for chapter ${chapter.chapter_number}…`);
-    const beatsJson = await generateSceneBeats(chapter);
+    const beatsJson = await generateSceneBeats(chapter, generationChapters, generationProject);
     const chapterWithBeats = { ...chapter, scene_beats_json: beatsJson };
 
     // Get previous chapter tail for continuity
@@ -3191,9 +3786,9 @@ Return structured JSON:
     // not full content — the prompt should know WHAT was covered, not re-ingest
     // every word. Skip for anthologies (each story is standalone) and for Ch 1
     // (no prior chapters to dedupe against).
-    const isAnth = isAnthologyProject(project);
+    const isAnth = isAnthologyProject(generationProject);
     const priorChapterSummaries = (!isAnth && chapter.chapter_number > 1)
-      ? (chapters || [])
+      ? generationChapters
           .filter(c => c && c.chapter_number && c.chapter_number < chapter.chapter_number && isBodyChapter(c))
           .sort((a, b) => a.chapter_number - b.chapter_number)
           .map(c => ({
@@ -3203,14 +3798,63 @@ Return structured JSON:
           }))
       : [];
 
+    // BOOKECHO-1: full prose of all PRIOR chapters for the cross-chapter
+    // phrase-echo detector in sceneWriter. Resolved sequentially from storage;
+    // any failure leaves that chapter out and the detector simply sees less.
+    const priorChapterProse = [];
+    if (!isAnth && chapter.chapter_number > 1) {
+      try {
+        const echoPriors = generationChapters
+          .filter(c => c && c.chapter_number && c.chapter_number < chapter.chapter_number && isBodyChapter(c))
+          .sort((a, b) => a.chapter_number - b.chapter_number);
+        for (const pc of echoPriors) {
+          try {
+            const t = await resolveChapterContent(pc);
+            if (typeof t === 'string' && t.length > 500) priorChapterProse.push(t);
+          } catch (echoResolveErr) { /* skip this chapter */ }
+        }
+        console.log(`[BOOKECHO-1] prior chapters resolved for echo check: ${priorChapterProse.length}`);
+      } catch (echoPrepErr) { /* detector will skip */ }
+    }
+
     console.log('[DRAFT DEBUG] Calling generateChapterByScenes. Beats parsed:', JSON.parse(chapterWithBeats.scene_beats_json || '{}')?.beats?.length || JSON.parse(chapterWithBeats.scene_beats_json || '{}')?.sections?.length || 0, 'scenes', '| proseModelOverride:', proseModelOverride || 'none', '| coverage summaries:', priorChapterSummaries.length);
+    
+    // Verify compact parse and before-draft
+    const parsedForDraft = typeof chapterWithBeats.scene_beats_json === 'string' ? JSON.parse(chapterWithBeats.scene_beats_json) : chapterWithBeats.scene_beats_json;
+    if (parsedForDraft?.pipeline_contract && !isAnthologyProject(generationProject) && generationProject.book_type !== 'nonfiction') {
+       verifySceneProvenance(parsedForDraft.beats, parsedForDraft.pipeline_contract, 'before-generateChapterByScenes');
+    }
+
+    const sceneExecutionAcceptanceRunners = createSceneExecutionAcceptanceRunners({
+      project: draftingProject,
+    });
+
+    // LEDGERSCOPE-1: fold every EARLIER chapter's saved ledger into one and hand
+    // it to the writer. Without this the ledger was rebuilt empty per chapter, so
+    // nothing could stop Ch.4 restoring a hand Ch.3 amputated.
+    // ANTHOLOGYBLEED-1: anthology stories are standalone — folding a prior STORY's
+    // ledger cross-contaminates casts (foldChapterLedgers canonicalises holder names
+    // across all prior ledgers, merging e.g. Story-2 "Marcus" onto Story-5 "Marcus")
+    // and injects another story's held-object facts into this story's prompt. The
+    // within-story ledger is unaffected: with priorLedger null the writer seeds a
+    // fresh buildInitialLedger() per story (sceneWriter.js) and builds scene-to-scene
+    // continuity inside the one story exactly as before.
+    const priorLedger = isAnth ? null : await buildPriorLedger(project?.id || projectId, chapter.chapter_number);
+
     const sceneResult = await generateChapterByScenes({
+      sceneExecutionAcceptanceRunners,
       project: draftingProject,
       chapter: chapterWithBeats,
       previousChapterTail,
       onProgress: (label) => report(label),
       proseModelOverride,
       priorChapterSummaries,
+      priorLedger,
+      // BOOKECHO-2: priorChapterProse is intentionally NOT passed here anymore.
+      // The scene writer's internal chapter artifact is used for the critic and
+      // then discarded; spending the echo-repair LLM call on it was wasted
+      // (measured live: every BOOKECHO-1 rewrite was lost). The save path below
+      // runs finalizeChapterProse on the joined prose that actually ships.
     });
 
     console.log('[DRAFT DEBUG] generateChapterByScenes returned. Prose length:', sceneResult?.prose?.length || 0);
@@ -3229,7 +3873,7 @@ Return structured JSON:
     if (isNonfiction) {
       report(`Saving nonfiction chapter ${chapter.chapter_number}; nonfiction polish remains available through Fix/Polish…`);
 
-      const canonRepair = repairCanonNameDrift(chapterContent, { project: draftingProject, chapter, chapters });
+      const canonRepair = repairCanonNameDrift(chapterContent, { project: draftingProject, chapter, chapters: generationChapters });
       if (canonRepair.changed) {
         console.warn('[CANON-NAME-LOCK][NF-DRAFT-SAVE v15.2] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', canonRepair.repairs);
         chapterContent = canonRepair.text;
@@ -3278,7 +3922,7 @@ Return structured JSON:
       const guard = validateProjectChapterContent({
         project: buildNameHygieneEnhancedProject(draftingProject || {}),
         chapter,
-        chapters,
+        chapters: generationChapters,
         content: chapterContent,
       });
       if (guard?.shouldBlockSave || guard?.severity === 'warning') {
@@ -3344,12 +3988,13 @@ Return structured JSON:
       if (!nfVerify.ok) {
         throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${nfVerify.reason}`);
       }
+      await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
       if (chapter.id === selectedChapterId) {
         setChapterDraft(chapterContent);
       }
 
-      const draftedCount = getDraftedCount(chapters);
+      const draftedCount = getDraftedCount(generationChapters);
       const _draftProjectPayload = protectedProjectUpdate({
         chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
         status: 'ready',
@@ -3381,7 +4026,10 @@ Return structured JSON:
         task_type: 'prose',
         prompt: contPrompt,
         response_json_schema: chapterSchema,
-        model: pickModel('prose_continuation', draftingProject),
+        // WAVE5-MODELPICKER: honor the chapter's model override for the top-up
+        // continuation too — a chapter should never be drafted by model A and
+        // extended by model B.
+        model: proseModelOverride || pickModel('prose_continuation', draftingProject),
         spec: draftingProject,
         ...buildFallbackControls('prose_continuation', draftingProject),
       });
@@ -3481,12 +4129,13 @@ Return structured JSON:
       if (!fastVerify.ok) {
         throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${fastVerify.reason}`);
       }
+      await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
       if (chapter.id === selectedChapterId) {
         setChapterDraft(chapterContent);
       }
 
-      const draftedCount = getDraftedCount(chapters);
+      const draftedCount = getDraftedCount(generationChapters);
       const _draftProjectPayload = protectedProjectUpdate({
         chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
         status: 'ready',
@@ -3523,20 +4172,55 @@ Return structured JSON:
       fallback_model: pickFallbackModel('judge', project),
     });
     const judge = unwrapIntegrationResult(judgeResponse);
+    const judgeContractComplete =
+      Number.isFinite(Number(judge?.narrative_contract_adherence)) &&
+      Number.isFinite(Number(judge?.continuity_integrity)) &&
+      Array.isArray(judge?.contract_violations) &&
+      Array.isArray(judge?.process_leaks);
 
-    // If quality is unacceptable, do one full rewrite with feedback
+    // The LLM critic is advisory. Deterministic scene/project gates remain authoritative.
+    // Do not rewrite a structurally valid chapter merely because the critic assigned 7/10
+    // or produced uncertain language such as "may be a violation".
+    
+    const concreteJudgeContractViolations = Array.isArray(judge?.contract_violations)
+      ? filterConcreteCriticFindings(judge.contract_violations, sceneResult?.generatedScenes)
+      : [];
+
+    const concreteJudgeProcessLeaks = Array.isArray(judge?.process_leaks)
+      ? filterConcreteCriticFindings(judge.process_leaks, sceneResult?.generatedScenes)
+      : [];
+
+    // Scores below 8 are revision notes, not hard rewrite triggers.
     const needsRetry = !slopResult.pass
       || judge.voice_adherence < 5
+      || concreteJudgeContractViolations.length > 0
+      || concreteJudgeProcessLeaks.length > 0
       || tenseViolations.some((v) => v.severity === 'critical')
       || povViolations.some((v) => v.severity === 'critical')
       || wordCount < minAcceptable;
 
-    if (needsRetry) {
+    const preJudgeRewriteContent = chapterContent;
+    const preJudgeRewriteWordCount = wordCount;
+    const preJudgeRewriteCleanResult = cleanResult;
+    // CRITFIX-1: tracks whether a judge rewrite actually replaced the draft.
+    // Re-judging is only meaningful when the text changed.
+    let judgeRewriteApplied = false;
+
+    // Full chapter judge rewrites are disabled.
+    // The original draft was generated scene-by-scene through deterministic
+    // chronology/state gates. A second complete generation can replay events
+    // and overwrite that safer draft. The critic remains advisory, while
+    // concrete final contract violations still hard-block below.
+    const allowJudgeFullRewrite = false;
+
+    if (needsRetry && allowJudgeFullRewrite) {
       const judgeIssues = Array.isArray(judge?.issues) ? judge.issues : [];
       const retryFeedback = [
         ...tenseViolations.map((v) => v.description),
         ...povViolations.map((v) => v.description),
         ...judgeIssues,
+        ...concreteJudgeContractViolations,
+        ...concreteJudgeProcessLeaks,
         `Mechanical slop score: ${slopResult.score}/10`,
         ...sourceAuditNotes,
         ...slopResult.details,
@@ -3552,24 +4236,104 @@ Return structured JSON:
       report(`Revising chapter ${chapter.chapter_number}…`);
       // Retry as scene-by-scene again with feedback injected
       const retryResult = await generateChapterByScenes({
+        sceneExecutionAcceptanceRunners,
         project,
         chapter: chapterWithBeats,
         previousChapterTail,
         onProgress: (label) => report(label),
         proseModelOverride,
         priorChapterSummaries,
+        revisionFeedback: retryFeedback,
       });
-      chapterContent = retryResult.prose;
-      wordCount = retryResult.totalWords;
-      cleanResult = retryResult.cleanResult;
+      const rewrittenContent = retryResult.prose;
+      const rewrittenWordCount = retryResult.totalWords;
+      const rewrittenCleanResult = retryResult.cleanResult;
+
+      let acceptJudgeRewrite = true;
+
+      try {
+        assertNarrativeTextClean(rewrittenContent, {
+          chapterNumber: chapter.chapter_number,
+        });
+
+        runProjectContentGuardBeforeSave(
+          chapter,
+          rewrittenContent,
+          'judge-rewrite'
+        );
+
+        const restartSignals = [
+          /(?:^|\n)\s*\*\s*(?:\n|$)/g,
+          /\b(?:reached|arrived at|stood before|returned to) the archive\b/gi,
+          /\b(?:opened|unlocked|turned the key in) the archive(?: door)?\b/gi,
+          /\b(?:broke|snapped|destroyed|dropped) the (?:brass )?key\b/gi,
+        ];
+
+        const restartCounts = restartSignals.map((pattern) => (
+          rewrittenContent.match(pattern) || []
+        ).length);
+
+        const repeatedArchiveEntry =
+          restartCounts[1] > 1 || restartCounts[2] > 1;
+
+        const repeatedKeyResolution =
+          restartCounts[3] > 1;
+
+        if (repeatedArchiveEntry || repeatedKeyResolution) {
+          const reasons = [
+            repeatedArchiveEntry
+              ? 'archive entry/opening event repeated'
+              : null,
+            repeatedKeyResolution
+              ? 'key resolution event repeated'
+              : null,
+          ].filter(Boolean);
+
+          const error = new Error(
+            `Judge rewrite introduced a chronology restart: ${reasons.join('; ')}`
+          );
+          error.name = 'NarrativeInvariantError';
+          error.code = 'JUDGE_REWRITE_CHRONOLOGY_RESTART';
+          error.narrativeContract = true;
+          throw error;
+        }
+      } catch (rewriteAuditError) {
+        acceptJudgeRewrite = false;
+        console.error(
+          `[NARRATIVE-CONNECT] Rejecting unsafe judge rewrite for Ch.${chapter.chapter_number}; preserving original scene-audited draft:`,
+          rewriteAuditError?.message || rewriteAuditError
+        );
+      }
+
+      if (acceptJudgeRewrite) {
+        chapterContent = rewrittenContent;
+        wordCount = rewrittenWordCount;
+        cleanResult = rewrittenCleanResult;
+        judgeRewriteApplied = true;
+      } else {
+        chapterContent = preJudgeRewriteContent;
+        wordCount = preJudgeRewriteWordCount;
+        cleanResult = preJudgeRewriteCleanResult;
+      }
     }
+    if (needsRetry && !allowJudgeFullRewrite) {
+      console.warn(
+        `[NARRATIVE-CONNECT] Ch.${chapter.chapter_number}: critic requested revision, ` +
+        `but destructive full-chapter rewrite was skipped; preserving scene-audited draft.`
+      );
+    }
+
     pipelineSnapshot(chapter.id, '4-after-judge-revision', chapterContent);
 
     // Finalize scores and save
     const finalSlop = needsRetry ? mechanicalSlopScore(chapterContent) : slopResult;
     const finalTense = needsRetry ? checkTenseConsistency(chapterContent, project) : tenseViolations;
     const finalPov = needsRetry ? checkPovConsistency(chapterContent, project, chapter.chapter_number) : povViolations;
-    const finalJudge = needsRetry ? unwrapIntegrationResult(await invokeLLMWithRetry({
+    // CRITFIX-1: with the full-chapter rewrite disabled (or rejected), the
+    // draft is byte-identical to what the critic already judged. Re-judging
+    // identical input costs 23-60s per chapter and gives a nondeterministic
+    // second verdict on the same bytes. Reuse the first judgment instead.
+    const finalJudge = (needsRetry && judgeRewriteApplied) ? unwrapIntegrationResult(await invokeLLMWithRetry({
       task_type: 'critique',
       prompt: buildChapterJudgePrompt(project, chapter, chapterContent, [...finalTense, ...finalPov]),
       response_json_schema: chapterJudgeSchema,
@@ -3579,6 +4343,47 @@ Return structured JSON:
     })) : judge;
 
     const judgeIssues = Array.isArray(finalJudge?.issues) ? finalJudge.issues : [];
+    const finalContractViolations = Array.isArray(finalJudge?.contract_violations) ? finalJudge.contract_violations : [];
+    const finalProcessLeaks = Array.isArray(finalJudge?.process_leaks) ? finalJudge.process_leaks : [];
+
+    const finalConcreteContractViolations =
+      filterConcreteCriticFindings(finalContractViolations, sceneResult?.generatedScenes);
+
+    const finalConcreteProcessLeaks =
+      filterConcreteCriticFindings(finalProcessLeaks, sceneResult?.generatedScenes);
+
+    // Only concrete, explicit critic findings may hard-block here.
+    // Numeric critic scores and omitted critic fields are advisory because
+    // deterministic scene, continuity, contamination, and safety gates already ran.
+    if (
+      finalConcreteContractViolations.length > 0 ||
+      finalConcreteProcessLeaks.length > 0
+    ) {
+      const error = new Error(
+        `Chapter ${chapter.chapter_number} rejected after its one contract-aware rewrite: ${[
+          ...finalConcreteContractViolations,
+          ...finalConcreteProcessLeaks,
+        ].filter(Boolean).slice(0, 8).join('; ')}`
+      );
+      error.name = 'NarrativeInvariantError';
+      error.code = 'NARRATIVE_CONTRACT_UNRESOLVED';
+      error.narrativeContract = true;
+      error.contractViolations = finalConcreteContractViolations;
+      error.processLeaks = finalConcreteProcessLeaks;
+      throw error;
+    }
+
+    if (
+      Number(finalJudge?.narrative_contract_adherence) < 8 ||
+      Number(finalJudge?.continuity_integrity) < 8
+    ) {
+      console.warn(
+        `[NARRATIVE-CRITIC][ADVISORY] Ch.${chapter.chapter_number}: ` +
+        `contract=${finalJudge?.narrative_contract_adherence ?? 'n/a'}/10, ` +
+        `continuity=${finalJudge?.continuity_integrity ?? 'n/a'}/10. ` +
+        `Deterministic gates passed, so the chapter will not be discarded.`
+      );
+    }
     const isStub = wordCount < 200;
     const combinedRevisionNotes = [
       ...finalTense.map((v) => v.description),
@@ -3599,51 +4404,161 @@ Return structured JSON:
     const chapterStatus = isStub ? 'error' : 'drafted';
     const qualityScan = runQualityScan(chapterContent, project, chapter.chapter_number);
 
-    // Post-draft cleanup: fix mechanical errors before saving
-    const cleanup = await postDraftCleanup(chapterContent, project, chapter.chapter_number, report);
-    chapterContent = cleanup.text;
-    pipelineSnapshot(chapter.id, '5-after-postDraftCleanup', chapterContent);
+    let finalDmOrphans = 0;
+    let finalDmManualReview = 0;
 
-    // Canon-name and artifact cleanup must run before save so bad names like
-    // Langston/Arthur or Nikolai/Silas cannot persist into the manuscript DB.
-    const canonRepair = repairCanonNameDrift(chapterContent, { project, chapter, chapters });
-    if (canonRepair.changed) {
-      console.warn('[CANON-NAME-LOCK] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', canonRepair.repairs);
-      chapterContent = canonRepair.text;
-    }
-    const hardAliasRepair = forceSongbirdAliasRepairText(chapterContent, { project });
-    if (hardAliasRepair.changed) {
-      console.warn('[SONGBIRD-HARD-ALIAS] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', hardAliasRepair.repairs);
-      chapterContent = hardAliasRepair.text;
+    if (sceneResult?.generatedScenes && Array.isArray(sceneResult.generatedScenes)) {
+      sceneResult.generatedScenes.forEach((sc, idx) => {
+        console.log(`[STRUCTURED-SCENES] sceneId=${sc.sceneId || 'none'} acceptedProseChars=${sc.acceptedProse?.length || 0}`);
+        
+        if (!sc.acceptedProse) {
+          const err = new Error(`Scene ${idx + 1} is missing acceptedProse`);
+          err.name = 'NarrativeInvariantError';
+          err.code = 'STRUCTURED_SCENE_PROSE_MISSING';
+          err.sceneId = sc.sceneId;
+          err.narrativeContract = true;
+          throw err;
+        }
+      });
+
+      // Per-scene cleanup
+      for (let i = 0; i < sceneResult.generatedScenes.length; i++) {
+        let sceneProse = sceneResult.generatedScenes[i].acceptedProse || '';
+        
+        const cleanup = await postDraftCleanup(sceneProse, project, chapter.chapter_number, report);
+        sceneProse = cleanup.text;
+
+        const canonRepair = repairCanonNameDrift(sceneProse, { project: generationProject, chapter, chapters: generationChapters });
+        if (canonRepair.changed) sceneProse = canonRepair.text;
+
+        const hardAliasRepair = forceSongbirdAliasRepairText(sceneProse, { project });
+        if (hardAliasRepair.changed) sceneProse = hardAliasRepair.text;
+
+        const artifactRepair = repairManuscriptArtifacts(sceneProse, { project, chapter });
+        if (artifactRepair.changed) sceneProse = artifactRepair.text;
+
+        const draftQuoteRepair = repairChapterQuotes(sceneProse);
+        if (draftQuoteRepair.text !== sceneProse) sceneProse = draftQuoteRepair.text;
+
+        // PARABREAK-1: split a collapsed multi-speaker paragraph into one turn per
+        // paragraph BEFORE the line-oriented repairers run. Live Ch.5 shipped a
+        // 748-word paragraph whose four "ambiguous orphan closers" were all dropped
+        // OPENING quotes that the healer could not attribute inside a block that size.
+        const dmFinal = runDialogueMechanicsFinal(sceneProse, { stage: 'pre-save', splitCollapsedParagraphs: true });
+        if (dmFinal.text !== sceneProse) sceneProse = dmFinal.text;
+        
+        finalDmOrphans += (dmFinal.orphanFlagged || 0);
+        finalDmManualReview += (dmFinal.manualReview?.length || 0);
+
+        sceneResult.generatedScenes[i].acceptedProse = sceneProse;
+      }
+
+      // DIALOGUEPOLICY-1: report malformed dialogue, do not destroy the chapter.
+      //
+      // Live Ch.3: the repairer found and fixed 15 missing opening quotes, then left
+      // TWO ambiguous orphan closers it could not attribute with confidence — and a
+      // finished 4,141-word chapter was thrown away over them. A stray quotation mark
+      // is a copy-editing defect. It cannot fabricate a fact, and unlike the writer,
+      // the gate cannot tell which line the quote belongs to. Surface it and let the
+      // writer decide; a chapter on the page can be fixed, a discarded one cannot.
+      if (finalDmOrphans > 0 || finalDmManualReview > 0) {
+        console.warn(
+          `[DIALOGUE-ADVISORY] Ch.${chapter.chapter_number}: unresolved malformed dialogue was NOT enforced ` +
+          `(orphans: ${finalDmOrphans}, manual review: ${finalDmManualReview}). ` +
+          `The chapter was saved; proofread its quotation marks.`
+        );
+      }
+
+      // Final audit
+      if (typeof window !== 'undefined') {
+        const { auditChapterLedgerContinuity } = await import('@/lib/sceneContractGate');
+        const { buildInitialLedger, extractSceneLedgerUpdates } = await import('@/lib/narrativeLedger');
+        
+        try {
+          const cleanedScenes = sceneResult.generatedScenes.map(s => s.acceptedProse);
+          auditChapterLedgerContinuity({ generatedScenes: sceneResult.generatedScenes, cleanedScenes }, buildInitialLedger, extractSceneLedgerUpdates);
+        } catch (auditError) {
+          if (auditError.name === 'NarrativeInvariantError') {
+            console.error('[NARRATIVE-CONNECT] Final chapter-level continuity audit failed after cleanup:', auditError);
+            throw auditError;
+          }
+        }
+      }
+
+      // Join after successful audit
+      chapterContent = sceneResult.generatedScenes
+        .map(s => s.acceptedProse)
+        .filter(Boolean)
+        .join('\n\n* * *\n\n');
+
+      // BOOKECHO-2: THIS join is the artifact that gets saved — the chapter-level
+      // dedupers and the cross-chapter echo repair used to run only on the scene
+      // writer's internal artifact, which the save path discards (live ch.5
+      // shipped a verbatim duplicated opening in scenes 1 and 3, and all 19
+      // measured BOOKECHO-1 rewrites were lost). Run the final passes here, on
+      // the prose that ships. Fail open: the chapter saves either way.
+      try {
+        chapterContent = await finalizeChapterProse(chapterContent, draftingProject, priorChapterProse);
+      } catch (echoFinalizeErr) {
+        console.warn('[BOOKECHO-2] finalize failed open; chapter saved without final passes:', echoFinalizeErr?.message || echoFinalizeErr);
+      }
+
+    } else {
+      // Fallback for non-structured text (e.g. earlier pipeline steps)
+      const cleanup = await postDraftCleanup(chapterContent, project, chapter.chapter_number, report);
+      chapterContent = cleanup.text;
+      
+      const canonRepair = repairCanonNameDrift(chapterContent, { project: generationProject, chapter, chapters: generationChapters });
+      if (canonRepair.changed) chapterContent = canonRepair.text;
+
+      const hardAliasRepair = forceSongbirdAliasRepairText(chapterContent, { project });
+      if (hardAliasRepair.changed) chapterContent = hardAliasRepair.text;
+
+      const artifactRepair = repairManuscriptArtifacts(chapterContent, { project, chapter });
+      if (artifactRepair.changed) chapterContent = artifactRepair.text;
+
+      const draftQuoteRepair = repairChapterQuotes(chapterContent);
+      if (draftQuoteRepair.text !== chapterContent) chapterContent = draftQuoteRepair.text;
+
+      // PARABREAK-1: same treatment on the non-structured fallback path.
+      const dmFinal = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save', splitCollapsedParagraphs: true });
+      if (dmFinal.text !== chapterContent) chapterContent = dmFinal.text;
+
+      // DIALOGUEPOLICY-1: same policy on the non-structured fallback path — report,
+      // do not destroy. A stray quotation mark is a copy-editing defect.
+      if (dmFinal.orphanFlagged > 0 || (dmFinal.manualReview && dmFinal.manualReview.length > 0)) {
+        console.warn(
+          `[DIALOGUE-ADVISORY] Ch.${chapter.chapter_number}: unresolved malformed dialogue was NOT enforced ` +
+          `(orphans: ${dmFinal.orphanFlagged}, manual review: ${dmFinal.manualReview?.length}). ` +
+          `The chapter was saved; proofread its quotation marks.`
+        );
+      }
     }
 
-    const artifactRepair = repairManuscriptArtifacts(chapterContent, { project, chapter });
-    if (artifactRepair.changed) {
-      console.warn('[ARTIFACT-REPAIR] Repaired draft Ch.' + (chapter.chapter_number || '?') + ':', artifactRepair.changes);
-      chapterContent = artifactRepair.text;
+    if (chapterContent.includes('<<<SCENE_BOUNDARY>>>')) {
+      const error = new Error(`Chapter ${chapter.chapter_number} contains internal scene boundary sentinel leakage.`);
+      error.name = 'NarrativeInvariantError';
+      error.code = 'INTERNAL_SCENE_SENTINEL_LEAK';
+      error.narrativeContract = true;
+      throw error;
     }
-
-    pipelineSnapshot(chapter.id, '6-after-canon-artifact-repair', chapterContent);
-
-    const draftQuoteRepair = repairChapterQuotes(chapterContent);
-    if (draftQuoteRepair.text !== chapterContent) {
-      console.warn('[QUOTE-REPAIR] Repaired draft Ch.' + (chapter.chapter_number || '?') + ' before save:', draftQuoteRepair.fixes);
-      chapterContent = draftQuoteRepair.text;
-    }
-
-    // DIALOGUEFIX-2: true-last dialogue heal before save (see NF site above).
-    const dmFinal = runDialogueMechanicsFinal(chapterContent, { stage: 'pre-save' });
-    if (dmFinal.text !== chapterContent) {
-      console.warn('[DIALOGUE-MECHANICS-REPAIR] Pre-save repairs Ch.' + (chapter.chapter_number || '?') + ': ' + (dmFinal.repairs?.length || 0) + ' verb-tag, ' + (dmFinal.orphanRepaired || 0) + ' orphan-closer');
-      chapterContent = dmFinal.text;
-    }
-    pipelineSnapshot(chapter.id, '7-after-quote-repair', chapterContent);
 
     wordCount = countWords(chapterContent);
-
+    assertNarrativeTextClean(chapterContent, { chapterNumber: chapter.chapter_number });
     runProjectContentGuardBeforeSave(chapter, chapterContent, 'draft');
-
+    
     pipelineSnapshot(chapter.id, '8-final-save', chapterContent);
+
+    // LEDGERSCOPE-1: persist this chapter's end state so the NEXT chapter can see
+    // it. Deliberately awaited but never allowed to throw - a failed ledger write
+    // must not cost a drafted chapter.
+    // ANTHOLOGYBLEED-1: never persist an anthology story's ledger — nothing may
+    // fold it into a sibling story. priorLedger is already null for anthology above;
+    // this is defense in depth so a saved ledger cannot leak even if the fold guard
+    // regresses.
+    if (sceneResult?.narrativeLedger && !isAnth) {
+      await saveChapterLedger(chapter.id, sceneResult.narrativeLedger, chapter.chapter_number);
+    }
     const contentFields = await prepareChapterContent(chapterContent, project?.id || projectId, chapter.id, chapter);
 
     const stdSavePayload = {
@@ -3671,13 +4586,14 @@ Return structured JSON:
     if (!stdVerify.ok) {
       throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${stdVerify.reason}`);
     }
+    await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
     // Immediately update the draft textarea if this is the selected chapter
     if (chapter.id === selectedChapterId) {
       setChapterDraft(chapterContent);
     }
 
-    const draftedCount = getDraftedCount(chapters);
+    const draftedCount = getDraftedCount(generationChapters);
     const _draftProjectPayload = protectedProjectUpdate({
       chapter_count: chapterStatus === 'drafted' && chapter.status === 'planned' ? draftedCount + 1 : draftedCount,
       status: 'ready',
@@ -3699,10 +4615,33 @@ Return structured JSON:
     };
     } catch (draftError) {
       // Emergency save: if prose was generated but a later step failed, save what we have.
-      // Never emergency-save content that the contamination guard explicitly blocked.
-      if (draftError?.projectContentGuard) {
-        console.error('[PROJECT-CONTENT-GUARD] Emergency save skipped because generated content was contaminated:', draftError?.guard || draftError?.message);
-        throw draftError;
+      if (draftError) {
+        const shouldBlockEmergencySave = (error) => {
+          if (!error) return false;
+          if (error.name === 'NarrativeInvariantError') return true;
+          if (error.narrativeContract === true) return true;
+          if (error.details?.narrativeContract === true) return true;
+          
+          const code = error.code || error.details?.code;
+          if (!code) return false;
+
+          if (code === 'FINAL_CHAPTER_CONTINUITY_AUDIT_UNAVAILABLE') return true;
+          if (code === 'SCENE_STATE_CONTRACT_UNRESOLVED') return true;
+          if (code === 'SCENE_DUPLICATE_UNRESOLVED') return true;
+          if (code === 'MALFORMED_DIALOGUE_UNRESOLVED') return true;
+          if (code === 'OBJECT_POSSESSION_VIOLATION') return true;
+          if (code === 'EVIDENCE_AVAILABILITY_VIOLATION') return true;
+          if (code.startsWith('NARRATIVE_')) return true;
+          if (code.startsWith('SCENE_')) return true;
+          if (code.startsWith('FINAL_CHAPTER_')) return true;
+          if (code === 'INTERNAL_SCENE_SENTINEL_LEAK') return true;
+          return false;
+        };
+
+        if (draftError?.projectContentGuard || shouldBlockEmergencySave(draftError)) {
+          console.error('[DRAFT-GUARD] Emergency save skipped because generated content violated a hard contract:', draftError?.guard || draftError?.message);
+          throw draftError;
+        }
       }
 
       if (emergencyProse && emergencyWordCount >= 200) {
@@ -4613,7 +5552,23 @@ Return structured JSON:
           allowBusinessTerms: true,
         });
         logSafetyGateResult('pre-polish-nf', f.chapter?.chapter_number, f.chapter?.title, gate);
+        const onlyDroppedWordFailures = !gate.ok
+          && Array.isArray(gate.reasons) && gate.reasons.length > 0
+          && gate.reasons.every((r) => {
+            const s = String(r);
+            if (!s.startsWith('Malformed grammar')) return false;
+            const phrases = s.match(/"[^"]+"/g) || [];
+            return phrases.length > 0 && phrases.every((p) => p.includes('dropped word'));
+          });
         if (gate.ok) {
+          nfSafeLoaded.push(f);
+        } else if (onlyDroppedWordFailures) {
+          // POLISHFIX-9: every hard failure on this chapter is the dropped-word
+          // shape, which the polish pre-pass strips deterministically
+          // (DRAFTGATE-2B). Rejecting it here deadlocked the repair — the
+          // chapter was too broken to enter the fixer that fixes exactly that
+          // brokenness. Admitted loudly; the post-polish save gate re-checks.
+          console.warn('[POLISH-NF-SAFETY-GATE] ADMITTED Ch.' + (f.chapter?.chapter_number || '?') + ' for deterministic dropped-word repair (' + gate.reasons.length + ' reason(s))');
           nfSafeLoaded.push(f);
         } else {
           nfSafetyRejected.push({ chapter: f.chapter, reasons: gate.reasons });
@@ -4634,7 +5589,7 @@ Return structured JSON:
         loaded,
         project,
         onProgress: (label) => setBusyLabel(formatProgressLabel(label)),
-        allowLLM: true,
+        allowLLM: false,
         mode: 'nonfiction',
       });
 
@@ -4729,7 +5684,9 @@ Return structured JSON:
       const nfCoreStats = ps.nfCore || {};
       const report = `NF Polish v2: ${savedCount} saved, ${unchangedCount} unchanged | Banned: -${ps.bannedRecastCount || 0} | Cap: ${ps.capFixed || 0} | Voice: ${ps.voiceFixed || 0} | Reps: ${nfCoreStats.repFixed || 0} | Scaffolds: ${nfCoreStats.scaffoldsRemoved || 0} | Disclaimers: ${nfCoreStats.disclaimersRemoved || 0} | Grammar(NF): ${nfCoreStats.grammarFixed || 0} | Spelling: ${nfCoreStats.spellingFixed || 0} | Vocab: ${ps.vocabCapped || 0} | Quotes: ${ps.quotesFixed || 0} | ExtAI: ${ps.externalPatternsFixed || 0}
 ` + changes.join('\n') + (saveFailures.length > 0 ? '\n\n\ud83d\udea8 SAVE FAILED for ' + saveFailures.length + ' chapter(s): ' + saveFailures.map(sf => sf.reason?.includes('paragraph count mismatch') ? `Ch.${sf.chNum} (${sf.reason}: expected ${sf.expectedLen}, got ${sf.actualLen})` : `Ch.${sf.chNum} (${sf.reason})`).join(', ') : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n\u2705 Re-export to get the updated manuscript.' : '');
-      toast.info(report, { duration: 30000 });
+      // WAVE5-SETTINGS: optional post-polish quality scan appended to the report.
+      const nfFinalCheck = await maybeFinalCheckAfterPolish({ project, loaded, onProgress: setBusyLabel });
+      toast.info(report + (nfFinalCheck?.length ? '\n\n\ud83d\udd0e Final check: ' + nfFinalCheck.length + ' finding(s)\n' + nfFinalCheck.slice(0, 10).join('\n') : (nfFinalCheck ? '\n\n\ud83d\udd0e Final check: clean' : '')), { duration: 30000 });
     } catch (err) {
       console.error('[POLISH-NF] FATAL:', err);
       toast.error('NF Polish failed: ' + (err.message || 'Unknown error'));
@@ -4868,7 +5825,7 @@ Return structured JSON:
       loaded,
       project,
       onProgress: (label) => setBusyLabel(label),
-      allowLLM: true,
+      allowLLM: false,
       mode: 'fiction',
       sceneDuplicateSweep: runSceneDuplicateSweep,
     });
@@ -5088,7 +6045,9 @@ Scene Duplicate Sweep skipped ${ps.sceneDuplicate.skippedUnsafe} candidate(s) be
 
 Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n✅ Re-export to get the updated manuscript.' : '');
 
-    toast.info(report, { duration: 30000 });
+    // WAVE5-SETTINGS: optional post-polish quality scan appended to the report.
+    const fictionFinalCheck = await maybeFinalCheckAfterPolish({ project, loaded, onProgress: setBusyLabel });
+    toast.info(report + (fictionFinalCheck?.length ? '\n\n🔎 Final check: ' + fictionFinalCheck.length + ' finding(s)\n' + fictionFinalCheck.slice(0, 10).join('\n') : (fictionFinalCheck ? '\n\n🔎 Final check: clean' : '')), { duration: 30000 });
 
     } catch (polishError) {
       console.error('[POLISH] FATAL ERROR:', polishError);
@@ -5550,6 +6509,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                   researchData={researchData}
                   onResearch={handleResearch}
                   onOutlineResearch={handleOutlineResearch}
+                  onFateResearch={handleFateResearch}
                   onReResearch={handleResearch}
                   onResearchChange={handleSaveResearch}
                   onGenerateCopyright={handleGenerateCopyright}
@@ -5575,6 +6535,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                   researchData={researchData}
                   onResearch={handleResearch}
                   onOutlineResearch={handleOutlineResearch}
+                  onFateResearch={handleFateResearch}
                   onReResearch={handleResearch}
                   onResearchChange={handleSaveResearch}
                   onGenerateCopyright={handleGenerateCopyright}

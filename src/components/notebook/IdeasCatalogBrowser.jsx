@@ -39,7 +39,7 @@ import {
 } from '@/components/ui/select';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { importAnthologyCatalog } from '@/lib/anthologyCatalog';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner'; // TOASTMOUNT-1: unify on sonner (react-hot-toast had no mounted Toaster)
 
 const PAGE_SIZE = 24;
 

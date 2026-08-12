@@ -8,6 +8,10 @@
  * chapter drafting without requiring another expensive LLM pass.
  */
 
+// SCOPINGFIX-1: single nonfiction authority (NFCLASS-1). Relative import (not the @/ alias) so the
+// Node acceptance batteries that import this module resolve it without a bundler.
+import { isNonfictionProject } from './projectType.js';
+
 const SETTING_TYPES = [
   'public spectacle',
   'private domestic room',
@@ -186,6 +190,12 @@ export function buildAnthologyChapterVarietyBlock(project, chapter, chapters = [
 
   if (!isAnthology) return '';
 
+  // SCOPINGFIX-1: the variety / anti-template matrix and the BANNED CHARACTER NAMES block are
+  // FICTION devices. On a documented-nonfiction anthology (e.g. real reincarnation cases) they
+  // would impose invented dramatic templates on real events and forbid real recurring names or
+  // researchers that legitimately appear across cases — fabrication. Never run them on nonfiction.
+  if (isNonfictionProject(project)) return '';
+
   const chapterNumber = getChapterNumber(chapter);
   const slots = getAnthologyVarietySlots(chapterNumber);
   const summary = safe(chapter?.beat_summary || chapter?.summary || chapter?.description || chapter?.outline || '');
@@ -201,6 +211,35 @@ export function buildAnthologyChapterVarietyBlock(project, chapter, chapters = [
           return `${n}. ${title} — ${s.setting_type}; ${s.conflict_engine}; ${s.power_dynamic}; ${s.ending_shape}`;
         })
     : [];
+
+  // USEDNAMES-1: every anthology story is standalone, but the prose model draws minor-character
+  // names from a small default pool and reuses OTHER stories' protagonists as walk-ons (measured
+  // live 2026-08-10: Story 1's lead "Marcus" resurfaced as a minor character in Story 3;
+  // "Maria"/"Clara" likewise). Collect the character names every OTHER story in the collection
+  // already owns and forbid them here, so each story invents its own cast. Names come from the
+  // sibling chapters' plans (beat_summary story data); the current story's own names are never
+  // banned (its chapter_number is skipped). Deterministic; complements context isolation.
+  const _bannedNames = new Set();
+  if (Array.isArray(chapters)) {
+    for (const ch of chapters) {
+      const n = Number(ch?.chapter_number || ch?.number || 0);
+      if (!n || n === chapterNumber) continue;
+      let sd = null;
+      try { sd = JSON.parse(ch?.beat_summary || ''); } catch { sd = null; }
+      if (!sd || typeof sd !== 'object') continue;
+      const holders = [];
+      const p = sd.protagonist;
+      holders.push(typeof p === 'string' ? p : (p && p.name) || '');
+      if (Array.isArray(sd.characters)) sd.characters.forEach((c) => holders.push(typeof c === 'string' ? c : (c && c.name) || ''));
+      if (Array.isArray(sd.cast)) sd.cast.forEach((c) => holders.push(typeof c === 'string' ? c : (c && c.name) || ''));
+      holders.forEach((h) => {
+        (String(h || '').match(/[A-Z][a-z]{2,}/g) || []).forEach((tok) => _bannedNames.add(tok));
+      });
+    }
+  }
+  const _bannedBlock = _bannedNames.size
+    ? `\nBANNED CHARACTER NAMES (each already belongs to a DIFFERENT story in this collection — do NOT name ANY character here, major or minor, with these; invent fresh names for this story's cast): ${Array.from(_bannedNames).sort().join(', ')}`
+    : '';
 
   return `ANTHOLOGY VARIETY / ANTI-TEMPLATE LOCK:
 This is story/chapter ${chapterNumber} in an anthology. It must not read like a palette swap of the surrounding stories.
@@ -221,7 +260,7 @@ Hard anti-template rules for drafting this chapter:
 - Do not reuse the same sequence: sterile room → authority figure enters → clinical language → body betrayal → hollow aftermath.
 - Do not reuse the same sensory anchors from recent stories: hairline crack, scuff mark, fly, cold metal table, white room, fluorescent hum, dry mouth, cold knot.
 - Give this chapter a different opening image, conflict rhythm, psychological turn, and final image from every other anthology entry.
-- Preserve the selected genre/spice/intensity, but diversify the dramatic design.`;
+- Preserve the selected genre/spice/intensity, but diversify the dramatic design.${_bannedBlock}`;
 }
 
 export function summarizeTemplateSignature(story = {}) {

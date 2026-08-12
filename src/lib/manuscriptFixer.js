@@ -85,6 +85,8 @@
  */
 
 import { base44 } from '@/api/base44Client';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
+import { resolveScrubRules, EMPTY_SCRUB_RULES } from '@/lib/bookScrubRules'; // BOOKSCRUB-1
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import {
   prepareChapterContent,
@@ -290,10 +292,9 @@ function applyTransientPolishedContent(chapter, content, storageFields = {}, met
   });
 }
 
+// NFCLASS-1: one authority. See src/lib/projectType.js.
 function isNonfictionProject(project = {}) {
-  const bookType = String(project.book_type || '').toLowerCase();
-  const projectType = String(project.project_type || '').toLowerCase();
-  return bookType === 'nonfiction' || projectType === 'nonfiction';
+  return isNonfictionProjectAuthority(project);
 }
 
 function isEroticProject(project = {}) {
@@ -2905,6 +2906,17 @@ function runGenericSameChapterBranchPass({ loaded, report, onProgress, stage = '
 
       for (const fix of fixes) {
         addReportFix(report, `Ch.${item.chapterNumber}: GENERIC BRANCH ${fix.label} (-${fix.removedWords || 0} words)`);
+        // POLISHFIX-6: a cut this size must be reviewable from the report alone.
+        // One generic warning line is how 419 words vanish quietly.
+        if ((fix.removedWords || 0) >= 250) {
+          addReportWarning(
+            report,
+            `Ch.${item.chapterNumber}: quarantine removed ${fix.removedWords} word(s) (${fix.label}). ` +
+              `Cut begins near: "${String(fix.priorMarker || fix.startMarker || '').slice(0, 160)}" ` +
+              `and ends near: "${String(fix.endMarker || '').slice(0, 160)}". ` +
+              `Verify this was a duplicated branch, not story content.`
+          );
+        }
       }
 
       console.warn(`[MANUSCRIPT-FIXER][GENERIC-BRANCH v30] Ch.${item.chapterNumber} same-chapter quarantine`, {
@@ -2944,7 +2956,21 @@ function runGenericSameChapterBranchPass({ loaded, report, onProgress, stage = '
   return { changedChapters, totalFixes, totalRemovedWords, warningCount };
 }
 
-function runGenericBranchCollisionPass({ loaded, report, onProgress, stage = 'generic branch collision guard' }) {
+function runGenericBranchCollisionPass({ loaded, project = null, report, onProgress, stage = 'generic branch collision guard' }) {
+  // POLISHFIX-1: this guard exists for the nonfiction/anthology repeated-route
+  // disease (broker/venue/access branches told twice). Its trip conditions -
+  // >=2 shared proper nouns and route vocabulary between two windows - are
+  // ALWAYS true in a fiction novel with a fixed cast in one setting. Measured
+  // on the live Brass Meridian TEST saves it deleted a 419-word ch.2 scene that
+  // audit #6 proved had zero duplicated 8-grams. Fiction never enters this
+  // pass; duplicate-scene defects in fiction belong to the 8-gram audits and
+  // the CLIMAX-1 plan-time gates. Token overlap may not delete fiction prose.
+  if (project && !isAnthologyProject(project) && !isNonfictionFixerProject(project)) {
+    const message = `${stage} skipped for fiction: route/branch token quarantine is calibrated for nonfiction/anthology repeated-route defects and deletes legitimate fiction scenes.`;
+    console.warn(`[MANUSCRIPT-FIXER][GENERIC-BRANCH] ${message}`);
+    addReportWarning(report, message);
+    return { skipped: true };
+  }
   const adjacent = runGenericAdjacentChapterBleedPass({
     loaded,
     report,
@@ -3754,13 +3780,17 @@ function runDeterministicWholeManuscriptPasses({ project, loaded, report, onProg
     fn: () => runStackedClauseVariation(loaded, onProgress),
   });
 
-  runSafePass({
+  // POLISHFIX-3: mechanical pool rewrites produced "She said it, steady" for
+  // "Her voice was steady" and "He spoke - different. Softer." on the live saves.
+  // The scar lists this file already carries for these exact artifact shapes are
+  // the proof the pass does not converge. Same family as the three passes below
+  // that are already diagnostic-only.
+  runDiagnosticOnlyPass({
     label: 'voice pattern cleanup',
-    loaded,
-    project,
     report,
     onProgress,
-    fn: () => fixVoicePatterns(loaded, loaded.length),
+    reason:
+      'direct mutation disabled because pool replacements produced ungrammatical rewrites ("She said it, steady", "He spoke - different") that downstream scar-list regexes then had to chase.',
   });
 
   runSafePass({
@@ -3824,13 +3854,18 @@ function runDeterministicWholeManuscriptPasses({ project, loaded, report, onProg
     fn: () => runCopingMechanismCaps(loaded, onProgress),
   });
 
-  runSafePass({
+  // POLISHFIX-2: measured on the live Brass Meridian TEST saves, fixHangingQuotes
+  // collapsed 31-69% of paragraphs in EVERY chapter; the revert gate caught the
+  // three worst chapters but shipped ch.2 (-38%) and ch.3 (-31%) with 13 new
+  // orphan-close-quote paragraphs. This is the PARABREAK-1 collapsed-dialogue
+  // disease created at save time. Diagnostic-only until a paragraph-preserving
+  // quote repair exists.
+  runDiagnosticOnlyPass({
     label: 'hanging quote fixes',
-    loaded,
-    project,
     report,
     onProgress,
-    fn: () => fixHangingQuotes(loaded),
+    reason:
+      'direct mutation disabled because it merged multi-speaker dialogue paragraphs at scale (31-69% paragraph collapse on every measured chapter) and manufactured orphaned close-quotes below the revert threshold.',
   });
 
   for (const item of loaded) {
@@ -6218,21 +6253,14 @@ function runFinalSaveGateSurvivorSweep({ loaded, project, report, onProgress }) 
 }
 
 
+// NFCLASS-1 — this used to regex /historical|history|guide|manual|.../ across a
+// haystack that included the project TITLE and SUBTITLE, and so claimed eight
+// declared-fiction novels — every Historical Fiction book in the library, including
+// a 101,400-word drafted one — as nonfiction. It gates the nonfiction integrity
+// gate, which strips invented personas: on a novel that deletes the cast.
+// A declared type is the answer, and a title is never a type.
 function isNonfictionFixerProject(project = {}) {
-  const fields = [
-    project.book_type,
-    project.project_type,
-    project.genre,
-    project.subgenre,
-    project.category,
-    project.nonfiction_type,
-    project.title,
-    project.subtitle,
-  ]
-    .map((value) => safeString(value).toLowerCase())
-    .join(' ');
-
-  return /non[-\s]?fiction|history|true crime|investigative|memoir|biograph|caregiving|religion|civic|policy|medical|training|guide|manual|case study|historical|documentary/.test(fields);
+  return isNonfictionProjectAuthority(project);
 }
 
 function isFinanceFixerProject(project = {}) {
@@ -6308,34 +6336,7 @@ const NONFICTION_MOTIF_BUDGETS = [
   { label: 'erasure', pattern: /\berasure\b|\berased\b|\berasing\b/gi, maxPerChapter: 4 },
 ];
 
-const NONFICTION_CANNED_CREDIBILITY_PARAGRAPHS = [
-  /(?:^|\n\s*)The casualty record should be treated as an evidence problem rather than a conclusion\. The available accounts do not cleanly reconcile the count, location, and sequence of the reported deaths\. A credible reconstruction cannot solve that arithmetic by assertion; it has to compare the underlying casualty lists, newspaper accounts, institutional reports, and any surviving records that place specific men in specific locations during the riot\.\s*(?=\n|$)/gi,
-  /(?:^|\n\s*)The available accounts do not cleanly reconcile the count, location, and sequence of the reported deaths\. A credible reconstruction cannot solve that arithmetic by assertion; it has to compare the underlying casualty lists, newspaper accounts, institutional reports, and any surviving records that place specific men in specific locations during the riot\.\s*(?=\n|$)/gi,
-];
 
-const NONFICTION_SYNTHETIC_PERSONA_REPAIRS = [
-  [/\bParanormal investigator Marcus al-Rashid and his team\b/g, 'A paranormal investigation team', 'replaced invented paranormal investigator name with role-based language'],
-  [/\bMarcus al-Rashid\b/g, 'the investigator', 'replaced invented paranormal investigator name'],
-  [/\bDr\.\s+Lillian\s+Choi,?\s+a site investigator specializing in historic institutional buildings,?\s+was retained to examine\b/g, 'A site investigator specializing in historic institutional buildings examined', 'replaced invented expert persona with role-based language'],
-  [/\bDr\.\s+Lillian\s+Choi'?s\b/g, 'the site investigator’s', 'replaced invented expert possessive'],
-  [/\bDr\.\s+Lillian\s+Choi\b/g, 'the site investigator', 'replaced invented expert name'],
-  [/\bFranklin\s+Driscoll'?s\b/g, 'a retired guard’s', 'replaced invented retired-guard possessive'],
-  [/\bFranklin\s+Driscoll\b/g, 'a retired guard', 'replaced invented retired-guard name'],
-  [/\bRoberta\s+Hawkins'?s\b/g, 'a victim’s descendant’s', 'replaced invented descendant possessive'],
-  [/\bRoberta\s+Hawkins\b/g, 'a victim’s descendant', 'replaced invented descendant name'],
-  [/\bBertie\s+Hawkins'?s\b/g, 'the descendant’s', 'replaced invented family nickname possessive'],
-  [/\bBertie\s+Hawkins\b/g, 'the descendant', 'replaced invented family nickname'],
-  [/\bEleanor\s+Vance'?s\b/g, 'a guard’s descendant’s', 'replaced invented guard-descendant possessive'],
-  [/\bEleanor\s+Vance\b/g, 'a guard’s descendant', 'replaced invented guard-descendant name'],
-  [/\bTomás\s+Gutierrez'?s\b/g, 'the demolition foreman’s', 'replaced invented demolition-foreman possessive'],
-  [/\bTomás\s+Gutierrez\b/g, 'the demolition foreman', 'replaced invented demolition-foreman name'],
-  [/\bJenny\s+Switzer\s+and\s+Bill\s+Green\b/g, 'tour guides', 'replaced invented tour-guide names'],
-  [/\bJenny\s+Switzer\b/g, 'a tour guide', 'replaced invented tour-guide name'],
-  [/\bBill\s+Green\b/g, 'a tour guide', 'replaced invented tour-guide name'],
-  [/\bEleanor\b/g, 'she', 'replaced invented guard-descendant first name'],
-  [/\bRoberta[’']s\s+grandmother\b/g, 'his wife', 'replaced invented descendant first-name family link'],
-  [/\bRoberta\b/g, 'the descendant', 'replaced invented descendant first name'],
-];
 
 function countRegexMatches(text, pattern) {
   const matches = normalizeText(text).match(pattern);
@@ -6428,12 +6429,13 @@ function reduceDenseAbstractNonfictionPhrases(text) {
   return { text: output, fixes };
 }
 
-function removeCannedNonfictionCredibilityParagraphs(text) {
+// BOOKSCRUB-1: the paragraphs are a project's data, not this engine's knowledge.
+function removeCannedNonfictionCredibilityParagraphs(text, rules = EMPTY_SCRUB_RULES) {
   let output = normalizeText(text);
   const fixes = [];
   let removed = 0;
 
-  for (const pattern of NONFICTION_CANNED_CREDIBILITY_PARAGRAPHS) {
+  for (const pattern of (rules?.cannedParagraphs || [])) {
     output = output.replace(pattern, (match) => {
       removed += 1;
       return match.startsWith('\n') ? '\n' : '';
@@ -6452,7 +6454,8 @@ function removeCannedNonfictionCredibilityParagraphs(text) {
   return { text: output, fixes, removed };
 }
 
-function replaceSyntheticNonfictionPersonas(text) {
+// BOOKSCRUB-1: personas, surnames and attribution repairs are project data.
+function replaceSyntheticNonfictionPersonas(text, rules = EMPTY_SCRUB_RULES) {
   let output = normalizeText(text);
   const fixes = [];
 
@@ -6462,30 +6465,16 @@ function replaceSyntheticNonfictionPersonas(text) {
     if (before !== output && label && !fixes.includes(label)) fixes.push(label);
   };
 
-  for (const [pattern, replacement, label] of NONFICTION_SYNTHETIC_PERSONA_REPAIRS) {
+  for (const [pattern, replacement, label] of (rules?.personaRepairs || [])) {
     apply(pattern, replacement, label);
   }
 
-  // Second-pass surname cleanup. Earlier versions only removed full invented names,
-  // which left ugly survivors like "Driscoll remembered" after "Franklin Driscoll"
-  // had already been replaced elsewhere.
-  const surnameRepairs = [
-    [/\bDriscoll[’']s\b/g, 'the retired guard’s', 'replaced invented retired-guard surname possessive'],
-    [/\bDriscoll\b/g, 'the retired guard', 'replaced invented retired-guard surname'],
-    [/\bHawkins[’']s\b/g, 'the descendant’s', 'replaced invented descendant surname possessive'],
-    [/\bHawkins\b/g, 'the descendant', 'replaced invented descendant surname'],
-    [/\bChoi[’']s\b/g, 'the site investigator’s', 'replaced invented expert surname possessive'],
-    [/\bChoi\b/g, 'the site investigator', 'replaced invented expert surname'],
-    [/\bGutierrez[’']s\b/g, 'the demolition foreman’s', 'replaced invented demolition-foreman surname possessive'],
-    [/\bGutierrez\b/g, 'the demolition foreman', 'replaced invented demolition-foreman surname'],
-    [/\bVance\s+family\b/g, 'guard family', 'replaced invented guard-family surname'],
-    [/\bVance\s+inheritance\b/g, 'guard-family inheritance', 'replaced invented guard-family surname'],
-    [/\bVance\b/g, 'the guard’s descendant', 'replaced invented guard-descendant surname'],
-    [/\bSwitzer\b/g, 'one guide', 'replaced invented tour-guide surname'],
-    [/\bGreen\b/g, 'another guide', 'replaced invented tour-guide surname'],
-  ];
+  // Second-pass surname cleanup. Removing a full invented name leaves the bare
+  // surname behind mid-sentence, so the rule set carries surname repairs as well as
+  // full-name ones. BOOKSCRUB-1: which surnames those are is project data.
 
-  for (const [pattern, replacement, label] of surnameRepairs) {
+
+  for (const [pattern, replacement, label] of (rules?.surnameRepairs || [])) {
     apply(pattern, replacement, label);
   }
 
@@ -6627,15 +6616,17 @@ function replaceSyntheticNonfictionPersonas(text) {
     .replace(/\bthe the\b/gi, 'the')
     .replace(/\ba\s+(environment|actual|external|operational|official|institutional|administrative|ambiguous|isolated|impossible|old|open|urgent|unresolved)\b/gi, 'an $1')
     .replace(/\bthe retired guard represented a critical source\. He had been there\./gi, 'the account represented a critical source: a guard had been there.')
-    .replace(/\bDriscoll said\b/g, 'the retired guard said')
-    .replace(/\bDriscoll recalled\b/g, 'the retired guard recalled')
-    .replace(/\bDriscoll remembered\b/g, 'the retired guard remembered')
     .replace(/\bAt approximately\s+(\d{1,2}(?::\d{2})?\s+[ap]\.m\.)\s+On\s+/gi, 'At approximately $1 on ')
     .replace(/\b(\d{1,2}(?::\d{2})?\s+[ap]\.m\.)\s+On\s+/g, '$1 on ')
     .replace(/\bthe contradiction was not only between documents and memory, but within the institutional record itself\b/g, 'The contradiction was not only between documents and memory, but within the institutional record itself')
     .replace(/\n{4,}/g, '\n\n\n')
     .replace(/(?:\n\s*){3,}/g, '\n\n')
     .trim();
+
+  // BOOKSCRUB-1: these were three .replace() calls hardcoded into the chain above.
+  for (const [pattern, replacement] of (rules?.attributionRepairs || [])) {
+    output = output.replace(pattern, replacement);
+  }
 
   return { text: output, fixes };
 }
@@ -7095,6 +7086,7 @@ function runNonfictionTerminalSourceClaimClamp(text) {
 }
 
 function evaluateNonfictionChapterIntegrity({ item, project }) {
+  const scrubRules = resolveScrubRules(project); // BOOKSCRUB-1
   const text = normalizeText(item.content);
   const warnings = [];
 
@@ -7118,11 +7110,11 @@ function evaluateNonfictionChapterIntegrity({ item, project }) {
     warnings.push('visible source anchoring may still be too vague; replace generic record language with named record classes when available');
   }
 
-  if (/The casualty record should be treated as an evidence problem rather than a conclusion/i.test(text)) {
+  if (scrubRules?.cannedParagraphWarning?.test(text)) {
     warnings.push('canned casualty/source-integrity boilerplate still present; rerun Fix/Polish or manually revise this chapter');
   }
 
-  if (/\b(?:Marcus al-Rashid|Lillian Choi|Choi|Franklin Driscoll|Driscoll|Roberta Hawkins|Bertie Hawkins|Hawkins|Eleanor Vance|Vance|Tomás Gutierrez|Gutierrez|Jenny Switzer|Switzer|Bill Green)\b/i.test(text)) {
+  if (scrubRules?.personaWarningNames?.test(text)) {
     warnings.push('possible invented narrative persona/surname remains; verify against project source ledger or replace with role-based language');
   }
 
@@ -7169,11 +7161,12 @@ function runNonfictionManuscriptIntegrityGate({ project, loaded, report, onProgr
     current = placeholderRepair.text;
     fixes.push(...placeholderRepair.fixes);
 
-    const cannedParagraphRepair = removeCannedNonfictionCredibilityParagraphs(current);
+    const scrubRules = resolveScrubRules(project); // BOOKSCRUB-1
+    const cannedParagraphRepair = removeCannedNonfictionCredibilityParagraphs(current, scrubRules);
     current = cannedParagraphRepair.text;
     fixes.push(...cannedParagraphRepair.fixes);
 
-    const personaRepair = replaceSyntheticNonfictionPersonas(current);
+    const personaRepair = replaceSyntheticNonfictionPersonas(current, scrubRules);
     current = personaRepair.text;
     fixes.push(...personaRepair.fixes);
 
@@ -7746,6 +7739,7 @@ export async function fixEntireManuscript({
 
   runGenericBranchCollisionPass({
     loaded,
+    project,
     report,
     onProgress,
     stage: 'pre-GPT generic branch collision guard',
@@ -7796,6 +7790,7 @@ export async function fixEntireManuscript({
 
   runGenericBranchCollisionPass({
     loaded,
+    project,
     report,
     onProgress,
     stage: 'pre-save generic branch collision guard',
@@ -7831,6 +7826,7 @@ export async function fixEntireManuscript({
 
   runGenericBranchCollisionPass({
     loaded,
+    project,
     report,
     onProgress,
     stage: 'post-grammar generic branch collision guard',

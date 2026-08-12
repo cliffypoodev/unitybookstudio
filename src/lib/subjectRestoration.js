@@ -389,7 +389,7 @@ export async function runSubjectRestoration(project, chapters, setBusyLabel) {
     if (applied.length > 0 && newContent !== w.content) {
       noop('Subject Restore: Saving Ch.' + chNum + '…');
       try {
-        const contentFields = await prepareChapterContent(newContent);
+        const contentFields = await prepareChapterContent(newContent, project?.id, w.chapter.id, w.chapter);
         await runWithNetworkRetry(() =>
           base44.entities.Chapter.update(w.chapter.id, {
             ...contentFields,

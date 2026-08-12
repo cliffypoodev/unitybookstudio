@@ -49,6 +49,8 @@ import { mdToHtml, htmlToMd, stripHtmlToText } from '@/lib/mdHtmlConvert';
 import { chapterHasContent, resolveChapterContent, prepareChapterContent } from '@/lib/chapterStorage';
 import { isFrontMatter, isBackMatter, isBodyChapter } from '@/lib/bibliographyGenerator';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-2
+import { exportRuleEnabled } from '@/lib/exportRuleScope'; // EXPORTSCRUB-1
 import { base44 } from '@/api/base44Client';
 import { mergeFreshChapterRecords } from '@/lib/exportRefreshResolver';
 import {
@@ -59,6 +61,8 @@ import {
 import { backupExportChapterIfChanged } from '@/lib/exportVersionSafety';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { runPreExportSafetyGate, formatExportSafetyFailure, assertExportSafetyAllowed, assertExportSnapshotIntegrity } from '@/lib/exportSafetyGate';
+import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
+import { normalizeTrimSize } from '@/lib/kdpCover'; // WAVE5-SETTINGS
 
 console.log('[EXPORT] ExportTab HARDFIX v47 loaded: read-only export with strict safety gate');
 
@@ -74,7 +78,14 @@ export default function ExportTab({
   }, [chapters]);
 
   const [publishSettings, setPublishSettings] = useState(
-    project?.publishSettings || DEFAULT_PUBLISH_SETTINGS
+    // WAVE5-SETTINGS: when the project has no saved publish settings, seed the
+    // defaults from the user's Settings (font + trim size) instead of the
+    // hardcoded constants. A project's own saved settings always win.
+    project?.publishSettings || {
+      ...DEFAULT_PUBLISH_SETTINGS,
+      paragraphFont: getSetting('default_export_font', DEFAULT_PUBLISH_SETTINGS.paragraphFont),
+      trimSize: normalizeTrimSize(getSetting('default_trim_size', ''), DEFAULT_PUBLISH_SETTINGS.trimSize),
+    }
   );
 
   const [selectedChapterId, setSelectedChapterId] = useState(safeChapters[0]?.id || null);
@@ -1405,24 +1416,13 @@ function normalizeDocxMarkdown(text = '') {
 }
 
 
-function isSongbirdExportProject(project = {}, chapters = []) {
-  const projectText = [
-    project?.title,
-    project?.name,
-    project?.book_title,
-    project?.description,
-    project?.premise,
-    ...chapters.slice(0, 10).map((ch) => ch?.content_md || ''),
-  ]
-    .filter(Boolean)
-    .join('\n')
-    .slice(0, 120000);
-
-  if (/\bSongbird\b/i.test(projectText)) return true;
-
-  const hasCore = /\bIris\b/i.test(projectText) && /\bPauline\b/i.test(projectText);
-  const hasWorld = /\b(HIDA|Harlem Institute|Port Chicago|Phillip Cross|Langston Finch|Pauline Carter|Children[’']s Hour)\b/i.test(projectText);
-  return hasCore && hasWorld;
+function isSongbirdExportProject(project = {}) {
+  // EXPORTSCRUB-1: this used to sniff the title, description, premise and the first
+  // ten chapters' prose for the word "Songbird" (or an Iris+Pauline pair). Any book
+  // with a mission codenamed Songbird matched, and the alias pass it enables renames
+  // every Arthur to Langston and every Cora to Clara in the exported manuscript.
+  // A book gets one book's rules only by asking for them by name.
+  return exportRuleEnabled(project, 'songbird');
 }
 
 
@@ -1737,10 +1737,12 @@ function thinGenericStyleTicsAcrossChapters(chapters = []) {
       return rotate(['tightness', 'cold weight', 'hard pressure', 'small stone'], state.coldKnot);
     });
 
-    out = out.replace(/\b(?:his|her|His|Her|Zonk’s|Blaze’s|Pip’s) mouth (?:was|went) dry\b/g, (match) => {
+    // EXPORTSCRUB-1: three characters from one book were listed inside a function
+    // named "thinGenericStyleTics". The generic possessives cover the same sentences.
+    out = out.replace(/\b(?:his|her|His|Her) mouth (?:was|went) dry\b/g, (match) => {
       state.mouthDry += 1;
       if (state.mouthDry <= 2) return match;
-      const owner = match.match(/^(his|her|His|Her|Zonk’s|Blaze’s|Pip’s)/)?.[1] || 'His';
+      const owner = match.match(/^(his|her|His|Her)/)?.[1] || 'His';
       return rotate([`${owner} throat tightened`, `${owner} tongue felt thick`, `${owner} mouth felt papery`], state.mouthDry);
     });
 
@@ -1789,7 +1791,7 @@ function thinGenericStyleTicsAcrossChapters(chapters = []) {
 }
 
 
-function repairStyleThinningArtifacts(text = '') {
+function repairStyleThinningArtifacts(text = '', project = {}) {
   let out = String(text || '');
 
   // v37 safety: v36's generic not-quite thinning could replace only the first
@@ -1797,8 +1799,6 @@ function repairStyleThinningArtifacts(text = '') {
   // "some unnamed middle state, numbing panic." These are deterministic repairs,
   // not creative rewrites.
   out = out
-    .replace(/Something hot and sour bubbled in Zonk’s throat\.\s+some unnamed middle state, numbing panic\./g,
-      'Something hot and sour bubbled in Zonk’s throat. It was the feeling of being handed a pop quiz in a subject he’d only ever studied while high.')
     .replace(/Something hot and sour bubbled in ([^.]{1,120}?)\.\s+some unnamed middle state, ([^.]{1,80})\./gi,
       'Something hot and sour bubbled in $1. It was something closer to $2.')
     .replace(/\bsome unnamed middle state,\s+/gi, 'something closer to ')
@@ -1807,15 +1807,24 @@ function repairStyleThinningArtifacts(text = '') {
     .replace(/\bA nameless pressure,\s+/g, 'Something closer to ')
     .replace(/\bvoice low and urgent cutting through\b/g, 'voice low and urgent, cutting through')
     .replace(/\bvoice high and clear cut through\b/g, 'voice high and clear, cut through')
-    .replace(/\bZonk took the weight felt Blaze’s heat\b/g, 'Zonk took the weight and felt Blaze’s heat')
-    .replace(/\bhe could hear Pip’s quick shallow breaths ahead of him could see\b/gi, 'he could hear Pip’s quick shallow breaths ahead of him and could see')
-    .replace(/\bThe griffon in a sparkly waistcoat waddled onto the stage took the microphone\b/g, 'A griffon in a sparkly waistcoat waddled onto the stage, took the microphone')
-    .replace(/\bA griffon in a sparkly waistcoat waddled onto the stage took the microphone\b/g, 'A griffon in a sparkly waistcoat waddled onto the stage, took the microphone')
-    .replace(/\bZonk’s mind, uselessly, supplied an image\b/g, 'Zonk’s mind supplied an image')
     .replace(/\bHis brain, traitorous began cataloging\b/g, 'His brain, traitorous, began cataloging')
-    .replace(/\bBut you’ve died failing a test\b/g, 'But you’ll have died failing a test')
     .replace(/\bit was a feeling with no clean name, ([^.]{1,80})\./gi, 'it was something closer to $1.')
     .replace(/\bIt wasn’t quite ([^.,;:\n]{1,70}), not quite ([^.]{1,90})\./gi, 'It was somewhere between $1 and $2.');
+
+  // EXPORTSCRUB-1: the rules below name one book's cast (Zonk, Blaze, Pip) and its
+  // griffon in a sparkly waistcoat. They ran on every export of every book, so any
+  // manuscript with a character called Pip had its sentences rewritten. Opt-in now.
+  if (exportRuleEnabled(project, 'styleTicRepairs')) {
+    out = out
+      .replace(/Something hot and sour bubbled in Zonk’s throat\.\s+some unnamed middle state, numbing panic\./g,
+        'Something hot and sour bubbled in Zonk’s throat. It was the feeling of being handed a pop quiz in a subject he’d only ever studied while high.')
+      .replace(/\bZonk took the weight felt Blaze’s heat\b/g, 'Zonk took the weight and felt Blaze’s heat')
+      .replace(/\bhe could hear Pip’s quick shallow breaths ahead of him could see\b/gi, 'he could hear Pip’s quick shallow breaths ahead of him and could see')
+      .replace(/\bThe griffon in a sparkly waistcoat waddled onto the stage took the microphone\b/g, 'A griffon in a sparkly waistcoat waddled onto the stage, took the microphone')
+      .replace(/\bA griffon in a sparkly waistcoat waddled onto the stage took the microphone\b/g, 'A griffon in a sparkly waistcoat waddled onto the stage, took the microphone')
+      .replace(/\bZonk’s mind, uselessly, supplied an image\b/g, 'Zonk’s mind supplied an image')
+      .replace(/\bBut you’ve died failing a test\b/g, 'But you’ll have died failing a test');
+  }
 
   return out;
 }
@@ -1872,10 +1881,14 @@ function runExportTextSafetyNet(text = '', project = {}, options = {}) {
     [/\b([A-Za-z]+s)[’'](?=([a-z]{2,}))\b/g, '$1’ ', 'space after plural possessive apostrophe'],
 
     // Stubborn orphan dialogue openers. Keep narrow and do not run broad quote repair.
-    [/(^|\s)I[’']m not uncomfortable,”/g, '$1“I’m not uncomfortable,”', 'missing opener: I’m not uncomfortable'],
-    [/(^|\s)Aren[’']t you\.”/g, '$1“Aren’t you?”', 'missing opener: Aren’t you'],
-    [/(^|\s)Thank you\.”/g, '$1“Thank you.”', 'missing opener: Thank you'],
-    [/(^|\s)I doubt that\.”/g, '$1“I doubt that.”', 'missing opener: I doubt that'],
+    // EXPORTSCRUB-1: four "missing opener" rules were deleted here. Each inserted an
+    // opening quote before a fixed phrase wherever it followed whitespace — including
+    // when that phrase was the tail of an already-correct quoted line. Proven:
+    //   in : “You kept the letters safe. Thank you.”
+    //   out: “You kept the letters safe. “Thank you.”   (2 open, 1 close)
+    // applyFinalExportCleanup runs BEFORE runPreExportSafetyGate, so the gate then
+    // hard-blocked the book for unclosed dialogue the export path had just created,
+    // reproducibly, with no way for the author to clear it.
 
     // Mechanical survivors only.
     [/\bThe coffee, when it came was\b/g, 'The coffee, when it came, was', 'missing comma: coffee came'],
@@ -2308,13 +2321,16 @@ function isFinanceOrInvestingProject(project = {}, chapters = []) {
   return financeHits >= 2 && prisonHistoryHits < 2;
 }
 
-function isLikelyNonfictionExportProject(project = {}, chapters = []) {
-  const text = getProjectSourceDomainText(project, chapters);
-  if (/\b(?:nonfiction|history|investigative|true\s+crime|memoir|biography|guide|manual|training|policy|case\s+study|source|bibliography|archive|documented)\b/i.test(text)) {
-    return true;
-  }
-
-  return (Array.isArray(chapters) ? chapters : []).some((chapter) => isBibliographyLikeChapter(chapter) || isAuthorsNoteLikeChapter(chapter));
+function isLikelyNonfictionExportProject(project = {}) {
+  // NFCLASS-2 / EXPORTSCRUB-1: this used to build a haystack out of the project's
+  // metadata AND the first six chapters' prose and test it for words like "guide",
+  // "source", "archive", "memoir" and "history". A novel narrates all of those. Proven
+  // against the live regex: "She had no guide, no map, and no way out of the tunnel."
+  // returns true, and so does "The archive smelled of dust and old paper."
+  //
+  // What hung off that boolean was a sweep that replaces named human beings with the
+  // phrase "one unnamed inmate" in the shipped file. The declared type is the answer.
+  return isNonfictionProjectAuthority(project);
 }
 
 function isBibliographyLikeChapter(chapter = {}) {
@@ -2393,15 +2409,28 @@ function repairNonfictionBibliographyExportText(markdown = '', project = {}, cha
     const trimmed = entry.trim();
     if (!trimmed || /^#{1,6}\s+/.test(trimmed)) return false;
     if (/^(?:Bibliography|Sources|Works Cited|References|Articles?|Books?|Academic|Government|Archives?|Court|Newspapers?|Reports?|Web|Oral Histories|Primary Sources|Secondary Sources)\b/i.test(trimmed)) return false;
-    return MISSOURI_GOTHIC_SOURCE_DOMAIN_RE.test(trimmed) || /\b(?:archive|court|newspaper|report|interview|oral\s+history|death\s+certificate|coroner|department|records?|minutes?|plan|memoir)\b/i.test(trimmed);
+    // EXPORTSCRUB-1: one book's subject vocabulary (Missouri State Penitentiary,
+    // Cell Hall, the 1954 riot) was the PRIMARY test for whether a bibliography entry
+    // is credible, so a nonfiction book on any other subject failed the count and had
+    // the blocker note below injected into its Bibliography page. The generic
+    // source-shape test is the real check; the book-specific vocabulary is opt-in.
+    if (exportRuleEnabled(project, 'prisonHistorySources') && MISSOURI_GOTHIC_SOURCE_DOMAIN_RE.test(trimmed)) return true;
+    return /\b(?:archive|court|newspaper|report|interview|oral\s+history|death\s+certificate|coroner|department|records?|minutes?|plan|memoir|university|press|journal|bureau|commission|administration|association|museum|library|society|gazette|times|post|tribune|herald)\b/i.test(trimmed);
   }).length;
 
-  if (/\b(?:bibliography|sources|works\s+cited|references)\b/i.test(next) && credibleEntryCount < 4) {
-    next = `${next}\n\n[EXPORT BLOCKER: Bibliography has too few credible project-relevant sources after contamination cleanup. Rebuild the bibliography from verified project sources before publication.]`;
-  }
+  // EXPORTSCRUB-1: the comment above said the hard gate would catch this marker. It
+  // does not: NONFICTION_EXPORT_PLACEHOLDER_RE does not match "[EXPORT BLOCKER", no
+  // canary matches it either, and the nonfiction placeholder gate was downgraded to
+  // diagnostic-only. So the marker shipped — a DOCX whose Bibliography page ends with
+  // the literal line "[EXPORT BLOCKER: …]", with no block, no warning and no toast.
+  // A note that pretends to be a blocker is worse than no note. This reports the
+  // condition to the caller instead of writing it into the reader's book.
+  const bibliographyUnderfunded = /\b(?:bibliography|sources|works\s+cited|references)\b/i.test(next)
+    && credibleEntryCount < 4;
 
   return {
     text: next,
+    bibliographyUnderfunded,
     changed: removed.length > 0,
     changes: Array.from(new Set(removed)),
   };
@@ -2410,7 +2439,7 @@ function repairNonfictionBibliographyExportText(markdown = '', project = {}, cha
 function applyNonfictionSourceIntegrityExportCleanup(chapters = [], project = {}) {
   const safe = Array.isArray(chapters) ? chapters.filter(Boolean) : [];
 
-  if (!isLikelyNonfictionExportProject(project, safe)) {
+  if (!isLikelyNonfictionExportProject(project)) {
     return safe;
   }
 
@@ -2422,6 +2451,16 @@ function applyNonfictionSourceIntegrityExportCleanup(chapters = [], project = {}
       const repaired = repairNonfictionBibliographyExportText(text, project, safe);
       text = repaired.text;
       changes.push(...repaired.changes);
+      // EXPORTSCRUB-1: surface the underfunded-bibliography condition where the author
+      // can see it, instead of writing "[EXPORT BLOCKER: …]" into the shipped book.
+      if (repaired.bibliographyUnderfunded) {
+        console.warn(
+          `[EXPORTSCRUB-1] Ch.${chapter?.chapter_number ?? '?'} "${chapter?.title || 'Bibliography'}": `
+          + 'fewer than 4 credible source entries survived contamination cleanup. '
+          + 'Rebuild the bibliography from verified project sources before publication.',
+        );
+        changes.push('WARNING: bibliography has fewer than 4 credible source entries');
+      }
     }
 
     const beforeCopyedit = text;
@@ -2634,13 +2673,13 @@ function runNonfictionFinalExportScarTissueSweep(text = '') {
 
 function applyFinalExportCleanup(chapters = [], project = {}) {
   const safe = Array.isArray(chapters) ? chapters.filter(Boolean) : [];
-  const forceSongbirdAliases = isSongbirdExportProject(project, safe);
+  const forceSongbirdAliases = isSongbirdExportProject(project);
 
   const firstPass = safe.map((chapter, index) => {
     const result = runExportTextSafetyNet(chapter?.content_md || '', project, {
       forceSongbirdAliases,
     });
-    const terminal = runTerminalExportSourceGuard(result.text, chapter, index);
+    const terminal = runTerminalExportSourceGuard(result.text, chapter, index, project);
     const hardArtifacts = removeForbiddenExportArtifactParagraphs(terminal.text);
 
     return {
@@ -2667,9 +2706,10 @@ function applyFinalExportCleanup(chapters = [], project = {}) {
 
   return nonfictionSourceGuarded.map((chapter) => {
     const hardArtifacts = removeForbiddenExportArtifactParagraphs(chapter?.content_md || '');
-    const styleSafeText = repairStyleThinningArtifacts(hardArtifacts.text);
+    const styleSafeText = repairStyleThinningArtifacts(hardArtifacts.text, project);
     const styleChanged = styleSafeText !== hardArtifacts.text;
-    const nonfictionFinal = isLikelyNonfictionExportProject(project, nonfictionSourceGuarded)
+    const nonfictionFinal = isLikelyNonfictionExportProject(project)
+      && exportRuleEnabled(project, 'prisonHistorySources')
       ? runNonfictionFinalExportScarTissueSweep(styleSafeText)
       : { text: styleSafeText, changed: false, changes: [] };
     return {
@@ -2713,22 +2753,34 @@ function getChapterTitleValue(chapter = {}) {
 }
 
 function looksLikeChapterOne(chapter = {}, index = 0) {
+  // EXPORTSCRUB-1: `no === 1` made this true for every book, so a truncating regex
+  // written for one manuscript's chapter 1 was tested against every manuscript's
+  // chapter 1 on every export, and on a match discarded everything after the cut with
+  // only a changes.push() note. The caller now also requires the project to have
+  // opted into the 'glitch' rule, so this can only fire on the book it was written for.
   const no = getChapterNumberValue(chapter, index);
   const title = getChapterTitleValue(chapter).toLowerCase();
   return no === 1 || title.includes('best glitch ever');
 }
 
-function runTerminalExportSourceGuard(text = '', chapter = {}, index = 0) {
+function runTerminalExportSourceGuard(text = '', chapter = {}, index = 0, project = {}) {
   let out = String(text || '');
   const changes = [];
 
   const beforeMechanical = out;
+  // EXPORTSCRUB-1: doubled opening quotes are a real mechanical artifact and stay
+  // unconditional. The three named-phrase repairs below name one book's sentences
+  // (including a character called Pip) and are now opt-in.
   out = out
-    .replace(/\bShe stirred made\b/g, 'She stirred and made')
-    .replace(/\bThe engine coughed caught\b/g, 'The engine coughed, caught')
     .replace(/“{2,}\s*The window,”/g, '“The window,”')
-    .replace(/“\s*“\s*The window,”/g, '“The window,”')
-    .replace(/\bThe guard who had been heading for Pip changed course cutting off\b/g, 'The guard who had been heading for Pip changed course, cutting off');
+    .replace(/“\s*“\s*The window,”/g, '“The window,”');
+
+  if (exportRuleEnabled(project, 'styleTicRepairs')) {
+    out = out
+      .replace(/\bShe stirred made\b/g, 'She stirred and made')
+      .replace(/\bThe engine coughed caught\b/g, 'The engine coughed, caught')
+      .replace(/\bThe guard who had been heading for Pip changed course cutting off\b/g, 'The guard who had been heading for Pip changed course, cutting off');
+  }
 
   if (out !== beforeMechanical) {
     changes.push('terminal export mechanical survivor repair');
@@ -2740,7 +2792,7 @@ function runTerminalExportSourceGuard(text = '', chapter = {}, index = 0) {
     changes.push(...hardArtifacts.changes);
   }
 
-  if (looksLikeChapterOne(chapter, index)) {
+  if (exportRuleEnabled(project, 'glitch') && looksLikeChapterOne(chapter, index)) {
     const boundary = /([\s\S]*?A perfect, beautiful, boring human hallway\.\s*\n+\s*For now\.)(\s+The rain started as a lousy spit[\s\S]*)$/i;
     const match = out.match(boundary);
     if (match) {
@@ -3653,9 +3705,12 @@ function buildDocxDocument(project = {}, chapters = [], settings = {}, dim = { w
     );
   }
 
-  const frontMatter = safeDocChapters.filter((chapter) => isFrontMatter(chapter));
+  // WAVE5-SETTINGS: front/back matter inclusion is user-controllable.
+  const frontMatter = getSetting('include_front_matter', true)
+    ? safeDocChapters.filter((chapter) => isFrontMatter(chapter)) : [];
   const bodyMatter = safeDocChapters.filter((chapter) => isBodyChapter(chapter));
-  const backMatter = safeDocChapters.filter((chapter) => isBackMatter(chapter));
+  const backMatter = getSetting('include_back_matter', true)
+    ? safeDocChapters.filter((chapter) => isBackMatter(chapter)) : [];
 
   frontMatter.forEach((chapter) => {
     const raw = normalizeDocxMarkdown(chapter.content_md || '');

@@ -38,7 +38,7 @@ import {
 export const VERSION = 'ANTI-CHATBOT-RECAST-PIPELINE v5.0 — 2026-06-09';
 
 /**
- * Dedicated Ollama model for conservative prose recasting.
+ * Dedicated llama.cpp model for conservative prose recasting.
  * Has a specialized system prompt for prose editing, not general chat.
  */
 export const RECAST_MODEL_NAME = 'prose-recast-polisher';

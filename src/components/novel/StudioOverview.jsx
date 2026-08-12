@@ -124,8 +124,11 @@ export default function StudioOverview({
   const draftedBody = bodyChapters.filter((chapter) => chapterHasContent(chapter)).length;
   const totalBody = bodyChapters.length || Number(project?.chapter_target || 0) || safeChapters.length || 0;
 
-  const wordCount = Number(project?.word_count || 0) || countChapterWords(safeChapters);
-  const targetWords = Number(project?.target_word_count || 0);
+  // WAVE4-OFFLOADREAD: total_word_target is the real schema field — the old
+  // read used a name that never existed on the entity, so the Word Target
+  // meter sat at 0% forever. total_word_count is the Wave-2 rollup.
+  const wordCount = Number(project?.total_word_count || 0) || countChapterWords(safeChapters);
+  const targetWords = Number(project?.total_word_target || 0);
   const targetChapters = Number(project?.chapter_target || totalBody || 0);
 
   const draftProgress = targetChapters > 0 ? drafted / targetChapters : 0;
@@ -140,7 +143,12 @@ export default function StudioOverview({
     'seed_concept',
   ];
 
-  const foundationDone = foundationFields.filter((field) => safeText(project?.[field]).length > 50).length;
+  // WAVE4-OFFLOADREAD: a field offloaded to *_url has its inline copy blanked —
+  // count it as done when either form is present, so a full 40KB story bible
+  // stops reading "0 of 6 documents populated".
+  const foundationDone = foundationFields.filter(
+    (field) => safeText(project?.[field]).length > 50 || safeText(project?.[`${field}_url`]).length > 0
+  ).length;
   const foundationTotal = foundationFields.length;
   const foundationProgress = foundationTotal > 0 ? foundationDone / foundationTotal : 0;
 

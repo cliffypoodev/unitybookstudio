@@ -13,6 +13,7 @@
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
 import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, findOutlineOffenders, buildOutlineChapterRepairPrompt, spliceOutlineChapters, rebuildOutlineMd } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-2/3
 import { scrubModelLeaks, scrubOutlineChapters } from '@/lib/modelLeakGuard'; // LEAKFIX-2
@@ -20,7 +21,15 @@ import { BIBLE_FIELD_FLOORS, fieldLengthOk, buildFieldRetryAppendix } from '@/li
 import { unwrapIntegrationResult } from '@/lib/autonovel';
 import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from '@/lib/nameHygieneRules';
 
-console.log('[BIBLE-PARALLEL] loaded: RECOVERY v3 strict investigative nonfiction + no fake interviews/personas');
+// TELEMETRY-1: a LOAD banner describes what a module CAN do; it must never read
+// like a statement about the run in front of you. This one said "strict
+// investigative nonfiction" on every import, so the console for a gothic NOVEL
+// announced a nonfiction ruleset that the code correctly was not applying
+// (every rule below is gated on isNonfictionSettings). Diagnosis in this app is
+// done by reading the console, so a banner that misreports the mode costs real
+// time - it cost some on The Gilded Hour run, 2026-08-04. The mode the run
+// ACTUALLY resolved is logged at Batch 1 instead, where it can be trusted.
+console.log('[BIBLE-PARALLEL] loaded: fiction + nonfiction bible generation (nonfiction firewall available)');
 
 function clipText(text = '', max = 4000) {
   return typeof text === 'string' ? text.slice(0, max) : '';
@@ -30,8 +39,9 @@ function safeString(value = '') {
   return typeof value === 'string' ? value : value == null ? '' : String(value);
 }
 
+// NFCLASS-1: one authority. See src/lib/projectType.js.
 function isNonfictionSettings(settings = {}) {
-  return String(settings.book_type || '').toLowerCase() === 'nonfiction';
+  return isNonfictionProjectAuthority(settings);
 }
 
 function getResearchText(settings = {}) {
@@ -339,7 +349,7 @@ Return JSON only: { "voice_md": "..." }`;
 
 // ── Batch 2 Prompts ──────────────────────────────────────────────────────
 
-function buildCanonPrompt(seedConcept, settings, worldMd) {
+function buildCanonPrompt(seedConcept, settings, worldMd, charactersMd) {
   const ctx = buildContextBlock(seedConcept, settings);
   const isFiction = !isNonfictionSettings(settings);
   const nonfictionRules = isFiction ? '' : buildStrictNonfictionRules(settings);
@@ -349,6 +359,9 @@ ${ctx}
 
 WORLD (already generated):
 ${clipText(worldMd, 3000)}
+
+CHARACTERS (already generated — these identities, relationships, pronouns, and roles are binding):
+${clipText(charactersMd, 3500)}
 
 Generate canon_md: ${isFiction
     ? 'Hard facts and consistency anchors that future chapters must respect. Names, dates, locations, rules, power structures, relationships. 200+ words.'
@@ -375,7 +388,7 @@ Generate mystery_md: ${isFiction
 Return JSON only: { "mystery_md": "..." }`;
 }
 
-function buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd) {
+function buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd, canonMd, mysteryMd) {
   const constraintBlock = buildSetupConstraints(settings);
   const ctx = buildContextBlock(seedConcept, settings);
   const chapterCount = settings.chapter_target || 20;
@@ -414,6 +427,12 @@ ${clipText(worldMd, 2500)}
 
 PEOPLE / STAKEHOLDER LANDSCAPE (already generated):
 ${clipText(charactersMd, 2500)}
+
+CANON / CONTINUITY CONTRACT (binding):
+${clipText(canonMd, 3000)}
+
+MYSTERY / REVELATION PATH (binding):
+${clipText(mysteryMd, 2500)}
 ${nonfictionOutlineRules}
 
 Generate:
@@ -548,8 +567,27 @@ const twistsSchema = {
 
 // ── Main Entry Point ─────────────────────────────────────────────────────
 
+/**
+ * RESUME-1 — the six bible fields, in generation order. Exported so a caller can
+ * tell a PARTIAL project (interrupted, resume it) from a COMPLETE one (a
+ * deliberate rebuild, do not) without keeping its own copy of the list.
+ */
+export const BIBLE_FIELDS = Object.freeze([
+  'world_md', 'characters_md', 'voice_md', 'canon_md', 'mystery_md', 'outline_md',
+]);
+
+/**
+ * The five that resume. outline_md is deliberately excluded: it is generated
+ * together with the structured `chapters` array and a truncation-repair loop, so
+ * carrying the markdown alone would leave the chapter list behind and produce a
+ * bible whose outline and chapters disagree — the exact class of defect this
+ * codebase keeps paying for. It is the last field, so an interrupted run still
+ * saves five of six calls.
+ */
+export const BIBLE_RESUMABLE_FIELDS = Object.freeze(BIBLE_FIELDS.slice(0, 5));
+
 export async function generateBibleParallel(seedConcept, settings, options = {}) {
-  const { onProgress, nameBlock = '' } = options;
+  const { onProgress, nameBlock = '', resumeFrom = {} } = options;
   const model = pickModel('foundation', settings);
   const fallback = pickFallbackModel('foundation');
   const isFiction = !isNonfictionSettings(settings);
@@ -567,23 +605,60 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
     return unwrapIntegrationResult(raw);
   };
 
+  /**
+   * RESUME-1 — do not regenerate a field this project already has.
+   *
+   * MEASURED on The Gilded Hour, 2026-08-04. A page reload at 3:25:34 - with no
+   * file change behind it, so simply a dropped HMR socket over the LAN - threw
+   * away four minutes of completed work and restarted at world (1/6). There was
+   * no resume path of any kind: this function always began at buildWorldPrompt.
+   * A six-field sequential run takes ~20 minutes on a local 32B, so on any link
+   * that can drop, or any laptop that can sleep, the run is racing the network
+   * and losing everything each time it loses.
+   *
+   * A carried field must clear the SAME length floor a freshly generated one
+   * does (fieldLengthOk), so resume can never smuggle in a short field that the
+   * field guard would have rejected. Whether resuming is appropriate at all is
+   * the caller's decision - interrupted runs resume, deliberate rebuilds do not -
+   * so resumeFrom defaults to {} and behaviour is unchanged without it.
+   */
+  const resumedFields = [];
+  const generateField = async (field, step, promptBuilder) => {
+    const carried = resumeFrom?.[field];
+    if (fieldLengthOk(field, carried)) {
+      resumedFields.push(field);
+      const n = String(carried).trim().length;
+      console.log(`[RESUME-1] ${field}: reusing ${n} saved chars — model call skipped`);
+      onProgress?.(`Bible: ${step} — reusing saved work…`);
+      return carried;
+    }
+    onProgress?.(`Bible: ${step}…`);
+    const r = await callLLM(promptBuilder(), singleFieldSchema(field));
+    return r?.[field] || '';
+  };
+
   // ── BATCH 1: world + people/stakeholders + voice (independent) ──
   onProgress?.('Bible: Batch 1/3 — world, people, voice…');
+  // TELEMETRY-1: state what this run actually resolved, once, where a reader
+  // looking for the cause of a bad bible will find it. chapterCount is included
+  // because it is read from settings.chapter_target and a wrong value there is
+  // invisible until the outline comes back the wrong length (see CHAPCOUNT-1).
+  console.log(
+    `[BIBLE-PARALLEL] mode=${isFiction ? 'fiction' : 'nonfiction'} `
+    + `genre=${settings?.genre || '(none)'}/${settings?.subgenre || '(none)'} `
+    + `chapters=${settings?.chapter_target ?? '(unset)'} model=${model} fallback=${fallback}`,
+  );
   console.log('[BIBLE-PARALLEL] Starting Batch 1 (world + people/stakeholders + voice)');
   const t1 = Date.now();
 
   // GATEFIX-18: SEQUENTIAL — one local LLM call at a time (M1 constraint).
   // Promise.all here fired 3 concurrent requests and broke the local server.
-  onProgress?.('Bible: world (1/6)…');
-  const worldResult = await callLLM(buildWorldPrompt(seedConcept, settings, nameBlock), singleFieldSchema('world_md'));
-  onProgress?.('Bible: people (2/6)…');
-  const charsResult = await callLLM(buildCharactersPrompt(seedConcept, settings, nameBlock), singleFieldSchema('characters_md'));
-  onProgress?.('Bible: voice (3/6)…');
-  const voiceResult = await callLLM(buildVoicePrompt(seedConcept, settings), singleFieldSchema('voice_md'));
-
-  let worldMd = worldResult?.world_md || '';
-  let charactersMd = charsResult?.characters_md || '';
-  let voiceMd = voiceResult?.voice_md || '';
+  let worldMd = await generateField('world_md', 'world (1/6)',
+    () => buildWorldPrompt(seedConcept, settings, nameBlock));
+  let charactersMd = await generateField('characters_md', 'people (2/6)',
+    () => buildCharactersPrompt(seedConcept, settings, nameBlock));
+  let voiceMd = await generateField('voice_md', 'voice (3/6)',
+    () => buildVoicePrompt(seedConcept, settings));
 
   // FIELDGUARD-1: a field below its floor gets ONE retry with an explicit
   // length demand; still short -> throw. The catch in the caller surfaces
@@ -614,6 +689,9 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
   }
 
   console.log('[BIBLE-PARALLEL] Batch 1 done in', Math.round((Date.now() - t1) / 1000), 's. World:', worldMd.length, '| People:', charactersMd.length, '| Voice:', voiceMd.length);
+  if (resumedFields.length) {
+    console.log(`[RESUME-1] carried ${resumedFields.length} field(s) from a previous interrupted run: ${resumedFields.join(', ')}`);
+  }
 
   // ── BATCH 2: canon + mystery + outline (need Batch 1) ──
   onProgress?.('Bible: Batch 2/3 — canon, investigation path, outline…');
@@ -621,20 +699,23 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
   const t2 = Date.now();
 
   // GATEFIX-18: SEQUENTIAL — one local LLM call at a time (M1 constraint).
-  onProgress?.('Bible: canon (4/6)…');
-  const canonResult = await callLLM(buildCanonPrompt(seedConcept, settings, worldMd), singleFieldSchema('canon_md'));
-  onProgress?.('Bible: investigation path (5/6)…');
-  const mysteryResult = await callLLM(buildMysteryPrompt(seedConcept, settings, charactersMd), singleFieldSchema('mystery_md'));
-  onProgress?.('Bible: outline (6/6)…');
-  const outlineResultRaw = await callLLM(buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd), outlineSchema, { max_tokens: 16384 });
+  let canonMd = await generateField('canon_md', 'canon (4/6)',
+    () => buildCanonPrompt(seedConcept, settings, worldMd, charactersMd));
+  // The outline must never be built from a canon draft that later fails its
+  // own field guard. Repair/validate canon before it becomes a dependency.
+  canonMd = await fieldGuardRetry('canon_md', canonMd, () => buildCanonPrompt(seedConcept, settings, worldMd, charactersMd));
 
-  let canonMd = canonResult?.canon_md || '';
-  let mysteryMd = mysteryResult?.mystery_md || '';
-  let outlineResult = outlineResultRaw || {};
-
-  // FIELDGUARD-1: same floors for the batch-2 documents.
-  canonMd = await fieldGuardRetry('canon_md', canonMd, () => buildCanonPrompt(seedConcept, settings, worldMd));
+  let mysteryMd = await generateField('mystery_md', 'investigation path (5/6)',
+    () => buildMysteryPrompt(seedConcept, settings, charactersMd));
   mysteryMd = await fieldGuardRetry('mystery_md', mysteryMd, () => buildMysteryPrompt(seedConcept, settings, charactersMd));
+
+  onProgress?.('Bible: outline (6/6)…');
+  const outlineResultRaw = await callLLM(
+    buildOutlinePrompt(seedConcept, settings, worldMd, charactersMd, canonMd, mysteryMd),
+    outlineSchema,
+    { max_tokens: 16384 }
+  );
+  let outlineResult = outlineResultRaw || {};
 
   if (!isFiction) {
     canonMd = stripNonfictionScarTissue(canonMd);
@@ -707,8 +788,16 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
       dupe = analyzeOutlineDuplication(chapters);
     }
     if (dupe.critical || forced.length) {
-      console.warn('[OUTLINE-DEDUPE] Accepting best-effort outline with remaining issues after ' + round + ' round(s): ' + dupe.issues.slice(0, 6).join(' | '));
-      onProgress?.('Bible: WARNING - outline still has issues after repair. Review the outline before drafting.');
+      const unresolved = [...dupe.issues.slice(0, 8), ...forced.map((n) => 'Ch.' + n + ' lost required content')];
+      const error = new Error(
+        'Story Bible rejected: the outline still contains repeated/alternate events or premature endings after ' +
+        round + ' repair round(s). ' + unresolved.join(' | ')
+      );
+      error.name = 'NarrativeContractError';
+      error.code = 'OUTLINE_CONTRACT_UNRESOLVED';
+      error.issues = unresolved;
+      console.error('[NARRATIVE-CONNECT] Hard-blocking unresolved outline:', error);
+      throw error;
     } else if (outlineChanged) {
       console.log('[OUTLINE-DEDUPE] Outline converged to distinct chapters after targeted repair.');
     }

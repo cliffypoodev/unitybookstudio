@@ -524,7 +524,13 @@ export const sceneBeatSchema = {
         type: 'object',
         properties: {
           scene_number: { type: 'number' },
+          scene_id: { type: 'string', description: 'Stable ID in the form chNN-sNN. One planned scene equals one ID and one accepted draft.' },
           scene_goal: { type: 'string' },
+          entry_state: { type: 'string', description: 'Concrete story state at scene opening: location, time, character status, injuries, knowledge, and important object ownership.' },
+          required_events: { type: 'array', items: { type: 'string' }, description: 'Events that must happen exactly once in this scene.' },
+          forbidden_events: { type: 'array', items: { type: 'string' }, description: 'Events or outcomes this scene must not repeat, reverse, or introduce.' },
+          exit_state: { type: 'string', description: 'Concrete changed state handed to the next scene.' },
+          continuity_dependencies: { type: 'array', items: { type: 'string' }, description: 'Prior chapter/scene facts this scene depends on and must preserve.' },
           pov_character: { type: 'string' },
           setting: { type: 'string' },
           characters_present: { type: 'array', items: { type: 'string' }, description: 'canonical_name of every character in the scene. ONLY names from canon_cast.' },
@@ -535,7 +541,29 @@ export const sceneBeatSchema = {
           exit_hook: { type: 'string' },
           intimacy_level: { type: 'number', description: 'Optional 0-4. 0=none, 1=tension/flirting, 2=partial physical contact, 3=explicit sexual content, 4=intensely explicit. Only include when the scene involves romantic/sexual content.' },
         },
-        required: ['scene_number', 'scene_goal', 'characters_present', 'conflict', 'emotional_arc', 'tension_level'],
+        // BEATFIELD-1 — 'setting' belongs here because the validator demands it.
+        //
+        // MEASURED on The Gilded Hour ch.1, 2026-08-04. BEATPLAN-1 rejects any beat
+        // without setting/location (ProjectStudio: `if (!String(nb?.setting ||
+        // nb?.location || '').trim()) missing.push('setting')`), but this schema —
+        // the one the beat request is constrained by — declared `setting` optional.
+        // So the architect legally omitted it on all three scenes, the plan was
+        // rejected, and the chapter re-planned:
+        //
+        //   [TIMING] architect | deepseek-r1-32b | 174846ms
+        //   [BEATPLAN-1] Ch.1 attempt 1: 3 beat(s) missing required fields —
+        //                ch01-s01: missing setting | ch01-s02 | ch01-s03
+        //   [TIMING] architect | deepseek-r1-32b | 153542ms
+        //
+        // maxContractAttempts is 4 for fiction, so a chapter burned ~11 minutes of
+        // local model time and then shipped the flagged plan anyway (attempt
+        // exhaustion accepts it). Every chapter. Every fiction book. A 20-chapter
+        // book loses roughly 3.7 hours to one absent array entry.
+        //
+        // The validator's three demands are setting, characters_present and
+        // emotional_arc; the last two were already required. This makes the list the
+        // decoder is given and the list the app enforces the same list.
+        required: ['scene_number', 'scene_id', 'scene_goal', 'entry_state', 'required_events', 'exit_state', 'setting', 'characters_present', 'conflict', 'emotional_arc', 'tension_level'],
       },
     },
   },
@@ -604,7 +632,7 @@ export function createInitialProjectSettings(bookType = 'fiction') {
       beat_style: 'Character Study',
       scene_beat_style: 'Character Study',
       nf_structure_mode: '',
-      author_name: 'Hermes Agent',
+      author_name: '',
       author_voice: 'Custom / None',
       author_voice_notes: '',
       language_intensity: 2,
@@ -634,7 +662,7 @@ export function createInitialProjectSettings(bookType = 'fiction') {
         beat_style: '',
         scene_beat_style: '',
         nf_structure_mode: 'prescriptive',
-        author_name: 'Hermes Agent',
+        author_name: '',
         author_voice: 'Custom / None',
         author_voice_notes: '',
         language_intensity: 2,
@@ -657,7 +685,7 @@ export function createInitialProjectSettings(bookType = 'fiction') {
         beat_style: 'Tension-Driven',
         scene_beat_style: 'Tension-Driven',
         nf_structure_mode: '',
-        author_name: 'Hermes Agent',
+        author_name: '',
         author_voice: 'Custom / None',
         author_voice_notes: '',
         language_intensity: 2,
@@ -1234,7 +1262,7 @@ export function buildChapterPlanPrompt(project) {
   return `${constraintBlock}\n${contextHeader}\n${researchBlock}${spicePlanBlock}\nBuild a clean chapter plan for this project.\n\nProject title: ${project.title || 'Untitled Project'}\nTagline: ${project.tagline || ''}\nSeed concept: ${project.seed_concept}\n\nWorld guide:\n${clipText(project.world_md, 2200)}\n\nCharacter / stakeholder guide:\n${clipText(project.characters_md, 2200)}\n\nOutline guide:\n${clipText(project.outline_md, 2200)}\n\nCanon guide:\n${clipText(project.canon_md, 1800)}\n\nRequirements:\n- Return exactly one chapters array.\n- Create EXACTLY ${chapterCount} chapters — not fewer, not more. The user configured ${chapterCount} chapters and you must deliver all of them.\n- Each item must include chapter_number, title, and beat_summary.\n- Number chapters sequentially from 1 to ${chapterCount}.\n- The plan must match the selected genre, POV, tense, and structure settings.\n- Beat summaries must be specific enough to draft from directly.\n- Structural labels, twist labels, act labels, midpoint markers, and part labels belong in beat_summary only — never in title.\n${CHAPTER_TITLE_HYGIENE_BLOCK}\nCRITICAL: Do NOT stop at 10 chapters. You MUST output all ${chapterCount} chapters.\n\nReturn JSON only.`;
 }
 
-export async function buildSceneBeatPrompt(project, chapter, previousChapter, chapters) {
+export async function buildSceneBeatPrompt(project, chapter, previousChapter, chapters, priorCoverage = '') {
   // Nonfiction projects use the structured nonfiction beat system
   if (project.book_type === 'nonfiction') {
     return buildNonfictionBeatPrompt(project, chapter, previousChapter, chapters);
@@ -1253,6 +1281,35 @@ export async function buildSceneBeatPrompt(project, chapter, previousChapter, ch
   const constraintBlock = buildSetupConstraints(project);
   const scenePovRule = SCENE_POV_RULES[project.pov_mode] || SCENE_POV_RULES['third-close'];
   const targetWords = project.chapter_length_target || project.target_chapter_words || 3500;
+
+  // NARRATIVE-CONNECT-1: fiction previously accepted `chapters` but ignored
+  // it. Give the beat architect the whole ordered chapter contract so later
+  // chapters cannot unknowingly replay an earlier death, reveal, departure,
+  // confrontation, or ending.
+  const fullChapterPlanContext = (Array.isArray(chapters) ? chapters : [])
+    .filter(Boolean)
+    .sort((a, b) => Number(a.chapter_number || 0) - Number(b.chapter_number || 0))
+    .map((item) => {
+      const marker = Number(item.chapter_number) === Number(chapter.chapter_number) ? ' [CURRENT]' : '';
+      return `Ch.${item.chapter_number}${marker}: ${item.title || 'Untitled'} — ${String(item.beat_summary || '').replace(/\s+/g, ' ').trim()}`;
+    })
+    .join('\n');
+
+  // NARRATIVE-CONNECT-3: prior-chapter coverage memory.
+  // fullChapterPlanContext above is OUTLINE INTENT ONLY (beat_summary). It does
+  // not say what earlier chapters actually narrated. priorCoverage is the same
+  // rolling-context block the prose writer already receives, built from each
+  // earlier chapter's saved summary_json (falling back to beat_summary). Without
+  // it the planner can hand this chapter an event an earlier chapter consumed.
+  const priorCoverageBlock = (typeof priorCoverage === 'string' && priorCoverage.trim())
+    ? `
+ALREADY NARRATED IN EARLIER CHAPTERS — DO NOT PLAN ANY SCENE THAT REPEATS THIS.
+You may REFERENCE these events in passing. You may NOT re-stage, re-enact, re-reveal,
+or re-summarize them as a scene beat. If this chapter's outline overlaps anything
+below, plan the CONSEQUENCE or ESCALATION instead, never a replay.
+${clipText(priorCoverage, 9000)}
+`
+    : '';
 
   // Scene-count estimate.
   // For NOVELS: use word-count-based formula (~1 scene per 1200 words).
@@ -1431,27 +1488,42 @@ ${clipText(project.characters_md, 1600)}
 Outline context:
 ${clipText(project.outline_md, 1600)}
 
+FULL ORDERED CHAPTER CONTRACT (every event below has one home; never replay it):
+${clipText(fullChapterPlanContext, 12000)}
+
 Canon rules:
 ${clipText(project.canon_md, 1200)}
 
 Mystery/tension thread:
-${clipText(project.mystery_md, 800)}
+${clipText(project.mystery_md, 1200)}
+
+Twist/reversal contract (place each twist only in its assigned chapter; never create an alternate version):
+${clipText(project.twists_md, 2400)}
 ${voiceGuide ? `\nVoice guide:\n${voiceGuide}` : ''}
 
 CHAPTER ${chapter.chapter_number}: "${chapter.title}"
 Beat summary: ${chapter.beat_summary}
 
-Previous chapter ending:
-${previousChapter?.content_md?.slice(-800) || 'No previous chapter yet.'}
+PREVIOUS CHAPTER ENDING — BINDING CONTINUITY CONTRACT:
+${previousChapter?.content_md?.slice(-1600) || 'No previous chapter yet.'}
 
+CHAPTER OPENING RULE (ABSOLUTE): Scene 1's entry_state MUST be continuous with the ending above — either continue directly from that situation, or plan an explicit time/location jump that ACKNOWLEDGES it. NEVER reset, undo, relocate, or ignore what that ending established: location (inside vs outside), sealed or destroyed exits, who holds which objects, injuries, time of day, and active deadlines. If the previous chapter ended with the characters OUTSIDE a place, this chapter does not open with them inside it unless a scene shows how they returned.
+${priorCoverageBlock}
 ${SCENE_BEAT_UNIQUENESS_BLOCK}
 Generate approximately ${scenesEstimate} scene beats for this chapter (~${targetWords} words total).
 
 Each beat must include:
 - scene_number: sequential within this chapter
+- scene_id: stable ID formatted ch${String(chapterNumber).padStart(2, '0')}-sNN
 - scene_goal: what this scene must accomplish for the story
+- entry_state: concrete location/time, who is alive/present/injured, what they know, and ownership of important objects
+- required_events: events that happen exactly once in this scene
+- forbidden_events: earlier deaths, reveals, confrontations, departures, or endings that must not be replayed
+- exit_state: the concrete changed state handed to the next scene
+- continuity_dependencies: earlier facts this scene must preserve
 - pov_character: who holds the camera (must obey POV mode rules)
-- setting: where and when
+- characters_present: the canonical name of EVERY character physically present in the scene — NEVER an empty list
+- setting: a SPECIFIC named place and time. Consecutive scenes must move to DIFFERENT settings unless a required event pins them to the same place — if two scenes share a setting, the second must state what changed there
 - conflict: the specific tension or obstacle in this scene
 - emotional_arc: the emotional shift from scene start to end (e.g., "hopeful → desperate")
 - tension_level: 1-10 scale for this scene's intensity
@@ -1460,8 +1532,12 @@ Each beat must include:
 Rules:
 - Beats must form a coherent arc across the chapter with rising tension
 - Each beat must advance plot, character, or both — no filler scenes
+- Every scene's required_events must include at least ONE concrete, externally visible event — an action, discovery, confrontation, or physical change in the situation. "Notices", "reflects", "discusses", "realizes" are NOT events; pair them with a concrete event or the plan will be rejected
+- STAKES ARE NOUNS: any reveal, confession, or discovery event must name the SPECIFIC thing revealed — the document, the program, the person, the act — drawn from the story bible or earlier chapters. "Marcus reveals the truth about the cover-up" is INVALID phrasing; "Marcus admits he signed the falsified seal report that blamed Ortiz" is the required shape. Never write "the truth", "the secret", or "the past" as the object of a reveal
 - The final beat's exit_hook must create forward momentum into the next chapter
-- Every beat must change the story state. If two beats share the same location, people, and core action, merge them or replace the later one with consequence/fallout.
+- Every beat must change the story state. The exit_state of scene N must be compatible with the entry_state of scene N+1.
+- A death, departure, revelation, confrontation, transfer of an important object, climax, or ending has ONE owning scene_id. Never plan an alternate take of the same event.
+- If two beats share the same location, people, and core action, merge them or replace the later one with consequence/fallout.
 - Scene 2 and later must NEVER restart the chapter premise, re-enter the same initial location, or re-explain the same reveal.
 - Respect the canon document — do not contradict established facts
 - Match the configured beat style: ${project.beat_style || 'genre default'}
@@ -1661,7 +1737,7 @@ Return JSON only.`;
 export function buildCoverPrompt(project) {
   const typeDescriptor = project.book_type === 'nonfiction' ? 'premium nonfiction book' : 'premium fiction book';
 
-  return `Design a sophisticated cover for a ${typeDescriptor} titled "${project.title}" by ${project.author_name || 'Hermes Agent'}.\n\nGenre: ${project.genre || 'General'}\nTagline: ${project.tagline}\nSeed concept: ${project.seed_concept}\n\nArt direction:\n- elegant, premium publishing feel\n- moody, atmospheric composition\n- symbolic imagery over literal scene recreation\n- rich texture and strong shelf presence\n- no mockup, only cover artwork\n- no readable text baked into the image`;
+  return `Design a sophisticated cover for a ${typeDescriptor} titled "${project.title}"${project.author_name ? ` by ${project.author_name}` : ''}.\n\nGenre: ${project.genre || 'General'}\nTagline: ${project.tagline}\nSeed concept: ${project.seed_concept}\n\nArt direction:\n- elegant, premium publishing feel\n- moody, atmospheric composition\n- symbolic imagery over literal scene recreation\n- rich texture and strong shelf presence\n- no mockup, only cover artwork\n- no readable text baked into the image`;
 }
 
 export function formatPhase(phase = 'foundation') {

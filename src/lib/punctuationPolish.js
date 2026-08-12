@@ -9,6 +9,8 @@
  * Enhanced punctuation artifact cleanup.
  * Mutates loaded[].content in place.
  */
+import { getSetting } from './settingsRead.js'; // WAVE5-SETTINGS
+
 export function runPunctuationCleanup(loaded, onProgress) {
   onProgress?.('Polish: Cleaning punctuation artifacts…');
   const changes = [];
@@ -114,25 +116,27 @@ export function runPunctuationCleanup(loaded, onProgress) {
     // indicate an appositive: "The topic, according to his biography, is...").
     const SV_VERBS = /\b(is|are|was|were|has|have|had|does|did|do|will|would|could|should|can|may|might|shall|sits|sat|stands|stood|walks|walked|runs|ran|goes|went|comes|came|gets|got|makes|made|takes|took|gives|gave|keeps|kept|lets|left|puts|set|hits|cut|falls|fell|rose|grew|pays|paid|costs|sent|spent|built|led|met|won|sold|bought|drove|wore|wrote|read|chose|hung|spoke|meant|hid|brought|taught|fought|caught|lost|found|held|told|heard|felt|knew|thought|saw|showed|seemed|appeared|remained|became|began|started|stopped|continued|turned|proved|happened|existed|occurred|lived|died|worked|played|moved|changed|produced|created|provided|offered|allowed|caused|raised|needed|wanted|required|vanished|implied|represented|included|involved|operated|generated|converge|converges|generates|operates)\b/;
     
-    const svOriginal = f.content;
-    f.content = f.content.replace(
-      new RegExp('(\\b\\w+)\\s*,\\s+(' + SV_VERBS.source.slice(2, -2) + ')', 'g'),
-      (match, subject, verb, offset) => {
-        // Skip participial modifiers: "posture, settling" is correct grammar
-        if (/ing$/.test(verb)) return match;
-        // Skip contracted tag questions: "clean, isn't it?" is correct
-        if (/^(?:isn|aren|wasn|weren|doesn|didn|don|won|can|couldn|shouldn|wouldn)/i.test(verb)) return match;
-        // Skip adjective/adverb subjects — these aren't subject-verb errors
-        if (/(?:ly|ed|ful|ous|ive|al|ent|ant|ible|able)$/.test(subject)) return match;
-        const afterVerb = svOriginal.substring(offset + match.length, offset + match.length + 40);
-        const commaInAfter = afterVerb.indexOf(',');
-        const beforeSubject = svOriginal.substring(Math.max(0, offset - 5), offset);
-        if (commaInAfter >= 0 && commaInAfter < 35) return match;
-        if (beforeSubject.includes(',')) return match;
-        punctFixed++;
-        return subject + ' ' + verb;
-      }
-    );
+    // POLISHFIX-7A: the subject-verb comma-split auto-fix is RETIRED to flag-only.
+    // Its appositive guards looked 35 chars past the verb and 5 chars before the
+    // subject — a LONG appositive ("The company, the parent of the works, stood…")
+    // has its opening comma outside that window, so the rule deleted the closing
+    // comma and manufactured a dangling appositive. Measured on two live NF polish
+    // saves (2026-08-06 and 2026-08-07). A regex cannot tell a long appositive from
+    // a subject-verb error without parsing; per the antiDetectionPolish Step A
+    // precedent ("content deletion measured"), this becomes a loud flag and the
+    // proofreader surface owns the judgment call.
+    const svCandidates = [];
+    const svRx = new RegExp('(\\b\\w+)\\s*,\\s+(' + SV_VERBS.source.slice(2, -2) + ')\\b', 'g');
+    let svM;
+    while ((svM = svRx.exec(f.content)) !== null) {
+      if (/ing$/.test(svM[2])) continue;
+      svCandidates.push((svM[0] || '').slice(0, 60));
+    }
+    if (svCandidates.length > 0) {
+      const chNumSv = f.chapter?.chapter_number || '?';
+      changes.push('Ch.' + chNumSv + ': ' + svCandidates.length + ' subject-verb comma candidate(s) FLAGGED, not auto-fixed (POLISHFIX-7A)');
+      console.warn('[POLISH] [POLISHFIX-7A] Ch.' + chNumSv + ': ' + svCandidates.length + ' SV-comma candidate(s) flagged only: ' + svCandidates.slice(0, 3).join(' | '));
+    }
 
     // "yet" misuse detector: flag (not auto-fix) instances where "yet" is used
     // as a list connector instead of a conjunction. Pattern: ", yet [noun/gerund]"
@@ -220,11 +224,12 @@ export function runEmDashReducer(loaded, onProgress) {
     const dashes = (f.content.match(/\u2014/g) || []).length;
     const per1k = dashes / (wordCount / 1000);
 
-    // Only reduce if above 6 per 1K (give some headroom above the 4 target)
-    if (per1k <= 6) continue;
+    // WAVE5-SETTINGS: trigger threshold comes from Settings (default 6/1K);
+    // target stays one below the trigger, preserving the historical 6→5 gap.
+    const emdashTrigger = Math.max(2, Number(getSetting('emdash_target', 6)));
+    if (per1k <= emdashTrigger) continue;
 
-    // Target: reduce to ~5 per 1K
-    const targetDashes = Math.round(5 * wordCount / 1000);
+    const targetDashes = Math.round((emdashTrigger - 1) * wordCount / 1000);
     const excess = dashes - targetDashes;
     if (excess <= 0) continue;
 
@@ -422,10 +427,12 @@ export function runProgressiveReducer(loaded, onProgress) {
     const per10k = allProg / (wordCount / 10000);
 
     // Fire on ANY chapter with progressive > 8/10K (published norm)
-    if (per10k <= 8) { chaptersSkipped++; continue; }
+    // WAVE5-SETTINGS: trigger from Settings (default 8/10K); target keeps the 8→6 gap.
+    const progTrigger = Math.max(3, Number(getSetting('progressive_threshold', 8)));
+    if (per10k <= progTrigger) { chaptersSkipped++; continue; }
 
     // Target: reduce to 6/10K — aggressive
-    const target = Math.round(6 * wordCount / 10000);
+    const target = Math.round(Math.max(1, progTrigger - 2) * wordCount / 10000);
     const toConvert = allProg - target;
     if (toConvert <= 0) { chaptersSkipped++; continue; }
 

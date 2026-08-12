@@ -16,6 +16,11 @@ dist
 dist-ssr
 *.local
 
+apply_*.py
+full_prompt.md
+public/ch5-trimmed.txt
+test/_beatloop1/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

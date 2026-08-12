@@ -1,3 +1,6 @@
+import { parseCustomBannedWords } from './settingsRead.js'; // WAVE5-SETTINGS
+
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 /**
  * Pure mechanical manuscript analysis — no LLM involved.
  * Used by the Review tab dashboard and chapter issue popups.
@@ -328,10 +331,9 @@ export function isComedyProject(project) {
   return genre.includes('comedy') || genre.includes('satir') || genre.includes('humor') || genre.includes('absurd') || genre.includes('parody') || genre.includes('caper') || beat.includes('comedy') || beat.includes('screwball') || beat.includes('deadpan') || beat.includes('dry wit') || beat.includes('absurdist') || beat.includes('caper');
 }
 
+// NFCLASS-1: one authority. See src/lib/projectType.js.
 export function isNonfictionProject(project) {
-  if (project?.book_type === 'nonfiction') return true;
-  if (project?.project_type === 'nonfiction') return true;
-  return false;
+  return isNonfictionProjectAuthority(project);
 }
 
 export function isEroticaProject(project) {
@@ -360,8 +362,12 @@ export function calculateManuscriptStatsNonfiction(text) {
 
   let bannedCount = 0;
   const bannedFound = [];
-  for (const word of NF_BANNED_WORDS) {
-    const rx = new RegExp('\\b' + word + '\\b', 'gi');
+  // WAVE5-SETTINGS: user flag-words (custom_banned_words, bare entries) are
+  // counted in the report alongside the built-in list.
+  let userFlagWords = [];
+  try { userFlagWords = parseCustomBannedWords().flagWords; } catch { userFlagWords = []; }
+  for (const word of [...NF_BANNED_WORDS, ...userFlagWords]) {
+    const rx = new RegExp('\\b' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
     const m = text.match(rx) || [];
     if (m.length > 0) { bannedCount += m.length; bannedFound.push({ word, count: m.length }); }
   }

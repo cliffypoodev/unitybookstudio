@@ -11,6 +11,8 @@
 // - Avoid new dependencies.
 // =============================================================
 
+import { getSetting } from './settingsRead.js'; // WAVE5-SETTINGS
+
 import { deduplicateChapters } from '@/lib/chapterDedup';
 import { isFrontMatter, isBackMatter, isBodyChapter } from '@/lib/bibliographyGenerator';
 import { mdToHtml, stripHtmlToText } from '@/lib/mdHtmlConvert';
@@ -418,10 +420,13 @@ export function buildBookHtml(project = {}, chapters = [], publishSettings = {})
 
   html += renderTitlePage(project);
 
-  if (frontMatterChapters.length) {
-    html += frontMatterChapters.map(renderFrontMatterChapter).join('');
-  } else {
-    html += renderDefaultCopyright(project);
+  // WAVE5-SETTINGS: user can exclude front matter from exports entirely.
+  if (getSetting('include_front_matter', true)) {
+    if (frontMatterChapters.length) {
+      html += frontMatterChapters.map(renderFrontMatterChapter).join('');
+    } else {
+      html += renderDefaultCopyright(project);
+    }
   }
 
   html += renderToc(bodyChapters);
@@ -430,9 +435,10 @@ export function buildBookHtml(project = {}, chapters = [], publishSettings = {})
     .map((chapter, index) => renderBodyChapter(project, chapter, index, publishSettings))
     .join('');
 
-  html += backMatterChapters.map(renderBackMatterChapter).join('');
-
-  html += renderAboutAuthor(project, backMatterChapters);
+  if (getSetting('include_back_matter', true)) {
+    html += backMatterChapters.map(renderBackMatterChapter).join('');
+    html += renderAboutAuthor(project, backMatterChapters);
+  }
 
   return html;
 }

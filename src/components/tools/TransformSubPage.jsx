@@ -28,6 +28,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { parseDocxFile } from '@/lib/docxParser';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-4
 import {
   TRANSFORM_CATEGORIES,
   getTransformPrompt,
@@ -530,8 +531,11 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
 
   const projectType = useMemo(() => {
     if (source === 'upload') return 'fiction';
-    const pt = String(project?.project_type || project?.book_type || 'fiction').toLowerCase();
-    return pt.includes('non') || pt === 'nonfiction' ? 'nonfiction' : 'fiction';
+    // NFCLASS-4: this used `project_type || book_type` — the OPPOSITE precedence from the
+    // authority — plus a substring match on 'non', and it never consulted genre. The
+    // authority answers now; this only maps its verdict onto the two-value string the
+    // format catalogue expects.
+    return isNonfictionProjectAuthority(project) ? 'nonfiction' : 'fiction';
   }, [source, project]);
 
   const visibleFormats = useMemo(() => {
@@ -803,7 +807,7 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
       }
       setChapterResults(initialResults);
 
-      setBusyLabel?.(`Transforming ${total} chapters (4-lane pool)…`);
+      setBusyLabel?.(`Transforming ${total} chapters…`);
 
       let completed = 0;
       let failed = 0;
@@ -825,16 +829,29 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
           setChapterProgress({ completed, total, failed });
           setBusyLabel?.(`Transforming chapters… ${completed + failed}/${total}`);
 
-          return result;
+          // WAVE7-CHNUM: carry the chapter's real identity out of the pool so the
+          // saved asset can be numbered correctly even when a chapter fails.
+          return { ...result, chapterNumber: chapter?.chapter_number, title: chapter?.title };
         },
-        { limit: 4 },
+        // WAVE7-CONCURRENCY: the llama router holds one model resident;
+        // parallelDraftPool documents the measured failure from >1 lane.
+        { limit: 1 },
       );
 
       // Auto-save all successful chapter results as a combined PublishingAsset
       if (source === 'project' && project?.id) {
+        // WAVE7-CHNUM: this indexed AFTER filtering, so one failed chapter
+        // renumbered every chapter below it — ch.4's output was saved as
+        // "## Chapter 3". Use the chapter's own number and title, matching the
+        // exported text.
         const successTexts = poolResults
           .filter((r) => r?.status === 'fulfilled' && r.value?.status === 'success')
-          .map((r, i) => `## Chapter ${i + 1}\n\n${r.value.text}`);
+          .map((r) => {
+            const num = r.value.chapterNumber ?? r.value.chapter?.chapter_number;
+            const title = r.value.title || r.value.chapter?.title || '';
+            const heading = num ? `## Chapter ${num}${title ? ': ' + title : ''}` : `## ${title || 'Untitled'}`;
+            return `${heading}\n\n${r.value.text}`;
+          });
 
         if (successTexts.length > 0) {
           savePublishingAsset({
@@ -893,7 +910,7 @@ export default function TransformSubPage({ project, chapters, busyLabel, setBusy
 
         return result;
       },
-      { limit: 4 },
+      { limit: 1 }, // WAVE7-CONCURRENCY: one-slot local server
     );
 
     setBusyLabel?.('');

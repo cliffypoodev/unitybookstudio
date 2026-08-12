@@ -76,6 +76,21 @@ export async function prepareResearchContent(content, projectId) {
 export async function resolveResearchContent(project) {
   if (!project) return '';
 
+  // RESEARCHKEY-1: INLINE research beats the URL whenever inline is the real
+  // brief. The upload path files every research blob under ONE constant key per
+  // project (`research-<projectId>`), the server store's create() pushes
+  // duplicate ids, and get() returns the FIRST match — so a "live" URL resolves
+  // to the OLDEST blob ever stored (measured on the flagship 2026-08-08: the
+  // URL returned a 10,232-char June brief while inline held the current
+  // 73,137-char one; the writer's prompt lane got the stale copy). Since
+  // RESEARCHQUALITY-2B research_md is stored FULL and INLINE on every save, so
+  // inline is always at least as fresh as any blob. The URL remains a fallback
+  // for legacy records whose inline is empty or the historical truncation stub
+  // (same stub heuristics checkResearchIntegrity documents below).
+  const inlineText = project.research_md || '';
+  const inlineIsStub = inlineText.includes('[Full research stored externally]') || inlineText.length < 600;
+  if (inlineText && !inlineIsStub) return inlineText;
+
   // Prefer URL — it has the most recently saved full version
   if (project.research_md_url) {
     if (project.research_md_url.startsWith('local://')) {
@@ -106,6 +121,28 @@ export async function resolveResearchContent(project) {
   if (project.research_md) return project.research_md;
 
   return '';
+}
+
+/**
+ * RESEARCHQUALITY-2C: one evidence corpus for every lane. The closed-world
+ * gates read project.research_md RAW; the draft lane hydrates it from
+ * research_md_url but the polish and export lanes passed the raw record, so
+ * a URL-backed brief silently thinned their closed world (measured live
+ * 2026-08-08: flagship fate attestation 2/31 raw vs 14/31 with the brief).
+ * Fail-open: on any resolution failure the project is returned unchanged.
+ */
+export async function ensureResearchEvidence(project) {
+  if (!project || project.research_md || !project.research_md_url) return project;
+  try {
+    const full = await resolveResearchContent(project);
+    if (full && full.length > 50) {
+      console.log('[RESEARCH-EVIDENCE] hydrated research_md from URL for gate evaluation (' + full.length + ' chars)');
+      return { ...project, research_md: full };
+    }
+  } catch (e) {
+    console.warn('[RESEARCH-EVIDENCE] hydration failed — gates run on inline evidence only:', e?.message);
+  }
+  return project;
 }
 
 /**

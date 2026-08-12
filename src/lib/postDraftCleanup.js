@@ -20,10 +20,66 @@ import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { shouldUppercaseAfterPunct } from '@/lib/safeUppercase';
 import { scrubModelLeaks } from '@/lib/modelLeakGuard'; // LEAKFIX-1
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-2
+import { resolveProseRepairs, EMPTY_PROSE_REPAIRS } from '@/lib/bookScrubRules'; // PROSEGUARD-1
 
-const POST_DRAFT_CLEANUP_VERSION = 'MICRO-COPYEDIT v4 HARD-SURVIVOR FINAL PASS - 2026-05-02';
+const POST_DRAFT_CLEANUP_VERSION = 'PROSEGUARD-1 REPAIR-ONLY-WHAT-YOU-CAN-PROVE-IS-BROKEN - 2026-08-05';
 
 console.log(`[POST-DRAFT] postDraftCleanup.js loaded: ${POST_DRAFT_CLEANUP_VERSION}`);
+
+/* PROSEGUARD-1 — the active project's prose repairs.
+ *
+ * The repair chain here is six functions deep (runSurgicalArtifactRepair ->
+ * repairMalformedArticlesAndFragments -> deterministicSentenceRepair ->
+ * commonNounArticleRepair) with eleven call sites, none of which currently carry the
+ * project. Rather than thread a parameter through all of them, the entry point sets
+ * this once and clears it in a finally block.
+ *
+ * That is safe here and only here: this app runs one LLM call at a time by hard rule,
+ * cleanupChapterBatch is a sequential for-loop, and postDraftCleanup is never invoked
+ * concurrently. The default is EMPTY, so a caller that forgets to set it gets no
+ * rewriting at all rather than another book's rules — the failure mode is "does
+ * nothing", never "corrupts someone else's manuscript".
+ */
+let proseRepairs = EMPTY_PROSE_REPAIRS;
+
+/* PROSEGUARD-1 — the "known broken phrase" detectors are derived, not hand-written.
+ *
+ * Three places used to carry their own copy of the same alternation of one book's
+ * broken sentences (a detector inside the malformed-pattern list, a branch in
+ * classifyMalformedSentence, and buildSurvivorWarning) — the divergent-authority
+ * shape again: three lists, free to drift, all naming a manuscript nobody is writing.
+ * They now derive from the repair bank itself, so a phrase is "known broken" exactly
+ * when this project has a rule that repairs it. No rules, no findings.
+ */
+function knownBrokenPhraseSources() {
+  return [
+    ...proseRepairs.microCopyedit.map((r) => r.pattern?.source),
+    ...proseRepairs.hardSurvivor.map((r) => r.pattern?.source),
+    ...proseRepairs.phraseRepairs.map(([rx]) => rx?.source),
+  ].filter(Boolean);
+}
+
+// A regex that can never match, for when the project has no repair bank. Deliberately
+// not an empty alternation — that matches everything.
+const MATCHES_NOTHING = /(?!)/;
+
+function knownBrokenPhraseRx() {
+  const sources = knownBrokenPhraseSources();
+  if (!sources.length) return MATCHES_NOTHING;
+  try {
+    return new RegExp(`(?:${sources.join('|')})`, 'gi');
+  } catch (err) {
+    console.warn(`[PROSEGUARD-1] could not build the known-broken-phrase detector: ${err.message}`);
+    return MATCHES_NOTHING;
+  }
+}
+
+function matchesKnownBrokenPhrase(value) {
+  const rx = knownBrokenPhraseRx();
+  rx.lastIndex = 0;
+  return rx.test(String(value || ''));
+}
 
 function extractText(value) {
   if (value == null) return '';
@@ -111,11 +167,16 @@ function getLastSentence(paragraph) {
   return matches[matches.length - 1].trim();
 }
 
+// NFCLASS-2: this file used to carry its own opinion of what "nonfiction" means
+// (book_type === 'nonfiction' || project_type === 'nonfiction'). It disagreed with
+// the authority in BOTH directions: it called a declared-fiction project carrying
+// project_type 'nonfiction' nonfiction, and it called { genre: 'Memoir' } with
+// nothing declared fiction. What hangs off this boolean is the NONFICTION RULES
+// block ("Do not invent facts, names, dates, quotes, citations, statistics, or
+// sources") in the copyedit prompt — a wrong answer here runs a nonfiction
+// manuscript through a copyedit pass with the anti-fabrication constraint missing.
 function projectIsNonfiction(project = {}) {
-  const bookType = String(project.book_type || '').toLowerCase();
-  const projectType = String(project.project_type || '').toLowerCase();
-
-  return bookType === 'nonfiction' || projectType === 'nonfiction';
+  return isNonfictionProjectAuthority(project);
 }
 
 function projectIsAnthology(project = {}) {
@@ -319,27 +380,41 @@ function findTruncatedCandidates(text) {
   return candidates;
 }
 
+// PROSEGUARD-1 — an editorial artifact is a DELIMITED thing.
+//
+// The previous list was duplicated verbatim in two places (findEditorialArtifacts and
+// regexCleanup), which is the divergent-authority shape this codebase keeps paying for;
+// worse, every pattern was written as `\[?\s*MARKER[^\n]*` — an OPTIONAL opening bracket
+// followed by an unbounded run to end of line. That deletes the rest of the author's
+// paragraph whenever ordinary narration happens to contain the marker words. Proven
+// against the live file:
+//
+//   in : The engine needs work, and the plane leaves at dawn. She grabbed the toolbox…
+//   out: The engine
+//   in : Note to self: never trust him again. She closed the diary and slid it under…
+//   out: (empty)
+//
+// The rule now: an artifact must be closed on BOTH ends — inside brackets, inside an
+// HTML comment, or an ALL-CAPS marker that owns its own line. A sentence of prose that
+// merely contains "needs work" is prose. Markers are matched case-SENSITIVELY on the
+// line-owned forms so lowercase narration ("todo" is a Spanish word; "note to self" is
+// a thought a character can have) can never be mistaken for an instruction to the model.
+export const EDITORIAL_ARTIFACT_PATTERNS = Object.freeze([
+  // Bracketed instruction of any of the known shapes: [TODO: …], [Replace the X with Y].
+  /\[\s*(?:Replace|Remove|Insert|TODO|FIXME|TK|PLACEHOLDER|NOTE TO (?:SELF|AUTHOR|EDITOR)|EDITOR'?S?\s+NOTE|DELETE\s+THIS|CUT\s+THIS|REWRITE\s+THIS|NEEDS?\s+(?:REVISION|EDITING|REWRITE|WORK))\b[^\]\n]*\]/gi,
+  // An ALL-CAPS marker that owns its own line, start to finish.
+  /^[ \t>*_-]*(?:TODO|FIXME|TK|PLACEHOLDER|NOTE TO (?:SELF|AUTHOR|EDITOR)|EDITOR'?S?\s+NOTE|DELETE\s+THIS|CUT\s+THIS\s+(?:SECTION|PARAGRAPH|SENTENCE)|REWRITE\s+THIS|NEEDS?\s+(?:REVISION|EDITING|REWRITE|WORK))\b[^\n]*$/gm,
+  // Bolded scene-break instruction, closed by its own markers.
+  /\*\*\s*Replace\s+[^*\n]*?scene\s+break[^*\n]*?\*\*/gi,
+  // HTML comment — already delimited on both ends.
+  /<!--[\s\S]*?-->/g,
+]);
+
 function findEditorialArtifacts(text) {
   const artifacts = [];
-  const patterns = [
-    /\[?\s*Replace\s+(the|this|these|that)\s+[\w\s]*with\s+[\w\s]*[.\]]/gi,
-    /\[?\s*Remove\s+(the|this|these|that)\s+duplicate\s+[\w\s]*[.\]]/gi,
-    /\[?\s*Insert\s+(a|the|an)\s+[\w\s]*here[.\]]/gi,
-    /\[?\s*TODO[:\s][^\n]*/gi,
-    /\[?\s*FIXME[:\s][^\n]*/gi,
-    /\[?\s*NOTE TO (SELF|AUTHOR|EDITOR)[:\s][^\n]*/gi,
-    /\[?\s*EDITOR'?S?\s+NOTE[:\s][^\n]*/gi,
-    /\[?\s*DELETE\s+THIS[^\n]*/gi,
-    /\[?\s*CUT\s+THIS\s+(SECTION|PARAGRAPH|SENTENCE)[^\n]*/gi,
-    /\[?\s*REWRITE\s+THIS[^\n]*/gi,
-    /\[?\s*NEEDS?\s+(REVISION|EDITING|REWRITE|WORK)[^\n]*/gi,
-    /\[?\s*PLACEHOLDER[:\s][^\n]*/gi,
-    /\[?\s*TK\s[^\n]*/gi,
-    /\*\*\s*Replace\s+.*?scene\s+break.*?\*\*/gi,
-    /<!--[\s\S]*?-->/g,
-  ];
 
-  for (const pattern of patterns) {
+  for (const pattern of EDITORIAL_ARTIFACT_PATTERNS) {
+    pattern.lastIndex = 0;
     const matches = text.match(pattern);
     if (matches) artifacts.push(...matches);
   }
@@ -580,9 +655,23 @@ function regexCleanup(inputText, options = {}) {
   }
   if (fusedFixed > 0) fixes.push(`Fixed ${fusedFixed} fused-word issue(s)`);
 
+  // PROSEGUARD-1: `can` and `won` are ordinary English words, and in a manuscript
+  // that uses single quotes for dialogue (British convention, and anything imported
+  // from a .docx) a quotation ending in one of them is followed by `' `. The old
+  // pattern ate the closing quote and inverted the sentence:
+  //   in : He said, 'I think he won' and walked out.
+  //   out: He said, 'I think he won't and walked out.
+  // Every other stem in the list is a bound morpheme — `doesn`, `wouldn`, `hasn` are
+  // not words — so they stay unconditionally. The two ambiguous ones are dropped as
+  // soon as the text shows any sign of single-quote dialogue.
+  const usesSingleQuoteDialogue = /(^|[\s(\[—-])'[A-Za-z]/.test(t);
+  const contractionStems = usesSingleQuoteDialogue
+    ? /\b(doesn|wouldn|couldn|shouldn|hasn|hadn|isn|aren|weren|wasn|haven|mustn|needn|didn|ain)'\s/gi
+    : /\b(doesn|wouldn|couldn|shouldn|hasn|hadn|isn|aren|weren|wasn|haven|mustn|needn|won|didn|can|ain)'\s/gi;
+
   let contractionFixed = 0;
   t = t.replace(
-    /\b(doesn|wouldn|couldn|shouldn|hasn|hadn|isn|aren|weren|wasn|haven|mustn|needn|won|didn|can|ain)'\s/gi,
+    contractionStems,
     (match, word) => {
       contractionFixed += 1;
       return `${word}'t `;
@@ -618,8 +707,16 @@ function regexCleanup(inputText, options = {}) {
   t = t.replace(/\.{3,}/g, '…');
   if (t !== beforeEllipses) fixes.push('Normalized ellipses');
 
+  // PROSEGUARD-1: the `\s*` before the quote made this unable to tell a CLOSING quote
+  // from an OPENING one, so a quoted word that happened to be a dialogue verb was
+  // dismantled:
+  //   in : Nobody used the word "asked" anymore.
+  //   out: Nobody used the word," asked" anymore.
+  // The artifact this rule exists for is a quote fused to the preceding word with no
+  // space — `…he was safe" said Nell`. Requiring no whitespace before the quote keeps
+  // that repair and makes the false positive impossible.
   let brokenDialogFixed = 0;
-  t = t.replace(/([a-zA-Z])\s*"\s*(said|asked|whispered|murmured|shouted|snapped|replied|answered)\b/g, (match, prev, tag) => {
+  t = t.replace(/([a-zA-Z])"\s*(said|asked|whispered|murmured|shouted|snapped|replied|answered)\b/g, (match, prev, tag) => {
     brokenDialogFixed += 1;
     return `${prev}," ${tag}`;
   });
@@ -634,25 +731,10 @@ function regexCleanup(inputText, options = {}) {
       });
     }
 
-    const editorialPatterns = [
-      /\[?\s*Replace\s+(the|this|these|that)\s+[\w\s]*with\s+[\w\s]*[.\]]/gi,
-      /\[?\s*Remove\s+(the|this|these|that)\s+duplicate\s+[\w\s]*[.\]]/gi,
-      /\[?\s*Insert\s+(a|the|an)\s+[\w\s]*here[.\]]/gi,
-      /\[?\s*TODO[:\s][^\n]*/gi,
-      /\[?\s*FIXME[:\s][^\n]*/gi,
-      /\[?\s*NOTE TO (SELF|AUTHOR|EDITOR)[:\s][^\n]*/gi,
-      /\[?\s*EDITOR'?S?\s+NOTE[:\s][^\n]*/gi,
-      /\[?\s*DELETE\s+THIS[^\n]*/gi,
-      /\[?\s*CUT\s+THIS\s+(SECTION|PARAGRAPH|SENTENCE)[^\n]*/gi,
-      /\[?\s*REWRITE\s+THIS[^\n]*/gi,
-      /\[?\s*NEEDS?\s+(REVISION|EDITING|REWRITE|WORK)[^\n]*/gi,
-      /\[?\s*PLACEHOLDER[:\s][^\n]*/gi,
-      /\[?\s*TK\s[^\n]*/gi,
-      /\*\*\s*Replace\s+.*?scene\s+break.*?\*\*/gi,
-      /<!--[\s\S]*?-->/g,
-    ];
-
-    for (const pattern of editorialPatterns) {
+    // PROSEGUARD-1: one authority. The removal loop and the detector above must
+    // never be able to disagree about what an artifact is.
+    for (const pattern of EDITORIAL_ARTIFACT_PATTERNS) {
+      pattern.lastIndex = 0;
       t = t.replace(pattern, '');
     }
 
@@ -985,9 +1067,17 @@ function runFinalHygiene(text) {
   let t = normalizeText(text);
   const fixes = [];
 
+  // PROSEGUARD-1: the editorial adjective was OPTIONAL, which reduced this to
+  // "Here is the chapter" plus a permissive tail — a phrase a narrator can write:
+  //   in : Here is the chapter of my life I never wrote down. It started in June.
+  //   out: of my life I never wrote down. It started in June.
+  // An assistant preface owns its own line and ends in a colon, a period or a line
+  // break. Requiring that terminator, or an explicit editorial adjective, keeps the
+  // repair and makes it impossible for it to bite into a sentence.
   const beforeAssistantPreface = t;
   t = t
-    .replace(/^\s*(Here is|Here's|Certainly|Sure|Okay),?\s+(the\s+)?(corrected|edited|revised|cleaned)?\s*(chapter|text|prose)[:.\-\s]*/i, '')
+    .replace(/^\s*(?:Here is|Here's|Certainly|Sure|Okay),?\s+(?:the\s+)?(?:corrected|edited|revised|cleaned)\s+(?:chapter|text|prose)\b[:.\-\s]*/i, '')
+    .replace(/^\s*(?:Here is|Here's|Certainly|Sure|Okay),?\s+(?:the\s+)?(?:chapter|text|prose)\s*(?::|\.\s*$|\.?\s*\n)/i, '')
     .replace(/^\s*```(?:\w+)?\s*/i, '')
     .replace(/\s*```\s*$/i, '')
     .trim();
@@ -1036,203 +1126,7 @@ function applyReplacementSet(text, replacements, logPrefix) {
 function runMicroCopyeditRepairs(text) {
   console.log('[POST-DRAFT] runMicroCopyeditRepairs() executing');
 
-  const replacements = [
-    {
-      label: 'missing conjunction after “moved back in”',
-      pattern: /\bmoved back in\s+took\b/gi,
-      replacement: 'moved back in and took',
-    },
-    {
-      label: 'missing conjunction after “capped it”',
-      pattern: /\bcapped it\s+set it aside\b/gi,
-      replacement: 'capped it and set it aside',
-    },
-    {
-      label: 'missing conjunction after “gaze lifted”',
-      pattern: /\bgaze lifted\s+found\b/gi,
-      replacement: 'gaze lifted and found',
-    },
-    {
-      label: 'missing conjunction after “He reached for the cold coffee”',
-      pattern: /\bHe reached for the cold coffee\s+took a sip\b/g,
-      replacement: 'He reached for the cold coffee and took a sip',
-    },
-    {
-      label: 'missing comma before “cutting”',
-      pattern: /\bswung shut\s+cutting\b/gi,
-      replacement: 'swung shut, cutting',
-    },
-    {
-      label: 'missing comma before “setting”',
-      pattern: /\bstraightened\s+setting\b/gi,
-      replacement: 'straightened, setting',
-    },
-    {
-      label: 'missing comma in raised-hand clause',
-      pattern: /\bHis hand,\s+still raised\s+began\b/g,
-      replacement: 'His hand, still raised, began',
-    },
-    {
-      label: 'wrong noun: beat fogged → breath fogged',
-      pattern: /\bHis beat fogged\b/g,
-      replacement: 'His breath fogged',
-    },
-    {
-      label: 'wrong noun: beat hitched → breath hitched',
-      pattern: /\bHis beat hitched\b/g,
-      replacement: 'His breath hitched',
-    },
-    {
-      label: 'wrong noun: silence hitched → breath hitched',
-      pattern: /\bHis silence hitched\b/g,
-      replacement: 'His breath hitched',
-    },
-    {
-      label: 'wrong noun: air hitched → breath hitched',
-      pattern: /\bHis air hitched\b/g,
-      replacement: 'His breath hitched',
-    },
-    {
-      label: 'wrong noun: pause was warm → breath was warm',
-      pattern: /\bHis pause was warm\b/g,
-      replacement: 'His breath was warm',
-    },
-    {
-      label: 'wrong noun: pause hitched → breath hitched',
-      pattern: /\bHis pause hitched\b/g,
-      replacement: 'His breath hitched',
-    },
-    {
-      label: 'wrong noun: pause fogged → breath fogged',
-      pattern: /\bHis pause fogged\b/g,
-      replacement: 'His breath fogged',
-    },
-    {
-      label: 'wrong noun: moment hitched → breath hitched',
-      pattern: /\bHis moment hitched\b/g,
-      replacement: 'His breath hitched',
-    },
-    {
-      label: 'wrong noun: Husbandman pause → breath',
-      pattern: /\bThe Husbandman’s pause was warm\b/g,
-      replacement: 'The Husbandman’s breath was warm',
-    },
-    {
-      label: 'wrong noun: stale coffee on his pause → breath',
-      pattern: /\bstale coffee on his pause\b/gi,
-      replacement: 'stale coffee on his breath',
-    },
-    {
-      label: 'wrong noun: coffee on his pause → breath',
-      pattern: /\bcoffee on his pause\b/gi,
-      replacement: 'coffee on his breath',
-    },
-    {
-      label: 'wrong noun: stale coffee on his silence → breath',
-      pattern: /\bstale coffee on his silence\b/gi,
-      replacement: 'stale coffee on his breath',
-    },
-    {
-      label: 'wrong noun: coffee on his silence → breath',
-      pattern: /\bcoffee on his silence\b/gi,
-      replacement: 'coffee on his breath',
-    },
-    {
-      label: 'wrong noun: deliberate moment → breath',
-      pattern: /\bdeep,\s+deliberate moment right over\b/gi,
-      replacement: 'deep, deliberate breath right over',
-    },
-    {
-      label: 'wrong noun: deliberate beat → breath',
-      pattern: /\bdeep,\s+deliberate beat right over\b/gi,
-      replacement: 'deep, deliberate breath right over',
-    },
-    {
-      label: 'wrong noun: took not a sniff but a breath',
-      pattern: /\btook not a sniff,\s+but a deep,\s+deliberate (moment|beat)\b/gi,
-      replacement: 'took not a sniff, but a deep, deliberate breath',
-    },
-    {
-      label: 'missing comma after action',
-      pattern: /\bshut\s+cutting off\b/gi,
-      replacement: 'shut, cutting off',
-    },
-    {
-      label: 'missing comma after action',
-      pattern: /\bturned\s+cutting off\b/gi,
-      replacement: 'turned, cutting off',
-    },
-    {
-      label: 'missing comma after action',
-      pattern: /\bturned\s+sealing\b/gi,
-      replacement: 'turned, sealing',
-    },
-    {
-      label: 'missing comma after action',
-      pattern: /\bturned\s+leaving\b/gi,
-      replacement: 'turned, leaving',
-    },
-    {
-      label: 'missing comma after action',
-      pattern: /\bstood\s+setting the\b/gi,
-      replacement: 'stood, setting the',
-    },
-    {
-      label: 'missing comma after action',
-      pattern: /\bstepped forward\s+closing\b/gi,
-      replacement: 'stepped forward, closing',
-    },
-    {
-      label: 'missing comma after action',
-      pattern: /\bleaned forward\s+closed his eyes\b/gi,
-      replacement: 'leaned forward, closing his eyes',
-    },
-    {
-      label: 'missing comma after dialogue setup',
-      pattern: /\bHis voice,\s+when it came\s+was\b/g,
-      replacement: 'His voice, when it came, was',
-    },
-    {
-      label: 'missing comma in “noticed” clause',
-      pattern: /\bthe man noticed\s+were\b/gi,
-      replacement: 'the man noticed, were',
-    },
-    {
-      label: 'minor table wording cleanup',
-      pattern: /\bthe captive still sitting on his table\b/gi,
-      replacement: 'the captive still sitting on the table',
-    },
-    {
-      label: 'wrong noun: own movement sounded too loud → own breathing sounded too loud',
-      pattern: /\bown movement sounded too loud\b/gi,
-      replacement: 'own breathing sounded too loud',
-    },
-    {
-      label: 'wrong noun: own quiet sounded too loud → own breathing sounded too loud',
-      pattern: /\bown quiet sounded too loud\b/gi,
-      replacement: 'own breathing sounded too loud',
-    },
-    {
-      label: 'wrong noun: His own movement sounded too loud → His own breathing sounded too loud',
-      pattern: /\bHis own movement sounded too loud\b/g,
-      replacement: 'His own breathing sounded too loud',
-    },
-    {
-      label: 'missing comma after groan',
-      pattern: /\bHe groaned\s+doubling over\b/gi,
-      replacement: 'He groaned, doubling over',
-    },
-    {
-      label: 'missing comma after hand clause',
-      pattern: /\bHis hand,\s+still raised\s*,?\s+began to tremble\b/g,
-      replacement: 'His hand, still raised, began to tremble',
-    },
-    {
-      label: 'wrong noun: boy air hitched → boy breath hitched',
-      pattern: /\b(The boy’s|the boy’s|A boy’s|a boy’s)\s+air hitched\b/g,
-      replacement: '$1 breath hitched',
-    },
-  ];
+  const replacements = proseRepairs.microCopyedit;
 
   const result = applyReplacementSet(text, replacements, '[POST-DRAFT][MICRO v4]');
 
@@ -1248,140 +1142,7 @@ function runMicroCopyeditRepairs(text) {
 function runFinalHardSurvivorRepairs(text) {
   console.log('[POST-DRAFT] runFinalHardSurvivorRepairs() executing');
 
-  const replacements = [
-    {
-      label: 'FINAL survivor: shut cutting → shut, cutting',
-      pattern: /\b(shut)\s+(cutting\b)/gi,
-      replacement: '$1, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: swung shut cutting → swung shut, cutting',
-      pattern: /\b(swung shut)\s+(cutting\b)/gi,
-      replacement: '$1, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: straightened setting → straightened, setting',
-      pattern: /\b(straightened)\s+(setting\b)/gi,
-      replacement: '$1, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: groaned doubling → groaned, doubling',
-      pattern: /\b(groaned)\s+(doubling\b)/gi,
-      replacement: '$1, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: still raised began → still raised, began',
-      pattern: /\b(still raised)\s+(began\b)/gi,
-      replacement: '$1, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: hand still raised began',
-      pattern: /\b(His hand,\s+still raised)\s*,?\s+(began\b)/g,
-      replacement: '$1, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: pause fogged → breath fogged',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+pause\s+(fogged\b)/g,
-      replacement: '$1 breath $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: pause hitched → breath hitched',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+pause\s+(hitched\b)/g,
-      replacement: '$1 breath $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: moment hitched → breath hitched',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+moment\s+(hitched\b)/g,
-      replacement: '$1 breath $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: air hitched → breath hitched',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+air\s+(hitched\b)/g,
-      replacement: '$1 breath $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: silence hitched/fogged → breath hitched/fogged',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+silence\s+(hitched|fogged)\b/g,
-      replacement: '$1 breath $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: coffee on his silence/pause → coffee on his breath',
-      pattern: /\b(coffee on his)\s+(silence|pause|moment|air)\b/gi,
-      replacement: '$1 breath',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: stale coffee on his silence/pause → stale coffee on his breath',
-      pattern: /\b(stale coffee on his)\s+(silence|pause|moment|air)\b/gi,
-      replacement: '$1 breath',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: deliberate beat/moment → deliberate breath',
-      pattern: /\b(deep,\s+deliberate)\s+(beat|moment)\s+(right over\b)/gi,
-      replacement: '$1 breath $3',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: took not a sniff but deliberate beat/moment',
-      pattern: /\btook not a sniff,\s+but a deep,\s+deliberate\s+(beat|moment)\b/gi,
-      replacement: 'took not a sniff, but a deep, deliberate breath',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: moved back in took → moved back in and took',
-      pattern: /\bmoved back in\s+took\b/gi,
-      replacement: 'moved back in and took',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: capped it set it aside → capped it and set it aside',
-      pattern: /\bcapped it\s+set it aside\b/gi,
-      replacement: 'capped it and set it aside',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: gaze lifted found → gaze lifted and found',
-      pattern: /\bgaze lifted\s+found\b/gi,
-      replacement: 'gaze lifted and found',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: reached for cold coffee took sip',
-      pattern: /\b(He|She|They|Elias|Orin|Caspian|Jonah|Silas|Lev|Ronan|Kael)\s+reached for the cold coffee\s+took a sip\b/g,
-      replacement: '$1 reached for the cold coffee and took a sip',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: noticed were → noticed, were',
-      pattern: /\b(the man noticed)\s+(were\b)/gi,
-      replacement: '$1, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: hands he noticed were → hands, he noticed, were',
-      pattern: /\b(His hands)\s+he noticed\s+(were\b)/g,
-      replacement: '$1, he noticed, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-    {
-      label: 'FINAL survivor: close action comma before closing/sealing/leaving',
-      pattern: /\b(stepped forward|moved forward|turned|leaned forward|stood)\s+(closing|sealing|leaving|setting)\b/gi,
-      replacement: '$1, $2',
-      fixPrefix: 'Final hard-survivor pass repaired',
-    },
-  ];
+  const replacements = proseRepairs.hardSurvivor;
 
   const result = applyReplacementSet(text, replacements, '[POST-DRAFT][HARD-SURVIVOR v4]');
 
@@ -1407,14 +1168,27 @@ function capitalizeName(value) {
     .join('');
 }
 
+// PROSEGUARD-1: this used to force every capitalized token to a count of 2 with
+// `Math.max(counts.get(lower) || 0, 2)`, so the `count >= 2` filter below could never
+// reject anything and the only thing standing between ordinary prose and the
+// "proper name" list was a hand-written ban list of one old book's vocabulary. Any
+// word that merely started a sentence became a name. Counting for real restores the
+// filter's meaning: a token has to actually appear capitalized more than once.
 function detectLikelyProperNames(text) {
   const source = normalizeText(text);
-  const explicit = source.match(/\b[A-Z][a-z]{2,}\b/g) || [];
   const counts = new Map();
 
-  for (const name of explicit) {
-    const lower = name.toLowerCase();
-    counts.set(lower, Math.max(counts.get(lower) || 0, 2));
+  // Only occurrences that are NOT at a sentence start count. That is the actual
+  // signal for a proper noun: an ordinary word can be capitalized because it opens a
+  // sentence, a name is capitalized in the middle of one. Counting every capitalized
+  // token (and then forcing the count to 2) made every sentence-opening word a "name".
+  const rx = /\b[A-Z][a-z]{2,}\b/g;
+  let m;
+  while ((m = rx.exec(source)) !== null) {
+    const preceding = source.slice(0, m.index).trimEnd();
+    const atSentenceStart = preceding === '' || /[.!?…:;"”'’—(\[\n]$/.test(preceding);
+    if (atSentenceStart) continue;
+    counts.set(m[0].toLowerCase(), (counts.get(m[0].toLowerCase()) || 0) + 1);
   }
 
   const banned = new Set([
@@ -1471,9 +1245,14 @@ function repairLowercaseProperNameStarts(text) {
 
   const names = detectLikelyProperNames(t);
 
+  // PROSEGUARD-1: the `—\s*` branch capitalized a word MID-SENTENCE after an em dash,
+  // which is not a sentence boundary in English:
+  //   in : Nothing moved. He waited by the door — nothing came.
+  //   out: Nothing moved. He waited by the door—Nothing came.
+  // Only sentence-terminal punctuation and start-of-text open a new sentence.
   for (const lower of names) {
     const cap = capitalizeName(lower);
-    const rx = new RegExp(`(^|[.!?…]\\s+|—\\s*)(${lower})(\\b)`, 'g');
+    const rx = new RegExp(`(^|[.!?…]\\s+)(${lower})(\\b)`, 'g');
 
     t = t.replace(rx, (match, prefix, name, boundary) => {
       if (name !== lower) return match;
@@ -1491,40 +1270,18 @@ function repairLowercaseProperNameStarts(text) {
 function commonNounArticleRepair(sentence) {
   let s = String(sentence || '').trim();
 
-  const replacements = [
-    [/^A air\b/, 'The air'],
-    [/^One air\b/, 'The air'],
-    [/^One silence\b/, 'The silence'],
-    [/^One corridor\b/, 'The corridor'],
-    [/^One hum\b/, 'The hum'],
-    [/^One walls\b/, 'The walls'],
-    [/^Its man\b/, 'The man'],
-    [/^Its door\b/, 'The door'],
-    [/^Its world\b/, 'The world'],
-    [/^That silence here\b/, 'The silence here'],
-  ];
-
-  for (const [pattern, replacement] of replacements) {
+  // PROSEGUARD-1: both banks were 26 inline literals from one dead manuscript, and
+  // several were not repairs at all — "A stupid, wet sound." became "A stupid, wet
+  // sound came from him.", inventing narrative content and asserting who made the
+  // sound. They now come from the project. Empty by default.
+  for (const [pattern, replacement] of proseRepairs.articleRepairs) {
     s = s.replace(pattern, replacement);
   }
 
-  s = s
-    .replace(/\bwhite space on\s+\./g, 'white space.')
-    .replace(/\bblank field on\s+\./g, 'blank field.')
-    .replace(/\bthe familiar pull at like a lie\b/g, 'the familiar pull felt like a lie')
-    .replace(/\bThe like hands on him\b/g, 'It felt like hands on him')
-    .replace(/\bHe said softly it in\./g, 'He breathed it in softly.')
-    .replace(/\bA stupid, wet sound\./g, 'A stupid, wet sound came from him.')
-    .replace(/\bThe few like a mile\b/g, 'The few steps felt like a mile')
-    .replace(/\bA few like a mile\b/g, 'The few steps felt like a mile')
-    .replace(/\bHis beat was warm\b/g, 'His breath was warm')
-    .replace(/\bHis pause came shorter\b/g, 'His breath came shorter')
-    .replace(/\bHis beat fogged\b/g, 'His breath fogged')
-    .replace(/\bHis pause fogged\b/g, 'His breath fogged')
-    .replace(/\bHis air hitched\b/g, 'His breath hitched')
-    .replace(/\bHis moment hitched\b/g, 'His breath hitched')
-    .replace(/\bthe stale coffee on his pause\b/gi, 'the stale coffee on his breath')
-    .replace(/\bthe stale coffee on his silence\b/gi, 'the stale coffee on his breath');
+  for (const [pattern, replacement] of proseRepairs.phraseRepairs) {
+    pattern.lastIndex = 0;
+    s = s.replace(pattern, replacement);
+  }
 
   return s;
 }
@@ -1582,23 +1339,35 @@ function deterministicSentenceRepair(sentence, context = '') {
 
   s = commonNounArticleRepair(s);
 
-  s = s.replace(/^Was\b/, `${subject} was`);
-  s = s.replace(/^Were\b/, `${subject} were`);
-  s = s.replace(/^Had\b/, `${subject} had`);
-  s = s.replace(/^Looked\b/, `${subject} looked`);
-  s = s.replace(/^Turned\b/, `${subject} turned`);
-  s = s.replace(/^Felt\b/, `${subject} felt`);
-  s = s.replace(/^Knew\b/, `${subject} knew`);
-  s = s.replace(/^Thought\b/, `${subject} thought`);
-  s = s.replace(/^Sounded\b/, `${subject} sounded`);
-  s = s.replace(/^Tasted\b/, `${subject} tasted`);
-  s = s.replace(/^Smelled\b/, `${subject} smelled`);
-
-  s = s.replace(/\bClosed\s*\.$/, 'closed it.');
-  s = s.replace(/\bopened\s*\.$/, 'opened it.');
+  // PROSEGUARD-1 — the fabricated-subject block is deleted, not guarded.
+  //
+  // It ran on EVERY sentence, not just the ones classifyMalformedSentence flagged, and
+  // it invented a subject by taking the last capitalized token in the paragraph. `Was`,
+  // `Had` and `Were` are themselves capitalized tokens and were not in the ban list, so
+  // the "subject" it inserted was usually the very word it was repairing, and because
+  // runSurgicalArtifactRepair runs more than once per call it compounded. Proven
+  // against the live file:
+  //
+  //   Had he known, he would have stayed.  ->  Had had had had he known, he would…
+  //   Was that a threat?                   ->  Was was was was that a threat?
+  //
+  // Both inputs were correct English to begin with — subject-auxiliary inversion and a
+  // question. Even on a genuine fragment ("Was shaking.") the repair is a guess about
+  // who is doing the action, and a guessed subject is fabrication. This app's standing
+  // rule is that blank beats fabricated: a fragment left as a fragment is honest and
+  // the author can see it. `subject` is retained below for the article repairs that
+  // legitimately use context.
+  //
+  // The `Closed .` / `opened .` rules went with it — they invent an object ("it") and
+  // lowercase a sentence start (`The store was dark. Closed.` -> `…dark. closed it.`).
+  // Deleting a dangling preposition before a full stop is a true artifact repair, so
+  // that one stays.
   s = s.replace(/\b(on|at|with|from|into|of|to|for)\s+\.$/, '.');
 
-  s = s.replace(/(^|—\s+)([a-z][a-z]{2,})(\b)/g, (match, prefix, word, boundary) => {
+  // PROSEGUARD-1: the second copy of the em-dash capitalizer (the other was in
+  // repairLowercaseProperNameStarts). An em dash does not start a sentence, so
+  // capitalizing after one rewrites the middle of the author's sentence.
+  s = s.replace(/(^)([a-z][a-z]{2,})(\b)/g, (match, prefix, word, boundary) => {
     const likelyNames = detectLikelyProperNames(context + '\n' + original);
     if (likelyNames.includes(word.toLowerCase())) {
       return `${prefix}${capitalizeName(word)}${boundary}`;
@@ -1614,17 +1383,46 @@ function repairMalformedArticlesAndFragments(text) {
   const fixes = [];
   let changed = 0;
 
+  // PROSEGUARD-1: splitParagraphs only splits on a BLANK line, so a chapter whose
+  // paragraphs are separated by a single newline arrived here as one "paragraph" and
+  // the sentence round-trip re-joined the whole thing with spaces — every line break
+  // in the chapter gone, in one pass, silently (word count is unchanged, so
+  // validateEditedText never trips):
+  //   in : He opened the door.\nThe room was empty.\nShe was gone.
+  //   out: He opened the door. The room was empty. She was gone.
+  // Repairing line by line and re-joining on the original newline makes the round-trip
+  // structure-preserving. A line that splitSentences cannot parse (one made only of
+  // terminal punctuation returned []) is now passed through untouched rather than
+  // dropped.
   const repairedParagraphs = paragraphs.map((paragraph) => {
-    const sentences = splitSentences(paragraph).map((sentence) => sentence.trim()).filter(Boolean);
+    const lines = paragraph.split('\n');
 
-    const repaired = sentences.map((sentence) => {
-      const fixed = deterministicSentenceRepair(sentence, paragraph);
+    const repairedLines = lines.map((line) => {
+      if (!line.trim()) return line;
 
-      if (fixed !== sentence) changed += 1;
-      return fixed;
+      const sentences = splitSentences(line).map((sentence) => sentence.trim()).filter(Boolean);
+      if (!sentences.length) return line;
+
+      const repaired = sentences.map((sentence) => {
+        const fixed = deterministicSentenceRepair(sentence, paragraph);
+
+        if (fixed !== sentence) changed += 1;
+        return fixed;
+      });
+
+      const rejoined = repaired.join(' ');
+
+      // splitSentences cannot begin a match on a terminal character, so a line that
+      // opens with an ellipsis or a full stop loses it on the round-trip. If the
+      // rejoined text is not a superset of the line's own words, keep the original.
+      const wordsIn = (line.match(/[\w’']+/g) || []).length;
+      const wordsOut = (rejoined.match(/[\w’']+/g) || []).length;
+      if (wordsOut < wordsIn) return line;
+
+      return rejoined;
     });
 
-    return repaired.join(' ');
+    return repairedLines.join('\n');
   });
 
   if (changed > 0) fixes.push(`Repaired ${changed} deterministic malformed sentence/artifact issue(s)`);
@@ -1666,7 +1464,7 @@ function findSurgicalArtifacts(text) {
     },
     {
       type: 'known_broken_phrase',
-      rx: /\b(the familiar pull at like a lie|white space on \.|blank field on \.|His beat warm|His beat was warm|His beat hitched|His beat fogged|His pause was warm|His pause came shorter|His pause hitched|His pause fogged|His air hitched|His moment hitched|The Husbandman’s pause was warm|The few like a mile|A few like a mile|He said softly it in|The like hands on him|deep, deliberate moment right over|deep, deliberate beat right over|moved back in took|capped it set it aside|gaze lifted found|swung shut cutting|straightened setting|coffee on his pause|coffee on his silence)\b/gi,
+      rx: knownBrokenPhraseRx(),
     },
     {
       type: 'leading_preposition_fragment',
@@ -1761,7 +1559,7 @@ function classifyMalformedSentence(sentence) {
     return 'dangling punctuation fragment';
   }
 
-  if (/\b(white space on \.|blank field on \.|familiar pull at like a lie|said softly it in|The like hands on him|The few like a mile|A few like a mile|His beat hitched|His beat fogged|His pause was warm|His pause hitched|His pause fogged|His air hitched|His moment hitched|The Husbandman’s pause was warm|deep, deliberate moment right over|deep, deliberate beat right over|moved back in took|capped it set it aside|gaze lifted found|swung shut cutting|straightened setting|coffee on his pause|coffee on his silence)\b/i.test(s)) {
+  if (matchesKnownBrokenPhrase(s)) {
     return 'known malformed phrase';
   }
 
@@ -2226,29 +2024,16 @@ function buildFrequencyWarnings(overusedWords = []) {
 function buildSurvivorWarning(text) {
   const source = normalizeText(text);
 
-  const survivorPatterns = [
-    /\bswung shut cutting\b/i,
-    /\bshut cutting off\b/i,
-    /\bstraightened setting\b/i,
-    /\bgroaned doubling\b/i,
-    /\bstill raised began\b/i,
-    /\bHis pause fogged\b/,
-    /\bHis moment hitched\b/,
-    /\bHis air hitched\b/,
-    /\bHis silence hitched\b/,
-    /\bThe boy’s air hitched\b/,
-    /\bstale coffee on his silence\b/i,
-    /\bcoffee on his silence\b/i,
-    /\bdeep,\s+deliberate beat right over\b/i,
-    /\bdeep,\s+deliberate moment right over\b/i,
-    /\bmoved back in took\b/i,
-    /\bcapped it set it aside\b/i,
-    /\bgaze lifted found\b/i,
-  ];
-
-  const hits = survivorPatterns
-    .filter((pattern) => pattern.test(source))
-    .map((pattern) => String(pattern));
+  // PROSEGUARD-1: this was the third hand-maintained copy of the same one-book
+  // phrase list. A survivor is a phrase this project has a repair rule for that is
+  // still present after every pass ran — which is the only definition that means
+  // anything, and the only one that cannot drift from the repairs themselves.
+  const hits = knownBrokenPhraseSources()
+    .map((src) => {
+      try { return new RegExp(src, 'i'); } catch { return null; }
+    })
+    .filter((rx) => rx && rx.test(source))
+    .map((rx) => String(rx));
 
   return hits;
 }
@@ -2262,7 +2047,21 @@ function buildSurvivorWarning(text) {
  * @param {function} onProgress
  * @param {object} options
  */
+/**
+ * PROSEGUARD-1 wrapper: resolve this project's prose repairs, run the cleanup, and
+ * always put the module back to EMPTY so no book can inherit another book's rules
+ * through a thrown error.
+ */
 export async function postDraftCleanup(text, project = {}, chapterNumber = '', onProgress, options = {}) {
+  proseRepairs = resolveProseRepairs(project);
+  try {
+    return await postDraftCleanupInner(text, project, chapterNumber, onProgress, options);
+  } finally {
+    proseRepairs = EMPTY_PROSE_REPAIRS;
+  }
+}
+
+async function postDraftCleanupInner(text, project = {}, chapterNumber = '', onProgress, options = {}) {
   // LEAKFIX-1: kill model control tokens + non-Latin drift before every other
   // pass. Covers continuation and judge-revision output, which never re-enter
   // the scene-level light clean.
@@ -2439,7 +2238,11 @@ export async function postDraftCleanup(text, project = {}, chapterNumber = '', o
     );
   }
 
-  const changed = normalizeText(original) !== normalizeText(workingText);
+  // PROSEGUARD-1: `original` is initialText, which is already the LEAKFIX-1 scrub of
+  // the caller's input — so a chapter whose only defect was a model control token came
+  // back rewritten with changed:false, and the caller had no reason to save it. The
+  // baseline for "did this change" has to be what the caller actually handed us.
+  const changed = normalizeText(text) !== normalizeText(workingText);
 
   const allFixes = [...new Set(fixes.filter(Boolean))];
   const allWarnings = [...new Set(warnings.filter(Boolean))];

@@ -1,3 +1,4 @@
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 /**
  * Anthology Engine — Handles story bible generation and prose prompt building
  * for anthology (short story collection) projects.
@@ -160,9 +161,10 @@ export function isNonfictionGenre(genre) {
 /**
  * Detect whether an anthology project is nonfiction.
  */
+// NFCLASS-1: one authority. See src/lib/projectType.js.
 export function isNonfictionAnthology(project) {
   if (!isAnthologyProject(project)) return false;
-  return project.book_type === 'nonfiction' || isNonfictionGenre(project.genre);
+  return isNonfictionProjectAuthority(project);
 }
 
 /**

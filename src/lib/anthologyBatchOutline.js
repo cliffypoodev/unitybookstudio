@@ -13,7 +13,7 @@ import { ANTHOLOGY_STORY_LENGTHS, isNonfictionAnthology } from '@/lib/anthologyE
 import { buildAnthologyVarietyOutlinePromptBlock, normalizeVarietyFields, summarizeTemplateSignature } from '@/lib/anthologyVarietyGuard';
 
 const BATCH_SIZE = 5;
-const BATCH_TIMEOUT_MS = 300000; // 5 minutes — local Ollama models are much slower than cloud APIs
+const BATCH_TIMEOUT_MS = 300000; // 5 minutes — local llama.cpp models are much slower than cloud APIs
 
 const batchStorySchema = {
   type: 'object',

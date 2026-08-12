@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { detectModelControlTokens, stripModelControlTokens, scrubModelLeaks } from '../src/lib/modelLeakGuard.js';
-import { callOllama } from '../src/lib/localLLM.js';
+import { callLlama } from '../src/lib/localLLM.js';
 import { rewriteFlaggedSpots } from '../src/lib/repetitionRewrite.js';
 import { polishChapterWithLLM } from '../src/lib/llmProsePolisher.js';
 
@@ -74,7 +74,7 @@ async function runTests() {
           choices: [{ message: { content: 'Valid prose.\n\n/nothink\n\n<|im_end|>' } }]
         })
       });
-      const response = await callOllama({ prompt: 'test' });
+      const response = await callLlama({ prompt: 'test' });
       assert.strictEqual(response, 'Valid prose.');
       assert.ok(!response.includes('/nothink'));
       assert.ok(!response.includes('<|im_end|>'));

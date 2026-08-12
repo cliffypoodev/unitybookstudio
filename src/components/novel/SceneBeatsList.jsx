@@ -38,8 +38,17 @@ function FictionBeatRow({ beat }) {
               {beat.setting && <span>Setting: <span className="text-foreground">{beat.setting}</span></span>}
             </div>
           )}
+          {beat.scene_id && <p><span className="font-medium text-foreground">Scene ID:</span> {beat.scene_id}</p>}
+          {beat.entry_state && <p><span className="font-medium text-foreground">Entry state:</span> {beat.entry_state}</p>}
           {beat.conflict && <p><span className="font-medium text-foreground">Conflict:</span> {beat.conflict}</p>}
           {beat.emotional_arc && <p><span className="font-medium text-foreground">Arc:</span> {beat.emotional_arc}</p>}
+          {Array.isArray(beat.required_events) && beat.required_events.length > 0 && (
+            <p><span className="font-medium text-foreground">Must happen:</span> {beat.required_events.join('; ')}</p>
+          )}
+          {Array.isArray(beat.forbidden_events) && beat.forbidden_events.length > 0 && (
+            <p><span className="font-medium text-foreground">Must not replay:</span> {beat.forbidden_events.join('; ')}</p>
+          )}
+          {beat.exit_state && <p><span className="font-medium text-foreground">Exit state:</span> {beat.exit_state}</p>}
           {beat.exit_hook && <p className="italic">→ {beat.exit_hook}</p>}
         </div>
       )}
@@ -125,7 +134,9 @@ export default function SceneBeatsList({ beatsJson }) {
 
   // Detect nonfiction format: object with "sections" array
   const isNonfiction = parsed && !Array.isArray(parsed) && Array.isArray(parsed.sections);
-  const fictionBeats = Array.isArray(parsed) ? parsed : [];
+  const fictionBeats = Array.isArray(parsed)
+    ? parsed
+    : (Array.isArray(parsed?.beats) ? parsed.beats : []);
 
   if (isNonfiction) {
     const sections = parsed.sections || [];

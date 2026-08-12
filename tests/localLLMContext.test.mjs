@@ -49,8 +49,8 @@ await test('2. AGENT_NUM_CTX_OVERRIDES is exported', () => {
     'AGENT_NUM_CTX_OVERRIDES should be exported');
 });
 
-await test('3. callOllama options include num_ctx', () => {
-  // Find the JSON.stringify call in callOllama
+await test('3. callLlama options include num_ctx', () => {
+  // Find the JSON.stringify call in callLlama
   const bodyMatch = llmSrc.match(/JSON\.stringify\(\{[^}]*options:\s*\{([^}]+)\}/);
   assert(bodyMatch, 'Should find options object in JSON.stringify');
   assert(bodyMatch[1].includes('num_ctx'),
@@ -61,14 +61,14 @@ await test('4. callAgent resolves numCtx from overrides', () => {
   assert(llmSrc.includes('AGENT_NUM_CTX_OVERRIDES[agentKey]'),
     'callAgent should check AGENT_NUM_CTX_OVERRIDES for per-agent override');
   assert(llmSrc.includes('numCtx'),
-    'callAgent should pass numCtx to callOllama');
+    'callAgent should pass numCtx to callLlama');
 });
 
-await test('5. callOllama signature accepts numCtx parameter', () => {
-  const sig = llmSrc.match(/async function callOllama\(\{([^}]+)\}\)/);
-  assert(sig, 'Should find callOllama signature');
+await test('5. callLlama signature accepts numCtx parameter', () => {
+  const sig = llmSrc.match(/async function callLlama\(\{([^}]+)\}\)/);
+  assert(sig, 'Should find callLlama signature');
   assert(sig[1].includes('numCtx'),
-    'callOllama destructured params should include numCtx');
+    'callLlama destructured params should include numCtx');
 });
 
 /* ═══════════════════════════════════════════════════════════════════════════

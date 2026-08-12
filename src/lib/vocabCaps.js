@@ -3,6 +3,8 @@
  * Shared between fiction and nonfiction polish pipelines.
  */
 
+import { getSetting } from './settingsRead.js'; // WAVE5-SETTINGS
+
 const CAPPED_VOCABULARY = [
   // Verified caps per user spec (per 10K words → approx per 100K at 10x)
   { word: 'etched', max: 0.4, replacements: ['carved', 'cut', 'marked', 'lined', 'scored', 'written', 'traced'] },           // 4/100K
@@ -203,7 +205,10 @@ function nfSplitSentences(paragraph) {
  *      ", and the". Grammatical by construction; capped per paragraph.
  * The pass never touches text inside quotation marks.
  */
-export function runSentenceStarterVariationNF(loaded, onProgress, { targetPct = 14, triggerPct = 16 } = {}) {
+export function runSentenceStarterVariationNF(loaded, onProgress, opts = {}) {
+  // WAVE5-SETTINGS: target % comes from Settings unless the caller overrides.
+  const userTarget = Math.min(30, Math.max(6, Number(getSetting('the_starter_target', 14))));
+  const { targetPct = userTarget, triggerPct = userTarget + 2 } = opts;
   onProgress?.('Polish (NF): Varying sentence starters…');
   const changes = [];
   let totalFixed = 0;
@@ -238,16 +243,13 @@ export function runSentenceStarterVariationNF(loaded, onProgress, { targetPct = 
         if (!/^The\s/.test(trimmed)) continue;
         if (/["“”]/.test(trimmed)) continue;              // sentence carries a quote — hands off
 
-        // ── S1: temporal fronting ──
-        const m = trimmed.match(/^The\s+(.{8,120}?)\s+(in|on|by|during|after|before)\s+((?:the\s+)?[\w’',\- ]{3,40}?)([.;])$/);
-        if (m && NF_TEMPORAL_HEAD.test(m[3])) {
-          const prep = m[2].charAt(0).toUpperCase() + m[2].slice(1);
-          const lead = sent.match(/^\s*/)[0];
-          const trail = sent.match(/\s*$/)[0];
-          sentences[si] = lead + prep + ' ' + m[3] + ', the ' + m[1] + m[4] + trail;
-          fixed++; totalFixed++; changed = true;
-          continue;
-        }
+        // ── S1: temporal fronting — REMOVED (POLISHFIX-7B). The rewrite
+        // `The …… in <temporal>.` → `In <temporal>, the ……` is blind to
+        // prepositional-phrase attachment: when the temporal binds to an inner
+        // noun ("since its construction in 1915"), fronting it states something
+        // false. Measured on a live NF polish save 2026-08-07. PP attachment is
+        // not decidable by regex; starter variety on NF now comes only from S2
+        // (referent-checked demonstrative) and S3 (guarded adjacent join).
 
         // ── S2: anaphoric demonstrative (capped at 4 per chapter) ──
         if (demonstratives < 4 && si > 0) {

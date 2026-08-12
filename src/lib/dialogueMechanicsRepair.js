@@ -513,11 +513,178 @@ function countSentenceBoundaries(line, startIdx, endIdx) {
 // closing curly quote whose span back to the previous quote boundary contains
 // no opening quote is speech missing its opener. Verb-agnostic, curly-only
 // (straight quotes are ambiguous), plausibility-capped.
+// ─── PARABREAK-1: collapsed-dialogue paragraph splitter ─────────────────────
+// The ghostwriter routinely emits an entire multi-speaker exchange as ONE
+// paragraph. Live Brass Meridian Ch.5 shipped a 748-word paragraph holding ~30
+// lines of dialogue inline with narration, and the four orphan closers the
+// repairer gave up on were ALL inside it. Inside a block that size the healer
+// cannot tell which speech a closer belongs to, so a dropped OPENING quote is
+// mislabelled an "ambiguous orphan closer" and left on the page.
+//
+// One speaker turn per paragraph fixes readability AND removes the ambiguity:
+// an orphan span that occupies a whole line cannot have narration in front of
+// it, so it becomes deterministically repairable.
+//
+// Two break rules, both structural:
+//   1. A new speech opens mid-line after a sentence or a speech already ended
+//      ("...", she said. "When I asked...") - break before the opener.
+//   2. An orphan speech span (text between two quote boundaries containing no
+//      opener) - break before it and after its closer, isolating it.
+// A dialogue tag belonging to the speech just closed is never split off:
+// lowercase continuations ("he said") and speaker+speech-verb continuations
+// ("Vale said") both stay attached to their speech.
+const ORPHAN_TAG_CONTINUATION = new RegExp(
+  `^(?:${SPEAKER_PATTERN})\\s+(?:${VERB_PATTERN}|${VERB_PHRASE_PATTERN})\\b`,
+  'i'
+);
+
+// PARABREAK-2: an orphan span can OPEN with the previous speech's dialogue tag,
+// e.g. `"Two words," Lena repeated. That is enough time."` - the dropped opener
+// belongs to "That is enough time", not to "Lena repeated". Match the tag plus its
+// terminating punctuation so the break can step over it and land on the speech.
+const ORPHAN_TAG_LEAD = new RegExp(
+  `^(?:${SPEAKER_PATTERN})\\s+(?:${VERB_PATTERN}|${VERB_PHRASE_PATTERN})\\b[^.!?]*[.!?]\\s+`,
+  'i'
+);
+
+// PARABREAK-2: a dialogue tag ANYWHERE between one closing quote and the next
+// opening quote means the same speaker is still holding the floor:
+//   "Nothing," she said, pulling back. "Just thermal contraction."
+// Breaking there does not just cost readability - it tells the reader the NEXT
+// character spoke the second line. A missing break is a long paragraph; a wrong
+// break is wrong attribution, so when a tag intervenes we leave it joined.
+const DIALOGUE_TAG_ANYWHERE = new RegExp(
+  `(?:^|[\\s,;(])(?:${SPEAKER_PATTERN})\\s+(?:${VERB_PATTERN}|${VERB_PHRASE_PATTERN})\\b`,
+  'i'
+);
+
+function splitCollapsedLine(line) {
+  const OPEN = '\u201c';
+  const CLOSE = '\u201d';
+  if (!line.includes(CLOSE)) return [line];
+  const breaks = new Set();
+  let inSpeech = false;
+  let lastQuoteEnd = 0; // index just past the most recent quote character
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (ch !== OPEN && ch !== CLOSE) continue;
+    if (ch === OPEN) {
+      // Look back over the whole line, not just since the last quote: the
+      // commonest turn boundary is `...approach.” “Time is fluid...`, where the
+      // only text between the closer and the next opener is a single space.
+      if (
+        !inSpeech
+        && i > 0
+        && /[.!?\u201d]\s+$/.test(line.slice(0, i))
+        && !DIALOGUE_TAG_ANYWHERE.test(line.slice(lastQuoteEnd, i))
+      ) {
+        breaks.add(line.slice(0, i).replace(/\s+$/, '').length);
+      }
+      inSpeech = true;
+      lastQuoteEnd = i + 1;
+      continue;
+    }
+    if (inSpeech) {
+      inSpeech = false;
+      lastQuoteEnd = i + 1;
+      continue;
+    }
+    // Orphan closer: the span back to the previous quote boundary has no opener.
+    const span = line.slice(lastQuoteEnd, i);
+    let lead = (span.match(/^\s*/) || [''])[0].length;
+    // PARABREAK-2: step over a leading dialogue tag so the break lands on the
+    // speech that actually lost its opener, not in front of the tag.
+    const tagLead = span.slice(lead).match(ORPHAN_TAG_LEAD);
+    if (tagLead) lead += tagLead[0].length;
+    const core = span.slice(lead);
+    if (core && !ORPHAN_TAG_CONTINUATION.test(core)) {
+      if (lastQuoteEnd + lead > 0) breaks.add(lastQuoteEnd + lead);
+      // PARABREAK-2: break AFTER the orphan's closer only when what follows is
+      // NOT this speech's own dialogue tag. Breaking in front of `Marcus asked.`
+      // strands the tag in a paragraph of its own - 21 of those shipped in the
+      // first live run of PARABREAK-1.
+      const after = line.slice(i + 1);
+      const afterCore = after.replace(/^\s+/, '');
+      if (after.length !== afterCore.length && afterCore && !ORPHAN_TAG_CONTINUATION.test(afterCore)) {
+        breaks.add(i + 1);
+      }
+    }
+    lastQuoteEnd = i + 1;
+  }
+  if (!breaks.size) return [line];
+  const points = [...breaks].sort((a, b) => a - b);
+  const parts = [];
+  let cursor = 0;
+  for (const point of points) {
+    if (point > cursor) {
+      parts.push(line.slice(cursor, point).trim());
+      cursor = point;
+    }
+  }
+  parts.push(line.slice(cursor).trim());
+  return parts.filter(Boolean);
+}
+
+// PARABREAK-2: a paragraph can never legitimately BEGIN with a dialogue tag -
+// a tag has to attach to the speech it reports. So a paragraph starting with
+// `Marcus asked.` whose predecessor ends in a closing quote belongs to that
+// predecessor. Deterministic, and it repairs text that already shipped damaged
+// as well as preventing new damage.
+export function rejoinOrphanedDialogueTags(text) {
+  const src = String(text || '');
+  if (!src.includes('\u201d')) return { text: src, rejoined: 0 };
+  const lines = src.split('\n');
+  const out = [];
+  let rejoined = 0;
+  for (const line of lines) {
+    const core = line.trim();
+    let lastIdx = -1;
+    for (let k = out.length - 1; k >= 0; k -= 1) {
+      if (out[k].trim()) { lastIdx = k; break; }
+      if (out.length - k > 2) break;
+    }
+    if (
+      core
+      && lastIdx >= 0
+      && ORPHAN_TAG_CONTINUATION.test(core)
+      && out[lastIdx].trimEnd().endsWith('\u201d')
+    ) {
+      out[lastIdx] = out[lastIdx].trimEnd() + ' ' + core;
+      while (out.length > lastIdx + 1) out.pop();
+      rejoined += 1;
+      continue;
+    }
+    out.push(line);
+  }
+  if (rejoined) {
+    console.log('[DIALOGUE-MECHANICS-REPAIR] Rejoined ' + rejoined + ' orphaned dialogue tag(s) to their speech (PARABREAK-2)');
+  }
+  return { text: out.join('\n'), rejoined };
+}
+
+export function splitCollapsedDialogueParagraphs(text) {
+  const src = String(text || '');
+  if (!src.includes('\u201d')) return { text: src, splits: 0, rejoined: 0 };
+  let splits = 0;
+  const out = src.split('\n').map((line) => {
+    if (!line.trim()) return line;
+    const parts = splitCollapsedLine(line);
+    if (parts.length > 1) splits += parts.length - 1;
+    return parts.join('\n\n');
+  });
+  if (splits) {
+    console.log('[DIALOGUE-MECHANICS-REPAIR] Collapsed-dialogue splitter inserted ' + splits + ' paragraph break(s)');
+  }
+  const healed = rejoinOrphanedDialogueTags(out.join('\n'));
+  return { text: healed.text, splits, rejoined: healed.rejoined };
+}
+
 export function repairOrphanClosers(text) {
   const src = String(text || '');
-  if (!src.includes('\u201d')) return { text: src, repaired: 0, flagged: 0 };
+  if (!src.includes('\u201d')) return { text: src, repaired: 0, flagged: 0, wholeLineRepaired: 0 };
   let repaired = 0;
   let flagged = 0;
+  let wholeLineRepaired = 0;
   const out = [];
   for (const para of src.split('\n')) {
     if (!para.includes('\u201d')) { out.push(para); continue; }
@@ -539,8 +706,15 @@ export function repairOrphanClosers(text) {
       const ws = (span.match(/^\s*/) || [''])[0];
       const core = span.slice(ws.length);
       const singleSentence = !/[.!?]\u2019?\s+[A-Z\u201c]/.test(core.trimEnd().replace(/[.!?,]$/, ''));
+      // PARABREAK-1: the multi-sentence bar exists ONLY to stop the healer
+      // claiming narration that PRECEDES the speech on the same line. When the
+      // orphan span IS the whole line - nothing before it, nothing after its
+      // closer - there is no preceding narration, so the guard is vacuous and a
+      // multi-sentence speech turn is the only reading left. This is what the
+      // paragraph splitter above manufactures on purpose.
+      const wholeLine = cursor === 0 && para.slice(close + 1).trim() === '';
       const plausible = core.length >= 4 && core.length <= 300 && /^[A-Z\u2018]/.test(core) && /[.!?,]$/.test(core.trimEnd());
-      if (!plausible || !singleSentence) {
+      if (!plausible || (!singleSentence && !wholeLine)) {
         if (core.length >= 4) { flagged += 1; }
         fixed += para.slice(cursor, close + 1);
         cursor = close + 1;
@@ -548,13 +722,57 @@ export function repairOrphanClosers(text) {
       }
       fixed += ws + '\u201c' + core + '\u201d';
       repaired += 1;
+      if (!singleSentence && wholeLine) wholeLineRepaired += 1;
       cursor = close + 1;
     }
     out.push(fixed);
   }
   if (repaired) console.log('[DIALOGUE-MECHANICS-REPAIR] Orphan-closer healer inserted ' + repaired + ' missing opening quote(s)');
+  if (wholeLineRepaired) console.log('[DIALOGUE-MECHANICS-REPAIR] ' + wholeLineRepaired + ' of those were whole-line multi-sentence turns (PARABREAK-1)');
   if (flagged) console.warn('[DIALOGUE-MECHANICS-REPAIR] ' + flagged + ' ambiguous orphan closer(s) left for review');
-  return { text: out.join('\n'), repaired, flagged };
+  return { text: out.join('\n'), repaired, flagged, wholeLineRepaired };
+}
+
+/**
+ * QUOTECLOSE-1 — close dialogue that was OPENED and never CLOSED.
+ *
+ * The whole family above handles two shapes: a missing OPENING quote, and an
+ * orphan CLOSER. Neither sees the third: an opener with no closer at all.
+ * Measured on the live ch.3 re-draft (2026-08-04): 96 opening quotes vs 57
+ * closing, and `detectDialogueQuoteIssues` reported ZERO issues, so the whole
+ * pass — draft-time AND export-time — shipped 41 unclosed quotes to the page.
+ *
+ * Deliberately narrow, because deterministic prose mutation is how POLISHFIX
+ * damage happened. It only ever appends ONE `”` at the END of a paragraph, and
+ * only when all of these hold:
+ *   1. the paragraph has more `“` than `”` (an opener is genuinely unclosed);
+ *   2. the paragraph ends in terminal punctuation, so the speech is complete;
+ *   3. there IS text after the last unmatched `“` (never closes an empty quote).
+ * Anything else is flagged and left alone. No word is added, removed, or moved.
+ *
+ * Run AFTER splitCollapsedDialogueParagraphs: once turns are one-per-paragraph
+ * the unclosed opener is the paragraph's own last speech, which is what makes
+ * end-of-paragraph closure the correct boundary rather than a guess.
+ */
+export function repairUnclosedDialogue(text) {
+  if (!text || typeof text !== 'string') return { text: text || '', repaired: 0, flagged: 0 };
+  let repaired = 0;
+  let flagged = 0;
+  const lines = text.split('\n').map((line) => {
+    const opens = (line.match(/\u201C/g) || []).length;
+    const closes = (line.match(/\u201D/g) || []).length;
+    if (opens <= closes) return line;
+    const trimmed = line.replace(/\s+$/, '');
+    const lastOpen = trimmed.lastIndexOf('\u201C');
+    const spoken = trimmed.slice(lastOpen + 1).trim();
+    if (!spoken || !/[.!?\u2026]$/.test(trimmed)) { flagged += 1; return line; }
+    repaired += 1;
+    return trimmed + '\u201D';
+  });
+  if (repaired || flagged) {
+    console.log(`[DIALOGUE-MECHANICS-REPAIR] Unclosed-dialogue healer closed ${repaired} quote(s), flagged ${flagged}`);
+  }
+  return { text: lines.join('\n'), repaired, flagged };
 }
 
 export function runDialogueMechanicsPass(text, options = {}) {
@@ -568,6 +786,19 @@ export function runDialogueMechanicsPass(text, options = {}) {
       improved: false,
     };
   }
+
+  // PARABREAK-1: Step 0 - break a collapsed multi-speaker paragraph into one
+  // turn per paragraph BEFORE anything line-oriented runs. Every repairer below
+  // works per line, so a 748-word wall starves all of them at once. Opt-in:
+  // the fiction drafting paths enable it; the nonfiction pre-save path does not.
+  let working = text;
+  let paragraphSplits = 0;
+  if (options.splitCollapsedParagraphs) {
+    const split = splitCollapsedDialogueParagraphs(text);
+    working = split.text;
+    paragraphSplits = split.splits;
+  }
+  text = working;
 
   // Step 1: Detect before repair
   const before = detectDialogueQuoteIssues(text, options);
@@ -593,15 +824,23 @@ export function runDialogueMechanicsPass(text, options = {}) {
   // (dialogue followed by action beats instead of speech verbs).
   const orphan = repairOrphanClosers(repairResult.text);
 
+  // QUOTECLOSE-1: the third shape — an opener with no closer. Runs last so the
+  // splitter and both existing healers have already normalised the paragraphs.
+  const unclosed = repairUnclosedDialogue(orphan.text);
+
   return {
-    text: orphan.text,
+    text: unclosed.text,
+    unclosedRepaired: unclosed.repaired,
+    unclosedFlagged: unclosed.flagged,
     repairs: repairResult.repairs,
     orphanRepaired: orphan.repaired,
     orphanFlagged: orphan.flagged,
+    orphanWholeLineRepaired: orphan.wholeLineRepaired || 0,
+    paragraphSplits,
     manualReview: repairResult.manualReview,
     beforeCount,
     afterCount,
-    improved: improved || orphan.repaired > 0,
+    improved: improved || orphan.repaired > 0 || paragraphSplits > 0 || unclosed.repaired > 0,
   };
 }
 

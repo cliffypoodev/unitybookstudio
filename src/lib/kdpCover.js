@@ -351,7 +351,27 @@ export function estimatePageCount(totalWords) {
 
 // --- Suggest trim for book type ---
 
-export function suggestTrimSize(bookType) {
+/**
+ * WAVE5-SETTINGS: the app spells trim sizes four different ways
+ * ('6x9', '6" × 9"', '6in x 9in', '6 x 9'). Normalize any spelling to a
+ * canonical 'WxH' key, or return the fallback when unrecognized.
+ */
+export function normalizeTrimSize(value, fallback = '') {
+  const m = String(value || '').match(/(\d+(?:\.\d+)?)\s*(?:["in]*)\s*[x×]\s*(\d+(?:\.\d+)?)/i);
+  if (!m) return fallback;
+  const key = `${parseFloat(m[1])}x${parseFloat(m[2])}`;
+  const known = KDP_SPECS.trimSizes.some((t) => `${t.w}x${t.h}` === key);
+  return known ? key : fallback;
+}
+
+export function findTrimByKey(key) {
+  return KDP_SPECS.trimSizes.find((t) => `${t.w}x${t.h}` === normalizeTrimSize(key)) || null;
+}
+
+export function suggestTrimSize(bookType, userDefault = '') {
+  // WAVE5-SETTINGS: a valid user default (Settings → default_trim_size) wins.
+  const userTrim = findTrimByKey(userDefault);
+  if (userTrim) return userTrim;
   if (bookType === 'nonfiction') return KDP_SPECS.trimSizes[3]; // 6x9
   return KDP_SPECS.trimSizes[2]; // 5.5x8.5
 }

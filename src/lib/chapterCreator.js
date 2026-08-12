@@ -31,7 +31,13 @@ function cleanSummary(value) {
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-  if (out.length > 1400) out = out.slice(0, 1400).replace(/\s+\S*$/, '').trim() + '…';
+  // ANTHOLOGYJSON-1: anthology stories store their full structured data as a JSON object
+  // in beat_summary; truncating it to 1400 chars produces UNTERMINATED JSON that
+  // parseStoryData cannot read, so the story then drafts with no premise/protagonist/
+  // setting/pov/tense. Never truncate a JSON object — the 1400-char cap is for
+  // human-readable summaries only.
+  const _looksJson = /^\s*\{[\s\S]*\}\s*$/.test(out);
+  if (!_looksJson && out.length > 1400) out = out.slice(0, 1400).replace(/\s+\S*$/, '').trim() + '…';
   return out;
 }
 

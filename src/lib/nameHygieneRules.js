@@ -11,6 +11,8 @@
 // It should be used by fiction, anthology, erotica, thriller, sci-fi, fantasy,
 // nonfiction narrative, and any future writing modes.
 
+import { parseCustomBannedNames } from './settingsRead.js'; // WAVE5-SETTINGS
+
 export const NAME_HYGIENE_VERSION = "name-hygiene-rules-v1-global-ai-slop-database";
 
 export const NAME_RISK_LEVELS = Object.freeze({
@@ -369,7 +371,11 @@ function uniqueSorted(values) {
 }
 
 export function getAllBlockedNames() {
-  return uniqueSorted(TIER_1_ALWAYS_BANNED_AI_NAMES);
+  // WAVE5-SETTINGS: user-supplied names from Settings → custom_banned_names
+  // join the tier-1 list at every call site automatically.
+  let userNames = [];
+  try { userNames = parseCustomBannedNames(); } catch { userNames = []; }
+  return uniqueSorted([...TIER_1_ALWAYS_BANNED_AI_NAMES, ...userNames]);
 }
 
 export function getAllHighRiskNames() {

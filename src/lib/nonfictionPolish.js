@@ -23,6 +23,7 @@ import { runStackedClauseVariation } from '@/lib/sentencePatternPolish';
 import { runDisclaimerStripper } from '@/lib/disclaimerStripper';
 import { runAntiDetectionPolish } from '@/lib/antiDetectionPolish';
 import { safeUppercaseReplace } from '@/lib/safeUppercase';
+import { refreshProjectWordCount } from '@/lib/projectWordCount';
 
 // Nonfiction banned words — unified with fiction list to ensure zero AI vocabulary survives
 const NF_BANNED_WORDS = [
@@ -868,13 +869,15 @@ export async function runNonfictionPolish({ loaded, onProgress, project }) {
     if (f.content === f.original) { unchangedCount++; continue; }
     onProgress?.(`Polish (NF): Saving chapter ${chNum}…`);
     try {
-      const contentFields = await prepareChapterContent(f.content);
+      const contentFields = await prepareChapterContent(f.content, project?.id, f.chapter.id, f.chapter);
       await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, { ...contentFields, word_count: countWords(f.content) }));
       savedCount++;
     } catch (err) {
       changes.push('❌ Ch.' + chNum + ': SAVE FAILED — ' + err.message);
     }
   }
+
+  if (savedCount > 0 && project?.id) refreshProjectWordCount(project.id); // WAVE2-WORDCOUNT
 
   const afterStats = calculateManuscriptStatsNonfiction(loaded.map(f => f.content).join('\n\n'));
 
@@ -957,8 +960,23 @@ export function runNonfictionDeterministicCore(loaded, onProgress, project) {
       const smartClose = (para.match(/\u201d/g) || []).length;
       if (smartOpen > smartClose) {
         for (let d = 0; d < smartOpen - smartClose; d++) {
-          if (para.match(/[.!?]\s*$/)) para = para.replace(/([.!?])(\s*)$/, '\u201d$1$2');
-          else para = para.trimEnd() + '\u201d';
+          // NFQUOTE-1: if the unquoted tail after the last opening quote is an
+          // attribution ("...built, said one engineer's report."), the closer
+          // goes AFTER the comma and BEFORE the attribution. Closing at the end
+          // swallowed the attribution into the quote — which silently breaks
+          // the verbatim-substring property the nonfiction quote gate enforces.
+          // Otherwise close after the terminal punctuation (".”", not "”.").
+          const lastOpenIdx = para.lastIndexOf('“');
+          const tail = lastOpenIdx >= 0 ? para.slice(lastOpenIdx + 1) : '';
+          const attrM = tail.match(/,\s+(said|says|wrote|writes|reported|reports|testified|argued|recalled|added|noted|according to)\b/i);
+          if (lastOpenIdx >= 0 && !tail.includes('”') && attrM) {
+            const insertAt = lastOpenIdx + 1 + attrM.index + 1;
+            para = para.slice(0, insertAt) + '”' + para.slice(insertAt);
+          } else if (para.match(/[.!?]\s*$/)) {
+            para = para.replace(/([.!?])(\s*)$/, '$1”$2');
+          } else {
+            para = para.trimEnd() + '”';
+          }
           grammarFixed++;
         }
       } else if (smartClose > smartOpen) {

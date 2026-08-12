@@ -177,7 +177,61 @@ export const TENSE_INSTRUCTIONS = {
   mixed: 'MIXED TENSE — Use PRESENT TENSE for analysis, commentary, and direct address ("This pattern reveals..." / "What we see here is..."). Use PAST TENSE for reconstructed events, historical narrative, and quoted sources ("The committee met..." / "She testified that..."). Transition cleanly between the two — present for the author\'s lens, past for the story.',
 };
 
-export function buildPovTenseBlock(spec) {
+/*
+ * WAVE2-POVNORMALIZE: older builds (and the Dashboard's create dialog until
+ * Wave 2) wrote display strings like 'Third Person Limited' / 'Past' instead
+ * of the canonical slugs. Every checker keyed on exact slugs, so POV and
+ * tense QA silently no-opped for those projects. These normalizers accept
+ * both vocabularies; every entry point below runs its spec through them so
+ * legacy projects self-heal at read time.
+ */
+const POV_ALIASES = {
+  'third person limited': 'third-close',
+  '3rd person limited': 'third-close',
+  'third person close': 'third-close',
+  'third person': 'third-close',
+  third: 'third-close',
+  'third person multiple': 'third-multi',
+  'third person multi': 'third-multi',
+  'third person omniscient': 'third-omni',
+  omniscient: 'third-omni',
+  'first person': 'first',
+  '1st person': 'first',
+  'deep first person': 'deep-first',
+  'deep first': 'deep-first',
+  'second person': 'second',
+  'author voice': 'nf-author',
+  'direct address': 'nf-direct',
+  'editorial mix': 'nf-editorial',
+};
+
+export function normalizePovMode(value, bookType) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (FICTION_POV_INSTRUCTIONS[raw] || NONFICTION_POV_INSTRUCTIONS[raw]) return raw;
+  const slug = POV_ALIASES[raw.toLowerCase()] || '';
+  if (!slug) return raw; // unknown value: pass through, downstream fallbacks apply
+  // A display-string 'First Person' on a NONFICTION project means author voice.
+  if (bookType === 'nonfiction' && slug === 'first') return 'nf-author';
+  return slug;
+}
+
+export function normalizeTense(value) {
+  const raw = String(value || '').trim().toLowerCase();
+  if (raw === 'past' || raw === 'present' || raw === 'mixed') return raw;
+  return raw ? raw : '';
+}
+
+export function normalizePovTenseSpec(spec = {}) {
+  return {
+    ...spec,
+    pov_mode: normalizePovMode(spec.pov_mode, spec.book_type),
+    tense: normalizeTense(spec.tense),
+  };
+}
+
+export function buildPovTenseBlock(rawSpec) {
+  const spec = normalizePovTenseSpec(rawSpec);
   const isNF = spec.book_type === 'nonfiction';
   const povInstructions = isNF
     ? NONFICTION_POV_INSTRUCTIONS[spec.pov_mode] || NONFICTION_POV_INSTRUCTIONS['nf-editorial']
@@ -195,7 +249,7 @@ export function stripDialogue(text = '') {
 
 export function checkTenseConsistency(chapterText, spec) {
   const violations = [];
-  const tense = spec?.tense;
+  const tense = normalizeTense(spec?.tense);
   if (!tense || tense === 'mixed') return violations;
 
   const withoutDialogue = stripDialogue(chapterText);
@@ -262,14 +316,24 @@ export const chapterJudgeSchema = {
     voice_adherence: { type: 'number' },
     character_distinctiveness: { type: 'number' },
     beat_coverage: { type: 'number' },
+    narrative_contract_adherence: { type: 'number' },
+    continuity_integrity: { type: 'number' },
     register_accuracy: { type: 'number' },
     overall: { type: 'number' },
     issues: {
       type: 'array',
       items: { type: 'string' }
+    },
+    contract_violations: {
+      type: 'array',
+      items: { type: 'string' }
+    },
+    process_leaks: {
+      type: 'array',
+      items: { type: 'string' }
     }
   },
-  required: ['prose_quality', 'voice_adherence', 'character_distinctiveness', 'beat_coverage', 'register_accuracy', 'overall', 'issues']
+  required: ['prose_quality', 'voice_adherence', 'character_distinctiveness', 'beat_coverage', 'narrative_contract_adherence', 'continuity_integrity', 'register_accuracy', 'overall', 'issues', 'contract_violations', 'process_leaks']
 };
 
 export function buildChapterJudgePrompt(spec, chapter, chapterText, tenseViolations = []) {
@@ -285,7 +349,9 @@ export function buildChapterJudgePrompt(spec, chapter, chapterText, tenseViolati
   const isMultiPov = spec?.pov_mode === 'third-multi';
   const multiPovBlock = isMultiPov ? `\n\nMULTI-POV CARVE-OUT (CRITICAL — READ BEFORE SCORING):\nThis project is configured as third-person MULTIPLE POV. Different chapters and different scenes within chapters are written from different POV characters. Voice, diction, rhythm, vocabulary, and interior register WILL LEGITIMATELY SHIFT between POV characters — that is the intended architecture, not a flaw.\n\nDO NOT deduct voice_adherence points for:\n  - Register shifts between POV sections (a hardened detective's voice vs. a young runaway's voice — different on purpose).\n  - Vocabulary variation across POV characters (formal vs. colloquial, technical vs. sensory).\n  - Interior-monologue style differences between characters.\n  - Sentence rhythm variation tied to which character holds the scene.\n\nDO still deduct voice_adherence points for:\n  - Tense drift (past → present or vice versa) — tense must stay stable regardless of POV owner.\n  - POV breaks WITHIN a single scene (head-hopping between characters mid-scene without a * * * break).\n  - Clinical descriptors ("the man," "the woman," "the subject") in place of names.\n  - Second-person intrusion into third-person narration.\n  - A single POV character's own voice being inconsistent across their own scenes (that IS drift).\n\nScore voice_adherence on PER-CHARACTER consistency and tense stability — NOT on uniformity of voice across the whole book.` : '';
 
-  return `Score this chapter 1-10 on each dimension.\n\n- prose_quality: Is the writing publishable? Natural rhythm, varied sentences, no AI tells.\n- voice_adherence: Does the prose match the project's POV (${spec.pov_mode}) and tense (${spec.tense})? Deduct heavily for tense drift, POV breaks, clinical descriptors, or second-person intrusions in third-person narration.${multiPovBlock}\n- character_distinctiveness: Do characters sound different from each other in dialogue?\n- beat_coverage: Does the chapter hit the planned beats from the outline?\n- register_accuracy: If erotica settings are active, does the explicitness match the target register? Otherwise score based on how faithfully the prose matches the requested tonal register.\n\nMechanical scan results:\n${violationText}\n\nChapter title: ${chapter.title}\nBeat summary: ${chapter.beat_summary}\n\nChapter text:\n${safeChapterText.slice(0, 7000)}\n\nReturn JSON only.`;
+  const sceneContract = String(chapter?.scene_beats_json || chapter?.scene_beats || '').trim();
+
+  return `Score this chapter 1-10 on each dimension.\n\n- prose_quality: Is the writing publishable? Natural rhythm, varied sentences, no AI tells.\n- voice_adherence: Does the prose match the project's POV (${spec.pov_mode}) and tense (${spec.tense})? Deduct heavily for tense drift, POV breaks, clinical descriptors, or second-person intrusions in third-person narration.${multiPovBlock}\n- character_distinctiveness: Do characters sound different from each other in dialogue?\n- beat_coverage: Does the chapter hit the planned beats from the outline?\n- narrative_contract_adherence: Does every contracted scene begin from its entry_state, perform every required_event exactly once, avoid forbidden_events, and end at its exit_state without merging or replaying another scene?\n- continuity_integrity: Are deaths, injuries, revelations, locations, object ownership, and character knowledge consistent throughout this chapter and with the supplied chapter plan?\n- register_accuracy: If erotica settings are active, does the explicitness match the target register? Otherwise score based on how faithfully the prose matches the requested tonal register.\n\nHARD NARRATIVE RULES:\n- Put every skipped, repeated, contradicted, premature, or unowned event in contract_violations.\n- Put any manuscript reference to \"the previous chapter\", \"the next chapter\", \"in Chapter N\", scene IDs, beats, outlines, prompts, or drafting instructions in process_leaks.\n- A death, amputation, reveal, archive opening, escape, collapse, climax, or object transfer may occur only in its owning scene.\n- Do not award an 8+ contract score if contract_violations is non-empty.\n\nMechanical scan results:\n${violationText}\n\nChapter title: ${chapter.title}\nChapter plan: ${chapter.beat_summary}\n\nIMMUTABLE SCENE CONTRACT:\n${sceneContract.slice(0, 9000) || 'Missing — report this as a contract violation.'}\n\nCOMPLETE CHAPTER TEXT:\n${safeChapterText.slice(0, 22000)}\n\nReturn JSON only.`;
 }
 
 /**
@@ -294,7 +360,7 @@ export function buildChapterJudgePrompt(spec, chapter, chapterText, tenseViolati
  */
 export function checkPovConsistency(chapterText, spec, chapterNumber) {
   const violations = [];
-  const pov = spec?.pov_mode;
+  const pov = normalizePovMode(spec?.pov_mode, spec?.book_type);
   if (!pov || !chapterText) return violations;
 
   const withoutDialogue = stripDialogue(chapterText);

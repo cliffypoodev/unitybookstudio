@@ -20,6 +20,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { exec as cpExec, spawn as cpSpawn } from 'node:child_process';
+import { get as httpGet } from 'node:http';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -298,7 +300,10 @@ export default function serverStorePlugin() {
     name: 'server-store',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (req.url && req.url.startsWith('/api/store/')) {
+        if (req.url && req.url.startsWith('/api/routerheal')) {
+          // ROUTERHEAL-1: self-heal endpoint for the wedged llama router.
+          handleRouterHeal(req, res);
+        } else if (req.url && req.url.startsWith('/api/store/')) {
           handleRequest(req, res);
         } else {
           next();
@@ -309,5 +314,115 @@ export default function serverStorePlugin() {
   };
 }
 
+// ── ROUTERHEAL-1 ────────────────────────────────────────────────────────
+// The local llama router wedges intermittently (3× on 2026-08-02): a worker
+// dies, the router keeps proxying to the dead port, and every completion
+// returns 500 "Compute error" until a human kills and relaunches the router.
+// The browser cannot restart a Mac process — but this dev-server middleware
+// can. POST /api/routerheal runs the recorded recovery: kill the LISTEN
+// process on the router port, kill leftover llama workers (NEVER anything
+// named ollama or hermes), relaunch the recorded command, probe /v1/models.
+// Rate-limited to one heal per 5 minutes so a misfiring client can never
+// restart-loop the router. Launch line/port/log are env-overridable.
+const ROUTERHEAL_PORT = Number(process.env.UBS_LLAMA_PORT || 8081); // ROUTERSPLIT-1: UBS-only router
+const ROUTERHEAL_LAUNCH = process.env.UBS_LLAMA_LAUNCH ||
+  '/Users/cliff/.local/bin/llama serve --models-dir /Users/cliff/llama-models --models-max 1 --models-autoload --host 127.0.0.1 --port 8081 --ctx-size 65536 --parallel 1 --cache-ram 0';
+const ROUTERHEAL_LOG = process.env.UBS_LLAMA_LOG || '/tmp/llama-router.log';
+const ROUTERHEAL_COOLDOWN_MS = 5 * 60 * 1000;
+let routerHealLastRun = 0;
+
+const routerHealExec = (cmd) => new Promise((resolve) => {
+  cpExec(cmd, { timeout: 15000 }, (err, stdout) => resolve(String(stdout || '').trim()));
+});
+const routerHealSleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ── ROUTERHEAL-2 ────────────────────────────────────────────────────────
+// Two failures observed on the live ch.3 run (2026-08-04), both from the
+// router log and the app console:
+//   1. RELAUNCH RACE. The heal killed the listener, slept a fixed 3s+1s, and
+//      spawned. The new process died on startup with
+//      "couldn't bind HTTP server socket, hostname: 127.0.0.1, port: 8080"
+//      because the port had not been released yet. A fixed sleep cannot know
+//      when the socket is free; polling can.
+//   2. THE HEAL LIED, THEN THE COOLDOWN BLOCKED RECOVERY. `healed: true` was
+//      returned unconditionally - it reported success whenever a PID existed,
+//      even with modelsOk false - and the 5-minute cooldown then refused the
+//      next heal ({"healed":false,"reason":"cooldown"}), so three retries hit
+//      a dead router and the chapter lost its critique pass.
+// Fixes: poll the port until it is genuinely free before relaunching; poll
+// /v1/models until the router actually serves (a 35B cold load takes far
+// longer than the old 5s); retry the spawn once if the first never binds;
+// report healed = modelsOk, never a bare PID; and let the cooldown be bypassed
+// when the router is NOT serving - a cooldown exists to stop thrashing, not to
+// prevent recovery from a dead router.
+const ROUTERHEAL_PORT_FREE_MS = 20000;
+const ROUTERHEAL_SERVING_MS = 90000;
+const ROUTERHEAL_MIN_INTERVAL_MS = 45000;
+
+// ROUTERHEAL-3 — the recovery runs OUT OF PROCESS.
+//
+// The in-process version died mid-request on 2026-08-04 and took the whole dev
+// server with it: /api/routerheal returned ERR_EMPTY_RESPONSE, vite dropped, and
+// a completed 3,594-word chapter had nowhere to save. A repair path must never
+// be able to kill the thing it is repairing. The endpoint now fires a detached
+// shell script and returns immediately; all waiting, killing, relaunching and
+// polling happens in that child. The client already waits and retries.
+//
+// Root cause of the crashes themselves was separate and is fixed in the launch
+// line above: the router ran with --models-max 2, so a 20GB and a 21GB model
+// were resident at once and every swap tried to add a third. One model at a
+// time is what the machine can actually hold.
+const ROUTERHEAL_SCRIPT = process.env.UBS_HEAL_SCRIPT ||
+  '/Users/cliff/Downloads/UBS/scripts/ubs-heal-router.sh';
+
+function routerHealProbe() {
+  return new Promise((resolve) => {
+    try {
+      const probe = httpGet({ host: '127.0.0.1', port: ROUTERHEAL_PORT, path: '/v1/models', timeout: 4000 }, (r) => {
+        let body = '';
+        r.on('data', (c) => { body += c; });
+        r.on('end', () => resolve(r.statusCode === 200 && body.includes('"data"')));
+      });
+      probe.on('error', () => resolve(false));
+      probe.on('timeout', () => { try { probe.destroy(); } catch { /* ignore */ } resolve(false); });
+    } catch { resolve(false); }
+  });
+}
+
+function spawnDetachedHeal() {
+  const child = cpSpawn('/bin/bash', [ROUTERHEAL_SCRIPT], { detached: true, stdio: 'ignore' });
+  child.unref();
+  return child.pid || null;
+}
+
+async function handleRouterHeal(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  if (req.method !== 'POST') {
+    res.statusCode = 405;
+    res.end(JSON.stringify({ error: 'POST only' }));
+    return;
+  }
+  try {
+    if (await routerHealProbe()) {
+      res.end(JSON.stringify({ healed: false, reason: 'already-serving' }));
+      return;
+    }
+    const now = Date.now();
+    if (now - routerHealLastRun < ROUTERHEAL_MIN_INTERVAL_MS) {
+      res.end(JSON.stringify({ healed: false, reason: 'cooldown' }));
+      return;
+    }
+    routerHealLastRun = now;
+    const pid = spawnDetachedHeal();
+    console.warn(`[ROUTERHEAL-3] detached heal started (pid ${pid}) — see /tmp/ubs-heal.log`);
+    res.end(JSON.stringify({ healed: false, started: true, healPid: pid }));
+  } catch (healErr) {
+    // Never let a repair path take down the server it runs inside.
+    console.warn('[ROUTERHEAL-3] heal dispatch failed:', healErr?.message || healErr);
+    try { res.end(JSON.stringify({ healed: false, reason: String(healErr?.message || healErr) })); } catch { /* ignore */ }
+  }
+}
+
+
 // Export for test harness
-export { handleRequest, ENTITY_STORES, DATA_DIR, loadStore, flushStore, cache };
+export { handleRequest, ENTITY_STORES, DATA_DIR, loadStore, flushStore, cache, handleRouterHeal, routerHealProbe, spawnDetachedHeal };

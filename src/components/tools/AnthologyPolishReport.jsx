@@ -45,7 +45,10 @@ export default function AnthologyPolishReport({ report }) {
   if (!report) return null;
 
   const { dedup, arcs, endings, pronouns, contamination, length, savedCount,
-          atmospheric, openers, hardErrors, narrative } = report;
+          atmospheric, openers, hardErrors, narrative,
+          // WAVE7-ANTHREPORT: three steps that rewrite the manuscript had no
+          // report section at all — you could not see what they changed.
+          contamFix, bodyLang, anthVocab } = report;
 
   return (
     <div className="space-y-4">
@@ -232,12 +235,25 @@ export default function AnthologyPolishReport({ report }) {
       {/* ── NEW SECTIONS — added for Afterlight-style anthology fixes ── */}
 
       {/* Literary Atmospheric Cap (only shown when it ran) */}
+      {atmospheric?.skipped && (
+        <ReportSection title="Literary Atmospheric Cap">
+          <div className="text-xs text-muted-foreground">
+            Skipped — {atmospheric.skipReason || 'not a literary project'}. This pass substitutes
+            words inside metaphor families (water, textile, garden, architecture, math), which would
+            rewrite load-bearing nouns in genre fiction.
+          </div>
+        </ReportSection>
+      )}
+
       {atmospheric && !atmospheric.skipped && (
         <ReportSection title="Literary Atmospheric Cap">
           <div className="text-xs text-muted-foreground">
-            Capped overuse of atmospheric vocabulary (quiet, silence, light, whisper, finally, softly, gently, stillness) per chapter.
+            {/* WAVE7-ANTHREPORT: describes what this pass actually does — it
+                substitutes metaphor-family words, it does not remove sentences. */}
+            Thinned repeated metaphor families (water, textile, garden, architecture, math) by
+            substituting alternatives — e.g. <em>tide</em> → <em>pull</em>, <em>structure</em> → <em>shape</em>.
             <br />
-            <span className="text-foreground font-medium mt-1 inline-block">{atmospheric.atmosphericFixed} sentence(s) removed across the anthology.</span>
+            <span className="text-foreground font-medium mt-1 inline-block">{atmospheric.totalAdjusted || 0} substitution(s) across the anthology.</span>
           </div>
           {atmospheric.changes?.length > 0 && (
             <details className="mt-3">
@@ -251,96 +267,61 @@ export default function AnthologyPolishReport({ report }) {
       )}
 
       {/* MANUAL REVIEW REQUIRED — flag-only detectors */}
-      {(openers?.openerFlags?.length > 0 ||
-        hardErrors?.hardErrorFlags?.length > 0 ||
-        narrative?.narrativeContaminationFlags?.length > 0) && (
+      {/* WAVE7-ANTHREPORT: these detectors return { changes, warnings } where
+          warnings are plain strings. The old markup read flag.chapter_number /
+          .type / .snippet off objects that never existed, so this whole section
+          could never render — the hard-error detector ran and its findings were
+          invisible. */}
+      {(openers?.warnings?.length > 0 ||
+        hardErrors?.warnings?.length > 0 ||
+        narrative?.warnings?.length > 0) && (
         <ReportSection title="⚠️ Manual Review Required">
-          <p className="text-xs text-muted-foreground mb-3">
-            The checks below detected issues but did <em>not</em> modify content. Review each flagged chapter and either fix manually or regenerate from the Bible.
+          <p className="text-[11px] text-muted-foreground mb-3">
+            Flagged for you to look at — nothing here was changed automatically.
           </p>
 
-          {/* Hard errors (highest priority) */}
-          {hardErrors?.hardErrorFlags?.length > 0 && (
+          {hardErrors?.warnings?.length > 0 && (
             <div className="mb-4">
               <h4 className="text-xs font-semibold text-destructive mb-2 uppercase tracking-wider">
-                Hard Errors ({hardErrors.hardErrorFlags.length})
+                Hard Errors ({hardErrors.warnings.length})
               </h4>
-              <div className="space-y-2">
-                {hardErrors.hardErrorFlags.map((flag, i) => (
-                  <div key={i} className="rounded-lg bg-destructive/10 px-3 py-2">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-destructive" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-destructive">
-                          Ch.{flag.chapter_number} — {flag.title || ''}
-                          <Badge variant="outline" className="ml-2 text-[9px]">{flag.type.replace(/_/g, ' ')}</Badge>
-                        </p>
-                        <p className="text-[11px] text-foreground/80 mt-1">{flag.message}</p>
-                        <p className="text-[11px] text-muted-foreground italic mt-1 truncate">
-                          &ldquo;…{flag.snippet}…&rdquo;
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+              <ul className="space-y-1">
+                {hardErrors.warnings.map((w, i) => (
+                  <li key={i} className="flex items-start gap-2 rounded-lg bg-destructive/10 px-3 py-2">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-destructive" />
+                    <span className="text-[11px] text-foreground/90">{w}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
 
-          {/* Repeated openers */}
-          {openers?.openerFlags?.length > 0 && (
+          {openers?.warnings?.length > 0 && (
             <div className="mb-4">
               <h4 className="text-xs font-semibold text-foreground mb-2 uppercase tracking-wider">
-                Repeated Sentence Openers ({openers.openerFlags.length})
+                Repeated Sentence Openers ({openers.warnings.length})
               </h4>
-              <p className="text-[11px] text-muted-foreground mb-2">
-                Chapters with the same 2-word opener appearing 4+ times. Consider varying sentence construction during chapter rewrite.
-              </p>
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-border/50">
-                    <th className="pb-1.5 text-[10px] uppercase text-muted-foreground">Ch.</th>
-                    <th className="pb-1.5 text-[10px] uppercase text-muted-foreground">Title</th>
-                    <th className="pb-1.5 text-[10px] uppercase text-muted-foreground">Opener</th>
-                    <th className="pb-1.5 text-[10px] uppercase text-muted-foreground text-right">Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {openers.openerFlags.map((f, i) => (
-                    <tr key={i} className="border-b border-border/30">
-                      <td className="py-1 font-medium">{f.chapter_number}</td>
-                      <td className="py-1 text-muted-foreground">{f.title}</td>
-                      <td className="py-1 italic">&ldquo;{f.opener}&rdquo;</td>
-                      <td className="py-1 text-right text-foreground font-medium">{f.count}×</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <ul className="space-y-1">
+                {openers.warnings.map((w, i) => (
+                  <li key={i} className="rounded-lg bg-yellow-500/10 px-3 py-2 text-[11px] text-foreground/90">{w}</li>
+                ))}
+              </ul>
             </div>
           )}
 
-          {/* Narrative contamination (existing — surface here for visibility) */}
-          {narrative?.narrativeContaminationFlags?.length > 0 && (
+          {narrative?.warnings?.length > 0 && (
             <div className="mb-2">
               <h4 className="text-xs font-semibold text-foreground mb-2 uppercase tracking-wider">
-                Narrative Genre Contamination ({narrative.narrativeContaminationFlags.length})
+                Narrative Genre Contamination ({narrative.warnings.length})
               </h4>
               <p className="text-[11px] text-muted-foreground mb-2">
-                Chapters with vocabulary suggesting wrong-genre scene leakage. Recommend regenerating from the Bible.
+                Vocabulary suggesting wrong-genre scene leakage. Consider regenerating from the Bible.
               </p>
-              <div className="space-y-2">
-                {narrative.narrativeContaminationFlags.map((flag, i) => (
-                  <div key={i} className="rounded-lg bg-yellow-500/10 px-3 py-2">
-                    <p className="text-xs font-medium">
-                      Ch.{flag.chapter_number} — {flag.title}
-                      <Badge variant="outline" className="ml-2 text-[9px]">{flag.term_count} terms</Badge>
-                    </p>
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      {flag.terms_found?.slice(0, 8).join(', ')}{flag.terms_found?.length > 8 ? '…' : ''}
-                    </p>
-                  </div>
+              <ul className="space-y-1">
+                {narrative.warnings.map((w, i) => (
+                  <li key={i} className="rounded-lg bg-yellow-500/10 px-3 py-2 text-[11px] text-foreground/90">{w}</li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
         </ReportSection>

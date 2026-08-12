@@ -48,7 +48,11 @@ export function assertExportSnapshotIntegrity({
 }
 
 import { runManuscriptSafetyGate } from './manuscriptSafetyGate.js';
+import { buildFactLedger, checkClockTimeViolations, checkFateViolations } from './nfContentGuard.js'; // ARCH-1C
+import { ensureResearchEvidence } from './researchStorage.js'; // RESEARCHQUALITY-2C
 import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
+import { checkStructuralIntegrity, checkBookIntegrity } from './pipelineValidator.js';
+import { analyzeProse } from './proseGrammarGate.js';
 
 // Lazy-loaded to avoid circular imports
 let _detectDialogueQuoteIssues = null;
@@ -79,24 +83,95 @@ async function getDialogueDetector() {
  * }}
  */
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
-  const { project, stage = 'pre-export' } = options;
+  let { project, stage = 'pre-export' } = options;
+  // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the export-lane
+  // ledger sees the same closed world as drafting. Fail-open.
+  project = await ensureResearchEvidence(project);
   const timestamp = new Date().toISOString();
 
   const hardFailures = [];
   const warnings = [];
   const passed = [];
+  const skipped = [];
 
   for (const ch of chapters) {
     const content = ch?.content_md || '';
     if (content.length < 100) {
-      passed.push({
+      // EXPORTSCRUB-1: this used to push onto `passed`, so a stub chapter was counted
+      // in the "All N chapter(s) passed safety gate" line and never reached BOOKGATE-2.
+      // Unscanned is not passed. It goes in its own bucket and is reported by name.
+      skipped.push({
         chapterNumber: ch?.chapter_number,
         title: ch?.title || '',
         skipped: true,
-        reason: 'Too short to scan',
+        reason: `Too short to scan (${content.length} chars)`,
       });
       continue;
     }
+
+    // PROSEGATE-1B: no hard grammar defect ships. POS-aware analysis (retext) —
+    // high-precision classes only (a/an mismatch, doubled words, dropped nouns);
+    // everything softer stays advisory. Flag-not-fix: repair happens upstream
+    // (DRAFTGATE-3C healer, redraft); the gate is the guarantee.
+    try {
+      const prose = await analyzeProse(content);
+      if (prose.hard.length > 0) {
+        console.error(`[PROSEGATE-1] Ch.${ch?.chapter_number} BLOCKED: ${prose.hard.length} hard grammar defect(s): ` + prose.hard.slice(0, 3).map((h) => `[p${h.paragraph}] ${h.rule}: "${h.snippet}"`).join(' | '));
+        hardFailures.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          reasons: prose.hard.map((h) => `Grammar (${h.rule}) paragraph ${h.paragraph}: "${h.snippet}"`),
+        });
+        continue;
+      }
+      if (prose.advisory.length > 0) {
+        warnings.push({ chapterNumber: ch?.chapter_number, title: ch?.title || '', reasons: [`${prose.advisory.length} prose advisories (PROSEGATE-1)`] });
+      }
+    } catch (e) { console.error('[PROSEGATE-1] analyzer unavailable — chapter NOT grammar-verified:', e?.message); }
+
+    // LENGTHGATE-1B: a chapter that assembled far under its explicit target does not
+    // ship. Draft-time repair (LENGTHGATE-1A) is best-effort; this is the guarantee.
+    // The target comes from chapter/project fields (book data), so the check is
+    // book-agnostic. Enforced ONLY when an explicit length target exists — books with
+    // no configured target keep the advisory median-relative shortChapters check in
+    // checkBookIntegrity and nothing more. Deliberately NOT in the chain:
+    // project.chapter_target — that field holds the CHAPTER COUNT, not a word length.
+    const explicitChapterTarget = Number(
+      ch?.target_words || ch?.targetWords ||
+      project?.target_chapter_words || project?.chapter_length_target || 0
+    );
+    if (explicitChapterTarget > 0) {
+      const chapterWordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+      const chapterWordFloor = Math.round(explicitChapterTarget * 0.75);
+      if (chapterWordCount < chapterWordFloor) {
+        console.error(`[LENGTHGATE-1B] Ch.${ch?.chapter_number} BLOCKED: ${chapterWordCount} words against a ${explicitChapterTarget}-word target (floor ${chapterWordFloor}).`);
+        hardFailures.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          reasons: [`[LENGTHGATE-1B] Chapter assembled at ${chapterWordCount} words against a ${explicitChapterTarget}-word target (floor ${chapterWordFloor}). Under-length chapters do not export — expand or redraft this chapter.`],
+        });
+        continue;
+      }
+    }
+
+    // ARCH-1C: no un-evidenced clock time or life-outcome claim ships. The
+    // draft lane blocks and strips; polish heals saved chapters; this is the
+    // guarantee. Ledger-driven: projects without research build no ledger and
+    // skip cleanly.
+    try {
+      const flLedger = buildFactLedger(project);
+      const flClock = checkClockTimeViolations(content, flLedger);
+      const flFate = checkFateViolations(content, flLedger);
+      if (flClock.length + flFate.length > 0) {
+        console.error(`[FATE-GATE] Ch.${ch?.chapter_number} BLOCKED: ${flClock.length} clock-time + ${flFate.length} fate violation(s): ` + [...flClock, ...flFate].slice(0, 3).map((v) => `[${v.atom}] "${v.snippet.slice(0, 60)}"`).join(' | '));
+        hardFailures.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          reasons: [...flClock, ...flFate].slice(0, 5).map((v) => `[ARCH-1C] ${v.type} not in evidence (${v.atom}): "${v.snippet.slice(0, 90)}"`),
+        });
+        continue;
+      }
+    } catch (e) { console.error('[FATE-GATE] check unavailable — clock/fate NOT verified:', e?.message); }
 
     const gate = runManuscriptSafetyGate(content, {
       project,
@@ -184,6 +259,68 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       entry.reasons = [...(entry.reasons || []), `${quoteClusterCount} malformed runs of 3+ consecutive quotation marks (hard blocker)`];
     }
 
+    // BOOKGATE-2: structural integrity of the SAVED text, book-agnostic, hard block.
+    //
+    // Every other check on this path was written against a defect someone noticed
+    // in a draft. This one exists because ch.3 of Brass Meridian TEST could reach
+    // export with 96 opening quotes and 57 closing ones - 39 lines of dialogue
+    // that open and never close - and every gate here said yes. The dialogue check
+    // above counts MISSING OPENERS; nothing counted missing closers.
+    //
+    // Unclosed dialogue is not a style opinion. It is broken text, it is visible
+    // on the page, and no reader-facing artifact should be producible with it.
+    try {
+      const structural = checkStructuralIntegrity(content, entry.chapterNumber);
+      entry.structural = structural;
+      if (!structural.quoteBalance.pass) {
+        entry.ok = false;
+        entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+        entry.reasons = [...(entry.reasons || []),
+          `${structural.quoteBalance.unbalancedParagraphs} paragraph(s) with unclosed dialogue ` +
+          `(${structural.quoteBalance.open} open / ${structural.quoteBalance.close} close) - hard blocker`];
+        entry.snippets = [...(entry.snippets || []), ...structural.quoteBalance.details.slice(0, 3)
+          .map((d) => ({ type: 'unclosed-dialogue', phrase: `${d.open}/${d.close}`, snippet: d.excerpt }))];
+      }
+      if (!structural.gluedWords.pass) {
+        entry.ok = false;
+        entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+        entry.reasons = [...(entry.reasons || []),
+          `${structural.gluedWords.count} glued word(s) from collapsed dialogue: ` +
+          `${structural.gluedWords.details.slice(0, 5).join(', ')} - hard blocker`];
+      }
+      if (!structural.unterminatedParagraphs.pass) {
+        entry.ok = false;
+        entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+        entry.reasons = [...(entry.reasons || []),
+          `${structural.unterminatedParagraphs.count} paragraph(s) end without terminal punctuation - hard blocker`];
+      }
+      // EXPORTSCRUB-1: checkStructuralIntegrity returns four verdicts and folds all
+      // four into structural.pass; the gate acted on three. The typography verdict —
+      // mixed straight and curly quotes, a hard failure by that function's own
+      // contract — was computed, printed as pass=false, and then ignored, so the book
+      // shipped with inconsistent quotes while the console said it had failed. Mixed
+      // typography is visible on the page, so it blocks like the other three.
+      if (structural.typography && !structural.typography.pass) {
+        entry.ok = false;
+        entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+        entry.reasons = [...(entry.reasons || []),
+          `mixed straight and curly quotation marks (${structural.typography.straightQuotes} straight / `
+          + `${structural.typography.curlyOpen} curly) - hard blocker`];
+      }
+      console.log(
+        `[BOOKGATE-2] chapter=${entry.chapterNumber} quotes=${structural.quoteBalance.open}/` +
+        `${structural.quoteBalance.close} unbalancedParas=${structural.quoteBalance.unbalancedParagraphs} ` +
+        `glued=${structural.gluedWords.count} unterminated=${structural.unterminatedParagraphs.count} ` +
+        `pass=${structural.pass}`
+      );
+    } catch (e) {
+      // A gate that cannot run must not silently pass the manuscript.
+      entry.ok = false;
+      entry.recommendedAction = 'REJECT_MANUAL_REVIEW';
+      entry.reasons = [...(entry.reasons || []), `BOOKGATE-2 structural check failed to execute: ${e?.message || e}`];
+      console.error('[BOOKGATE-2] check threw; blocking export rather than passing unchecked:', e);
+    }
+
     if (!entry.ok) {
       // Log failure snippets
       for (const s of entry.snippets.slice(0, 3)) {
@@ -207,6 +344,78 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         passed.push(entry);
       }
     }
+  }
+
+  // ── BOOKGATE-3: verbatim cross-chapter duplication (whole-manuscript, HARD) ──
+  // Exact 12+-word sentences in 2+ chapters are duplicated text a reader will
+  // catch — different class from BOOKGATE-2's advisory echoes. The polish
+  // pre-pass heals these; the gate guarantees none survive to export.
+  try {
+    const seenX = new Map();
+    const dupX = [];
+    for (const ch of chapters) {
+      // BOOKGATE-3B: resolved export chapters carry content_md (see
+      // applyFinalExportCleanup), never a bare content field — the live store
+      // has zero Chapter records with one. Reading ch.content scanned empty
+      // strings, so this hard gate had been dead code since it landed; the
+      // polish pre-pass heal masked it. content stays as a fallback for any
+      // caller that shapes chapters that way.
+      const contentX = String(ch?.content_md || ch?.content || '');
+      const sentsX = contentX.split(/(?<=[.!?…”])\s+/);
+      for (const s of sentsX) {
+        const normX = s.replace(/\s+/g, ' ').trim();
+        if (normX.split(' ').length < 12) continue;
+        const firstX = seenX.get(normX);
+        if (firstX === undefined) seenX.set(normX, ch?.chapter_number);
+        else if (firstX !== ch?.chapter_number) dupX.push({ a: firstX, b: ch?.chapter_number, s: normX.slice(0, 80) });
+      }
+    }
+    if (dupX.length > 0) {
+      console.error(`[BOOKGATE-3] BLOCKED: ${dupX.length} verbatim cross-chapter duplicate sentence(s): ` + dupX.slice(0, 3).map((d) => `ch${d.a}=ch${d.b} "${d.s}"`).join(' | '));
+      hardFailures.push({
+        chapterNumber: dupX[0].b,
+        title: 'Cross-chapter duplication',
+        reasons: dupX.slice(0, 5).map((d) => `Verbatim sentence in ch.${d.a} and ch.${d.b}: "${d.s}"`),
+      });
+    }
+  } catch (e) { console.error('[BOOKGATE-3] check unavailable — duplication NOT verified:', e?.message); }
+
+  // ── BOOKGATE-2: cross-chapter integrity (whole-manuscript, ADVISORY) ──
+  //
+  // Deliberately NOT a hard block. Repeated phrasing and an under-length chapter
+  // are craft problems, not broken text — blocking a finished book on an echo
+  // would make the gate something to route around, and a gate people route
+  // around protects nothing. These surface loudly and go in the report.
+  try {
+    const bookReport = checkBookIntegrity(chapters.map((ch) => ch?.content_md || ''));
+    if (typeof window !== 'undefined') window.__UBS_LAST_BOOK_INTEGRITY = bookReport;
+    console.log(
+      `[BOOKGATE-2] cross-chapter: echoes=${bookReport.crossChapterEchoes.count} ` +
+      `openingEchoes=${bookReport.openingEchoes.count} ` +
+      `shortChapters=${bookReport.shortChapters.details.length} ` +
+      `(median ${bookReport.medianWords} words, floor ${bookReport.shortChapters.floor})`
+    );
+    for (const d of bookReport.openingEchoes.details) {
+      console.warn(`[BOOKGATE-2:OPENING-ECHO] ch${d.chapters[0]} + ch${d.chapters[1]} share ${JSON.stringify(d.shared)}`);
+    }
+    for (const d of bookReport.shortChapters.details) {
+      console.warn(`[BOOKGATE-2:SHORT] ch${d.n} is ${d.words} words, below the ${bookReport.shortChapters.floor}-word floor`);
+    }
+    if (!bookReport.pass) {
+      warnings.push({
+        chapterNumber: 'book',
+        title: 'Cross-chapter integrity',
+        bookIntegrity: true,
+        reasons: [
+          `${bookReport.crossChapterEchoes.count} phrase(s) repeated across chapters`,
+          `${bookReport.openingEchoes.count} chapter pair(s) opening on the same image`,
+          `${bookReport.shortChapters.details.length} chapter(s) below the length floor`,
+        ],
+        details: bookReport,
+      });
+    }
+  } catch (e) {
+    console.error('[BOOKGATE-2] cross-chapter check failed (advisory, not blocking):', e);
   }
 
   // ── Reference Integrity Gate (whole-manuscript) ──
@@ -343,13 +552,20 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         warnings.map(w =>
           `  Ch.${w.chapterNumber} (${w.title}): ${w.reasons.join('; ')}`
         ).join('\n')
-      : `EXPORT CLEAR: All ${passed.length} chapter(s) passed safety gate.`;
+      : `EXPORT CLEAR: ${passed.length} chapter(s) passed safety gate.`
+        // EXPORTSCRUB-1: never say "All N passed" while N excludes the chapters
+        // that were too short to scan. A silent cap reads as full coverage.
+        + (skipped.length
+          ? `\n${skipped.length} chapter(s) were NOT scanned: `
+            + skipped.map((k) => `Ch.${k.chapterNumber} (${k.title || 'untitled'}) - ${k.reason}`).join('; ')
+          : '');
 
   const report = {
     blocked,
     hardFailures,
     warnings,
     passed,
+    skipped,
     summary,
     timestamp,
     stage,
@@ -383,7 +599,10 @@ export function formatExportSafetyFailure(report) {
 
   for (const f of report.hardFailures) {
     lines.push(`  Chapter ${f.chapterNumber}: ${f.title}`);
-    lines.push(`    Action: ${f.recommendedAction}`);
+    lines.push(`    Action: ${f.recommendedAction || 'FIX_OR_REDRAFT'}`);
+    for (const r of (f.reasons || []).slice(0, 3)) {
+      lines.push(`    → ${r}`);
+    }
     if (f.processLeakCount > 0) lines.push(`    Process leaks: ${f.processLeakCount}`);
     if (f.contaminationCount > 0) lines.push(`    Contamination: ${f.contaminationCount}`);
     if (f.malformedCount > 0) lines.push(`    Malformed grammar: ${f.malformedCount}`);

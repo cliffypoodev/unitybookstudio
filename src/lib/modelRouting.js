@@ -1,7 +1,10 @@
-// src/lib/modelRouting.js — FULL REPLACEMENT for local Ollama
+// src/lib/modelRouting.js — FULL REPLACEMENT for local llama.cpp
 import { isNonfictionProject } from '@/lib/manuscriptStats';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
+import { FOUNDATION_FIELDS as SHARED_FOUNDATION_FIELDS } from '@/lib/generationContext'; // NFCLASS-3
 import { isEroticaAnthology, isNonfictionAnthology } from '@/lib/anthologyEngine';
 import { PRIMARY_WRITING_MODEL, WRITING_MODEL_LABEL, normalizeWritingModel } from '@/lib/writingModel';
+import { AGENT_MODELS } from '@/lib/localLLM'; // WAVE5-MODELPICKER
 
 export function isEroticaProject(project) {
   if (!project) return false;
@@ -38,17 +41,38 @@ export function isAdultCreativeTask(task) { return ['prose','prose_continuation'
 export function shouldDisableFallbacks() { return true; }
 export function shouldDisableCreativeFallbacks() { return true; }
 export function buildFallbackControls() { return { fallback_model: null, fallback_models: [], disable_fallbacks: true, use_gemini_fallback: false, use_openai_fallback: false }; }
-const NONFICTION_INSTRUCT_MODEL = 'HauhauCS/Qwen3.6-27B-Uncensored-HauhauCS-Aggressive:Q5_K_P'; // MODELFIX-3
+// MODELTEST-1: the comment below always demanded an instruction-following model;
+// the constant now finally points at one. ghostwriter-nf = stock Qwen3-14B
+// (verified via gguf metadata: Apache-2.0, base Qwen3-14B-Base, no abliteration),
+// served by llama-swap with ctx 65536. The uncensored 27B remains available for
+// the fiction/adult lanes, which are untouched. Measured driver: the de-aligned
+// 27B produced censor-hole artifacts ("was a to the") in every NF generation of
+// the acceptance arc — omission instead of rephrase under vocabulary bans.
+const NONFICTION_INSTRUCT_MODEL = 'ghostwriter-nf'; // MODELFIX-3 → MODELTEST-1
 export function pickModel(task = '', settings = null) {
   // Nonfiction foundation/outline drafts on an instruction-following model that respects the
   // supplied research, not the creative ghostwriter which fabricates evidence to dramatize.
-  if (settings && String(settings.book_type || '').toLowerCase() === 'nonfiction') return NONFICTION_INSTRUCT_MODEL;
+  // NFCLASS-3: this read only book_type — a third normalization, distinct from both
+  // sceneWriter's raw equality and the authority. A project declared
+  // { project_type: 'nonfiction' } drafted with nonfiction prompts and nonfiction word
+  // clamps while this handed the whole book to PRIMARY_WRITING_MODEL: the creative
+  // ghostwriter the comment above says fabricates evidence to dramatize.
+  if (settings && isNonfictionProjectAuthority(settings)) return NONFICTION_INSTRUCT_MODEL;
   return PRIMARY_WRITING_MODEL;
 }
 export function pickFallbackModel() { return null; }
 
 const SETUP_PROTECTED_FIELDS = ['title','tagline','book_type','project_type','genre','subgenre','target_audience','content_lane','project_format','rights_mode','commercial_use_allowed','genre_group','market_category','fandom_name','source_universe','canon_mode','fanfic_posting_target','canon_characters','canon_boundary','pov_mode','tense','protagonist_pronouns','beat_style','scene_beat_style','nf_structure_mode','author_name','author_voice','author_voice_notes','author_style_id','series_bible_id','series_name','series_number','language_intensity','spice_level','violence_level','erotica_register','reading_level','chapter_target','chapter_length_preset','chapter_length_target','target_chapter_words','total_word_target','seed_concept','num_twists','twist_intensity','twist_count','story_arc','anthology_theme','anthology_theme_type','anthology_story_length','anthology_variety','default_prose_model'];
-const FOUNDATION_FIELDS = ['world_md','characters_md','outline_md','canon_md','voice_md','mystery_md','twists_md','research_data','research_md'];
+// NFCLASS-3: there were two lists named FOUNDATION_FIELDS with different contents —
+// this one and the exported one in generationContext.js, which has no 'research_data'.
+// The local const shadowed the export by name, so the divergence was invisible: this
+// list strips research_data from every save as a foundation field while
+// hydrateProjectForGeneration never resolves or restores it, and closedWorldCheck /
+// semanticSourceCheck / deterministicSourceCheck all read project.research_data as
+// their evidence corpus. One authority now, with the extra fields written down as an
+// explicit delta rather than a second silent list.
+const EXTRA_PROTECTED_FOUNDATION_FIELDS = ['research_data'];
+const FOUNDATION_FIELDS = [...new Set([...SHARED_FOUNDATION_FIELDS, ...EXTRA_PROTECTED_FOUNDATION_FIELDS])];
 
 export function protectedProjectUpdate(fieldsToSave) {
   const safe = { ...(fieldsToSave || {}) };
@@ -56,25 +80,43 @@ export function protectedProjectUpdate(fieldsToSave) {
   return safe;
 }
 
-export const FICTION_PROSE_MODELS = [{ id: PRIMARY_WRITING_MODEL, label: WRITING_MODEL_LABEL, description: 'Local Gemma 4 — primary prose model' }];
+// WAVE5-MODELPICKER: the picker now lists the actually-installed prose-capable
+// local models (derived from localLLM AGENT_MODELS + the llama-swap NF alias)
+// instead of one entry with a stale "Gemma 4" description for a Qwen model.
+export const FICTION_PROSE_MODELS = [
+  { id: PRIMARY_WRITING_MODEL, label: WRITING_MODEL_LABEL, description: 'Qwen 3.6 35B uncensored — primary fiction prose model' },
+  { id: AGENT_MODELS.nonfiction_writer, label: 'Qwen 3.6 27B (aggressive)', description: 'HauhauCS 27B uncensored — denser, more aggressive prose register' },
+  { id: NONFICTION_INSTRUCT_MODEL, label: 'Qwen3 14B instruct (fast)', description: 'Stock instruction-following 14B via llama-swap — fastest, most literal' },
+];
+
+// The single validation authority for prose-model overrides.
+export const PROSE_MODEL_IDS = new Set(FICTION_PROSE_MODELS.map((m) => m.id));
+export function isWhitelistedProseModel(id) {
+  return PROSE_MODEL_IDS.has(normalizeModelId(id));
+}
 
 export function foundationSafeUpdate(fieldsToSave, existingProject) {
   const safe = { ...(fieldsToSave || {}) };
   for (const field of SETUP_PROTECTED_FIELDS) delete safe[field];
-  if (existingProject) { for (const field of SETUP_PROTECTED_FIELDS) { const v = existingProject[field]; if (v !== undefined && v !== null && v !== '') safe[field] = field === 'default_prose_model' ? PRIMARY_WRITING_MODEL : v; } }
+  // WAVE5-MODELPICKER: default_prose_model is restored VERBATIM like every
+  // other protected field. The old special-case reset it to the primary model
+  // on every Build/Expand Story Bible — the picker "randomly" losing its value.
+  if (existingProject) { for (const field of SETUP_PROTECTED_FIELDS) { const v = existingProject[field]; if (v !== undefined && v !== null && v !== '') safe[field] = v; } }
   return safe;
 }
 
 export function scrubModelFields(fieldsToSave) {
   const safe = { ...(fieldsToSave || {}) };
-  if (safe.default_prose_model) safe.default_prose_model = PRIMARY_WRITING_MODEL;
-  if (safe.prose_model) safe.prose_model = PRIMARY_WRITING_MODEL;
+  // WAVE5-MODELPICKER: validate against the whitelist instead of clamping —
+  // a legitimate user choice survives; only unknown/stale ids reset.
+  if (safe.default_prose_model && !isWhitelistedProseModel(safe.default_prose_model)) safe.default_prose_model = PRIMARY_WRITING_MODEL;
+  if (safe.prose_model && !isWhitelistedProseModel(safe.prose_model)) safe.prose_model = PRIMARY_WRITING_MODEL;
   if (safe.model) safe.model = normalizeModelId(safe.model);
   return safe;
 }
 
 export function getModelRoutingSummary() {
-  return { writing_model: PRIMARY_WRITING_MODEL, fiction_prose_model: DEFAULT_FICTION_PROSE_MODEL, structured_model: DEFAULT_STRUCTURED_MODEL, nonfiction_prose_model: DEFAULT_NONFICTION_PROSE_MODEL, analytics_model: DEFAULT_ANALYTICS_MODEL, lumimaid_enabled: false, user_model_selection_enabled: false, silent_writing_fallback_enabled: false, provider: 'Ollama (Local)' };
+  return { writing_model: PRIMARY_WRITING_MODEL, fiction_prose_model: DEFAULT_FICTION_PROSE_MODEL, structured_model: DEFAULT_STRUCTURED_MODEL, nonfiction_prose_model: DEFAULT_NONFICTION_PROSE_MODEL, analytics_model: DEFAULT_ANALYTICS_MODEL, lumimaid_enabled: false, user_model_selection_enabled: true /* WAVE5-MODELPICKER */, silent_writing_fallback_enabled: false, provider: 'llama.cpp (Local)' };
 }
 
 export const ADULT_PROSE_MODEL = PRIMARY_WRITING_MODEL;

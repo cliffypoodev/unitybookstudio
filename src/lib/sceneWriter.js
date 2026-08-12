@@ -9,15 +9,19 @@
  * - Calls chapter summary save with the correct chapterId/content/chapterNumber signature.
  */
 
+import { stripDroppedWordSentences, stripMangledSentences, fixIndefiniteArticles, buildFactLedger, checkClockTimeViolations, checkFateViolations, stripFactLedgerViolations, buildFactLedgerPromptBlock } from './nfContentGuard.js'; // DRAFTGATE-2 & 3 + ARCH-1C
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
 import { buildProjectContextHeader, unwrapIntegrationResult, countWords, buildAuthorVoiceInstruction } from '@/lib/autonovel';
+import { verifySceneProvenance, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { isNonfictionProject } from '@/lib/manuscriptStats';
-import { buildSetupConstraints } from '@/lib/setupConstraints';
+import { buildSetupConstraints, resolveChapterCount } from '@/lib/setupConstraints';
 import { buildPovTenseBlock } from '@/lib/povTense';
 import { cleanGeneratedProse } from '@/lib/proseQuality';
-import { snapshot as pipelineSnapshot } from '@/lib/pipelineDiag';
+import { snapshot as pipelineSnapshot, captureReplayDiagnostic } from '@/lib/pipelineDiag';
 import { runDialogueMechanicsPass } from '@/lib/dialogueMechanicsRepair'; // DIALOGUEFIX-1
+import { applyAnthologyNameRenames } from '@/lib/anthologyRenamePass'; // RENAMEPASS-1
 import { scrubModelLeaks } from '@/lib/modelLeakGuard'; // LEAKFIX-1
 import { labelCompositeCharacters, fixFoiaAnachronisms, flagUnverifiedStats } from '@/lib/postClean';
 import { crossCheckResearchFabrication } from '@/lib/qualityScan';
@@ -39,25 +43,61 @@ import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
 import { buildEroticaAuthorityBlocks } from '@/lib/eroticaAuthority';
 import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
-import { pickModel, pickFallbackModel, normalizeModelId, buildFallbackControls } from '@/lib/modelRouting';
+import { pickModel, pickFallbackModel, normalizeModelId, buildFallbackControls, isWhitelistedProseModel } from '@/lib/modelRouting';
 import {
   buildRollingContext,
   getPreviousChapterEnding,
   ANTI_REPETITION_RULES,
   generateAndSaveSummary,
 } from '@/lib/chapterCohesion';
-import { buildPacingBlock } from '@/lib/pacingModulation';
-import { getRelevantResearch } from '@/lib/fictionResearch';
-import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { excludeForeignQuotes } from '@/lib/quoteLedger';
 import { getTwistContextForChapter, getAnthologyTwistBlock } from '@/lib/plotTwists';
 import { resolveResearchContent } from '@/lib/researchStorage';
-import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
+import { buildPacingBlock } from '@/lib/pacingModulation';
+import { getRelevantResearch } from '@/lib/fictionResearch';
+import { researchCoverageCheck } from '@/lib/researchCoverage';
+import { 
+  normalizeSceneBeatsForDrafting, 
+  validateSceneContractReplay, 
+  isCleanMetadata, 
+  extractEventSignature, 
+  extractProseEventSignatures, 
+  classifyStoryFunction,
+  auditSceneFutureBoundaries,
+  auditSceneExitOvershoot,
+  buildExitOvershootRepairPrompt,
+  validateGeneratedSceneReplay,
+  buildFutureBoundaryRepairPrompt,
+  validateRawBeatChronology,
+  repairRawContract
+} from './sceneBeatNormalizer.js';
+
+import {
+  assertNarrativeTextClean,
+  assertSceneContractUnchanged,
+  applySceneExecutionPromptCanary,
+  collectSceneExecutionCanaryEvidence,
+  createImmutableSceneContract,
+  finalizeSceneExecutionCanaryEvidence,
+  findNarrativeMetaLeaks,
+  prepareSceneExecutionCanaryTrial,
+  prepareSceneExecutionPromptCanary,
+  prepareSceneExecutionShadowIntegration,
+  prepareSceneExecutionAcceptanceState,
+  resolveSceneExecutionFlags, // DEADGATE-1
+  reportSceneExecutionGateStatus, // DEADGATE-1
+  evaluateSceneExecutionAcceptance,
+} from '@/lib/generationContext';
 import { buildProjectContinuityLockBlock, validateProjectChapterContent } from '@/lib/projectContentGuard';
+import { auditSceneAgainstLedger, buildSceneContractRepairInstruction } from '@/lib/sceneContractGate';
 import { buildCanonNameLockBlock, repairCanonNameDrift } from '@/lib/canonNameLock';
 import { repairChapterQuotes } from '@/lib/quoteFixPolish';
 import { repairManuscriptArtifacts } from '@/lib/manuscriptArtifactRepair';
 import { buildAnthologyChapterVarietyBlock } from '@/lib/anthologyVarietyGuard';
+import { buildInitialLedger, extractSceneLedgerUpdates, serializeLedger, cloneLedger, boundLedger, summarizeLedger, canonicalizeLedgerNames, setHolderOfRecord } from "@/lib/narrativeLedger";
+import { inferCastGenders } from '@/lib/referentResolver';
+import { trackedObjectsFromSpecs, dedupeTrackedObjects, holdersFromSpecState } from '@/lib/objectPossession';
+import { measureRhythm, formatRhythmLine, isSeverelyFlat, isSeverelyGestural, pickBetterTake, buildRhythmRegenInstruction, buildGestureRegenInstruction } from '@/lib/proseRhythm';
 import {
   isAnthologyProject,
   isNonfictionAnthology,
@@ -197,8 +237,22 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
   const blockingIssues = [];
   const warnings = [];
 
+  if (!(isNonfictionProject(project) || isNonfictionAnthology(project))) {
+    const metaLeaks = findNarrativeMetaLeaks(prose);
+    if (metaLeaks.length) {
+      blockingIssues.push(
+        `Manuscript planning-language leakage detected: ${metaLeaks.slice(0, 3).map((item) => `"${item.phrase}"`).join(', ')}. Rewrite as immersive story prose without referring to chapters, scene IDs, beats, contracts, or the drafting process.`
+      );
+    }
+  }
+
   // SEVERE (nonfiction): invented names not present in research → blocking, retry
-  if (project?.book_type === 'nonfiction') {
+  // NFCLASS-3: this was `project?.book_type === 'nonfiction'` — a raw, case-sensitive
+  // equality that ignored project_type entirely, while isNonfictionProject 2,800 lines
+  // below in the same file used the authority. Divergence proven: a project declared
+  // { project_type: 'nonfiction' } (a shape this app produces) drafted as nonfiction and
+  // skipped every anti-fabrication gate. So did { book_type: 'Nonfiction' }.
+  if (isNonfictionProjectAuthority(project)) {
     try {
       const { compositeNames } = labelCompositeCharacters(prose, project, spec?.chapter);
       if (Array.isArray(compositeNames) && compositeNames.length > 0) {
@@ -228,6 +282,21 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
         blockingIssues.push(`Sources cited that are NOT in the research: ${srcFlags.map((v) => v.snippet).join(' | ')}. Rewrite this section citing ONLY sources named in the supplied research. Do not cite any archive, record, report, log, document, newspaper, or statistic that is not in the research — where no source exists, omit the claim entirely (do not narrate silences or gaps in the record). Also remove or rewrite any sentence that refers back to a source you are removing.`);
       }
     } catch (e) { /* detector unavailable — do not block */ }
+    // ARCH-1C: clock times and figure fates are closed-world. Both checkers are
+    // deterministic and were measured at zero false positives on 97k words of
+    // real prose before wiring, so they block (rewrite-first) rather than
+    // strip-only.
+    try {
+      const ledger = buildFactLedger(project);
+      const clockV = checkClockTimeViolations(prose, ledger);
+      if (clockV.length > 0) {
+        blockingIssues.push(`Clock times not present in the research: ${clockV.slice(0, 3).map((v) => v.atom).join(', ')}. The research is the only permitted source for a time of day. Rewrite each affected sentence using either a clock time that appears in the research or general phrasing (that morning, around midday) — never invent a specific time.`);
+      }
+      const fateV = checkFateViolations(prose, ledger);
+      if (fateV.length > 0) {
+        blockingIssues.push(`Life-outcome claims not attested in the research: ${fateV.slice(0, 3).map((v) => v.atom).join(', ')}. The research does not state this person's death, survival, rescue, or injury. Rewrite each affected sentence to say only what the research documents about them — do not state or imply whether they lived, died, escaped, or were hurt.`);
+      }
+    } catch (e) { /* ledger unavailable — do not block */ }
   }
 
   // SEVERE: degenerate non-Latin output (model loop) → blocking, force retry
@@ -236,9 +305,31 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
     blockingIssues.push(`Degenerate output: ${cjkMatches.length} non-Latin (CJK) characters detected. Rewrite the section as clean English prose only.`);
   }
 
-  // SEVERE: empty or stub output → blocking
-  if (words.length < targetWords * 0.5 && words.length < 300) {
-    blockingIssues.push(`Scene is only ${words.length} words — target was ${targetWords}. Write full prose, not a summary.`);
+  // SEVERE: under-target output → blocking
+  // LENGTHGATE-1A: the old rule (< 50% of target AND < 300 absolute) let a scene at
+  // 46% of an 800-word target pass because it cleared 300 words. Measured live: a
+  // 5-section nonfiction chapter delivered ~366-word sections against 800-word
+  // targets, assembled 1,830 words against a 4,000-word chapter target, and no gate
+  // fired anywhere. Under-delivery now blocks relative to the target itself and
+  // enters the existing repair loop. The absolute floor survives only as a lower
+  // bound so tiny intentional targets cannot thrash the repair loop.
+  const sceneWordFloor = Math.max(150, Math.round(targetWords * 0.6));
+  if (words.length < sceneWordFloor) {
+    blockingIssues.push(`Scene is only ${words.length} words — target was ${targetWords} (minimum ${sceneWordFloor}). Write complete, fully developed prose to the target length, not a summary or a compressed overview.`);
+  }
+
+  // SEVERE: dropped-word hole → blocking, force regeneration (DRAFTGATE-1A).
+  // Article + preposition + article ("a to the", "an of the") is never valid
+  // English prose — it is the fingerprint of the model dropping a banned or
+  // skipped noun mid-phrase ("a [testament] to the…"). Measured live: four such
+  // holes across three saved chapters, caught only by the export gate. Repairing
+  // deterministically would mean inventing the missing word, so the scene is
+  // blocked and the model rewrites the sentence itself. Mode-independent: this
+  // is grammar, not a nonfiction rule.
+  // DRAFTGATE-3B: widened dropped-word object net (possessives and demonstratives)
+  const droppedWordHoles = prose.match(/\b(?:a|an)\s+(?:(?:to|of|in|on|for|with|from|by|at)\s+(?:the|its|this|that|their|his|her|these|those|a|an)\b|(?:to|of|in|on|for|with|from|by)\s+(?=[a-z]))/gi);
+  if (droppedWordHoles && droppedWordHoles.length > 0) {
+    blockingIssues.push(`Malformed sentence — dropped word (${droppedWordHoles.length} instance(s): ${droppedWordHoles.slice(0, 3).join(' | ')}). An article followed directly by a preposition means a noun was omitted. Rewrite each affected sentence with complete grammar; do not skip nouns after articles.`);
   }
 
   // SEVERE: tense drift → blocking
@@ -314,14 +405,24 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
 }
 
 function pickProseModel(project, modelOverride) {
-  const model = normalizeModelId(pickModel('prose', project));
+  const base = normalizeModelId(pickModel('prose', project));
 
-  if (modelOverride && normalizeModelId(modelOverride) !== model) {
-    console.warn('[MODEL] Ignored stale prose model override:', modelOverride, '→ using:', model);
+  // WAVE5-MODELPICKER: a whitelisted override is HONORED (per-chapter picks
+  // and the project default finally work); anything unknown/stale still falls
+  // back to the routed model — the warn below is finally truthful.
+  const requested = normalizeModelId(modelOverride);
+  if (requested && isWhitelistedProseModel(requested)) {
+    if (requested !== base) {
+      console.log('[MODEL] Honoring prose model override:', requested, '(routed default was', base + ')');
+    }
+    return requested;
+  }
+  if (requested && requested !== base) {
+    console.warn('[MODEL] Ignored non-whitelisted prose model override:', requested, '→ using:', base);
   }
 
-  console.log('[MODEL] DeepSeek-only prose routing | Genre:', project?.genre || 'unknown', '→', model);
-  return model;
+  console.log('[MODEL] Local prose routing | Genre:', project?.genre || 'unknown', '→', base);
+  return base;
 }
 
 function buildAuthorVoiceCompact(project) {
@@ -348,7 +449,7 @@ function buildAuthorVoiceReminder(project) {
   if (project?.author_voice && project.author_voice !== 'Custom / None') {
     reminder = `VOICE LOCK (APPLY NOW AS YOU WRITE): Render this section in the voice of ${project.author_voice}. Honor the PROSE MECHANICS, SENSORY FOCUS, and ANTI-TROPES defined earlier — concrete documented detail over mood, specific named sources over vague phrasing, and absolutely no invented people, quotes, or events. If a fact is not in the supplied research, leave it out rather than dramatize it.`;
   }
-  if (project?.book_type === 'nonfiction') {
+  if (isNonfictionProjectAuthority(project)) {
     const nfRule = `SOURCE FIDELITY (NONFICTION, ABSOLUTE): Use ONLY the proper names, titles, organizations, dates, quotations, and documents that appear verbatim in the supplied research/source pack. You may NOT introduce any named person, officer, clerk, letter, dispatch, or quoted line that is not in that material. If the research does not name someone, write around it ("a Union officer," "a shipping clerk") — never invent a name or a quote. Inventing a source is a critical failure.
 
 ENTITY DISCIPLINE: Never merge facts about two different named people, plantations, holdings, or documents. Every claim about a person must trace to research text about THAT person. If the research describes two people with separate facts, they remain two people with separate facts — do not transfer a number, size, action, or date from one to the other, and never present a difference between two sources' subjects as a "discrepancy" in one subject.
@@ -892,7 +993,7 @@ NON-NEGOTIABLE RULES:
 - Begin after the last written paragraph below.
 - Move the story into the next distinct action, consequence, reversal, or decision.
 - Output ONLY finished prose for the corrected next scene.
-- Target approximately ${targetWords} words.
+- Length: AT LEAST ${targetWords} words.
 
 LAST WRITTEN PARAGRAPH:
 ${compact(getLastParagraph(accumulatedProse, 1200), 1200)}
@@ -930,6 +1031,16 @@ ${lines}`;
 
 function buildFoundationBlock(project) {
   const parts = [];
+
+  // ANTHOLOGYBLEED-2: for an anthology, every "chapter" is a STANDALONE story with its own
+  // cast. The whole-book bible (world_md/characters_md/outline_md/canon_md/mystery_md/
+  // twists_md/canon_cast) aggregates ALL stories, so injecting it into a scene prompt leaks
+  // one story's protagonist and setting into another (measured live 2026-08-09: Story 1's
+  // security guard "Marcus" surfaced in Story 3 via BOOK OUTLINE). Each story's own isolated
+  // context is already supplied separately as anthologyContext (getAnthologyContext ->
+  // buildAnthologyStoryContext), so the shared foundation is redundant here and MUST be
+  // omitted. Closed-world isolation — same principle as ANTHOLOGYBLEED-1's ledger blanking.
+  if (isAnthologyProject(project)) return '';
 
   if (project?.seed_concept) parts.push(`PROJECT BRAIN / SEED CONCEPT:\n${compact(sanitizeNonfictionContextScarTissue(project.seed_concept), 3000)}`);
   if (project?.world_md) parts.push(`WORLD / SETTING:\n${compact(sanitizeNonfictionContextScarTissue(project.world_md), 3000)}`);
@@ -1060,7 +1171,7 @@ function buildOutputRules(project, targetWords) {
 - Write ONLY the nonfiction manuscript prose for this scene/section.
 - Do not include headings unless the chapter plan explicitly requires them.
 - Do not include analysis, notes, apologies, explanations, markdown fences, or self-checks.
-- Target approximately ${targetWords} words.
+- Length: AT LEAST ${targetWords} words — do not stop before reaching that count; develop the material fully rather than summarizing.
 - Use grounded, verifiable phrasing.
 - Break paragraphs naturally every 3–5 sentences.
 - Keep every paragraph purposeful: new fact, source category, contradiction, mechanism, consequence, or unresolved question.
@@ -1071,7 +1182,8 @@ function buildOutputRules(project, targetWords) {
 - For numbers, death counts, casualty categories, dates, names, source titles, quotes, court outcomes, and locations: do not improvise. State only what the supplied material supports, or explicitly say the available record is unclear.
 - Rotate evidence verbs naturally: "indicate", "suggest", "describe", "point to", "reveal", "reflect", "document", "outline". Never use the same evidence construction more than once per section. BANNED phrases (never use): "the available accounts indicate", "the available accounts suggest", "the surviving record shows", "what remains unclear is", "the record suggests", "this suggests" (as a sentence opener), "the question therefore shifts".
 - If a casualty count or death location appears contradictory, do NOT resolve it and do NOT insert a generic caution paragraph. Keep the uncertainty concise and tied to the immediate paragraph.
-- Do not repeat the same thesis sentence in different words. Advance the investigation.`;
+- Do not repeat the same thesis sentence in different words. Advance the investigation.
+${buildFactLedgerPromptBlock(buildFactLedger(project))}`;
   }
 
   return `OUTPUT RULES:
@@ -1084,7 +1196,13 @@ function buildOutputRules(project, targetWords) {
 - Target approximately ${targetWords} words.
 - Begin directly in scene.
 - End on a complete sentence.
-- Do not summarize the scene. Dramatize it.`;
+- Do not summarize the scene. Dramatize it.
+
+FINAL RHYTHM CHECK (this enforces the SIGNATURE VOICE sentence-rhythm rules above with concrete numbers - where the selected AUTHOR VOICE dossier specifies a different rhythm, the AUTHOR VOICE wins):
+- Average sentence length for the scene must land between 9 and 14 words. Fragments are seasoning, not the meal.
+- Never write more than 3 consecutive sentences of 5 words or fewer. After two short sentences, the next one must be long - a subordinate clause, an image, a complication.
+- Roughly every 150 words, include at least one sentence of 20+ words that moves through the space or the thought without stopping.
+- Use "looked", "turned", and "nodded" at most 3 times COMBINED per 500 words. Replace them with the specific verbs the SIGNATURE VOICE rules demand - what does this character do that only they would do?`;
 }
 
 function buildManuscriptPurityBlock() {
@@ -1113,7 +1231,7 @@ function buildSceneContinuityExpansionBlock({ accumulatedProse = '', spec = {}, 
 - If a symbolic object appears, make it change pressure or meaning by the end of the scene; do not just mention it repeatedly.
 - If the beat involves a major decision, show the external pressure and the private cost once, then move to the next consequence.
 - Prefer layered conflict over direct explanation: what the character says, what they avoid saying, what the room/object/body betrays.
-- Current scene number: ${sceneNumber}. Target length: approximately ${targetWords} words.${hasPrior ? '\n- Prior scene prose already exists. Continue from it. Do not summarize it, restate it, or offer another version of its central event.' : ''}`;
+- Current scene number: ${sceneNumber}. Length: AT LEAST ${targetWords} words — do not end the scene before reaching that count; develop the material fully rather than summarizing.${hasPrior ? '\n- Prior scene prose already exists. Continue from it. Do not summarize it, restate it, or offer another version of its central event.' : ''}`;
 }
 
 function buildNoSlopBlock() {
@@ -1168,7 +1286,7 @@ function buildNonfictionSectionNonOverlapBlock({ accumulatedProse = '', spec = {
   const escalationQuestion = String(spec?.escalation_question || spec?.next_question || '').trim();
 
   return `NONFICTION SECTION CONTRACT — v6 PUBLICATION QUALITY / ESCALATION:
-- This output is ONLY section ${sectionNumber}, approximately ${targetWords} words. Do not write a whole-chapter overview.
+- This output is ONLY section ${sectionNumber}, AT LEAST ${targetWords} words — do not stop short of that count. Do not write a whole-chapter overview.
 - Format this section as manuscript prose with paragraph breaks every 3–5 sentences. Never return one giant paragraph.
 - This section must ADVANCE the investigation. It cannot merely rephrase the premise, the contradiction, the institutional silence, or the locked-door question.
 ${sectionPurpose ? `- Section purpose: ${sectionPurpose}` : '- Follow the assigned section purpose only.'}
@@ -1233,6 +1351,7 @@ function buildFictionPrompt({
   volumeContractBlock = '',
   authorStyleBlock = '',
   includeFullCraft = false,
+  revisionFeedback = '',
 }) {
   const projectHeader = buildProjectContextHeader(project);
   const setupConstraints = buildSetupConstraints(project);
@@ -1278,6 +1397,9 @@ function buildFictionPrompt({
   const anthologySpiceBeat = buildAnthologySpiceBeatContext(project);
   const twistBlock = twistContext ? `TWIST / REVERSAL CONTEXT:\n${compact(twistContext, 2500)}` : '';
   const craftRules = includeFullCraft ? COMPACT_CRAFT_RULES : '';
+  const revisionBlock = String(revisionFeedback || '').trim()
+    ? `REJECTED-DRAFT CORRECTIONS — BINDING:\nThe previous chapter draft was rejected. Fix every issue below while still following this scene's immutable state contract. Do not create an alternate event sequence.\n${compact(revisionFeedback, 5000)}`
+    : '';
 
   return [
     `You are the prose engine for a professional long-form book-writing app. Your job is to write the next scene as polished manuscript prose.`,
@@ -1313,6 +1435,7 @@ function buildFictionPrompt({
     canonNameLockBlock,
     anthologyVarietyBlock,
     sceneSpecBlock,
+    revisionBlock,
     manuscriptPurityBlock,
     sceneContinuityExpansionBlock,
     noSlopBlock,
@@ -1616,9 +1739,7 @@ function normalizeManuscriptParagraphs(prose, project) {
   const wordCount = countWords(text);
 
   if (isNF && paragraphCount <= 1 && wordCount > 350) {
-    const sentences = text
-      .replace(/\s+/g, ' ')
-      .match(/[^.!?]+[.!?]+(?:[”"']+)?|[^.!?]+$/g) || [text];
+    const sentences = splitSentencesSafe(text.replace(/\s+/g, ' '));
 
     const paragraphs = [];
     let bucket = [];
@@ -1796,6 +1917,58 @@ function cleanSceneOutput(rawResult, project) {
   prose = tightenNonfictionThesisEchoes(prose, project);
   prose = normalizeManuscriptParagraphs(prose, project);
 
+  // DRAFTGATE-3C: heal a/an agreement deterministically
+  const healedArt = fixIndefiniteArticles(prose);
+  prose = healedArt.text;
+  if (healedArt.fixed > 0) {
+    console.log(`[DRAFTGATE-3C] Ch.? (draft assembly): fixed ${healedArt.fixed} indefinite article(s)`);
+  }
+
+  // DRAFTGATE-3D: rebreak mega-paragraphs (>250 words) into ~120-word paragraphs
+  const paras = prose.split(/\n{2,}/);
+  let rebroke = 0;
+  for (let i = 0; i < paras.length; i++) {
+    const p = paras[i];
+    const words = p.split(/\s+/).filter(Boolean).length;
+    if (words > 250) {
+      const sents = splitSentencesSafe(p);
+      if (sents.length > 1) {
+        const newParas = [];
+        let curr = [];
+        let currWords = 0;
+        for (const s of sents) {
+          const w = s.split(/\s+/).filter(Boolean).length;
+          curr.push(s);
+          currWords += w;
+          if (currWords >= 120) {
+            newParas.push(curr.join(' '));
+            curr = [];
+            currWords = 0;
+          }
+        }
+        if (curr.length > 0) {
+          if (newParas.length > 0) {
+            newParas[newParas.length - 1] += ' ' + curr.join(' ');
+          } else {
+            newParas.push(curr.join(' '));
+          }
+        }
+        paras[i] = newParas.join('\n\n');
+        rebroke++;
+      }
+    }
+  }
+  if (rebroke > 0) {
+    prose = paras.join('\n\n');
+    console.log(`[DRAFTGATE-3D] Ch.? (draft assembly): re-broke ${rebroke} oversized paragraph(s)`);
+  }
+
+  // DRAFTGATE-1B: strip stray markdown emphasis/scene-break markers left
+  // dangling after terminal punctuation at line or paragraph end ("…it broke. *").
+  // They are provable artifacts, never prose, and they fail the export gate's
+  // unterminated-paragraph check.
+  prose = String(prose || '').replace(/([.!?…”])[ \t]*[*_]+[ \t]*(?=\n|$)/g, '$1');
+
   return String(prose || '').trim();
 }
 
@@ -1969,7 +2142,9 @@ async function getVolumeContractBlock(project, chapter) {
     if (!entryContract && !exitContract) return '';
 
     const chapterNumber = chapter?.chapter_number || chapter?.chapterNumber || 1;
-    const totalChapters = project.chapter_count || project.num_chapters || 20;
+    // CHAPCOUNT-1: chapter_target is the canonical field; reading chapter_count
+    // first resolved 20 for every project the current Setup screen creates.
+    const totalChapters = resolveChapterCount(project, 20);
 
     // For standalone flavor, use light guidance only
     if (flavor === 'standalone') {
@@ -2080,6 +2255,67 @@ function getAnthologyContext(project, chapter) {
   }
 }
 
+function buildSceneStateContractBlock(spec) {
+  const isClean = isCleanMetadata;
+
+  const sceneId = String(spec?.scene_id || '').trim();
+  const entryState = String(spec?.entry_state || '').trim();
+  const exitState = String(spec?.exit_state || '').trim();
+  const requiredEvents = Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean).filter(isClean) : [];
+  const forbiddenEvents = Array.isArray(spec?.forbidden_events) ? spec.forbidden_events.filter(Boolean).filter(isClean) : [];
+  const dependencies = Array.isArray(spec?.continuity_dependencies) ? spec.continuity_dependencies.filter(Boolean).filter(isClean) : [];
+  const priorCompletedEvents = Array.isArray(spec?.prior_completed_events) ? spec.prior_completed_events.filter(Boolean).filter(isClean) : [];
+  const priorExitStates = Array.isArray(spec?.prior_exit_states) ? spec.prior_exit_states.filter(Boolean).filter(isClean) : [];
+  const futureReservedEvents = Array.isArray(spec?.future_reserved_events) ? spec.future_reserved_events.filter(Boolean).filter(isClean) : [];
+
+  if (!sceneId && !entryState && !exitState && !requiredEvents.length) return '';
+
+  const lines = [
+    `SCENE ID: ${sceneId || 'missing — do not draft'}`,
+    `ENTRY STATE (must be true when the scene opens): ${entryState || 'missing'}`,
+    `REQUIRED EVENTS FOR THIS SCENE ONLY (each exactly once): ${requiredEvents.length ? requiredEvents.join('; ') : 'missing'}`,
+    `FORBIDDEN REPLAYS / REVERSALS: ${forbiddenEvents.length ? forbiddenEvents.join('; ') : 'None listed; still do not replay earlier events.'}`,
+    // SCENESCOPE-1: the reservation list above only covers events some scene
+    // OWNS. Ch.2 proved the writer also invents UNPLANNED threshold events
+    // (arrivals, openings, unlockings) that belong to no scene — staging the
+    // same Sector-7 arrival three times in one chapter. Forbid the class.
+    `UNPLANNED MAJOR EVENTS ARE FORBIDDEN: stage NO arrival at a new location, NO opening/unlocking of any door, vault, hatch, panel, or passage, NO discovery of a new area, and NO major reveal unless it is explicitly listed in REQUIRED EVENTS above. Travel and preparation may approach a threshold; CROSSING it belongs to whichever later scene or chapter owns it. When the required events are done, end the scene at its EXIT STATE — do not escalate past it.`,
+    `EXIT STATE (must be true when the scene ends): ${exitState || 'missing'}`,
+  ];
+  if (priorCompletedEvents.length) {
+    lines.push(`COMPLETED EVENTS FROM EARLIER SCENES — NEVER REPLAY: ${priorCompletedEvents.join('; ')}`);
+  }
+  if (priorExitStates.length) {
+    lines.push(`LOCKED PRIOR EXIT STATES — MUST REMAIN TRUE: ${priorExitStates.join('; ')}`);
+  }
+  if (futureReservedEvents.length) {
+    const futureReservedObjs = Array.isArray(spec?.future_reserved_event_objects) ? spec.future_reserved_event_objects : futureReservedEvents.map(e => ({event: e}));
+    const linesToAdd = [
+      `RESERVED FOR LATER SCENES — DO NOT PERFORM OR RESOLVE:`,
+      ...futureReservedObjs.filter(o => o?.event).map(obj => 
+        `- ${obj.event}${obj.sceneNumber || obj.sceneId ? ` (Reserved for Scene ${obj.sceneNumber || obj.sceneId})` : ''}`
+      ),
+      `You may refer to existing characters or objects, foreshadow danger, or notice unexplained things. You MAY NOT perform the event, resolve it, transfer the reserved object, reveal the reserved information, or stage an alternate version of it.`
+    ];
+    lines.push(linesToAdd.join('\n'));
+  }
+  if (dependencies.length) lines.push(`CONTINUITY DEPENDENCIES: ${dependencies.join('; ')}`);
+  // KEYLEDGER-1f: possession is an entry condition, not a suggestion.
+  const holders = Array.isArray(spec?.holders_of_record) ? spec.holders_of_record.filter(Boolean) : [];
+  if (holders.length) {
+    lines.push(
+      `OBJECT POSSESSION AT SCENE OPEN (must be true on the first page of this scene): ${holders.join('; ')}. ` +
+      `Nobody else may be holding, pocketing, drawing, or handing over these objects unless this scene WRITES the handover on the page.`
+    );
+  }
+
+  return `NARRATIVE STATE CONTRACT — MANDATORY:
+This is one versioned scene, not an alternate take. Write only this scene.
+Never reverse a death, departure, revelation, injury, object transfer, or decision
+established by the entry state or prior context.
+${lines.join('\n')}`;
+}
+
 function buildSceneCastBlock(spec) {
   const present = Array.isArray(spec?.characters_present) ? spec.characters_present.filter(Boolean) : [];
   const props = Array.isArray(spec?.props_present) ? spec.props_present.filter(Boolean) : [];
@@ -2090,11 +2326,54 @@ function buildSceneCastBlock(spec) {
   return `THIS SCENE — CAST & PROPS:\n${lines.join('\n')}`;
 }
 
+function filterTwistContextForScene(twistContext, spec) {
+  if (!twistContext) return '';
+
+  const blocks = twistContext.split('\n\n').filter(Boolean);
+
+  // Create a strict authorization text from ONLY permitted fields
+  const authFields = [
+    spec.scene_goal || '',
+    ...(Array.isArray(spec.required_events) ? spec.required_events : []),
+    ...(Array.isArray(spec.twists) ? spec.twists : []),
+    ...(Array.isArray(spec.assigned_twists) ? spec.assigned_twists : [])
+  ];
+  const authText = authFields.join(' ').toLowerCase();
+
+  const filtered = blocks.filter(block => {
+    if (block.startsWith('=== TWIST MANAGEMENT')) return true;
+    if (block === '===') return true;
+
+    // Twists are identified by their name in quotes, e.g., "The Betrayal"
+    const nameMatch = block.match(/"([^"]+)"/);
+    if (nameMatch) {
+      const name = nameMatch[1].toLowerCase();
+      // Only keep the twist instruction if the twist name is explicitly assigned or referenced in authorized fields
+      return authText.includes(name);
+    }
+    return true;
+  });
+
+  // If only headers/footers remain, return empty
+  if (filtered.length <= 2 && filtered.every(b => b.startsWith('===') || b === '===')) {
+    return '';
+  }
+
+  return filtered.join('\n\n');
+}
+
 function buildScenePrompt(args) {
   const isNF = isNonfictionProject(args.project) || isNonfictionAnthology(args.project);
   const base = isNF ? buildNonfictionPrompt(args) : buildFictionPrompt(args);
   const sceneCast = buildSceneCastBlock(args.spec || args);
-  let out = sceneCast ? `${sceneCast}\n\n${base}` : base;
+  const stateContract = isNF ? '' : buildSceneStateContractBlock(args.spec || args);
+  
+  const serializedLedger = args.runtimeLedger ? serializeLedger(args.runtimeLedger) : '';
+  const ledgerInstruction = serializedLedger 
+    ? `\n\n${serializedLedger}\n\nCRITICAL NARRATIVE-STATE DIRECTIVE:\n- You must begin exactly from the actual final state established above.\n- Do NOT resurrect any character marked DEAD.\n- Do NOT utilize any object marked UNAVAILABLE/DESTROYED.\n- Do NOT replay any RECENT COMPLETED EVENTS.`
+    : '';
+
+  let out = [stateContract, sceneCast, base].filter(Boolean).join('\n\n') + ledgerInstruction;
   // ARCH2-4b-a: foreign-homed witness quotes must not reach the model through
   // ANY prompt channel (bible fields, beats, rolling context) — not only the
   // research block. Home-chapter quotes and unhomed quotes pass through
@@ -2174,7 +2453,28 @@ async function generateSceneWithRepair({
   // strip the offending sentences rather than ship them. A clean gap in the prose
   // is always better than a convincing invented document or quote.
   let stripped = false;
-  if (project?.book_type === 'nonfiction') {
+  if (isNonfictionProjectAuthority(project)) {
+    // DRAFTGATE-2A: dropped-word sentences that survived every repair are
+    // stripped, never shipped. The model re-drops banned nouns on every
+    // regeneration, so this deterministic last resort is what converges.
+    try {
+      const dw = stripDroppedWordSentences(prose);
+      if (dw.removed.length > 0) {
+        console.warn(`[DRAFTGATE-2] Stripped ${dw.removed.length} dropped-word sentence(s) after repairs failed: ${dw.removed.slice(0, 2).join(' | ')}`);
+        prose = dw.text;
+        stripped = true;
+        evalResult = quickSceneEval(prose, spec, targetWords, project);
+      }
+    } catch (e) { /* strip unavailable — continue */ }
+    try {
+      const mang = stripMangledSentences(prose);
+      if (mang.removed.length > 0) {
+        console.warn(`[DRAFTGATE-3H] Stripped ${mang.removed.length} mangled sentence(s) after repairs failed: ${mang.removed.slice(0, 2).join(' | ')}`);
+        prose = mang.text;
+        stripped = true;
+        evalResult = quickSceneEval(prose, spec, targetWords, project);
+      }
+    } catch (e) { /* strip unavailable — continue */ }
     // ARCH-1B: deterministic closed-world strip runs FIRST and never depends on an LLM.
     try {
       const cw = closedWorldCheck(prose, project);
@@ -2184,6 +2484,19 @@ async function generateSceneWithRepair({
         if (prose !== beforeCw) { stripped = true; evalResult = quickSceneEval(prose, spec, targetWords, project); }
       }
     } catch (e) { /* closed-world unavailable — continue */ }
+    // ARCH-1C: clock/fate ledger strip — if an un-evidenced clock time or
+    // life-outcome claim survived every repair, the sentence is removed.
+    // Blank beats fabricated.
+    try {
+      const flLedger = buildFactLedger(project);
+      const fl = stripFactLedgerViolations(prose, flLedger);
+      if (fl.removed.length > 0) {
+        console.warn(`[FATE-GATE] Stripped ${fl.removed.length} un-evidenced clock/fate sentence(s) after repairs failed: ${fl.removed.slice(0, 2).join(' | ')}`);
+        prose = fl.text;
+        stripped = true;
+        evalResult = quickSceneEval(prose, spec, targetWords, project);
+      }
+    } catch (e) { /* fact-ledger strip unavailable — continue */ }
     // SCAFFOLDFIX-1: scaffold/meta sentences that survived every repair are stripped, never shipped.
     try {
       const SCAFFOLD_STRIP_RX = [
@@ -2232,7 +2545,8 @@ async function generateSceneWithRepair({
 // research. Catches unquoted references (e.g. "Department of the Gulf records")
 // that the regex detector cannot. Fails safe (returns [] on any error).
 async function semanticSourceCheck(prose, project) {
-  if (!prose || !project || project.book_type !== 'nonfiction') return [];
+  // NFCLASS-3: see above — the authority decides, not a raw field equality.
+  if (!prose || !project || !isNonfictionProjectAuthority(project)) return [];
   const research = typeof project.research_data === 'string'
     ? project.research_data
     : (project.research_data ? JSON.stringify(project.research_data) : '');
@@ -2285,7 +2599,7 @@ async function semanticSourceCheck(prose, project) {
 // Sentence splitter that will not break on rank abbreviations or single-letter
 // name initials ("Major William S. Pease"). Shared by the source check and the
 // fabrication strip so flagged snippets and removed sentences align 1:1.
-function splitSentencesSafe(text) {
+export function splitSentencesSafe(text) {
   const PROT = '\u0001';
   const ABBR = /(?<!\u0001)\b(D\.\s?C|U\.\s?S|Gen|Maj|Brig|Col|Capt|Lt|Sgt|Gov|Sec|Dr|Mr|Mrs|Ms|St|Mt|Jr|Sr|No|vs|etc|a\.m|p\.m)\.(?=\s|$)/gi;
   // GATEFIX-22: protect dotted domain names (archives.gov, loc.gov, blogs.loc.gov) so a
@@ -2294,7 +2608,48 @@ function splitSentencesSafe(text) {
   work = work.replace(ABBR, (m) => m.replace('.', PROT));
   // Single-letter initials followed by a capitalized word: "William S. Pease"
   work = work.replace(/\b([A-Z])\.(?=\s+[A-Z])/g, '$1' + PROT);
-  const parts = work.match(/[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)|[^.!?]+$/g) || [work];
+  // DRAFTGATE-3F: consecutive initials with NO space ("J.P. Morgan", "U.S.A.").
+  // The space-requiring rule above missed them, so the tokenizer split
+  // MID-NAME and the closed-world strip removed only the tail — shipping
+  // stumps like "…in the basement of the J." (measured in a live export).
+  // Protected, the whole sentence stays one part and strips remove it whole.
+  work = work.replace(/\b([A-Z])\.(?=[A-Z]\b|[A-Z]\.)/g, '$1' + PROT);
+  // DRAFTGATE-3F: legal-citation "v." ("Dorr, trustee, v. United States…") —
+  // a lowercase single-letter abbreviation, never a sentence terminator.
+  work = work.replace(/\b(v)\.(?=\s)/g, '$1' + PROT);
+  // DRAFTGATE-3A: protect decimals ("2.3 million", "3.5%"), decimal-dotted
+  // enumerations, and any digit.digit shape — an unprotected decimal made the
+  // period a sentence terminator that neither match alternative could consume,
+  // and match() DROPS unmatched spans. Measured live: every "2.3 million"
+  // sentence in a shipped book lost its head through this splitter.
+  work = work.replace(/(\d)\.(?=\d)/g, '$1' + PROT);
+  // DRAFTGATE-3E: partition by construction. String.match DROPS spans that fit
+  // no alternative — measured live: raw scene text with markdown emphasis after
+  // terminal punctuation ("…looked wrong.**") refused ~22 times in one chapter
+  // run, and every refusal downgraded dedupe, the closed-world strip, and the
+  // 3D re-breaker to no-ops, shipping fabrications and mega-paragraphs.
+  // Instead of enumerating breaker shapes, iterate the terminator matches and
+  // emit every inter-match gap as its own part: parts.join('') === work on
+  // EVERY input, by construction. Untokenizable spans survive as single parts,
+  // which every consumer already treats as sentence units.
+  const SENT_RE = /[^.!?]*[.!?]+["'\u201d\u2019)\]]*(?:\s+|$)/g;
+  const parts = [];
+  let last = 0;
+  let mt;
+  while ((mt = SENT_RE.exec(work)) !== null) {
+    if (mt.index > last) parts.push(work.slice(last, mt.index));
+    parts.push(mt[0]);
+    last = mt.index + mt[0].length;
+    if (mt[0].length === 0) SENT_RE.lastIndex++; // unreachable ([.!?]+ needs a char) — loop safety only
+  }
+  if (last < work.length) parts.push(work.slice(last));
+  if (parts.length === 0) parts.push(work);
+  // DRAFTGATE-3A LOSSLESS INVARIANT — retained as a dead-man's switch: the
+  // partition makes loss impossible; if this ever fires, the tokenizer regressed.
+  if (parts.join('') !== work) {
+    console.error('[DRAFTGATE-3A] splitSentencesSafe would have LOST text (' + (work.length - parts.join('').length) + ' chars) — returning input unsplit. Fix the tokenizer, never ship the loss.');
+    return [String(text || '')];
+  }
   return parts.map((s) => s.split(PROT).join('.'));
 }
 
@@ -2372,6 +2727,269 @@ function repetitionAlarm(prose) {
   return flagged.size;
 }
 
+// BOOKECHO-1: deterministic cross-chapter echo detector. The chapter-level
+// dedupers and repetitionAlarm cannot see other chapters, so the writer
+// reuses its best images verbatim across the book (audit #4: "eardrums like
+// deep water" in ch.1 AND ch.5; "lock disengaged with a heavy thunk" in
+// ch.2 AND ch.5). An echo is any 8-word phrase of this chapter that already
+// appears in a PRIOR chapter's prose. Exported for direct testing.
+export function buildCrossChapterEchoDetector(priorChapterProse) {
+  const echoNorm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const priorGrams = new Set();
+  for (const pc of (Array.isArray(priorChapterProse) ? priorChapterProse : [])) {
+    const w = echoNorm(pc).split(' ');
+    for (let i = 0; i + 8 <= w.length; i += 1) priorGrams.add(w.slice(i, i + 8).join(' '));
+  }
+  const isEchoed = (s) => {
+    const w = echoNorm(s).split(' ');
+    for (let i = 0; i + 8 <= w.length; i += 1) {
+      if (priorGrams.has(w.slice(i, i + 8).join(' '))) return true;
+    }
+    return false;
+  };
+  // A reused phrase's 8-gram often SPANS a sentence boundary ("...a heavy
+  // thunk. The door...") — the audited thunk echo is exactly this shape. So
+  // test each sentence alone AND joined with its successor; a pair-only hit
+  // flags the first sentence (rewriting it breaks the echo either way).
+  const findEchoSentences = (prose) => {
+    const sents = splitSentencesSafe(prose).map((s) => s.trim());
+    const flagged = [];
+    for (let i = 0; i < sents.length; i += 1) {
+      if (sents[i].length <= 20) continue;
+      if (isEchoed(sents[i]) || (i + 1 < sents.length && isEchoed(sents[i] + ' ' + sents[i + 1]))) {
+        flagged.push(sents[i]);
+      }
+    }
+    return flagged;
+  };
+  return { isEchoed, findEchoSentences, echoNorm, priorGramCount: priorGrams.size };
+}
+
+// REPEAT-1: IN-CHAPTER near-duplicate sentences.
+//
+// The existing dedupers are blind exactly where this model repeats itself.
+// dedupeRepeatedSentences drops EXACT sentences of 8+ words; repetitionAlarm
+// reports repeated 8-word phrases. Measured across all five saved Brass Meridian
+// chapters (2026-08-04), the 8-word floor caught ZERO in-chapter repeats. Lower
+// the floor and the disease is everywhere:
+//
+//   floor 8 words -> 0 repeats      floor 5 words -> 7
+//   floor 4 words -> 20 repeats     (dialogue excluded throughout)
+//
+//   ch.1  "he looked at lena"           x3
+//   ch.5  "marcus didn t move"          x3
+//   ch.2  "he didn t look back"         x2
+//   ch.5  "her fingers hovered over the switches"  x2
+//
+// This is not a coincidence: the RHYTHM advisory measures this book at 43-57%
+// sentences of five words or fewer. The gate's floor sat above the register the
+// model actually writes in.
+//
+// NEAR-duplicates are worse than exact ones, because no exact matcher can ever
+// see them. At word-Jaccard >= 0.75, five words or more, every hit in the live
+// book is the model reusing its own image with a word swapped:
+//
+//   0.78  "the blast door GROANED, a heavy metallic SHRIEK that vibrated through
+//          the soles of Lena's boots"
+//         "the blast door SHUDDERED, a heavy metallic GROAN that vibrated through
+//          the soles of Lena's boots"
+//   0.80  "the cane slipped from his grasp, clattering AGAINST the concrete"
+//         "the cane slipped from his grasp, clattering ONTO the concrete"
+//   0.78  "she slipped the key back into her pocket" / "Lena slipped the key ..."
+//
+// RULES, and why each number is what it is - all three were measured, not guessed:
+//   - exact repeat, 4+ words: 20 hits in the live book, every one a tic. At 3 words
+//     it starts collecting "she looked up", which is ordinary prose.
+//   - near repeat, 5+ words and Jaccard >= 0.75: 7 hits, every one a defect, no
+//     judgment calls. At 0.65 it starts collecting "he didn't look at X" families,
+//     which are sometimes one beat described once.
+//   - at least 3 sentences apart: deliberate back-to-back repetition is a craft
+//     device ("He didn't move. He didn't move.") and is none of this gate's business.
+//
+// Dialogue is excluded entirely. Characters repeat themselves on purpose.
+//
+// This detector REPORTS PAIRS; it never deletes. A near-duplicate carries meaning
+// that an exact duplicate does not, so the repair rewrites the LATER sentence and
+// leaves the first alone.
+export const REPEAT_RULES = {
+  exactMinWords: 4,
+  nearMinWords: 5,
+  nearMinJaccard: 0.75,
+  minSentenceGap: 3,
+};
+
+export function findInChapterRepeats(prose, rules = REPEAT_RULES) {
+  const R = { ...REPEAT_RULES, ...(rules || {}) };
+  const norm = (t) => String(t || '').toLowerCase()
+    .replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const jaccard = (a, b) => {
+    const A = new Set(a); const B = new Set(b);
+    let inter = 0;
+    for (const x of A) if (B.has(x)) inter += 1;
+    const uni = A.size + B.size - inter;
+    return uni ? inter / uni : 0;
+  };
+  // A scene-break line rides along on the front of the sentence that follows it,
+  // because the splitter has no reason to treat "* * *" as a sentence. Detection
+  // is unaffected (normalisation drops the asterisks) but the repair replaces its
+  // target by exact string match, so a target carrying the break would rewrite the
+  // break away. Measured on live ch.5, whose two blast-door sentences both open a
+  // scene. Strip the decoration off the target; the remainder is still an exact
+  // substring of the prose, so the replacement lands and the break survives.
+  const SCENE_BREAK_LEAD_RX = /^(?:[*#\u00b7\u2022](?:\s*[*#\u00b7\u2022]){0,4}\s*\n+\s*)+/;
+  const raw = splitSentencesSafe(String(prose || ''))
+    .map((x) => x.trim().replace(SCENE_BREAK_LEAD_RX, '').trim());
+  const items = raw.map((text, idx) => {
+    // A sentence carrying dialogue is out of scope - a character may repeat a line.
+    if (/["\u201c\u201d]/.test(text)) return null;
+    const k = norm(text);
+    const w = k.split(' ').filter(Boolean);
+    return w.length ? { idx, text, k, w } : null;
+  });
+  const pairs = [];
+  const claimed = new Set();
+  for (let i = 0; i < items.length; i += 1) {
+    const a = items[i];
+    if (!a) continue;
+    for (let j = i + 1; j < items.length; j += 1) {
+      const b = items[j];
+      if (!b || claimed.has(j)) continue;
+      if (b.idx - a.idx < R.minSentenceGap) continue;
+      let kind = null; let score = 0;
+      if (a.k === b.k && a.w.length >= R.exactMinWords) { kind = 'exact'; score = 1; }
+      else if (a.w.length >= R.nearMinWords && b.w.length >= R.nearMinWords) {
+        const jac = jaccard(a.w, b.w);
+        if (jac >= R.nearMinJaccard) { kind = 'near'; score = jac; }
+      }
+      if (!kind) continue;
+      // The LATER sentence is the one that gets rewritten, so each later sentence
+      // is claimed once - three copies of one tic produce two repairs, not three.
+      claimed.add(j);
+      pairs.push({ kind, score: Number(score.toFixed(3)), first: a.text, later: b.text, firstIdx: a.idx, laterIdx: b.idx });
+    }
+  }
+  return pairs;
+}
+
+/** True when `candidate` would still repeat `original` under the same rules. */
+export function stillRepeats(candidate, original, rules = REPEAT_RULES) {
+  const probe = findInChapterRepeats(
+    `${original} PLACEHOLDER ONE. PLACEHOLDER TWO. PLACEHOLDER THREE. ${candidate}`,
+    rules);
+  return probe.some((p) => p.first === String(original).trim() && p.later === String(candidate).trim());
+}
+
+// BOOKECHO-2: the chapter-level final passes, callable on ANY prose artifact.
+// Live measurement (ch.2–ch.5 re-drafts, 2026-08-02) proved the BOOKECHO-1
+// rewrites and the chapter-level dedupers were computed on the critic
+// artifact and then DISCARDED — the saved chapter is ProjectStudio's join of
+// per-scene acceptedProse (live ch.5 shipped a verbatim duplicated opening in
+// scenes 1 and 3 for exactly this reason). Exported so the save path runs
+// dedupe + repetition alarm + cross-chapter echo repair on the artifact that
+// actually ships. Fail-open throughout: this can never block a chapter.
+export async function finalizeChapterProse(prose, project, priorChapterProse = []) {
+  let finalProse = String(prose || '');
+  if (!finalProse) return finalProse;
+  finalProse = dedupeRepeatedSentences(finalProse);
+  finalProse = dedupeRepeatedQuotes(finalProse);
+  repetitionAlarm(finalProse);
+
+  // BOOKECHO-1: detect cross-chapter echoes, then ONE bounded repair pass that
+  // rewrites only the offending sentences. Each replacement applies by exact
+  // match and is re-checked against the prior-gram set before it is accepted
+  // (fail closed per sentence). The gate itself NEVER blocks a chapter.
+  try {
+    if (Array.isArray(priorChapterProse) && priorChapterProse.length) {
+      const echoDet = buildCrossChapterEchoDetector(priorChapterProse);
+      const echoes = echoDet.findEchoSentences(finalProse);
+      if (echoes.length) {
+        const list = echoes.slice(0, 12);
+        const repairPrompt = [
+          'You are line-editing a novel chapter. Each numbered sentence below reuses a distinctive phrase from an EARLIER chapter of the same book. Rewrite each sentence with fresh phrasing while preserving its exact meaning, characters, tone, and tense. Do not add new events or details. If a sentence contains quotation marks, keep the dialogue quoted.',
+          'Return ONLY the rewritten sentences, one per line, numbered to match. No commentary.',
+          '',
+          ...list.map((s, i) => `${i + 1}. ${s}`),
+        ].join('\n');
+        let repairedCount = 0;
+        try {
+          const echoResult = await invokeLLMWithRetry({
+            prompt: repairPrompt,
+            model: pickProseModel(project),
+            temperature: 0.4,
+            max_tokens: 2000,
+          });
+          const raw = extractTextFromLLMResult(echoResult) || '';
+          const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+          for (let i = 0; i < list.length; i += 1) {
+            const line = lines.find((l) => l.startsWith(`${i + 1}.`) || l.startsWith(`${i + 1})`));
+            if (!line) continue;
+            const rewritten = line.replace(/^\d+[.)]\s*/, '').trim();
+            if (rewritten.length < 15) continue;
+            if (echoDet.echoNorm(rewritten) === echoDet.echoNorm(list[i])) continue;
+            if (echoDet.isEchoed(rewritten)) continue;
+            if (!finalProse.includes(list[i])) continue;
+            finalProse = finalProse.replace(list[i], rewritten);
+            repairedCount += 1;
+          }
+        } catch (echoLLMErr) { /* fail open: echoes ship rather than block */ }
+        const remaining = echoDet.findEchoSentences(finalProse).length;
+        console.warn(`[BOOKECHO-1] echoSentences=${echoes.length} repaired=${repairedCount} remaining=${remaining}`);
+      } else {
+        console.log('[BOOKECHO-1] echoSentences=0');
+      }
+    }
+  } catch (echoErr) { /* BOOKECHO-1 never blocks a chapter */ }
+
+  // REPEAT-1: in-chapter near-duplicates, repaired the same way cross-chapter
+  // echoes are - one bounded pass, rewrite the LATER sentence only, apply by exact
+  // match, re-check before accepting, fail open. Runs AFTER the echo repair so a
+  // rewrite cannot reintroduce a repeat the echo pass just created.
+  try {
+    const repeats = findInChapterRepeats(finalProse);
+    if (repeats.length) {
+      const echoDet2 = (Array.isArray(priorChapterProse) && priorChapterProse.length)
+        ? buildCrossChapterEchoDetector(priorChapterProse) : null;
+      const list = repeats.slice(0, 12);
+      const repairPrompt = [
+        'You are line-editing a novel chapter. Each numbered item below is a sentence that repeats an earlier sentence in the SAME chapter, shown after it for reference. Rewrite ONLY the numbered sentence so it no longer echoes the reference, preserving its exact meaning, characters, tone and tense. Do not add new events or details. Do not make it longer.',
+        'Return ONLY the rewritten sentences, one per line, numbered to match. No commentary.',
+        '',
+        ...list.map((p, i) => `${i + 1}. ${p.later}\n   (echoes: ${p.first})`),
+      ].join('\n');
+      let repaired = 0;
+      try {
+        const res = await invokeLLMWithRetry({
+          prompt: repairPrompt,
+          model: pickProseModel(project),
+          temperature: 0.4,
+          max_tokens: 2000,
+        });
+        const raw = extractTextFromLLMResult(res) || '';
+        const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+        for (let i = 0; i < list.length; i += 1) {
+          const line = lines.find((l) => l.startsWith(`${i + 1}.`) || l.startsWith(`${i + 1})`));
+          if (!line) continue;
+          const rewritten = line.replace(/^\d+[.)]\s*/, '').trim();
+          if (rewritten.length < 8) continue;
+          if (rewritten === list[i].later) continue;
+          if (stillRepeats(rewritten, list[i].first)) continue;
+          if (echoDet2 && echoDet2.isEchoed(rewritten)) continue;
+          if (!finalProse.includes(list[i].later)) continue;
+          finalProse = finalProse.replace(list[i].later, rewritten);
+          repaired += 1;
+        }
+      } catch (repeatLLMErr) { /* fail open: repeats ship rather than block */ }
+      const remaining = findInChapterRepeats(finalProse).length;
+      const worst = repeats.slice(0, 3).map((p) => `${p.kind}/${p.score} "${p.later.slice(0, 52)}"`).join(' | ');
+      console.warn(`[REPEAT-1] pairs=${repeats.length} repaired=${repaired} remaining=${remaining} | ${worst}`);
+    } else {
+      console.log('[REPEAT-1] pairs=0');
+    }
+  } catch (repeatErr) { /* REPEAT-1 never blocks a chapter */ }
+
+  return finalProse;
+}
+
 // ARCH-1B: CLOSED-WORLD CHECK (nonfiction). Every proper-noun phrase, month-year date,
 // year, and significant number in the prose must exist in the project's evidence
 // (research_data + seed + all bible fields). One principle replaces the per-shape regex
@@ -2382,8 +3000,22 @@ function closedWorldCheck(prose, project) {
   try {
     if (!prose || !project) return [];
     const normCW = (s) => String(s || '').toLowerCase().replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
-    const EV = ' ' + normCW([project.research_data, project.seed_concept, project.world_md, project.characters_md, project.canon_md, project.mystery_md, project.outline_md, project.voice_md].filter(Boolean).join(' ')) + ' ';
-    if (EV.trim().length < 200) return [];
+    // EVIDENCE-1: the closed world is the RESEARCH, not the bible. world_md,
+    // characters_md, canon_md, mystery_md, outline_md and voice_md are AI-generated
+    // downstream of the research and can carry hallucinated atoms; including them
+    // whitelisted the exact fabrications this gate exists to catch (proven live: an
+    // event appearing nowhere in the research reached a drafted chapter through a
+    // bible field, with an invented chronology attached, and every closed-world pass
+    // accepted it because the bible was inside the evidence). This is the same rule
+    // crossCheckResearchFabrication already applies and documents. research_md — the
+    // full research brief, hydrated by foundationStorage — joins the corpus so
+    // legitimately researched atoms that the distilled research_data summary omits do
+    // not false-positive. seed_concept stays: operator-written, not generated.
+    const EV = ' ' + normCW([project.research_data, project.research_md, project.seed_concept].filter(Boolean).join(' ')) + ' ';
+    if (EV.trim().length < 200) {
+      console.warn(`[CLOSED-WORLD] evidence corpus is ${EV.trim().length} chars (<200) — skipping the check. This chapter was NOT closed-world verified.`);
+      return [];
+    }
     const MONTHS = 'january february march april may june july august september october november december';
     const STOP = new Set(('the this that these those his her their its it in on at by for no yet but and a an or nor when where while so as if to from with of not never ' + MONTHS + ' monday tuesday wednesday thursday friday saturday sunday').split(' '));
     const inEV = (raw) => {
@@ -2415,11 +3047,24 @@ function closedWorldCheck(prose, project) {
         const words = ph.split(/\s+/).filter((w) => !/^(of|the|and)$/i.test(w));
         if (words.length === 1 && (isSentInitial || STOP.has(normCW(words[0])))) continue;
         if (!inEV(ph)) {
-          // Conjunction split: "Galveston and Houston" is two verified atoms,
-          // not one compound name. If the joint phrase is not in evidence,
-          // every "and"-separated segment must be — otherwise flag.
-          const segs = ph.split(/\s+and\s+/i);
-          if (segs.length < 2 || !segs.every((seg) => inEV(seg))) bad.push(ph);
+          // EVIDENCE-2: a compound phrase is innocent when every content segment is
+          // independently in evidence. The old path split only on "and", so a phrase
+          // like a descriptor + researched name + "of" + researched unit failed as a
+          // unit and the sentence was flagged — false positives that drive pointless
+          // repair cycles and can strip researched people from prose. Compounds now
+          // split on connectives, and leading descriptor tokens that the evidence
+          // itself contains as ordinary words are stripped before the retest (the
+          // closed world doubles as the descriptor lexicon — nothing hardcoded).
+          // A phrase with any genuinely-unresearched content segment still flags,
+          // and a wholly-unresearched phrase flags exactly as before.
+          const segs = ph.split(/\s+(?:and|of|at|in|on|for|the)\s+/i).filter(Boolean);
+          const segOk = (seg) => {
+            if (inEV(seg)) return true;
+            const toks = normCW(seg).split(' ').filter(Boolean);
+            while (toks.length > 1 && EV.includes(' ' + toks[0] + ' ')) toks.shift();
+            return toks.length > 0 && inEV(toks.join(' '));
+          };
+          if (!segs.length || !segs.every(segOk)) bad.push(ph);
         }
       }
       MRE.lastIndex = 0;
@@ -2436,11 +3081,18 @@ function closedWorldCheck(prose, project) {
       }
     }
     return out;
-  } catch (e) { return []; }
+  } catch (e) {
+    // ARCH-1 backstop: an empty return is indistinguishable from 'no fabrication found',
+    // so an internal error here reads as a clean chapter. It still returns [] rather than
+    // blocking the draft, but it can no longer be silent about it.
+    console.error('[CLOSED-WORLD] check threw and found nothing as a result — this chapter was NOT closed-world verified:', e);
+    return [];
+  }
 }
 
 function deterministicSourceCheck(prose, project) {
-  if (!prose || !project || project.book_type !== 'nonfiction') return [];
+  // NFCLASS-3: see above — the authority decides, not a raw field equality.
+  if (!prose || !project || !isNonfictionProjectAuthority(project)) return [];
   const research = typeof project.research_data === 'string'
     ? project.research_data
     : (project.research_data ? JSON.stringify(project.research_data) : '');
@@ -2599,6 +3251,59 @@ function buildCleanResult(finalProse, generatedScenes = [], repairReports = [], 
   };
 }
 
+// BOUNDARYREPAIR-1: how many times the future-boundary repair may iterate while it
+// is still strictly reducing the violation count. Fail-closed is unchanged — this
+// only stops a converging repair from being abandoned after one pass.
+const FUTURE_BOUNDARY_REPAIR_PASSES = 3;
+
+// DEADCHARFIX-1: the deterministic narrative-state audit (dead characters acting,
+// unavailable objects, limb contradictions) is an INTEGRITY gate and still fails
+// closed. It just gets the same number of attempts as every other repair loop in
+// this file instead of a single roll of the dice.
+const STATE_CONTRACT_REPAIR_PASSES = 3;
+
+// CHRONOPOLICY-1: beat ORDER is a quality constraint, not an integrity one.
+// A mis-ordered beat produces a weaker chapter; it cannot invent a fact. The
+// integrity gates (quote binding, dead-character, closed-world facts) still fail
+// closed — this one repairs, then reports, then lets the chapter draft.
+//
+// Live evidence for the change: Ch.2 died on "Marcus unlocks the cabinet with a
+// code" (the validator demanded Marcus first ACQUIRE a code) and Ch.5 died on
+// "Lena destroys the brass key" one scene after she retrieves it — the key had
+// already opened doors back in Ch.2, but this validator only ever sees ONE
+// chapter of beats. BOTH returned ZERO repairs: the complaint was unsatisfiable,
+// not the beat plan wrong. Under the old policy each cost an entire chapter.
+export function applyChronologyPolicy(parsedScenes) {
+  try {
+    validateRawBeatChronology(parsedScenes);
+    return parsedScenes;
+  } catch (err) {
+    if (!(err.name === 'ChronologyError' || String(err.message).includes('Chronology'))) {
+      throw err; // DO NOT catch ReferenceError or TypeError
+    }
+    console.warn('[CHRONOLOGY-VALIDATOR] Chronology overlaps detected:', err.message);
+
+    const repairResult = repairRawContract(parsedScenes);
+    const repairedScenes = repairResult.beats;
+    console.log('[CHRONOLOGY-REPAIR] Repaired scenes report:', JSON.stringify(repairResult.repairs, null, 2));
+
+    try {
+      validateRawBeatChronology(repairedScenes);
+      console.log('[CHRONOLOGY-REPAIR] Repair resolved every chronology complaint.');
+    } catch (residualErr) {
+      if (!(residualErr.name === 'ChronologyError' || String(residualErr.message).includes('Chronology'))) {
+        throw residualErr; // DO NOT swallow ReferenceError or TypeError
+      }
+      console.warn(
+        `[CHRONOLOGY-ADVISORY] Chronology complaint survived repair and was NOT enforced: ` +
+        `${residualErr.message} (repairs applied: ${repairResult.repairs.length}). ` +
+        `Drafting continues; review the beat order for this chapter.`
+      );
+    }
+    return repairedScenes;
+  }
+}
+
 export async function generateChapterSceneByScene({
   project,
   chapter,
@@ -2610,7 +3315,14 @@ export async function generateChapterSceneByScene({
   proseModelOverride,
   model: modelOverride,
   includeFullCraft = true,
+  revisionFeedback = '',
   onProgress,
+  sceneExecutionShadow = null,
+  sceneExecutionPromptCanary = null,
+  sceneExecutionCanaryTrial = null,
+  sceneExecutionAcceptanceRunners = null,
+  priorLedger = null,
+  priorChapterProse = [],
 }) {
   if (!project) throw new Error('Project is required.');
   if (!chapter) throw new Error('Chapter is required.');
@@ -2619,7 +3331,37 @@ export async function generateChapterSceneByScene({
   const isNF = isNonfictionProject(project) || isNonfictionAnthology(project);
   const chapterNumber = getChapterNumber(chapter);
   const chapterTarget = getChapterTargetWords(project, chapter);
-  const parsedScenes = parseScenesFromChapter(chapter, scenes, isNF);
+  let parsedScenes = parseScenesFromChapter(chapter, scenes, isNF);
+  
+  console.log(`[BEAT-PIPELINE] parseScenesFromChapter output: ${parsedScenes.length} scenes.`);
+
+  const parsedJson = typeof chapter?.scene_beats_json === 'string' ? JSON.parse(chapter.scene_beats_json) : (chapter?.scene_beats_json || {});
+  if (parsedJson?.pipeline_contract && !isNF) {
+    verifySceneProvenance(parsedScenes, parsedJson.pipeline_contract, 'writer-parse');
+    verifyContiguousSceneSequence(parsedScenes, parsedJson.pipeline_contract.expected_scene_count, 'writer-parse');
+  }
+
+  // Determine expected count to catch silent loss before normalization
+  let expectedCount = parsedJson?.pipeline_contract?.expected_scene_count || (scenes ? scenes.length : 0);
+  if (!expectedCount && chapter?.scene_beats_json) {
+    try {
+      const j = typeof chapter.scene_beats_json === 'string' ? JSON.parse(chapter.scene_beats_json) : chapter.scene_beats_json;
+      expectedCount = (j.beats || j.scenes || j.sections || (Array.isArray(j) ? j : [])).length;
+    } catch (e) {
+      // Ignored for expected count
+    }
+  }
+
+  if (!isNF) {
+    parsedScenes = applyChronologyPolicy(parsedScenes);
+  }
+
+  const immutableContract = !isNF
+    ? createImmutableSceneContract(parsedScenes, { chapterNumber })
+    : null;
+    
+  console.log(`[BEAT-PIPELINE] normalizer-input: ${parsedScenes.length} scenes. Expected: ${expectedCount}`);
+
   const beatPreflight = normalizeSceneBeatsForDrafting(parsedScenes, {
     isNonfiction: isNF,
     chapterNumber,
@@ -2627,8 +3369,34 @@ export async function generateChapterSceneByScene({
     projectTitle: project?.title || '',
   });
 
+  if (expectedCount > 0 && beatPreflight.finalCount < expectedCount) {
+    const error = new Error(
+      `Chapter ${chapterNumber} scene contract lost data. Expected ${expectedCount} scenes, but pipeline reduced it to ${beatPreflight.finalCount} without proof of merge.`
+    );
+    error.name = 'NarrativeInvariantError';
+    error.code = 'SCENE_LOST_IN_PIPELINE';
+    error.narrativeContract = true;
+    error.contractFingerprint = immutableContract?.fingerprint || null;
+    throw error;
+  }
+
   if (beatPreflight?.changed) {
-    console.warn('[sceneWriter] Scene beat preflight changed chapter beats:', beatPreflight.report, beatPreflight.warnings || []);
+    if (!isNF) {
+      // The fiction normalizer is a detector, not the owner of the accepted
+      // scene contract. It may attach diagnostic metadata while preserving
+      // every semantic contract field. Verify that preservation directly
+      // instead of treating an advisory report as scene loss.
+      assertSceneContractUnchanged(immutableContract, beatPreflight.beats, {
+        chapterNumber,
+      });
+      console.warn(
+        '[NARRATIVE-CONNECT] Fiction overlap reported with the immutable scene contract intact; drafting the accepted contract unchanged.',
+        beatPreflight.report,
+        beatPreflight.warnings || []
+      );
+    } else {
+      console.warn('[sceneWriter] Scene beat preflight changed chapter beats:', beatPreflight.report, beatPreflight.warnings || []);
+    }
     onProgress?.({
       stage: 'scene_beat_preflight',
       chapterNumber,
@@ -2646,7 +3414,53 @@ export async function generateChapterSceneByScene({
     if (cov) console.warn('[COVERAGE] ch' + (chapter?.chapter_number || '?') + ': ' + cov.coverage + '% of ' + cov.total + ' beat atoms in evidence' + (cov.missingCount ? ' — MISSING: ' + cov.missing.join(' | ') : ''));
   } catch (covErr) { /* advisory only — drafting continues regardless */ }
 
-  const normalizedScenes = normalizeSceneSpecs(beatPreflight?.beats || parsedScenes, chapterTarget);
+  const normalizedScenes = normalizeSceneSpecs(
+    isNF ? (beatPreflight?.beats || parsedScenes) : immutableContract.beats,
+    chapterTarget
+  );
+  if (!isNF) {
+    assertSceneContractUnchanged(immutableContract, normalizedScenes, { chapterNumber });
+  }
+
+  const sceneExecutionShadowState = prepareSceneExecutionShadowIntegration({
+    integration: sceneExecutionShadow,
+    immutableSceneContract: immutableContract,
+  });
+  const sceneExecutionPromptCanaryState = prepareSceneExecutionPromptCanary({
+    integration: sceneExecutionPromptCanary,
+    shadowState: sceneExecutionShadowState,
+    immutableSceneContract: immutableContract,
+  });
+  const sceneExecutionCanaryTrialState = prepareSceneExecutionCanaryTrial({
+    integration: sceneExecutionCanaryTrial,
+    promptCanaryState: sceneExecutionPromptCanaryState,
+    immutableSceneContract: immutableContract,
+    projectId: project?.id,
+    chapterId: chapter?.id,
+  });
+
+  // DEADGATE-1: flags used to come ONLY from sceneExecutionShadow.flags, and
+  // ProjectStudio never passes sceneExecutionShadow — so all six scene-execution gates
+  // were not just off, they were unreachable. The project record can declare them now,
+  // and whatever the answer is, it gets said out loud once per chapter.
+  let flags = resolveSceneExecutionFlags(project, null);
+  let snapshot = null;
+  if (sceneExecutionShadow && typeof sceneExecutionShadow === 'object' && !Array.isArray(sceneExecutionShadow)) {
+    if (Object.prototype.hasOwnProperty.call(sceneExecutionShadow, 'flags')) {
+      flags = resolveSceneExecutionFlags(project, sceneExecutionShadow.flags);
+    }
+    if (Object.prototype.hasOwnProperty.call(sceneExecutionShadow, 'snapshot')) {
+      snapshot = sceneExecutionShadow.snapshot;
+    }
+  }
+  reportSceneExecutionGateStatus(flags, `Ch.${chapterNumber}`);
+
+  const sceneExecutionAcceptanceState = prepareSceneExecutionAcceptanceState({
+    flags,
+    snapshot,
+    immutableSceneContract: immutableContract,
+    shadowState: sceneExecutionShadowState,
+  });
 
   const model = pickProseModel(project, proseModelOverride || modelOverride);
   const fallbackControls = buildFallbackControls('prose', project);
@@ -2677,10 +3491,133 @@ export async function generateChapterSceneByScene({
   let accumulatedProse = '';
   const generatedScenes = [];
   const repairReports = [];
+  const sceneExecutionCanaryEvidenceRecords = [];
   let lastScenePrompt = '';
+  // LEDGERSCOPE-1: the ledger is BOOK-scoped. `accumulatedProse` above stays
+  // chapter-local on purpose (DRAFTFIX-1) - seeding prose caused stacked drafts.
+  // The ledger carries no prose, only facts, so it is safe to carry forward and
+  // it is the only thing that can stop Ch.4 restoring a hand Ch.3 amputated.
+  let runtimeLedger = priorLedger ? cloneLedger(priorLedger) : buildInitialLedger();
+  // HOLDER-3 — canonicalise the RUNTIME ledger against this chapter's cast, here,
+  // before any scene is drafted or audited.
+  //
+  // HOLDER-2 did this inside extractSceneLedgerUpdates, which is the WRITE path -
+  // it runs after a scene is drafted. The audit that hard-blocks a scene reads
+  // `runtimeLedger` directly, so it was still seeing the un-canonicalised fold.
+  // Live ch.5 at 85218aec: the fold produced holder "Marcus" (chapters 1-4 never
+  // wrote "Marcus Reed"), the prose scanner resolved the same man to the cast name
+  // "Marcus Reed", and the audit reported a handover from Marcus to Marcus Reed -
+  // one man passing an object to himself, three passes, chapter rejected.
+  //
+  // The cast for the whole chapter is known right here. Resolve once, up front, so
+  // every downstream reader sees the same names the scanner produces.
+  {
+    const chapterCast = [...new Set(normalizedScenes.flatMap((s) => [
+      ...(Array.isArray(s?.characters) ? s.characters : []),
+      ...(Array.isArray(s?.characters_present) ? s.characters_present : []),
+    ]).filter(Boolean))];
+    if (chapterCast.length) {
+      const before = JSON.stringify(runtimeLedger.possessions || {});
+      runtimeLedger = canonicalizeLedgerNames(runtimeLedger, chapterCast);
+      const after = JSON.stringify(runtimeLedger.possessions || {});
+      if (before !== after) {
+        console.warn(`[HOLDER-3] Ch.${chapterNumber} holder names resolved against the cast: ${before} -> ${after}`);
+      } else {
+        console.log(`[HOLDER-3] Ch.${chapterNumber} holder names already canonical: ${after}`);
+      }
 
+      // HOLDER-4: the chapter's OPENING CONTRACT outranks the inherited ledger.
+      // The writer is handed scene 1's entry_state and writes to it; the audit
+      // reads the ledger. When they disagree the audit rejects prose that is doing
+      // exactly what it was told, and no repair can win. The plan is what the page
+      // will say, so the plan sets the opening holder.
+      const opening = holdersFromSpecState(normalizedScenes[0], chapterCast);
+      for (const [obj, holder] of opening) {
+        const current = Object.keys(runtimeLedger.possessions || {}).find((char) =>
+          (runtimeLedger.possessions[char] || []).some((held) => {
+            const a = String(held).toLowerCase();
+            const b = String(obj).toLowerCase();
+            return a === b || a.includes(b) || b.includes(a);
+          })
+        );
+        const probe = canonicalizeLedgerNames(
+          Object.assign(buildInitialLedger(), { possessions: { [holder]: [obj] } }),
+          chapterCast
+        );
+        const canonHolder = Object.keys(probe.possessions)[0] || holder;
+        if (current && current === canonHolder) continue;
+        // Keep the ledger's own richer spelling of the object where it has one.
+        const spelling = current
+          ? (runtimeLedger.possessions[current] || []).find((held) => {
+            const a = String(held).toLowerCase();
+            const b = String(obj).toLowerCase();
+            return a === b || a.includes(b) || b.includes(a);
+          }) || obj
+          : obj;
+        setHolderOfRecord(runtimeLedger, spelling, canonHolder);
+        console.warn(
+          `[HOLDER-4] Ch.${chapterNumber} opening contract overrides the inherited ledger: ` +
+          `"${spelling}" ${current ? `was with ${current}, ` : ''}is with ${canonHolder} per scene 1 entry_state.`
+        );
+      }
+    }
+  }
+  // KEYLEDGER-1f: the CLOSED tracked-object set comes from the plan (props_present
+  // across this chapter's scenes) plus anything the ledger already tracks. It is
+  // never derived from prose.
+  // KEYLEDGER-2d: the plan set and the ledger-held set can name the same object
+  // two ways ("Brass Key" + "key" on the live ch.4 run) - one object, one stream.
+  const trackedObjects = dedupeTrackedObjects([...new Set([
+    ...trackedObjectsFromSpecs(normalizedScenes),
+    ...Object.values(runtimeLedger.possessions || {}).flat().map(String),
+  ])].filter((o) => o && o.length > 2 && o.length < 40));
+  console.log(`[KEYLEDGER] Ch.${chapterNumber} tracked objects: ${trackedObjects.join(' | ') || '(none)'}`);
+  if (priorLedger) {
+    console.log(`[NARRATIVE-LEDGER] Ch.${chapterNumber} seeded from prior chapters: ${summarizeLedger(runtimeLedger)}`);
+  } else {
+    console.log(`[NARRATIVE-LEDGER] Ch.${chapterNumber} starting from an empty ledger (no prior chapter state available).`);
+  }
+
+  // Contract-Level Replay Validation using semantic signatures
+  const isClean = isCleanMetadata;
+
+  validateSceneContractReplay(normalizedScenes);
   for (let i = 0; i < normalizedScenes.length; i += 1) {
     const spec = normalizedScenes[i];
+    const priorScenes = normalizedScenes.slice(0, i);
+    const futureScenes = normalizedScenes.slice(i + 1);
+    const promptSpec = {
+      ...spec,
+      // KEYLEDGER-1f: who has what when this scene opens.
+      holders_of_record: Object.entries(runtimeLedger.possessions || {})
+        .filter(([, objs]) => Array.isArray(objs) && objs.length)
+        .map(([char, objs]) => `${char} has the ${objs.join(' and the ')}`),
+      required_events: Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean).filter(isClean) : [],
+      prior_completed_events: priorScenes.flatMap((scene) =>
+        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
+      ),
+      prior_exit_states: priorScenes
+        .map((scene) => String(scene?.exit_state || '').trim())
+        .filter(Boolean).filter(isClean),
+      future_reserved_events: futureScenes.flatMap((scene) =>
+        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
+      ),
+      // EXITSTATE-1: the next scene's entry_state is the independent statement of
+      // where the characters must be standing when THIS scene ends. It is the
+      // ground truth the exit-state audit checks the scene's ending against.
+      next_entry_state: String(normalizedScenes[i + 1]?.entry_state || '').trim(),
+      // BEATFIELD-2: the beat schema declares `setting`; there is no `location` property
+      // anywhere in it, so this field was permanently empty for every scene of every
+      // chapter. The neighbouring lines already hedge (`spec.location || spec.setting`).
+      next_location: String(normalizedScenes[i + 1]?.setting || normalizedScenes[i + 1]?.location || '').trim(),
+      future_reserved_event_objects: futureScenes.flatMap((scene) =>
+        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean).map(ev => ({
+          event: ev,
+          sceneId: scene.scene_id,
+          sceneNumber: scene.scene_number || scene.sceneNumber
+        })) : []
+      ),
+    };
     const isFirst = i === 0;
     const rawSceneTarget = Number(spec.targetWords || Math.floor(chapterTarget / normalizedScenes.length));
     const sceneTarget = Number.isFinite(rawSceneTarget) && rawSceneTarget > 0
@@ -2696,11 +3633,11 @@ export async function generateChapterSceneByScene({
       model,
     });
 
-    const prompt = buildScenePrompt({
+    const basePrompt = buildScenePrompt({
       project,
       chapter,
       chapters: allProjectChapters,
-      spec,
+      spec: promptSpec,
       accumulatedProse,
       previousChapterTail: isFirst && !isAnthology ? continuity.previousChapterTail : '',
       rollingContext: isAnthology ? '' : continuity.rollingContext,
@@ -2709,12 +3646,65 @@ export async function generateChapterSceneByScene({
       targetWords: sceneTarget,
       relevantResearch,
       anthologyContext,
-      twistContext,
+      twistContext: filterTwistContextForScene(twistContext, promptSpec),
       seriesContinuityBlock,
       volumeContractBlock,
       authorStyleBlock,
       includeFullCraft,
+      revisionFeedback,
+      runtimeLedger,
     });
+    const promptCanaryResult = applySceneExecutionPromptCanary({
+      state: sceneExecutionPromptCanaryState,
+      prompt: basePrompt,
+      sceneId: spec.scene_id,
+    });
+    const prompt = promptCanaryResult.prompt;
+
+    const shadowSceneReport = sceneExecutionShadowState.enabled
+      ? sceneExecutionShadowState.scene_reports[i]
+      : null;
+    if (shadowSceneReport) {
+      if (shadowSceneReport.scene_id !== spec.scene_id) {
+        const error = new Error(
+          `Scene execution shadow report mismatch at scene ${i + 1}.`
+        );
+        error.name = 'NarrativeInvariantError';
+        error.code = 'SCENE_EXECUTION_SHADOW_SEQUENCE_MISMATCH';
+        error.narrativeContract = true;
+        throw error;
+      }
+      pipelineSnapshot(
+        chapter?.id,
+        `0-shadow-authority-scene-${i + 1}`,
+        shadowSceneReport.projection
+      );
+      onProgress?.({
+        stage: 'scene_execution_shadow',
+        sceneIndex: i,
+        sceneNumber: spec.sceneNumber,
+        sceneId: spec.scene_id,
+        totalScenes: normalizedScenes.length,
+        packetId: shadowSceneReport.packet_id,
+        mode: sceneExecutionShadowState.mode,
+      });
+    }
+    if (promptCanaryResult.applied) {
+      pipelineSnapshot(
+        chapter?.id,
+        `0-prompt-canary-scene-${i + 1}`,
+        prompt
+      );
+      onProgress?.({
+        stage: 'scene_execution_prompt_canary',
+        sceneIndex: i,
+        sceneNumber: spec.sceneNumber,
+        sceneId: spec.scene_id,
+        totalScenes: normalizedScenes.length,
+        packetId: promptCanaryResult.packet_id,
+        mode: promptCanaryResult.mode,
+      });
+    }
 
     // Capture the prompt sent to the model for diagnostic comparison
     pipelineSnapshot(chapter?.id, `0-prompt-scene-${i + 1}`, prompt);
@@ -2730,7 +3720,7 @@ export async function generateChapterSceneByScene({
     for (let attempt = 1; attempt <= MAX_EMPTY_REROLLS; attempt++) {
       generated = await generateSceneWithRepair({
         project,
-        spec,
+        spec: promptSpec,
         prompt,
         model,
         fallbackModel,
@@ -2746,10 +3736,79 @@ export async function generateChapterSceneByScene({
 
     // 0a: Raw LLM output BEFORE any cleaning
     pipelineSnapshot(chapter?.id, `0a-scene-${i + 1}-raw-llm-output`, String(generated?.prose || ''));
+    // RHYTHM-1: measured at the RAW output so polish/repair effects are attributable.
+    let rawRhythm = null;
+    try {
+      rawRhythm = measureRhythm(String(generated?.prose || ''));
+      console.log(formatRhythmLine(`Ch.${chapterNumber} scene ${i + 1} raw`, rawRhythm).line);
+    } catch (rhythmErr) { /* telemetry only - never blocks drafting */ }
+
+    // RHYTHM-2: ONE bounded regeneration when the raw take is severely flat.
+    // Measured on the instrumented ch.1 run: the prompt-side restatement alone
+    // moved mean sentence length 6.2 -> 6.5 words - the model ignores rhythm
+    // instructions it is not held to. This is a REGENERATION of the same scene
+    // with the measured numbers quoted, judged deterministically, ties to the
+    // original. It never mutates prose (the POLISHFIX lesson) and never runs on
+    // nonfiction. Cost: one extra prose call only on severely flat scenes.
+    // GESTURE-2: the same ONE-regeneration slot now also fires on severe gesture
+    // density (looked/turned/nodded saturation). Never more than one regen per
+    // scene; when both severities fire, one regen carries both corrections.
+    const regenFlat = !isNF && rawRhythm && isSeverelyFlat(rawRhythm);
+    const regenGestural = !isNF && rawRhythm && isSeverelyGestural(rawRhythm);
+    if (regenFlat || regenGestural) {
+      try {
+        const regenInstruction = [
+          regenFlat ? buildRhythmRegenInstruction(rawRhythm) : null,
+          regenGestural ? buildGestureRegenInstruction(rawRhythm) : null,
+        ].filter(Boolean).join('\n\n');
+        const regenerated = await generateSceneWithRepair({
+          project,
+          spec: promptSpec,
+          prompt: `${prompt}\n\n${regenInstruction}`,
+          model,
+          fallbackModel,
+          disableFallbacks,
+          targetWords: sceneTarget,
+          temperature: 0.72,
+          maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+        });
+        const regenProse = lightCleanSceneOutput(regenerated?.prose || '');
+        if (regenProse) {
+          const regenRhythm = measureRhythm(String(regenerated.prose || ''));
+          const winner = pickBetterTake(rawRhythm, regenRhythm, { flat: regenFlat, gestural: regenGestural });
+          const regenTrigger = [regenFlat ? 'flat' : null, regenGestural ? 'gesture' : null].filter(Boolean).join('+');
+          console.log(
+            `[RHYTHM-2] Ch.${chapterNumber} scene ${i + 1} regen (${regenTrigger}): ` +
+            `raw mean=${rawRhythm.meanLen}w run=${rawRhythm.maxShortRun} gest=${rawRhythm.gesturesPer1000.combined}/1k -> ` +
+            `regen mean=${regenRhythm.meanLen}w run=${regenRhythm.maxShortRun} gest=${regenRhythm.gesturesPer1000.combined}/1k | keeping ${winner}`
+          );
+          if (winner === 'candidate') {
+            generated = regenerated;
+            sceneProse = regenProse;
+            pipelineSnapshot(chapter?.id, `0a2-scene-${i + 1}-rhythm-regen-kept`, String(generated?.prose || ''));
+          }
+        } else {
+          console.log(`[RHYTHM-2] Ch.${chapterNumber} scene ${i + 1} regen returned empty - keeping original.`);
+        }
+      } catch (regenErr) {
+        console.warn(`[RHYTHM-2] Ch.${chapterNumber} scene ${i + 1} regen failed - keeping original:`, regenErr?.message || regenErr);
+      }
+    }
     pipelineSnapshot(chapter?.id, `0b-scene-${i + 1}-after-lightClean`, sceneProse);
 
     if (!sceneProse) {
       throw new Error('Scene ' + (spec.sceneNumber || i + 1) + ' returned empty prose after ' + MAX_EMPTY_REROLLS + ' attempts.');
+    }
+
+    if (!isNF) {
+      try {
+        assertNarrativeTextClean(sceneProse, { chapterNumber });
+      } catch (error) {
+        error.sceneId = spec.scene_id || null;
+        error.sceneNumber = spec.sceneNumber || i + 1;
+        error.narrativeContract = true;
+        throw error;
+      }
     }
 
     const duplicateCheck = detectLikelySceneRestart(sceneProse, accumulatedProse, spec, i);
@@ -2790,8 +3849,520 @@ export async function generateChapterSceneByScene({
         generated.repaired = true;
         generated.issues = [...(generated.issues || []), `Duplicate/restart repaired: ${duplicateCheck.reason}`];
       } else {
-        console.warn(`[sceneWriter] Scene ${spec.sceneNumber || i + 1} duplicate repair still looked unsafe; keeping original but flagging.`);
-        generated.issues = [...(generated.issues || []), `Possible duplicate/restart survived: ${duplicateCheck.reason}`];
+        const duplicateError = new Error(
+          `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: duplicate/restart survived its repair pass (${duplicateCheck.reason}).`
+        );
+        duplicateError.name = 'NarrativeInvariantError';
+        duplicateError.code = 'SCENE_DUPLICATE_UNRESOLVED';
+        duplicateError.sceneId = spec.scene_id || null;
+        duplicateError.sceneNumber = spec.sceneNumber || i + 1;
+        duplicateError.reason = duplicateCheck.reason;
+        console.error('[NARRATIVE-CONNECT] Hard-blocking unsafe scene:', duplicateError);
+        throw duplicateError;
+      }
+    }
+
+
+    if (!isNF) {
+      let futureAudit = await auditSceneFutureBoundaries(sceneProse, promptSpec, model);
+      if (!futureAudit.ok) {
+        if (futureAudit.auditFailed) {
+          const auditError = new Error(`Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: future boundary audit failed to execute or returned malformed JSON.`);
+          auditError.name = 'NarrativeInvariantError';
+          auditError.code = 'SCENE_BOUNDARY_AUDIT_FAILED';
+          auditError.sceneId = spec.scene_id || null;
+          auditError.sceneNumber = spec.sceneNumber || i + 1;
+          throw auditError;
+        }
+
+        console.warn(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} futureViolations=${futureAudit.violations.length}`);
+        futureAudit.violations.forEach((v, vIdx) => {
+          console.log(`[SCENE-BOUNDARY-VIOLATION]
+scene=${spec.scene_id || spec.sceneNumber || i + 1}
+futureScene=${v.sceneId || v.sceneNumber || 'unknown'}
+category=${v.category}
+futureEvent="${v.event}"
+excerpt="${v.excerpt}"
+sentenceIndex=${v.sentenceIndex}`);
+        });
+
+        onProgress?.({
+          stage: 'scene_contract_repair',
+          sceneIndex: i,
+          sceneNumber: spec.sceneNumber,
+          totalScenes: normalizedScenes.length,
+          reason: 'Performed future events early: ' + futureAudit.violations.map(v => v.event).join(', ')
+        });
+
+        const cleanedPrompt = prompt.replace(/TWIST \/ REVERSAL CONTEXT:[\s\S]*?(?=\n\n(?:NARRATIVE STATE CONTRACT|THIS SCENE|=== SERIES CONTEXT|[A-Z0-9_\s]+:|$))/i, '');
+        const repairPrompt = [
+          cleanedPrompt,
+          buildFutureBoundaryRepairPrompt(sceneProse, promptSpec, futureAudit.violations)
+        ].join('\n\n');
+
+        // BOUNDARYREPAIR-1: repair while it is still making progress.
+        //
+        // This ran exactly ONE pass. Observed live on Ch.2 scene 1: violations went
+        // 6 -> 2 in that single pass — clearly converging — and the chapter was then
+        // thrown away anyway. Every other gate in this file gets a repair attempt;
+        // this one got one shot at a multi-part problem.
+        //
+        // Fail-closed is NOT relaxed: if violations remain when the loop ends, the
+        // same error with the same code is thrown as before. The loop stops early on
+        // a STALL (no strict decrease) so a model that cannot fix the remainder is
+        // not asked repeatedly for nothing.
+        // BOUNDARYPOLICY-2: use every pass, and keep the BEST attempt.
+        //
+        // The stall-abort below was wrong in practice. Live Ch.3 scene 1 failed on
+        // pass 1 with no progress (1 -> 1) and the chapter died; a later identical
+        // run repaired the SAME scene 1 -> 0 on its first pass. The repair is a
+        // stochastic regeneration, so one unlucky pass is a dice roll, not proof
+        // that the complaint is unsatisfiable.
+        const originalViolationCount = futureAudit.violations.length;
+        let repairedProse = '';
+        let bestProse = '';
+        let bestCount = originalViolationCount;
+        let bestAudit = futureAudit;
+        let currentPrompt = repairPrompt;
+
+        for (let repairPass = 1; repairPass <= FUTURE_BOUNDARY_REPAIR_PASSES; repairPass += 1) {
+          const repaired = await generateSceneWithRepair({
+            project,
+            spec,
+            prompt: currentPrompt,
+            model,
+            fallbackModel,
+            disableFallbacks,
+            targetWords: sceneTarget,
+            temperature: 0.48,
+            maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+          });
+
+          const passProse = lightCleanSceneOutput(repaired.prose);
+          if (!passProse) break;
+
+          const passAudit = await auditSceneFutureBoundaries(passProse, promptSpec, model);
+
+          console.log(`[SCENE-BOUNDARY-REPAIR-RESULT]
+pass=${repairPass}/${FUTURE_BOUNDARY_REPAIR_PASSES}
+remainingCount=${passAudit.violations.length}
+remainingViolations=${JSON.stringify(passAudit.violations.map(v => v.event))}`);
+
+          repairedProse = passProse;
+          futureAudit = passAudit;
+
+          // An audit that could not execute tells us nothing; stop asking.
+          if (passAudit.auditFailed) break;
+
+          if (passAudit.violations.length < bestCount) {
+            bestCount = passAudit.violations.length;
+            bestProse = passProse;
+            bestAudit = passAudit;
+          }
+
+          if (passAudit.ok) break;
+
+          currentPrompt = [
+            cleanedPrompt,
+            buildFutureBoundaryRepairPrompt(passProse, promptSpec, passAudit.violations)
+          ].join('\n\n');
+        }
+
+        if (bestAudit.ok && bestProse) {
+          sceneProse = bestProse;
+          generated.repaired = true;
+          generated.issues = [...(generated.issues || []), `Future boundary repaired`];
+        } else {
+          // BOUNDARYPOLICY-2: performing a later scene's beat early is a STRUCTURE
+          // problem, not an integrity one — it cannot invent a fact. Losing the whole
+          // chapter over it costs the writer everything and returns nothing to read.
+          // Keep the least-violating draft, say so loudly, and carry on.
+          if (bestProse && bestCount < originalViolationCount) {
+            sceneProse = bestProse;
+            generated.repaired = true;
+            generated.issues = [...(generated.issues || []), `Future boundary partially repaired (${originalViolationCount} -> ${bestCount})`];
+          }
+          const survivors = (bestAudit.violations || []).map(v => v.event).join(' | ');
+          console.warn(
+            `[FUTURE-BOUNDARY-ADVISORY] scene=${spec.scene_id || spec.sceneNumber || i + 1} ` +
+            `${bestCount} violation(s) survived ${FUTURE_BOUNDARY_REPAIR_PASSES} repair pass(es) and were NOT enforced. ` +
+            `Drafting continues; review this scene against the next one. Survivors: ${survivors}`
+          );
+        }
+      } else {
+        // EXITSTATE-1: this line used to claim the exit state had been checked.
+        // It was a label for a check that does not exist. The only test here is
+        // auditSceneFutureBoundaries - "did this scene perform a LATER scene's
+        // required_event" - so the else branch means exactly one thing: no future
+        // events were performed. It never looked at the exit state. The ch.5
+        // scene that walked out of the station and onto the ice printed this
+        // line. Report what was actually checked.
+        console.log(`[SCENE-BOUNDARY-AUDIT] scene=${spec.sceneNumber || i + 1} futureViolations=0`);
+      }
+
+      // EXITSTATE-1 — did the scene STOP where the contract says it stops?
+      // Separate question, separate audit. Structure problem, not an integrity
+      // one, so it follows BOUNDARYPOLICY-2: repair, keep the best draft, and go
+      // loud rather than losing the chapter.
+      if (String(promptSpec.exit_state || '').trim()) {
+        let exitAudit = await auditSceneExitOvershoot(sceneProse, promptSpec, model);
+        if (exitAudit.auditFailed) {
+          console.warn(
+            `[EXITSTATE-1] scene=${spec.scene_id || spec.sceneNumber || i + 1} audit could not execute; ` +
+            `skipping the exit-state check for this scene.`
+          );
+        } else if (exitAudit.ok) {
+          console.log(`[EXITSTATE-1] scene=${spec.sceneNumber || i + 1} stopsAtExitState=true`);
+        } else {
+          const originalExitCount = exitAudit.violations.length;
+          console.warn(
+            `[EXITSTATE-1] scene=${spec.scene_id || spec.sceneNumber || i + 1} ` +
+            `overshoot=${originalExitCount}`
+          );
+          exitAudit.violations.forEach((v) => {
+            console.log(`[EXITSTATE-VIOLATION]
+scene=${spec.scene_id || spec.sceneNumber || i + 1}
+exit_state=${promptSpec.exit_state}
+next_entry_state=${promptSpec.next_entry_state || '(none - last scene)'}
+reason=${v.reason || '(none given)'}
+excerpt=${JSON.stringify(v.excerpt)}`);
+          });
+
+          let bestExitProse = sceneProse;
+          let bestExitCount = originalExitCount;
+          let bestExitOk = false;
+          const exitBasePrompt = prompt.replace(/TWIST \/ REVERSAL CONTEXT:[\s\S]*?(?=\n\n(?:NARRATIVE STATE CONTRACT|THIS SCENE|=== SERIES CONTEXT|[A-Z0-9_\s]+:|$))/i, '');
+          let exitPrompt = [
+            exitBasePrompt,
+            buildExitOvershootRepairPrompt(sceneProse, promptSpec, exitAudit.violations),
+          ].join('\n\n');
+
+          for (let exitPass = 1; exitPass <= FUTURE_BOUNDARY_REPAIR_PASSES; exitPass += 1) {
+            const repairedExit = await generateSceneWithRepair({
+              project,
+              spec,
+              prompt: exitPrompt,
+              model,
+              fallbackModel,
+              disableFallbacks,
+              targetWords: sceneTarget,
+              temperature: 0.48,
+              maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+            });
+            const passProse = lightCleanSceneOutput(repairedExit.prose);
+            if (!passProse || !passProse.trim()) break;
+
+            const passAudit = await auditSceneExitOvershoot(passProse, promptSpec, model);
+            console.log(`[EXITSTATE-REPAIR-RESULT]
+pass=${exitPass}/${FUTURE_BOUNDARY_REPAIR_PASSES}
+remainingCount=${passAudit.violations.length}
+remaining=${JSON.stringify((passAudit.violations || []).map((v) => v.excerpt.slice(0, 120)))}`);
+
+            if (passAudit.auditFailed) break;
+
+            if (passAudit.violations.length < bestExitCount) {
+              bestExitCount = passAudit.violations.length;
+              bestExitProse = passProse;
+            }
+            if (passAudit.ok) {
+              bestExitProse = passProse;
+              bestExitCount = 0;
+              bestExitOk = true;
+              break;
+            }
+            // EXITSTATE-2: stop when a pass makes it WORSE. Measured on the live
+            // ch.5 run: scene 1 went 1 -> 3 -> 6 -> 8 and scene 2 went 6 -> 6 ->
+            // 5 -> 8 across three passes. Each regeneration writes a NEW ending,
+            // so the audit is judging a moving target; asking again after the
+            // count has grown spends a 60-second call to make the draft worse.
+            // The best-so-far draft is already retained, so stopping costs nothing.
+            if (passAudit.violations.length > bestExitCount) {
+              console.warn(
+                `[EXITSTATE-2] scene=${spec.scene_id || spec.sceneNumber || i + 1} repair diverged ` +
+                `(${bestExitCount} -> ${passAudit.violations.length}); keeping the best draft and stopping.`
+              );
+              break;
+            }
+
+            exitPrompt = [
+              exitBasePrompt,
+              buildExitOvershootRepairPrompt(passProse, promptSpec, passAudit.violations),
+            ].join('\n\n');
+          }
+
+          if (bestExitCount < originalExitCount && bestExitProse) {
+            sceneProse = bestExitProse;
+            generated.repaired = true;
+            generated.issues = [
+              ...(generated.issues || []),
+              bestExitOk
+                ? 'Exit-state overshoot repaired'
+                : `Exit-state overshoot partially repaired (${originalExitCount} -> ${bestExitCount})`,
+            ];
+          }
+
+          if (!bestExitOk) {
+            console.warn(
+              `[EXITSTATE-ADVISORY] scene=${spec.scene_id || spec.sceneNumber || i + 1} ` +
+              `${bestExitCount} overshoot(s) survived ${FUTURE_BOUNDARY_REPAIR_PASSES} repair pass(es) ` +
+              `and were NOT enforced. Drafting continues; this scene ends past its contracted exit ` +
+              `state and the next scene will open somewhere else.`
+            );
+          }
+        }
+      }
+
+      // SCENESCOPE-1: advisory telemetry — count threshold-crossing phrasings
+      // in the accepted draft. Deterministic, never blocks; gives the next
+      // chapter run a measurable number for the unplanned-arrival class.
+      {
+        const thresholdMatches = sceneProse.match(/\b(?:unlock(?:ed|s)?|swung open|slid open|door (?:gave|opened)|hatch (?:opened|gave)|vault (?:door )?(?:opened|swung)|stepped (?:inside|through|into)|seal broke)\b/gi) || [];
+        const authorized = (Array.isArray(promptSpec.required_events) ? promptSpec.required_events : []).join(' ').toLowerCase();
+        const authorizedish = /open|unlock|enter|arriv|discover|reveal|breach|inside/.test(authorized);
+        console.log(`[SCENESCOPE-1] scene=${spec.sceneNumber || i + 1} thresholdCrossings=${thresholdMatches.length} authorizedByRequiredEvents=${authorizedish}`);
+      }
+
+      // PROSE REPLAY AUDIT
+      let replayAudit = validateGeneratedSceneReplay(sceneProse, generatedScenes);
+      if (!replayAudit.ok) {
+        console.warn(`[SCENE-REPLAY-AUDIT] scene=${spec.sceneNumber || i + 1} priorReplayCount=${replayAudit.replays.length}`);
+        
+        onProgress?.({
+          stage: 'scene_contract_repair',
+          sceneIndex: i,
+          sceneNumber: spec.sceneNumber,
+          totalScenes: normalizedScenes.length,
+          reason: 'Semantic prose replay: ' + replayAudit.replays.join(', ')
+        });
+
+        const repairPrompt = [
+          prompt,
+          `The scene you generated semantically replays irreversible events from earlier scenes: \n- ${replayAudit.replays.join('\n- ')}\n\nRewrite the scene without replaying these events.`
+        ].join('\n\n');
+
+        // REPLAYPOLICY-1: this gate got exactly ONE regeneration, while the
+        // future-boundary gate next to it gets three. Live Ch.3/Ch.4 died here
+        // repeatedly on a single unlucky pass. Same bounded budget, same keep-best
+        // rule as BOUNDARYPOLICY-2.
+        const originalReplayCount = replayAudit.replays.length;
+        let repaired = null;
+        let repairedProse = '';
+        let postRepairAudit = replayAudit;
+        let bestReplayProse = '';
+        let bestReplayCount = originalReplayCount;
+        let bestReplayAudit = replayAudit;
+
+        for (let replayPass = 1; replayPass <= FUTURE_BOUNDARY_REPAIR_PASSES; replayPass += 1) {
+          repaired = await generateSceneWithRepair({
+            project,
+            spec,
+            prompt: repairPrompt,
+            model,
+            fallbackModel,
+            disableFallbacks,
+            targetWords: sceneTarget,
+            temperature: 0.48,
+            maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+          });
+
+          repairedProse = lightCleanSceneOutput(repaired.prose);
+          if (!repairedProse) break;
+          postRepairAudit = validateGeneratedSceneReplay(repairedProse, generatedScenes);
+
+          console.log(`[SCENE-REPLAY-REPAIR-RESULT]
+pass=${replayPass}/${FUTURE_BOUNDARY_REPAIR_PASSES}
+remainingCount=${postRepairAudit.replays.length}
+remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
+
+          if (postRepairAudit.replays.length < bestReplayCount) {
+            bestReplayCount = postRepairAudit.replays.length;
+            bestReplayProse = repairedProse;
+            bestReplayAudit = postRepairAudit;
+          }
+          if (postRepairAudit.ok) break;
+        }
+
+        // CAPTURE REPLAY DIAGNOSTICS FOR ALL MATCHES
+        for (const match of replayAudit.detailedMatches) {
+          captureReplayDiagnostic({
+            chapterId: chapter?.id,
+            chapterNumber: chapter?.chapterNumber || spec.chapter_number,
+            currentSceneId: spec.scene_id || null,
+            currentSceneNumber: spec.sceneNumber || i + 1,
+            priorSceneId: match.priorSceneId,
+            priorSceneNumber: match.priorSceneNumber,
+            currentContract: spec,
+            priorContract: match.priorContract,
+            currentRawProse: generated.prose,
+            currentCleanedProse: sceneProse,
+            priorAcceptedProse: match.priorAcceptedProse,
+            currentSignatures: replayAudit.currentSignatures,
+            priorSignatures: match.priorSignatures,
+            allMatchesReturned: replayAudit.replays,
+            matchedFunction: match.matchedFunction,
+            matchedName: match.matchedName,
+            matchedObject: match.matchedObject,
+            detectorRule: match.rule,
+            repairPrompt,
+            repairedRawProse: repaired.prose,
+            repairedCleanedProse: repairedProse,
+            replayMatchesAfterRepair: postRepairAudit.replays,
+            finalResult: postRepairAudit.ok ? 'PASS' : 'FAIL'
+          });
+        }
+
+        if (bestReplayAudit.ok && bestReplayProse) {
+          sceneProse = bestReplayProse;
+          generated.repaired = true;
+          generated.issues = [...(generated.issues || []), `Semantic replay repaired`];
+          replayAudit = bestReplayAudit; // update so it passes
+        } else {
+          // REPLAYPOLICY-1: re-treading an earlier beat is repetitive writing, not a
+          // fabricated fact. Keep the least-repetitive draft and report it.
+          if (bestReplayProse && bestReplayCount < originalReplayCount) {
+            sceneProse = bestReplayProse;
+            generated.repaired = true;
+            generated.issues = [...(generated.issues || []), `Semantic replay partially repaired (${originalReplayCount} -> ${bestReplayCount})`];
+            replayAudit = bestReplayAudit;
+          }
+          console.warn(
+            `[SCENE-REPLAY-ADVISORY] scene=${spec.scene_id || spec.sceneNumber || i + 1} ` +
+            `${bestReplayCount} replay(s) survived ${FUTURE_BOUNDARY_REPAIR_PASSES} repair pass(es) and were NOT enforced. ` +
+            `Drafting continues; review this scene for repeated material. Survivors: ${(bestReplayAudit.replays || []).join(' | ')}`
+          );
+        }
+      }
+
+    }
+
+    // KEYLEDGER-1f: the scene cast, with genders inferred from the accumulated book
+    // prose — measured stable across all five Brass Meridian saves. When two cast
+    // members share a gender, pronoun references drop to low confidence and the
+    // possession/condition checks stay silent rather than guess.
+    const sceneCastNames = (Array.isArray(promptSpec?.characters_present) && promptSpec.characters_present.length
+      ? promptSpec.characters_present
+      : (Array.isArray(promptSpec?.characters) ? promptSpec.characters : [])
+    ).map((c) => String(c || '').trim()).filter(Boolean);
+    const sceneCast = sceneCastNames.length
+      ? inferCastGenders(`${accumulatedProse}\n\n${sceneProse}`, sceneCastNames)
+      : null;
+
+    if (!isNF) {
+      let contractAudit = auditSceneAgainstLedger({
+        prose: sceneProse,
+        accumulatedProse,
+        spec: promptSpec,
+        runtimeLedger,
+        sceneCast,
+      });
+
+      if (!contractAudit.ok) {
+        console.warn(
+          `[NARRATIVE-CONNECT] Scene ${spec.sceneNumber || i + 1} failed deterministic contract audit; repairing:`,
+          contractAudit.report
+        );
+
+        onProgress?.({
+          stage: 'scene_contract_repair',
+          sceneIndex: i,
+          sceneNumber: spec.sceneNumber,
+          totalScenes: normalizedScenes.length,
+          reason: contractAudit.report,
+        });
+
+        const contractRepairPrompt = [
+          prompt,
+          buildSceneContractRepairInstruction(contractAudit),
+        ].join('\n\n');
+
+        // DEADCHARFIX-1: this gate STAYS hard — a dead character acting puts
+        // something false on the page. But it was given exactly ONE regeneration,
+        // the same asymmetry BOUNDARYPOLICY-2 and REPLAYPOLICY-1 fixed elsewhere.
+        // Live Ch.4 scene 3: the single repair pass came back carrying non-Latin
+        // drift ([LEAK-GUARD] removed 1 non-Latin drift run ... e.g. 精密), so the
+        // one and only chance was spent on output that was degraded for an entirely
+        // unrelated reason, and a chapter died. Same bounded budget as its
+        // neighbours; still fails closed when the budget is spent.
+        let repairedContractProse = '';
+        let contractRepair = null;
+
+        for (let contractPass = 1; contractPass <= STATE_CONTRACT_REPAIR_PASSES; contractPass += 1) {
+          contractRepair = await generateSceneWithRepair({
+            project,
+            spec: promptSpec,
+            prompt: contractRepairPrompt,
+            model,
+            fallbackModel,
+            disableFallbacks,
+            targetWords: sceneTarget,
+            temperature: 0.48,
+            maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+          });
+
+          repairedContractProse = lightCleanSceneOutput(contractRepair.prose);
+
+          if (!repairedContractProse) {
+            console.warn(`[STATE-CONTRACT-REPAIR] pass ${contractPass}/${STATE_CONTRACT_REPAIR_PASSES} produced empty prose.`);
+            continue;
+          }
+
+          contractAudit = auditSceneAgainstLedger({
+            prose: repairedContractProse,
+            accumulatedProse,
+            spec: promptSpec,
+            runtimeLedger,
+            sceneCast,
+          });
+
+          console.log(
+            `[STATE-CONTRACT-REPAIR] pass=${contractPass}/${STATE_CONTRACT_REPAIR_PASSES} ` +
+            `resolved=${contractAudit.ok} ${contractAudit.ok ? '' : 'remaining=' + JSON.stringify(contractAudit.report)}`
+          );
+
+          if (contractAudit.ok) break;
+        }
+
+        if (!repairedContractProse || !contractAudit.ok) {
+          const contractError = new Error(
+            `Scene ${spec.scene_id || spec.sceneNumber || i + 1} was rejected: deterministic narrative-state violations survived repair (${contractAudit.report || 'empty repaired prose'}).`
+          );
+          contractError.name = 'NarrativeInvariantError';
+          contractError.code = 'SCENE_STATE_CONTRACT_UNRESOLVED';
+          contractError.sceneId = spec.scene_id || null;
+          contractError.sceneNumber = spec.sceneNumber || i + 1;
+          contractError.audit = contractAudit;
+          contractError.narrativeContract = true;
+          console.error('[NARRATIVE-CONNECT] Hard-blocking state-invalid scene:', contractError);
+          throw contractError;
+        }
+
+        sceneProse = repairedContractProse;
+        generated.repaired = true;
+        generated.issues = [
+          ...(generated.issues || []),
+          'Deterministic scene-state contract repaired',
+        ];
+      }
+    }
+
+    const acceptanceResult = await evaluateSceneExecutionAcceptance({
+      flags,
+      acceptanceState: sceneExecutionAcceptanceState,
+      targetSceneId: spec.scene_id,
+      prose: sceneProse,
+      runners: sceneExecutionAcceptanceRunners || {},
+    });
+
+    if (acceptanceResult.status === 'accepted') {
+      if (acceptanceResult.final_prose !== sceneProse) {
+        sceneProse = acceptanceResult.final_prose;
+        if (acceptanceResult.repair) {
+          generated.repaired = true;
+          generated.issues = [
+            ...(generated.issues || []),
+            `Evaluator repaired scene: ${acceptanceResult.repair.replacements[0].issue_code}`
+          ];
+        }
       }
     }
 
@@ -2809,22 +4380,78 @@ export async function generateChapterSceneByScene({
       }
     }
 
+    const ledgerBefore = JSON.parse(JSON.stringify(runtimeLedger));
+
+    if (!isNF) {
+      runtimeLedger = extractSceneLedgerUpdates(runtimeLedger, sceneProse, promptSpec, {
+        sceneCast,
+        trackedObjects,
+      });
+      const heldNow = Object.entries(runtimeLedger.possessions || {})
+        .map(([char, objs]) => `${char}:${(objs || []).join('/')}`).join(' ');
+      console.log(`[KEYLEDGER] Ch.${chapterNumber} scene ${spec.sceneNumber || i + 1} holder of record: ${heldNow || '(none)'}`);
+      const objectStateNow = Object.entries(runtimeLedger.objectConditions || {})
+        .filter(([, conds]) => (conds || []).length > 0)
+        .map(([obj, conds]) => `${obj}:${conds.join('/')}`).join(' ');
+      if (objectStateNow) console.log(`[OBJECTSTATE] Ch.${chapterNumber} scene ${spec.sceneNumber || i + 1} object conditions: ${objectStateNow}`);
+      console.log(`[NARRATIVE-CONNECT] Updated ledger for scene ${spec.sceneNumber || i + 1}. Dead: ${runtimeLedger.deadCharacters.length}, Unavailable Objects: ${runtimeLedger.unavailableObjects.length}, Completed Events: ${runtimeLedger.completedEvents.length}`);
+    }
+
+    const ledgerAfter = JSON.parse(JSON.stringify(runtimeLedger));
+
+    if (promptCanaryResult.applied) {
+      const canaryEvidence = collectSceneExecutionCanaryEvidence({
+        trialState: sceneExecutionCanaryTrialState,
+        promptCanaryResult,
+        basePrompt,
+        modelPrompt: prompt,
+        acceptedProse: sceneProse,
+        repaired: generated?.repaired === true,
+        issues: Array.isArray(generated?.issues) ? generated.issues : [],
+      });
+      sceneExecutionCanaryEvidenceRecords.push(canaryEvidence);
+      pipelineSnapshot(
+        chapter?.id,
+        `0e-canary-evidence-scene-${i + 1}`,
+        JSON.stringify(canaryEvidence)
+      );
+      onProgress?.({
+        stage: 'scene_execution_canary_evidence',
+        sceneIndex: i,
+        sceneNumber: spec.sceneNumber,
+        sceneId: spec.scene_id,
+        totalScenes: normalizedScenes.length,
+        trialId: canaryEvidence.trial_id,
+        packetId: canaryEvidence.packet_id,
+        status: canaryEvidence.status,
+      });
+    }
+
     generatedScenes.push({
-      sceneNumber: spec.sceneNumber,
+      sceneId: spec.scene_id || spec.id || null,
+      sceneNumber: spec.sceneNumber || i + 1,
+      spec: promptSpec,
+      originalProse: generated?.prose || '',
+      acceptedProse: sceneProse,
+      ledgerBefore,
+      ledgerAfter,
+      // Legacy fields
       prose: sceneProse,
-      repaired: generated.repaired,
-      issues: generated.issues,
+      repaired: generated?.repaired || false,
+      issues: generated?.issues || [],
       targetWords: sceneTarget,
       wordCount: countWords(sceneProse),
     });
 
     repairReports.push({
       sceneNumber: spec.sceneNumber,
-      repaired: generated.repaired,
-      issues: generated.issues,
+      repaired: generated?.repaired || false,
+      issues: generated?.issues || [],
     });
 
-    accumulatedProse = [accumulatedProse, sceneProse].filter(Boolean).join('\n\n');
+    accumulatedProse = [accumulatedProse, sceneProse]
+      .filter(Boolean)
+      .join('\n\n* * *\n\n');
 
     onProgress?.({
       stage: 'scene_done',
@@ -2837,8 +4464,14 @@ export async function generateChapterSceneByScene({
     });
   }
 
+  const sceneExecutionCanaryEvidence = finalizeSceneExecutionCanaryEvidence({
+    trialState: sceneExecutionCanaryTrialState,
+    evidenceRecords: sceneExecutionCanaryEvidenceRecords,
+  });
+
   pipelineSnapshot(chapter?.id, '0c-accumulated-pre-final-clean', accumulatedProse);
   let finalProse = cleanSceneOutput(accumulatedProse, project);
+  if (!isNF) assertNarrativeTextClean(finalProse, { chapterNumber });
   pipelineSnapshot(chapter?.id, '0d-after-final-cleanSceneOutput', finalProse);
 
   const nameRepair = repairCanonNameDrift(finalProse, { project, chapter, chapters: allProjectChapters });
@@ -2867,16 +4500,36 @@ export async function generateChapterSceneByScene({
     finalProse = dmDraft.text;
   }
 
-  finalProse = dedupeRepeatedSentences(finalProse);
-  finalProse = dedupeRepeatedQuotes(finalProse);
-  repetitionAlarm(finalProse);
+  // RENAMEPASS-1: deterministic anthology cross-story name de-collision. USEDNAMES-1 bans other
+  // stories' names in the PROMPT, but the model can defy the ban on its strongest associations
+  // (e.g. a Latino janitor's wife -> "Maria" even when "Maria" is banned for that story). This
+  // runs on the FINISHED prose: any name owned by a DIFFERENT story in the collection (never this
+  // story's own) is renamed consistently across every occurrence, gender preserved from nearby
+  // pronouns, to a fresh name used by no story. FICTION anthology only; deterministic.
+  // SCOPINGFIX-1: never run on a documented-nonfiction anthology. A real recurring name — a
+  // researcher who appears across cases, a real person two stories legitimately share — would be
+  // renamed to an invented one, which is fabrication. The isNF gate confines this to fiction.
+  if (isAnthology && !isNF) {
+    const renamePass = applyAnthologyNameRenames(finalProse, chapter, allProjectChapters);
+    if (renamePass.renames.length) {
+      console.warn('[RENAMEPASS-1] De-collided cross-story names: ' + renamePass.renames.map((r) => `${r.from}->${r.to}(${r.count})`).join(', '));
+      finalProse = renamePass.prose;
+    }
+  }
+
+  // BOOKECHO-2: the final passes now live in finalizeChapterProse so the SAVE
+  // path can run them on the artifact that actually ships (see export below).
+  // This call keeps the critic/fallback artifact clean; the save path in
+  // ProjectStudio passes the prior chapters, so echo repair spends its one
+  // LLM call there, not here.
+  finalProse = await finalizeChapterProse(finalProse, project, priorChapterProse);
 
   // Semantic source verification (nonfiction): one MODEL pass over the whole
   // chapter (semanticSourceCheck — previously defined but never wired) catches
   // unquoted invented sources; the deterministic check runs as a second net.
   // Anything stripped is followed by a quote re-balance, because removing a
   // sentence can orphan quotation marks.
-  if (project?.book_type === 'nonfiction') {
+  if (isNonfictionProjectAuthority(project)) {
     try {
       let semanticFlags = [];
       try { semanticFlags = await semanticSourceCheck(finalProse, project); } catch (e) { semanticFlags = []; }
@@ -2898,6 +4551,10 @@ export async function generateChapterSceneByScene({
     } catch (e) { /* semantic pass unavailable — ship regex-gated prose */ }
   }
   pipelineSnapshot(chapter?.id, '0e-after-sceneWriter-cleanup', finalProse);
+  // RHYTHM-1: chapter-level reading on what actually ships from the scene writer.
+  try {
+    console.log(formatRhythmLine(`Ch.${chapterNumber} final`, measureRhythm(finalProse)).line);
+  } catch (rhythmErr) { /* telemetry only */ }
 
   // ── Exact final line enforcement ──────────────────────────────
   const chapterLabel = `Ch.${chapterNumber}`;
@@ -2944,7 +4601,9 @@ export async function generateChapterSceneByScene({
       try { entryContract = project.entry_contract_json ? JSON.parse(project.entry_contract_json) : null; } catch {}
       try { exitContract = project.exit_contract_json ? JSON.parse(project.exit_contract_json) : null; } catch {}
 
-      const totalChapters = project.chapter_count || project.num_chapters || 20;
+      // CHAPCOUNT-1: chapter_target is the canonical field; reading chapter_count
+    // first resolved 20 for every project the current Setup screen creates.
+    const totalChapters = resolveChapterCount(project, 20);
       const isFinalChapter = chapterNumber >= totalChapters;
 
       const seriesGateReport = runSeriesContractGate(finalProse, project, seriesBibleForGate, null, {
@@ -2994,6 +4653,18 @@ export async function generateChapterSceneByScene({
     sceneBeatPreflight: beatPreflight,
     sceneBeatPreflightReport: beatPreflight?.report || '',
     sourceAudit: isNF ? buildSourceAudit(relevantResearch, project) : null,
+    ...(sceneExecutionShadowState.enabled
+      ? { sceneExecutionShadow: sceneExecutionShadowState }
+      : {}),
+    ...(sceneExecutionPromptCanaryState.enabled
+      ? { sceneExecutionPromptCanary: sceneExecutionPromptCanaryState }
+      : {}),
+    ...(sceneExecutionCanaryTrialState.enabled
+      ? {
+          sceneExecutionCanaryTrial: sceneExecutionCanaryTrialState,
+          sceneExecutionCanaryEvidence,
+        }
+      : {}),
   });
 
   if (!isAnthology && chapter?.id && finalProse) {
@@ -3026,6 +4697,10 @@ export async function generateChapterSceneByScene({
     generatedScenes,
     repairReports,
 
+    // LEDGERSCOPE-1: hand the ledger back. Before this it died with the function
+    // and no later chapter could ever see what this one established.
+    narrativeLedger: boundLedger(runtimeLedger),
+
     cleanResult,
     sourceAudit: cleanResult?.sourceAudit || null,
 
@@ -3038,6 +4713,18 @@ export async function generateChapterSceneByScene({
     drafted_with_model: model,
     fallbackModel: disableFallbacks ? null : fallbackModel,
     disableFallbacks,
+    ...(sceneExecutionShadowState.enabled
+      ? { sceneExecutionShadow: sceneExecutionShadowState }
+      : {}),
+    ...(sceneExecutionPromptCanaryState.enabled
+      ? { sceneExecutionPromptCanary: sceneExecutionPromptCanaryState }
+      : {}),
+    ...(sceneExecutionCanaryTrialState.enabled
+      ? {
+          sceneExecutionCanaryTrial: sceneExecutionCanaryTrialState,
+          sceneExecutionCanaryEvidence,
+        }
+      : {}),
   };
 }
 
@@ -3089,7 +4776,7 @@ export async function generateSingleScene({
     targetWords: spec.targetWords,
     relevantResearch,
     anthologyContext: getAnthologyContext(project, chapter),
-    twistContext,
+    twistContext: filterTwistContextForScene(twistContext, spec),
     seriesContinuityBlock,
     volumeContractBlock,
     authorStyleBlock,
@@ -3146,3 +4833,5 @@ export function buildSceneWriterDebugPrompt(args) {
 // Legacy compatibility export.
 // ProjectStudio imports this exact name.
 export const generateChapterByScenes = generateChapterSceneByScene;
+
+export { auditSceneFutureBoundaries, validateGeneratedSceneReplay };

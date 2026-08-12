@@ -44,6 +44,17 @@
     "word_count": {
       "type": "number",
       "description": "Approximate word count of resulting book"
+    },
+    // WAVE3-SCHEMA: written by IdeasCatalogBrowser since the favorites feature shipped
+    "is_favorite": {
+      "type": "boolean",
+      "default": false,
+      "description": "Heart/favorite flag in the Ideas browser"
+    },
+    "status": {
+      "type": "string",
+      "default": "idea",
+      "description": "Idea lifecycle status (idea/used/archived)"
     }
   },
   "required": [

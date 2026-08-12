@@ -14,6 +14,7 @@
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5180 && electron .\"",
     "electron:build": "vite build && electron-builder",
     "electron:preview": "electron .",
+    "test:narrative-connect": "node tests/generationContext.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/narrativeContractRegression.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/sceneWriterRegression.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/futureBoundaryEnforcement.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/beatPlannerCoverage.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/sceneReplayClosedWorld.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/deadCharacterLedger.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/duplicatePassageGate.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/futureBoundaryAuditRetry.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/chronologyVerbForms.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/objectTransferChronology.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/futureBoundaryRepairPasses.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/auditJsonExtraction.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/auditPromptShape.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/chronologyPolicyAndAuditArray.test.mjs && node tests/draftGatePolicy.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/deadCharacterEvidence.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/collapsedDialogueParagraphs.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/bookScopeLedger.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/chapterKillRepairs.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/ledgerIntake.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/characterStateLedger.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/surgicalFixGuards.test.mjs",
     "test:polish-pipeline": "node tests/researchStorage.test.mjs && node tests/unifiedProseRefinement.test.mjs && node tests/productionWiringSmoke.test.mjs && node tests/globalPolishPipelineRegression.test.mjs && node tests/aiSlopReduction.test.mjs && node tests/exportResolvedDialogueEnforcement.test.mjs && node tests/dialogueMechanicsRepair.test.mjs && node tests/midParagraphDialogueAutofix.test.mjs && node tests/fullAuthorWorkflowRegression.test.mjs && node tests/researchAgentBehaviorRegression.test.mjs && node tests/safeChapterReplace.test.mjs && node tests/prosePolisherDialogueSlopRegression.mjs && node tests/liveExportSafetyRegression.mjs && node tests/prosePolisherQualityGate.test.mjs && node tests/manuscriptSafetyGate.test.mjs && node tests/llmProsePolisher.test.mjs && node tests/styleControlsEffectiveness.test.mjs && node tests/referenceIntegrityGate.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/modelLeakBoundary.test.mjs && node --loader ./tests/helpers/aliasLoader.mjs tests/structureInvariant.test.mjs && npm run build"
   },
   "dependencies": {
@@ -64,6 +65,7 @@
     "mammoth": "^1.12.0",
     "moment": "^2.30.1",
     "next-themes": "^0.4.4",
+    "nlcst-to-string": "^4.0.0",
     "react": "^18.2.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.2.0",
@@ -75,10 +77,15 @@
     "react-resizable-panels": "^2.1.7",
     "react-router-dom": "^6.26.0",
     "recharts": "^2.15.4",
+    "retext-english": "^5.0.0",
+    "retext-indefinite-article": "^5.0.0",
+    "retext-repeated-words": "^5.0.0",
+    "retext-stringify": "^4.0.0",
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.171.0",
+    "unified": "^11.0.5",
     "vaul": "^1.1.2",
     "zod": "^3.24.2"
   },

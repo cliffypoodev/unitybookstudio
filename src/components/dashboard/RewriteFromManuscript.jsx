@@ -286,17 +286,11 @@ export default function RewriteFromManuscript({ onCreated, onCancel }) {
 
       const chapterCount = parseInt(structure.num_chapters, 10) || 20;
 
-      // Handle research_md via upload pattern if present
-      let researchFields = {};
-      if (bible.research_md) {
-        researchFields = await prepareResearchContent(str(bible.research_md));
-      }
-
       const projectData = {
         title: structure.title || 'Untitled Rewrite',
         tagline: 'Rewritten from uploaded manuscript',
         seed_concept: structure.premise || 'Rewrite of uploaded manuscript',
-        author_name: 'Hermes Agent',
+        author_name: '',
         book_type: rewriteType === 'nonfiction' ? 'nonfiction' : 'fiction',
         project_type: rewriteType,
         genre: bible.genre || structure.genre || '',
@@ -322,10 +316,16 @@ export default function RewriteFromManuscript({ onCreated, onCancel }) {
         canon_md: str(bible.canon_md),
         voice_md: str(bible.voice_md),
         mystery_md: str(bible.mystery_md),
-        ...researchFields,
       };
 
       const newProject = await base44.entities.NovelProject.create(projectData);
+
+      // Handle research_md via upload pattern AFTER create, so the upload is
+      // filed under the real project id instead of 'default' (TRUNCFIX-1).
+      if (bible.research_md) {
+        const researchFields = await prepareResearchContent(str(bible.research_md), newProject.id);
+        await base44.entities.NovelProject.update(newProject.id, researchFields);
+      }
 
       // Step 5: Create chapters
       setProgress('Creating chapter outline…');

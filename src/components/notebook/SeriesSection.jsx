@@ -163,7 +163,13 @@ export default function SeriesSection({ values, onFieldChange, project, busyLabe
       if (!project.mystery_md || project.mystery_md.length < 50) seriesUpdate.mystery_md = mysteryMd;
       if (!project.voice_md || project.voice_md.length < 50) seriesUpdate.voice_md = voiceMd;
 
-      await base44.entities.NovelProject.update(project.id, seriesUpdate);
+      // WAVE4-OFFLOADWRITE: a full-cast extraction routinely exceeds the 9KB
+      // inline limit — writing raw fields 400'd the update AFTER the
+      // SeriesBible row was created, orphaning the bible. Route through the
+      // offload layer like every other foundation write.
+      const { prepareFoundationPayload } = await import('@/lib/foundationStorage');
+      const safeSeriesUpdate = await prepareFoundationPayload(seriesUpdate, project.id);
+      await base44.entities.NovelProject.update(project.id, safeSeriesUpdate);
 
       // Update local settings drafts for series fields only
       onFieldChange('series_name', seriesName);
