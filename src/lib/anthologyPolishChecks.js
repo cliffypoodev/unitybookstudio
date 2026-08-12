@@ -903,14 +903,41 @@ export async function runChapterOpenerFrequencyDetector(loaded = [], onProgress,
  *
  * This caps repeated literary/atmospheric motif families conservatively.
  */
+/**
+ * WAVE7-ATMOGATE: this pass substitutes words inside five metaphor families
+ * (water / textile / garden / architecture / math): current→force, structure→shape,
+ * algorithm→process, and so on. In a literary collection those are stylistic tics
+ * worth thinning. In a sci-fi, thriller or technical anthology they are
+ * load-bearing nouns — "the ship's structure", "the tidal current", "the
+ * algorithm" — and rewriting them silently corrupts the story.
+ *
+ * The call site has always documented this as "only fires for literary
+ * anthologies, skipped silently for non-literary projects", and the report gates
+ * on a `skipped` flag — but nothing ever inspected the project or returned that
+ * flag, so it ran on everything. This is the gate that was described all along.
+ */
+const LITERARY_GENRE_RX = /literary|memoir|essay|slice.of.life|contemporary fiction|autofiction|magical realism/i;
+
+export function isLiteraryProject(project = {}) {
+  const hay = [project?.genre, project?.subgenre, project?.genre_group, project?.market_category, project?.anthology_theme_type]
+    .map((v) => String(v || '')).join(' ');
+  return LITERARY_GENRE_RX.test(hay);
+}
+
 export async function runLiteraryAtmosphericCap(loaded = [], onProgress, project = {}) {
   console.log('[ANTHOLOGY-POLISH] ========== LITERARY ATMOSPHERIC CAP START ==========');
-
-  reportProgress(onProgress, 'Anthology polish: checking literary/atmospheric repetition safely…');
 
   const changes = [];
   const warnings = [];
   let totalAdjusted = 0;
+
+  // WAVE7-ATMOGATE: honour the documented literary-only contract.
+  if (!isLiteraryProject(project)) {
+    console.log('[ANTHOLOGY-POLISH] Atmospheric cap SKIPPED — not a literary project (genre:', project?.genre || 'unset', ')');
+    return { changes, warnings, totalAdjusted: 0, skipped: true, skipReason: 'not a literary project', projectId: project?.id || '' };
+  }
+
+  reportProgress(onProgress, 'Anthology polish: checking literary/atmospheric repetition safely…');
 
   const families = [
     {
@@ -1049,6 +1076,7 @@ export async function runLiteraryAtmosphericCap(loaded = [], onProgress, project
     changes,
     warnings,
     totalAdjusted,
+    skipped: false, // WAVE7-ATMOGATE
     projectId: project?.id || '',
   };
 }

@@ -28,6 +28,7 @@ import {
 
 import AnthologyPolishReport from './AnthologyPolishReport';
 import { refreshProjectWordCount } from '@/lib/projectWordCount';
+import { downloadMarkdown, reportFilename, buildAnthologyMarkdown } from '@/lib/reportExport'; // WAVE7-REPORTEXPORT
 
 export default function AnthologyPolishView({ project, chapters, busyLabel, setBusyLabel, onRefreshAll }) {
   const [report, setReport] = useState(null);
@@ -61,28 +62,36 @@ export default function AnthologyPolishView({ project, chapters, busyLabel, setB
       // STEP 0a: Contamination detector — remove cross-project name leaks & genre-mismatched vocab
       console.log('[ANTHOLOGY-POLISH] Running runContaminationDetector on', loaded.length, 'chapters');
       const contamFixResult = await runContaminationDetector(loaded, setBusyLabel, project);
-      console.log('[ANTHOLOGY-POLISH] Contamination fixes:', contamFixResult.contaminationFixed, '| Genre vocab fixes:', contamFixResult.genreVocabFixed);
+      console.log('[ANTHOLOGY-POLISH] Contamination found/removed:', contamFixResult.contaminationFound, '/', contamFixResult.contaminationRemoved);
+
+      // WAVE7-ANTHAWAIT: every one of these is an async function. They were called
+      // without `await`, so each result was a Promise and every property read off
+      // it was undefined — which is why the toast reported "0 fixes" after
+      // rewriting hundreds of words, and why the Manual Review section could
+      // never render. Property names below now match what each function returns.
 
       // STEP 0a2: Narrative-level cluster detector — flag wrong-genre scenes for manual review
-      const narrativeResult = runNarrativeClusterDetector(loaded, setBusyLabel);
-      console.warn('[ANTHOLOGY-POLISH] Narrative flags:', narrativeResult.narrativeContaminationFlags);
+      const narrativeResult = await runNarrativeClusterDetector(loaded, setBusyLabel);
+      console.warn('[ANTHOLOGY-POLISH] Narrative flags:', narrativeResult.warnings?.length || 0);
 
       // STEP 0b: Cross-chapter body language dedup — remove repeated gestures across stories
       console.log('[ANTHOLOGY-POLISH] Running runCrossChapterBodyLanguageDedup');
-      const bodyLangResult = runCrossChapterBodyLanguageDedup(loaded, setBusyLabel);
-      console.log('[ANTHOLOGY-POLISH] Body language dedup fixes:', bodyLangResult.bodyLangFixed);
+      const bodyLangResult = await runCrossChapterBodyLanguageDedup(loaded, setBusyLabel);
+      console.log('[ANTHOLOGY-POLISH] Body language dedup fixes:', bodyLangResult.totalRemoved);
 
       // STEP 0c: Anthology vocab bans — remove/replace AI-favorite words
       console.log('[ANTHOLOGY-POLISH] Running runAnthologyVocabBans');
-      const anthVocabResult = runAnthologyVocabBans(loaded, setBusyLabel);
-      console.log('[ANTHOLOGY-POLISH] Anthology vocab bans fixes:', anthVocabResult.anthVocabFixed);
+      const anthVocabResult = await runAnthologyVocabBans(loaded, setBusyLabel);
+      console.log('[ANTHOLOGY-POLISH] Anthology vocab bans fixes:', anthVocabResult.totalReplaced);
 
-      // STEP 0d: Literary atmospheric cap — only fires for literary anthologies.
-      // Caps "quiet", "silence", "light", "whisper", etc. at 1-3 uses per chapter.
-      // Skipped silently for non-literary projects (e.g. thrillers, sci-fi).
+      // STEP 0d: Literary atmospheric cap — substitutes words inside five metaphor
+      // families (water/textile/garden/architecture/math). WAVE7-ATMOGATE: it now
+      // actually honours the literary-only contract it always claimed, so it can no
+      // longer rewrite "the ship's structure" or "the tidal current" in a sci-fi
+      // collection.
       console.log('[ANTHOLOGY-POLISH] Running runLiteraryAtmosphericCap');
-      const atmosphericResult = runLiteraryAtmosphericCap(loaded, setBusyLabel, project);
-      console.log('[ANTHOLOGY-POLISH] Atmospheric cap fixes:', atmosphericResult.atmosphericFixed, '(skipped:', atmosphericResult.skipped, ')');
+      const atmosphericResult = await runLiteraryAtmosphericCap(loaded, setBusyLabel, project);
+      console.log('[ANTHOLOGY-POLISH] Atmospheric cap adjustments:', atmosphericResult.totalAdjusted, '(skipped:', atmosphericResult.skipped, ')');
 
       // ── SAVE deterministic fixes to DB FIRST (before any LLM calls that might crash) ──
       let savedCount = 0;
@@ -125,6 +134,11 @@ export default function AnthologyPolishView({ project, chapters, busyLabel, setB
       }
 
       console.warn(`[ANTHOLOGY-SAVE] COMPLETE: ${savedCount} saved, ${skippedCount} unchanged`);
+      // WAVE7-ANTHRESAVE: re-baseline `original` to what is now in the database.
+      // It was only ever set at load time, so the dedup step below re-tested
+      // against the PRE-polish text and re-saved every chapter a second time,
+      // double-counting them in savedCount.
+      for (const f of loaded) f.original = f.content;
       if (savedCount > 0) refreshProjectWordCount(project?.id); // WAVE2-WORDCOUNT
 
       // Refresh cache immediately after saves so Export tab picks up changes
@@ -194,13 +208,13 @@ export default function AnthologyPolishView({ project, chapters, busyLabel, setB
       // Catches chapters with too many sentences starting with the same 2 words
       // (e.g. "It was" × 7, "Her mother" × 8). Does not modify content.
       setBusyLabel('Anthology Polish: Opener frequency scan…');
-      const openerResult = runChapterOpenerFrequencyDetector(loaded, setBusyLabel);
+      const openerResult = await runChapterOpenerFrequencyDetector(loaded, setBusyLabel); // WAVE7-ANTHAWAIT
 
       // STEP 8: Hard error detector — flag-only (Fixes A+B).
       // Catches truncated honorifics ("Dr. His"), lowercase-after-period
       // sentences, and subjectless fragments. Does not modify content.
       setBusyLabel('Anthology Polish: Hard error scan…');
-      const hardErrorResult = runAnthologyHardErrorDetector(loaded, setBusyLabel);
+      const hardErrorResult = await runAnthologyHardErrorDetector(loaded, setBusyLabel); // WAVE7-ANTHAWAIT
 
       setReport({
         contamFix: contamFixResult,
@@ -220,17 +234,18 @@ export default function AnthologyPolishView({ project, chapters, busyLabel, setB
         timestamp: new Date().toISOString(),
       });
 
+      // WAVE7-ANTHAWAIT: property names now match the actual return shapes, so
+      // the toast reports the real numbers instead of always saying "0 fixes".
       const totalFixes =
-        (contamFixResult.contaminationFixed || 0) +
-        (contamFixResult.genreVocabFixed || 0) +
-        (bodyLangResult.bodyLangFixed || 0) +
-        (anthVocabResult.anthVocabFixed || 0) +
-        (atmosphericResult.atmosphericFixed || 0) +
+        (contamFixResult.contaminationRemoved || 0) +
+        (bodyLangResult.totalRemoved || 0) +
+        (anthVocabResult.totalReplaced || 0) +
+        (atmosphericResult.totalAdjusted || 0) +
         (dedupResult.totalRewritten || 0);
       const totalFlags =
-        (openerResult.openerFlags?.length || 0) +
-        (hardErrorResult.hardErrorFlags?.length || 0) +
-        (narrativeResult.narrativeContaminationFlags?.length || 0);
+        (openerResult.warnings?.length || 0) +
+        (hardErrorResult.warnings?.length || 0) +
+        (narrativeResult.warnings?.length || 0);
       const flagSuffix = totalFlags > 0 ? `, ${totalFlags} flags for review` : '';
       toast.success(`Anthology polish complete! ${savedCount} chapters saved, ${totalFixes} total fixes${flagSuffix}.`);
     } catch (err) {
@@ -266,7 +281,22 @@ export default function AnthologyPolishView({ project, chapters, busyLabel, setB
       </div>
 
       {/* Report */}
-      {report && <AnthologyPolishReport report={report} />}
+      {report && (
+        <>
+          {/* WAVE7-REPORTEXPORT */}
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadMarkdown(reportFilename(project, 'anthology-polish'), buildAnthologyMarkdown(project, report))}
+              className="gap-2 text-xs"
+            >
+              Export report (.md)
+            </Button>
+          </div>
+          <AnthologyPolishReport report={report} />
+        </>
+      )}
     </div>
   );
 }
