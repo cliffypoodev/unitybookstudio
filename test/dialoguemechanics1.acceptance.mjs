@@ -16,7 +16,7 @@ import {
 const PASS = '\x1b[32m✓\x1b[0m';
 const FAIL = '\x1b[31m✗\x1b[0m';
 let passed = 0;
-let failed = 0;
+let failures = 0;
 
 function assert(condition, label, detail) {
   if (condition) {
@@ -25,7 +25,7 @@ function assert(condition, label, detail) {
   } else {
     console.log(`  ${FAIL} ${label}`);
     if (detail) console.log(`      ${detail}`);
-    failed++;
+    failures += 1;
   }
 }
 
@@ -153,6 +153,6 @@ assert(orchResult.repairs.length === 2, `Orchestration: repairs = ${orchResult.r
 
 // ─── Summary ─────────────────────────────────────────────────────────────────
 
-console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
-console.log(failed === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failed} CHECK(S) FAILED`);
-process.exit(failed > 0 ? 1 : 0);
+console.log(`\n=== Results: ${passed} passed, ${failures} failed ===`);
+console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) FAILED`);
+process.exit(failures === 0 ? 0 : 1);
