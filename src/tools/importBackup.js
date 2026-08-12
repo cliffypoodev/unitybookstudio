@@ -189,8 +189,8 @@ export async function importBackupZip(file) {
         word_count_total: totalWords,
         seed_concept: `Imported from Base44 backup on ${new Date().toLocaleDateString()}`,
         beat_style: 'Fast-Paced Thriller',
-        pov_mode: 'Third Person Limited',
-        tense: 'Past',
+        pov_mode: 'third-close', // WAVE2-POVNORMALIZE: canonical slugs
+        tense: 'past',
         language_intensity: 2,
       });
 

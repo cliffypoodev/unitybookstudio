@@ -44,6 +44,8 @@ import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup } from '@/lib/chapterStorage';
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
+import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
+import { maybeAutoPolishChapter, maybeFinalCheckAfterPolish } from '@/lib/autoPolishHook'; // WAVE5-SETTINGS
 import { computeDraftIntegrityReport } from '@/lib/draftIntegrityReport';
 import { clearRichContentFields } from '@/lib/richContentStorage';
 import { filterConcreteCriticFindings } from '@/lib/sceneContractGate';
@@ -1633,6 +1635,9 @@ const PROJECT_SETTING_FIELDS = [
 
   // Model routing
   'default_prose_model',
+
+  // WAVE6-DEADGATE: per-project scene-execution gate toggles (Setup → Model & Series)
+  'scene_execution_flags',
 ];
 
 export default function ProjectStudio() {
@@ -1667,6 +1672,9 @@ export default function ProjectStudio() {
   const [chapterProseModels, setChapterProseModels] = React.useState({});
   const stopRequestedRef = React.useRef(false);
   const skipProjectSyncRef = React.useRef(false);
+  // WAVE6-GENREKEEP: Setup fields the author has explicitly edited this session.
+  // Genre defaults may fill anything untouched, but never overwrite these.
+  const userTouchedSetupFieldsRef = React.useRef(new Set());
   const notebookRef = React.useRef(null);
   const undoSnapshotRef = React.useRef(null);
   const [isUndoing, setIsUndoing] = React.useState(false);
@@ -1930,6 +1938,28 @@ export default function ProjectStudio() {
     queryClient.invalidateQueries({ queryKey: ['novel-projects'] }),
   ]);
 
+  // WAVE6-GENREKEEP: fields applyGenreDefaults() overwrites, and the label shown
+  // in the "kept your ..." toast (null = preserve silently, it is derived).
+  const GENRE_DEFAULTED_FIELDS = {
+    chapter_target: 'chapter count',
+    chapter_length_target: 'chapter length',
+    chapter_length_preset: null,
+    target_chapter_words: null,
+    total_word_target: null,
+    pov_mode: 'POV',
+    tense: 'tense',
+    beat_style: 'beat style',
+    scene_beat_style: null,
+    nf_structure_mode: 'structure',
+    spice_level: 'spice level',
+    violence_level: 'violence level',
+    erotica_register: 'prose register',
+  };
+
+  const markSetupFieldsTouched = (...fields) => {
+    for (const f of fields) if (f) userTouchedSetupFieldsRef.current.add(f);
+  };
+
   const updateSettingsDrafts = (updater) => {
     setSettingsDrafts((current) => {
       const next = typeof updater === 'function' ? updater(current) : { ...current, ...updater };
@@ -1952,6 +1982,7 @@ export default function ProjectStudio() {
   };
 
   const handleSettingFieldChange = (field, value) => {
+    markSetupFieldsTouched(field); // WAVE6-GENREKEEP
     updateSettingsDrafts({ [field]: value });
 
     // These fields affect project routing, Setup conditionals, and downstream
@@ -2002,12 +2033,26 @@ export default function ProjectStudio() {
         seed_concept: prev.seed_concept || initial.seed_concept,
         author_name: prev.author_name || initial.author_name,
         author_style_id: prev.author_style_id || '',
-        project_type: prev.project_format === 'anthology' ? 'anthology' : (bookType === 'nonfiction' ? 'nonfiction' : 'novel'),
+        // WAVE2-ENUMFIX: 'novel' is not in the project_type enum
+        // (fiction|nonfiction|erotica|anthology) — it broke every
+        // project_type === 'fiction' routing check downstream.
+        project_type: prev.project_format === 'anthology' ? 'anthology' : (bookType === 'nonfiction' ? 'nonfiction' : 'fiction'),
       });
     });
   };
 
   const handleGenreChange = (genre) => {
+    // WAVE6-GENREKEEP: work out what will be kept from the CURRENT state, before
+    // the state updater runs. The updater is deferred (and re-invoked under
+    // StrictMode), so collecting labels inside it left the toast empty.
+    const keptLabels = Object.entries(GENRE_DEFAULTED_FIELDS)
+      .filter(([field, label]) => {
+        if (!label || !userTouchedSetupFieldsRef.current.has(field)) return false;
+        const v = settingsDrafts?.[field];
+        return v !== undefined && v !== null && v !== '';
+      })
+      .map(([, label]) => label);
+
     updateSettingsDrafts((current) => {
       const protectedRouting = {
         content_lane: current.content_lane,
@@ -2023,6 +2068,23 @@ export default function ProjectStudio() {
         canon_characters: current.canon_characters,
         canon_boundary: current.canon_boundary,
       };
+      // WAVE6-GENREKEEP: applyGenreDefaults overwrites the whole length/intensity
+      // /narration block with genre defaults. That is right for a project whose
+      // values are still untouched, and wrong for one where the author already
+      // made a deliberate choice: setting "4 chapters x 1,200 words" and THEN
+      // picking a genre silently restored 22 x 3,600 with no prompt and no toast
+      // (found in the end-to-end run, 2026-08-12). The protectedRouting block
+      // above already establishes that deliberate choices survive a genre change
+      // — these fields simply were not on the list. Anything the author has
+      // actually edited is now preserved; everything untouched still takes the
+      // genre default.
+      const preserved = {};
+      for (const field of Object.keys(GENRE_DEFAULTED_FIELDS)) {
+        if (!userTouchedSetupFieldsRef.current.has(field)) continue;
+        const v = current[field];
+        if (v === undefined || v === null || v === '') continue;
+        preserved[field] = v;
+      }
       const suggestion = suggestPovTense(current.book_type, genre);
       const next = applyGenreDefaults({ ...current, genre, subgenre: '' }, genre);
       return normalizeSetupRoutingDraft({
@@ -2032,11 +2094,17 @@ export default function ProjectStudio() {
         subgenre: '',
         pov_mode: suggestion.pov,
         tense: suggestion.tense,
+        ...preserved,
       });
     });
+    if (keptLabels.length) {
+      const unique = [...new Set(keptLabels)];
+      toast.success(`${genre} defaults applied — kept your ${unique.join(', ')}.`);
+    }
   };
 
   const handleLengthPresetChange = (preset) => {
+    markSetupFieldsTouched('chapter_length_preset', 'chapter_length_target'); // WAVE6-GENREKEEP
     updateSettingsDrafts({
       chapter_length_preset: preset,
       chapter_length_target: CHAPTER_LENGTH_PRESETS[preset]?.words || 3500,
@@ -2044,6 +2112,7 @@ export default function ProjectStudio() {
   };
 
   const handleApplyPovPreset = (preset) => {
+    markSetupFieldsTouched('pov_mode', 'tense'); // WAVE6-GENREKEEP
     updateSettingsDrafts({ pov_mode: preset.pov, tense: preset.tense });
   };
 
@@ -3198,10 +3267,11 @@ Return structured JSON:
     }
   };
 
-  // Auto-save hooks (debounced 3s after last edit)
-  const settingsAutoSave = useAutoSave(settingsDrafts, handleSaveSettings, { delay: 60000, enabled: !!project });
-  const docsAutoSave = useAutoSave(docDrafts, handleSaveDocs, { delay: 60000, enabled: !!project });
-  const chapterAutoSave = useAutoSave(chapterDraft, handleSaveChapter, { delay: 60000, enabled: !!selectedChapter });
+  // Auto-save hooks — WAVE5-SETTINGS: interval comes from Settings (10–120s, default 60)
+  const autosaveMs = Math.min(120, Math.max(10, Number(getSetting('autosave_interval', 60)))) * 1000;
+  const settingsAutoSave = useAutoSave(settingsDrafts, handleSaveSettings, { delay: autosaveMs, enabled: !!project });
+  const docsAutoSave = useAutoSave(docDrafts, handleSaveDocs, { delay: autosaveMs, enabled: !!project });
+  const chapterAutoSave = useAutoSave(chapterDraft, handleSaveChapter, { delay: autosaveMs, enabled: !!selectedChapter });
 
   // Expose safe replacement handler on window for browser console use.
   // Usage: window.__UBS_SAFE_REPLACE(chapterNumber, repairedText)
@@ -3918,6 +3988,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       if (!nfVerify.ok) {
         throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${nfVerify.reason}`);
       }
+      await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
       if (chapter.id === selectedChapterId) {
         setChapterDraft(chapterContent);
@@ -3955,7 +4026,10 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         task_type: 'prose',
         prompt: contPrompt,
         response_json_schema: chapterSchema,
-        model: pickModel('prose_continuation', draftingProject),
+        // WAVE5-MODELPICKER: honor the chapter's model override for the top-up
+        // continuation too — a chapter should never be drafted by model A and
+        // extended by model B.
+        model: proseModelOverride || pickModel('prose_continuation', draftingProject),
         spec: draftingProject,
         ...buildFallbackControls('prose_continuation', draftingProject),
       });
@@ -4055,6 +4129,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       if (!fastVerify.ok) {
         throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${fastVerify.reason}`);
       }
+      await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
       if (chapter.id === selectedChapterId) {
         setChapterDraft(chapterContent);
@@ -4511,6 +4586,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     if (!stdVerify.ok) {
       throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${stdVerify.reason}`);
     }
+    await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: setBusyLabel }); // WAVE5-SETTINGS
 
     // Immediately update the draft textarea if this is the selected chapter
     if (chapter.id === selectedChapterId) {
@@ -5608,7 +5684,9 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       const nfCoreStats = ps.nfCore || {};
       const report = `NF Polish v2: ${savedCount} saved, ${unchangedCount} unchanged | Banned: -${ps.bannedRecastCount || 0} | Cap: ${ps.capFixed || 0} | Voice: ${ps.voiceFixed || 0} | Reps: ${nfCoreStats.repFixed || 0} | Scaffolds: ${nfCoreStats.scaffoldsRemoved || 0} | Disclaimers: ${nfCoreStats.disclaimersRemoved || 0} | Grammar(NF): ${nfCoreStats.grammarFixed || 0} | Spelling: ${nfCoreStats.spellingFixed || 0} | Vocab: ${ps.vocabCapped || 0} | Quotes: ${ps.quotesFixed || 0} | ExtAI: ${ps.externalPatternsFixed || 0}
 ` + changes.join('\n') + (saveFailures.length > 0 ? '\n\n\ud83d\udea8 SAVE FAILED for ' + saveFailures.length + ' chapter(s): ' + saveFailures.map(sf => sf.reason?.includes('paragraph count mismatch') ? `Ch.${sf.chNum} (${sf.reason}: expected ${sf.expectedLen}, got ${sf.actualLen})` : `Ch.${sf.chNum} (${sf.reason})`).join(', ') : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n\u2705 Re-export to get the updated manuscript.' : '');
-      toast.info(report, { duration: 30000 });
+      // WAVE5-SETTINGS: optional post-polish quality scan appended to the report.
+      const nfFinalCheck = await maybeFinalCheckAfterPolish({ project, loaded, onProgress: setBusyLabel });
+      toast.info(report + (nfFinalCheck?.length ? '\n\n\ud83d\udd0e Final check: ' + nfFinalCheck.length + ' finding(s)\n' + nfFinalCheck.slice(0, 10).join('\n') : (nfFinalCheck ? '\n\n\ud83d\udd0e Final check: clean' : '')), { duration: 30000 });
     } catch (err) {
       console.error('[POLISH-NF] FATAL:', err);
       toast.error('NF Polish failed: ' + (err.message || 'Unknown error'));
@@ -5967,7 +6045,9 @@ Scene Duplicate Sweep skipped ${ps.sceneDuplicate.skippedUnsafe} candidate(s) be
 
 Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (savedCount > 0 && saveFailures.length === 0 ? '\n\n✅ Re-export to get the updated manuscript.' : '');
 
-    toast.info(report, { duration: 30000 });
+    // WAVE5-SETTINGS: optional post-polish quality scan appended to the report.
+    const fictionFinalCheck = await maybeFinalCheckAfterPolish({ project, loaded, onProgress: setBusyLabel });
+    toast.info(report + (fictionFinalCheck?.length ? '\n\n🔎 Final check: ' + fictionFinalCheck.length + ' finding(s)\n' + fictionFinalCheck.slice(0, 10).join('\n') : (fictionFinalCheck ? '\n\n🔎 Final check: clean' : '')), { duration: 30000 });
 
     } catch (polishError) {
       console.error('[POLISH] FATAL ERROR:', polishError);

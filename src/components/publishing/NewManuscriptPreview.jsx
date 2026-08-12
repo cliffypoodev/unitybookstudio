@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE5-DEADSTAMP, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app —
+ * past AI sessions repeatedly wasted hours "fixing" components like this one.
+ * Live implementation: the live preview is inside ExportTab.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
 // =============================================================
 // SOURCE: zachhannum/orca — PagedPreviewer.tsx concept
 // Simplified: uses iframe + srcDoc for Base44 compatibility

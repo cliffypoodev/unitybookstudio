@@ -1,0 +1,67 @@
+// WAVE3-SCHEMA: this entity has existed in code since the SavedAssetsPanel
+// shipped (registered in src/lib/localDB.js) but never had a schema file.
+{
+  "name": "PublishingAsset",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "NovelProject id, or '__global__' for assets not tied to a project"
+    },
+    "kind": {
+      "type": "string",
+      "description": "Asset kind (blurb, title, transform, query_letter, …)"
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label shown in the Saved Assets panel"
+    },
+    "content": {
+      "type": "string",
+      "description": "The saved asset text (JSON-stringified when structured)"
+    }
+  },
+  "required": [
+    "kind",
+    "content"
+  ]
+}

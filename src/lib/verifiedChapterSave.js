@@ -16,6 +16,7 @@
 import { base44 } from '@/api/base44Client.js';
 import { resolveChapterContent } from '@/lib/chapterStorage.js';
 import { runWithNetworkRetry } from '@/lib/requestRetry.js';
+import { refreshProjectWordCount } from '@/lib/projectWordCount.js';
 
 const RETRY_DELAYS = [250, 750, 1500];
 const TOLERANCE = 0.05; // 5 %
@@ -69,6 +70,9 @@ export async function verifiedChapterSave({ chapterId, savePayload, writtenConte
       if (attempt > 0) {
         console.log(`[VERIFIED-SAVE] Ch.${cn} verified OK after ${attempt + 1} attempt(s) (${verifyLen} chars)`);
       }
+      // WAVE2-WORDCOUNT: every verified draft save rolls the project word
+      // count up. Fire-and-forget — the helper is non-fatal by design.
+      if (verifyRecord.project_id) refreshProjectWordCount(verifyRecord.project_id);
       return { ok: true, attempts: attempt + 1 };
 
     } catch (err) {

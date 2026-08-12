@@ -16,11 +16,13 @@ import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
+import { downloadMarkdown, reportFilename, buildCompareMarkdown } from '@/lib/reportExport'; // WAVE7-REPORTEXPORT
 import {
   pickReviewerPanel,
   buildReviewerPrompt,
   REVIEWER_RESPONSE_SCHEMA,
   computeConsensus,
+  runReviewerPanelSequential,
 } from '@/lib/criticPanel';
 import {
   loadVersionData,
@@ -370,6 +372,7 @@ export default function CompareSubPage({ project, chapters, busyLabel, setBusyLa
             summary_line: data.summary_line || '',
             audience_prediction: Math.max(0, Math.min(100, Number.isFinite(Number(data.audience_prediction)) ? Math.round(Number(data.audience_prediction)) : ratingNumeric)),
             audience_reasoning: data.audience_reasoning || '',
+            topFixes: Array.isArray(data.topFixes) ? data.topFixes.filter(Boolean) : [], // WAVE7-TOPFIXES
           };
         } catch (err) {
           console.error(`[COMPARE/CRITIC] ${reviewer.outlet} failed:`, err?.message);
@@ -383,6 +386,7 @@ export default function CompareSubPage({ project, chapters, busyLabel, setBusyLa
             summary_line: '',
             audience_prediction: 50,
             audience_reasoning: '',
+            topFixes: [],
             _failed: true,
           };
         }
@@ -417,7 +421,16 @@ export default function CompareSubPage({ project, chapters, busyLabel, setBusyLa
           isAnthology: false,
           anthologyTheme: 'unspecified',
         };
-        const reviews = await Promise.all(panel.map((r) => runReviewer(r, context)));
+        // WAVE7-CONCURRENCY: this fired all 10 reviewers at once — twice, once
+        // per version — against a llama router that holds ONE model resident
+        // (parallelDraftPool.js documents a measured 0/4-chapter, 71-minute
+        // failure from exactly this). Serialized via the same helper the Critic
+        // tab already uses.
+        const reviews = await runReviewerPanelSequential(
+          panel,
+          (r) => runReviewer(r, context),
+          (reviewer, i, total) => setBusyLabel?.(`Compare ${label}: ${reviewer.outlet} (${i}/${total})…`),
+        );
         const consensus = computeConsensus(reviews);
         setter((prev) => (prev ? { ...prev, critic: { reviews, consensus } } : prev));
         console.warn(
@@ -578,7 +591,22 @@ Write your verdict as JSON. No markdown fences. Follow this shape exactly:
       </div>
 
       {(versionA || versionB) && (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          {/* WAVE7-REPORTEXPORT: the deep comparison costs 20 reviewer calls and
+              used to be destroyed by clicking another tool. */}
+          {versionA && versionB && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadMarkdown(
+                reportFilename(project, 'comparison'),
+                buildCompareMarkdown(project, versionA, versionB, verdict, tally?.winner),
+              )}
+              className="rounded-full text-xs"
+            >
+              Export comparison (.md)
+            </Button>
+          )}
           <Button variant="ghost" size="sm" onClick={reset} className="rounded-full text-xs gap-1">
             <XIcon className="h-3 w-3" /> Reset
           </Button>

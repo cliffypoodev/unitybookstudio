@@ -18,6 +18,8 @@ import ProjectStudio from './pages/ProjectStudio';
 import ImportCatalog from './pages/ImportCatalog';
 import SeriesManager from './pages/SeriesManager';
 import React, { useState, useEffect } from 'react';
+import FloatingBrainstorm from '@/components/FloatingBrainstorm';
+import { useUserSettings } from '@/lib/userSettings';
 // Add page imports here
 
 // ── Migration banner ────────────────────────────────────────────────────
@@ -67,6 +69,15 @@ function MigrationBanner() {
   );
 }
 
+// WAVE5-SETTINGS: FloatingBrainstorm existed but was never mounted, so its
+// Settings toggle was a no-op. Gated mount — reads the setting on each render
+// (the hook is reactive within a session; a toggle applies on next navigation).
+function BrainstormGate() {
+  const { settings } = useUserSettings();
+  if (!settings.enable_floating_brainstorm) return null;
+  return <FloatingBrainstorm />;
+}
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
@@ -113,6 +124,7 @@ function App() {
           <Router>
             <MigrationBanner />
             <AuthenticatedApp />
+            <BrainstormGate />
           </Router>
           <Toaster richColors closeButton />
         </QueryClientProvider>

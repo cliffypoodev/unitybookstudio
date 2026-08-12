@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE5-DEADSTAMP, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app —
+ * past AI sessions repeatedly wasted hours "fixing" components like this one.
+ * Live implementation: the live fiction polish is lib/manuscriptPolishRunner via ProjectStudio.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Loader2, RefreshCw, Download, FileText, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +17,7 @@ import { isBodyChapter } from '@/lib/bibliographyGenerator';
 import { calculateManuscriptStats, calculateManuscriptStatsNonfiction, detectHighFreqPhrases, isNonfictionProject, isComedyProject } from '@/lib/manuscriptStats';
 import { countWords } from '@/lib/autonovel';
 import { prepareChapterContent, prepareBackupContent } from '@/lib/chapterStorage';
+import { refreshProjectWordCount } from '@/lib/projectWordCount';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { runNonfictionPolish } from '@/lib/nonfictionPolish';
@@ -795,6 +804,8 @@ Return ONLY the fixed version of the FLAGGED TEXT. No explanation, no quotes aro
         savedCount++;
         console.log('[POLISH-TOOLS] Saved Ch.' + chNum);
       }
+
+      if (savedCount > 0) refreshProjectWordCount(project?.id); // WAVE2-WORDCOUNT
 
       window.alert('POLISH SAVE REPORT: ' + savedCount + ' chapters saved, ' + unchangedCount + ' unchanged out of ' + loaded.length + ' total');
 

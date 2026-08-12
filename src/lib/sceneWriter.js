@@ -43,7 +43,7 @@ import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
 import { buildEroticaAuthorityBlocks } from '@/lib/eroticaAuthority';
 import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
-import { pickModel, pickFallbackModel, normalizeModelId, buildFallbackControls } from '@/lib/modelRouting';
+import { pickModel, pickFallbackModel, normalizeModelId, buildFallbackControls, isWhitelistedProseModel } from '@/lib/modelRouting';
 import {
   buildRollingContext,
   getPreviousChapterEnding,
@@ -405,14 +405,24 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
 }
 
 function pickProseModel(project, modelOverride) {
-  const model = normalizeModelId(pickModel('prose', project));
+  const base = normalizeModelId(pickModel('prose', project));
 
-  if (modelOverride && normalizeModelId(modelOverride) !== model) {
-    console.warn('[MODEL] Ignored stale prose model override:', modelOverride, '→ using:', model);
+  // WAVE5-MODELPICKER: a whitelisted override is HONORED (per-chapter picks
+  // and the project default finally work); anything unknown/stale still falls
+  // back to the routed model — the warn below is finally truthful.
+  const requested = normalizeModelId(modelOverride);
+  if (requested && isWhitelistedProseModel(requested)) {
+    if (requested !== base) {
+      console.log('[MODEL] Honoring prose model override:', requested, '(routed default was', base + ')');
+    }
+    return requested;
+  }
+  if (requested && requested !== base) {
+    console.warn('[MODEL] Ignored non-whitelisted prose model override:', requested, '→ using:', base);
   }
 
-  console.log('[MODEL] DeepSeek-only prose routing | Genre:', project?.genre || 'unknown', '→', model);
-  return model;
+  console.log('[MODEL] Local prose routing | Genre:', project?.genre || 'unknown', '→', base);
+  return base;
 }
 
 function buildAuthorVoiceCompact(project) {
