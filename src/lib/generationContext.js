@@ -92,6 +92,23 @@ export const SCENE_EXECUTION_FEATURE_KEYS = Object.freeze([
 ]);
 
 /**
+ * WAVE6-DEADGATE: human-facing descriptions so the flags can be surfaced in Setup.
+ * The end-to-end run (2026-08-12) showed every new project logging "ALL 6
+ * scene-execution gates are OFF ... Set scene_execution_flags on the project
+ * record" — advice with no UI behind it, so in practice nobody could take it.
+ * The default stays OFF (see the DEADGATE-1 note above); this just makes the
+ * switch reachable from the app instead of only by editing storage.
+ */
+export const SCENE_EXECUTION_FEATURE_INFO = Object.freeze([
+  { key: SCENE_EXECUTION_ACCEPTANCE_GATE_FEATURE.key, label: 'Scene acceptance gate', description: 'Checks each finished scene for required events, exit state, POV and forbidden events, and repairs failures. The substantive gate — try this one first.', recommended: true },
+  { key: SCENE_CONTEXT_COMPOSER_FEATURE.key, label: 'Scene context composer', description: 'Builds scene prompts from the structured snapshot instead of the legacy path.', recommended: false },
+  { key: SCENE_EXECUTION_SHADOW_FEATURE.key, label: 'Shadow evaluation', description: 'Runs the acceptance evaluation alongside drafting without acting on it. Diagnostic only.', recommended: false },
+  { key: SCENE_EXECUTION_PROMPT_CANARY_FEATURE.key, label: 'Prompt canary', description: 'Experimental prompt variant for scene execution.', recommended: false },
+  { key: SCENE_EXECUTION_CANARY_TRIAL_FEATURE.key, label: 'Canary trial', description: 'Experimental: routes a share of scenes through the canary path.', recommended: false },
+  { key: SCENE_EXECUTION_CANARY_COMPARISON_FEATURE.key, label: 'Canary comparison', description: 'Experimental: records canary vs legacy comparisons.', recommended: false },
+]);
+
+/**
  * DEADGATE-1: resolve scene-execution flags for a project.
  *
  * sceneWriter used to source `flags` exclusively from `sceneExecutionShadow.flags`, and
