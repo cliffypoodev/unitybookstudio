@@ -19,6 +19,7 @@ import {
   formatUnresolvedThreads, sanitizeSeriesBible,
 } from '@/lib/seriesBible';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
+import { parseSeriesField, describeFieldFailures } from '@/lib/seriesBibleFields';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { extractAllVolumeBibles, loadVolumeBible, getEntryContractForVolume, getExitContractForVolume } from '@/lib/volumeBible';
 import { resolveChapterContent, chapterHasContent } from '@/lib/chapterStorage';
@@ -225,15 +226,38 @@ function SeriesCard({ bible, volumes, unlinkedProjects, onSequelFromBible, onSer
     if (!frOldName.trim() || !frNewName.trim() || frOldName.trim() === frNewName.trim()) return;
     setFrRunning(true);
     let totalReplaced = 0; let volumesChanged = 0;
+    // WAVE9-SILENTSERIES: this loop rewrites the manuscript. Anything it could
+    // not read is now counted and reported instead of quietly skipped.
+    const unreadableVolumes = [];
+    let skippedChapters = 0;
     try {
       for (const vol of volumes) {
         let chapters = [];
+        let volReadable = true;
         try { chapters = await base44.entities.Chapter.filter({ project_id: vol.id }); }
-        catch (e) { try { chapters = (await base44.entities.Chapter.list()).filter(c => c.project_id === vol.id); } catch (e2) {} }
+        catch (e) {
+          try { chapters = (await base44.entities.Chapter.list()).filter(c => c.project_id === vol.id); }
+          catch (e2) {
+            // Both reads failed: this whole volume goes untouched. Saying
+            // "replaced across 3 volumes" while silently missing a fourth is
+            // worse than saying nothing.
+            volReadable = false;
+            console.warn('[SERIES-FIND-REPLACE] could not read chapters for', vol.title || vol.id, e2?.message || e2);
+            unreadableVolumes.push(vol.title || `Volume ${vol.series_number || '?'}`);
+          }
+        }
+        if (!volReadable) continue;
         let volChanged = false;
         for (const ch of chapters) {
-          let freshCh = ch;
-          try { const r = await base44.entities.Chapter.filter({ id: ch.id }); if (r?.[0]) freshCh = r[0]; } catch (e) {}
+          let freshCh = null;
+          try { const r = await base44.entities.Chapter.filter({ id: ch.id }); if (r?.[0]) freshCh = r[0]; }
+          catch (e) { console.warn('[SERIES-FIND-REPLACE] refresh failed for chapter', ch.id, e?.message || e); }
+          if (!freshCh) {
+            // Falling back to the stale list copy would compute the replacement
+            // from old text and then SAVE it, overwriting anything newer. Skip.
+            skippedChapters += 1;
+            continue;
+          }
           const { resolveChapterContent: resolve, prepareChapterContent } = await import('@/lib/chapterStorage');
           const content = await resolve(freshCh);
           if (!content) continue;
@@ -248,6 +272,20 @@ function SeriesCard({ bible, volumes, unlinkedProjects, onSequelFromBible, onSer
         if (volChanged) volumesChanged++;
       }
       toast.success(`Replaced "${frOldName}" → "${frNewName}": ${totalReplaced} instances across ${volumesChanged} volume(s)`);
+      if (unreadableVolumes.length > 0) {
+        toast.warning(
+          `Skipped ${unreadableVolumes.length} volume(s) that could not be read: ${unreadableVolumes.join(', ')}. ` +
+          'Those still contain the old name — re-run once they load.',
+          { duration: 12000 }
+        );
+      }
+      if (skippedChapters > 0) {
+        toast.warning(
+          `Skipped ${skippedChapters} chapter(s) whose latest version could not be fetched. ` +
+          'They were left untouched rather than rewritten from a stale copy.',
+          { duration: 12000 }
+        );
+      }
       setShowFindReplace(false); setFrOldName(''); setFrNewName('');
     } catch (err) { toast.error('Failed: ' + (err.message || 'unknown')); }
     finally { setFrRunning(false); }
@@ -300,7 +338,12 @@ function SeriesCard({ bible, volumes, unlinkedProjects, onSequelFromBible, onSer
   const handleExport = () => {
     let md = `# Series Bible: ${bible.series_name || 'Untitled'}\n\n`;
     md += `**Books Analyzed:** ${bible.books_analyzed || 0}\n**Last Book:** ${bible.last_book_title || '—'}\n\n`;
-    if (bible.characters_json) { try { md += `## Characters\n\n${formatCharactersForStoryBible(JSON.parse(bible.characters_json))}\n\n`; } catch (e) {} }
+    // WAVE9-SILENTSERIES: an unreadable roster used to vanish from the export
+    // with no gap where it had been, so the file looked complete.
+    const exportBad = [];
+    const exportChars = parseSeriesField(bible.characters_json, null, 'characters', exportBad);
+    if (exportChars) md += `## Characters\n\n${formatCharactersForStoryBible(exportChars)}\n\n`;
+    else if (bible.characters_json) md += '## Characters\n\n_Could not be read from the series bible — see the app for the raw value._\n\n';
     const fields = [['world_state','World State'],['rules_and_systems','Rules & Systems'],['key_locations','Key Locations'],['tone_and_themes','Tone & Themes'],['timeline','Timeline'],['relationships','Relationships'],['voice_profile','Voice Profile'],['power_levels','Power Levels'],['last_book_ending','Last Book Ending']];
     fields.forEach(([k,lbl]) => { if (bible[k]) md += `## ${lbl}\n\n${bible[k]}\n\n`; });
     const arrFields = [['resolved_threads','Resolved Threads'],['unresolved_threads','Unresolved Threads'],['deaths_and_losses','Deaths & Losses'],['secrets_revealed','Secrets Revealed'],['secrets_remaining','Secrets Remaining']];
@@ -310,7 +353,10 @@ function SeriesCard({ bible, volumes, unlinkedProjects, onSequelFromBible, onSer
     const blob = new Blob([md], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = `${(bible.series_name || 'series-bible').replace(/\s+/g, '-').toLowerCase()}.md`; a.click();
-    URL.revokeObjectURL(url); toast.success('Bible exported');
+    URL.revokeObjectURL(url);
+    const exportWarning = describeFieldFailures(exportBad, 'The exported file marks where it should have been.');
+    if (exportWarning) toast.warning(exportWarning, { duration: 10000 });
+    else toast.success('Bible exported');
   };
 
   return (
@@ -744,8 +790,10 @@ function SequelView({ bible, allProjects, onBack, onCreated }) {
     if (!selectedFlavor) return;
     setLoading(true);
     try {
+      // WAVE9-SILENTSERIES: anything unreadable is collected rather than dropped.
+      const unreadable = [];
       const flavorNote = buildFlavorNote(selectedFlavor, bible.series_name, lastVolume?.title || 'Book 1', bible);
-      const richSeed = buildSeriesSeedConcept(selectedFlavor, bible, lastVolume, nextNumber);
+      const richSeed = buildSeriesSeedConcept(selectedFlavor, bible, lastVolume, nextNumber, unreadable);
       const projectPayload = {
         title: `${bible.series_name || 'Untitled'} — Volume ${nextNumber}`,
         seed_concept: richSeed,
@@ -757,19 +805,16 @@ function SequelView({ bible, allProjects, onBack, onCreated }) {
       };
 
       if (selectedFlavor === 'continuation') {
-        if (bible.characters_json) {
-          try {
-            const chars = JSON.parse(bible.characters_json);
-            projectPayload.characters_md = formatCharactersForStoryBible(chars);
-          } catch (e) {}
-        }
+        const chars = parseSeriesField(bible.characters_json, null, 'characters', unreadable);
+        if (chars) projectPayload.characters_md = formatCharactersForStoryBible(chars);
+
         if (bible.world_state) projectPayload.world_md = bible.world_state;
-        if (bible.unresolved_threads) {
-          try {
-            const threads = JSON.parse(bible.unresolved_threads);
-            projectPayload.mystery_md = formatUnresolvedThreads(threads);
-          } catch (e) { projectPayload.mystery_md = bible.unresolved_threads; }
-        }
+
+        const threads = parseSeriesField(bible.unresolved_threads, null, 'unresolved threads', unreadable);
+        // Raw text is better than nothing here — a human can still read it.
+        projectPayload.mystery_md = threads
+          ? formatUnresolvedThreads(threads)
+          : (bible.unresolved_threads || undefined);
         const canonBlock = buildCanonFromSeriesBible(bible);
         if (canonBlock) projectPayload.canon_md = canonBlock;
         if (bible.voice_profile) projectPayload.voice_md = bible.voice_profile;
@@ -813,6 +858,13 @@ function SequelView({ bible, allProjects, onBack, onCreated }) {
 
       const created = await base44.entities.NovelProject.create(projectPayload);
       await base44.entities.SeriesBible.update(bible.id, { books_analyzed: (bible.books_analyzed || 0) + 1 });
+
+      // WAVE9-SILENTSERIES: the volume is still created — but say what is missing
+      // from it. Silently omitting "DEAD — DO NOT RESURRECT" is how a character
+      // walks back into book four alive.
+      const warning = describeFieldFailures(unreadable, 'The new volume was created without it.');
+      if (warning) toast.warning(warning, { duration: 12000 });
+
       onCreated(created.id);
     } catch (err) {
       console.error('[Sequel]', err);
@@ -919,32 +971,46 @@ function MergeBookView({ bible, onBack, onDone }) {
       setProgress('Merging into series bible…');
       const mergePayload = {};
 
-      // Merge characters — append new ones
+      // WAVE9-SILENTSERIES: this is an APPEND, and it used to be able to become
+      // an overwrite. If the stored roster failed to parse, `existingChars` fell
+      // back to [] and the merge wrote that back — erasing every character from
+      // every previous book, silently, at the exact moment the writer thought
+      // they were enriching the bible. A field we cannot read is a field we
+      // refuse to replace.
+      const mergeSkipped = [];
+
       if (extracted.characters_json) {
-        let existingChars = [];
-        try { existingChars = JSON.parse(bible.characters_json || '[]'); } catch (e) {}
-        let newChars = [];
-        try { newChars = typeof extracted.characters_json === 'string' ? JSON.parse(extracted.characters_json) : (Array.isArray(extracted.characters_json) ? extracted.characters_json : []); } catch (e) {}
-        const existingNames = new Set(existingChars.map(c => (c.name || '').toLowerCase()));
-        for (const nc of newChars) {
-          if (!existingNames.has((nc.name || '').toLowerCase())) {
-            existingChars.push(nc);
+        const existingChars = parseSeriesField(bible.characters_json, null, 'characters', mergeSkipped);
+        const newChars = parseSeriesField(extracted.characters_json, [], 'newly extracted characters', mergeSkipped);
+
+        if (existingChars === null && bible.characters_json) {
+          // Unreadable existing roster — leave characters_json untouched.
+          console.warn('[SERIES-MERGE] refusing to overwrite unreadable characters_json');
+        } else {
+          const merged = Array.isArray(existingChars) ? [...existingChars] : [];
+          const existingNames = new Set(merged.map(c => (c.name || '').toLowerCase()));
+          for (const nc of (Array.isArray(newChars) ? newChars : [])) {
+            if (!existingNames.has((nc.name || '').toLowerCase())) merged.push(nc);
           }
+          mergePayload.characters_json = JSON.stringify(merged);
         }
-        mergePayload.characters_json = JSON.stringify(existingChars);
       }
 
-      // Merge array fields
+      // Merge array fields — same rule.
       const arrayFields = ['unresolved_threads', 'resolved_threads', 'deaths_and_losses', 'secrets_revealed', 'secrets_remaining'];
       for (const field of arrayFields) {
-        if (extracted[field]) {
-          let existing = [];
-          try { existing = JSON.parse(bible[field] || '[]'); } catch (e) {}
-          let incoming = [];
-          try { incoming = typeof extracted[field] === 'string' ? JSON.parse(extracted[field]) : (Array.isArray(extracted[field]) ? extracted[field] : []); } catch (e) {}
-          const combined = [...existing, ...incoming.filter(item => !existing.includes(item))];
-          mergePayload[field] = JSON.stringify(combined);
+        if (!extracted[field]) continue;
+        const label = field.replace(/_/g, ' ');
+        const existing = parseSeriesField(bible[field], null, label, mergeSkipped);
+        const incoming = parseSeriesField(extracted[field], [], `newly extracted ${label}`, mergeSkipped);
+
+        if (existing === null && bible[field]) {
+          console.warn(`[SERIES-MERGE] refusing to overwrite unreadable ${field}`);
+          continue;
         }
+        const base = Array.isArray(existing) ? existing : [];
+        const add = Array.isArray(incoming) ? incoming : [];
+        mergePayload[field] = JSON.stringify([...base, ...add.filter(item => !base.includes(item))]);
       }
 
       // Merge text fields
@@ -963,6 +1029,12 @@ function MergeBookView({ bible, onBack, onDone }) {
 
       const sanitized = sanitizeSeriesBible(mergePayload);
       await base44.entities.SeriesBible.update(bible.id, sanitized);
+
+      const mergeWarning = describeFieldFailures(
+        mergeSkipped,
+        'Those fields were left exactly as they were rather than overwritten.'
+      );
+      if (mergeWarning) toast.warning(mergeWarning, { duration: 14000 });
 
       // If merging from a project, link it
       if (mode === 'project' && selectedProjectId) {
@@ -1067,7 +1139,11 @@ function SeriesCriticView({ bible, projects, onBack }) {
           try {
             const vb = typeof vol.volume_bible_json === 'string' ? JSON.parse(vol.volume_bible_json) : vol.volume_bible_json;
             excerpt = JSON.stringify(vb, null, 2).substring(0, 3000);
-          } catch (e) {}
+          } catch (e) {
+            // WAVE9-SILENTSERIES: excerpt stays empty and the analysis runs on
+            // nothing; at minimum leave a trail rather than none.
+            console.warn('[SERIES] unreadable volume_bible_json for', vol.title || vol.id, e?.message || e);
+          }
         }
         if (!excerpt) {
           const parts = [];
@@ -1086,7 +1162,9 @@ function SeriesCriticView({ bible, projects, onBack }) {
               const last = body.length > 1 ? await resolveChapterContent(body[body.length - 1]) : '';
               excerpt = (first || '').substring(0, 2000) + '\n\n[...]\n\n' + (last || '').substring(0, 2000);
             }
-          } catch (e) {}
+          } catch (e) {
+            console.warn('[SERIES] could not build a chapter excerpt for', vol.title || vol.id, e?.message || e);
+          }
         }
         if (excerpt) {
           volumeBlocks.push(`=== BOOK ${vol.series_number || i + 1}: "${vol.title || 'Untitled'}" ===\n${excerpt}`);
@@ -1251,17 +1329,18 @@ Return JSON only, no markdown:
 function SeriesContinuityView({ bible, projects, onBack }) {
   const [threadData, setThreadData] = useState(null);
   const [characterData, setCharacterData] = useState(null);
+  // WAVE9-SILENTSERIES: an unreadable field used to render as an empty list,
+  // which on a continuity dashboard reads as "nothing outstanding" — the exact
+  // opposite of what it means.
+  const [unreadable, setUnreadable] = useState([]);
 
   useEffect(() => {
-    let unresolvedThreads = [];
-    let resolvedThreads = [];
-    let deaths = [];
-    let characters = [];
-
-    try { unresolvedThreads = JSON.parse(bible.unresolved_threads || '[]'); } catch (e) {}
-    try { resolvedThreads = JSON.parse(bible.resolved_threads || '[]'); } catch (e) {}
-    try { deaths = JSON.parse(bible.deaths_and_losses || '[]'); } catch (e) {}
-    try { characters = JSON.parse(bible.characters_json || '[]'); } catch (e) {}
+    const bad = [];
+    const unresolvedThreads = parseSeriesField(bible.unresolved_threads, [], 'unresolved threads', bad);
+    const resolvedThreads = parseSeriesField(bible.resolved_threads, [], 'resolved threads', bad);
+    const deaths = parseSeriesField(bible.deaths_and_losses, [], 'deaths and losses', bad);
+    const characters = parseSeriesField(bible.characters_json, [], 'characters', bad);
+    setUnreadable(bad);
 
     const allThreads = [
       ...unresolvedThreads.map(t => ({ thread: typeof t === 'string' ? t : (t.thread || t.description || JSON.stringify(t)), resolved: false })),
@@ -1283,7 +1362,10 @@ function SeriesContinuityView({ bible, projects, onBack }) {
               introducedIn = `Book ${vol.series_number || '?'}`;
               break;
             }
-          } catch (e) {}
+          } catch (e) {
+            // Origin stays '?' — correct, but say why it could not be found.
+            console.warn('[SERIES] thread origin lookup skipped Book', vol.series_number, e?.message || e);
+          }
         }
       }
       return { ...t, introducedIn };
@@ -1310,7 +1392,9 @@ function SeriesContinuityView({ bible, projects, onBack }) {
             if (match) {
               arc.volumeStates.push({ volume: vol.series_number || '?', status: match.status_at_end || match.status || 'present', notes: match.arc_end || match.arc_summary || '' });
             }
-          } catch (e) {}
+          } catch (e) {
+            console.warn('[SERIES] character arc lookup skipped Book', vol.series_number, e?.message || e);
+          }
         }
       }
       return arc;
@@ -1330,6 +1414,18 @@ function SeriesContinuityView({ bible, projects, onBack }) {
         <p className="mt-2 text-sm text-muted-foreground">
           Thread and character state tracking across {projects.length} volume{projects.length !== 1 ? 's' : ''}.
         </p>
+
+        {unreadable.length > 0 && (
+          <div className="mt-4 rounded-2xl border border-red-300 bg-red-50/60 p-3 dark:border-red-800/40 dark:bg-red-950/20">
+            <p className="text-xs font-semibold text-red-700 dark:text-red-400">
+              This tracker is incomplete
+            </p>
+            <p className="mt-1 text-[11px] text-red-600 dark:text-red-300">
+              {describeFieldFailures(unreadable)} An empty list below does not mean nothing is
+              outstanding — it means that data could not be read.
+            </p>
+          </div>
+        )}
 
         {unresolvedOld.length > 0 && (
           <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-800/30 dark:bg-amber-950/20">
@@ -1423,16 +1519,17 @@ function SpinoffView({ bible, volume, allProjects, projects, onBack, onCreated }
         `Spinoff branching from Book ${volume.series_number}: "${volume.title || 'Untitled'}" in the "${bible.series_name || 'Untitled'}" series.`,
         'SPINOFF TYPE: New standalone story that branches from the exit state of the source volume. Characters and world carry forward but the plot goes in a new direction.',
       ];
-      if (volume.volume_bible_json) {
-        try {
-          const vb = typeof volume.volume_bible_json === 'string' ? JSON.parse(volume.volume_bible_json) : volume.volume_bible_json;
-          if (vb.characters) {
-            const charList = vb.characters.slice(0, 10).map(c => `${c.name} (${c.role || '?'}): ${c.status_at_end || c.status || 'alive'}`).join('\n');
-            spinoffSeedParts.push('CHARACTERS AT EXIT:\n' + charList);
-          }
-          if (vb.world_state) spinoffSeedParts.push('WORLD STATE: ' + (typeof vb.world_state === 'string' ? vb.world_state : JSON.stringify(vb.world_state)).substring(0, 600));
-          if (vb.unresolved_threads?.length) spinoffSeedParts.push('UNRESOLVED THREADS:\n- ' + vb.unresolved_threads.slice(0, 8).map(t => typeof t === 'string' ? t : (t.thread || t.description || '')).join('\n- '));
-        } catch (e) {}
+      // WAVE9-SILENTSERIES: a spinoff whose seed silently lost the exit state of
+      // the volume it branches from is a spinoff of nothing.
+      const spinoffBad = [];
+      const vb = parseSeriesField(volume.volume_bible_json, null, `Book ${volume.series_number || '?'} volume bible`, spinoffBad);
+      if (vb) {
+        if (vb.characters) {
+          const charList = vb.characters.slice(0, 10).map(c => `${c.name} (${c.role || '?'}): ${c.status_at_end || c.status || 'alive'}`).join('\n');
+          spinoffSeedParts.push('CHARACTERS AT EXIT:\n' + charList);
+        }
+        if (vb.world_state) spinoffSeedParts.push('WORLD STATE: ' + (typeof vb.world_state === 'string' ? vb.world_state : JSON.stringify(vb.world_state)).substring(0, 600));
+        if (vb.unresolved_threads?.length) spinoffSeedParts.push('UNRESOLVED THREADS:\n- ' + vb.unresolved_threads.slice(0, 8).map(t => typeof t === 'string' ? t : (t.thread || t.description || '')).join('\n- '));
       }
       if (bible.tone_and_themes) spinoffSeedParts.push('SERIES TONE: ' + bible.tone_and_themes.substring(0, 300));
 
@@ -1446,18 +1543,16 @@ function SpinoffView({ bible, volume, allProjects, projects, onBack, onCreated }
         series_flavor_note: `Spinoff branching from Book ${volume.series_number}: "${volume.title}". Uses exit state from that volume.`,
       };
 
-      if (volume.volume_bible_json) {
-        try {
-          const vb = typeof volume.volume_bible_json === 'string' ? JSON.parse(volume.volume_bible_json) : volume.volume_bible_json;
-          if (vb.characters) {
-            projectPayload.characters_md = vb.characters.map(c => `**${c.name}** (${c.role || 'unknown'}): ${c.status_at_end || c.status || 'alive'}. ${c.arc_end || c.arc_summary || ''}`).join('\n\n');
-          }
-          if (vb.world_state) projectPayload.world_md = typeof vb.world_state === 'string' ? vb.world_state : JSON.stringify(vb.world_state);
-          if (vb.unresolved_threads) {
-            const threads = Array.isArray(vb.unresolved_threads) ? vb.unresolved_threads : [];
-            projectPayload.mystery_md = threads.map(t => typeof t === 'string' ? `- ${t}` : `- ${t.thread || t.description || JSON.stringify(t)}`).join('\n');
-          }
-        } catch (e) {}
+      // Same parsed value as above — no second parse, no second silent failure.
+      if (vb) {
+        if (vb.characters) {
+          projectPayload.characters_md = vb.characters.map(c => `**${c.name}** (${c.role || 'unknown'}): ${c.status_at_end || c.status || 'alive'}. ${c.arc_end || c.arc_summary || ''}`).join('\n\n');
+        }
+        if (vb.world_state) projectPayload.world_md = typeof vb.world_state === 'string' ? vb.world_state : JSON.stringify(vb.world_state);
+        if (vb.unresolved_threads) {
+          const threads = Array.isArray(vb.unresolved_threads) ? vb.unresolved_threads : [];
+          projectPayload.mystery_md = threads.map(t => typeof t === 'string' ? `- ${t}` : `- ${t.thread || t.description || JSON.stringify(t)}`).join('\n');
+        }
       }
 
       if (!projectPayload.world_md && bible.world_state) projectPayload.world_md = bible.world_state;
@@ -1472,6 +1567,10 @@ function SpinoffView({ bible, volume, allProjects, projects, onBack, onCreated }
 
       const created = await base44.entities.NovelProject.create(projectPayload);
       await base44.entities.SeriesBible.update(bible.id, { books_analyzed: (bible.books_analyzed || 0) + 1 });
+
+      const spinoffWarning = describeFieldFailures(spinoffBad, 'The spinoff was created without that exit state.');
+      if (spinoffWarning) toast.warning(spinoffWarning, { duration: 12000 });
+
       onCreated(created.id);
     } catch (err) {
       console.error('[Spinoff]', err);
@@ -1605,7 +1704,10 @@ function RewriteVolumeView({ bible, volume, projects, onBack, navigate, refreshA
  * user regenerates the foundation, unlike characters_md/world_md/etc. which get
  * overwritten. This ensures the foundation LLM always has series context.
  */
-function buildSeriesSeedConcept(flavor, bible, lastVolume, volumeNumber) {
+// WAVE9-SILENTSERIES: `sink` collects the names of fields that could not be
+// read, so the caller can tell the writer which continuity is missing from the
+// seed instead of handing them a quietly incomplete one.
+function buildSeriesSeedConcept(flavor, bible, lastVolume, volumeNumber, sink) {
   const parts = [`This is Book ${volumeNumber} in the "${bible.series_name || 'Untitled'}" series.`];
 
   if (lastVolume) {
@@ -1615,29 +1717,24 @@ function buildSeriesSeedConcept(flavor, bible, lastVolume, volumeNumber) {
   if (flavor === 'continuation') {
     parts.push('SEQUEL TYPE: True Continuation — picks up directly after the previous book. All characters, world state, unresolved threads, and consequences carry forward.');
     if (bible.last_book_ending) parts.push(`PREVIOUS BOOK ENDED: ${String(bible.last_book_ending).substring(0, 600)}`);
-    // Characters — who's alive, who's dead
-    if (bible.characters_json) {
-      try {
-        const chars = JSON.parse(bible.characters_json);
-        const alive = chars.filter(c => c.status_at_end !== 'dead').map(c => `${c.name} (${c.role || 'unknown'}): ${c.arc_end || c.status_at_end || 'alive'}`);
-        const dead = chars.filter(c => c.status_at_end === 'dead').map(c => c.name);
-        if (alive.length > 0) parts.push('RETURNING CHARACTERS:\n' + alive.slice(0, 15).join('\n'));
-        if (dead.length > 0) parts.push('DEAD — DO NOT RESURRECT: ' + dead.join(', '));
-      } catch (e) {}
+    // Characters — who's alive, who's dead. If this field cannot be read, the
+    // "DO NOT RESURRECT" line silently never reaches the prompt.
+    const chars = parseSeriesField(bible.characters_json, [], 'characters', sink);
+    if (Array.isArray(chars) && chars.length > 0) {
+      const alive = chars.filter(c => c.status_at_end !== 'dead').map(c => `${c.name} (${c.role || 'unknown'}): ${c.arc_end || c.status_at_end || 'alive'}`);
+      const dead = chars.filter(c => c.status_at_end === 'dead').map(c => c.name);
+      if (alive.length > 0) parts.push('RETURNING CHARACTERS:\n' + alive.slice(0, 15).join('\n'));
+      if (dead.length > 0) parts.push('DEAD — DO NOT RESURRECT: ' + dead.join(', '));
     }
     // Unresolved threads
-    if (bible.unresolved_threads) {
-      try {
-        const threads = JSON.parse(bible.unresolved_threads);
-        if (threads.length > 0) parts.push('UNRESOLVED THREADS TO ADDRESS:\n- ' + threads.slice(0, 10).join('\n- '));
-      } catch (e) {}
+    const threads = parseSeriesField(bible.unresolved_threads, [], 'unresolved threads', sink);
+    if (Array.isArray(threads) && threads.length > 0) {
+      parts.push('UNRESOLVED THREADS TO ADDRESS:\n- ' + threads.slice(0, 10).join('\n- '));
     }
     // Secrets
-    if (bible.secrets_remaining) {
-      try {
-        const secrets = JSON.parse(bible.secrets_remaining);
-        if (secrets.length > 0) parts.push('SECRETS NOT YET REVEALED:\n- ' + secrets.slice(0, 8).join('\n- '));
-      } catch (e) {}
+    const secrets = parseSeriesField(bible.secrets_remaining, [], 'secrets remaining', sink);
+    if (Array.isArray(secrets) && secrets.length > 0) {
+      parts.push('SECRETS NOT YET REVEALED:\n- ' + secrets.slice(0, 8).join('\n- '));
     }
     // World state
     if (bible.world_state) parts.push('WORLD STATE AT END OF PREVIOUS BOOK: ' + bible.world_state.substring(0, 800));
