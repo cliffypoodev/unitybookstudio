@@ -1,5 +1,10 @@
 import './styles/globals-notebook.css';
-import { Toaster } from "@/components/ui/toaster"
+// TOASTMOUNT-1: the app fires toast.* from sonner in 31+ files, but only the
+// unused shadcn toaster (driven by useToast, which nothing calls) was mounted —
+// every success/error notification was silently swallowed. Mount sonner's
+// Toaster directly (not the ui/sonner wrapper: that one calls next-themes'
+// useTheme, and this app uses its own ThemeProvider, not next-themes).
+import { Toaster } from "sonner"
 import { QueryClientProvider } from '@tanstack/react-query'
 import ThemeProvider from '@/components/notebook/ThemeProvider';
 import { queryClientInstance } from '@/lib/query-client'
@@ -13,6 +18,8 @@ import ProjectStudio from './pages/ProjectStudio';
 import ImportCatalog from './pages/ImportCatalog';
 import SeriesManager from './pages/SeriesManager';
 import React, { useState, useEffect } from 'react';
+import FloatingBrainstorm from '@/components/FloatingBrainstorm';
+import { useUserSettings } from '@/lib/userSettings';
 // Add page imports here
 
 // ── Migration banner ────────────────────────────────────────────────────
@@ -62,6 +69,15 @@ function MigrationBanner() {
   );
 }
 
+// WAVE5-SETTINGS: FloatingBrainstorm existed but was never mounted, so its
+// Settings toggle was a no-op. Gated mount — reads the setting on each render
+// (the hook is reactive within a session; a toggle applies on next navigation).
+function BrainstormGate() {
+  const { settings } = useUserSettings();
+  if (!settings.enable_floating_brainstorm) return null;
+  return <FloatingBrainstorm />;
+}
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
@@ -108,8 +124,9 @@ function App() {
           <Router>
             <MigrationBanner />
             <AuthenticatedApp />
+            <BrainstormGate />
           </Router>
-          <Toaster />
+          <Toaster richColors closeButton />
         </QueryClientProvider>
       </AuthProvider>
     </ThemeProvider>

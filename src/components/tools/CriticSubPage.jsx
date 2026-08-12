@@ -8,6 +8,7 @@ import { isAnthologyProject } from '@/lib/anthologyEngine';
 import { countWords } from '@/lib/autonovel';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { loadManuscriptChapters, getFullText } from '@/lib/manuscriptLoader';
+import { parseDocxFile } from '@/lib/docxParser';
 import { base44 } from '@/api/base44Client';
 import CriticConsensus from '@/components/tools/CriticConsensus';
 import CriticReviewCard from '@/components/tools/CriticReviewCard';
@@ -25,6 +26,7 @@ import { buildManuscriptEvidenceReport } from '@/lib/manuscriptEvidence';
 import { buildPlanDeliveryReport } from '@/lib/planCrossCheck';
 import { runDeepCritique } from '@/lib/critiquePipeline';
 import { applySurgicalFixes } from '@/lib/surgicalFix';
+import { downloadMarkdown, reportFilename, buildCritiqueMarkdown } from '@/lib/reportExport'; // WAVE7-REPORTEXPORT
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * ANTHOLOGY / CONTINUOUS EXCERPT BUILDERS (preserved from original)
@@ -97,6 +99,10 @@ async function runSingleReviewer(reviewer, context) {
         Number.isFinite(Number(data.audience_prediction)) ? Math.round(Number(data.audience_prediction)) : ratingNumeric
       )),
       audience_reasoning: data.audience_reasoning || '',
+      // WAVE7-TOPFIXES: the prompt demands these and the schema declares
+      // them, but they were never copied out — up to 5 ranked, actionable
+      // revision instructions per reviewer were generated and discarded.
+      topFixes: Array.isArray(data.topFixes) ? data.topFixes.filter(Boolean) : [],
     };
   } catch (err) {
     console.error(`[CRITIC] ${reviewer.outlet} call failed:`, err?.message || err);
@@ -104,7 +110,7 @@ async function runSingleReviewer(reviewer, context) {
       outlet: reviewer.outlet, icon: reviewer.icon,
       rating_label: 'N/A', rating_numeric: 50, rating_display: 'N/A',
       review: `Review generation failed for ${reviewer.outlet}. (${err?.message || 'Unknown error'})`,
-      summary_line: '', audience_prediction: 50, audience_reasoning: '', _failed: true,
+      summary_line: '', audience_prediction: 50, audience_reasoning: '', topFixes: [], _failed: true,
     };
   }
 }
@@ -152,6 +158,120 @@ function DashboardPanel({ dashboard, threadWatch, marketability }) {
           <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Marketability</div>
           <p className="text-sm text-foreground/80">{marketability}</p>
         </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * WAVE7-BEATS: the plan cross-check costs one LLM call PER OUTLINED CHAPTER and
+ * produces beats-delivered / beats-missing / beats-altered plus outline coverage.
+ * All of it landed in state and nothing rendered it — "did I actually write my
+ * outline?" is the question a plotter most wants answered, already paid for.
+ */
+function PlanDeliveryPanel({ planReport }) {
+  const [open, setOpen] = useState(false);
+  if (!planReport?.planAvailable) return null;
+
+  const coverage = planReport.coverageTable || [];
+  const beats = planReport.beatDelivery || [];
+  const undrafted = coverage.filter((c) => !c.drafted);
+  const totalMissing = beats.reduce((n, b) => n + (b.beatsMissing?.length || 0), 0);
+  const totalAltered = beats.reduce((n, b) => n + (b.beatsAltered?.length || 0), 0);
+  const totalDelivered = beats.reduce((n, b) => n + (b.beatsDelivered?.length || 0), 0);
+
+  return (
+    <div className="rounded-xl border border-border/50 bg-card/50 p-5 space-y-4">
+      <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+        <BookOpen className="h-5 w-5 text-primary" /> Outline Delivery
+      </h3>
+
+      <div className="grid grid-cols-4 gap-3 text-center">
+        <div>
+          <div className="text-2xl font-bold text-emerald-400">{totalDelivered}</div>
+          <div className="text-xs text-muted-foreground uppercase tracking-wider">Beats delivered</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold text-red-400">{totalMissing}</div>
+          <div className="text-xs text-muted-foreground uppercase tracking-wider">Beats missing</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold text-amber-400">{totalAltered}</div>
+          <div className="text-xs text-muted-foreground uppercase tracking-wider">Beats altered</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold text-foreground">{coverage.length - undrafted.length}/{coverage.length}</div>
+          <div className="text-xs text-muted-foreground uppercase tracking-wider">Chapters drafted</div>
+        </div>
+      </div>
+
+      {undrafted.length > 0 && (
+        <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+          <div className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Planned but not drafted</div>
+          <div className="text-sm text-amber-200/80">
+            {undrafted.map((c) => `Ch.${c.chapterNumber}${c.plannedTitle ? ' — ' + c.plannedTitle : ''}`).join(' · ')}
+          </div>
+        </div>
+      )}
+
+      <button onClick={() => setOpen(!open)} className="text-xs text-muted-foreground hover:text-foreground underline">
+        {open ? 'Hide' : 'Show'} per-chapter beat delivery ({beats.length} chapters)
+      </button>
+
+      {open && (
+        <div className="max-h-96 overflow-y-auto space-y-2">
+          {beats.map((b) => {
+            const clean = !(b.beatsMissing?.length || b.beatsAltered?.length);
+            return (
+              <div key={b.chapterNumber} className="p-3 rounded-lg bg-muted/10 border border-border/30">
+                <div className="text-xs font-semibold mb-1 flex items-center gap-2">
+                  Chapter {b.chapterNumber}
+                  {clean
+                    ? <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+                    : <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />}
+                </div>
+                {b.beatsMissing?.length > 0 && (
+                  <div className="text-[11px] text-red-300/90 mb-1">
+                    <span className="font-semibold uppercase tracking-wider mr-1">Missing:</span>
+                    {b.beatsMissing.join(' · ')}
+                  </div>
+                )}
+                {b.beatsAltered?.length > 0 && (
+                  <div className="text-[11px] text-amber-300/90 mb-1">
+                    <span className="font-semibold uppercase tracking-wider mr-1">Altered:</span>
+                    {b.beatsAltered.join(' · ')}
+                  </div>
+                )}
+                {b.beatsDelivered?.length > 0 && (
+                  <div className="text-[11px] text-muted-foreground">
+                    <span className="font-semibold uppercase tracking-wider mr-1">Delivered:</span>
+                    {b.beatsDelivered.join(' · ')}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {planReport.characterCoverage?.length > 0 && (
+        <details>
+          <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+            Character coverage ({planReport.characterCoverage.length})
+          </summary>
+          <div className="mt-2 space-y-1">
+            {planReport.characterCoverage.map((c) => (
+              <div key={c.name} className="text-[11px] flex items-baseline gap-2">
+                <span className="font-medium text-foreground/90 w-32 shrink-0 truncate">{c.name}</span>
+                <span className="text-muted-foreground">
+                  {c.chaptersPresent?.length
+                    ? `${c.totalMentions} mentions across Ch.${c.chaptersPresent.join(', ')}`
+                    : 'never appears in the drafted text'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </details>
       )}
     </div>
   );
@@ -210,7 +330,12 @@ function ChapterCritiqueCard({ critique, onSelectFix, selectedFixes }) {
           <div>
             <div className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2">Weaknesses</div>
             {(critique.weaknesses || []).map((w, i) => {
-              const fixId = `${critique.chapterNumber}-${i}`;
+              // WAVE7-FIXID: namespaced. This used to be `${chapterNumber}-${i}`
+              // where i indexed THIS chapter's weaknesses, while the priority
+              // list built the same string from an index into the flat,
+              // severity-sorted list — so selecting one issue could light up an
+              // unrelated row and enqueue a different rewrite.
+              const fixId = `ch:${critique.chapterNumber}:w${i}`;
               const isSelected = selectedFixes?.has(fixId);
               return (
                 <div key={i} className={`mb-3 p-3 rounded-lg border transition-colors ${isSelected ? 'border-primary bg-primary/5' : 'border-border/30 bg-muted/10'}`}>
@@ -273,7 +398,7 @@ function PriorityFixPanel({ fixes, selectedFixes, onToggleFix }) {
       </h3>
       <div className="max-h-80 overflow-y-auto space-y-2">
         {fixes.map((fix, i) => {
-          const fixId = `${fix.chapterNumber}-${i}`;
+          const fixId = `pri:${fix.chapterNumber}:${i}`; // WAVE7-FIXID
           const isSelected = selectedFixes?.has(fixId);
           return (
             <div key={i} className="flex items-start gap-2 text-sm p-2 rounded-lg hover:bg-muted/10">
@@ -344,10 +469,26 @@ export default function CriticSubPage({ project, chapters, busyLabel, setBusyLab
 
   const isBusy = !!busyLabel;
 
-  const handleFileLoaded = (parsed) => {
-    setUploadedContent(parsed);
-    setCritiqueResults(null);
-    setPanelResults(null);
+  // WAVE1-UPLOADZONE: UploadZone's API is onFileSelect(file) — the old
+  // onFileLoaded wiring threw "onFileSelect is not a function" on any upload.
+  const [uploading, setUploading] = useState(false);
+  const handleFileSelect = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const parsed = await parseDocxFile(file);
+      setUploadedContent({
+        ...parsed,
+        text: parsed.fullText,
+        title: (file.name || '').replace(/\.(docx?|txt)$/i, ''),
+      });
+      setCritiqueResults(null);
+      setPanelResults(null);
+    } catch (err) {
+      toast.error('Parse failed: ' + (err?.message || 'Unknown'));
+    } finally {
+      setUploading(false);
+    }
   };
 
   const toggleFix = useCallback((fixId, fix) => {
@@ -435,7 +576,7 @@ export default function CriticSubPage({ project, chapters, busyLabel, setBusyLab
     const issues = [];
     const fixList = critiqueResults.synthesis.priorityFixList || [];
     fixList.forEach((fix, i) => {
-      const fixId = `${fix.chapterNumber}-${i}`;
+      const fixId = `pri:${fix.chapterNumber}:${i}`; // WAVE7-FIXID
       if (selectedFixes.has(fixId)) {
         issues.push(fix);
       }
@@ -444,7 +585,7 @@ export default function CriticSubPage({ project, chapters, busyLabel, setBusyLab
     // Also collect from chapter critiques
     for (const cc of critiqueResults.chapterCritiques) {
       (cc.weaknesses || []).forEach((w, i) => {
-        const fixId = `${cc.chapterNumber}-${i}`;
+        const fixId = `ch:${cc.chapterNumber}:w${i}`; // WAVE7-FIXID
         if (selectedFixes.has(fixId) && !issues.find(is => is.quote === w.quote && is.chapterNumber === cc.chapterNumber)) {
           issues.push({
             severity: w.severity,
@@ -592,7 +733,7 @@ export default function CriticSubPage({ project, chapters, busyLabel, setBusyLab
       <SourceSelector source={source} setSource={setSource} project={project} />
 
       {source === 'upload' && (
-        <UploadZone onFileLoaded={handleFileLoaded} loaded={uploadedContent} />
+        <UploadZone onFileSelect={handleFileSelect} uploading={uploading} />
       )}
 
       {/* Tab switcher */}
@@ -643,6 +784,25 @@ export default function CriticSubPage({ project, chapters, busyLabel, setBusyLab
                 threadWatch={critiqueResults.synthesis.threadWatch}
                 marketability={critiqueResults.synthesis.marketability}
               />
+
+              {/* WAVE7-REPORTEXPORT: this report costs ~120 sequential model calls
+                  on a 40-chapter book and used to vanish on a tab click. */}
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => downloadMarkdown(
+                    reportFilename(project, 'critique'),
+                    buildCritiqueMarkdown(project, critiqueResults, panelResults?.reviews, panelResults?.consensus),
+                  )}
+                  className="gap-2 text-xs"
+                >
+                  Export report (.md)
+                </Button>
+              </div>
+
+              {/* WAVE7-BEATS: outline delivery — previously computed and hidden */}
+              <PlanDeliveryPanel planReport={critiqueResults.planReport} />
 
               {/* Priority fix list with select toggles */}
               <PriorityFixPanel

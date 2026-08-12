@@ -83,7 +83,7 @@ export default function ResearchSubPage({ project, busyLabel, setBusyLabel, onPr
           existing += '### Expert Dialogue\n' + findings.findings.expert_dialogue.map((d) => `- "${d}"`).join('\n') + '\n';
         }
         existing += '\n---\n';
-        const manualResearchFields = await prepareResearchContent(existing);
+        const manualResearchFields = await prepareResearchContent(existing, project?.id);
         // Belt-and-suspenders: never let research save overwrite twist settings
         delete manualResearchFields.num_twists;
         delete manualResearchFields.twist_count;

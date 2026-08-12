@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import RewriteFromManuscript from './RewriteFromManuscript';
+import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
 
 const PROJECT_TYPES = [
   {
@@ -47,6 +48,13 @@ export default function NewProjectModal({ open, onClose, onCreate, onRewriteCrea
 
   if (!open) return null;
 
+  // WAVE5-SETTINGS: the user's default project type is highlighted and listed
+  // first. (This was a write-only setting with nothing consuming it.)
+  const defaultType = getSetting('default_project_type', 'fiction');
+  const orderedTypes = [...PROJECT_TYPES].sort(
+    (a, b) => (a.type === defaultType ? -1 : 0) - (b.type === defaultType ? -1 : 0)
+  );
+
   const handleCreate = (type) => {
     if (type === 'ideas') {
       onCreate(type);
@@ -81,15 +89,19 @@ export default function NewProjectModal({ open, onClose, onCreate, onRewriteCrea
         </p>
 
         <div className="flex flex-col gap-3">
-          {PROJECT_TYPES.map((pt) => (
+          {orderedTypes.map((pt) => (
             <button
               key={pt.type}
               onClick={() => handleCreate(pt.type)}
-              className="flex items-center gap-3 sm:gap-4 rounded-xl border border-border/70 bg-background px-3 sm:px-5 py-3 sm:py-4 text-left transition-colors hover:border-primary/60 hover:bg-accent/30"
+              className={'flex items-center gap-3 sm:gap-4 rounded-xl border px-3 sm:px-5 py-3 sm:py-4 text-left transition-colors hover:border-primary/60 hover:bg-accent/30 ' +
+                (pt.type === defaultType ? 'border-primary/70 bg-primary/5' : 'border-border/70 bg-background')}
             >
               <span className="text-2xl sm:text-3xl">{pt.emoji}</span>
               <div>
-                <div className="text-base font-bold text-foreground">{pt.label}</div>
+                <div className="text-base font-bold text-foreground">
+                  {pt.label}
+                  {pt.type === defaultType && <span className="ml-2 rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-medium text-primary">Default</span>}
+                </div>
                 <div className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
                   {pt.description}
                 </div>

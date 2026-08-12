@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 /**
  * Debounced auto-save hook.
@@ -22,8 +23,16 @@ export default function useAutoSave(value, onSave, { delay = 60000, enabled = tr
 
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(async () => {
-      await onSaveRef.current();
-      setLastSaved(Date.now());
+      // WAVE1-AUTOSAVECATCH: a failed autosave used to escape as an unhandled
+      // rejection — the "last saved" stamp just quietly went stale while the
+      // user kept typing into a document that was NOT being saved.
+      try {
+        await onSaveRef.current();
+        setLastSaved(Date.now());
+      } catch (err) {
+        console.error('[AUTOSAVE] Save failed:', err);
+        toast.error('Autosave failed — your latest changes are NOT saved yet (' + (err?.message || 'unknown error') + ')');
+      }
     }, delay);
 
     return () => {

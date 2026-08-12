@@ -23,6 +23,7 @@ import { runStackedClauseVariation } from '@/lib/sentencePatternPolish';
 import { runDisclaimerStripper } from '@/lib/disclaimerStripper';
 import { runAntiDetectionPolish } from '@/lib/antiDetectionPolish';
 import { safeUppercaseReplace } from '@/lib/safeUppercase';
+import { refreshProjectWordCount } from '@/lib/projectWordCount';
 
 // Nonfiction banned words — unified with fiction list to ensure zero AI vocabulary survives
 const NF_BANNED_WORDS = [
@@ -868,13 +869,15 @@ export async function runNonfictionPolish({ loaded, onProgress, project }) {
     if (f.content === f.original) { unchangedCount++; continue; }
     onProgress?.(`Polish (NF): Saving chapter ${chNum}…`);
     try {
-      const contentFields = await prepareChapterContent(f.content);
+      const contentFields = await prepareChapterContent(f.content, project?.id, f.chapter.id, f.chapter);
       await runWithNetworkRetry(() => base44.entities.Chapter.update(f.chapter.id, { ...contentFields, word_count: countWords(f.content) }));
       savedCount++;
     } catch (err) {
       changes.push('❌ Ch.' + chNum + ': SAVE FAILED — ' + err.message);
     }
   }
+
+  if (savedCount > 0 && project?.id) refreshProjectWordCount(project.id); // WAVE2-WORDCOUNT
 
   const afterStats = calculateManuscriptStatsNonfiction(loaded.map(f => f.content).join('\n\n'));
 

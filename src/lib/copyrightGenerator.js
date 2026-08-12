@@ -77,7 +77,7 @@ export async function saveCopyrightChapter({ project, chapters, copyrightText })
     ((ch.title || '').toLowerCase().includes('copyright') || ch.chapter_number === 0)
   );
 
-  const contentFields = await prepareChapterContent(copyrightText);
+  const contentFields = await prepareChapterContent(copyrightText, project?.id, existing?.id || 'copyright', existing || null);
 
   if (existing) {
     await runWithNetworkRetry(() => base44.entities.Chapter.update(existing.id, {

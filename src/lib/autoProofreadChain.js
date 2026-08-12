@@ -175,7 +175,7 @@ export async function runAutoProofreadChain(project, chapters, setBusyLabel) {
       totalApplied += result.applied;
       totalSkipped += result.skipped;
 
-      const contentFields = await prepareChapterContent(result.text);
+      const contentFields = await prepareChapterContent(result.text, project?.id, chId, freshRecord);
       await runWithNetworkRetry(() =>
         base44.entities.Chapter.update(chId, {
           ...contentFields,

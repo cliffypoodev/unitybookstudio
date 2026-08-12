@@ -85,7 +85,9 @@ function pushIdea(records, content, bookType, genre, category, series) {
     category: category || '',
     subcategory: series || '',
     tags: series ? [series] : [],
-    word_count: 0
+    // WAVE3-IMPORTWC: was hardcoded 0, which made the Ideas browser's
+    // Longest/Shortest sorts a no-op across the whole imported catalog.
+    word_count: (content || '').trim().split(/\s+/).filter(Boolean).length
   });
 }
 
