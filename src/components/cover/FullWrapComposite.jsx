@@ -410,6 +410,15 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
   }, [addLayer, backLeft, backW, panelTop]);
 
   const handleAddSpineText = useCallback(() => {
+    // WAVE10-SPINETEXT: guard the action too, not just the button — a disabled
+    // button is a courtesy, this is the rule.
+    if (!dims.canSpineText) {
+      toast.error(
+        `KDP will not print spine text below ${KDP_SPECS.minSpineTextPages} pages. ` +
+        `This book is ${dims.pageCount} page(s) — the spine is only ${dims.spineWidth.toFixed(3)}" wide.`
+      );
+      return;
+    }
     addLayer({
       id: uid('spine-text'),
       name: 'Spine Text',
@@ -428,7 +437,7 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
       vertical: true,
       visible: true,
     });
-  }, [addLayer, panelH, panelTop, spineLeft, spineW]);
+  }, [addLayer, dims.canSpineText, dims.pageCount, dims.spineWidth, panelH, panelTop, spineLeft, spineW]);
 
   const handleAddPublisherLogo = useCallback(() => {
     if (!publisherLogoUrl?.trim()) {
@@ -902,10 +911,17 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
                 Back Text
               </Button>
 
+              {/* WAVE10-SPINETEXT: dims.canSpineText was computed, returned, and
+                  read by nothing — so a 24-page book could be given spine text
+                  and KDP would reject the file. It is a real gate now. */}
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={handleAddSpineText}
+                disabled={!dims.canSpineText}
+                title={dims.canSpineText
+                  ? undefined
+                  : `KDP does not print spine text below ${KDP_SPECS.minSpineTextPages} pages (this book is ${dims.pageCount}).`}
                 className="h-8 justify-start gap-1.5 text-[10px]"
               >
                 <BookOpen className="h-3.5 w-3.5" />
