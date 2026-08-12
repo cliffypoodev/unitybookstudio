@@ -2,15 +2,38 @@
 // KDP Cover Creator — Constants, Calculations, and Prompt Builder
 // =============================================================
 
+/**
+ * WAVE10-SPINEMATH — these numbers decide whether KDP accepts the file.
+ *
+ * Amazon's paperback spine formula is exactly `pages × caliper`. There is no
+ * additive cover-thickness term; the cover stock is part of the trim, not the
+ * spine. This module used to add a flat 0.06", which made every spine 0.06" too
+ * wide and every full wrap 0.06" too wide with it. handleDownloadPDF sets the
+ * PDF page to these inches verbatim, so KDP compared the upload against its own
+ * calculator and rejected the mismatch — or scaled it, shifting both fold lines
+ * inward by ~0.03" and putting the spine text off the fold.
+ *
+ * The colour caliper was wrong too: 0.0032 against Amazon's published 0.002347,
+ * a 36% error. White and cream were already exact, which is precisely why it
+ * survived — two of the three values checked out.
+ *
+ * Reference (Amazon KDP paperback cover calculator, 2026):
+ *   white  0.002252 in/page
+ *   cream  0.0025   in/page
+ *   colour 0.002347 in/page
+ *   bleed  0.125 in on all four outer edges
+ *   spine text permitted at 100+ pages
+ */
 export const KDP_SPECS = {
   paper: {
     white: 0.002252,
     cream: 0.0025,
-    color: 0.0032,
+    color: 0.002347,
   },
   bleed: 0.125,
-  coverThickness: 0.06,
-  minSpineTextPages: 79,
+  // KDP permits spine text from 100 pages. Below that the spine is too narrow
+  // to print on and the file is rejected.
+  minSpineTextPages: 100,
   dpi: 300,
   trimSizes: [
     { label: '5" × 8"', w: 5, h: 8 },
@@ -216,7 +239,8 @@ export function buildCoverArtPrompt(genre, artDescription, artStyle, colorMood, 
 
 export function calculateCoverDimensions(trimW, trimH, pageCount, paperType = 'cream') {
   const thickness = KDP_SPECS.paper[paperType] || KDP_SPECS.paper.cream;
-  const spineWidth = (pageCount * thickness) + KDP_SPECS.coverThickness;
+  // WAVE10-SPINEMATH: pages × caliper, and nothing else. See KDP_SPECS above.
+  const spineWidth = pageCount * thickness;
   const totalWidth = KDP_SPECS.bleed + trimW + spineWidth + trimW + KDP_SPECS.bleed;
   const totalHeight = KDP_SPECS.bleed + trimH + KDP_SPECS.bleed;
 
@@ -232,13 +256,22 @@ export function calculateCoverDimensions(trimW, trimH, pageCount, paperType = 'c
     totalWidth, totalHeight, spineWidth, trimW, trimH,
     pxW, pxH, pxBleed, pxTrimW, pxTrimH, pxSpine,
     canSpineText, pageCount, paperType,
+    // WAVE10-ZONETILE: boundaries are cumulative, not independently rounded.
+    //
+    // 0.125" of bleed at 300 DPI is 37.5px — not an integer, so a half-pixel
+    // has to land somewhere. Rounding each panel width separately and adding
+    // them up overshot the canvas by 1px (38+1800+225+1800+38 = 3901 on a
+    // 3900px canvas), which left the front panel starting one pixel past where
+    // the back panel ended. Rounding cumulative offsets instead makes the zones
+    // tile the canvas exactly; the leftover half-pixel is absorbed by the front
+    // panel, which is the one place it cannot cause a visible seam.
     zones: {
       backLeft: pxBleed,
-      backRight: pxBleed + pxTrimW,
-      spineLeft: pxBleed + pxTrimW,
-      spineRight: pxBleed + pxTrimW + pxSpine,
-      frontLeft: pxBleed + pxTrimW + pxSpine,
-      frontRight: pxBleed + pxTrimW + pxSpine + pxTrimW,
+      backRight: Math.round((KDP_SPECS.bleed + trimW) * KDP_SPECS.dpi),
+      spineLeft: Math.round((KDP_SPECS.bleed + trimW) * KDP_SPECS.dpi),
+      spineRight: Math.round((KDP_SPECS.bleed + trimW + spineWidth) * KDP_SPECS.dpi),
+      frontLeft: Math.round((KDP_SPECS.bleed + trimW + spineWidth) * KDP_SPECS.dpi),
+      frontRight: pxW - pxBleed,
     },
   };
 }
