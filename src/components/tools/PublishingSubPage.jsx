@@ -21,6 +21,7 @@ import { chapterHasContent } from '@/lib/chapterStorage';
 import { isBodyChapter } from '@/lib/bibliographyGenerator';
 import { parseDocxFile } from '@/lib/docxParser';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
+import { validateKeywordSet, KDP_KEYWORD_CHAR_LIMIT } from '@/lib/kdpKeywordValidator';
 import SourceSelector from '@/components/tools/SourceSelector';
 import UploadZone from '@/components/tools/UploadZone';
 import QueryTrackerSection from '@/components/tools/QueryTrackerSection';
@@ -610,6 +611,7 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
                   isGenerating={!!generating[item.id]}
                   isSaving={!!saving[item.id]}
                   isUploadMode={source === 'upload'}
+                  project={project}
                 />
               ))}
 
@@ -1641,7 +1643,7 @@ function SectionGroup({ section, expanded, onToggle, counts, children }) {
  * PUB ITEM CARD
  * ========================================================================== */
 
-function PubItemCard({ item, value, onUpdate, onGenerate, isGenerating, isSaving, isUploadMode }) {
+function PubItemCard({ item, value, onUpdate, onGenerate, isGenerating, isSaving, isUploadMode, project }) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -1732,7 +1734,7 @@ function PubItemCard({ item, value, onUpdate, onGenerate, isGenerating, isSaving
 
       {hasValue && (
         <div className="mt-3 border-t border-border/30 pt-3">
-          <ItemEditor item={item} value={value} onUpdate={onUpdate} expanded={expanded} />
+          <ItemEditor item={item} value={value} onUpdate={onUpdate} expanded={expanded} project={project} />
         </div>
       )}
 
@@ -1750,7 +1752,7 @@ function PubItemCard({ item, value, onUpdate, onGenerate, isGenerating, isSaving
  * ITEM EDITOR
  * ========================================================================== */
 
-function ItemEditor({ item, value, onUpdate, expanded }) {
+function ItemEditor({ item, value, onUpdate, expanded, project }) {
   if (item.outputKind === 'html') {
     return (
       <HtmlEditor value={value || ''} onUpdate={onUpdate} target={item.target} expanded={expanded} />
@@ -1758,7 +1760,7 @@ function ItemEditor({ item, value, onUpdate, expanded }) {
   }
 
   if (item.outputKind === 'json') {
-    if (item.id === 'kdp_keywords') return <KeywordsEditor value={value} onUpdate={onUpdate} />;
+    if (item.id === 'kdp_keywords') return <KeywordsEditor value={value} onUpdate={onUpdate} project={project} />;
     if (item.id === 'kdp_categories') return <CategoriesEditor value={value} onUpdate={onUpdate} />;
     if (item.id === 'title_brainstorm') {
       return <TitleBrainstormEditor value={value} onUpdate={onUpdate} />;
@@ -1904,7 +1906,7 @@ function HtmlEditor({ value, onUpdate, target, expanded }) {
  * KEYWORDS EDITOR
  * ========================================================================== */
 
-function KeywordsEditor({ value, onUpdate }) {
+function KeywordsEditor({ value, onUpdate, project }) {
   const keywords = value?.keywords || (Array.isArray(value) ? value : []);
 
   const updateKeyword = (index, field, newValue) => {
@@ -1913,12 +1915,29 @@ function KeywordsEditor({ value, onUpdate }) {
     onUpdate({ keywords: next });
   };
 
+  // WAVE9-KDPVALIDATE: the character counter was hand-rolled here and was the
+  // only rule enforced. kdpKeywordValidator has been sitting in lib unimported
+  // with four more that Amazon actually rejects submissions over: banned
+  // promotional terms, trademarked author names, keywords wholly duplicated
+  // from the title (Amazon indexes those separately, so the slot is wasted),
+  // and single generic words. One source of truth now, including the limit.
+  const validation = React.useMemo(
+    () => validateKeywordSet(keywords, {
+      title: project?.title || project?.title_working || '',
+      subtitle: project?.subtitle || '',
+    }),
+    [keywords, project?.title, project?.title_working, project?.subtitle]
+  );
+
   return (
     <div className="space-y-2">
       {keywords.map((kw, i) => {
-        const len = (kw.keyword || '').length;
-        const over = len > 50;
-        const pct = Math.min(100, (len / 50) * 100);
+        const check = validation.results[i] || { warnings: [], charCount: 0, valid: true };
+        const len = check.charCount;
+        const over = len > KDP_KEYWORD_CHAR_LIMIT;
+        const pct = Math.min(100, (len / KDP_KEYWORD_CHAR_LIMIT) * 100);
+        // Length already has its own counter and bar; don't say it twice.
+        const otherWarnings = check.warnings.filter((w) => !/char limit/i.test(w));
 
         return (
           <div key={i} className="space-y-1">
@@ -1943,7 +1962,7 @@ function KeywordsEditor({ value, onUpdate }) {
                       : 'text-muted-foreground'
                 }`}
               >
-                {len}/50
+                {len}/{KDP_KEYWORD_CHAR_LIMIT}
               </span>
             </div>
             <div className="h-0.5 bg-secondary/40 rounded-full overflow-hidden ml-7 mr-14">
@@ -1954,6 +1973,16 @@ function KeywordsEditor({ value, onUpdate }) {
                 style={{ width: `${pct}%` }}
               />
             </div>
+            {otherWarnings.length > 0 && (
+              <ul className="ml-7 space-y-0.5">
+                {otherWarnings.map((w) => (
+                  <li key={w} className="flex items-start gap-1 text-[10px] text-amber-700 dark:text-amber-400">
+                    <AlertCircle className="h-2.5 w-2.5 mt-0.5 shrink-0" />
+                    {w}
+                  </li>
+                ))}
+              </ul>
+            )}
             {kw.strategy && (
               <p className="text-[10px] italic text-muted-foreground ml-7">{kw.strategy}</p>
             )}
@@ -1961,14 +1990,22 @@ function KeywordsEditor({ value, onUpdate }) {
         );
       })}
 
-      {keywords.some((k) => (k.keyword || '').length > 50) && (
+      {keywords.some((k) => (k.keyword || '').length > KDP_KEYWORD_CHAR_LIMIT) && (
         <div className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-300/60 p-2 mt-2">
           <p className="text-[10px] text-red-700 dark:text-red-400 flex items-start gap-1">
             <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
-            One or more keywords exceed Amazon's 50-character limit. Amazon will reject these
-            when you paste them into KDP.
+            One or more keywords exceed Amazon&rsquo;s {KDP_KEYWORD_CHAR_LIMIT}-character limit. Amazon will reject
+            these when you paste them into KDP.
           </p>
         </div>
+      )}
+
+      {validation.invalidCount > 0 && (
+        <p className="mt-1 text-[10px] text-muted-foreground">
+          {validation.invalidCount} of {validation.results.length} keyword(s) flagged &middot;{' '}
+          {validation.totalWarnings} issue(s) total. These are Amazon&rsquo;s own rules — fix them before
+          you submit, not after.
+        </p>
       )}
     </div>
   );
