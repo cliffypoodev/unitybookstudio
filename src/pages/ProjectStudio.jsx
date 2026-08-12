@@ -1635,6 +1635,9 @@ const PROJECT_SETTING_FIELDS = [
 
   // Model routing
   'default_prose_model',
+
+  // WAVE6-DEADGATE: per-project scene-execution gate toggles (Setup → Model & Series)
+  'scene_execution_flags',
 ];
 
 export default function ProjectStudio() {
@@ -1669,6 +1672,9 @@ export default function ProjectStudio() {
   const [chapterProseModels, setChapterProseModels] = React.useState({});
   const stopRequestedRef = React.useRef(false);
   const skipProjectSyncRef = React.useRef(false);
+  // WAVE6-GENREKEEP: Setup fields the author has explicitly edited this session.
+  // Genre defaults may fill anything untouched, but never overwrite these.
+  const userTouchedSetupFieldsRef = React.useRef(new Set());
   const notebookRef = React.useRef(null);
   const undoSnapshotRef = React.useRef(null);
   const [isUndoing, setIsUndoing] = React.useState(false);
@@ -1932,6 +1938,28 @@ export default function ProjectStudio() {
     queryClient.invalidateQueries({ queryKey: ['novel-projects'] }),
   ]);
 
+  // WAVE6-GENREKEEP: fields applyGenreDefaults() overwrites, and the label shown
+  // in the "kept your ..." toast (null = preserve silently, it is derived).
+  const GENRE_DEFAULTED_FIELDS = {
+    chapter_target: 'chapter count',
+    chapter_length_target: 'chapter length',
+    chapter_length_preset: null,
+    target_chapter_words: null,
+    total_word_target: null,
+    pov_mode: 'POV',
+    tense: 'tense',
+    beat_style: 'beat style',
+    scene_beat_style: null,
+    nf_structure_mode: 'structure',
+    spice_level: 'spice level',
+    violence_level: 'violence level',
+    erotica_register: 'prose register',
+  };
+
+  const markSetupFieldsTouched = (...fields) => {
+    for (const f of fields) if (f) userTouchedSetupFieldsRef.current.add(f);
+  };
+
   const updateSettingsDrafts = (updater) => {
     setSettingsDrafts((current) => {
       const next = typeof updater === 'function' ? updater(current) : { ...current, ...updater };
@@ -1954,6 +1982,7 @@ export default function ProjectStudio() {
   };
 
   const handleSettingFieldChange = (field, value) => {
+    markSetupFieldsTouched(field); // WAVE6-GENREKEEP
     updateSettingsDrafts({ [field]: value });
 
     // These fields affect project routing, Setup conditionals, and downstream
@@ -2013,6 +2042,17 @@ export default function ProjectStudio() {
   };
 
   const handleGenreChange = (genre) => {
+    // WAVE6-GENREKEEP: work out what will be kept from the CURRENT state, before
+    // the state updater runs. The updater is deferred (and re-invoked under
+    // StrictMode), so collecting labels inside it left the toast empty.
+    const keptLabels = Object.entries(GENRE_DEFAULTED_FIELDS)
+      .filter(([field, label]) => {
+        if (!label || !userTouchedSetupFieldsRef.current.has(field)) return false;
+        const v = settingsDrafts?.[field];
+        return v !== undefined && v !== null && v !== '';
+      })
+      .map(([, label]) => label);
+
     updateSettingsDrafts((current) => {
       const protectedRouting = {
         content_lane: current.content_lane,
@@ -2028,6 +2068,23 @@ export default function ProjectStudio() {
         canon_characters: current.canon_characters,
         canon_boundary: current.canon_boundary,
       };
+      // WAVE6-GENREKEEP: applyGenreDefaults overwrites the whole length/intensity
+      // /narration block with genre defaults. That is right for a project whose
+      // values are still untouched, and wrong for one where the author already
+      // made a deliberate choice: setting "4 chapters x 1,200 words" and THEN
+      // picking a genre silently restored 22 x 3,600 with no prompt and no toast
+      // (found in the end-to-end run, 2026-08-12). The protectedRouting block
+      // above already establishes that deliberate choices survive a genre change
+      // — these fields simply were not on the list. Anything the author has
+      // actually edited is now preserved; everything untouched still takes the
+      // genre default.
+      const preserved = {};
+      for (const field of Object.keys(GENRE_DEFAULTED_FIELDS)) {
+        if (!userTouchedSetupFieldsRef.current.has(field)) continue;
+        const v = current[field];
+        if (v === undefined || v === null || v === '') continue;
+        preserved[field] = v;
+      }
       const suggestion = suggestPovTense(current.book_type, genre);
       const next = applyGenreDefaults({ ...current, genre, subgenre: '' }, genre);
       return normalizeSetupRoutingDraft({
@@ -2037,11 +2094,17 @@ export default function ProjectStudio() {
         subgenre: '',
         pov_mode: suggestion.pov,
         tense: suggestion.tense,
+        ...preserved,
       });
     });
+    if (keptLabels.length) {
+      const unique = [...new Set(keptLabels)];
+      toast.success(`${genre} defaults applied — kept your ${unique.join(', ')}.`);
+    }
   };
 
   const handleLengthPresetChange = (preset) => {
+    markSetupFieldsTouched('chapter_length_preset', 'chapter_length_target'); // WAVE6-GENREKEEP
     updateSettingsDrafts({
       chapter_length_preset: preset,
       chapter_length_target: CHAPTER_LENGTH_PRESETS[preset]?.words || 3500,
@@ -2049,6 +2112,7 @@ export default function ProjectStudio() {
   };
 
   const handleApplyPovPreset = (preset) => {
+    markSetupFieldsTouched('pov_mode', 'tense'); // WAVE6-GENREKEEP
     updateSettingsDrafts({ pov_mode: preset.pov, tense: preset.tense });
   };
 
