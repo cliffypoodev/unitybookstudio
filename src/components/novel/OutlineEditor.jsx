@@ -31,7 +31,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import SceneBeatsList from '@/components/novel/SceneBeatsList';
 import { getWritingModelInfo } from '@/lib/writingModel';
-import { normalizeModelId } from '@/lib/modelRouting';
+import { normalizeModelId , FICTION_PROSE_MODELS } from '@/lib/modelRouting';
 import {
   getArcDescription,
   getChapterPacing,
@@ -405,6 +405,15 @@ export default function OutlineEditor({
   lastSaved,
   onStop,
   onRestoreOriginal,
+  // WAVE5-MODELPICKER: these six props were passed by ProjectStudio all along
+  // but never destructured — the per-chapter model picker literally could not
+  // exist. Now it does.
+  selectedProseModel,
+  onProseModelChange,
+  globalDefaultModel,
+  hasChapterOverride,
+  onResetToDefault,
+  isFiction,
 }) {
   const writingModel = getWritingModelInfo(project);
   const hasDraftContent = chapterHasContent(chapter) || !!chapterDraft;
@@ -429,8 +438,36 @@ export default function OutlineEditor({
 
   const beatButtonBusy = !!busyLabel && String(busyLabel).toLowerCase().includes('beat');
 
+  // WAVE5-MODELPICKER: per-chapter prose model control (fiction only).
+  const modelPicker = isFiction && onProseModelChange ? (
+    <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-card/60 px-2.5 py-1.5">
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Prose model</span>
+      <select
+        value={selectedProseModel || globalDefaultModel || ''}
+        onChange={(e) => onProseModelChange(chapter.id, e.target.value)}
+        className="h-6 rounded border border-border bg-background px-1.5 text-[11px]"
+        title="Model used to draft THIS chapter"
+      >
+        {FICTION_PROSE_MODELS.map((m) => (
+          <option key={m.id} value={m.id} title={m.description}>{m.label}</option>
+        ))}
+      </select>
+      {hasChapterOverride && (
+        <button
+          type="button"
+          onClick={() => onResetToDefault?.(chapter.id)}
+          className="text-[10px] text-muted-foreground underline hover:text-foreground"
+          title="Clear this chapter's override and use the project default"
+        >
+          reset
+        </button>
+      )}
+    </div>
+  ) : null;
+
   return (
     <div className="space-y-5 min-w-0">
+      {modelPicker}
       {/* Chapter header */}
       <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">

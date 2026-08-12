@@ -564,7 +564,7 @@ function VolumeRow({ project, isFirst, isLast, allVolumes, navigate, refreshAll,
 
       {/* Tags */}
       <span className="shrink-0 rounded-full bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
-        {project.series_flavor === 'continuation' ? 'cont.' : project.series_flavor === 'anthology_volume' ? 'anth.' : project.series_flavor === 'standalone' ? 'standalone' : project.book_type === 'anthology' ? 'anth.' : ''}
+        {project.series_flavor === 'continuation' ? 'cont.' : project.series_flavor === 'anthology_volume' ? 'anth.' : project.series_flavor === 'standalone' ? 'standalone' : (project.project_type === 'anthology' || project.book_type === 'anthology') ? 'anth.' : ''}
       </span>
       <span className="shrink-0 tabular-nums text-[10px] text-muted-foreground">
         {(wordCount || project.word_count) ? ((wordCount || project.word_count) >= 1000 ? Math.round((wordCount || project.word_count) / 1000) + 'K' : (wordCount || project.word_count)) + ' words' : '—'}
@@ -781,7 +781,10 @@ function SequelView({ bible, allProjects, onBack, onCreated }) {
       }
 
       if (selectedFlavor === 'anthology_volume') {
-        projectPayload.book_type = 'anthology';
+        // WAVE2-ENUMFIX: book_type enum is fiction|nonfiction only —
+        // 'anthology' belongs in project_type. The corrupt value used to reach
+        // storage (the badge at the series list even compensated for it).
+        projectPayload.book_type = 'fiction';
         projectPayload.project_type = 'anthology';
         // Inject series-level tone and world so anthology volumes stay consistent
         if (bible.tone_and_themes) projectPayload.voice_md = `Series tone & themes: ${bible.tone_and_themes}`;

@@ -3,6 +3,8 @@ import { FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { isBodyChapter } from '@/lib/bibliographyGenerator';
+import { resolveAllFoundationFields } from '@/lib/foundationStorage';
+import { resolveSeedConcept } from '@/lib/seedConceptStorage';
 
 function esc(text) {
   if (!text) return '';
@@ -44,13 +46,20 @@ export default function StoryBibleReport({ project, chapters, disabled }) {
       premise: project.seed_concept || '—',
     };
 
+    // WAVE4-OFFLOADREAD: foundation docs over 9KB live at *_url with the inline
+    // field blanked — reading the raw fields printed "❌ NOT GENERATED" for
+    // fully-built story bibles. Resolve through the offload layer.
+    let resolvedBible = {};
+    try { resolvedBible = await resolveAllFoundationFields(project); } catch { resolvedBible = {}; }
+    try { s.premise = (await resolveSeedConcept(project)) || s.premise; } catch { /* keep inline */ }
+
     const bible = {
-      world: project.world_md || 'Not generated',
-      characters: project.characters_md || 'Not generated',
-      outline: project.outline_md || 'Not generated',
-      canon: project.canon_md || 'Not generated',
-      voice: project.voice_md || 'Not generated',
-      mystery: project.mystery_md || 'Not generated',
+      world: resolvedBible.world_md || project.world_md || 'Not generated',
+      characters: resolvedBible.characters_md || project.characters_md || 'Not generated',
+      outline: resolvedBible.outline_md || project.outline_md || 'Not generated',
+      canon: resolvedBible.canon_md || project.canon_md || 'Not generated',
+      voice: resolvedBible.voice_md || project.voice_md || 'Not generated',
+      mystery: resolvedBible.mystery_md || project.mystery_md || 'Not generated',
       research: project.research_data || '',
     };
 

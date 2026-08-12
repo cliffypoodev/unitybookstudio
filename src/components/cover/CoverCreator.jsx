@@ -26,8 +26,7 @@ export default function CoverCreator({ project, busyLabel }) {
   const initialCoverUrl =
     project?.cover_art_url ||
     project?.cover_image_url ||
-    project?.cover_url ||
-    null;
+    null; // WAVE3-WRAPFIELD: cover_url never existed on the entity
 
   const [selectedArtUrl, setSelectedArtUrl] = useState(initialCoverUrl);
   const [view, setView] = useState(initialCoverUrl ? 'editor' : 'art');
@@ -300,8 +299,9 @@ export default function CoverCreator({ project, busyLabel }) {
       const updatePayload =
         view === 'wrap'
           ? {
+              // WAVE3-WRAPFIELD: full_wrap_cover_url is THE wrap field (now in
+              // schema); the competing cover_fullwrap_url name is retired.
               full_wrap_cover_url: fileUrl,
-              cover_fullwrap_url: fileUrl,
             }
           : {
               cover_image_url: fileUrl,

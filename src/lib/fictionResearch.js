@@ -157,7 +157,9 @@ Respond ONLY in JSON. No markdown, no backticks.
     "sensory_details": "What does this look/sound/smell/feel like in reality? Specific sensory details an author can use. The hum of equipment, the smell of chemicals, the weight of tools.",
     "procedural_steps": "If this involves a process or procedure (surgery, hacking, bomb disposal, lab work), list the actual steps in order. What would a professional actually DO?",
     "constraints": "Physical, legal, or practical constraints the author should respect. What CAN'T happen, even in fiction, without breaking physics or logic?",
-    "expert_dialogue": ["3-4 example phrases a real expert in this field would use in conversation. Not full dialogue — just the vocabulary and cadence of how professionals talk about this."]
+    "expert_dialogue": ["3-4 example phrases a real expert in this field would use in conversation. Not full dialogue — just the vocabulary and cadence of how professionals talk about this."],
+    "sources": [{"url": "an EXACT url from the supplied search results", "title": "page title", "supports": "which finding above this backs"}],
+    "unverified": ["any claim above you could NOT confirm from the supplied sources — be honest, an empty list is fine"]
   }
 }
 
@@ -184,6 +186,27 @@ RULES:
           procedural_steps: { type: 'string' },
           constraints: { type: 'string' },
           expert_dialogue: { type: 'array', items: { type: 'string' } },
+          // WAVE7-CITATIONS: the grounding block already hands the model real
+          // search results and demands "every URL you cite MUST be one of these
+          // exact URLs" — but there was nowhere for those URLs to land, so every
+          // citation was discarded and the brief read as unsourced assertion.
+          sources: {
+            type: 'array',
+            description: 'Exact URLs from the supplied search results that support these findings',
+            items: {
+              type: 'object',
+              properties: {
+                url: { type: 'string' },
+                title: { type: 'string' },
+                supports: { type: 'string', description: 'Which finding this source backs' },
+              },
+            },
+          },
+          unverified: {
+            type: 'array',
+            description: 'Claims that could NOT be confirmed from the supplied sources',
+            items: { type: 'string' },
+          },
         },
       },
     },
@@ -343,6 +366,27 @@ export async function runFictionResearch(project, onProgress) {
         md += '### How Experts Actually Talk About This\n';
         for (const p of dialogue) md += `- "${p}"\n`;
         md += '\n';
+      }
+
+      // WAVE7-CITATIONS: surface what this section is actually based on.
+      const unverified = r.findings.unverified;
+      if (unverified && unverified.length > 0) {
+        md += '### ⚠️ Unverified — Could Not Confirm From Sources\n';
+        for (const u of unverified) md += `- ${u}\n`;
+        md += '\n';
+      }
+
+      const sources = r.findings.sources;
+      if (sources && sources.length > 0) {
+        md += '### Sources\n';
+        for (const src of sources) {
+          if (!src?.url) continue;
+          const label = src.title ? src.title : src.url;
+          md += `- [${label}](${src.url})${src.supports ? ` — ${src.supports}` : ''}\n`;
+        }
+        md += '\n';
+      } else {
+        md += '### Sources\n_No sources returned for this topic — treat the section above as unverified._\n\n';
       }
     }
 

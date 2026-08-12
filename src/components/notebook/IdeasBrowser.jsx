@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE5-DEADSTAMP, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app —
+ * past AI sessions repeatedly wasted hours "fixing" components like this one.
+ * Live implementation: the live Ideas UI is IdeasCatalogBrowser.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';

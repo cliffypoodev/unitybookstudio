@@ -3,6 +3,8 @@
  * Shared between fiction and nonfiction polish pipelines.
  */
 
+import { getSetting } from './settingsRead.js'; // WAVE5-SETTINGS
+
 const CAPPED_VOCABULARY = [
   // Verified caps per user spec (per 10K words → approx per 100K at 10x)
   { word: 'etched', max: 0.4, replacements: ['carved', 'cut', 'marked', 'lined', 'scored', 'written', 'traced'] },           // 4/100K
@@ -203,7 +205,10 @@ function nfSplitSentences(paragraph) {
  *      ", and the". Grammatical by construction; capped per paragraph.
  * The pass never touches text inside quotation marks.
  */
-export function runSentenceStarterVariationNF(loaded, onProgress, { targetPct = 14, triggerPct = 16 } = {}) {
+export function runSentenceStarterVariationNF(loaded, onProgress, opts = {}) {
+  // WAVE5-SETTINGS: target % comes from Settings unless the caller overrides.
+  const userTarget = Math.min(30, Math.max(6, Number(getSetting('the_starter_target', 14))));
+  const { targetPct = userTarget, triggerPct = userTarget + 2 } = opts;
   onProgress?.('Polish (NF): Varying sentence starters…');
   const changes = [];
   let totalFixed = 0;

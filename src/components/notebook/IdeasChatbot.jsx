@@ -226,11 +226,18 @@ export default function IdeasChatbot({ onUseIdea, projectId }) {
     const keywords = text.split(/\s+/).filter((w) => w.length > 3).slice(0, 5);
     let catalogContext = '';
     if (keywords.length) {
-      const results = await searchCatalog(keywords.join(' '));
-      if (results.length) {
-        catalogContext = '\n\nRELEVANT CATALOG ENTRIES:\n' + results.map((r) =>
-          `[ID:${r.id}] "${r.title}" — ${r.description || ''} | Genre: ${r.genre || 'N/A'} | Category: ${r.category || 'N/A'} | Tags: ${(r.tags || []).join(', ')}`
-        ).join('\n');
+      // WAVE1-CHATLOCK: this await sat above the try/finally below, so a catalog
+      // failure skipped setIsGenerating(false) and permanently disabled Send.
+      // Catalog context is optional — degrade gracefully instead of dying.
+      try {
+        const results = await searchCatalog(keywords.join(' '));
+        if (results.length) {
+          catalogContext = '\n\nRELEVANT CATALOG ENTRIES:\n' + results.map((r) =>
+            `[ID:${r.id}] "${r.title}" — ${r.description || ''} | Genre: ${r.genre || 'N/A'} | Category: ${r.category || 'N/A'} | Tags: ${(r.tags || []).join(', ')}`
+          ).join('\n');
+        }
+      } catch (err) {
+        console.warn('[IDEAS-CHAT] Catalog context skipped:', err?.message || err);
       }
     }
 

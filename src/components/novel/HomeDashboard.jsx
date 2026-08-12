@@ -170,23 +170,30 @@ export default function HomeDashboard({ project, chapters, onNavigateTab }) {
     return safeChapters.filter((chapter) => chapterHasContent(chapter) && isBodyChapter(chapter));
   }, [safeChapters]);
 
+  // WAVE4-HOMEDASH: the effect used to depend on the chapters ARRAY IDENTITY —
+  // a new array arrives on every refetch (even byte-identical), so any save
+  // anywhere re-downloaded every chapter body and blanked the pane behind the
+  // spinner. This signature only changes when drafted content actually changes.
+  const draftedSignature = useMemo(
+    () => bodyChapters
+      .map((c) => `${c.id}:${c.word_count || 0}:${c.content_md_url || (c.content_md || '').length}`)
+      .join('|'),
+    [bodyChapters]
+  );
+
   useEffect(() => {
     let cancelled = false;
 
     async function loadDashboard() {
-      if (!project || !safeChapters.length) {
+      // WAVE4-HOMEDASH: both early returns used to leave `loading` stuck true
+      // (permanent spinner) — always clear it.
+      if (!project || !bodyChapters.length) {
         setStats(null);
+        setLoading(false);
         return;
       }
 
-      const draftedBodyChapters = safeChapters.filter(
-        (chapter) => chapterHasContent(chapter) && isBodyChapter(chapter)
-      );
-
-      if (!draftedBodyChapters.length) {
-        setStats(null);
-        return;
-      }
+      const draftedBodyChapters = bodyChapters;
 
       setLoading(true);
 
@@ -240,7 +247,8 @@ export default function HomeDashboard({ project, chapters, onNavigateTab }) {
     return () => {
       cancelled = true;
     };
-  }, [project?.id, safeChapters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- draftedSignature stands in for bodyChapters content
+  }, [project?.id, draftedSignature]);
 
   const warnings = useMemo(() => {
     const list = [];

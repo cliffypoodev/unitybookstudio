@@ -177,7 +177,61 @@ export const TENSE_INSTRUCTIONS = {
   mixed: 'MIXED TENSE — Use PRESENT TENSE for analysis, commentary, and direct address ("This pattern reveals..." / "What we see here is..."). Use PAST TENSE for reconstructed events, historical narrative, and quoted sources ("The committee met..." / "She testified that..."). Transition cleanly between the two — present for the author\'s lens, past for the story.',
 };
 
-export function buildPovTenseBlock(spec) {
+/*
+ * WAVE2-POVNORMALIZE: older builds (and the Dashboard's create dialog until
+ * Wave 2) wrote display strings like 'Third Person Limited' / 'Past' instead
+ * of the canonical slugs. Every checker keyed on exact slugs, so POV and
+ * tense QA silently no-opped for those projects. These normalizers accept
+ * both vocabularies; every entry point below runs its spec through them so
+ * legacy projects self-heal at read time.
+ */
+const POV_ALIASES = {
+  'third person limited': 'third-close',
+  '3rd person limited': 'third-close',
+  'third person close': 'third-close',
+  'third person': 'third-close',
+  third: 'third-close',
+  'third person multiple': 'third-multi',
+  'third person multi': 'third-multi',
+  'third person omniscient': 'third-omni',
+  omniscient: 'third-omni',
+  'first person': 'first',
+  '1st person': 'first',
+  'deep first person': 'deep-first',
+  'deep first': 'deep-first',
+  'second person': 'second',
+  'author voice': 'nf-author',
+  'direct address': 'nf-direct',
+  'editorial mix': 'nf-editorial',
+};
+
+export function normalizePovMode(value, bookType) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (FICTION_POV_INSTRUCTIONS[raw] || NONFICTION_POV_INSTRUCTIONS[raw]) return raw;
+  const slug = POV_ALIASES[raw.toLowerCase()] || '';
+  if (!slug) return raw; // unknown value: pass through, downstream fallbacks apply
+  // A display-string 'First Person' on a NONFICTION project means author voice.
+  if (bookType === 'nonfiction' && slug === 'first') return 'nf-author';
+  return slug;
+}
+
+export function normalizeTense(value) {
+  const raw = String(value || '').trim().toLowerCase();
+  if (raw === 'past' || raw === 'present' || raw === 'mixed') return raw;
+  return raw ? raw : '';
+}
+
+export function normalizePovTenseSpec(spec = {}) {
+  return {
+    ...spec,
+    pov_mode: normalizePovMode(spec.pov_mode, spec.book_type),
+    tense: normalizeTense(spec.tense),
+  };
+}
+
+export function buildPovTenseBlock(rawSpec) {
+  const spec = normalizePovTenseSpec(rawSpec);
   const isNF = spec.book_type === 'nonfiction';
   const povInstructions = isNF
     ? NONFICTION_POV_INSTRUCTIONS[spec.pov_mode] || NONFICTION_POV_INSTRUCTIONS['nf-editorial']
@@ -195,7 +249,7 @@ export function stripDialogue(text = '') {
 
 export function checkTenseConsistency(chapterText, spec) {
   const violations = [];
-  const tense = spec?.tense;
+  const tense = normalizeTense(spec?.tense);
   if (!tense || tense === 'mixed') return violations;
 
   const withoutDialogue = stripDialogue(chapterText);
@@ -306,7 +360,7 @@ export function buildChapterJudgePrompt(spec, chapter, chapterText, tenseViolati
  */
 export function checkPovConsistency(chapterText, spec, chapterNumber) {
   const violations = [];
-  const pov = spec?.pov_mode;
+  const pov = normalizePovMode(spec?.pov_mode, spec?.book_type);
   if (!pov || !chapterText) return violations;
 
   const withoutDialogue = stripDialogue(chapterText);

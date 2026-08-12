@@ -62,8 +62,8 @@ export default function SeriesBibleView({ parsed, project, busyLabel, setBusyLab
         genre: project?.genre || '',
         project_type: project?.project_type || 'fiction',
         book_type: project?.book_type || 'fiction',
-        pov_mode: project?.pov_mode || 'Third Person Limited',
-        tense: project?.tense || 'Past',
+        pov_mode: project?.pov_mode || 'third-close', // WAVE2-POVNORMALIZE: canonical slugs
+        tense: project?.tense || 'past',
         author_name: project?.author_name || '',
         beat_style: project?.beat_style || 'Tension-Driven',
         scene_beat_style: project?.beat_style || 'Tension-Driven',
