@@ -80,7 +80,9 @@ function ChapterIssuePopup({ chapter, onClose }) {
   );
 }
 
-export default function ReviewChapterList({ chapters, busyLabel }) {
+// WAVE9-DEADPROPS: busyLabel was accepted and never used — this list only opens
+// a read-only popup, so there is nothing to gate on a busy state.
+export default function ReviewChapterList({ chapters }) {
   const [popupChapter, setPopupChapter] = useState(null);
 
   return (

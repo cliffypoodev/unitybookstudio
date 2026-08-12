@@ -877,11 +877,21 @@ function CriticPanelSection({ versionA, versionB, comparing, done, onRun }) {
             Runs the full 10-reviewer panel on both versions. Takes ~2–3 minutes.
           </p>
         </div>
+        {/* WAVE9-DEADPROPS: `done` was passed and ignored, so a completed run
+            that produced no comparable critic data looked exactly like one that
+            had never been started — same button, same wording, no explanation. */}
         {!bothHaveCritic && (
-          <Button onClick={onRun} disabled={comparing} size="sm" className="rounded-full gap-1.5">
-            {comparing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Users className="h-3.5 w-3.5" />}
-            {comparing ? 'Running…' : 'Run Deep Comparison'}
-          </Button>
+          <div className="flex flex-col items-end gap-1">
+            <Button onClick={onRun} disabled={comparing} size="sm" className="rounded-full gap-1.5">
+              {comparing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Users className="h-3.5 w-3.5" />}
+              {comparing ? 'Running…' : done ? 'Run Again' : 'Run Deep Comparison'}
+            </Button>
+            {done && !comparing && (
+              <span className="text-[10px] text-amber-600 dark:text-amber-400">
+                Ran, but neither version came back with panel data.
+              </span>
+            )}
+          </div>
         )}
       </div>
       {bothHaveCritic && (

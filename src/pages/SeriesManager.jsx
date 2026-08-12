@@ -122,8 +122,8 @@ export default function SeriesManager() {
         {view === 'series_critic' && selectedBible && <SeriesCriticView bible={selectedBible} projects={projectsBySeries[selectedBible.id] || []} onBack={goBack} />}
         {view === 'merge_book' && selectedBible && <MergeBookView bible={selectedBible} onBack={goBack} onDone={() => { refreshAll(); toast.success('Series bible updated'); setView('library'); }} />}
         {view === 'volume_bibles' && selectedBible && <VolumeBiblesView bible={selectedBible} projects={projectsBySeries[selectedBible.id] || []} onBack={goBack} refreshAll={refreshAll} />}
-        {view === 'spinoff' && selectedBible && selectedVolume && <SpinoffView bible={selectedBible} volume={selectedVolume} allProjects={allProjects} projects={projectsBySeries[selectedBible.id] || []} onBack={goBack} onCreated={(pid) => { refreshAll(); toast.success('Spinoff created'); navigate(`/projects/${pid}`); }} />}
-        {view === 'rewrite_volume' && selectedBible && selectedVolume && <RewriteVolumeView bible={selectedBible} volume={selectedVolume} projects={projectsBySeries[selectedBible.id] || []} onBack={goBack} navigate={navigate} refreshAll={refreshAll} />}
+        {view === 'spinoff' && selectedBible && selectedVolume && <SpinoffView bible={selectedBible} volume={selectedVolume} projects={projectsBySeries[selectedBible.id] || []} onBack={goBack} onCreated={(pid) => { refreshAll(); toast.success('Spinoff created'); navigate(`/projects/${pid}`); }} />}
+        {view === 'rewrite_volume' && selectedBible && selectedVolume && <RewriteVolumeView bible={selectedBible} volume={selectedVolume} projects={projectsBySeries[selectedBible.id] || []} onBack={goBack} navigate={navigate} />}
         {view === 'continuity' && selectedBible && <SeriesContinuityView bible={selectedBible} projects={projectsBySeries[selectedBible.id] || []} onBack={goBack} />}
       </div>
     </main>
@@ -1506,7 +1506,7 @@ function SeriesContinuityView({ bible, projects, onBack }) {
 
 /* ── SPINOFF VIEW ────────────────────────────────────────────────────────── */
 
-function SpinoffView({ bible, volume, allProjects, projects, onBack, onCreated }) {
+function SpinoffView({ bible, volume, projects, onBack, onCreated }) {
   const [spinoffTitle, setSpinoffTitle] = useState(`${volume.title || 'Untitled'} — Spinoff`);
   const [loading, setLoading] = useState(false);
 
@@ -1613,7 +1613,9 @@ function SpinoffView({ bible, volume, allProjects, projects, onBack, onCreated }
 
 /* ── REWRITE VOLUME VIEW ─────────────────────────────────────────────────── */
 
-function RewriteVolumeView({ bible, volume, projects, onBack, navigate, refreshAll }) {
+// WAVE9-DEADPROPS: this view only navigates to the project; it changes nothing
+// in the series list, so there is nothing for refreshAll to refresh.
+function RewriteVolumeView({ bible, volume, projects, onBack, navigate }) {
   const [entryContract, setEntryContract] = useState(null);
   const [exitContract, setExitContract] = useState(null);
   const [loadingContracts, setLoadingContracts] = useState(true);

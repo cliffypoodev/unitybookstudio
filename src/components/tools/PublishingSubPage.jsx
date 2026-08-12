@@ -303,6 +303,12 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
       if (!item || !ready) return;
 
       setGenerating((g) => ({ ...g, [itemId]: true }));
+      // WAVE9-DEADPROPS: setBusyLabel was accepted and never called. The local
+      // model serves one request at a time, so a publishing generation that does
+      // not claim the shared busy label lets the writer start a chapter draft on
+      // top of it and thrash the single lane. Claiming it also gives the rest of
+      // the app something to disable.
+      setBusyLabel?.(`Generating ${item.label}…`);
 
       try {
         const prompt = item.buildPrompt(context, isNF);
@@ -352,9 +358,10 @@ export default function PublishingSubPage({ project, chapters, setBusyLabel }) {
           delete next[itemId];
           return next;
         });
+        setBusyLabel?.('');
       }
     },
-    [context, isNF, ready, updateItem]
+    [context, isNF, ready, updateItem, setBusyLabel]
   );
 
   const exportAll = useCallback(() => {

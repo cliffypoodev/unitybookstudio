@@ -6481,7 +6481,6 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                   isSaving={saveProject.isPending}
                   busyLabel={busyLabel}
                   lastSaved={settingsAutoSave.lastSaved}
-                  projectId={projectId}
                   project={project}
                   onRefresh={refreshAll}
                 />
@@ -6676,7 +6675,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
               id: 'review',
               label: 'Polish',
               layout: 'split',
-              left: <ReviewChapterList chapters={chapters} busyLabel={busyLabel} />,
+              left: <ReviewChapterList chapters={chapters} />,
               right: <ManuscriptDashboard project={project} chapters={chapters} busyLabel={busyLabel} polishResults={polishResults} onFixEntireManuscript={handlePolishRouted} />,
             },
             {
