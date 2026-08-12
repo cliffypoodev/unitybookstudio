@@ -15,6 +15,7 @@ import {
   Sparkles,
   ChevronDown,
   ChevronRight,
+  Pencil,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -24,9 +25,11 @@ import { parseDocxFile } from '@/lib/docxParser';
 import { resolveChapterContent, chapterHasContent } from '@/lib/chapterStorage';
 import { isBodyChapter } from '@/lib/bibliographyGenerator';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
+import { applyPassageToChapter, replaceChapterContent } from '@/lib/chapterBackup';
 
 import SourceSelector from '@/components/tools/SourceSelector';
 import UploadZone from '@/components/tools/UploadZone';
+import FixPassagesEditor from '@/components/tools/FixPassagesEditor';
 import { buildDimensionReport } from '@/lib/aiCheckDimensions';
 
 const AI_DETECT_VERSION = 'ProofreadSubPage-ai-detect-humanizer-v2';
@@ -475,8 +478,14 @@ function buildSentenceAnalysis(chaptersToScan) {
 
   for (const chapter of chaptersToScan) {
     const sentences = splitSentencesWithIndex(chapter.body);
-    const rows = sentences.map((sentence, index) => localSentenceRisk(sentence, index, sentences));
-    const scored = rows.filter((row) => row.score > 0);
+    // WAVE8-APPLY: stamp chapter identity onto every row, in both lists, so a
+    // passage picked out of the heatmap still knows where to be written back.
+    const rows = sentences.map((sentence, index) => ({
+      ...localSentenceRisk(sentence, index, sentences),
+      chapterTitle: chapter.title,
+      chapterId: chapter.chapterId,
+      chapterNumber: chapter.chapterNumber,
+    }));
     const avgRisk = rows.length
       ? Math.round(rows.reduce((sum, row) => sum + row.score, 0) / rows.length)
       : 0;
@@ -494,12 +503,7 @@ function buildSentenceAnalysis(chaptersToScan) {
     });
 
     for (const row of rows) {
-      if (row.score > 0) {
-        allRows.push({
-          chapterTitle: chapter.title,
-          ...row,
-        });
-      }
+      if (row.score > 0) allRows.push({ ...row });
     }
   }
 
@@ -748,12 +752,52 @@ function SentenceHeatmap({ rows, onHumanize }) {
   );
 }
 
-function HumanizePanel({ selected, project, onClose }) {
+function HumanizePanel({ selected, project, chapters, source, onClose, onApplied }) {
   const [mode, setMode] = useState('standard');
   const [busy, setBusy] = useState(false);
+  const [applying, setApplying] = useState(false);
   const [rewrite, setRewrite] = useState('');
 
+  // WAVE8-APPLY: the rewrite used to be a dead end — generate, then copy to the
+  // clipboard and go hunt for the sentence by hand in the chapter editor. The
+  // panel now resolves the chapter the passage came from and writes to it.
+  const targetChapter = React.useMemo(() => {
+    if (!selected?.chapterId) return null;
+    return (chapters || []).find((c) => c.id === selected.chapterId) || null;
+  }, [chapters, selected?.chapterId]);
+
+  const canApply = source === 'project' && !!targetChapter;
+
+  React.useEffect(() => { setRewrite(''); }, [selected?.chapterId, selected?.index, selected?.text]);
+
   if (!selected) return null;
+
+  const handleApply = async () => {
+    if (!rewrite.trim() || !targetChapter) return;
+    setApplying(true);
+    try {
+      const result = await applyPassageToChapter({
+        chapter: targetChapter,
+        projectId: project?.id,
+        original: selected.text,
+        replacement: rewrite,
+        reason: `Snapshot before AI Check humanize (Ch.${targetChapter.chapter_number ?? '?'})`,
+      });
+
+      if (result.ok) {
+        toast.success('Applied to the chapter. Use Restore Original in the editor to undo.');
+        setRewrite('');
+        onApplied?.();
+        onClose();
+      } else {
+        toast.error(`Not applied — ${result.reason}`);
+      }
+    } catch (err) {
+      toast.error('Apply failed: ' + (err?.message || 'Unknown error'));
+    } finally {
+      setApplying(false);
+    }
+  };
 
   const handleHumanize = async () => {
     setBusy(true);
@@ -856,11 +900,29 @@ function HumanizePanel({ selected, project, onClose }) {
         ))}
       </div>
 
-      <div className="mt-3 flex justify-end">
-        <Button onClick={handleHumanize} disabled={busy} className="rounded-full gap-2">
+      <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+        {rewrite && !canApply && (
+          <span className="mr-auto text-[11px] text-muted-foreground">
+            {source === 'upload'
+              ? 'Uploaded documents are read-only here — copy the rewrite into your manuscript.'
+              : 'This passage is not linked to a saved chapter, so it can only be copied.'}
+          </span>
+        )}
+        {rewrite && canApply && (
+          <span className="mr-auto text-[11px] text-muted-foreground">
+            Applying snapshots the chapter first — "Restore Original" in the editor undoes it.
+          </span>
+        )}
+        <Button onClick={handleHumanize} disabled={busy || applying} variant={rewrite ? 'outline' : 'default'} className="rounded-full gap-2">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-          Generate Humanized Rewrite
+          {rewrite ? 'Regenerate' : 'Generate Humanized Rewrite'}
         </Button>
+        {rewrite && canApply && (
+          <Button onClick={handleApply} disabled={applying || busy} className="rounded-full gap-2">
+            {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            Apply to Chapter {targetChapter?.chapter_number ?? ''}
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -906,8 +968,54 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
   const [selectedHumanize, setSelectedHumanize] = useState(null);
   const [lastScanMeta, setLastScanMeta] = useState(null);
   const [dimensionReport, setDimensionReport] = useState(null);
+  // WAVE8-FIXEDITOR: FixPassagesEditor shipped with zero importers — a complete
+  // select-a-passage-and-rewrite-it editor that no route in the app could reach.
+  const [editingChapter, setEditingChapter] = useState(null);
+  const [openingEditor, setOpeningEditor] = useState('');
 
   const isBusy = !!busyLabel || scanning;
+
+  const openChapterEditor = useCallback(async (chapterRecord) => {
+    if (!chapterRecord?.id) return;
+    setOpeningEditor(chapterRecord.id);
+    try {
+      const content = await resolveChapterContent(chapterRecord);
+      if (!content || !content.trim()) {
+        toast.error('That chapter has no readable content.');
+        return;
+      }
+      setEditingChapter({ ...chapterRecord, content });
+    } catch (err) {
+      toast.error('Could not open the chapter: ' + (err?.message || 'Unknown error'));
+    } finally {
+      setOpeningEditor('');
+    }
+  }, []);
+
+  const handleEditorSave = useCallback(async (text) => {
+    if (!editingChapter?.id) return;
+    setBusyLabel('Saving chapter…');
+    try {
+      const result = await replaceChapterContent({
+        chapter: editingChapter,
+        projectId: project?.id,
+        content: text,
+        reason: `Snapshot before manual fix pass (Ch.${editingChapter.chapter_number ?? '?'})`,
+      });
+
+      if (result.ok) {
+        toast.success('Chapter saved. Use Restore Original in the editor to undo.');
+        setEditingChapter(null);
+        onRefreshAll?.();
+      } else {
+        toast.error(`Not saved — ${result.reason}`);
+      }
+    } catch (err) {
+      toast.error('Save failed: ' + (err?.message || 'Unknown error'));
+    } finally {
+      setBusyLabel('');
+    }
+  }, [editingChapter, project?.id, setBusyLabel, onRefreshAll]);
 
   const handleFileSelect = useCallback(async (file) => {
     if (!file) return;
@@ -981,6 +1089,11 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
           chaptersToScan.push({
             title: ch.title || `Chapter ${ch.chapter_number || '?'}`,
             body: content,
+            // WAVE8-APPLY: carry chapter identity through the scan. Without it
+            // every finding was orphaned from the chapter it came from, which
+            // is why the humanized rewrite had nowhere to go but the clipboard.
+            chapterId: ch.id,
+            chapterNumber: ch.chapter_number,
           });
         }
       }
@@ -1018,7 +1131,12 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
       const overall = analyzeText(fullText);
       setOverallStats(overall);
 
-      const perChapter = chaptersToScan.map((c) => analyzeChapter(c.body, c.title)).filter(Boolean);
+      const perChapter = chaptersToScan
+        .map((c) => {
+          const stats = analyzeChapter(c.body, c.title);
+          return stats ? { ...stats, chapterId: c.chapterId, chapterNumber: c.chapterNumber } : null;
+        })
+        .filter(Boolean);
       setChapterStats(perChapter);
 
       setProgress('Phase 1b: five-dimension AI-check…');
@@ -1219,6 +1337,23 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
 
   const band = getBand(combinedScore || 0);
 
+  // WAVE8-FIXEDITOR: the manual fix pass takes over the pane, so the manuscript
+  // gets the full width rather than competing with the report beside it.
+  if (editingChapter) {
+    return (
+      <div className="w-full max-w-5xl">
+        <FixPassagesEditor
+          chapter={editingChapter}
+          chapterIndex={(editingChapter.chapter_number || 1) - 1}
+          onSave={handleEditorSave}
+          onBack={() => setEditingChapter(null)}
+          busyLabel={busyLabel}
+          setBusyLabel={setBusyLabel}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-5xl space-y-6 overflow-hidden">
       <div className="rounded-2xl border border-border/60 bg-card/80 p-5">
@@ -1285,7 +1420,10 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
           <HumanizePanel
             selected={selectedHumanize}
             project={project}
+            chapters={chapters}
+            source={source}
             onClose={() => setSelectedHumanize(null)}
+            onApplied={onRefreshAll}
           />
 
           {overallStats && (
@@ -1363,17 +1501,36 @@ export default function ProofreadSubPage({ project, chapters, busyLabel, setBusy
             <div className="rounded-2xl border border-border/60 bg-card/80 p-4">
               <h3 className="text-sm font-bold text-foreground mb-3">Chapter Risk Table</h3>
               <div className="max-h-[320px] overflow-y-auto">
-                {chapterStats.map((ch, i) => (
-                  <div key={`${ch.title}-${i}`} className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 hover:bg-secondary/40 text-sm">
-                    <span className="min-w-0 flex-1 truncate text-foreground">{ch.title}</span>
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span className="hidden text-xs text-muted-foreground sm:inline">{ch.totalWords.toLocaleString()}w</span>
-                      <span className="hidden text-xs text-muted-foreground md:inline">burst:{ch.sentBurstiness}</span>
-                      <ScoreBadge score={ch.aiProbability} />
+                {chapterStats.map((ch, i) => {
+                  const record = ch.chapterId ? (chapters || []).find((c) => c.id === ch.chapterId) : null;
+                  return (
+                    <div key={`${ch.title}-${i}`} className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 hover:bg-secondary/40 text-sm">
+                      <span className="min-w-0 flex-1 truncate text-foreground">{ch.title}</span>
+                      <div className="flex shrink-0 items-center gap-3">
+                        <span className="hidden text-xs text-muted-foreground sm:inline">{ch.totalWords.toLocaleString()}w</span>
+                        <span className="hidden text-xs text-muted-foreground md:inline">burst:{ch.sentBurstiness}</span>
+                        <ScoreBadge score={ch.aiProbability} />
+                        {record && (
+                          <button
+                            type="button"
+                            onClick={() => openChapterEditor(record)}
+                            disabled={!!openingEditor || isBusy}
+                            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border/60 bg-background/70 px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground disabled:opacity-50"
+                          >
+                            {openingEditor === record.id
+                              ? <Loader2 className="h-3 w-3 animate-spin" />
+                              : <Pencil className="h-3 w-3" />}
+                            Fix Passages
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+              <p className="mt-2 border-t border-border/30 pt-2 text-[10px] text-muted-foreground">
+                "Fix Passages" opens the chapter with a live issue panel — highlight any passage to rewrite just that part. Saving snapshots the chapter first.
+              </p>
             </div>
           )}
 

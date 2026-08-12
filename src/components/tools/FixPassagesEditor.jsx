@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import analyzeChapter from '@/lib/analyzeChapter';
@@ -10,6 +11,15 @@ export default function FixPassagesEditor({ chapter, chapterIndex, onSave, onBac
   const [selection, setSelection] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const textareaRef = useRef(null);
+
+  // WAVE8-FIXEDITOR: leaving with unsaved edits used to discard them without a word.
+  const dirty = text !== (chapter.content || '');
+
+  const handleBack = useCallback(() => {
+    if (dirty && typeof window !== 'undefined'
+      && !window.confirm('You have unsaved changes to this chapter. Discard them?')) return;
+    onBack();
+  }, [dirty, onBack]);
 
   // Analyze on mount
   useEffect(() => {
@@ -67,7 +77,14 @@ Rules:
 
 Rewrite now:`;
 
-      const response = await invokeLLMWithRetry({ prompt });
+      // WAVE8-FIXEDITOR: routed like every other prose call in the app. A bare
+      // { prompt } fell through to whatever the default happened to be.
+      const response = await invokeLLMWithRetry({
+        task_type: 'proofread',
+        temperature: 0.4,
+        max_tokens: 2200,
+        prompt,
+      });
       const rewritten = typeof response === 'string' ? response : (response?.text || response?.content || response?.data || String(response || ''));
 
       if (rewritten.trim()) {
@@ -76,9 +93,14 @@ Rewrite now:`;
         setSelection(null);
         // Re-analyze after rewrite
         setAnalysis(analyzeChapter(newText));
+        toast.success('Passage rewritten — review it, then Save & Close.');
+      } else {
+        // Previously a silent no-op: the button spun, then nothing changed.
+        toast.error('The model returned an empty rewrite. Try again or narrow the selection.');
       }
     } catch (err) {
       console.error('Rewrite failed:', err);
+      toast.error('Rewrite failed: ' + (err?.message || 'Unknown error'));
     } finally {
       setBusyLabel('');
     }
@@ -89,13 +111,15 @@ Rewrite now:`;
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={onBack} className="rounded-full gap-1.5 text-xs">
+          <Button variant="ghost" size="sm" onClick={handleBack} className="rounded-full gap-1.5 text-xs">
             <ArrowLeft className="h-3.5 w-3.5" /> Back
           </Button>
           <h3 className="font-display text-lg">{chapter.title || `Chapter ${chapterIndex + 1}`}</h3>
+          {dirty && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">Unsaved</span>}
         </div>
-        <Button onClick={() => onSave(text)} className="rounded-full text-xs">
-          Save & Close
+        <Button onClick={() => onSave(text)} disabled={!dirty || !!busyLabel} className="rounded-full text-xs">
+          {busyLabel ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
+          Save &amp; Close
         </Button>
       </div>
 
