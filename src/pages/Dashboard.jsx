@@ -152,13 +152,13 @@ export default function Dashboard() {
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['novel-projects', currentUser?.email],
-    queryFn: () => currentUser?.email ? base44.entities.NovelProject.filter({ created_by: currentUser.email }, '-updated_date', 100) : [],
+    queryFn: () => currentUser?.email ? base44.entities.NovelProject.filter({}, '-updated_date', 100) : [], // AUTH-2: per-user store IS the scope; legacy created_by never matches the session email
     enabled: !!currentUser?.email,
   });
 
   const { data: folders = [] } = useQuery({
     queryKey: ['project-folders', currentUser?.email],
-    queryFn: () => currentUser?.email ? base44.entities.ProjectFolder.filter({ created_by: currentUser.email }, 'sort_order', 100) : [],
+    queryFn: () => currentUser?.email ? base44.entities.ProjectFolder.filter({}, 'sort_order', 100) : [], // AUTH-2
     enabled: !!currentUser?.email,
     initialData: [],
   });

@@ -277,7 +277,7 @@ function BackupTab() {
       const zip = new window.JSZip();
 
       setProgress('Loading projects…');
-      const projects = await base44.entities.NovelProject.filter({ created_by: currentUser.email }, '-updated_date', 100);
+      const projects = await base44.entities.NovelProject.filter({}, '-updated_date', 100); // AUTH-2: per-user store IS the scope
       if (!projects.length) { setProgress('No projects found.'); setBusy(false); return; }
 
       for (let pi = 0; pi < projects.length; pi++) {

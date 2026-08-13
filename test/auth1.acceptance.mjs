@@ -142,6 +142,15 @@ check('27. /login renders outside the auth gate', APP.includes("window.location.
 const LDB = fs.readFileSync(new URL('../src/lib/localDB.js', import.meta.url), 'utf8');
 check('28. store client redirects to /login on 401', LDB.includes("resp.status === 401") && LDB.includes("'/login'"));
 
+// ── 7. AUTH-2: no client query scopes by created_by email anymore ──
+// (Legacy records carry created_by 'local@unitybookstudio.app'; the session email is
+// per-user. The per-user store directory is the scope — an email predicate can only
+// hide the user's own books, which it did on the first live login.)
+for (const cf of ['../src/pages/Dashboard.jsx', '../src/components/notebook/SettingsModal.jsx', '../src/components/dashboard/ProjectBrowser.jsx']) {
+  const csrc = fs.readFileSync(new URL(cf, import.meta.url), 'utf8');
+  check(`29+. ${cf.split('/').pop()} does not filter by created_by email`, !csrc.includes('created_by: currentUser.email'));
+}
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);

@@ -36,7 +36,7 @@ export default function ProjectBrowser({ projects, onBack }) {
     queryKey: ['project-folders', currentUser?.email],
     queryFn: async () => {
       if (!currentUser?.email) return [];
-      return base44.entities.ProjectFolder.filter({ created_by: currentUser.email }, 'sort_order', 100);
+      return base44.entities.ProjectFolder.filter({}, 'sort_order', 100); // AUTH-2: per-user store IS the scope
     },
     enabled: !!currentUser?.email,
     initialData: [],
