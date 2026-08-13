@@ -1459,17 +1459,60 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
       beats: sourceUnits.map(compactFictionBeat),
     };
     const fictionJson = fitOrMinifyForEntity(fictionContract);
-    if (fictionJson === null) {
-      const prettyLen = JSON.stringify(fictionContract, null, 2).length;
-      const minLen = JSON.stringify(fictionContract).length;
-      const err = new Error(
-        `Chapter ${chapter?.chapter_number || '?'} scene contract is ${prettyLen} characters (${minLen} even without indentation) and cannot be saved safely. Reduce beat verbosity; the contract was not truncated.`
-      );
-      err.name = 'NarrativeContractError';
-      err.code = 'FICTION_SCENE_CONTRACT_TOO_LARGE';
-      throw err;
+    if (fictionJson !== null) return fictionJson;
+
+    // BEATCAP-1: the nonfiction compactor has always had lossier fallback tiers; the
+    // fiction contract had exactly one tier and then a hard refusal. That was survivable
+    // when the architect was deepseek-r1-14b (terse beats), but ADULTROUTE-1 routes
+    // adult-lane beats to the uncensored 35B, which writes far more verbose
+    // required_events — measured live 2026-08-13 (erotica anthology Ch.6: 7936c pretty /
+    // 6889c minified against the 6500c cap; the chapter could never draft).
+    // Tier 2 keeps EVERY contract field — the state machine needs entry/exit/
+    // required_events — and shrinks per-field caps PROPORTIONALLY to the measured
+    // overflow, with hard floors so events stay meaningful. Tier 3 additionally drops
+    // the optional arrays (forbidden_events, continuity_dependencies, props_present),
+    // mirroring the nonfiction 'bare' tier. Only then does the fail-closed refusal stand.
+    const tightenFictionContract = (base, scale, version, dropOptional = false) => ({
+      ...base,
+      compact_version: version,
+      beats: (base.beats || []).map((unit) => ({
+        ...unit,
+        scene_goal: truncateForEntityField(unit.scene_goal, Math.max(140, Math.round(420 * scale))),
+        entry_state: truncateForEntityField(unit.entry_state, Math.max(180, Math.round(520 * scale))),
+        required_events: slimArrayForEntityField(unit.required_events || [], Math.max(5, Math.round(8 * scale)), Math.max(80, Math.round(240 * scale))),
+        forbidden_events: dropOptional ? undefined : slimArrayForEntityField(unit.forbidden_events || [], Math.max(2, Math.round(8 * scale)), Math.max(70, Math.round(240 * scale))),
+        exit_state: truncateForEntityField(unit.exit_state, Math.max(180, Math.round(520 * scale))),
+        continuity_dependencies: dropOptional ? undefined : slimArrayForEntityField(unit.continuity_dependencies || [], Math.max(2, Math.round(8 * scale)), Math.max(70, Math.round(220 * scale))),
+        setting: truncateForEntityField(unit.setting, Math.max(90, Math.round(220 * scale))),
+        characters_present: slimArrayForEntityField(unit.characters_present || [], Math.max(6, Math.round(12 * scale)), Math.max(50, Math.round(100 * scale))),
+        props_present: dropOptional ? undefined : slimArrayForEntityField(unit.props_present || [], Math.max(3, Math.round(12 * scale)), Math.max(50, Math.round(100 * scale))),
+        conflict: truncateForEntityField(unit.conflict, Math.max(120, Math.round(380 * scale))),
+        emotional_arc: truncateForEntityField(unit.emotional_arc, Math.max(90, Math.round(300 * scale))),
+        exit_hook: truncateForEntityField(unit.exit_hook, Math.max(90, Math.round(300 * scale))),
+      })),
+    });
+
+    const minifiedLen = JSON.stringify(fictionContract).length;
+    const scale = Math.max(0.3, Math.min(0.95, (SCENE_BEATS_ENTITY_CHAR_LIMIT * 0.9) / minifiedLen));
+    const tightJson = fitOrMinifyForEntity(tightenFictionContract(fictionContract, scale, 'fiction-scene-contract-v1-tight'));
+    if (tightJson !== null) {
+      console.warn(`[BEATCAP-1] fiction scene contract (${minifiedLen}c minified) exceeded ${SCENE_BEATS_ENTITY_CHAR_LIMIT}c; tier-2 proportional compaction (scale ${scale.toFixed(2)}) applied — all contract fields kept.`);
+      return tightJson;
     }
-    return fictionJson;
+
+    const bareJson = fitOrMinifyForEntity(tightenFictionContract(fictionContract, Math.max(0.3, scale * 0.75), 'fiction-scene-contract-v1-bare', true));
+    if (bareJson !== null) {
+      console.warn(`[BEATCAP-1] tier-2 still over the cap; tier-3 bare compaction applied — forbidden_events/continuity_dependencies/props_present dropped, state machine fields kept.`);
+      return bareJson;
+    }
+
+    const prettyLen = JSON.stringify(fictionContract, null, 2).length;
+    const err = new Error(
+      `Chapter ${chapter?.chapter_number || '?'} scene contract is ${prettyLen} characters (${minifiedLen} even without indentation) and cannot be saved safely even after BEATCAP-1 tier-2/tier-3 compaction. Reduce beat verbosity; the contract was not truncated.`
+    );
+    err.name = 'NarrativeContractError';
+    err.code = 'FICTION_SCENE_CONTRACT_TOO_LARGE';
+    throw err;
   }
 
   const compact = {
