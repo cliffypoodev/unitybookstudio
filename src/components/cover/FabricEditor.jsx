@@ -16,6 +16,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as fabric from 'fabric';
+import { useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
@@ -131,6 +132,14 @@ function isBackgroundObject(obj) {
 }
 
 export default function FabricEditor({ artUrl, project, onCanvasReady }) {
+  // WAVE11-REFRESH: saving wrote to the entity but nothing invalidated the
+  // cached project, and the query is configured refetchOnWindowFocus:false. So
+  // the `project` prop stayed frozen at page-load value for the whole session,
+  // and a remount hydrated from it — handing the writer back the canvas they
+  // started with. Every save now marks the project stale.
+  const queryClient = useQueryClient();
+  const onSavedRef = useRef(() => {});
+
   const containerRef = useRef(null);
   const canvasElRef = useRef(null);
   const fabricRef = useRef(null);
@@ -152,6 +161,14 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
 
   const autosaveTimerRef = useRef(null);
   const isHydratingRef = useRef(false);
+  // WAVE11-FLUSH: is there an edit that has not reached the server yet?
+  const pendingSaveRef = useRef(false);
+  // Read inside the unmount cleanup, where the `project` closure may be stale.
+  const projectIdRef = useRef(project?.id);
+  // WAVE11-REHYDRATE: hydration must SEE the latest saved canvas but must not
+  // RE-RUN when it changes, or every autosave would reload the canvas 3 seconds
+  // after the writer touched it. Ref in, not dependency.
+  const savedCanvasRef = useRef(project?.cover_canvas_json);
 
   const bumpVersion = useCallback(() => {
     setCanvasVersion((v) => v + 1);
@@ -182,15 +199,43 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
     });
   }, []);
 
+  useEffect(() => {
+    onSavedRef.current = () => {
+      if (projectIdRef.current) {
+        queryClient.invalidateQueries({ queryKey: ['novel-project', projectIdRef.current] });
+      }
+    };
+  }, [queryClient]);
+
+  useEffect(() => { projectIdRef.current = project?.id; }, [project?.id]);
+  useEffect(() => { savedCanvasRef.current = project?.cover_canvas_json; }, [project?.cover_canvas_json]);
+
   const saveCanvasNow = useCallback(async () => {
     const fc = fabricRef.current;
     if (!fc || !project?.id || isHydratingRef.current) return;
 
     try {
-      const json = JSON.stringify(fc.toJSON(CANVAS_JSON_PROPS));
+      // WAVE11-SERIALIZE: fabric v7's toJSON() takes NO arguments — it is
+      // literally `toJSON() { return this.toObject(); }`. Passing a property
+      // list to it silently did nothing, so every custom key was stripped on
+      // save: `_fabricEditorId`, `_fabricEditorName`, `selectable`, and the
+      // lock* flags.
+      //
+      // The consequence was not cosmetic. Hydration skips saved objects tagged
+      // `_fabricEditorId === 'background'`; that tag was never in the JSON, so
+      // the saved cover art was re-added ON TOP of the freshly-created
+      // background every single load — unlocked and selectable, because those
+      // flags were stripped too. Two images, then three. And the writer could
+      // drag or delete their own cover art, or grab it by accident when
+      // reaching for a text layer.
+      //
+      // toObject() honours the list. It is the method toJSON delegates to.
+      const json = JSON.stringify(fc.toObject(CANVAS_JSON_PROPS));
       await base44.entities.NovelProject.update(project.id, {
         cover_canvas_json: json,
       });
+      pendingSaveRef.current = false;
+      onSavedRef.current?.();
     } catch (err) {
       console.warn('[COVER] Auto-save failed:', err?.message);
     }
@@ -203,6 +248,7 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
       clearTimeout(autosaveTimerRef.current);
     }
 
+    pendingSaveRef.current = true;
     autosaveTimerRef.current = setTimeout(() => {
       saveCanvasNow();
     }, 3000);
@@ -278,6 +324,27 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
         clearTimeout(autosaveTimerRef.current);
         autosaveTimerRef.current = null;
       }
+
+      // WAVE11-FLUSH: the debounced save was CANCELLED here and never run.
+      // CoverCreator unmounts this editor on any view switch, so clicking
+      // "Full Wrap" within 3s of your last edit threw that edit away — and
+      // because hydration re-read a project prop that is never refreshed after
+      // a write, it threw away the whole session's work, not just 3 seconds of
+      // it. The next edit then autosaved the reverted canvas over the good copy.
+      //
+      // Serialize synchronously while the canvas still exists; the network write
+      // can finish after we are gone.
+      if (pendingSaveRef.current && projectIdRef.current && !isHydratingRef.current) {
+        try {
+          const json = JSON.stringify(fc.toObject(CANVAS_JSON_PROPS));
+          base44.entities.NovelProject.update(projectIdRef.current, { cover_canvas_json: json })
+            .then(() => { onSavedRef.current?.(); })
+            .catch((err) => console.warn('[COVER] Flush-on-unmount failed:', err?.message));
+        } catch (err) {
+          console.warn('[COVER] Flush-on-unmount could not serialize:', err?.message);
+        }
+      }
+      pendingSaveRef.current = false;
 
       fc.off('selection:created', handleSelectionCreated);
       fc.off('selection:updated', handleSelectionUpdated);
@@ -396,7 +463,7 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
         fc.add(img);
         fc.sendObjectToBack(img);
 
-        const saved = safeParseCanvasJson(project?.cover_canvas_json);
+        const saved = safeParseCanvasJson(savedCanvasRef.current);
 
         if (saved?.objects?.length) {
           const userObjects = saved.objects.filter((objectJson) => {
@@ -451,7 +518,7 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
     };
   }, [
     artUrl,
-    project?.cover_canvas_json,
+    project?.id,
     syncObjects,
     bumpVersion,
     refreshHistoryState,
@@ -688,6 +755,22 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
     scheduleAutosave();
   }, [bumpVersion, scheduleAutosave]);
 
+  // WAVE11-TOOLBARSAVE: RichTextToolbar mutates the object with obj.set(), which
+  // fires no canvas event — so neither the autosave listener nor the history
+  // listener ever saw it. Font, size, bold, italic, alignment, colour, line
+  // height and letter spacing were all discarded on reload, unless the writer
+  // happened to drag the object afterwards and trip object:modified by accident.
+  const handleToolbarChanged = useCallback(() => {
+    const fc = fabricRef.current;
+    bumpVersion();
+    if (fc) {
+      const active = fc.getActiveObject();
+      // Let history record it as a real edit, same as a drag or resize would.
+      if (active) fc.fire('object:modified', { target: active });
+    }
+    scheduleAutosave();
+  }, [bumpVersion, scheduleAutosave]);
+
   const handleAlign = useCallback((anchor) => {
     const fc = fabricRef.current;
     if (!fc) return;
@@ -808,7 +891,16 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
         <TemplatesPicker onApply={handleApplyTemplate} />
         {/* WAVE4-COVERWIRING: the logo uploader finally gets the project prop
             it always needed — uploading no longer throws on project.id. */}
-        <PublisherLogoUpload project={project} />
+        <PublisherLogoUpload
+                project={project}
+                onLogoChange={() => {
+                  // WAVE11-LOGO: nothing was listening, so the wrap view could not
+                  // see a logo uploaded in this session either.
+                  if (project?.id) {
+                    queryClient.invalidateQueries({ queryKey: ['novel-project', project.id] });
+                  }
+                }}
+              />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -823,7 +915,7 @@ export default function FabricEditor({ artUrl, project, onCanvasReady }) {
           key={`rich-${canvasVersion}`}
           activeObject={activeObject && !isBackgroundObject(activeObject) ? activeObject : null}
           canvas={fabricRef.current}
-          onUpdate={bumpVersion}
+          onUpdate={handleToolbarChanged}
         />
 
         <div className="flex items-center gap-2 border-b border-border/50 bg-card/60 px-3 py-1.5 flex-wrap">

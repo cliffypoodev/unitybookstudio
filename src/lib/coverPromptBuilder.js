@@ -11,7 +11,7 @@
  * @module coverPromptBuilder
  */
 
-import { getGenreCoverTemplate, getRecommendedPipeline } from './coverGenreTemplates.js';
+import { getGenreCoverTemplate, getRecommendedPipeline, findTemplateById } from './coverGenreTemplates.js';
 import { COVER_TYPOGRAPHY_MODES } from './coverComfyWorkflows.js';
 import { buildCoverSafetyConstraints, sanitizeCoverNegativePrompt } from './coverSafety.js';
 
@@ -40,12 +40,32 @@ const FLAT_ARTWORK_NEGATIVES =
  * @param {string} [settings.genreTemplateId] - Genre template ID override
  * @returns {{ line1: string, line2: string, line3: string, full: string }}
  */
+/**
+ * WAVE12-TEMPLATE — resolve the genre template once, honouring the override.
+ *
+ * The Genre Template dropdown wrote `settings.genreTemplateId`, and exactly one
+ * of the four places that consult a template read it. The other three re-derived
+ * from the PROJECT's genre, so choosing "Dark Fantasy" on a cozy mystery
+ * produced a prompt that argued with itself: dark-fantasy lighting and palette
+ * in the positive, and the cozy template's `dark, gritty, noir` in the NEGATIVE
+ * — asking for the thing and forbidding it in the same request. The dropdown
+ * looked like it did nothing; the output was a washed-out hybrid.
+ */
+export function resolveGenreTemplate(project, settings = {}) {
+  const genre = project?.genre || '';
+  const subgenre = project?.subgenre || '';
+
+  if (settings.genreTemplateId) {
+    const byId = findTemplateById(settings.genreTemplateId) || getGenreCoverTemplate(settings.genreTemplateId);
+    if (byId) return byId;
+  }
+  return getGenreCoverTemplate(genre, subgenre);
+}
+
 export function buildKittlStyleThreeLinePrompt(project, settings = {}) {
   const genre = project?.genre || '';
   const subgenre = project?.subgenre || '';
-  const template = settings.genreTemplateId
-    ? (getGenreCoverTemplate(settings.genreTemplateId) || getGenreCoverTemplate(genre, subgenre))
-    : getGenreCoverTemplate(genre, subgenre);
+  const template = resolveGenreTemplate(project, settings);
 
   // Line 1: Lighting & Technical Mood
   const lighting = settings.lighting || template.lighting;
@@ -94,9 +114,7 @@ export function buildTypographyInstruction(project, settings = {}) {
       parts.push(`Author name reading "${author}" integrated into the artwork composition`);
     }
 
-    const genre = project?.genre || '';
-    const subgenre = project?.subgenre || '';
-    const template = getGenreCoverTemplate(genre, subgenre);
+    const template = resolveGenreTemplate(project, settings);
     if (template.typographyAdvice) {
       parts.push(template.typographyAdvice);
     }
@@ -126,7 +144,7 @@ export function buildTypographyInstruction(project, settings = {}) {
 export function buildGenreCoverStyleBlock(project, settings = {}) {
   const genre = project?.genre || '';
   const subgenre = project?.subgenre || '';
-  const template = getGenreCoverTemplate(genre, subgenre);
+  const template = resolveGenreTemplate(project, settings);
 
   return `Genre: ${genre}${subgenre ? ` / ${subgenre}` : ''}. ${template.stylePreset}. Professional publishing-grade illustration quality, bookstore-ready composition.`;
 }
@@ -178,6 +196,7 @@ export function getSeriesCoverSignature(project, settings = {}) {
  * @returns {{ positive: string, negative: string }}
  */
 export function buildFluxCoverPrompt(project, settings = {}) {
+  const template = resolveGenreTemplate(project, settings);
   const threeLines = buildKittlStyleThreeLinePrompt(project, settings);
   const typography = buildTypographyInstruction(project, settings);
   const genreStyle = buildGenreCoverStyleBlock(project, settings);
@@ -193,9 +212,18 @@ export function buildFluxCoverPrompt(project, settings = {}) {
     'Professional publishing-grade illustration quality.',
   ];
 
+  // WAVE12-FLUXNEG: the PonyXL builder includes the genre template's curated
+  // negatives and runs the result through sanitizeCoverNegativePrompt; the Flux
+  // builder did neither. Flux is the recommended pipeline for six of the ten
+  // templates — cozy mystery, contemporary romance, sci-fi, literary, business
+  // and children/middle grade — so exactly the genres with the most to lose were
+  // the ones generating without their curated negatives. A cozy was never warned
+  // off `gore, blood, dark, scary, noir`; a children's book was never warned off
+  // `adult themes, weapons`.
   const negativeParts = [
     FLAT_ARTWORK_NEGATIVES,
     typography.negativeAddition,
+    template.negativeAdditions || '',
   ];
 
   // Safety constraints
@@ -206,7 +234,9 @@ export function buildFluxCoverPrompt(project, settings = {}) {
 
   return {
     positive: positiveParts.filter(Boolean).join('\n'),
-    negative: negativeParts.filter(Boolean).join(', '),
+    // Sanitized like the PonyXL path, so a term the writer wants in the image
+    // cannot survive in the negative prompt and fight it.
+    negative: sanitizeCoverNegativePrompt(negativeParts.filter(Boolean).join(', '), project, settings),
   };
 }
 
@@ -227,9 +257,7 @@ export function buildPonyXLCoverPrompt(project, settings = {}) {
   const series = getSeriesCoverSignature(project, settings);
   const artDescription = settings.artDescription || '';
 
-  const genre = project?.genre || '';
-  const subgenre = project?.subgenre || '';
-  const template = getGenreCoverTemplate(genre, subgenre);
+  const template = resolveGenreTemplate(project, settings);
 
   const positiveParts = [
     'score_9, score_8_up, score_7_up',

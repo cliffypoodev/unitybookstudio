@@ -94,14 +94,30 @@ export function calculateSafeMargins(width, height, dpi = 300) {
   const trimPx = Math.round(SAFE_MARGINS.trimInches * dpi);
   const textSafePx = Math.round(SAFE_MARGINS.textSafeInches * dpi);
 
+  // WAVE10-SAFEMARGIN: the two margins stack, they do not overlap.
+  //
+  // The canvas passed in includes bleed — renderSafeMarginGuides draws the trim
+  // boundary at `trimPx` from the canvas edge, which is only true if the canvas
+  // edge IS the bleed edge. KDP's rule is then 0.25" in from the TRIM line, so
+  // the text-safe inset from the canvas edge is 0.125 + 0.25 = 0.375".
+  //
+  // This used to inset by textSafePx alone, putting the green guide 0.25" from
+  // the canvas edge — i.e. 0.125" inside the trim, half of what KDP requires.
+  // A writer who trusted the guide and set their title against it had the title
+  // sitting inside Amazon's cutting tolerance, and the top of it could be
+  // shaved off in print.
+  const inset = trimPx + textSafePx;
+
   return {
     trimPx,
     textSafePx,
+    // Distance from the canvas (bleed) edge to the text-safe boundary.
+    safeInsetPx: inset,
     safeRect: {
-      x: textSafePx,
-      y: textSafePx,
-      width: width - 2 * textSafePx,
-      height: height - 2 * textSafePx,
+      x: inset,
+      y: inset,
+      width: width - 2 * inset,
+      height: height - 2 * inset,
     },
   };
 }

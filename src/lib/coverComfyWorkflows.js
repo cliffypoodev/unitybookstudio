@@ -189,6 +189,16 @@ export function validateCoverWorkflowOptions(options) {
 export function buildFluxCoverWorkflow(options = {}) {
   const {
     positivePrompt = '',
+    // WAVE12-FLUXNEG: this was never destructured, and node 3 was hardcoded to
+    // an empty string — so on Flux, which is the DEFAULT pipeline and the
+    // recommended one for six of the ten genre templates, every negative prompt
+    // was silently discarded. Not just the writer's own typed negatives: also
+    // the mandatory safety set, including the children's/middle-grade terms
+    // (violence, gore, blood, weapons, death, horror) and the anti-book-mockup
+    // terms the prompt builder adds to stop covers coming back as photographs
+    // of books. The sampler was already wired to node 3 with cfg 3.5, so the
+    // conditioning was live the whole time — the text just never arrived.
+    negativePrompt = '',
     checkpoint = FLUX_CHECKPOINT_NAME,
     width = 1600,
     height = 2400,
@@ -216,7 +226,7 @@ export function buildFluxCoverWorkflow(options = {}) {
     '3': {
       class_type: 'CLIPTextEncode',
       inputs: {
-        text: '',
+        text: negativePrompt,
         clip: ['1', 1],
       },
     },
