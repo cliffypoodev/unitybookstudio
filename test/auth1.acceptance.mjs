@@ -151,6 +151,9 @@ for (const cf of ['../src/pages/Dashboard.jsx', '../src/components/notebook/Sett
   check(`29+. ${cf.split('/').pop()} does not filter by created_by email`, !csrc.includes('created_by: currentUser.email'));
 }
 
+const PSTUDIO = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
+check('32. ProjectStudio does not gate access by created_by email', !/project\.created_by !== currentUser_\.email/.test(PSTUDIO));
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
