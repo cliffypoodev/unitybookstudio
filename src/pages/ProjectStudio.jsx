@@ -2221,6 +2221,7 @@ export default function ProjectStudio() {
             response_json_schema: anthologyBibleSchema,
             model: pickModel('foundation', shellProject),
             spec: shellProject,
+            _project: shellProject, // ADULTROUTE-1
             fallback_model: pickFallbackModel('foundation', shellProject),
             max_tokens: 8192,
           }, 1),
@@ -2349,6 +2350,7 @@ export default function ProjectStudio() {
       response_json_schema: expandSettingsSchema,
       model: pickModel('foundation', { ...settingsDrafts, book_type: bookType }),
       spec: settingsDrafts,
+      _project: { ...settingsDrafts, book_type: bookType }, // ADULTROUTE-1
       fallback_model: pickFallbackModel('foundation', project),
     });
     const settings = unwrapIntegrationResult(settingsResponse);
@@ -3350,6 +3352,7 @@ Return structured JSON:
           prompt: beatPrompt,
           response_json_schema: schema,
           spec: promptProject,
+          _project: promptProject, // ADULTROUTE-1
           model: beatModel,
           max_tokens: beatModel?.includes('lumimaid') ? 4096 : 8192,
           ...buildFallbackControls('beats', promptProject),

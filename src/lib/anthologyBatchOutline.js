@@ -259,6 +259,7 @@ async function generateSingleStory(project, storyNumber, usedNames, usedAngles, 
     response_json_schema: batchStorySchema,
     model: pickModel('foundation', project),
     spec: project,
+    _project: project, // ADULTROUTE-1: the retry wrapper reads _project for agent routing; spec is never read for routing
     fallback_model: pickFallbackModel('foundation', project),
     max_tokens: 4096,
     task_type: 'foundation',
@@ -449,6 +450,7 @@ export async function generateAnthologyOutlinesBatched(project, { onProgress } =
         response_json_schema: batchStorySchema,
         model: pickModel('foundation', project),
         spec: project,
+        _project: project, // ADULTROUTE-1
         fallback_model: pickFallbackModel('foundation', project),
         max_tokens: 6144,
         task_type: 'foundation',

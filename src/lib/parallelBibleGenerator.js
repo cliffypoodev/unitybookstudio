@@ -599,6 +599,7 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
       response_json_schema: schema,
       model,
       spec: settings,
+      _project: settings, // ADULTROUTE-1
       fallback_model: fallback,
       ...extraOpts,
     });
