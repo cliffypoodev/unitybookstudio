@@ -34,6 +34,7 @@ export const AGENT_MODELS = {
   architect:         'deepseek-r1-14b',                                  // ARCHITECTSPEED-1: fiction outlines/bibles (reasoning model). Was deepseek-r1-32b; on the single-slot local rig the 32B (~20GB) cold-loads on every swap and its long reasoning blew past the anthology batch 300s cap (anthologyBatchOutline.js), so multi-story outline gen never produced a usable batch. R1-14b is the proven fast reasoning alias (already the researcher/critic model) with a proven JSON path; it loads and generates fast enough to fit the cap. Affects fiction outline/bible gen only (nonfiction foundation routes to NONFICTION_INSTRUCT_MODEL and never hits the architect override).
   researcher:        'deepseek-r1-14b',                                  // RESEARCHMODEL-1: factual gathering. 'phi4' is not in the served catalog — every extraction batch 404'd. R1-14b is the proven fast reasoning alias already used by the critic, and R1's JSON path is proven by the architect.
   critic:            'deepseek-r1-14b',                                  // QA/critique (faster R1)
+  architect_nsfw:    'qwen3.6-35b-uncensored',                           // ADULTROUTE-1: adult/erotica architect lane — outlines/bibles/beats for NSFW projects must not touch the aligned R1 (refusal/sanitization risk at spice >= 3); same uncensored model as prose, architect temperature
   polisher:          'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K_XL', // faithful line edits
   ideas_chat:        'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K_XL', // CHATFIX-1: chat assistants — fast MoE instruct, strict format adherence
   nonfiction_writer: 'HauhauCS/Qwen3.6-27B-Uncensored-HauhauCS-Aggressive:Q5_K_P', // MODELFIX-3: dense prose-tuned 27B; gates handle integrity
@@ -44,6 +45,7 @@ export const AGENT_TEMPERATURES = {
   ghostwriter:      0.75,
   ghostwriter_nsfw: 0.75,
   architect:        0.6,
+  architect_nsfw:   0.6,
   researcher:       0.3,
   critic:           0.4,
   polisher:         0.3,
@@ -71,6 +73,7 @@ export const AGENT_ENDPOINTS = {
   ghostwriter:       '/llama',
   ghostwriter_nsfw:  '/llama',
   architect:         '/llama',
+  architect_nsfw:    '/llama',
   researcher:        '/llama',
   critic:            '/llama',
   polisher:          '/llama',
@@ -93,6 +96,7 @@ export const AGENT_CTX_TOKENS = {
   ghostwriter:       32768,
   ghostwriter_nsfw:  32768,
   architect:         32768,
+  architect_nsfw:    32768,
   researcher:        32768,
   critic:            32768,
   polisher:          32768,
@@ -129,6 +133,7 @@ const AGENT_SYSTEM_PROMPTS = {
   ghostwriter: '',
   ghostwriter_nsfw: '',
   architect: '',
+  architect_nsfw: '',
   researcher: '',
   critic: '',
   polisher: '',
@@ -278,7 +283,7 @@ export function resolveAgent(taskType, project = null) {
   if (['chat', 'brainstorm', 'ideas'].includes(t))
     return 'ideas_chat';
   if (['foundation', 'chapter_plan', 'outline', 'transform', 'beats', 'publishing', 'bibliography'].includes(t))
-    return 'architect';
+    return isNSFW ? 'architect_nsfw' : 'architect';
   if (['judge', 'evaluate', 'scan', 'critique', 'compare', 'analytics'].includes(t))
     return 'critic';
   if (t === 'research' || t === 'fiction_research')
