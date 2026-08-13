@@ -383,6 +383,28 @@ async function handleAuth(req, res) {
         clearSessionCookie(res);
         return sendJSON(res, { ok: true });
       }
+      case 'transfer-project': {
+        // TRANSFER-1: move ONE book — project record, its chapters, its publishing
+        // assets, its cover art, and every _FileStore blob under "<projectId>/" —
+        // from the SESSION user's store to another existing account. Copy-to-target
+        // is flushed BEFORE remove-from-source, so a crash mid-transfer duplicates
+        // (recoverable) rather than loses. Series membership and folders do not
+        // transfer: folder_id is cleared (folders are per-user).
+        if (req.method !== 'POST') return sendError(res, 'POST only', 405);
+        const actor = getSessionUser(req);
+        if (!actor) return sendError(res, 'Not authenticated', 401);
+        const body = await readBody(req);
+        const projectId = String(body.projectId || '').trim();
+        const target = authenticateTargetUser(body.toUsername);
+        if (!projectId) return sendError(res, 'Missing projectId');
+        if (!target) return sendError(res, 'No such user.');
+        if (target.id === actor.id) return sendError(res, 'That book is already in your library.');
+        const result = await transferProject(actor.id, target.id, projectId);
+        if (result.error) return sendError(res, result.error, result.status || 400);
+        console.log(`[TRANSFER-1] '${projectId}' moved ${actor.username} -> ${target.username}: ` +
+          `chapters=${result.chapters} assets=${result.assets} covers=${result.covers} blobs=${result.blobs}`);
+        return sendJSON(res, result);
+      }
       case 'create-user': {
         if (req.method !== 'POST') return sendError(res, 'POST only', 405);
         const actor = getSessionUser(req);
@@ -397,6 +419,81 @@ async function handleAuth(req, res) {
     }
   } catch (err) {
     return sendError(res, err.message, 400);
+  }
+}
+
+// ── TRANSFER-1 helpers ──────────────────────────────────────────────────
+
+function authenticateTargetUser(username) {
+  const uname = String(username || '').trim().toLowerCase();
+  const users = loadUsersForTransfer();
+  return users.find((u) => u.username === uname) || null;
+}
+
+function loadUsersForTransfer() {
+  try {
+    const raw = fs.readFileSync(path.join(DATA_DIR, '_auth', 'users.json'), 'utf8');
+    return JSON.parse(raw);
+  } catch { return []; }
+}
+
+/**
+ * Move a project and every record it owns from one user's store to another's.
+ * Locks are acquired for all affected user+entity stores in SORTED order so two
+ * concurrent transfers can never deadlock. Target stores are flushed before the
+ * source records are removed.
+ */
+async function transferProject(fromUid, toUid, projectId) {
+  const entities = ['NovelProject', 'Chapter', 'PublishingAsset', 'CoverArtGallery', '_FileStore'];
+  const lockKeys = entities.flatMap((e) => [storeKey(fromUid, e), storeKey(toUid, e)]).sort();
+  const releases = [];
+  for (const key of lockKeys) releases.push(await acquireEntityLock(key));
+  try {
+    const srcProjects = loadStore(fromUid, 'NovelProject');
+    const projIdx = srcProjects.findIndex((r) => r.id === projectId);
+    if (projIdx < 0) return { error: 'That book is not in your library.', status: 404 };
+
+    const pick = {
+      Chapter: (r) => r.project_id === projectId,
+      PublishingAsset: (r) => r.project_id === projectId,
+      CoverArtGallery: (r) => r.project_id === projectId,
+      _FileStore: (r) => String(r.id || '').startsWith(projectId + '/'),
+    };
+
+    // 1. copy into the target stores and flush them first
+    const moved = {};
+    const project = { ...srcProjects[projIdx], folder_id: null };
+    const tgtProjects = loadStore(toUid, 'NovelProject');
+    tgtProjects.push(project);
+    cache[storeKey(toUid, 'NovelProject')] = tgtProjects;
+    flushStore(toUid, 'NovelProject');
+    for (const entity of Object.keys(pick)) {
+      const srcStore = loadStore(fromUid, entity);
+      const records = srcStore.filter(pick[entity]);
+      moved[entity] = records.length;
+      if (records.length) {
+        const tgtStore = loadStore(toUid, entity);
+        tgtStore.push(...records);
+        cache[storeKey(toUid, entity)] = tgtStore;
+        flushStore(toUid, entity);
+      }
+    }
+
+    // 2. only now remove from the source stores
+    srcProjects.splice(projIdx, 1);
+    cache[storeKey(fromUid, 'NovelProject')] = srcProjects;
+    flushStore(fromUid, 'NovelProject');
+    for (const entity of Object.keys(pick)) {
+      if (!moved[entity]) continue;
+      const srcStore = loadStore(fromUid, entity);
+      const kept = srcStore.filter((r) => !pick[entity](r));
+      cache[storeKey(fromUid, entity)] = kept;
+      flushStore(fromUid, entity);
+    }
+
+    return { ok: true, projectId, title: project.title || '', chapters: moved.Chapter, assets: moved.PublishingAsset, covers: moved.CoverArtGallery, blobs: moved._FileStore };
+  } finally {
+    releases.reverse().forEach((release) => release());
   }
 }
 

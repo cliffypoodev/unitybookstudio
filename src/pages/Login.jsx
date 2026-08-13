@@ -11,6 +11,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { entities } from '@/lib/localDB'; // TRANSFER-1: book list for the transfer picker
 
 const box = 'w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-sm';
 const field = 'w-full rounded-xl border border-border bg-background px-4 py-3 text-sm mb-3';
@@ -25,11 +26,18 @@ export default function Login() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
+  const [books, setBooks] = useState([]); // TRANSFER-1
+  const [transferBook, setTransferBook] = useState('');
+  const [transferTo, setTransferTo] = useState('');
 
   const refresh = async () => {
     try {
       const status = await base44.auth.status();
-      if (status.authenticated) { setMe(status.user); setMode('account'); }
+      if (status.authenticated) {
+        setMe(status.user); setMode('account');
+        // TRANSFER-1: load this user's books for the transfer picker
+        try { setBooks(await entities.NovelProject.filter({}, '-updated_date', 200)); } catch { setBooks([]); }
+      }
       else if (!status.usersExist) setMode('setup');
       else setMode('login');
     } catch (e) {
@@ -117,6 +125,20 @@ export default function Login() {
             <input className={field} placeholder="Display name (optional)" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
             <input className={field} placeholder="Password (8+ characters)" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             <button className={button} disabled={busy} onClick={doCreateUser}>Create user</button>
+
+            <h2 className="text-sm font-semibold mt-8 mb-2">Transfer a book</h2>
+            <p className="text-xs text-muted-foreground mb-3">Moves the book — chapters, assets, covers, and stored files — into another user's library. Folders and series membership stay behind.</p>
+            <select className={field} value={transferBook} onChange={(e) => setTransferBook(e.target.value)}>
+              <option value="">Choose a book…</option>
+              {books.map((b) => <option key={b.id} value={b.id}>{b.title || 'Untitled'} ({b.id})</option>)}
+            </select>
+            <input className={field} placeholder="Destination username" value={transferTo} onChange={(e) => setTransferTo(e.target.value)} />
+            <button className={button} disabled={busy || !transferBook || !transferTo} onClick={() => submit(async () => {
+              const r = await base44.auth.transferProject(transferBook, transferTo);
+              setTransferBook('');
+              setBooks(books.filter((b) => b.id !== r.projectId));
+              setNotice(`Moved "${r.title}" to ${transferTo}: ${r.chapters} chapters, ${r.blobs} stored files, ${r.assets} assets, ${r.covers} covers.`);
+            })}>Transfer book</button>
           </>
         )}
 

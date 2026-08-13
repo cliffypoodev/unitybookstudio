@@ -52,6 +52,15 @@ const auth = {
     if (!resp.ok) throw new Error(body.error || 'Could not create user.');
     return body;
   },
+  async transferProject(projectId, toUsername) { // TRANSFER-1
+    const resp = await fetch('/api/auth/transfer-project', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId, toUsername }),
+    });
+    const body = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(body.error || 'Transfer failed.');
+    return body;
+  },
   async logout() {
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     window.location.href = '/login';
