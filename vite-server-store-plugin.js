@@ -23,11 +23,18 @@ import path from 'node:path';
 import { exec as cpExec, spawn as cpSpawn } from 'node:child_process';
 import { get as httpGet } from 'node:http';
 import { fileURLToPath } from 'node:url';
+import {
+  SESSION_COOKIE, usersExist, createUser, authenticate, getUserById,
+  getSecret, createSessionToken, verifySessionToken, parseCookies,
+  userDataDir, migrateLegacyData,
+} from './server/authCore.js'; // AUTH-1
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DATA_DIR = path.join(__dirname, 'data');
+// AUTH-1: env-overridable so batteries can run against a temp directory
+// without ever touching the live data dir. Default is unchanged.
+const DATA_DIR = process.env.UBS_DATA_DIR || path.join(__dirname, 'data');
 
 const ENTITY_STORES = [
   'NovelProject', 'Chapter', 'SeriesBible', 'AuthorStyle',
@@ -75,34 +82,48 @@ function acquireEntityLock(entityName) {
 
 // ── In-memory cache + disk I/O ──────────────────────────────────────────
 
+// AUTH-1: stores are per-user. Every cache key and file path is scoped by
+// the session user's id — data/users/<uid>/<Entity>.json — so a filtering
+// bug can never leak another user's records: the other user's file is simply
+// never opened. Entity locks are scoped the same way.
 const cache = {};
 
-function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+function storeKey(uid, entityName) {
+  return `${uid}/${entityName}`;
+}
+
+function userStoreDir(uid) {
+  return userDataDir(DATA_DIR, uid);
+}
+
+function ensureDataDir(uid) {
+  const dir = userStoreDir(uid);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
 }
 
-function entityFilePath(entityName) {
-  return path.join(DATA_DIR, `${entityName}.json`);
+function entityFilePath(uid, entityName) {
+  return path.join(userStoreDir(uid), `${entityName}.json`);
 }
 
-function loadStore(entityName) {
-  if (cache[entityName]) return cache[entityName];
+function loadStore(uid, entityName) {
+  const key = storeKey(uid, entityName);
+  if (cache[key]) return cache[key];
 
-  ensureDataDir();
-  const filePath = entityFilePath(entityName);
+  ensureDataDir(uid);
+  const filePath = entityFilePath(uid, entityName);
   if (fs.existsSync(filePath)) {
     try {
       const raw = fs.readFileSync(filePath, 'utf8');
-      cache[entityName] = JSON.parse(raw);
+      cache[key] = JSON.parse(raw);
     } catch {
-      cache[entityName] = [];
+      cache[key] = [];
     }
   } else {
-    cache[entityName] = [];
+    cache[key] = [];
   }
-  return cache[entityName];
+  return cache[key];
 }
 
 /**
@@ -111,11 +132,11 @@ function loadStore(entityName) {
  * filesystem, so a crash mid-write leaves either the old file or the
  * new file — never a partial/corrupt file.
  */
-function flushStore(entityName) {
-  ensureDataDir();
-  const filePath = entityFilePath(entityName);
+function flushStore(uid, entityName) {
+  ensureDataDir(uid);
+  const filePath = entityFilePath(uid, entityName);
   const tmpPath = filePath + '.tmp';
-  fs.writeFileSync(tmpPath, JSON.stringify(cache[entityName] || [], null, 2), 'utf8');
+  fs.writeFileSync(tmpPath, JSON.stringify(cache[storeKey(uid, entityName)] || [], null, 2), 'utf8');
   fs.renameSync(tmpPath, filePath);
 }
 
@@ -185,7 +206,7 @@ function sortRecords(records, sortField) {
 
 // ── Route handler ───────────────────────────────────────────────────────
 
-async function handleRequest(req, res) {
+async function handleRequest(req, res, uid) {
   const url = new URL(req.url, 'http://localhost');
   const parts = url.pathname.replace('/api/store/', '').split('/');
   const entity = parts[0];
@@ -198,7 +219,7 @@ async function handleRequest(req, res) {
 
   // Read-only actions — no lock needed, serve directly from cache
   if (action === 'list' || action === 'filter' || action === 'get') {
-    const store = loadStore(entity);
+    const store = loadStore(uid, entity);
     try {
       switch (action) {
         case 'list': {
@@ -228,12 +249,12 @@ async function handleRequest(req, res) {
     return;
   }
 
-  // Mutating actions — serialize through per-entity mutex
-  const release = await acquireEntityLock(entity);
+  // Mutating actions — serialize through per-entity mutex (AUTH-1: per user+entity)
+  const release = await acquireEntityLock(storeKey(uid, entity));
   try {
     // Re-read store under lock (cache is authoritative since all mutations
     // hold the lock, but loadStore is cheap — just returns cache ref)
-    const store = loadStore(entity);
+    const store = loadStore(uid, entity);
 
     switch (action) {
       case 'create': {
@@ -247,8 +268,8 @@ async function handleRequest(req, res) {
           created_by: data.created_by || 'local@unitybookstudio.app',
         };
         store.push(record);
-        cache[entity] = store;
-        flushStore(entity);
+        cache[storeKey(uid, entity)] = store;
+        flushStore(uid, entity);
         sendJSON(res, record, 201);
         break;
       }
@@ -265,8 +286,8 @@ async function handleRequest(req, res) {
           updated_date: nowISO(),
         };
         store[idx] = updated;
-        cache[entity] = store;
-        flushStore(entity);
+        cache[storeKey(uid, entity)] = store;
+        flushStore(uid, entity);
         sendJSON(res, updated);
         break;
       }
@@ -276,8 +297,8 @@ async function handleRequest(req, res) {
         const delIdx = store.findIndex(r => r.id === id);
         if (delIdx < 0) { release(); return sendError(res, `${entity} with id ${id} not found`, 404); }
         store.splice(delIdx, 1);
-        cache[entity] = store;
-        flushStore(entity);
+        cache[storeKey(uid, entity)] = store;
+        flushStore(uid, entity);
         sendJSON(res, { ok: true });
         break;
       }
@@ -293,6 +314,94 @@ async function handleRequest(req, res) {
   }
 }
 
+// ── AUTH-1: session + auth endpoints ────────────────────────────────────
+//
+// Session is a stateless HMAC token in an httpOnly cookie. Every protected
+// route resolves the session user and scopes all data access to that user's
+// directory. Registration: open ONLY while zero users exist (first-run
+// setup); after that, new accounts can only be created by a logged-in user.
+//
+// PROTECTED: /api/store/*, /api/routerheal, /llama/*, /search-bridge/*
+// (the model and bridge proxies are gated too, so a LAN stranger cannot use
+// the GPU or the research bridge without an account).
+// OPEN: /api/auth/*, static/module serving (curl checks on /src/* still work).
+
+const AUTH_COOKIE_ATTRS = 'Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000';
+
+function getSessionUser(req) {
+  const cookies = parseCookies(req.headers && req.headers.cookie);
+  const session = verifySessionToken(cookies[SESSION_COOKIE], getSecret(DATA_DIR));
+  if (!session) return null;
+  return getUserById(DATA_DIR, session.uid);
+}
+
+function setSessionCookie(res, uid) {
+  const token = createSessionToken(uid, getSecret(DATA_DIR));
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${token}; ${AUTH_COOKIE_ATTRS}`);
+}
+
+function clearSessionCookie(res) {
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`);
+}
+
+async function handleAuth(req, res) {
+  const url = new URL(req.url, 'http://localhost');
+  const action = url.pathname.replace('/api/auth/', '').split('/')[0];
+  try {
+    switch (action) {
+      case 'status': {
+        const user = getSessionUser(req);
+        return sendJSON(res, { usersExist: usersExist(DATA_DIR), authenticated: !!user, user: user || null });
+      }
+      case 'me': {
+        const user = getSessionUser(req);
+        if (!user) return sendError(res, 'Not authenticated', 401);
+        return sendJSON(res, user);
+      }
+      case 'setup': {
+        if (req.method !== 'POST') return sendError(res, 'POST only', 405);
+        if (usersExist(DATA_DIR)) return sendError(res, 'Setup already completed. Log in instead.', 403);
+        const body = await readBody(req);
+        const user = createUser(DATA_DIR, body);
+        // First account inherits every legacy book: atomic renames, manifest-guarded.
+        const migration = migrateLegacyData(DATA_DIR, user.id, ENTITY_STORES);
+        console.log(`[AUTH-1] First account '${user.username}' created; migrated legacy stores: ${migration.migrated.join(', ') || 'none'}`);
+        setSessionCookie(res, user.id);
+        return sendJSON(res, { user, migrated: migration.migrated }, 201);
+      }
+      case 'login': {
+        if (req.method !== 'POST') return sendError(res, 'POST only', 405);
+        const body = await readBody(req);
+        const user = authenticate(DATA_DIR, body.username, body.password);
+        if (!user) return sendError(res, 'Invalid username or password.', 401);
+        setSessionCookie(res, user.id);
+        console.log(`[AUTH-1] Login: ${user.username}`);
+        return sendJSON(res, user);
+      }
+      case 'logout': {
+        if (req.method !== 'POST') return sendError(res, 'POST only', 405);
+        clearSessionCookie(res);
+        return sendJSON(res, { ok: true });
+      }
+      case 'create-user': {
+        if (req.method !== 'POST') return sendError(res, 'POST only', 405);
+        const actor = getSessionUser(req);
+        if (!actor) return sendError(res, 'Not authenticated', 401);
+        const body = await readBody(req);
+        const user = createUser(DATA_DIR, body);
+        console.log(`[AUTH-1] User '${user.username}' created by '${actor.username}'`);
+        return sendJSON(res, { user }, 201);
+      }
+      default:
+        return sendError(res, `Unknown auth action: ${action}`, 404);
+    }
+  } catch (err) {
+    return sendError(res, err.message, 400);
+  }
+}
+
+const PROTECTED_PREFIXES = ['/api/store/', '/api/routerheal', '/llama', '/search-bridge'];
+
 // ── Vite Plugin ─────────────────────────────────────────────────────────
 
 export default function serverStorePlugin() {
@@ -300,16 +409,28 @@ export default function serverStorePlugin() {
     name: 'server-store',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (req.url && req.url.startsWith('/api/routerheal')) {
-          // ROUTERHEAL-1: self-heal endpoint for the wedged llama router.
-          handleRouterHeal(req, res);
-        } else if (req.url && req.url.startsWith('/api/store/')) {
-          handleRequest(req, res);
-        } else {
-          next();
+        if (req.url && req.url.startsWith('/api/auth/')) {
+          handleAuth(req, res);
+          return;
         }
+        if (req.url && PROTECTED_PREFIXES.some((p) => req.url.startsWith(p))) {
+          const user = getSessionUser(req);
+          if (!user) {
+            return sendError(res, 'Not authenticated', 401);
+          }
+          if (req.url.startsWith('/api/routerheal')) {
+            // ROUTERHEAL-1: self-heal endpoint for the wedged llama router.
+            handleRouterHeal(req, res);
+          } else if (req.url.startsWith('/api/store/')) {
+            handleRequest(req, res, user.id);
+          } else {
+            next(); // authenticated /llama and /search-bridge fall through to the proxy
+          }
+          return;
+        }
+        next();
       });
-      console.log('[SERVER-STORE] Middleware active — data dir:', DATA_DIR);
+      console.log('[SERVER-STORE] Middleware active — data dir:', DATA_DIR, '| AUTH-1 session gate on');
     },
   };
 }
@@ -425,4 +546,4 @@ async function handleRouterHeal(req, res) {
 
 
 // Export for test harness
-export { handleRequest, ENTITY_STORES, DATA_DIR, loadStore, flushStore, cache, handleRouterHeal, routerHealProbe, spawnDetachedHeal };
+export { handleRequest, handleAuth, getSessionUser, ENTITY_STORES, DATA_DIR, loadStore, flushStore, cache, handleRouterHeal, routerHealProbe, spawnDetachedHeal };
