@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE9-DEADSTAMP2, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app.
+ * Superseded. The live Publishing tab (components/tools/PublishingSubPage) generates KDP categories and keywords, and as of WAVE9-KDPVALIDATE validates them via lib/kdpKeywordValidator.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
+
 import React, { useState, useEffect } from 'react';
 import { Loader2, Sparkles, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';

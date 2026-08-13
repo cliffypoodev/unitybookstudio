@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE9-DEADSTAMP2, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app.
+ * localStorage parameter helper with no callers. Settings persistence lives in lib/userSettings and lib/settingsRead.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
+
 const isNode = typeof window === 'undefined';
 const windowObj = isNode ? { localStorage: new Map() } : window;
 const storage = windowObj.localStorage;

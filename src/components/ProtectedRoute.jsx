@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE9-DEADSTAMP2, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app.
+ * Auth route guard. App.jsx routes are unguarded because this build is local-first with no sign-in.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
+
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';

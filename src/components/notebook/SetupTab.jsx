@@ -222,11 +222,9 @@ export default function SetupTab({
   onLengthPresetChange,
   onApplyPovPreset,
   onSave,
-  onExpand,
   isSaving,
   busyLabel,
   lastSaved,
-  projectId,
   project,
   onRefresh,
 }) {
@@ -1032,7 +1030,6 @@ export default function SetupTab({
           <AuthorStyleManager
             authorStyleId={values.author_style_id || ''}
             onStyleChange={(id) => onFieldChange('author_style_id', id)}
-            projectId={projectId}
           />
         </SetupControlCard>
 

@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE9-DEADSTAMP2, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app.
+ * One-off import script, run by hand rather than imported by the app.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
+
 /**
  * Import UBS Full Export JSON into local IndexedDB.
  *
