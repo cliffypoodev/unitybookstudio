@@ -33,8 +33,12 @@ check('the suite is not empty', files.length >= 10, `found ${files.length}`);
 for (const f of files) {
   const src = fs.readFileSync(path.join(DIR, f), 'utf8');
   const code = src.split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
+  // AUTH-1: a battery that REDIRECTS the data dir to a fresh temp directory
+  // (mkdtempSync + UBS_DATA_DIR set before import) cannot touch live book data
+  // by construction — that is the sanctioned pattern for store-layer batteries.
+  const redirectsToTempDir = /mkdtempSync/.test(code) && /process\.env\.UBS_DATA_DIR\s*=\s*TMP/.test(code);
   check(`${f}: does not read live book data`,
-    !/_FileStore|data\/_|DATA_DIR|process\.env\.UBS_DATA/.test(code),
+    redirectsToTempDir || !/_FileStore|data\/_|DATA_DIR|process\.env\.UBS_DATA/.test(code),
     'move live-manuscript verdicts to tools/manuscript-probe.mjs');
   check(`${f}: does not pin itself to a live chapter word count`,
     !/expected\s+(?:about\s+)?~?\d{3,}|Re-measure before trusting/.test(code));
