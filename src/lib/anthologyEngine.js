@@ -1,4 +1,5 @@
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
+import { buildEroticaAuthorityBlocks } from './eroticaAuthority.js'; // AUTHORITYBLOCK-1: relative import so raw-node batteries resolve it
 /**
  * Anthology Engine — Handles story bible generation and prose prompt building
  * for anthology (short story collection) projects.
@@ -216,7 +217,7 @@ STORY TWISTS:
 The user set num_twists to 0, so return an empty story_twists array: [].
 `;
 
-  return `You are designing an anthology — a collection of ${numStories} standalone short stories unified by a single theme. This is an ANTHOLOGY. Each chapter is an INDEPENDENT short story connected ONLY by the theme: "${theme}". Generate COMPLETELY SEPARATE characters, plots, and twists for each chapter. NO shared characters. NO continuing plotlines. NO references between stories.
+  return `${buildEroticaAuthorityBlocks(project)}You are designing an anthology — a collection of ${numStories} standalone short stories unified by a single theme. This is an ANTHOLOGY. Each chapter is an INDEPENDENT short story connected ONLY by the theme: "${theme}". Generate COMPLETELY SEPARATE characters, plots, and twists for each chapter. NO shared characters. NO continuing plotlines. NO references between stories.
 
 COLLECTION DETAILS:
 Genre: ${genre}

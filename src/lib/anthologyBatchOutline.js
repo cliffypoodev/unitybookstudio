@@ -10,6 +10,7 @@ import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { unwrapIntegrationResult } from '@/lib/autonovel';
 import { ANTHOLOGY_STORY_LENGTHS, isNonfictionAnthology } from '@/lib/anthologyEngine';
+import { buildEroticaAuthorityBlocks } from './eroticaAuthority.js'; // AUTHORITYBLOCK-1: relative import so raw-node batteries resolve it
 import { buildAnthologyVarietyOutlinePromptBlock, normalizeVarietyFields, summarizeTemplateSignature } from '@/lib/anthologyVarietyGuard';
 
 const BATCH_SIZE = 5;
@@ -344,7 +345,7 @@ RULES:
 Return JSON only. No markdown, no backticks. The stories array must have exactly ${batchCount} entries.`;
   }
 
-  return `You are generating story outlines for a FICTION ANTHOLOGY — standalone short stories unified by one theme.
+  return `${buildEroticaAuthorityBlocks(project)}You are generating story outlines for a FICTION ANTHOLOGY — standalone short stories unified by one theme.
 
 PROJECT BRIEF:
 ${buildProjectBrief(project)}
