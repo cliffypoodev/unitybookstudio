@@ -94,6 +94,11 @@ async function serverFetch(entityName, action, options = {}) {
   }
 
   const resp = await fetch(url, fetchOptions);
+  if (resp.status === 401 && window.location.pathname !== '/login') {
+    // AUTH-1: session expired or logged out — every store call is per-user now.
+    window.location.href = '/login';
+    throw new Error('Not authenticated');
+  }
   if (!resp.ok) {
     const errBody = await resp.json().catch(() => ({}));
     throw new Error(errBody.error || `Server store error: ${resp.status}`);

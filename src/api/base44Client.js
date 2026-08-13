@@ -5,23 +5,59 @@
 import { entities, storeFile, retrieveFile } from '@/lib/localDB';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 
-// ── Auth stub (single local user, no login required) ──
-
-const LOCAL_USER = {
-  email: 'local@unitybookstudio.app',
-  name: 'Local User',
-  role: 'admin',
-};
+// ── Auth (AUTH-1: real session-backed accounts, per-user data separation) ──
 
 const auth = {
   async me() {
-    return LOCAL_USER;
+    const resp = await fetch('/api/auth/me', { cache: 'no-store' });
+    if (resp.status === 401) {
+      const err = new Error('auth_required');
+      err.code = 'auth_required';
+      throw err;
+    }
+    if (!resp.ok) throw new Error(`Auth check failed: ${resp.status}`);
+    const user = await resp.json();
+    // Keep the shape older callers expect alongside the real account fields.
+    return { ...user, email: `${user.username}@unitybookstudio.app`, name: user.display_name, role: 'admin' };
   },
-  logout(redirectUrl) {
-    console.log('[LOCAL-AUTH] Logout requested. No-op in local mode.');
+  async status() {
+    const resp = await fetch('/api/auth/status', { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`Auth status failed: ${resp.status}`);
+    return resp.json();
   },
-  redirectToLogin(redirectUrl) {
-    console.log('[LOCAL-AUTH] Login redirect requested. No-op in local mode.');
+  async login(username, password) {
+    const resp = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const body = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(body.error || 'Login failed.');
+    return body;
+  },
+  async setup(username, password, displayName) {
+    const resp = await fetch('/api/auth/setup', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, displayName }),
+    });
+    const body = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(body.error || 'Setup failed.');
+    return body;
+  },
+  async createUser(username, password, displayName) {
+    const resp = await fetch('/api/auth/create-user', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, displayName }),
+    });
+    const body = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(body.error || 'Could not create user.');
+    return body;
+  },
+  async logout() {
+    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    window.location.href = '/login';
+  },
+  redirectToLogin() {
+    window.location.href = '/login';
   },
 };
 

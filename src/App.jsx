@@ -13,6 +13,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Home from './pages/Home';
+import Login from './pages/Login'; // AUTH-1
 import Dashboard from './pages/Dashboard';
 import ProjectStudio from './pages/ProjectStudio';
 import ImportCatalog from './pages/ImportCatalog';
@@ -81,6 +82,12 @@ function BrainstormGate() {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
+  // AUTH-1: the login page renders OUTSIDE the auth gate — it must be
+  // reachable while logged out, and must never trigger the redirect below.
+  if (window.location.pathname === '/login') {
+    return <Login />;
+  }
+
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -105,6 +112,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
+      <Route path="/login" element={<Login />} /> {/* AUTH-1 */}
       <Route path="/landing" element={<Home />} />
       <Route path="/projects/:projectId" element={<ProjectStudio />} />
       <Route path="/import-catalog" element={<ImportCatalog />} />

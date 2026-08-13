@@ -24,21 +24,27 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
+      setAuthError(null);
       setIsLoadingAuth(false);
     } catch (error) {
-      console.error('[LOCAL-AUTH] Auth check failed:', error);
+      // AUTH-1: a 401 is the normal logged-out state, not an app failure.
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
-      setAuthError({ type: 'unknown', message: error.message });
+      if (error?.code === 'auth_required') {
+        setAuthError({ type: 'auth_required', message: 'Login required.' });
+      } else {
+        console.error('[AUTH-1] Auth check failed:', error);
+        setAuthError({ type: 'unknown', message: error.message });
+      }
     }
   };
 
-  const logout = (shouldRedirect = true) => {
-    console.log('[LOCAL-AUTH] Logout is a no-op in local mode.');
+  const logout = async () => {
+    await base44.auth.logout(); // AUTH-1: clears the session cookie, then redirects to /login
   };
 
   const navigateToLogin = () => {
-    console.log('[LOCAL-AUTH] Login redirect is a no-op in local mode.');
+    if (window.location.pathname !== '/login') window.location.href = '/login'; // AUTH-1
   };
 
   return (
