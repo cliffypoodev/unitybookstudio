@@ -4165,6 +4165,11 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         status: chapterStatus,
         drafted_with_model: sceneResult.actualModelUsed || proseModelOverride || '',
         draft_all_mode: 'fast',
+        // NAMEREG-1: persist the names this story's finished prose actually used, so later
+        // anthology stories can ban and de-collide against them (rename targets included).
+        ...(Array.isArray(sceneResult.anthologyProseNames) && sceneResult.anthologyProseNames.length
+          ? { prose_names: JSON.stringify(sceneResult.anthologyProseNames) }
+          : {}),
       };
       const fastVerify = await verifiedChapterSave({
         chapterId: chapter.id,

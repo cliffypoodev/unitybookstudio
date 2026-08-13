@@ -43,6 +43,44 @@ function nameTokens(value) {
   return String(value || '').match(/[A-Z][a-z]{2,}/g) || [];
 }
 
+// NAMEREG-1: names a chapter's PROSE actually used, persisted on the record at save time
+// (prose_names). Concept names (beat_summary) miss two measured leak classes — proven live
+// 2026-08-13 on an erotica anthology: (a) a side character the prose model invented in two
+// different stories ("Julian" heavy in ch1 AND ch3 — never in any plan), and (b) a rename
+// TARGET this pass itself introduced in one story reappearing organically in a later story
+// ("Sidney": ch1's replacement for a collided name, then ch4's prose used Sidney fresh).
+function chapterProseNames(ch) {
+  const raw = ch?.prose_names;
+  if (Array.isArray(raw)) return raw.flatMap(nameTokens);
+  if (typeof raw === 'string' && raw.trim()) {
+    try { const arr = JSON.parse(raw); return Array.isArray(arr) ? arr.flatMap(nameTokens) : []; } catch { return []; }
+  }
+  return [];
+}
+
+// NAMEREG-1: deterministic prominent-name extraction from finished prose. A capitalized
+// token counts as a prose name when it appears at least `minCount` times (side characters
+// mentioned once don't register; recurring cast does). COMMON_WORD_NAMES filtered.
+export function extractProminentProseNames(prose, { minCount = 3, maxNames = 16 } = {}) {
+  const text = String(prose || '');
+  if (!text) return [];
+  const counts = new Map();
+  for (const tok of text.match(/[A-Z][a-z]{2,}/g) || []) {
+    if (COMMON_WORD_NAMES.has(tok)) continue;
+    counts.set(tok, (counts.get(tok) || 0) + 1);
+  }
+  // A capitalized token that also appears lowercase in the same prose is a common word
+  // caught at sentence starts ("The", "She", "Storm raged" vs "the storm"), not a name.
+  for (const tok of [...counts.keys()]) {
+    if (new RegExp(`\\b${tok.toLowerCase()}\\b`).test(text)) counts.delete(tok);
+  }
+  return [...counts.entries()]
+    .filter(([, c]) => c >= minCount)
+    .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))
+    .slice(0, maxNames)
+    .map(([name]) => name);
+}
+
 function chapterNames(ch) {
   let sd = null;
   try { sd = JSON.parse(ch?.beat_summary || ''); } catch { sd = null; }
@@ -53,7 +91,7 @@ function chapterNames(ch) {
     if (Array.isArray(sd.characters)) sd.characters.forEach((c) => out.push(typeof c === 'string' ? c : (c && c.name) || ''));
     if (Array.isArray(sd.cast)) sd.cast.forEach((c) => out.push(typeof c === 'string' ? c : (c && c.name) || ''));
   }
-  return out.flatMap(nameTokens);
+  return [...out.flatMap(nameTokens), ...chapterProseNames(ch)]; // NAMEREG-1
 }
 
 /**

@@ -21,7 +21,7 @@ import { buildPovTenseBlock } from '@/lib/povTense';
 import { cleanGeneratedProse } from '@/lib/proseQuality';
 import { snapshot as pipelineSnapshot, captureReplayDiagnostic } from '@/lib/pipelineDiag';
 import { runDialogueMechanicsPass } from '@/lib/dialogueMechanicsRepair'; // DIALOGUEFIX-1
-import { applyAnthologyNameRenames } from '@/lib/anthologyRenamePass'; // RENAMEPASS-1
+import { applyAnthologyNameRenames, extractProminentProseNames } from '@/lib/anthologyRenamePass'; // RENAMEPASS-1 + NAMEREG-1
 import { scrubModelLeaks } from '@/lib/modelLeakGuard'; // LEAKFIX-1
 import { labelCompositeCharacters, fixFoiaAnachronisms, flagUnverifiedStats } from '@/lib/postClean';
 import { crossCheckResearchFabrication } from '@/lib/qualityScan';
@@ -4509,11 +4509,20 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
   // SCOPINGFIX-1: never run on a documented-nonfiction anthology. A real recurring name — a
   // researcher who appears across cases, a real person two stories legitimately share — would be
   // renamed to an invented one, which is fabrication. The isNF gate confines this to fiction.
+  let anthologyProseNames = [];
   if (isAnthology && !isNF) {
     const renamePass = applyAnthologyNameRenames(finalProse, chapter, allProjectChapters);
     if (renamePass.renames.length) {
       console.warn('[RENAMEPASS-1] De-collided cross-story names: ' + renamePass.renames.map((r) => `${r.from}->${r.to}(${r.count})`).join(', '));
       finalProse = renamePass.prose;
+    }
+    // NAMEREG-1: register the names this story's FINISHED prose actually uses — including
+    // any rename targets just introduced — so later stories ban them at prompt time
+    // (variety guard) and de-collide against them at rename time. Computed AFTER the
+    // rename pass on purpose. Deterministic, no LLM.
+    anthologyProseNames = extractProminentProseNames(finalProse);
+    if (anthologyProseNames.length) {
+      console.log('[NAMEREG-1] Prose names registered for this story: ' + anthologyProseNames.join(', '));
     }
   }
 
@@ -4707,6 +4716,8 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
     totalWords,
     wordCount: totalWords,
     words: totalWords,
+
+    anthologyProseNames, // NAMEREG-1
 
     model,
     actualModelUsed: model,

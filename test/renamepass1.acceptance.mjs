@@ -108,7 +108,7 @@ const NEUTRAL_POOL = ['Emerson', 'Marlowe', 'Sterling', 'Ellery', 'Sutton', 'Len
 
 // 8 — source wiring in sceneWriter.
 const sw = fs.readFileSync(path.join(ROOT, 'src/lib/sceneWriter.js'), 'utf8');
-check('8. sceneWriter imports applyAnthologyNameRenames', sw.includes("import { applyAnthologyNameRenames } from '@/lib/anthologyRenamePass'"));
+check('8. sceneWriter imports applyAnthologyNameRenames', /import \{ applyAnthologyNameRenames[^}]*\} from '@\/lib\/anthologyRenamePass'/.test(sw)); // NAMEREG-1: import widened to add extractProminentProseNames
 check('8. RENAMEPASS-1 runs on finalProse for anthology', /if \(isAnthology && !isNF\) \{[\s\S]{0,400}applyAnthologyNameRenames\(finalProse, chapter, allProjectChapters\)/.test(sw));
 check('8. rename result is written back to finalProse', sw.includes('finalProse = renamePass.prose;'));
 // SCOPINGFIX-1: the gate is fiction-anthology-only — nonfiction anthologies (isNF true) must never

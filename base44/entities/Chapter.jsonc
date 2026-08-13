@@ -138,6 +138,13 @@
       "type": "string",
       "description": "Model ID used to draft this chapter (e.g. deepseek/deepseek-chat)"
     },
+    // NAMEREG-1: prominent character names the chapter's FINISHED prose actually used
+    // (JSON string array), including anthology rename targets. Written at fast-save;
+    // read by the anthology variety guard (banned-names block) and rename pass.
+    "prose_names": {
+      "type": "string",
+      "description": "JSON array of prominent character names used in this chapter's finished prose (anthology cross-story name hygiene)"
+    },
     // WAVE3-SCHEMA: written by the draft pipeline and chapterStorage but never declared
     "draft_all_mode": {
       "type": "string",

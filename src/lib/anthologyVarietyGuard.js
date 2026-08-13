@@ -236,6 +236,19 @@ export function buildAnthologyChapterVarietyBlock(project, chapter, chapters = [
         (String(h || '').match(/[A-Z][a-z]{2,}/g) || []).forEach((tok) => _bannedNames.add(tok));
       });
     }
+    // NAMEREG-1: also ban the names sibling stories' PROSE actually used (persisted as
+    // prose_names at save time) — covers prose-invented side characters and rename targets
+    // that never appear in any plan. Measured live 2026-08-13: "Julian" invented in two
+    // stories' prose; "Sidney" introduced as a rename target then reused organically.
+    for (const ch of chapters) {
+      const n = Number(ch?.chapter_number || ch?.number || 0);
+      if (!n || n === chapterNumber) continue;
+      let pn = ch?.prose_names;
+      if (typeof pn === 'string' && pn.trim()) { try { pn = JSON.parse(pn); } catch { pn = []; } }
+      if (Array.isArray(pn)) pn.forEach((h) => {
+        (String(h || '').match(/[A-Z][a-z]{2,}/g) || []).forEach((tok) => _bannedNames.add(tok));
+      });
+    }
   }
   const _bannedBlock = _bannedNames.size
     ? `\nBANNED CHARACTER NAMES (each already belongs to a DIFFERENT story in this collection — do NOT name ANY character here, major or minor, with these; invent fresh names for this story's cast): ${Array.from(_bannedNames).sort().join(', ')}`
