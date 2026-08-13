@@ -71,9 +71,13 @@ const plu = read('src/components/cover/PublisherLogoUpload.jsx');
 check('6b. PublisherLogoUpload.jsx holds the real uploader (stub is gone)',
   /publisher_logo_url/.test(plu) && !/return null;\s*}\s*$/.test(plu.trim()));
 const fe = read('src/components/cover/FabricEditor.jsx');
+// WAVE11 note: this pinned the exact single-line JSX. WAVE11-LOGO added an
+// onLogoChange handler, so the element is now multi-line — the assertion tested
+// the formatting, not the contract. Rewritten to check what it meant: that the
+// uploader is rendered and receives `project`.
 check('6c. FabricEditor renders BOTH, and the uploader finally gets project',
   /<TemplatesPicker onApply=\{handleApplyTemplate\} \/>/.test(fe) &&
-  /<PublisherLogoUpload project=\{project\} \/>/.test(fe));
+  /<PublisherLogoUpload[\s\S]{0,200}?project=\{project\}/.test(fe));
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : 'ACCEPTANCE: ' + failures + ' CHECK(S) FAILED');
 process.exit(failures === 0 ? 0 : 1);

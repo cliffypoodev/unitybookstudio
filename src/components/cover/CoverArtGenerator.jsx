@@ -401,8 +401,88 @@ function safeJoin(parts = [], sep = ' · ') {
   return parts.filter(Boolean).join(sep);
 }
 
+/**
+ * WAVE12-GENRE — ask the genre library before falling back to four buckets.
+ *
+ * This function decided the starting style, mood and art brief for every cover,
+ * and its first branch swept `thriller | suspense | crime | mystery` into one
+ * answer: Photorealistic, Dark, "Commercial thriller cover... strong tension,
+ * cinematic contrast". A cozy mystery is none of those things — cozies sell on
+ * illustrated, warm, bright, small-town imagery, and a dark photorealistic
+ * thriller cover is commercially wrong for the shelf it goes on.
+ *
+ * The maddening part is that the app already knew. coverGenreTemplates.js
+ * contains a purpose-built `cozy_mystery_cottage` template — sage green, butter
+ * yellow, whimsical illustration, "a cat sitting on a case file" — and
+ * getGenreCoverTemplate() resolves cozy correctly. It was only reachable from
+ * the Advanced ComfyUI panel; the main path never consulted it.
+ *
+ * Templates first now. The buckets below remain as the fallback for genres the
+ * library has no template for.
+ */
+const TEMPLATE_STYLE_TO_ART_STYLE = {
+  'Painterly / Dark Moody': { style: 'Painterly', mood: 'Dark' },
+  'Photorealistic / Dark Moody': { style: 'Photorealistic', mood: 'Dark' },
+  'Romantic / Warm': { style: 'Romantic', mood: 'Warm' },
+  'Photorealistic / Cool': { style: 'Photorealistic', mood: 'Cool' },
+  'Minimalist / Muted': { style: 'Minimalist', mood: 'Muted' },
+  'Dark/Moody / Photorealistic': { style: 'Dark/Moody', mood: 'Dark' },
+  'Illustrated / Warm': { style: 'Illustrated', mood: 'Warm' },
+  'Minimalist / Clean': { style: 'Minimalist', mood: 'Muted' },
+  'Painterly / Warm': { style: 'Painterly', mood: 'Warm' },
+  'Illustrated / Vibrant': { style: 'Illustrated', mood: 'Vibrant' },
+};
+
+/**
+ * Resolve a template only on a SPECIFIC match.
+ *
+ * getGenreCoverTemplate matches both directions — `search.includes(match)` OR
+ * `match.includes(search)` — so a plain genre of "Mystery" resolves to the COZY
+ * template, because "cozy mystery".includes("mystery"). That is the same class
+ * of error in the opposite direction: a hard-boiled mystery would be handed
+ * butter-yellow watercolour. Other callers depend on that loose behaviour, so it
+ * is left alone; the defaults below require the forward match, and anything
+ * ambiguous falls through to the genre buckets as before.
+ */
+function getSpecificGenreTemplate(genre, subgenre = '') {
+  const search = `${genre || ''} ${subgenre || ''}`.toLowerCase().trim();
+  if (!search) return null;
+
+  for (const template of getAllGenreCoverTemplates()) {
+    for (const match of template.matchGenres) {
+      if (search.includes(String(match).toLowerCase())) return template;
+    }
+  }
+  return null;
+}
+
+function defaultsFromTemplate(template) {
+  if (!template) return null;
+
+  // No mapping for this preset means we would be guessing at style and mood —
+  // the genre buckets below are a better guess than a hardcoded default.
+  const mapped = TEMPLATE_STYLE_TO_ART_STYLE[template.stylePreset];
+  if (!mapped) return null;
+
+  const brief = [
+    template.subject ? `Cover concept: ${template.subject}.` : '',
+    template.lighting ? `Lighting: ${template.lighting}.` : '',
+    template.palette ? `Palette: ${template.palette}.` : '',
+    template.finish ? `Finish: ${template.finish}.` : '',
+    template.composition ? `Composition: ${template.composition}.` : '',
+  ].filter(Boolean).join(' ');
+
+  if (!brief) return null;
+
+  return { style: mapped.style, mood: mapped.mood, brief, templateId: template.id };
+}
+
 function getBasicGenreDefaults(genre = '') {
   const g = String(genre || '').toLowerCase();
+
+  // The library knows ten genres properly. Use it before guessing.
+  const fromTemplate = defaultsFromTemplate(getSpecificGenreTemplate(genre));
+  if (fromTemplate) return fromTemplate;
 
   if (
     g.includes('thriller') ||
@@ -981,7 +1061,15 @@ async function generateCoverDirectionPayload({
         defaults.brief,
       style: data?.style || localPayload.style || defaults.style,
       mood: data?.mood || localPayload.mood || defaults.mood,
-      directions: normalizeDirections(data?.directions),
+      // WAVE12-DIRECTIONS: normalizeDirections returns the PLACEHOLDER
+      // DEFAULT_DIRECTIONS for anything that is not an array — and those
+      // placeholders ("Click Extract Idea or Rebuild Directions to generate…")
+      // were then sent to the image model as the art prompt. localPayload is a
+      // real manuscript-grounded set built a few lines above; it is a far better
+      // fallback than instruction text. Placeholders are now the last resort.
+      directions: Array.isArray(data?.directions) && data.directions.length > 0
+        ? normalizeDirections(data.directions)
+        : (localPayload.directions?.length ? localPayload.directions : normalizeDirections(null)),
       generatedByLlm: !!data?.generated_by_llm,
       model: data?.model || 'generateCoverDirections',
       nonce: data?.rebuild_nonce || nonce,

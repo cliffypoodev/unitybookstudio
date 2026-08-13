@@ -20,7 +20,13 @@ export default function PublisherLogoUpload({ project, onLogoChange }) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
-  const currentLogo = project?.publisher_logo_url || '';
+  // WAVE11-LOGO: this rendered solely from `project.publisher_logo_url`, a prop
+  // that is never refreshed after a write. The upload succeeded, the entity was
+  // updated, the success toast fired — and the panel still said "No logo set"
+  // until a hard page reload. The locally-uploaded URL now wins until the
+  // refreshed project catches up with it.
+  const [justUploaded, setJustUploaded] = useState('');
+  const currentLogo = justUploaded || project?.publisher_logo_url || '';
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -36,6 +42,7 @@ export default function PublisherLogoUpload({ project, onLogoChange }) {
       await runWithNetworkRetry(() =>
         base44.entities.NovelProject.update(project.id, { publisher_logo_url: file_url })
       );
+      setJustUploaded(file_url);
       onLogoChange?.(file_url);
       toast.success('Publisher logo uploaded');
     } catch (err) {
