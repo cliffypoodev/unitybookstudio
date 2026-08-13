@@ -26,7 +26,7 @@ const PROJECT_TYPES = [
     type: 'erotica',
     emoji: '🔥',
     label: 'Erotica',
-    description: 'Adult fiction with explicit content. All fiction genres with spice level, language intensity, and prose register controls. Routes to Lumimaid for prose generation.',
+    description: 'Adult fiction with explicit content. All fiction genres with spice level, language intensity, and prose register controls. Runs on the local uncensored prose model.', // COPYFIX-1: Lumimaid was removed (REMOVED_LUMIMAID_MODELS); the card promised a model that no longer exists
   },
 
 ];
