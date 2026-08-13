@@ -2268,7 +2268,11 @@ export default function ProjectStudio() {
             fallback_model: pickFallbackModel('foundation', shellProject),
             max_tokens: 8192,
           }, 1),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Anthology shell generation timed out')), 90000)),
+          // SHELLCAP-1: 90s was calibrated for the terse R1 architect. ADULTROUTE-1 routes
+          // adult-lane foundation calls to the uncensored 35B, which needs 2-4 minutes for
+          // the shell JSON on the local rig (measured 2026-08-13: every shell timed out at
+          // 90s and the voice_guide/canon_rules never contributed). Timeout stays non-fatal.
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Anthology shell generation timed out')), 300000)),
         ]);
         parsedBible = parseAnthologyBible(unwrapIntegrationResult(shellResponse));
       } catch (shellErr) {
