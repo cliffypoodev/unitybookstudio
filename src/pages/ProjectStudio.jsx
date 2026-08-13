@@ -6418,7 +6418,9 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
   // rows AND had no error. This is a real 404 — the project id in the URL
   // does not exist (deleted, wrong user, bad link).
   if (!project) return <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-sm text-muted-foreground"><p>Project not found.</p><Button variant="outline" className="rounded-full" onClick={() => navigate('/')}>Back to Library</Button></div>;
-  if (currentUser_?.email && project.created_by && project.created_by !== currentUser_.email) return <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-sm text-muted-foreground"><p>You do not have access to this project.</p><Button variant="outline" className="rounded-full" onClick={() => navigate('/')}>Back to Library</Button></div>;
+  // AUTH-3: no created_by email gate. The per-user data directory is the
+  // authorization boundary — a project that loads from this session's store IS
+  // this user's. Legacy records carry Base44-era emails that can never match.
 
   return (
     <main style={{ height: '100vh', overflow: 'hidden' }}>
