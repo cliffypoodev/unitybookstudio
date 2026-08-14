@@ -40,6 +40,7 @@ import {
 import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStylePrompt';
 import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
+import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
@@ -2317,6 +2318,11 @@ function buildSceneStateContractBlock(spec) {
   if (pronounCanon) {
     lines.push(`CHARACTER PRONOUNS (canonical — narration must NEVER vary them): ${pronounCanon}.`);
   }
+  // CANON-2: roles are canon too — no other character may be given these jobs.
+  const roleCanon = String(spec?.role_canon || '').trim();
+  if (roleCanon) {
+    lines.push(`CHARACTER ROLES (canonical — from the character sheet, which OUTRANKS any conflicting world/canon note): ${roleCanon}. Never attribute one character's canonical role to another.`);
+  }
   // STYLEBUDGET-1: rendered as its own block inside the contract.
   const styleBudget = String(spec?.style_budget || '').trim();
   if (styleBudget) {
@@ -3630,6 +3636,18 @@ export async function generateChapterSceneByScene({
     console.warn('[PRONOUNLOCK] Canon build failed (non-fatal):', pronounError?.message || pronounError);
   }
 
+  // CANON-2: canonical roles from the character sheet — the single source of
+  // truth. The REDUX draft opened with "Sadie, the ship's navigator" because a
+  // contradictory world_md line reached the prompt with equal authority; this
+  // line outranks it. Fail open: no declared roles adds nothing.
+  let roleCanonLine = '';
+  try {
+    roleCanonLine = buildRoleCanonLine(project?.characters_md);
+    if (roleCanonLine) console.log('[CANON-2] Role canon for this chapter:', roleCanonLine);
+  } catch (roleError) {
+    console.warn('[CANON-2] Role canon build failed (non-fatal):', roleError?.message || roleError);
+  }
+
   // STYLEBUDGET-1: book-level style spend from prior chapters — exhausted
   // constructions are banned in this chapter's prompt, and a simile budget is
   // stated when earlier chapters run hot. Anthologies are standalone stories:
@@ -3659,6 +3677,7 @@ export async function generateChapterSceneByScene({
       ...spec,
       // KEYLEDGER-1f: who has what when this scene opens.
       pronoun_canon: pronounCanonLine, // PRONOUNLOCK-1
+      role_canon: roleCanonLine, // CANON-2
       style_budget: styleBudgetBlock, // STYLEBUDGET-1
       holders_of_record: Object.entries(runtimeLedger.possessions || {})
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
