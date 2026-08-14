@@ -247,6 +247,13 @@ export function findBeatEventCollisions(beats, priorEvents) {
           const entity = windowMentionsEntity(textValue, p.entities);
           if (!entity) continue;
           if (/\b(?:already|again|second time|once more|return\w*|back)\b/i.test(textValue)) continue; // explicit causal marker
+          // SCENECOLLIDE-1C: the substance requirement applies to BEATS too.
+          // Live REDUX ch.3: the legitimate beat "Reveal the rival team's
+          // knowledge of the crew's true identities" was flagged against ch.2's
+          // unrelated "Rodge reveals his hidden fears about losing the crew"
+          // (REVEAL + shared entity, zero shared substance) and burned all four
+          // planner attempts.
+          if (cls.needsContentOverlap && contentOverlap(p.event, textValue) < cls.needsContentOverlap + 1) continue;
           findings.push({ scene_number: beat?.scene_number ?? null, field, event: p.event, entity, class: className, text: textValue.slice(0, 140) });
         }
       }
@@ -270,13 +277,28 @@ export function rewriteBeatCollisions(beats, findings) {
   return beats.map((beat) => {
     const sceneFindings = byScene.get(beat?.scene_number ?? null);
     if (!sceneFindings) return beat;
-    const note = sceneFindings
-      .map((f) => `(${f.entity} ${f.class === 'ARRIVAL' ? 'already arrived' : f.class === 'DEPARTURE' ? 'already departed' : 'already made this revelation'} in a completed scene — do NOT re-stage it; continue from the state after it)`)
-      .join(' ');
+    // SCENECOLLIDE-1C: idempotent — one note per (entity, class), and never
+    // re-append to text that already carries it (live ch.3 got the same note
+    // twice in one field).
+    const seen = new Set();
+    const notes = [];
+    for (const f of sceneFindings) {
+      const key = `${f.entity}::${f.class}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      notes.push(`(${f.entity} ${f.class === 'ARRIVAL' ? 'already arrived' : f.class === 'DEPARTURE' ? 'already departed' : 'already made this revelation'} in a completed scene — do NOT re-stage it; continue from the state after it)`);
+    }
+    const appendOnce = (text) => {
+      let out = String(text || '');
+      for (const note of notes) {
+        if (!out.includes(note)) out = `${out} ${note}`.trim();
+      }
+      return out;
+    };
     return {
       ...beat,
-      scene_goal: `${String(beat.scene_goal || '')} ${note}`.trim(),
-      required_events: (Array.isArray(beat.required_events) ? beat.required_events : []).map((e, i) => (i === 0 ? `${e} ${note}` : e)),
+      scene_goal: appendOnce(beat.scene_goal),
+      required_events: (Array.isArray(beat.required_events) ? beat.required_events : []).map((e, i) => (i === 0 ? appendOnce(e) : e)),
     };
   });
 }
