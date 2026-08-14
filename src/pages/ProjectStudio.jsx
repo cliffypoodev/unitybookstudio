@@ -66,7 +66,7 @@ import { enforceChapterCount } from '@/lib/setupConstraints';
 import { clearAndCreateChapters } from '@/lib/chapterCreator';
 import { repairTruncatedChapters } from '@/lib/chapterRepair';
 import { runExternalAiPatternFix } from '@/lib/externalAiPatterns';
-import { fixHangingQuotes, repairChapterQuotes } from '@/lib/quoteFixPolish';
+import { fixHangingQuotes, repairChapterQuotes, normalizeSmartQuotesOnly } from '@/lib/quoteFixPolish';
 import { runDialogueMechanicsPass as runDialogueMechanicsFinal } from '@/lib/dialogueMechanicsRepair'; // DIALOGUEFIX-2
 import { runAiDetectionResistance } from '@/lib/aiDetectionResist';
 import { runAntiDetectionPolish } from '@/lib/antiDetectionPolish';
@@ -82,6 +82,8 @@ import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/proje
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { buildPriorChapterEventLedger, findReintroductions, rewriteReintroductions } from '@/lib/eventLedger'; // EVENTLEDGER-1A
 import { findBeatEventCollisions, rewriteBeatCollisions } from '@/lib/eventCollision'; // SCENECOLLIDE-1
+import { buildCharacterState, buildCharacterStateContract } from '@/lib/characterStateLedger'; // CHARSTATE-1
+import { harvestCastNames } from '@/lib/pronounLock'; // CHARSTATE-1
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
@@ -3400,6 +3402,27 @@ Return structured JSON:
       ledgerEvents = eventLedger.events;
       if (eventLedger.text) priorCoverage = `${eventLedger.text}\n\n${priorCoverage}`;
       console.log('[EVENTLEDGER] Planner ledger:', ledgerEvents.length, 'prior events,', eventLedger.text.length, 'chars');
+
+      // CHARSTATE-1: the planner sees the character state machine too — a
+      // beat plan may not cast a departed character with the crew, and may
+      // not plan a first meeting for a known character. Prepended like the
+      // event ledger so it survives the prompt clip. Fail open.
+      try {
+        const statePriorChapters = chapterList
+          .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter.chapter_number))
+          .map((prior) => ({ chapterNumber: Number(prior.chapter_number), text: String(prior?.content_md || '') }));
+        const stateCast = harvestCastNames(promptProject?.characters_md, statePriorChapters.map((c) => c.text));
+        if (stateCast.length && statePriorChapters.some((c) => c.text.length > 200)) {
+          const charState = buildCharacterState(statePriorChapters, stateCast);
+          const stateContract = buildCharacterStateContract(charState);
+          if (stateContract) {
+            priorCoverage = `${stateContract}\n\n${priorCoverage}`;
+            console.log('[CHARSTATE] Planner contract:', stateContract.split('\n').length - 1, 'fact(s)');
+          }
+        }
+      } catch (stateError) {
+        console.warn('[CHARSTATE] Planner state build failed (non-fatal):', stateError?.message || stateError);
+      }
     }
     console.log('[NARRATIVE-CONNECT] Beat-planner prior coverage chars:', priorCoverage.length);
     let beatResult = null;
@@ -4643,6 +4666,18 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       error.code = 'INTERNAL_SCENE_SENTINEL_LEAK';
       error.narrativeContract = true;
       throw error;
+    }
+
+    // DRAFTSAVE-1: a draft that came out with straight quotes (live REDUX ch.3
+    // redraft: 0 curly / 265 straight) enters storage typography-normalized,
+    // so every downstream gate and ledger sees the same quote alphabet.
+    // Character-for-character glyph swap only — QUOTENORM-1 invariants hold.
+    if ((chapterContent.match(/"/g) || []).length > 10) {
+      const draftQuoteNorm = normalizeSmartQuotesOnly(chapterContent);
+      if (draftQuoteNorm.changed > 0) {
+        chapterContent = draftQuoteNorm.text;
+        console.log(`[DRAFTSAVE-1] Ch.${chapter.chapter_number}: normalized ${draftQuoteNorm.changed} straight quote(s) before save.`);
+      }
     }
 
     wordCount = countWords(chapterContent);
