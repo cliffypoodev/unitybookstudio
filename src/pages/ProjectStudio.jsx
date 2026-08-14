@@ -81,6 +81,7 @@ import { extractPremiseEntities, buildPremiseCoverageBlock, reportPremiseCoverag
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { buildPriorChapterEventLedger, findReintroductions, rewriteReintroductions } from '@/lib/eventLedger'; // EVENTLEDGER-1A
+import { findBeatEventCollisions, rewriteBeatCollisions } from '@/lib/eventCollision'; // SCENECOLLIDE-1
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
@@ -3669,15 +3670,26 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         if (reintroductions.length) {
           console.warn('[EVENTLEDGER] Beat plan re-introduces ledgered characters:', reintroductions);
         }
-        if (!structurallyChanged && beatFieldGaps.length === 0 && reintroductions.length === 0) {
+        // SCENECOLLIDE-1: a plan that re-STAGES a completed (entity, action)
+        // pair — a second arrival of the rival team, a second departure, a
+        // repeated revelation — is rejected like a reintroduction, regardless
+        // of how the beat is worded.
+        const beatCollisions = ledgerEvents.length ? findBeatEventCollisions(normalizedBeatPlan, ledgerEvents) : [];
+        if (beatCollisions.length) {
+          console.warn('[SCENECOLLIDE] Beat plan re-stages completed events:', beatCollisions);
+        }
+        if (!structurallyChanged && beatFieldGaps.length === 0 && reintroductions.length === 0 && beatCollisions.length === 0) {
           beatResult.beats = normalizedBeatPlan;
           break;
         }
-        if (!structurallyChanged && beatFieldGaps.length === 0 && reintroductions.length > 0 && attempt === maxContractAttempts) {
-          // Attempts exhausted on reintroduction alone: repair deterministically
-          // rather than ship a second first-meeting or fail the chapter.
-          beatResult.beats = rewriteReintroductions(normalizedBeatPlan, reintroductions);
-          console.warn('[EVENTLEDGER] Attempts exhausted — rewrote reintroduction phrasing deterministically for', reintroductions.map((f) => f.name).join(', '));
+        if (!structurallyChanged && beatFieldGaps.length === 0 && (reintroductions.length > 0 || beatCollisions.length > 0) && attempt === maxContractAttempts) {
+          // Attempts exhausted on reintroduction/collision alone: repair
+          // deterministically rather than ship a duplicate or fail the chapter.
+          let repairedBeats = normalizedBeatPlan;
+          if (reintroductions.length) repairedBeats = rewriteReintroductions(repairedBeats, reintroductions);
+          if (beatCollisions.length) repairedBeats = rewriteBeatCollisions(repairedBeats, beatCollisions);
+          beatResult.beats = repairedBeats;
+          console.warn('[SCENECOLLIDE] Attempts exhausted — rewrote colliding beat phrasing deterministically for', [...reintroductions.map((f) => f.name), ...beatCollisions.map((f) => `${f.entity}/${f.class}`)].join(', '));
           break;
         }
 
@@ -3723,7 +3735,10 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         const reintroductionLines = reintroductions.length
           ? `\nCHARACTERS ALREADY INTRODUCED IN EARLIER CHAPTERS — this plan wrongly stages a FIRST meeting for: ${reintroductions.map((f) => f.name).join(', ')}. They are already known to the crew; write their scenes as continuations, never introductions.`
           : '';
-        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}${beatFieldGaps.length ? `\nEvery beat MUST fill these required fields — the previous plan left them empty:\n${beatFieldGaps.map((gap) => `- ${gap}`).join('\n')}` : ''}${reintroductionLines}\n\nReturn a completely new JSON beat contract.`;
+        const collisionLines = beatCollisions.length
+          ? `\nEVENTS ALREADY COMPLETED — this plan wrongly re-stages: ${beatCollisions.map((f) => `${f.class.toLowerCase()} of ${f.entity} (already executed: "${f.event.slice(0, 90)}")`).join('; ')}. These events happened; plan beats that advance the CONSEQUENCES, never a repeat performance.`
+          : '';
+        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}${beatFieldGaps.length ? `\nEvery beat MUST fill these required fields — the previous plan left them empty:\n${beatFieldGaps.map((gap) => `- ${gap}`).join('\n')}` : ''}${reintroductionLines}${collisionLines}\n\nReturn a completely new JSON beat contract.`;
       }
     } catch (beatError) {
       if (!isNonfiction) throw beatError;
