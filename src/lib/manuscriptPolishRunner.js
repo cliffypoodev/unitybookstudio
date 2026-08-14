@@ -39,6 +39,7 @@ import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
 import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes } from './quoteFixPolish.js';
 import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from './crossChapterDedupe.js';
+import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
 import { repairCanonNameDrift } from './canonNameLock.js';
 import { runPerChapter } from './anthologyPolishHelper.js';
@@ -790,6 +791,36 @@ export async function runManuscriptPolishPipeline({
   // are skipped and reported, never forced). Nonfiction is excluded — NF prose
   // is typography-only in polish (NFGUARD-1) and NF quotes are closed-world.
   // ══════════════════════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════════════════
+  // CANON-2: name-variant heal. A capitalized token that is a one-edit
+  // near-miss of exactly one canonical cast name ("Rodger" in a book whose
+  // canon is Rodge/Roderick — 3 live hits) is generation drift, not a
+  // character. Deterministic, and only when the canonical form dominates
+  // (>=5x), so a legitimately similar minor character is never clobbered.
+  // ══════════════════════════════════════════════════════════════════════════
+  let nameVariantsHealed = 0;
+  if (mode !== 'nonfiction') {
+    try {
+      const canonCast = parseCanonCast(project?.characters_md);
+      if (canonCast.length) {
+        for (const f of loaded) {
+          const healed = healNameVariants(f.content || '', canonCast);
+          if (healed.repairs.length) {
+            f.content = healed.text;
+            for (const r of healed.repairs) {
+              nameVariantsHealed += r.count;
+              changes.push(`Ch.${f.chapter?.chapter_number || '?'}: canon name variant healed — "${r.variant}" -> "${r.canonical}" (${r.count}x).`);
+              console.log(`[CANON-2] Ch.${f.chapter?.chapter_number || '?'}: healed name variant "${r.variant}" -> "${r.canonical}" (${r.count}x)`);
+            }
+          }
+        }
+      }
+    } catch (canonError) {
+      console.warn('[CANON-2] Name-variant heal failed open:', canonError?.message);
+    }
+  }
+  verifyInvariant('Canon Name Variant Heal');
+
   let crossDedupeStats = { recast: 0, skipped: [], dupesFound: 0 };
   if (mode !== 'nonfiction' && !isAnthology) {
     onProgress('Polish: Scanning for cross-chapter duplicate sentences…');
