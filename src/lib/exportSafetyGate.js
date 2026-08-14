@@ -84,6 +84,7 @@ async function getDialogueDetector() {
  */
 import { buildPronounCanon, harvestCastNames, scanPronounViolations } from './pronounLock.js'; // PRONOUNLOCK-1
 import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
+import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
 
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
   let { project, stage = 'pre-export' } = options;
@@ -354,31 +355,28 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   // catch — different class from BOOKGATE-2's advisory echoes. The polish
   // pre-pass heals these; the gate guarantees none survive to export.
   try {
-    const seenX = new Map();
-    const dupX = [];
-    for (const ch of chapters) {
-      // BOOKGATE-3B: resolved export chapters carry content_md (see
-      // applyFinalExportCleanup), never a bare content field — the live store
-      // has zero Chapter records with one. Reading ch.content scanned empty
-      // strings, so this hard gate had been dead code since it landed; the
-      // polish pre-pass heal masked it. content stays as a fallback for any
-      // caller that shapes chapters that way.
-      const contentX = String(ch?.content_md || ch?.content || '');
-      const sentsX = contentX.split(/(?<=[.!?…”])\s+/);
-      for (const s of sentsX) {
-        const normX = s.replace(/\s+/g, ' ').trim();
-        if (normX.split(' ').length < 12) continue;
-        const firstX = seenX.get(normX);
-        if (firstX === undefined) seenX.set(normX, ch?.chapter_number);
-        else if (firstX !== ch?.chapter_number) dupX.push({ a: firstX, b: ch?.chapter_number, s: normX.slice(0, 80) });
-      }
-    }
+    // BOOKGATE-3B: resolved export chapters carry content_md (see
+    // applyFinalExportCleanup), never a bare content field — the live store
+    // has zero Chapter records with one. Reading ch.content scanned empty
+    // strings, so this hard gate had been dead code since it landed; the
+    // polish pre-pass heal masked it. content stays as a fallback for any
+    // caller that shapes chapters that way.
+    //
+    // CROSSDEDUPE-1: detection is single-sourced in crossChapterDedupe.js —
+    // the polish-lane healer hunts exactly what this gate blocks.
+    // GATEREPORT-1: report EVERY duplicate, uncapped. The old slice(0, 5)
+    // meant an author fixed three sentences, re-exported, and discovered two
+    // more the gate had known about all along — whack-a-mole by design.
+    const dupX = findCrossChapterDuplicateSentences(
+      chapters.map((ch) => ({ chapterNumber: ch?.chapter_number, text: String(ch?.content_md || ch?.content || '') }))
+    );
     if (dupX.length > 0) {
-      console.error(`[BOOKGATE-3] BLOCKED: ${dupX.length} verbatim cross-chapter duplicate sentence(s): ` + dupX.slice(0, 3).map((d) => `ch${d.a}=ch${d.b} "${d.s}"`).join(' | '));
+      console.error(`[BOOKGATE-3] BLOCKED: ${dupX.length} verbatim cross-chapter duplicate sentence(s): ` + dupX.map((d) => `ch${d.a}=ch${d.b} "${d.norm.slice(0, 80)}"`).join(' | '));
       hardFailures.push({
         chapterNumber: dupX[0].b,
         title: 'Cross-chapter duplication',
-        reasons: dupX.slice(0, 5).map((d) => `Verbatim sentence in ch.${d.a} and ch.${d.b}: "${d.s}"`),
+        reportAllReasons: true,
+        reasons: dupX.map((d) => `Verbatim sentence in ch.${d.a} and ch.${d.b}: "${d.norm.slice(0, 80)}"`),
       });
     }
   } catch (e) { console.error('[BOOKGATE-3] check unavailable — duplication NOT verified:', e?.message); }
@@ -668,7 +666,10 @@ export function formatExportSafetyFailure(report) {
   for (const f of report.hardFailures) {
     lines.push(`  Chapter ${f.chapterNumber}: ${f.title}`);
     lines.push(`    Action: ${f.recommendedAction || 'FIX_OR_REDRAFT'}`);
-    for (const r of (f.reasons || []).slice(0, 3)) {
+    // GATEREPORT-1: manuscript-level failures (reportAllReasons) list every
+    // defect in one run — a capped report turns export into whack-a-mole.
+    const reasonCap = f.reportAllReasons ? (f.reasons || []).length : 3;
+    for (const r of (f.reasons || []).slice(0, reasonCap)) {
       lines.push(`    → ${r}`);
     }
     if (f.processLeakCount > 0) lines.push(`    Process leaks: ${f.processLeakCount}`);
