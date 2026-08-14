@@ -105,6 +105,7 @@ export async function runManuscriptPolishPipeline({
   allowLLM = true,
   mode = 'fiction',
   sceneDuplicateSweep = null,
+  allowDedupeLLM = true,
   _llmOverride = null,
   _testInjectHealer = null,
   _crossDedupeLLMOverride = null,
@@ -793,7 +794,13 @@ export async function runManuscriptPolishPipeline({
   if (mode !== 'nonfiction' && !isAnthology) {
     onProgress('Polish: Scanning for cross-chapter duplicate sentences…');
     const dedupeChapters = loaded.map((f) => ({ chapterNumber: f.chapter?.chapter_number, text: f.content || '' }));
-    if (allowLLM || _crossDedupeLLMOverride) {
+    // POLISHSAFE-1C: the dedupe healer has its own switch, independent of the
+    // full LLM prose polish. The UI's Fix Manuscript lane is deterministic-first
+    // (allowLLM false), but a dedupe recast is one verified sentence, not a
+    // chapter rewrite — running it there is exactly the point of the pass.
+    // Each recast is still one sequential LLM call, deterministically verified,
+    // and fails open to a report if the LLM is unreachable.
+    if (allowLLM || allowDedupeLLM || _crossDedupeLLMOverride) {
       try {
         crossDedupeStats = await healCrossChapterDuplicates(dedupeChapters, {
           callLLM: _crossDedupeLLMOverride,
