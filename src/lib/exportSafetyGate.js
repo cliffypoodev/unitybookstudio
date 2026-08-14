@@ -82,6 +82,8 @@ async function getDialogueDetector() {
  *   timestamp: string,
  * }}
  */
+import { buildPronounCanon, harvestCastNames, scanPronounViolations } from './pronounLock.js'; // PRONOUNLOCK-1
+
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
   let { project, stage = 'pre-export' } = options;
   // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the export-lane
@@ -537,6 +539,39 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     } catch (seriesErr) {
       console.warn('[SAFETY-GATE:SERIES] Series contract gate error (non-fatal):', seriesErr?.message);
     }
+  }
+
+  // PRONOUNLOCK-1: pronoun drift is reported, never hard-blocked — disguise
+  // plots make gendered pronouns legitimately unstable in deliberate prose,
+  // and a heuristic must not refuse a book. Fail open on any error.
+  try {
+    const bodies = chapters.map((ch) => String(ch?.content_md || '')).filter((body) => body.length > 200);
+    const castNames = harvestCastNames(options?.project?.characters_md, bodies);
+    if (castNames.length) {
+      const pronounCanon = buildPronounCanon(options?.project, bodies, castNames);
+      for (const ch of chapters) {
+        const body = String(ch?.content_md || '');
+        if (body.length <= 200) continue;
+        const drift = scanPronounViolations(body, pronounCanon.canon, castNames);
+        if (drift.length >= 3) {
+          warnings.push({
+            chapterNumber: ch?.chapter_number,
+            title: ch?.title || '',
+            reasons: [`PRONOUNLOCK-1: ${drift.length} sentence(s) where a character's pronoun contradicts canon (${drift.slice(0, 2).map((f) => `${f.name} expected ${f.expected}`).join('; ')})`],
+          });
+        }
+      }
+      if (pronounCanon.unresolved.length) {
+        warnings.push({
+          chapterNumber: 'manuscript',
+          title: 'Pronoun canon',
+          reasons: [`PRONOUNLOCK-1: ${pronounCanon.unresolved.length} character(s) with heavy MIXED pronoun usage and no declaration — declare pronouns in the character sheet (e.g. "Name (they/them)"): ${pronounCanon.unresolved.map((entry) => `${entry.name} (he ${entry.he} / she ${entry.she})`).join(', ')}`],
+        });
+      }
+      console.log(`[PRONOUNLOCK] Gate scan: canon for ${Object.keys(pronounCanon.canon).length} character(s), ${pronounCanon.unresolved.length} unresolved`);
+    }
+  } catch (pronounError) {
+    console.warn('[PRONOUNLOCK] Gate scan failed (non-fatal):', pronounError?.message || pronounError);
   }
 
   const blocked = hardFailures.length > 0;
