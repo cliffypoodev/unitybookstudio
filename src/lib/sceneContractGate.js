@@ -243,6 +243,23 @@ const NON_ENACTMENT_PATTERNS = [
 ];
 
 const ACTIVE_EVENT_VERBS = new Set([
+  // EVENTLEDGER-1C: motion/transition verbs. The Lipstick Ch.20 double launch
+  // passed this gate because "takes off, soaring" vs "soared" shared only the
+  // verb 'soar' — which was not in this list, so hasActiveEventVerb vetoed a
+  // 0.67-coverage hit on the exact stolen event.
+  'soar',
+  'launch',
+  'fly',
+  'rise',
+  'lift',
+  'land',
+  'crash',
+  'depart',
+  'ascend',
+  'descend',
+  'board',
+  'flee',
+  'sail',
   'arrive',
   'leave',
   'enter',
@@ -348,7 +365,7 @@ function isNonEnactedReference(sentenceText) {
   );
 }
 
-function detectEventEnactment(eventText, proseText) {
+export function detectEventEnactment(eventText, proseText) { // EVENTLEDGER-1C: exported for the acceptance battery
   const windows = splitIntoEventWindows(proseText);
   const matches = [];
 
