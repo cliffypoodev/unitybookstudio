@@ -85,6 +85,7 @@ async function getDialogueDetector() {
 import { buildPronounCanon, harvestCastNames, scanPronounViolations } from './pronounLock.js'; // PRONOUNLOCK-1
 import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
 import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
+import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants } from './canonRoles.js'; // CANON-2
 
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
   let { project, stage = 'pre-export' } = options;
@@ -603,6 +604,40 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     }
   } catch (styleError) {
     console.warn('[STYLEBUDGET] Gate telemetry failed (non-fatal):', styleError?.message || styleError);
+  }
+
+  // CANON-2: canon integrity — warnings only, but loud. A foundation that
+  // disagrees with itself (REDUX: characters_md made Zin the navigator while
+  // world_md AND canon_md called Sadie "the ship's navigator") is an author
+  // decision to make, not an auto-fix; the gate makes it impossible to miss.
+  // Name variants that survived polish are listed the same way.
+  try {
+    const contradictions = checkFoundationRoleConsistency(project);
+    for (const contradiction of contradictions) {
+      warnings.push({
+        chapterNumber: 'foundation',
+        title: 'Canon contradiction',
+        reasons: [`CANON-2: the role "${contradiction.role}" is claimed for ${contradiction.distinctNames.join(' AND ')} — ${contradiction.holders.map((h) => `${h.name} in ${h.field}${h.snippet ? ` ("${h.snippet}")` : ''}`).join('; ')}. Fix the story bible: one character owns this role.`],
+      });
+      console.warn(`[CANON-2] Foundation contradiction: "${contradiction.role}" claimed for ${contradiction.distinctNames.join(' and ')}`);
+    }
+    const canonCast = parseCanonCast(project?.characters_md);
+    if (canonCast.length) {
+      for (const ch of chapters) {
+        const body = String(ch?.content_md || '');
+        if (body.length <= 200) continue;
+        const variants = findNameVariants(body, canonCast);
+        for (const variant of variants) {
+          warnings.push({
+            chapterNumber: ch?.chapter_number,
+            title: ch?.title || '',
+            reasons: [`CANON-2: probable name drift — "${variant.variant}" (${variant.count}x) is a near-miss of canonical "${variant.canonical}".`],
+          });
+        }
+      }
+    }
+  } catch (canonError) {
+    console.warn('[CANON-2] Gate canon telemetry failed (non-fatal):', canonError?.message || canonError);
   }
 
   const blocked = hardFailures.length > 0;
