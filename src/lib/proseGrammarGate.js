@@ -152,8 +152,8 @@ export async function analyzeProse(text) {
   // vowel-spelled words ("a unicorn", "a European") and vowel-sound exceptions
   // ("an hour", "an honest"). When the prose already follows the sound rule,
   // the finding is a false positive — drop it before it can hard-block a book.
-  const A_OK_BEFORE = /^(?:uni(?=[bcdfghjklmnpqrstvz])|una(?=nim)|use|used|useful|useless|user|usu|usur|utensil|uterus|util|utop|ubiq|euro|eu[a-z]|ewe|one|once|oui|u[- ])/i;
-  const AN_OK_BEFORE = /^(?:hour|honest|hono|heir|herb|herbs|x-|xbox|mba|fbi|sos|lcd|led|f-|m-|n-|r-|s-)/i;
+  const A_OK_BEFORE = /^(?:uni(?=[bcdfghjklmnpqrstvz])|una(?=nim)|use(?:d|ful|less|r)?(?![a-z])|usu|usur|utensil|uterus|util|utop|ubiq|euro|eu[a-z]|ewe(?![a-z])|one(?![a-z])|once(?![a-z])|oui|u[- ])/i; // ARTICLEFP-1C: bounded
+  const AN_OK_BEFORE = /^(?:hour|honest|hono|heir|herb(?:s)?(?![a-z])|x-|xbox|mba(?![a-z])|fbi(?![a-z])|sos(?![a-z])|lcd(?![a-z])|led(?![a-z])|f-|m-|n-|r-|s-)/i; // ARTICLEFP-1C: bounded
   const isArticleFalsePositive = (msg) => {
     const source = msg.ruleId || msg.source;
     if (source !== 'retext-indefinite-article' && msg.source !== 'retext-indefinite-article') return false;
