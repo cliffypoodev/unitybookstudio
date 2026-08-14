@@ -1,5 +1,6 @@
 import { getTrustedCharacters } from './narrativeLedger.js';
 import { findProseEventCollisions } from './eventCollision.js'; // SCENECOLLIDE-1
+import { auditProseAgainstCharacterState, extractCharacterStateUpdates } from './characterStateLedger.js'; // CHARSTATE-1
 import { normalizeCast, resolveReferent, trackLastNamed } from './referentResolver.js';
 import { checkPossessionContinuity, isPortablePropPhrase, dedupeTrackedObjects } from './objectPossession.js';
 
@@ -900,6 +901,44 @@ export function auditSceneAgainstLedger({
     });
   }
 
+  // CHARSTATE-1: the character state machine. A scene may not have a DEPARTED
+  // character acting with the crew (REDUX ch.10: JB "fidgeted near the
+  // counter" one chapter after "He was gone."), and may not stage a second
+  // named self-introduction. State from earlier chapters arrives via the spec;
+  // departures/introductions written earlier in THIS chapter's accumulated
+  // prose fold in on top, so scene 3 respects a scene-1 departure.
+  try {
+    const baseState = spec?.__characterState;
+    const stateCast = Array.isArray(spec?.__characterStateCast) ? spec.__characterStateCast : [];
+    if (baseState && stateCast.length) {
+      let effectiveState = baseState;
+      if (accumulatedProse && accumulatedProse.length > 200) {
+        effectiveState = JSON.parse(JSON.stringify(baseState));
+        const inChapter = extractCharacterStateUpdates(accumulatedProse, stateCast);
+        for (const name of inChapter.introductions) {
+          if (!effectiveState[name]) effectiveState[name] = { introduced: 0, partyStatus: 'present', statusChapter: null };
+          else if (effectiveState[name].introduced === null) effectiveState[name].introduced = 0;
+        }
+        for (const name of inChapter.departures) {
+          if (!effectiveState[name]) effectiveState[name] = { introduced: null, partyStatus: 'departed', statusChapter: 0 };
+          else { effectiveState[name].partyStatus = 'departed'; effectiveState[name].statusChapter = 0; }
+        }
+        for (const name of inChapter.returns) {
+          if (effectiveState[name]) { effectiveState[name].partyStatus = 'returned'; effectiveState[name].statusChapter = 0; }
+        }
+      }
+      for (const violation of auditProseAgainstCharacterState(prose, effectiveState, stateCast)) {
+        issues.push({
+          code: violation.code,
+          message: violation.message,
+          evidence: violation.evidence,
+        });
+      }
+    }
+  } catch (stateAuditError) {
+    console.warn('[CHARSTATE] Scene audit failed open:', stateAuditError?.message);
+  }
+
   for (const event of futureEvents.filter(isStatefulEvent)) {
     const result = detectEventEnactment(event, prose);
     if (result.hit) {
@@ -1239,6 +1278,7 @@ Rewrite ONLY the current contracted scene from scratch.
 MANDATORY:
 - Do not replay any event completed in an earlier scene.
 - Do not re-stage an arrival, departure, or revelation that has already happened — characters who already arrived are ALREADY PRESENT; open the scene with them on stage, never arriving again.
+- A character who DEPARTED the story may NOT appear, act, or speak unless this scene writes their return first. A character who already introduced themselves is KNOWN — never another first meeting.
 - Do not perform any event reserved for a later scene.
 - Perform each current required event exactly once.
 - Preserve all established injuries, deaths, locations, knowledge, possessions, and decisions.
