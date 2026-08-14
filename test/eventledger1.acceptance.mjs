@@ -93,7 +93,7 @@ check('16. naming the entities without the action does not hit', detectEventEnac
 // ── 6. wiring (source-level, against the live files) ──
 const PSTUDIO = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
 check('17. planner builds the ledger and prepends it to prior coverage', PSTUDIO.includes('buildPriorChapterEventLedger(chapterList') && PSTUDIO.includes('${eventLedger.text}'));
-check('18. beat retry loop rejects reintroductions and rewrites on exhaustion', PSTUDIO.includes('findReintroductions(normalizedBeatPlan') && PSTUDIO.includes('rewriteReintroductions(normalizedBeatPlan'));
+check('18. beat retry loop rejects reintroductions and rewrites on exhaustion', PSTUDIO.includes('findReintroductions(normalizedBeatPlan') && (PSTUDIO.includes('rewriteReintroductions(normalizedBeatPlan') || PSTUDIO.includes('rewriteReintroductions(repairedBeats'))); // SCENECOLLIDE-1: exhaustion repair now chains reintroduction + collision rewrites
 const WRITER = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
 check('19. writer seeds prior_completed_events from earlier chapters (anthology excluded)', WRITER.includes('priorChapterEvents = (!isAnthologyProject(project)') && WRITER.includes('...priorChapterEvents,'));
 const GATE = fs.readFileSync(new URL('../src/lib/sceneContractGate.js', import.meta.url), 'utf8');
