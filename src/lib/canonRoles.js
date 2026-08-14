@@ -233,4 +233,58 @@ export function buildRoleCanonLine(charactersMd) {
   return entries.map((entry) => `${entry.name}: ${entry.role.replace(/\.$/, '')}`).join('; ');
 }
 
+/**
+ * CHARSTATE-1: role-reference drift in prose. The live case (REDUX ch.11):
+ * "Sadie, plot a course for Elm Fork." … "The navigator grinned" — narration
+ * hands Zin's canonical role to Sadie by referring to Sadie as "The
+ * navigator". Detection mirrors PRONOUNLOCK's sole-name attribution: a
+ * sentence that names exactly ONE cast member, followed within two sentences
+ * by a sentence-initial "The <unique role>" reference, attributes that role
+ * reference to that character. If canon assigns the role to someone else,
+ * that is drift.
+ *
+ * Returns [{ role, holder, referredTo, snippet }] — empty when clean.
+ */
+export function scanRoleReferenceDrift(text, canonEntries, castNames = []) {
+  const prose = String(text || '');
+  if (!prose || !canonEntries?.length) return [];
+
+  // role -> canonical holder (primary name), from characters_md canon only.
+  const roleHolder = new Map();
+  const aliasToPrimary = new Map();
+  for (const entry of canonEntries) {
+    if (entry.uniqueRole) roleHolder.set(entry.uniqueRole, entry.name);
+    for (const alias of entry.aliases) aliasToPrimary.set(alias, entry.name);
+    aliasToPrimary.set(entry.name, entry.name);
+  }
+  if (!roleHolder.size) return [];
+
+  const cast = castNames.length ? castNames : [...aliasToPrimary.keys()];
+  const sentences = prose
+    .replace(/\b(Dr|Mr|Mrs|Ms|Prof|Sr|Jr|St)\./g, '$1<ABBR>')
+    .split(/(?<=[.!?”])\s+/)
+    .map((s) => s.replace(/<ABBR>/g, '.'));
+
+  const findings = [];
+  for (let i = 0; i < sentences.length; i += 1) {
+    const roleRef = sentences[i].match(/^["“]?The\s+(navigator|captain|leader|pilot|cook|medic|doctor|quartermaster|first mate)\b/i);
+    if (!roleRef) continue;
+    const role = roleRef[1].toLowerCase();
+    const holder = roleHolder.get(role);
+    if (!holder) continue;
+    // Attribute: nearest preceding sentence (window 2) naming exactly one cast member.
+    for (let back = 1; back <= 2 && i - back >= 0; back += 1) {
+      const prev = sentences[i - back];
+      const named = [...new Set(cast.filter((c) => new RegExp(`\\b${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(prev)).map((c) => aliasToPrimary.get(c) || c))];
+      if (named.length !== 1) { if (named.length > 1) break; continue; }
+      const referredTo = named[0];
+      if (referredTo !== holder) {
+        findings.push({ role, holder, referredTo, snippet: `${prev.slice(-60)} → ${sentences[i].slice(0, 60)}` });
+      }
+      break;
+    }
+  }
+  return findings;
+}
+
 export const CANON_ROLES_VERSION = 'canon-roles-v1';
