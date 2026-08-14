@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { bypassGenerateImage, bypassUploadFile } from '@/lib/coreBypasses';
 import {
@@ -289,6 +290,7 @@ function buildInitialLayers(project, savedLayers, dims) {
 }
 
 export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }) {
+  const queryClient = useQueryClient();
   const backArtInputRef = useRef(null);
   const imageLayerInputRef = useRef(null);
 
@@ -296,10 +298,14 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
   const saved = safeParse(project?.wrap_canvas_json);
   const savedSettings = saved?.settings || {};
 
-  const savedLayers =
-    saved?.version === SAVE_VERSION && Array.isArray(saved?.layers)
-      ? saved.layers
-      : [];
+  // WAVE11-MIGRATE: a SAVE_VERSION bump used to throw every saved layer away
+  // while keeping the settings — so a project saved under v13 opened with its
+  // trim size, back art and colours intact but its blurb, spine title and spine
+  // author replaced by stock defaults, with no message. sanitizeLayer already
+  // normalises the flat, forward-compatible layer shape, so older records can
+  // simply be run through it.
+  const savedLayers = Array.isArray(saved?.layers) ? saved.layers : [];
+  const savedLayersAreStale = savedLayers.length > 0 && saved?.version !== SAVE_VERSION;
 
   const [trimLabel, setTrimLabel] = useState(savedSettings.trimLabel || defaultTrim.label);
   const [pageCount, setPageCount] = useState(
@@ -313,7 +319,17 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
   // WAVE4-BARCODE: the real EAN-13 the ISBNBarcode component generates.
   // Previously discarded — exports shipped a gray "BARCODE / ISBN" box that
   // KDP/IngramSpark would reject.
-  const [barcodeDataUrl, setBarcodeDataUrl] = useState('');
+  const [barcodeDataUrl, setBarcodeDataUrl] = useState(savedSettings.barcodeDataUrl || '');
+
+  // WAVE11-MIGRATE: say so once when an older save is brought forward, rather
+  // than the previous behaviour of silently replacing the layers with defaults.
+  const migrationNotedRef = useRef(false);
+  useEffect(() => {
+    if (savedLayersAreStale && !migrationNotedRef.current) {
+      migrationNotedRef.current = true;
+      console.info(`[WRAP] migrated ${savedLayers.length} layer(s) from an older save format`);
+    }
+  }, [savedLayersAreStale, savedLayers.length]);
 
   const [backArtUrl, setBackArtUrl] = useState(savedSettings.backArtUrl || '');
   const [backArtPrompt, setBackArtPrompt] = useState(savedSettings.backArtPrompt || '');
@@ -410,6 +426,15 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
   }, [addLayer, backLeft, backW, panelTop]);
 
   const handleAddSpineText = useCallback(() => {
+    // WAVE10-SPINETEXT: guard the action too, not just the button — a disabled
+    // button is a courtesy, this is the rule.
+    if (!dims.canSpineText) {
+      toast.error(
+        `KDP will not print spine text below ${KDP_SPECS.minSpineTextPages} pages. ` +
+        `This book is ${dims.pageCount} page(s) — the spine is only ${dims.spineWidth.toFixed(3)}" wide.`
+      );
+      return;
+    }
     addLayer({
       id: uid('spine-text'),
       name: 'Spine Text',
@@ -428,7 +453,7 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
       vertical: true,
       visible: true,
     });
-  }, [addLayer, panelH, panelTop, spineLeft, spineW]);
+  }, [addLayer, dims.canSpineText, dims.pageCount, dims.spineWidth, panelH, panelTop, spineLeft, spineW]);
 
   const handleAddPublisherLogo = useCallback(() => {
     if (!publisherLogoUrl?.trim()) {
@@ -816,6 +841,10 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
           backBgColor,
           spineBgColor,
           publisherLogoUrl,
+          // WAVE11-BARCODE: showBarcode was saved and the generated image was
+          // not, so after a reload the export fell back to the grey
+          // "BARCODE / ISBN" placeholder box while the toggle still read on.
+          barcodeDataUrl,
         },
         layers: cleanLayers,
       };
@@ -840,6 +869,10 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
       });
 
       setLayers(cleanLayers);
+      // WAVE11-REFRESH: the entity was written and the cached project was not
+      // invalidated, so switching view and back re-seeded from the pre-save
+      // prop — the wrap reverted to defaults after a successful save.
+      queryClient.invalidateQueries({ queryKey: ['novel-project', project.id] });
       toast.success('Full wrap saved');
     } catch (err) {
       toast.error('Save failed: ' + (err?.message || 'unknown error'));
@@ -902,10 +935,17 @@ export default function FullWrapComposite({ frontCanvas, project, onWrapCanvas }
                 Back Text
               </Button>
 
+              {/* WAVE10-SPINETEXT: dims.canSpineText was computed, returned, and
+                  read by nothing — so a 24-page book could be given spine text
+                  and KDP would reject the file. It is a real gate now. */}
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={handleAddSpineText}
+                disabled={!dims.canSpineText}
+                title={dims.canSpineText
+                  ? undefined
+                  : `KDP does not print spine text below ${KDP_SPECS.minSpineTextPages} pages (this book is ${dims.pageCount}).`}
                 className="h-8 justify-start gap-1.5 text-[10px]"
               >
                 <BookOpen className="h-3.5 w-3.5" />

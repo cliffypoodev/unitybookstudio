@@ -185,22 +185,90 @@ async function handleImageToDataUrl(params) {
   }
 }
 
+/**
+ * WAVE12-DIRECTIONS — use the manuscript that was read, and return the shape the
+ * caller parses.
+ *
+ * Two defects lived here. The caller queries up to 100 chapters, resolves three
+ * chapter bodies out of storage and assembles up to 19,000 characters of
+ * context, then sends `projectContext`, `artDesc`, `creativeDirective`,
+ * `previousDirections`, `subtitle`, `authorName`, `seriesText` and
+ * `rebuildIteration`. This handler read four fields — and two of them
+ * (`tone`, `description`) are not among the ones sent. So "Reading
+ * manuscript/project context…" ran for seconds and changed nothing: every book
+ * got generic-by-genre directions, and Rebuild could not produce a different
+ * result because the diversity inputs were dropped on the floor.
+ *
+ * It then returned `directions` as a STRING. The caller runs
+ * `normalizeDirections(data.directions)`, which returns the placeholder
+ * DEFAULT_DIRECTIONS for anything that is not an array — so the four boxes
+ * filled with "Click Extract Idea or Rebuild Directions to generate…" and that
+ * placeholder sentence was then sent to the image model as the art prompt.
+ */
+function extractJsonArray(raw) {
+  if (Array.isArray(raw)) return raw;
+
+  const text = typeof raw === 'string' ? raw : (raw?.text || raw?.content || '');
+  if (!text) return null;
+
+  const cleaned = String(text).replace(/```json/gi, '').replace(/```/g, '').trim();
+  const start = cleaned.indexOf('[');
+  const end = cleaned.lastIndexOf(']');
+  if (start < 0 || end <= start) return null;
+
+  try {
+    const parsed = JSON.parse(cleaned.slice(start, end + 1));
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 async function handleGenerateCoverDirections(params) {
-  const prompt = `Generate cover art creative directions for a book.
-Title: ${params.title || 'Untitled'}
-Genre: ${params.genre || 'fiction'}
-Tone: ${params.tone || 'dramatic'}
-${params.description ? `Description: ${params.description}` : ''}
+  const context = String(params.projectContext || '').slice(0, 12000);
 
-Return a detailed visual description for an AI image generator. Include composition, lighting, color palette, mood, and specific imagery. Do NOT include text on the cover.`;
+  const prompt = [
+    'You are a commercial book-cover art director. Produce FOUR genuinely different cover directions for this book.',
+    '',
+    `Title: ${params.title || 'Untitled'}`,
+    params.subtitle ? `Subtitle: ${params.subtitle}` : '',
+    params.authorName ? `Author: ${params.authorName}` : '',
+    params.seriesText ? `Series line: ${params.seriesText}` : '',
+    `Genre: ${params.genre || 'fiction'}${params.subgenre ? ` / ${params.subgenre}` : ''}`,
+    '',
+    params.artDesc ? `ART DIRECTION BRIEF FROM THE AUTHOR:\n${params.artDesc}\n` : '',
+    params.creativeDirective ? `${params.creativeDirective}\n` : '',
+    params.previousDirections
+      ? `ALREADY TRIED — do not repeat these, go somewhere new:\n${params.previousDirections}\n`
+      : '',
+    context ? `MANUSCRIPT CONTEXT (ground every direction in this, not in genre clichés):\n${context}\n` : '',
+    'Each direction must be visually distinct from the other three — different focal subject, not the same idea recoloured.',
+    'Ground the imagery in specifics from the manuscript context above: real objects, real places, real moments.',
+    'No text, lettering, signage or typography in the described artwork.',
+    '',
+    'Return ONLY a JSON array of exactly 4 objects, no prose around it:',
+    '[{"label":"Symbolic Object","focalConcept":"<3-6 words>","userEditable":"<the full image prompt: subject, composition, lighting, colour palette, mood>","designIntent":"<why this sells this book>","manuscriptEvidence":"<the detail from the manuscript this is drawn from>"}]',
+  ].filter(Boolean).join('\n');
 
-  const text = await invokeLLMWithRetry({
+  const raw = await invokeLLMWithRetry({
     prompt,
     task_type: 'publishing',
-    temperature: 0.7,
+    temperature: 0.85,
   });
 
-  return { data: { text, directions: text } };
+  const text = typeof raw === 'string' ? raw : (raw?.text || raw?.content || '');
+  const directions = extractJsonArray(raw);
+
+  return {
+    data: {
+      text,
+      // null (not a string) when unparseable, so the caller can fall through to
+      // its own manuscript-grounded local payload instead of the placeholders.
+      directions,
+      generated_by_llm: Array.isArray(directions) && directions.length > 0,
+      rebuild_nonce: params.rebuildNonce,
+    },
+  };
 }
 
 const functions = {
@@ -264,13 +332,39 @@ const functions = {
 
         // Legacy path: basic prompt → localImageGen
         const { generateImageLocal } = await import('@/lib/localImageGen');
+
+        // WAVE12-COVERTEXT: the title, subtitle, author and series line were all
+        // sent by the caller and none of them were read — the prompt ended
+        // "No text, no title, no author name, no words." while the UI hard-blocks
+        // generation without a title AND an author, labels the field "Exact title
+        // to render into the cover", and CoverCreator states that native covers
+        // "already have title/author/subtitle burned in". Three independent
+        // signals that this path is meant to produce a FINISHED cover, and it
+        // produced textless art every time.
+        //
+        // The app already has a name for the other intent: typographyMode
+        // 'image_only', used by the Typography Compositor, which overlays text
+        // itself and genuinely wants clean artwork. That mode is still honoured.
+        const wantsText = (params.typographyMode || 'typography_reference') !== 'image_only';
+
+        const textLines = wantsText
+          ? [
+            params.title ? `Render the title text "${params.title}" as part of the cover design.` : '',
+            params.subtitle ? `Render the subtitle "${params.subtitle}" smaller, beneath the title.` : '',
+            params.authorName ? `Render the author name "${params.authorName}" at the foot of the cover.` : '',
+            params.seriesText ? `Render the series line "${params.seriesText}" above the title.` : '',
+            'Typography must be legible, professionally kerned, and integrated into the composition.',
+            'Do not invent any other words, signage, captions or lettering.',
+          ]
+          : ['Professional book cover art. No text, no title, no author name, no words.'];
+
         const coverPrompt = [
           params.directionBrief || params.direction || '',
           params.artStyle ? `Art style: ${params.artStyle}` : '',
           params.colorMood ? `Color mood: ${params.colorMood}` : '',
           params.masterBrief || '',
           `Genre: ${params.genre || 'fiction'}`,
-          'Professional book cover art. No text, no title, no author name, no words.',
+          ...textLines,
         ].filter(Boolean).join('\n');
 
         const result = await generateImageLocal({

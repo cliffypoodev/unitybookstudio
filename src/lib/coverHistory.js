@@ -47,7 +47,11 @@ export function createHistory(canvas, options = {}) {
   function takeSnapshot() {
     if (!canvas || _restoring) return null;
     try {
-      return JSON.stringify(canvas.toJSON(jsonProps));
+      // WAVE11-SERIALIZE: toObject honours the property list; toJSON ignores it
+      // in fabric v7. Undo snapshots were stripping the background's identity
+      // and lock flags, so an undo could hand back a draggable, deletable
+      // cover image mid-session.
+      return JSON.stringify(canvas.toObject(jsonProps));
     } catch (err) {
       console.warn('[HISTORY] Snapshot failed:', err?.message);
       return null;

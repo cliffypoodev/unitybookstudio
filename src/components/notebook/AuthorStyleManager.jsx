@@ -42,7 +42,10 @@ function FormTextarea({ value, onChange, placeholder, rows = 2 }) {
   );
 }
 
-export default function AuthorStyleManager({ authorStyleId, onStyleChange, projectId }) {
+// WAVE9-DEADPROPS: author styles are a global library (AuthorStyle.list), not a
+// per-project resource, so projectId had nothing to scope. Removed rather than
+// left as a hint that per-project styles exist.
+export default function AuthorStyleManager({ authorStyleId, onStyleChange }) {
   const [styles, setStyles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEditor, setShowEditor] = useState(false);

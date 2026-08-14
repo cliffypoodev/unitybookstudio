@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE9-DEADSTAMP2, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app.
+ * Belongs to components/tools/ProjectPolishView, which is itself already stamped dead. The live fiction polish is lib/manuscriptPolishRunner via ProjectStudio.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

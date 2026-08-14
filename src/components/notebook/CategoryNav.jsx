@@ -29,7 +29,6 @@ export default function CategoryNav({
   onSelectGenre,
   onSelectSubcategory,
   onClearCategory,
-  onClear,
 }) {
   // Back handler for stepping out of a category. If the parent supplied
   // onClearCategory, use it (handles super-bucket → bucket-list → root chain).

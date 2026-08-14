@@ -23,10 +23,18 @@ export const COVER_EXPORT_PRESETS = {
     ratio: '5:8',
     description: 'Amazon KDP eBook recommended minimum 1600×2560',
   },
+  // WAVE10-PRESETMATH: these two contradicted their own descriptions.
+  //
+  // "0.125" bleed on each side" means (trim + 0.25) × 300 in both axes. The
+  // heights were computed that way and were correct; the widths were not.
+  //   6×9 → 6.25 × 300 = 1875 (was 1890, i.e. 0.30" of bleed) × 9.25 × 300 = 2775 ✓
+  //   5×8 → 5.25 × 300 = 1575 (was 1563) × 8.25 × 300 = 2475 (was 2500)
+  // 1563×2500 is not a bleed calculation at all — it is a 5:8 ratio fitted to a
+  // 2500px height, which is how the description and the numbers drifted apart.
   paperback_6x9: {
     id: 'paperback_6x9',
     label: '6×9 Paperback Front',
-    width: 1890,
+    width: 1875,
     height: 2775,
     dpi: 300,
     ratio: '2:3',
@@ -35,8 +43,8 @@ export const COVER_EXPORT_PRESETS = {
   paperback_5x8: {
     id: 'paperback_5x8',
     label: '5×8 Paperback Front',
-    width: 1563,
-    height: 2500,
+    width: 1575,
+    height: 2475,
     dpi: 300,
     ratio: '5:8',
     description: '5×8" at 300 DPI with 0.125" bleed on each side',
@@ -90,6 +98,20 @@ export function getCoverExportDimensions(preset, customDimensions) {
   }
 
   const entry = COVER_EXPORT_PRESETS[preset] || COVER_EXPORT_PRESETS.ebook;
+
+  // WAVE10-PRESETMATH: the `custom` preset stores width/height as null. Selecting
+  // it without supplying dimensions used to return { width: null, height: null },
+  // which downstream became a broken or silently-resized canvas. Fall back to the
+  // eBook size and say so, rather than exporting something nobody asked for.
+  if (entry.width == null || entry.height == null) {
+    return {
+      width: COVER_EXPORT_PRESETS.ebook.width,
+      height: COVER_EXPORT_PRESETS.ebook.height,
+      dpi: entry.dpi || 300,
+      usedFallback: true,
+    };
+  }
+
   return { width: entry.width, height: entry.height, dpi: entry.dpi };
 }
 

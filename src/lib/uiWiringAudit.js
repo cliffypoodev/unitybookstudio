@@ -1,3 +1,11 @@
+/* ============================================================================
+ * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE9-DEADSTAMP2, Aug 2026)
+ *
+ * Nothing imports this file. Editing it has NO effect on the running app.
+ * Developer tooling — static analysis of button/handler wiring. Never part of the running app.
+ * Kept (not deleted) at the owner's request; recoverable context only.
+ * ========================================================================== */
+
 /**
  * uiWiringAudit.js — Static analysis utilities for verifying button/handler
  * wiring in React JSX components.

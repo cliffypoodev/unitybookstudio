@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { KDP_SPECS } from '@/lib/kdpCover';
 
 const PAPER_OPTIONS = [
   { value: 'white', label: 'White (KDP)' },
@@ -11,17 +12,27 @@ const PAPER_OPTIONS = [
   { value: 'ingram_cream', label: 'Cream (IngramSpark)' },
 ];
 
+/**
+ * WAVE10-SPINEMATH: the three KDP calipers were duplicated here by hand, and the
+ * colour one carried the same 0.0032 error as kdpCover did. Worse, this panel
+ * and the exporter disagreed even when both were "working" — the exporter added
+ * a phantom 0.06" that this calculator did not, so the number a writer read off
+ * this box was never the number that went into their PDF.
+ *
+ * KDP values now come from the one place that defines them. IngramSpark is a
+ * different printer with genuinely different stock, so those stay local.
+ */
 const MULTIPLIERS = {
-  white: 0.002252,
-  cream: 0.0025,
-  color: 0.0032,
+  white: KDP_SPECS.paper.white,
+  cream: KDP_SPECS.paper.cream,
+  color: KDP_SPECS.paper.color,
   ingram_white: 0.002,
   ingram_cream: 0.0025,
 };
 
 function calculateSpineWidth(pageCount, paperType) {
   if (!pageCount || pageCount < 1) return 0;
-  const mult = MULTIPLIERS[paperType] || 0.002252;
+  const mult = MULTIPLIERS[paperType] || KDP_SPECS.paper.white;
   return Math.round(pageCount * mult * 1000) / 1000;
 }
 
