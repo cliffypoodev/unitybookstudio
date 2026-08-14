@@ -83,6 +83,7 @@ async function getDialogueDetector() {
  * }}
  */
 import { buildPronounCanon, harvestCastNames, scanPronounViolations } from './pronounLock.js'; // PRONOUNLOCK-1
+import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
 
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
   let { project, stage = 'pre-export' } = options;
@@ -572,6 +573,38 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     }
   } catch (pronounError) {
     console.warn('[PRONOUNLOCK] Gate scan failed (non-fatal):', pronounError?.message || pronounError);
+  }
+
+  // STYLEBUDGET-1: book-level style telemetry — warnings only. Style is a
+  // craft dial, not broken text; the gate makes the spend visible.
+  try {
+    const styleBodies = chapters.map((ch) => String(ch?.content_md || '')).filter((body) => body.length > 200);
+    if (styleBodies.length) {
+      const styleLedger = buildBookStyleLedger(styleBodies);
+      const exhausted = styleLedger.families.filter((family) => family.exhausted);
+      if (exhausted.length) {
+        warnings.push({
+          chapterNumber: 'manuscript',
+          title: 'Style budget',
+          reasons: [`STYLEBUDGET-1: book-level allowance exceeded for ${exhausted.map((family) => `${family.name} (${family.spent}/${family.bookBudget})`).join(', ')}`],
+        });
+      }
+      for (const ch of chapters) {
+        const body = String(ch?.content_md || '');
+        if (body.length <= 200) continue;
+        const simile = measureSimileDensity(body);
+        if (simile.wordCount > 800 && simile.per1k > SIMILE_DENSITY_BUDGET_PER_1K * 1.5) {
+          warnings.push({
+            chapterNumber: ch?.chapter_number,
+            title: ch?.title || '',
+            reasons: [`STYLEBUDGET-1: ${simile.per1k} similes per 1k words ("like a" ${simile.likeA}, "as if" ${simile.asIf}) — budget is ${SIMILE_DENSITY_BUDGET_PER_1K}/1k`],
+          });
+        }
+      }
+      console.log(`[STYLEBUDGET] Gate telemetry: ${exhausted.length} exhausted famil(ies), book simile density ${styleLedger.simile.per1k}/1k`);
+    }
+  } catch (styleError) {
+    console.warn('[STYLEBUDGET] Gate telemetry failed (non-fatal):', styleError?.message || styleError);
   }
 
   const blocked = hardFailures.length > 0;
