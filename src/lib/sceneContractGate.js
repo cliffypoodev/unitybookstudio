@@ -1,4 +1,5 @@
 import { getTrustedCharacters } from './narrativeLedger.js';
+import { findProseEventCollisions } from './eventCollision.js'; // SCENECOLLIDE-1
 import { normalizeCast, resolveReferent, trackLastNamed } from './referentResolver.js';
 import { checkPossessionContinuity, isPortablePropPhrase, dedupeTrackedObjects } from './objectPossession.js';
 
@@ -883,6 +884,22 @@ export function auditSceneAgainstLedger({
     }
   }
 
+  // SCENECOLLIDE-1: class-based replay detection. detectEventEnactment above
+  // is bag-of-words against the event TEXT, so a re-staging written with fresh
+  // vocabulary sails through (REDUX ch.3: "A rival salvage team arrives…"
+  // completed in scene 1; a later scene wrote "The rival team did not so much
+  // arrive as they did unfold…" — 3 of 11 tokens matched, no hit). This check
+  // matches the (entity, action-class) pair instead: an arrival of the rival
+  // team either already happened or it did not; the wording is irrelevant.
+  for (const collision of findProseEventCollisions(priorEvents, prose)) {
+    issues.push({
+      code: 'EVENT_CLASS_REPLAY',
+      message: `Re-staged a completed ${collision.class.toLowerCase()} of "${collision.entity}" (completed event: ${collision.event}). Offending sentence: "${collision.window.slice(0, 120)}"`,
+      event: collision.event,
+      evidence: collision,
+    });
+  }
+
   for (const event of futureEvents.filter(isStatefulEvent)) {
     const result = detectEventEnactment(event, prose);
     if (result.hit) {
@@ -1221,6 +1238,7 @@ Rewrite ONLY the current contracted scene from scratch.
 
 MANDATORY:
 - Do not replay any event completed in an earlier scene.
+- Do not re-stage an arrival, departure, or revelation that has already happened — characters who already arrived are ALREADY PRESENT; open the scene with them on stage, never arriving again.
 - Do not perform any event reserved for a later scene.
 - Perform each current required event exactly once.
 - Preserve all established injuries, deaths, locations, knowledge, possessions, and decisions.
