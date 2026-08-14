@@ -40,6 +40,7 @@ import {
 import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStylePrompt';
 import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
+import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -2316,6 +2317,11 @@ function buildSceneStateContractBlock(spec) {
   if (pronounCanon) {
     lines.push(`CHARACTER PRONOUNS (canonical — narration must NEVER vary them): ${pronounCanon}.`);
   }
+  // STYLEBUDGET-1: rendered as its own block inside the contract.
+  const styleBudget = String(spec?.style_budget || '').trim();
+  if (styleBudget) {
+    lines.push(styleBudget);
+  }
 
   return `NARRATIVE STATE CONTRACT — MANDATORY:
 This is one versioned scene, not an alternate take. Write only this scene.
@@ -3624,6 +3630,27 @@ export async function generateChapterSceneByScene({
     console.warn('[PRONOUNLOCK] Canon build failed (non-fatal):', pronounError?.message || pronounError);
   }
 
+  // STYLEBUDGET-1: book-level style spend from prior chapters — exhausted
+  // constructions are banned in this chapter's prompt, and a simile budget is
+  // stated when earlier chapters run hot. Anthologies are standalone stories:
+  // no cross-story style ledger. Fail open.
+  let styleBudgetBlock = '';
+  try {
+    if (!isAnthologyProject(project)) {
+      const styleTexts = allProjectChapters
+        .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter?.chapter_number))
+        .map((prior) => String(prior?.content_md || ''))
+        .filter((body) => body.length > 200);
+      if (styleTexts.length) {
+        const styleLedger = buildBookStyleLedger(styleTexts);
+        styleBudgetBlock = buildStyleBudgetPromptBlock(styleLedger);
+        if (styleBudgetBlock) console.log('[STYLEBUDGET] Active for this chapter:', styleBudgetBlock.split('\n').length - 1, 'line(s); simile per1k so far:', styleLedger.simile.per1k);
+      }
+    }
+  } catch (styleError) {
+    console.warn('[STYLEBUDGET] Ledger build failed (non-fatal):', styleError?.message || styleError);
+  }
+
   for (let i = 0; i < normalizedScenes.length; i += 1) {
     const spec = normalizedScenes[i];
     const priorScenes = normalizedScenes.slice(0, i);
@@ -3632,6 +3659,7 @@ export async function generateChapterSceneByScene({
       ...spec,
       // KEYLEDGER-1f: who has what when this scene opens.
       pronoun_canon: pronounCanonLine, // PRONOUNLOCK-1
+      style_budget: styleBudgetBlock, // STYLEBUDGET-1
       holders_of_record: Object.entries(runtimeLedger.possessions || {})
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
         .map(([char, objs]) => `${char} has the ${objs.join(' and the ')}`),
