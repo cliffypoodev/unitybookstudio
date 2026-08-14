@@ -775,6 +775,73 @@ export function repairUnclosedDialogue(text) {
   return { text: lines.join('\n'), repaired, flagged };
 }
 
+/**
+ * DIALOGREPAIR-2 — close-heavy paragraph healer.
+ *
+ * The missing-opener class that survived every stage above (proven on the
+ * 2026-08-14 82k-word live draft: 16 defects, 8 healed, 8 refused):
+ *   - a paragraph that OPENS mid-dialogue with no opener ("Um.\u201d",
+ *     "\u2018They have their exits\u2026\u2019\u201d", "Your stance\u2026\u201d Rodge said")
+ *   - an echo reply whose opener the writer dropped after a closed quote
+ *     ("\u2026You skimmed it.\u201d I skimmed the chapter\u2026\u201d Lark shot back")
+ * The verb-tag detector needs a dialogue tag it can see; the orphan-closer
+ * healer flags paragraph-leading closes as "ambiguous" and repairs nothing.
+ *
+ * This stage is purely structural and matches the BOOKGATE-2 rule the export
+ * gate enforces (this codebase closes every quote within its paragraph — the
+ * multi-paragraph continuation convention is not used): any paragraph with
+ * more \u201d than \u201c is broken, and every orphan close marks an unquoted run
+ * that IS the dialogue missing its opener. Insert \u201c at the start of that
+ * run (after leading whitespace). Curly quotes only: straight quotes are
+ * ambiguous with apostrophes and are left to the earlier stages.
+ */
+export function repairCloseHeavyParagraphs(text) {
+  const parts = String(text || '').split(/(\n\s*\n)/);
+  let repaired = 0;
+  const details = [];
+
+  const fixedParts = parts.map((part, index) => {
+    if (index % 2 === 1) return part;
+    const opens = (part.match(/\u201c/g) || []).length;
+    const closes = (part.match(/\u201d/g) || []).length;
+    if (closes <= opens) return part;
+
+    let depth = 0;
+    let runStart = 0;
+    const inserts = [];
+    for (let i = 0; i < part.length; i += 1) {
+      const ch = part[i];
+      if (ch === '\u201c') {
+        depth += 1;
+      } else if (ch === '\u201d') {
+        if (depth > 0) {
+          depth -= 1;
+          runStart = i + 1;
+        } else {
+          let at = runStart;
+          while (at < i && /\s/.test(part[at])) at += 1;
+          inserts.push(at);
+          runStart = i + 1;
+        }
+      }
+    }
+    if (!inserts.length) return part;
+
+    let out = part;
+    for (let k = inserts.length - 1; k >= 0; k -= 1) {
+      out = `${out.slice(0, inserts[k])}\u201c${out.slice(inserts[k])}`;
+    }
+    repaired += inserts.length;
+    details.push(...inserts.map((at) => part.slice(at, at + 60)));
+    return out;
+  });
+
+  if (repaired > 0) {
+    console.log(`[DIALOGUE-MECHANICS-REPAIR] Close-heavy healer inserted ${repaired} missing opening quote(s)`);
+  }
+  return { text: fixedParts.join(''), repaired, details };
+}
+
 export function runDialogueMechanicsPass(text, options = {}) {
   if (!text || typeof text !== 'string') {
     return {
@@ -828,19 +895,27 @@ export function runDialogueMechanicsPass(text, options = {}) {
   // splitter and both existing healers have already normalised the paragraphs.
   const unclosed = repairUnclosedDialogue(orphan.text);
 
+  // DIALOGREPAIR-2: the close-heavy healer runs LAST so every earlier stage
+  // has already taken the cases it is confident about; this one deterministically
+  // finishes whatever still violates the per-paragraph balance rule the export
+  // gate (BOOKGATE-2) will otherwise hard-block on.
+  const closeHeavy = repairCloseHeavyParagraphs(unclosed.text);
+
   return {
-    text: unclosed.text,
+    text: closeHeavy.text,
     unclosedRepaired: unclosed.repaired,
     unclosedFlagged: unclosed.flagged,
     repairs: repairResult.repairs,
     orphanRepaired: orphan.repaired,
     orphanFlagged: orphan.flagged,
     orphanWholeLineRepaired: orphan.wholeLineRepaired || 0,
+    closeHeavyRepaired: closeHeavy.repaired,
+    totalRepaired: repairResult.repairs.length + orphan.repaired + unclosed.repaired + closeHeavy.repaired,
     paragraphSplits,
     manualReview: repairResult.manualReview,
     beforeCount,
     afterCount,
-    improved: improved || orphan.repaired > 0 || paragraphSplits > 0 || unclosed.repaired > 0,
+    improved: improved || orphan.repaired > 0 || paragraphSplits > 0 || unclosed.repaired > 0 || closeHeavy.repaired > 0,
   };
 }
 
