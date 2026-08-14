@@ -48,6 +48,12 @@ async function run() {
   const lgIndex = exportGate.indexOf('LENGTHGATE-1B');
   check('9. Source assertions: insert precedes LENGTHGATE-1B', pgIndex !== -1 && lgIndex !== -1 && pgIndex < lgIndex);
 
+  // ARTICLEFP-1: retext's a/an rule must not hard-block correct prose.
+  const t10 = await analyzeProse('He found a unicorn in his cornfield. She gave a eulogy at a European conference.');
+  check('10. ARTICLEFP-1: "a unicorn / a eulogy / a European" -> ZERO hard findings', t10.hard.length === 0);
+  const t11 = await analyzeProse('It was a emotional rush failure.\n\nIt stood as an clear truth.');
+  check('11. ARTICLEFP-1: real a/an errors still hard-block, with correct paragraphs', t11.hard.length === 2 && t11.hard[0].paragraph === 1 && t11.hard[1].paragraph === 2);
+
   console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
   process.exit(failures === 0 ? 0 : 1);
 }
