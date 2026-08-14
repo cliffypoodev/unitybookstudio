@@ -39,6 +39,7 @@ import {
 } from '@/lib/craftCompact';
 import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStylePrompt';
 import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
+import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -2309,6 +2310,12 @@ function buildSceneStateContractBlock(spec) {
       `Nobody else may be holding, pocketing, drawing, or handing over these objects unless this scene WRITES the handover on the page.`
     );
   }
+  // PRONOUNLOCK-1: pronouns are canon, not style. In-dialogue misgendering by
+  // another character (disguise, mockery) is allowed; narration is not.
+  const pronounCanon = String(spec?.pronoun_canon || '').trim();
+  if (pronounCanon) {
+    lines.push(`CHARACTER PRONOUNS (canonical — narration must NEVER vary them): ${pronounCanon}.`);
+  }
 
   return `NARRATIVE STATE CONTRACT — MANDATORY:
 This is one versioned scene, not an alternate take. Write only this scene.
@@ -3595,6 +3602,28 @@ export async function generateChapterSceneByScene({
     console.log('[EVENTLEDGER] Writer seeded with', priorChapterEvents.length, 'completed events from earlier chapters');
   }
 
+  // PRONOUNLOCK-1: canonical pronouns for the cast, declared in the character
+  // sheet or inferred from dominant usage in already-drafted chapters. Fail
+  // open: an empty canon adds nothing to the prompt.
+  let pronounCanonLine = '';
+  try {
+    const priorTexts = allProjectChapters
+      .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter?.chapter_number))
+      .map((prior) => String(prior?.content_md || ''))
+      .filter((body) => body.length > 200);
+    const castNames = harvestCastNames(project?.characters_md, priorTexts);
+    if (castNames.length) {
+      const pronounCanon = buildPronounCanon(project, priorTexts, castNames);
+      pronounCanonLine = buildPronounCanonLines(pronounCanon.canon);
+      if (pronounCanonLine) console.log('[PRONOUNLOCK] Canon for this chapter:', pronounCanonLine);
+      if (pronounCanon.unresolved.length) {
+        console.warn('[PRONOUNLOCK] Characters with heavy MIXED pronoun usage and no declaration:', pronounCanon.unresolved.map((entry) => `${entry.name} (he ${entry.he} / she ${entry.she})`).join(', '));
+      }
+    }
+  } catch (pronounError) {
+    console.warn('[PRONOUNLOCK] Canon build failed (non-fatal):', pronounError?.message || pronounError);
+  }
+
   for (let i = 0; i < normalizedScenes.length; i += 1) {
     const spec = normalizedScenes[i];
     const priorScenes = normalizedScenes.slice(0, i);
@@ -3602,6 +3631,7 @@ export async function generateChapterSceneByScene({
     const promptSpec = {
       ...spec,
       // KEYLEDGER-1f: who has what when this scene opens.
+      pronoun_canon: pronounCanonLine, // PRONOUNLOCK-1
       holders_of_record: Object.entries(runtimeLedger.possessions || {})
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
         .map(([char, objs]) => `${char} has the ${objs.join(' and the ')}`),
