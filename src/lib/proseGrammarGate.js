@@ -17,6 +17,9 @@ import { toString } from 'nlcst-to-string';
 // brief, fitting, final stay excluded — see PROSEGATE-1D).
 const ADJ_LEXICON = new Set(['silent', 'lasting', 'direct', 'grim', 'stark', 'solemn', 'enduring', 'poignant', 'somber', 'tangible']);
 const ARTICLES = new Set(['a', 'an', 'the']);
+// GRAMMARFP-2: nouns that take single-letter labels — "point A", "plan B",
+// "exhibit A". After one of these, an uppercase "A" is a label, not an article.
+const LABEL_NOUNS = new Set(['point', 'plan', 'option', 'type', 'exhibit', 'grade', 'route', 'section', 'team', 'side', 'block', 'gate', 'wing', 'schedule', 'vitamin', 'hangar', 'dock', 'bay', 'level', 'zone']);
 const PREPOSITIONS = new Set(['to', 'of', 'in', 'on', 'for', 'with', 'from', 'by', 'at']);
 const DET_POSS = new Set(['the', 'its', 'this', 'that', 'their', 'his', 'her', 'these', 'those', 'a', 'an']);
 
@@ -56,7 +59,20 @@ function droppedNounPlugin() {
             // Check for [Article] [Preposition] [Det/Poss]
             const w2 = words[i+1].text;
             const w3 = words[i+2].text;
-            
+
+            // GRAMMARFP-2: "a" that is actually the letter LABEL A is not an
+            // article. Two deterministic signatures, both requiring the
+            // original token to be uppercase "A" (lowercase "a to b" stays a
+            // real error): a label noun immediately before it ("point A to
+            // point B", "plan A to plan B", "exhibit A to the jury"), or a
+            // bare single-letter hop after the preposition ("A to B").
+            const rawW1 = toString(words[i].node);
+            const isLetterLabelA = rawW1 === 'A' && (
+              (i > 0 && LABEL_NOUNS.has(words[i - 1].text)) ||
+              (w2 === 'to' && /^[B-Zb-z]$/.test(toString(words[i + 2].node)))
+            );
+            if (isLetterLabelA) continue;
+
             // DRAFTGATE-3G: for a/an, article + preposition is invalid with ANY
             // following word (bare-noun holes like "a to industrial might");
             // "at" keeps the det requirement ("an at sign" is valid English).
@@ -167,8 +183,25 @@ export async function analyzeProse(text) {
     return false;
   };
 
+  // GRAMMARFP-2: "told you you weren't good enough" is legal English — the
+  // repeated "you" is ellipsis of "that" after a speech/knowledge verb. Only
+  // the "you you" pair directly preceded by one of these verbs is excused;
+  // every other repeated-word finding stays a hard error.
+  const ELLIPSIS_VERB_BEFORE_YOU_YOU = /\b(?:told|tell|tells|telling|warned|promised|promise|assured|assure|reminded|remind|taught|showed|show|convinced|convince|bet|guarantee[ds]?)\s+$/i;
+  const isRepeatedWordFalsePositive = (msg) => {
+    const source = msg.ruleId || msg.source;
+    if (source !== 'retext-repeated-words' && msg.source !== 'retext-repeated-words') return false;
+    const pair = String(msg.actual || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    if (pair !== 'you you') return false;
+    const start = (msg.place || msg.position)?.start?.offset;
+    if (start === undefined || start === null) return false;
+    const before = String(text || '').slice(Math.max(0, start - 40), start);
+    return ELLIPSIS_VERB_BEFORE_YOU_YOU.test(before);
+  };
+
   for (const msg of file.messages) {
     if (isArticleFalsePositive(msg)) continue;
+    if (isRepeatedWordFalsePositive(msg)) continue;
     const ruleId = msg.ruleId || msg.source;
     const isHard = ruleId === 'retext-indefinite-article' || 
                    ruleId === 'retext-repeated-words' || 
