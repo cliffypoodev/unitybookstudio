@@ -148,7 +148,27 @@ export async function analyzeProse(text) {
     return paras.length;
   };
 
+  // ARTICLEFP-1: retext-indefinite-article is wrong about consonant-SOUND
+  // vowel-spelled words ("a unicorn", "a European") and vowel-sound exceptions
+  // ("an hour", "an honest"). When the prose already follows the sound rule,
+  // the finding is a false positive — drop it before it can hard-block a book.
+  const A_OK_BEFORE = /^(?:uni(?=[bcdfghjklmnpqrstvz])|una(?=nim)|use|used|useful|useless|user|usu|usur|utensil|uterus|util|utop|ubiq|euro|eu[a-z]|ewe|one|once|oui|u[- ])/i;
+  const AN_OK_BEFORE = /^(?:hour|honest|hono|heir|herb|herbs|x-|xbox|mba|fbi|sos|lcd|led|f-|m-|n-|r-|s-)/i;
+  const isArticleFalsePositive = (msg) => {
+    const source = msg.ruleId || msg.source;
+    if (source !== 'retext-indefinite-article' && msg.source !== 'retext-indefinite-article') return false;
+    const offset = (msg.place || msg.position)?.end?.offset;
+    if (offset === undefined || offset === null) return false;
+    const following = String(text || '').slice(offset).replace(/^\s+/, '');
+    const word = (following.match(/^[A-Za-z][\w'-]*/) || [''])[0];
+    const article = String(msg.actual || '').toLowerCase();
+    if (article === 'a' && A_OK_BEFORE.test(word)) return true;
+    if (article === 'an' && AN_OK_BEFORE.test(word)) return true;
+    return false;
+  };
+
   for (const msg of file.messages) {
+    if (isArticleFalsePositive(msg)) continue;
     const ruleId = msg.ruleId || msg.source;
     const isHard = ruleId === 'retext-indefinite-article' || 
                    ruleId === 'retext-repeated-words' || 
