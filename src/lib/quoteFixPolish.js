@@ -66,12 +66,18 @@ function cleanupKnownTextArtifacts(text = '') {
   let out = toStraightDoubleQuotes(text);
 
   // Normalize quote spacing produced by prior passes.
+  // POLISHSAFE-1A: whitespace classes are [ \t] (never \s) so this cleanup can
+  // NEVER eat a newline — the old \s+ classes merged paragraphs whenever a
+  // paragraph break sat next to a quote mark, which is what collapsed 99
+  // paragraphs to 60 on a healthy chapter. The ""+ collapse also required a
+  // guard: on healthy text, `…said." "Next…` becomes `.""N` after the space
+  // eater and the pair collapse then DELETED one of the two quotes.
   out = out
-    .replace(/""+/g, '"')
-    .replace(/\s+([,.!?;:])/g, '$1')
+    .replace(/"[ \t]*"(?=[ \t]*[A-Za-z“"])/g, '" "')
+    .replace(/[ \t]+([,.!?;:])/g, '$1')
     .replace(/([.!?])([A-Z])/g, '$1 $2')
-    .replace(/"\s+/g, '"')
-    .replace(/\s+"/g, ' "');
+    .replace(/"[ \t]+(?=[a-z])/g, '"')
+    .replace(/[ \t]+"/g, ' "');
 
   // Contraction apostrophe corruption.
   out = out.replace(/\bdidn['’]?\s+change\b/gi, 'didn’t change');
@@ -327,11 +333,13 @@ function postSmartCleanup(text = '') {
     .replace(/([.!?]”)\s*(He|She|[A-Z][a-z]+)\b/g, '$1 $2'); // DIALOGUEFIX-2: generalized
 
   // Tidy quote adjacency.
+  // POLISHSAFE-1A: [ \t] classes, never \s \u2014 a paragraph break beside a quote
+  // mark must survive this cleanup.
   out = out
-    .replace(/\u201c\s*\u201d/g, '\u201c \u201d')
-    .replace(/\u201c\s+/g, '\u201c')
-    .replace(/\s+\u201d/g, '\u201d')
-    .replace(/\s+([,.!?;:])/g, '$1')
+    .replace(/\u201c[ \t]*\u201d/g, '\u201c \u201d')
+    .replace(/\u201c[ \t]+/g, '\u201c')
+    .replace(/[ \t]+\u201d/g, '\u201d')
+    .replace(/[ \t]+([,.!?;:])/g, '$1')
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/\n{4,}/g, '\n\n\n')
     .replace(/(["\u201d])([a-zA-Z])/g, '$1 $2');
@@ -340,7 +348,20 @@ function postSmartCleanup(text = '') {
 }
 
 export function repairChapterQuotes(text = '') {
-  const parts = splitParagraphs(fixV5ActionSwallowClusters(text));
+  const original = String(text || '');
+
+  // POLISHSAFE-1A (do-no-harm, part 1): a chapter whose quote integrity is
+  // already clean is returned byte-for-byte untouched. The v5-corruption rescue
+  // machinery below straightens every smart quote and re-guesses direction —
+  // measured on a live healthy chapter it turned 133/133 balanced quotes into
+  // 114/133 and merged paragraphs. Rescue is for damaged text only.
+  const inputAnalysis = analyzeQuoteIntegrity(original);
+  if (inputAnalysis.ok) {
+    return { text: original, fixes: 0, unresolved: 0, warnings: [], changed: false };
+  }
+
+  const countParas = (t) => normalizeLineEndings(String(t || '')).split(/\n{2,}/).filter((p) => p.trim().length > 0).length;
+  const parts = splitParagraphs(fixV5ActionSwallowClusters(original));
   const repaired = [];
   let fixes = 0;
   let unresolved = 0;
@@ -359,12 +380,38 @@ export function repairChapterQuotes(text = '') {
 
   const finalText = stabilizeKnownOddDialogue(postSmartCleanup(repaired.join('')));
   const analysis = analyzeQuoteIntegrity(finalText);
+
+  // POLISHSAFE-1A (do-no-harm, part 2): the rescue output ships ONLY if it is
+  // strictly not worse than the input on every deterministic axis — quote
+  // balance, warning count, paragraph count, and total quote population (the
+  // old ""+ collapse deleted quotes outright). Anything else returns the
+  // original unchanged with an unresolved warning: blank beats corrupted.
+  const inImbalance = Math.abs(inputAnalysis.openSmartQuotes - inputAnalysis.closeSmartQuotes);
+  const outImbalance = Math.abs(analysis.openSmartQuotes - analysis.closeSmartQuotes);
+  const inQuoteTotal = inputAnalysis.openSmartQuotes + inputAnalysis.closeSmartQuotes;
+  const outQuoteTotal = analysis.openSmartQuotes + analysis.closeSmartQuotes;
+  const gotWorse =
+    outImbalance > inImbalance ||
+    analysis.warnings.length > inputAnalysis.warnings.length ||
+    countParas(finalText) < countParas(original) ||
+    outQuoteTotal < inQuoteTotal - fixes;
+  if (gotWorse) {
+    console.warn(`[QUOTE-REPAIR] rescue output rejected (do-no-harm): imbalance ${inImbalance}->${outImbalance}, warnings ${inputAnalysis.warnings.length}->${analysis.warnings.length}, paragraphs ${countParas(original)}->${countParas(finalText)}, quotes ${inQuoteTotal}->${outQuoteTotal}. Keeping original text.`);
+    return {
+      text: original,
+      fixes: 0,
+      unresolved: 1 + inputAnalysis.oddParagraphs.length,
+      warnings: inputAnalysis.warnings,
+      changed: false,
+    };
+  }
+
   return {
     text: finalText,
     fixes,
     unresolved: unresolved + analysis.oddParagraphs.length,
     warnings: analysis.warnings,
-    changed: finalText !== String(text || ''),
+    changed: finalText !== original,
   };
 }
 
