@@ -15,6 +15,7 @@ import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { buildSetupConstraints } from '@/lib/setupConstraints';
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
+import { checkFoundationRoleConsistency } from '@/lib/canonRoles'; // CANON-2
 import { analyzeOutlineDuplication, buildOutlineDistinctnessRules, findOutlineOffenders, buildOutlineChapterRepairPrompt, spliceOutlineChapters, rebuildOutlineMd } from '@/lib/outlineDedupeGate'; // OUTLINEFIX-2/3
 import { scrubModelLeaks, scrubOutlineChapters } from '@/lib/modelLeakGuard'; // LEAKFIX-2
 import { BIBLE_FIELD_FLOORS, fieldLengthOk, buildFieldRetryAppendix } from '@/lib/bibleFieldGuard'; // FIELDGUARD-1
@@ -897,6 +898,23 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
 
   const totalTime = Math.round((Date.now() - t1) / 1000);
   console.log('[BIBLE-PARALLEL] Total bible generation:', totalTime, 's');
+
+  // CANON-2: a freshly generated bible that disagrees with itself about who
+  // holds a unique role ships that contradiction into every chapter (REDUX:
+  // world_md and canon_md both called Sadie "the ship's navigator" while
+  // characters_md made Zin the navigator — the drafted book printed it on
+  // page 3). Detection at birth, loudly; the fields still return so the
+  // author decides, but the console names the exact conflict.
+  try {
+    const contradictions = checkFoundationRoleConsistency({
+      characters_md: charactersMd, world_md: worldMd, canon_md: canonMd, outline_md: outlineMd,
+    });
+    for (const contradiction of contradictions) {
+      console.error(`[CANON-2] BIBLE CONTRADICTION: role "${contradiction.role}" claimed for ${contradiction.distinctNames.join(' AND ')} — ${contradiction.holders.map((h) => `${h.name} in ${h.field}`).join('; ')}. Fix before drafting.`);
+    }
+  } catch (canonError) {
+    console.warn('[CANON-2] Bible consistency check failed (non-fatal):', canonError?.message);
+  }
 
   return {
     world_md: worldMd,
