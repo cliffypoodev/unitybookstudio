@@ -80,6 +80,7 @@ import { selectFateSentences, formatFateNotes, figuresNeedingFates } from '@/lib
 import { extractPremiseEntities, buildPremiseCoverageBlock, reportPremiseCoverage } from '@/lib/premiseFidelity';
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
+import { buildPriorChapterEventLedger, findReintroductions, rewriteReintroductions } from '@/lib/eventLedger'; // EVENTLEDGER-1A
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
 import { runPerChapter } from '@/lib/anthologyPolishHelper';import { fixVoicePatterns } from '@/lib/voicePatternPolish';import { prepareSeedConcept, resolveSeedConcept } from '@/lib/seedConceptStorage';
@@ -3386,6 +3387,19 @@ Return structured JSON:
         priorCoverage = '';
       }
     }
+    // EVENTLEDGER-1A: the summaries above under-describe what earlier chapters
+    // actually executed (Ch.1's summary never mentioned the Thompson store scene
+    // its beat contract staged). Prepend the deterministic event ledger built
+    // from the persisted beat contracts so the planner sees completed EVENTS,
+    // not just summaries. Prepended, not appended: the block must survive the
+    // 9000-char clip in buildSceneBeatPrompt.
+    let ledgerEvents = [];
+    if (!isAnthologyProject(promptProject) && Number(chapter.chapter_number) > 1) {
+      const eventLedger = buildPriorChapterEventLedger(chapterList, Number(chapter.chapter_number));
+      ledgerEvents = eventLedger.events;
+      if (eventLedger.text) priorCoverage = `${eventLedger.text}\n\n${priorCoverage}`;
+      console.log('[EVENTLEDGER] Planner ledger:', ledgerEvents.length, 'prior events,', eventLedger.text.length, 'chars');
+    }
     console.log('[NARRATIVE-CONNECT] Beat-planner prior coverage chars:', priorCoverage.length);
     let beatResult = null;
     try {
@@ -3647,8 +3661,23 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
           (typeof overlapReport.finalCount === 'number' &&
             typeof overlapReport.originalCount === 'number' &&
             overlapReport.finalCount !== overlapReport.originalCount);
-        if (!structurallyChanged && beatFieldGaps.length === 0) {
+        // EVENTLEDGER-1A: a plan that re-introduces a character an earlier
+        // chapter already brought on stage is rejected like any structural
+        // defect (Lipstick Ch.2 re-introduced Mr. Thompson after Ch.1's beat
+        // contract executed the store meeting).
+        const reintroductions = ledgerEvents.length ? findReintroductions(normalizedBeatPlan, ledgerEvents) : [];
+        if (reintroductions.length) {
+          console.warn('[EVENTLEDGER] Beat plan re-introduces ledgered characters:', reintroductions);
+        }
+        if (!structurallyChanged && beatFieldGaps.length === 0 && reintroductions.length === 0) {
           beatResult.beats = normalizedBeatPlan;
+          break;
+        }
+        if (!structurallyChanged && beatFieldGaps.length === 0 && reintroductions.length > 0 && attempt === maxContractAttempts) {
+          // Attempts exhausted on reintroduction alone: repair deterministically
+          // rather than ship a second first-meeting or fail the chapter.
+          beatResult.beats = rewriteReintroductions(normalizedBeatPlan, reintroductions);
+          console.warn('[EVENTLEDGER] Attempts exhausted — rewrote reintroduction phrasing deterministically for', reintroductions.map((f) => f.name).join(', '));
           break;
         }
 
@@ -3691,7 +3720,10 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         }
 
         console.warn('[NARRATIVE-CONNECT] Rejecting overlapping beat contract and regenerating:', overlapReport);
-        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}${beatFieldGaps.length ? `\nEvery beat MUST fill these required fields — the previous plan left them empty:\n${beatFieldGaps.map((gap) => `- ${gap}`).join('\n')}` : ''}\n\nReturn a completely new JSON beat contract.`;
+        const reintroductionLines = reintroductions.length
+          ? `\nCHARACTERS ALREADY INTRODUCED IN EARLIER CHAPTERS — this plan wrongly stages a FIRST meeting for: ${reintroductions.map((f) => f.name).join(', ')}. They are already known to the crew; write their scenes as continuations, never introductions.`
+          : '';
+        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}${beatFieldGaps.length ? `\nEvery beat MUST fill these required fields — the previous plan left them empty:\n${beatFieldGaps.map((gap) => `- ${gap}`).join('\n')}` : ''}${reintroductionLines}\n\nReturn a completely new JSON beat contract.`;
       }
     } catch (beatError) {
       if (!isNonfiction) throw beatError;
