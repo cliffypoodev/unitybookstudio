@@ -38,6 +38,7 @@ import { countParagraphs } from './structureUtils.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
 import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes } from './quoteFixPolish.js';
+import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from './crossChapterDedupe.js';
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
 import { repairCanonNameDrift } from './canonNameLock.js';
 import { runPerChapter } from './anthologyPolishHelper.js';
@@ -106,6 +107,7 @@ export async function runManuscriptPolishPipeline({
   sceneDuplicateSweep = null,
   _llmOverride = null,
   _testInjectHealer = null,
+  _crossDedupeLLMOverride = null,
 }) {
   // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the polish-lane
   // ledger sees the same closed world as drafting. Fail-open.
@@ -125,6 +127,24 @@ export async function runManuscriptPolishPipeline({
     const f = loaded[i];
     const key = (f.chapter && f.chapter.id) ? f.chapter.id : i;
     originalWordCounts.set(key, countWords(f.original || f.content || ''));
+  }
+
+  // POLISHSAFE-1B: record each chapter's smart-quote imbalance and input text
+  // at pipeline start. The final QUOTE-GUARD reverts any chapter the pipeline
+  // left with WORSE quote balance than it arrived with — no polish stage is
+  // allowed to ship corrupted dialogue (measured live: a balanced 133/133
+  // chapter left the old pipeline at 127/133 and hard-blocked its own export).
+  const quoteImbalance = (t) => {
+    const s = String(t || '');
+    let open = 0; let close = 0;
+    for (const ch of s) { if (ch === '“') open++; else if (ch === '”') close++; }
+    return Math.abs(open - close);
+  };
+  const initialQuoteState = new Map();
+  for (let i = 0; i < loaded.length; i++) {
+    const f = loaded[i];
+    const key = (f.chapter && f.chapter.id) ? f.chapter.id : i;
+    initialQuoteState.set(key, { imbalance: quoteImbalance(f.original || f.content || ''), text: String(f.original || f.content || '') });
   }
 
   const structureViolations = [];
@@ -761,6 +781,48 @@ export async function runManuscriptPolishPipeline({
   verifyInvariant('Grammar & Dialogue Mechanics');
 
   // ══════════════════════════════════════════════════════════════════════════
+  // CROSSDEDUPE-1: cross-chapter verbatim duplicate sentences (fiction, LLM).
+  // The export gate (BOOKGATE-3) hard-blocks on exactly these; this heals them
+  // in the polish lane so a finished book does not dead-end at export. One
+  // sequential LLM call per duplicate, deterministically verified (same
+  // meaning-preservation contract as the prose polisher: unverifiable recasts
+  // are skipped and reported, never forced). Nonfiction is excluded — NF prose
+  // is typography-only in polish (NFGUARD-1) and NF quotes are closed-world.
+  // ══════════════════════════════════════════════════════════════════════════
+  let crossDedupeStats = { recast: 0, skipped: [], dupesFound: 0 };
+  if (mode !== 'nonfiction' && !isAnthology) {
+    onProgress('Polish: Scanning for cross-chapter duplicate sentences…');
+    const dedupeChapters = loaded.map((f) => ({ chapterNumber: f.chapter?.chapter_number, text: f.content || '' }));
+    if (allowLLM || _crossDedupeLLMOverride) {
+      try {
+        crossDedupeStats = await healCrossChapterDuplicates(dedupeChapters, {
+          callLLM: _crossDedupeLLMOverride,
+          project,
+          onProgress,
+        });
+        for (let i = 0; i < loaded.length; i++) {
+          if (dedupeChapters[i].text !== loaded[i].content) loaded[i].content = dedupeChapters[i].text;
+        }
+        changes.push(...crossDedupeStats.changes);
+        if (crossDedupeStats.dupesFound > 0) {
+          changes.push(`CrossDedupe: ${crossDedupeStats.dupesFound} duplicated sentence(s) found, ${crossDedupeStats.recast} recast, ${crossDedupeStats.skipped.length} left for review.`);
+        }
+      } catch (err) {
+        console.error('[CROSSDEDUPE] pass failed open:', err?.message);
+        changes.push(`CrossDedupe: pass unavailable (${err?.message || 'unknown'}) — duplicates NOT healed.`);
+      }
+    } else {
+      const found = findCrossChapterDuplicateSentences(dedupeChapters);
+      crossDedupeStats.dupesFound = found.length;
+      if (found.length > 0) {
+        changes.push(`CrossDedupe: ${found.length} duplicated sentence(s) found — LLM disabled, reported only: ${found.map((d) => `ch${d.a}=ch${d.b}`).join(', ')}.`);
+        console.warn(`[CROSSDEDUPE] LLM disabled — ${found.length} cross-chapter duplicate(s) reported, not healed.`);
+      }
+    }
+  }
+  verifyInvariant('Cross-Chapter Dedupe');
+
+  // ══════════════════════════════════════════════════════════════════════════
   // PHASE D: LLM prose polish (LAST mutating step)
   // ══════════════════════════════════════════════════════════════════════════
   const llmPolishLog = [];
@@ -1149,6 +1211,52 @@ export async function runManuscriptPolishPipeline({
   }
   console.log(`[POLISH-RUNNER] [QUOTECLOSE-2] closed ${trailingQuotesClosed} trailing unclosed quote(s) across ${loaded.length} chapter(s)`);
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // POLISHSAFE-1B: final unconditional dialogue-balance heal + QUOTE-GUARD.
+  //
+  // Heal: runDialogueMechanicsPass runs on EVERY fiction chapter as the last
+  // mutating step — no eligibility gate. Its healers are strict no-ops on
+  // balanced text, and gating them (the old shouldRunDialogueRepair path) is
+  // exactly how a chapter that a mid-pipeline stage unbalanced reached export
+  // still broken.
+  //
+  // Guard: any chapter whose smart-quote imbalance is now WORSE than at
+  // pipeline start reverts to its input text, loudly. Same contract as
+  // STRUCTURE-GUARD extended to quote balance: a polish that corrupts dialogue
+  // does not ship, period.
+  // ══════════════════════════════════════════════════════════════════════════
+  let finalBalanceRepairs = 0;
+  let quoteGuardReverts = 0;
+  if (mode !== 'nonfiction') {
+    onProgress('Polish: Final dialogue-balance pass…');
+    for (let i = 0; i < loaded.length; i++) {
+      const f = loaded[i];
+      const dmFinal = runDialogueMechanicsPass(f.content || '', {});
+      const dmFinalTotal = Number(dmFinal.totalRepaired) ||
+        (dmFinal.repairs.length + (dmFinal.orphanRepaired || 0) + (dmFinal.unclosedRepaired || 0) + (dmFinal.closeHeavyRepaired || 0));
+      if (dmFinalTotal > 0 && dmFinal.text !== f.content) {
+        f.content = dmFinal.text;
+        finalBalanceRepairs += dmFinalTotal;
+      }
+    }
+    for (let i = 0; i < loaded.length; i++) {
+      const f = loaded[i];
+      const key = getChapterKey(f, i);
+      const initial = initialQuoteState.get(key);
+      if (!initial) continue;
+      const finalImbalance = quoteImbalance(f.content || '');
+      if (finalImbalance > initial.imbalance) {
+        const chNum = f.chapter?.chapter_number || '?';
+        console.error(`[QUOTE-GUARD] Ch.${chNum}: pipeline left quote balance WORSE than input (imbalance ${initial.imbalance} -> ${finalImbalance}). REVERTED to input text.`);
+        changes.push(`Ch.${chNum}: QUOTE-GUARD reverted all polish (quote balance would have gotten worse: ${initial.imbalance} -> ${finalImbalance}).`);
+        f.content = initial.text;
+        quoteGuardReverts += 1;
+      }
+    }
+  }
+  if (finalBalanceRepairs > 0) changes.push(`Final dialogue-balance pass: ${finalBalanceRepairs} repair(s) (POLISHSAFE-1B).`);
+  console.log(`[POLISH-RUNNER] [POLISHSAFE-1B] final balance repairs=${finalBalanceRepairs} quoteGuardReverts=${quoteGuardReverts}`);
+
   console.log(`[POLISH-RUNNER] ========== COMPLETE ==========`);
 
   return {
@@ -1160,6 +1268,10 @@ export async function runManuscriptPolishPipeline({
     anthologyStats,
     // Comprehensive stats for report template
     stats: {
+      crossDedupeFound: crossDedupeStats.dupesFound,
+      crossDedupeRecast: crossDedupeStats.recast,
+      finalBalanceRepairs,
+      quoteGuardReverts,
       bannedRecastCount,
       capFixed,
       capHygieneFixed,
