@@ -330,8 +330,13 @@ async function uploadViaGitHub(content, projectId, chapterId, prefix = 'chapter'
   /*
    * GitHub can return 409 if the file changes between SHA lookup and PUT.
    * Unique filenames should make conflicts rare, but keep the retry.
+   *
+   * DRAFTSAVE-1: retry EVERY failure, not just 409, with three attempts.
+   * A transient upload failure used to fall through to
+   * preserveExistingLargeContent, silently pointing a freshly drafted chapter
+   * back at its pre-draft blob — a chapter of work lost with zero errors.
    */
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
       const response = await base44.functions.invoke('uploadToGitHub', payload);
       const data = response.data || response;
@@ -339,8 +344,8 @@ async function uploadViaGitHub(content, projectId, chapterId, prefix = 'chapter'
       if (data.error) {
         console.warn('[CHAPTER-STORAGE] GitHub upload returned error:', data.error);
 
-        if (attempt < 2 && /409|conflict/i.test(String(data.error))) {
-          await new Promise((resolve) => setTimeout(resolve, 600));
+        if (attempt < 3) {
+          await new Promise((resolve) => setTimeout(resolve, 600 * attempt));
           continue;
         }
 
@@ -365,12 +370,11 @@ async function uploadViaGitHub(content, projectId, chapterId, prefix = 'chapter'
 
       return null;
     } catch (error) {
-      const status = error?.response?.status || error?.status;
-
       console.warn('[CHAPTER-STORAGE] GitHub upload failed:', error?.message || 'unknown');
 
-      if (attempt < 2 && (status === 409 || /409|conflict/i.test(error?.message || ''))) {
-        await new Promise((resolve) => setTimeout(resolve, 600));
+      // DRAFTSAVE-1: any thrown failure retries, not just 409.
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, 600 * attempt));
         continue;
       }
 
@@ -383,7 +387,11 @@ async function uploadViaGitHub(content, projectId, chapterId, prefix = 'chapter'
 
 function preserveExistingLargeContent(existingChapter) {
   if (existingChapter?.content_md_url) {
-    console.warn('[CHAPTER-STORAGE] Upload failed; preserving existing content_md_url instead of truncating chapter.');
+    // DRAFTSAVE-1: this branch means NEW content was NOT persisted and the
+    // record will keep pointing at PRE-SAVE text. That is data loss unless a
+    // caller notices — scream, do not whisper. (Live REDUX ch.3: a full
+    // redraft vanished this way with zero errors on screen.)
+    console.error('[DRAFTSAVE-1] Upload failed after retries; record still points at the PREVIOUS content blob. The text you just generated/edited is NOT saved. Preserving old content_md_url:', existingChapter.content_md_url);
 
     return {
       content_md: '',
