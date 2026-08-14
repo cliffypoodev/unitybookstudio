@@ -734,7 +734,12 @@ export async function runManuscriptPolishPipeline({
     // Dialogue mechanics (fiction only — NF source quotes must not be reformatted)
     if (mode !== 'nonfiction' && shouldRunDialogueRepair(f.content || '', project)) {
       const dmResult = runDialogueMechanicsPass(f.content || '', {});
-      if (dmResult.repairs.length > 0) { f.content = dmResult.text; dialogueRepairCount += dmResult.repairs.length; }
+      // DIALOGREPAIR-2: the pass reports each healer separately; keeping the text
+      // only when the VERB-TAG detector repaired something silently discarded the
+      // orphan-closer and close-heavy healers' work (live: 16 defects, 0 kept).
+      const dmTotal = Number(dmResult.totalRepaired) ||
+        (dmResult.repairs.length + (dmResult.orphanRepaired || 0) + (dmResult.unclosedRepaired || 0) + (dmResult.closeHeavyRepaired || 0));
+      if (dmTotal > 0 && dmResult.text !== f.content) { f.content = dmResult.text; dialogueRepairCount += dmTotal; }
       const mpResult = runMidParagraphDialogueAutofixPass(f.content || '', {});
       if (mpResult.midParagraphAutoFixed > 0) { f.content = mpResult.text; midParaAutoFixCount += mpResult.midParagraphAutoFixed; }
     }
