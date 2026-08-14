@@ -12,6 +12,7 @@ import {
   runDialogueMechanicsPass,
   VERSION,
 } from '../src/lib/dialogueMechanicsRepair.js';
+import * as fsMod from 'node:fs';
 
 let passed = 0;
 let failures = 0;
@@ -150,6 +151,30 @@ assert(orchResult.improved === true, `Orchestration: improved = ${orchResult.imp
 assert(orchResult.repairs.length === 2, `Orchestration: repairs = ${orchResult.repairs.length} (expect 2)`);
 
 // ─── Summary ─────────────────────────────────────────────────────────────────
+
+// ── DIALOGREPAIR-2: the close-heavy paragraph healer ──
+// The missing-opener class the live 82k-word draft proved unhealable (16 defects,
+// 8 healed, 8 refused as "ambiguous"): paragraph-start orphan closes and echo
+// replies. Structural rule matches BOOKGATE-2: closes > opens in a paragraph is
+// always a defect in this codebase (no multi-paragraph continuation convention).
+{
+  const cases = [
+    ['para-start bare echo', 'Hm.”', '“Hm.”'],
+    ['para-start nested quotation', '‘All the world is patient,’”', '“‘All the world is patient,’”'],
+    ['para-start with tag and later balanced pair', 'Your reading is off,” Marn said. The fan rattled. “Recheck it.” The room was hot.', '“Your reading is off,” Marn said. The fan rattled. “Recheck it.” The room was hot.'],
+    ['mid-para echo after closed quote', 'She frowned. “You read the manual. You skipped it.” I skipped the appendix,” Tola shot back.', 'She frowned. “You read the manual. You skipped it.” “I skipped the appendix,” Tola shot back.'],
+  ];
+  for (const [label, brokenText, want] of cases) {
+    const result = runDialogueMechanicsPass(brokenText, {});
+    assert(result.text === want, `DIALOGREPAIR-2 heals ${label}`, `got: ${JSON.stringify(result.text)}`);
+  }
+  const clean = 'The hall was empty. “Ready?” she asked. “Ready.” They walked out together.\n\n“Wait,” he said. “Listen.”';
+  const cleanResult = runDialogueMechanicsPass(clean, {});
+  assert(cleanResult.text === clean, 'DIALOGREPAIR-2 leaves balanced prose byte-identical');
+  assert(typeof runDialogueMechanicsPass('x.” y', {}).totalRepaired === 'number', 'pass reports totalRepaired for the polish runner');
+  const runnerSrc = fsMod.readFileSync(new URL('../src/lib/manuscriptPolishRunner.js', import.meta.url), 'utf8');
+  assert(runnerSrc.includes('dmResult.totalRepaired') && runnerSrc.includes('dmTotal > 0 && dmResult.text !== f.content'), 'polish runner keeps ALL healers\u2019 work, not just verb-tag repairs');
+}
 
 console.log(`\n=== Results: ${passed} passed, ${failures} failed ===`);
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) FAILED`);
