@@ -79,6 +79,15 @@ function countMatches(rx, text) {
 
 import { parseCustomBannedWords } from './settingsRead.js'; // WAVE5-SETTINGS
 const SLOP_PATTERNS = [
+  // STYLEBUDGET-1 fingerprint constructions
+  { key: 'small smile',       label: 'small smile',             regex: /\bsmall\s+smile\b/gi },
+  { key: 'but it was real',   label: 'but it was real',         regex: /\bbut\s+it\s+was\s+real\b/gi },
+  { key: 'short, sharp',      label: 'short, sharp',            regex: /\bshort,\s+sharp\b/gi },
+  { key: 'for now',           label: 'for now',                 regex: /\bfor\s+now\b/gi },
+  { key: 'indifferent',       label: 'indifferent',             regex: /\bindifferen(?:t|ce)\b/gi },
+  { key: 'breath she didn\u2019t know', label: 'breath she didn\u2019t know', regex: /\bbreath\s+she\s+didn[\u2019']t\s+know\b/gi },
+  { key: 'breath he didn\u2019t know',  label: 'breath he didn\u2019t know',  regex: /\bbreath\s+he\s+didn[\u2019']t\s+know\b/gi },
+  { key: 'breath they didn\u2019t know', label: 'breath they didn\u2019t know', regex: /\bbreath\s+they\s+didn[\u2019']t\s+know\b/gi },
   // ── "not just" family ──
   { key: 'not just',          label: 'not just',                regex: /\bnot\s+just\b/gi },
   { key: "wasn't just",       label: "wasn't just",             regex: /\bwasn['\u2019]t\s+just\b/gi },
@@ -152,7 +161,43 @@ const SLOP_PATTERNS = [
  * Individual entries cap a single pattern.
  * ═════════════════════════════════════════════════════════════════════════ */
 
+// STYLEBUDGET-1: fingerprint families measured on the live 82k-word draft
+// (11 "small smile", 15 "but it was real", 12 "short, sharp", 24 "for now",
+// 30 "indifferent"). Budgets are per TEXT (chapter/story); the cross-chapter
+// accumulation these tells actually live in is enforced by the book-level
+// style ledger below, which bans a family from the writer's prompt once the
+// BOOK has spent its allowance.
 export const SLOP_BUDGETS = [
+  {
+    name: 'small smile family',
+    keys: ['small smile', 'but it was real'],
+    budget: 1,
+    bookBudget: 3,
+  },
+  {
+    name: 'short sharp',
+    keys: ['short, sharp'],
+    budget: 1,
+    bookBudget: 3,
+  },
+  {
+    name: 'for now',
+    keys: ['for now'],
+    budget: 2,
+    bookBudget: 8,
+  },
+  {
+    name: 'indifferent universe',
+    keys: ['indifferent'],
+    budget: 1,
+    bookBudget: 5,
+  },
+  {
+    name: 'breath she didn\u2019t know',
+    keys: ['breath she didn\u2019t know', 'breath he didn\u2019t know', 'breath they didn\u2019t know'],
+    budget: 0,
+    bookBudget: 1,
+  },
   {
     name: 'not just family',
     keys: ['not just', "wasn't just", "didn't just", "isn't just", 'more than just'],
@@ -889,3 +934,70 @@ export function recastBannedVocabulary(text) {
 }
 
 export default runAISlopReductionPass;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * STYLEBUDGET-1 — the book-level style ledger.
+ *
+ * The per-text budgets above cannot see the fingerprint that exposed the live
+ * 82k draft: constructions that pass every chapter individually and accumulate
+ * into a tell across the book (11 "small smile", 15 "but it was real"), plus
+ * raw simile density (332 "like a" + 82 "as if" ≈ 5.0/1k words). This layer is
+ * deterministic and draft-time: measure prior chapters, ban exhausted families
+ * from the writer's prompt, and state a simile budget the scene must respect.
+ * ═════════════════════════════════════════════════════════════════════════ */
+
+export const SIMILE_DENSITY_BUDGET_PER_1K = 3.0; // ≈ 1 conspicuous simile per 330 words
+
+export function measureSimileDensity(text) {
+  const safe = normalizeText(text);
+  const wc = countWords(safe);
+  if (!wc) return { likeA: 0, asIf: 0, total: 0, per1k: 0, wordCount: 0 };
+  const likeA = (safe.match(/\blike\s+an?\b/gi) || []).length;
+  const asIf = (safe.match(/\bas\s+if\b/gi) || []).length;
+  const total = likeA + asIf;
+  return { likeA, asIf, total, per1k: Math.round((total / wc) * 1000 * 100) / 100, wordCount: wc };
+}
+
+/**
+ * Cross-chapter spend per budget family. `bookBudget` on a SLOP_BUDGETS entry
+ * marks it as book-capped; families without one are per-text only.
+ */
+export function buildBookStyleLedger(priorTexts) {
+  const texts = (Array.isArray(priorTexts) ? priorTexts : [priorTexts]).map((t) => String(t || ''));
+  const corpus = texts.join('\n\n');
+  const { counts } = countAISlopPatterns(corpus);
+  const families = [];
+  for (const family of SLOP_BUDGETS) {
+    if (!Number.isFinite(family.bookBudget)) continue;
+    const spent = family.keys.reduce((sum, key) => sum + (counts[key] || 0), 0);
+    families.push({ name: family.name, keys: family.keys, bookBudget: family.bookBudget, spent, exhausted: spent >= family.bookBudget });
+  }
+  const simile = measureSimileDensity(corpus);
+  return { families, simile };
+}
+
+/**
+ * Prompt-ready style budget block for the scene writer. Empty string when the
+ * book is young and nothing is exhausted (the base style rules already cover
+ * general restraint).
+ */
+export function buildStyleBudgetPromptBlock(ledger) {
+  if (!ledger) return '';
+  const lines = [];
+  const exhausted = (ledger.families || []).filter((family) => family.exhausted);
+  if (exhausted.length) {
+    lines.push(
+      'EXHAUSTED CONSTRUCTIONS — this book has already spent its allowance of each of these; do NOT use them or close variants in this chapter:'
+    );
+    for (const family of exhausted) {
+      lines.push(`- ${family.keys.map((key) => `"${key}"`).join(', ')} (used ${family.spent}x already)`);
+    }
+  }
+  if (ledger.simile && ledger.simile.wordCount > 2000 && ledger.simile.per1k > SIMILE_DENSITY_BUDGET_PER_1K) {
+    lines.push(
+      `SIMILE BUDGET: earlier chapters average ${ledger.simile.per1k} "like a / as if" comparisons per 1000 words — over the ${SIMILE_DENSITY_BUDGET_PER_1K}/1000 budget. In this chapter, use at most one conspicuous simile per ~330 words; prefer a plain concrete action or sensory statement over a comparison.`
+    );
+  }
+  return lines.length ? `STYLE BUDGET — MANDATORY:\n${lines.join('\n')}` : '';
+}
+
