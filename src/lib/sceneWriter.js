@@ -38,6 +38,7 @@ import {
   HUMAN_PROSE_PRIORITY_BLOCK,
 } from '@/lib/craftCompact';
 import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStylePrompt';
+import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -3582,6 +3583,18 @@ export async function generateChapterSceneByScene({
   const isClean = isCleanMetadata;
 
   validateSceneContractReplay(normalizedScenes);
+  // EVENTLEDGER-1B: the replay gate consults prior_completed_events, but until
+  // now that list was born at scene 1 of every chapter knowing nothing about
+  // chapters 1..N-1 — which is how a chapter could restage an earlier chapter's
+  // scene verbatim-in-function. Seed it from the persisted beat contracts.
+  // Anthology stories are standalone: no cross-story seeding.
+  const priorChapterEvents = (!isAnthologyProject(project) && Number(chapter?.chapter_number) > 1)
+    ? buildPriorChapterEventLedger(allProjectChapters, Number(chapter.chapter_number), { maxChars: 5000 }).events
+    : [];
+  if (priorChapterEvents.length) {
+    console.log('[EVENTLEDGER] Writer seeded with', priorChapterEvents.length, 'completed events from earlier chapters');
+  }
+
   for (let i = 0; i < normalizedScenes.length; i += 1) {
     const spec = normalizedScenes[i];
     const priorScenes = normalizedScenes.slice(0, i);
@@ -3593,9 +3606,12 @@ export async function generateChapterSceneByScene({
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
         .map(([char, objs]) => `${char} has the ${objs.join(' and the ')}`),
       required_events: Array.isArray(spec?.required_events) ? spec.required_events.filter(Boolean).filter(isClean) : [],
-      prior_completed_events: priorScenes.flatMap((scene) =>
-        Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
-      ),
+      prior_completed_events: [
+        ...priorChapterEvents,
+        ...priorScenes.flatMap((scene) =>
+          Array.isArray(scene?.required_events) ? scene.required_events.filter(Boolean).filter(isClean) : []
+        ),
+      ],
       prior_exit_states: priorScenes
         .map((scene) => String(scene?.exit_state || '').trim())
         .filter(Boolean).filter(isClean),
