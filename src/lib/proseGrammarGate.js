@@ -141,7 +141,7 @@ export async function analyzeProse(text) {
   // We can just count newlines in the original text up to the message offset.
   const getParagraph = (msg) => {
     if (msg.paragraph !== undefined) return msg.paragraph;
-    const offset = msg.position?.start?.offset;
+    const offset = (msg.place || msg.position)?.start?.offset;
     if (offset === undefined || offset === null) return 1;
     const prefix = String(text || '').slice(0, offset);
     const paras = prefix.split(/\n{2,}/);
