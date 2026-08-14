@@ -13,17 +13,15 @@ import {
   VERSION,
 } from '../src/lib/dialogueMechanicsRepair.js';
 
-const PASS = '\x1b[32m✓\x1b[0m';
-const FAIL = '\x1b[31m✗\x1b[0m';
 let passed = 0;
 let failures = 0;
 
 function assert(condition, label, detail) {
   if (condition) {
-    console.log(`  ${PASS} ${label}`);
+    console.log(`PASS ${label}`);
     passed++;
   } else {
-    console.log(`  ${FAIL} ${label}`);
+    console.log(`FAIL ${label}`);
     if (detail) console.log(`      ${detail}`);
     failures += 1;
   }
