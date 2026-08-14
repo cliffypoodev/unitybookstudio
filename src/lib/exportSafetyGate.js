@@ -85,7 +85,8 @@ async function getDialogueDetector() {
 import { buildPronounCanon, harvestCastNames, scanPronounViolations } from './pronounLock.js'; // PRONOUNLOCK-1
 import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
 import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
-import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants } from './canonRoles.js'; // CANON-2
+import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants, scanRoleReferenceDrift } from './canonRoles.js'; // CANON-2 / CHARSTATE-1
+import { buildCharacterState, auditProseAgainstCharacterState } from './characterStateLedger.js'; // CHARSTATE-1
 
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
   let { project, stage = 'pre-export' } = options;
@@ -638,6 +639,50 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     }
   } catch (canonError) {
     console.warn('[CANON-2] Gate canon telemetry failed (non-fatal):', canonError?.message || canonError);
+  }
+
+  // CHARSTATE-1: manuscript-level state-machine telemetry — warnings, loud.
+  // Resurrections (a departed character acting in a later chapter with no
+  // written return — live: JB departed ch.9, "fidgeted near the counter" in
+  // ch.10) and role-reference drift ("The navigator" pointing at the wrong
+  // character — live: Sadie in ch.11). Warnings, not hard blocks: both need
+  // an author decision (write the return / fix the sentence), and the fix is
+  // a redraft, not a mechanical repair.
+  try {
+    const canonCastForState = parseCanonCast(project?.characters_md);
+    const orderedChapters = [...chapters]
+      .filter((ch) => Number(ch?.chapter_number) > 0)
+      .sort((a, b) => Number(a.chapter_number) - Number(b.chapter_number))
+      .map((ch) => ({ chapterNumber: Number(ch.chapter_number), title: ch?.title || '', text: String(ch?.content_md || ch?.content || '') }));
+    const stateCastNames = harvestCastNames(project?.characters_md, orderedChapters.map((c) => c.text));
+    if (stateCastNames.length) {
+      for (let i = 1; i < orderedChapters.length; i += 1) {
+        const priorState = buildCharacterState(orderedChapters.slice(0, i), stateCastNames);
+        const violations = auditProseAgainstCharacterState(orderedChapters[i].text, priorState, stateCastNames);
+        for (const violation of violations) {
+          warnings.push({
+            chapterNumber: orderedChapters[i].chapterNumber,
+            title: orderedChapters[i].title,
+            reasons: [`CHARSTATE-1: ${violation.message}`],
+          });
+          console.warn(`[CHARSTATE] Ch.${orderedChapters[i].chapterNumber}: ${violation.code} — ${violation.name}`);
+        }
+      }
+    }
+    if (canonCastForState.length) {
+      for (const ch of orderedChapters) {
+        for (const drift of scanRoleReferenceDrift(ch.text, canonCastForState, stateCastNames)) {
+          warnings.push({
+            chapterNumber: ch.chapterNumber,
+            title: ch.title,
+            reasons: [`CHARSTATE-1: narration refers to ${drift.referredTo} as "the ${drift.role}" but canon assigns that role to ${drift.holder} ("${drift.snippet}").`],
+          });
+          console.warn(`[CHARSTATE] Ch.${ch.chapterNumber}: role drift — "${drift.role}" attributed to ${drift.referredTo}, canon holder ${drift.holder}`);
+        }
+      }
+    }
+  } catch (stateError) {
+    console.warn('[CHARSTATE] Gate telemetry failed (non-fatal):', stateError?.message || stateError);
   }
 
   const blocked = hardFailures.length > 0;
