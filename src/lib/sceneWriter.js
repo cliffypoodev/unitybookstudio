@@ -41,6 +41,7 @@ import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStyleP
 import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
 import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
+import { buildCharacterState, buildCharacterStateContract } from '@/lib/characterStateLedger'; // CHARSTATE-1
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
@@ -2323,6 +2324,11 @@ function buildSceneStateContractBlock(spec) {
   if (roleCanon) {
     lines.push(`CHARACTER ROLES (canonical — from the character sheet, which OUTRANKS any conflicting world/canon note): ${roleCanon}. Never attribute one character's canonical role to another.`);
   }
+  // CHARSTATE-1: the character state machine is a hard contract.
+  const charState = String(spec?.character_state || '').trim();
+  if (charState) {
+    lines.push(charState);
+  }
   // STYLEBUDGET-1: rendered as its own block inside the contract.
   const styleBudget = String(spec?.style_budget || '').trim();
   if (styleBudget) {
@@ -3648,6 +3654,30 @@ export async function generateChapterSceneByScene({
     console.warn('[CANON-2] Role canon build failed (non-fatal):', roleError?.message || roleError);
   }
 
+  // CHARSTATE-1: the character STATE machine. Derived from the prose of every
+  // earlier chapter: who has DEPARTED (and may not appear until a written
+  // return), who has already introduced themselves (never a second first
+  // meeting). Injected as a hard contract and enforced by the scene audit.
+  // Fail open: empty state adds nothing.
+  let characterState = null;
+  let characterStateContract = '';
+  let characterStateCast = [];
+  try {
+    if (!isAnthologyProject(project) && Number(chapter?.chapter_number) > 1) {
+      const statePriorChapters = allProjectChapters
+        .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter?.chapter_number))
+        .map((prior) => ({ chapterNumber: Number(prior.chapter_number), text: String(prior?.content_md || '') }));
+      characterStateCast = harvestCastNames(project?.characters_md, statePriorChapters.map((c) => c.text));
+      if (characterStateCast.length && statePriorChapters.some((c) => c.text.length > 200)) {
+        characterState = buildCharacterState(statePriorChapters, characterStateCast);
+        characterStateContract = buildCharacterStateContract(characterState);
+        if (characterStateContract) console.log('[CHARSTATE] Contract for this chapter:', characterStateContract.split('\n').length - 1, 'fact(s)');
+      }
+    }
+  } catch (stateError) {
+    console.warn('[CHARSTATE] State build failed (non-fatal):', stateError?.message || stateError);
+  }
+
   // STYLEBUDGET-1: book-level style spend from prior chapters — exhausted
   // constructions are banned in this chapter's prompt, and a simile budget is
   // stated when earlier chapters run hot. Anthologies are standalone stories:
@@ -3678,6 +3708,9 @@ export async function generateChapterSceneByScene({
       // KEYLEDGER-1f: who has what when this scene opens.
       pronoun_canon: pronounCanonLine, // PRONOUNLOCK-1
       role_canon: roleCanonLine, // CANON-2
+      character_state: characterStateContract, // CHARSTATE-1 (prompt block)
+      __characterState: characterState, // CHARSTATE-1 (audit object)
+      __characterStateCast: characterStateCast, // CHARSTATE-1
       style_budget: styleBudgetBlock, // STYLEBUDGET-1
       holders_of_record: Object.entries(runtimeLedger.possessions || {})
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
