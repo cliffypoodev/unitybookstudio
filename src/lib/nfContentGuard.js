@@ -95,12 +95,19 @@ const AN_BEFORE = /^(?:[aeio]|u(?![a-z])|un(?!i)|honest|honor|hour|heir|herb\b|u
 const A_BEFORE = /^(?:uni|use|user|usual|utility|utop|euro|eu|ewe|one\b|once\b|u[a-z]?-)/i;
 export function fixIndefiniteArticles(text) {
   let fixed = 0;
-  const out = String(text || '').replace(/\b(a|an|A|An)\s+([a-z][a-z-]*)\b/g, (m, art, word) => {
+  const out = String(text || '').replace(/\b(a|an|A|An)\s+([A-Za-z][a-z-]*)\b/g, (m, art, word) => {
+    // GRAMMARREPAIR-2: capitalized words are judged only when they start with a
+    // vowel LETTER ("an European" → "a European", "a Earl" → "an Earl");
+    // consonant-initial proper nouns ("an Xylos", "an F-14") are left alone —
+    // their sound is not knowable from spelling.
+    if (/^[A-Z]/.test(word) && !/^[AEIOU]/.test(word)) return m;
     const wantsAn = A_BEFORE.test(word) ? false : AN_BEFORE.test(word);
     const isAn = art.toLowerCase() === 'an';
     if (wantsAn === isAn) return m;
-    if (!wantsAn && !A_BEFORE.test(word) && !/^[aeiou]/i.test(word)) {
-      // "an" before consonant-initial word — always wrong
+    if (!wantsAn && (A_BEFORE.test(word) || !/^[aeiou]/i.test(word))) {
+      // "an" before a consonant-SOUND word — "an unicorn", "an European",
+      // "an banana" — always wrong. (GRAMMARREPAIR-2: the A_BEFORE branch used
+      // to fall through unrepaired.)
       fixed++;
       return (art[0] === 'A' ? 'A' : 'a') + ' ' + word;
     }
