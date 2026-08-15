@@ -910,7 +910,14 @@ export async function runManuscriptPolishPipeline({
   let subjectStats = { found: 0, repaired: 0, skipped: 0 };
   {
     let castForRepair = [];
-    try { castForRepair = harvestCastNames(project?.characters_md, loaded.map((f) => String(f.content || ''))); } catch { castForRepair = []; }
+    try {
+      castForRepair = harvestCastNames(project?.characters_md, loaded.map((f) => String(f.content || '')));
+      // SUBJECTREPAIR-1B: the model answers with bible names too ("Roderick was
+      // focused…"); every canon name and alias is a legal subject.
+      for (const entry of parseCanonCast(project?.characters_md)) {
+        for (const n of [entry.name, ...(entry.aliases || [])]) if (n && !castForRepair.includes(n)) castForRepair.push(n);
+      }
+    } catch { castForRepair = castForRepair || []; }
     for (const f of loaded) {
       const chNum = f.chapter?.chapter_number || '?';
       const found = findDroppedSubjectSentences(String(f.content || ''));
