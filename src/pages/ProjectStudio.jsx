@@ -3408,9 +3408,19 @@ Return structured JSON:
       // not plan a first meeting for a known character. Prepended like the
       // event ledger so it survives the prompt clip. Fail open.
       try {
-        const statePriorChapters = chapterList
+        // PROSEFEED-1: content_md is empty for URL-stored chapters — resolve
+        // the real prose, or the state machine builds from nothing.
+        const statePriorRecords = chapterList
           .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter.chapter_number))
-          .map((prior) => ({ chapterNumber: Number(prior.chapter_number), text: String(prior?.content_md || '') }));
+          .sort((a, b) => Number(a.chapter_number) - Number(b.chapter_number));
+        const statePriorChapters = [];
+        for (const prior of statePriorRecords) {
+          try {
+            const inline = String(prior?.content_md || '');
+            const body = inline.length > 200 ? inline : String((await resolveChapterContent(prior)) || '');
+            if (body.length > 200) statePriorChapters.push({ chapterNumber: Number(prior.chapter_number), text: body });
+          } catch { /* fail open per chapter */ }
+        }
         const stateCast = harvestCastNames(promptProject?.characters_md, statePriorChapters.map((c) => c.text));
         if (stateCast.length && statePriorChapters.some((c) => c.text.length > 200)) {
           const charState = buildCharacterState(statePriorChapters, stateCast);
