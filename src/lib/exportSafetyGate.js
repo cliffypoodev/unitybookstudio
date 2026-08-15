@@ -83,6 +83,7 @@ async function getDialogueDetector() {
  * }}
  */
 import { buildPronounCanon, harvestCastNames, scanPronounViolations, scanContextVariablePronounDrift } from './pronounLock.js'; // PRONOUNLOCK-1 / PRONOUNVAR-1
+import { scanDuplicateIntroductions } from './introGuard.js'; // INTRODUP-1
 import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
 import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
 import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants, scanRoleReferenceDrift } from './canonRoles.js'; // CANON-2 / CHARSTATE-1
@@ -589,6 +590,34 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     }
   } catch (pronounError) {
     console.warn('[PRONOUNLOCK] Gate scan failed (non-fatal):', pronounError?.message || pronounError);
+  }
+
+  // INTRODUP-1: a character who has already introduced themselves does not
+  // re-announce their name later in the same chapter. Warning only, closed-world
+  // (a KNOWN cast name spoken as a first-person self-reference 2+ times). Fail
+  // open — a narrative slip must never stop an export.
+  try {
+    const introBodies = chapters.map((ch) => String(ch?.content_md || '')).filter((body) => body.length > 200);
+    const introCast = harvestCastNames(options?.project?.characters_md, introBodies);
+    if (introCast.length) {
+      let introTotal = 0;
+      for (const ch of chapters) {
+        const body = String(ch?.content_md || '');
+        if (body.length <= 200) continue;
+        const dups = scanDuplicateIntroductions(body, introCast);
+        for (const d of dups) {
+          introTotal += 1;
+          warnings.push({
+            chapterNumber: ch?.chapter_number,
+            title: ch?.title || '',
+            reasons: [`INTRODUP-1: ${d.name} introduces themselves ${d.count} times in this chapter — keep one self-introduction ("${d.excerpts[0]}").`],
+          });
+        }
+      }
+      console.log(`[INTRODUP] Gate scan: ${introTotal} duplicate self-introduction(s) across ${chapters.length} chapter(s)`);
+    }
+  } catch (introError) {
+    console.warn('[INTRODUP] Gate scan failed (non-fatal):', introError?.message || introError);
   }
 
   // STYLEBUDGET-1: book-level style telemetry — warnings only. Style is a
