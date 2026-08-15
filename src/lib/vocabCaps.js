@@ -401,9 +401,16 @@ export function runSentenceStarterVariation(loaded, onProgress) {
     const excess = itWasMatches.length - 3;
     let removed = 0;
 
+    // ITWAS-1: this cap used to delete the opener before ANY non-stoplisted
+    // word \u2014 "It was indeed JB, his coat flapping wildly\u2026" became "Indeed JB,
+    // his coat flapping wildly\u2026" (a fragment) in a live manuscript, 30 times a
+    // pass. Deletion is only safe for a SHORT, adjective-only sentence:
+    // "It was quiet." \u2192 "Quiet." Anything with a comma, a name, an adverb
+    // opener, or more than six words after the opener is left alone.
+    const ITWAS_ADVERB_OPENERS = /^(?:indeed|simply|also|only|just|still|then|almost|nearly|barely|really|truly|clearly|obviously|exactly|probably|certainly|definitely|merely|hardly|scarcely|quite|rather|somewhat|too|very|so|even|already|never|always|often|sometimes|now|later|soon)$/i;
     f.content = f.content.replace(
-      /(?<=[.!?\n]\s*)(It was(?:n't)?\s+)(\w+)/g,
-      (match, opener, nextWord, offset) => {
+      /(?<=[.!?\n]\s*)(It was(?:n't)?\s+)(\w+)([^.!?\n]*)([.!?])/g,
+      (match, opener, nextWord, rest, terminal, offset) => {
         if (removed >= excess) return match;
         // Skip if inside dialogue
         const before = f.content.substring(Math.max(0, offset - 200), offset);
@@ -413,10 +420,16 @@ export function runSentenceStarterVariation(loaded, onProgress) {
         // Only delete "It was" before adjectives/adverbs (safe restructure)
         // Keep "It was [Name]" and "It was [noun that continues]"
         if (/^(a|the|an|not|his|her|their|its|there|here|then|also|still|only|just|like|as|what|who|where|when|how|why|all|every|no|nothing|something|everything)$/i.test(nextWord)) return match;
+        // ITWAS-1 guards
+        if (ITWAS_ADVERB_OPENERS.test(nextWord)) return match; // "It was indeed\u2026"
+        if (/^[A-Z]/.test(nextWord)) return match; // "It was JB\u2026" / "It was Zin who\u2026"
+        if (/[,;:\u2014\u2013]/.test(rest)) return match; // a clause follows \u2014 deleting the opener strands it
+        if (/\b[A-Z][a-z]+\b/.test(rest)) return match; // a name in the remainder
+        if ((nextWord + rest).trim().split(/\s+/).length > 6) return match; // not a short fragment
         // Safe: capitalize the next word and drop "It was "
         removed++;
         itWasFixed++;
-        return nextWord.charAt(0).toUpperCase() + nextWord.slice(1);
+        return nextWord.charAt(0).toUpperCase() + nextWord.slice(1) + rest + terminal;
       }
     );
     if (removed > 0) {
