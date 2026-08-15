@@ -86,6 +86,7 @@ import {
   createImmutableSceneContract,
   finalizeSceneExecutionCanaryEvidence,
   findNarrativeMetaLeaks,
+  repairNarrativeMetaLeaks, // LEAKREPAIR-1
   prepareSceneExecutionCanaryTrial,
   prepareSceneExecutionPromptCanary,
   prepareSceneExecutionShadowIntegration,
@@ -3975,6 +3976,13 @@ export async function generateChapterSceneByScene({
     }
 
     if (!isNF) {
+      // LEAKREPAIR-1: repair the removable planning-language shapes before
+      // asserting — a scene is not thrown away for "in Chapter 4".
+      const sceneLeakRepair = repairNarrativeMetaLeaks(sceneProse);
+      if (sceneLeakRepair.repaired > 0) {
+        sceneProse = sceneLeakRepair.text;
+        console.warn(`[LEAKREPAIR-1] Scene ${spec.sceneNumber || i + 1}: repaired ${sceneLeakRepair.repaired} planning-language leak(s): ${sceneLeakRepair.phrases.map((p) => `"${p}"`).join(', ')}`);
+      }
       try {
         assertNarrativeTextClean(sceneProse, { chapterNumber });
       } catch (error) {
@@ -4645,7 +4653,17 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
 
   pipelineSnapshot(chapter?.id, '0c-accumulated-pre-final-clean', accumulatedProse);
   let finalProse = cleanSceneOutput(accumulatedProse, project);
-  if (!isNF) assertNarrativeTextClean(finalProse, { chapterNumber });
+  if (!isNF) {
+    // LEAKREPAIR-1: repair before assert at the chapter level too — repair
+    // passes and bridges run after the per-scene check and can reintroduce a
+    // chapter reference (live: "the night in Chapter 4" surfaced only here).
+    const finalLeakRepair = repairNarrativeMetaLeaks(finalProse);
+    if (finalLeakRepair.repaired > 0) {
+      finalProse = finalLeakRepair.text;
+      console.warn(`[LEAKREPAIR-1] Chapter ${chapterNumber}: repaired ${finalLeakRepair.repaired} planning-language leak(s) in the assembled draft: ${finalLeakRepair.phrases.map((p) => `"${p}"`).join(', ')}`);
+    }
+    assertNarrativeTextClean(finalProse, { chapterNumber });
+  }
   pipelineSnapshot(chapter?.id, '0d-after-final-cleanSceneOutput', finalProse);
 
   const nameRepair = repairCanonNameDrift(finalProse, { project, chapter, chapters: allProjectChapters });
