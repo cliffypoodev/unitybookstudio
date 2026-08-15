@@ -927,7 +927,11 @@ export function auditSceneAgainstLedger({
           if (effectiveState[name]) { effectiveState[name].partyStatus = 'returned'; effectiveState[name].statusChapter = 0; }
         }
       }
-      for (const violation of auditProseAgainstCharacterState(prose, effectiveState, stateCast)) {
+      // CHARSTATE-2: the beat plan declaring a return IS the authorization —
+      // the scene staging a planned return must not be rejected because the
+      // writer phrased the return naturally instead of matching the narrow
+      // prose patterns (live: ch.11 hard-blocked on its own return scene).
+      for (const violation of auditProseAgainstCharacterState(prose, effectiveState, stateCast, { declaredReturns: spec?.__beatDeclaredReturns || [] })) {
         issues.push({
           code: violation.code,
           message: violation.message,
