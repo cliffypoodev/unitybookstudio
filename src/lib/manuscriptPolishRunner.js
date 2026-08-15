@@ -42,7 +42,7 @@ import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from '
 import { healSimileDensity, selectSimileRecastTargets } from './simileRecast.js'; // STYLEBUDGET-2
 import { repairDroppedSubjects, findDroppedSubjectSentences } from './subjectRepair.js'; // SUBJECTREPAIR-1
 import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
-import { harvestCastNames } from './pronounLock.js'; // SUBJECTREPAIR-1
+import { harvestCastNames, buildPronounCanon, healContextVariablePronounScenes } from './pronounLock.js'; // SUBJECTREPAIR-1 / PRONOUNVAR-1
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
 import { repairCanonNameDrift } from './canonNameLock.js';
 import { runPerChapter } from './anthologyPolishHelper.js';
@@ -944,6 +944,40 @@ export async function runManuscriptPolishPipeline({
   }
   verifyInvariant('Subject Repair');
 
+  // PRONOUNVAR-1: heal WITHIN-scene pronoun drift for context-variable
+  // characters (e.g. Lark, declared genderfluid). Between scenes the
+  // presentation may change by design; inside one scene it must be uniform.
+  // Deterministic (no LLM): flip the minority gendered pronouns to the scene's
+  // majority, ONLY in sentences attributed to that character. A tie is left
+  // alone. Fiction only.
+  let pronounVarStats = { chaptersHealed: 0, flips: 0 };
+  if (mode !== 'nonfiction') {
+    try {
+      const castForVar = harvestCastNames(project?.characters_md, loaded.map((f) => String(f.content || '')));
+      const canonForVar = buildPronounCanon(project, loaded.map((f) => String(f.content || '')), castForVar);
+      const variableNames = Array.isArray(canonForVar.variable) ? canonForVar.variable : [];
+      if (variableNames.length) {
+        for (const f of loaded) {
+          const chNum = f.chapter?.chapter_number || '?';
+          let chFlips = 0;
+          for (const name of variableNames) {
+            const res = healContextVariablePronounScenes(String(f.content || ''), name, castForVar);
+            if (res.healed.length) { f.content = res.text; chFlips += res.healed.reduce((s, h) => s + h.count, 0); }
+          }
+          if (chFlips > 0) {
+            pronounVarStats.chaptersHealed += 1;
+            pronounVarStats.flips += chFlips;
+            changes.push(`Ch.${chNum}: PRONOUNVAR-1 unified ${chFlips} within-scene pronoun(s) for context-variable character(s)`);
+            console.log(`[PRONOUNVAR-1] Ch.${chNum}: unified ${chFlips} within-scene pronoun(s)`);
+          }
+        }
+      }
+    } catch (pvErr) {
+      console.error('[PRONOUNVAR-1] pass failed open:', pvErr?.message);
+    }
+  }
+  verifyInvariant('Context-Variable Pronoun Heal');
+
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE D: LLM prose polish (LAST mutating step)
   // ══════════════════════════════════════════════════════════════════════════
@@ -1397,6 +1431,8 @@ export async function runManuscriptPolishPipeline({
       simileSkipped: simileStats.skipped,
       subjectFound: subjectStats.found, // SUBJECTREPAIR-1
       subjectRepaired: subjectStats.repaired,
+      pronounVarFlips: pronounVarStats.flips, // PRONOUNVAR-1
+      pronounVarChapters: pronounVarStats.chaptersHealed,
       finalBalanceRepairs,
       quoteGuardReverts,
       bannedRecastCount,
