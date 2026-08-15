@@ -3015,6 +3015,20 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
     }
   } catch (repeatErr) { /* REPEAT-1 never blocks a chapter */ }
 
+  // GRAMMARREPAIR-2: a/an agreement is healed HERE — the last pass on the
+  // artifact that ships — not only in cleanSceneOutput. Live: three exports in
+  // one night hard-blocked on "a axle" / "a erratic" / "A honest" (PROSEGATE-1)
+  // because the LLM echo/repeat repairs above run AFTER the assembly heal and
+  // can reintroduce the defect, and the salvage/save paths call this function
+  // directly. Deterministic; the export gate stops needing a human for this.
+  try {
+    const healedArticles = fixIndefiniteArticles(finalProse);
+    if (healedArticles.fixed > 0) {
+      finalProse = healedArticles.text;
+      console.log(`[GRAMMARREPAIR-2] finalize: fixed ${healedArticles.fixed} indefinite article(s) on the shipping artifact`);
+    }
+  } catch (articleErr) { /* never blocks */ }
+
   return finalProse;
 }
 
