@@ -2319,6 +2319,10 @@ function buildSceneStateContractBlock(spec) {
   }
   // PRONOUNLOCK-1: pronouns are canon, not style. In-dialogue misgendering by
   // another character (disguise, mockery) is allowed; narration is not.
+  const pronounVariable = String(spec?.pronoun_variable || '').trim();
+  if (pronounVariable) {
+    lines.push(`CONTEXT-VARIABLE PRONOUNS: ${pronounVariable} present differently in different scenes by design. Choose ONE presentation (he/him or she/her) for ${pronounVariable} at the start of THIS scene and use it consistently for the entire scene — never mix he and she for the same character within one scene.`);
+  }
   const pronounCanon = String(spec?.pronoun_canon || '').trim();
   if (pronounCanon) {
     lines.push(`CHARACTER PRONOUNS (canonical — narration must NEVER vary them): ${pronounCanon}.`);
@@ -3693,6 +3697,7 @@ export async function generateChapterSceneByScene({
   // sheet or inferred from dominant usage in already-drafted chapters. Fail
   // open: an empty canon adds nothing to the prompt.
   let pronounCanonLine = '';
+  let pronounVariableLine = ''; // PRONOUNVAR-1
   try {
     const priorTexts = resolvedPriorProse.map((entry) => entry.text);
     const castNames = harvestCastNames(project?.characters_md, priorTexts);
@@ -3702,6 +3707,12 @@ export async function generateChapterSceneByScene({
       if (pronounCanonLine) console.log('[PRONOUNLOCK] Canon for this chapter:', pronounCanonLine);
       if (pronounCanon.unresolved.length) {
         console.warn('[PRONOUNLOCK] Characters with heavy MIXED pronoun usage and no declaration:', pronounCanon.unresolved.map((entry) => `${entry.name} (he ${entry.he} / she ${entry.she})`).join(', '));
+      }
+      // PRONOUNVAR-1: a context-variable character presents one gender PER
+      // SCENE; the writer must pick one and hold it for the whole chapter/scene.
+      if (Array.isArray(pronounCanon.variable) && pronounCanon.variable.length) {
+        pronounVariableLine = pronounCanon.variable.join(', ');
+        console.log('[PRONOUNVAR] Context-variable character(s):', pronounVariableLine);
       }
     }
   } catch (pronounError) {
@@ -3779,6 +3790,7 @@ export async function generateChapterSceneByScene({
       ...spec,
       // KEYLEDGER-1f: who has what when this scene opens.
       pronoun_canon: pronounCanonLine, // PRONOUNLOCK-1
+      pronoun_variable: pronounVariableLine, // PRONOUNVAR-1
       role_canon: roleCanonLine, // CANON-2
       character_state: characterStateContract, // CHARSTATE-1 (prompt block)
       __characterState: characterState, // CHARSTATE-1 (audit object)
