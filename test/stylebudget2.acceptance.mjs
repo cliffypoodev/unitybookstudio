@@ -77,8 +77,20 @@ check('13. healer brings the text under budget (measured, not assumed)', healed.
 check('14. rejected recasts leave the original sentence untouched', healed.text.includes('Lark laughed as though nothing was wrong.') || !plan.targets.some((t) => t.sentence.startsWith('Lark laughed')) );
 check('15. dialogue and verb-like sentences are byte-identical after healing', healed.text.includes('“I like a good storm,” Sadie said.') && healed.text.includes('Rodge would like an answer before dark.'));
 check('16. filler prose is untouched (only targeted sentences change)', healed.text.startsWith(filler));
-check('17. LLM error fails open (original text returned, skips reported)', (() => { return healSimileDensity(CHAPTER, { callLLM: async () => { throw new Error('boom'); }, label: 'err' }).then((r) => r.text === CHAPTER && r.recast === 0 && r.skipped.length > 0); })());
-check('18. version tag present', SIMILE_RECAST_VERSION === 'simile-recast-v1');
+const errRun = await healSimileDensity(CHAPTER, { callLLM: async () => { throw new Error('boom'); }, label: 'err' });
+check('17. LLM error fails open (original text returned, skips reported)', errRun.text === CHAPTER && errRun.recast === 0 && errRun.skipped.length > 0);
+check('18. version tag present', SIMILE_RECAST_VERSION === 'simile-recast-v2');
+
+// ── 4b. STYLEBUDGET-2B: paragraph-bounded targets (live: STRUCTURE-GUARD reverted ch.11/12) ──
+const withBreak = filler + '\n\n* * *\n\nThe wind had settled into a low hum, like a giant purring. Zin listened.\n\n' + simileText;
+const fb = findSimileSentences(withBreak);
+check('22. a sentence after a scene break is targeted WITHOUT the "* * *" marker attached', fb.some((f) => f.sentence === 'The wind had settled into a low hum, like a giant purring.') && !fb.some((f) => f.sentence.includes('* * *')));
+check('23b. a lowercase dialogue-tag continuation is not a target', findSimileSentences('“Fine,” she said, like a woman who was not fine.').length === 0);
+check('23. no target ever spans a paragraph boundary', fb.every((f) => !/\n/.test(f.sentence)));
+const brkBefore = withBreak.split(/\n{2,}/).filter((p) => p.trim()).length;
+const brkHeal = await healSimileDensity(withBreak, { callLLM: async (u) => { const s = u.split('\n\n').pop(); return s.startsWith('The wind') ? 'The wind had settled into a low, steady hum.' : stub(u); }, label: 'brk' });
+const brkAfter = brkHeal.text.split(/\n{2,}/).filter((p) => p.trim()).length;
+check('24. healing a text with scene breaks preserves the paragraph count', brkBefore === brkAfter && brkHeal.text.includes('* * *') && brkHeal.recast > 0);
 
 // ── 5. wiring ──
 const WRITER = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
@@ -89,7 +101,5 @@ const RUNNER = fs.readFileSync(new URL('../src/lib/manuscriptPolishRunner.js', i
 check('20. Fix Manuscript runs the hard cap over legacy chapters with its own switch (allowStyleLLM default true)', RUNNER.includes('allowStyleLLM = true') && RUNNER.includes('if (allowLLM || allowStyleLLM || _simileLLMOverride)') && RUNNER.includes("verifyInvariant('Simile Hard Cap')"));
 check('21. runner reports simile stats', RUNNER.includes('simileChaptersOver: simileStats.chaptersOver'));
 
-// Await the async check 17 before printing the verdict.
-await new Promise((r) => setTimeout(r, 50));
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
