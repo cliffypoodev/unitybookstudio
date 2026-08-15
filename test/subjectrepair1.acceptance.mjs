@@ -67,7 +67,14 @@ check('15. dialogue and the rest of the text are byte-identical', healed.text.in
 check('16. paragraph count is preserved', healed.text.split(/\n{2,}/).length === TEXT.split(/\n{2,}/).length);
 const errRun = await repairDroppedSubjects(TEXT, { callLLM: async () => { throw new Error('boom'); }, castNames: CAST, label: 'err' });
 check('17. LLM error fails open (original returned, skips reported)', errRun.text === TEXT && errRun.repaired === 0 && errRun.skipped.length === errRun.found);
-check('18. version tag', SUBJECT_REPAIR_VERSION === 'subject-repair-v1');
+check('18. version tag', SUBJECT_REPAIR_VERSION === 'subject-repair-v2');
+
+// ── 3b. SUBJECTREPAIR-1B (live findings from the first pass) ──
+check('18b. a curly/straight apostrophe difference is not a content change (live: 40+ good repairs were rejected)', verifySubjectRepair('Looked at the wrench in Sadie’s hand.', "Zin looked at the wrench in Sadie's hand.", { castNames: CAST }).ok);
+check('18c. the applied text keeps the book’s typography', verifySubjectRepair('Looked at the wrench in Sadie’s hand.', "Zin looked at the wrench in Sadie's hand.", { castNames: CAST }).applied === 'Zin looked at the wrench in Sadie’s hand.');
+check('18d. "Mr. <cast surname>" is a legal subject', verifySubjectRepair('Was reading a newspaper.', 'Mr. Thompson was reading a newspaper.', { castNames: ['Thompson'] }).ok);
+check('18e. adjective homographs are no longer targets ("The metal was cool against her palm.", "The night was cool.", "The paper was warm from her hand.")', findDroppedSubjectSentences('The metal was cool against her palm. The night was cool. The paper was warm from her hand. A low hum in the walls.').length === 0);
+check('18f. the real felt-drop shape is still found', findDroppedSubjectSentences('A strange sense of peace settle over her, fragile and fleeting.').length === 1);
 
 // ── 4. POLISHSAFE-2: the manufacturing caps are retired ──
 const polishText = 'He looked at the door. He looked at the window. He looked at the floor. He looked at the ceiling. He looked at his hands.\n\nShe was tired. She was cold. She was done. She was ready. She was here.';
