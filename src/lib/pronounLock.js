@@ -241,38 +241,114 @@ function splitScenesWithSeps(text) {
   return String(text || '').split(SCENE_BREAK_RX);
 }
 
+// ── PRONOUNVAR-2: closed-world attribution ──
+// PRONOUNVAR-1 attributed EVERY pronoun after a name to that name and chained
+// bound follow-ons loosely. On real prose (external audit of REDUX) that
+// absorbed THIRD PARTIES into the context-variable character: object pronouns
+// ("Lark handed him the bird"), an unnamed man introduced mid-sentence ("toward
+// the vendor, a man ... his upper lip"), a boy narrated only as "He", and a
+// dialogue tag for another speaker ("... Lark salvaged," he said). The heal then
+// flipped those third-party pronouns and would have corrupted the book.
+//
+// The fix is closed-world and fail-safe — a wrong flip corrupts, a missed flip
+// only leaves already-correct prose alone, so bias hard toward skipping:
+//  - Attribute a pronoun to a character ONLY as a POSSESSIVE/REFLEXIVE bound to
+//    that character as SUBJECT — never a bare subjective he/she (the token a new
+//    actor arrives on: "He held out the toy") and never an object him/her.
+//  - A NAME-SUBJECT sentence is one whose leading token IS the cast name.
+//  - The only cross-sentence carry is a POSSESSIVE-INITIAL follow-on ("His hands
+//    were steady.") that names no cast member. A SUBJECTIVE-initial sentence
+//    ("He held out the toy.") may introduce a new actor and BREAKS the chain, as
+//    does any other sentence (quote-only, "The vendor...", two names, or the
+//    name in object position "He knelt beside Lark").
+//  - Counting/flipping stops at the first NEW human referent inside the span
+//    (another cast name or a person-common-noun), so an appositive third party
+//    ("the vendor, a man ... his upper lip") is never counted.
+
+const PERSON_NOUN_RX = /\b(?:man|men|woman|women|boy|girl|kid|kids|child|children|guy|guys|gal|fellow|lady|ladies|gentleman|gentlemen|stranger|passerby|bystander|vendor|clerk|shopkeeper|keeper|farmer|farmhand|driver|officer|cop|deputy|sheriff|soldier|guard|nurse|doctor|waiter|waitress|bartender|patron|customer|merchant|mechanic|preacher|teacher|mother|father|mom|dad|son|daughter|brother|sister|husband|wife|widow|uncle|aunt|cousin|nephew|niece|neighbor|worker|attendant|guest|host|hostess)\b/i;
+const POSSESSIVE_INITIAL_RX = /^\s*(?:His|Her|Hers|Himself|Herself)\b/;
+
+// Strip leading quotes/emphasis/space so a name at the head of a quoted or
+// styled sentence still reads as the subject. Returns the cast name the
+// sentence LEADS with, or null.
+function leadingCastName(sentence, names) {
+  const s = String(sentence).replace(/^[\s"'“”‘’*_(\-—]+/, '');
+  let best = null;
+  for (const n of names) {
+    if (s.startsWith(n)) {
+      const after = s.charAt(n.length);
+      if (!/[A-Za-z0-9’']/.test(after) && (best === null || n.length > best.length)) best = n;
+    }
+  }
+  return best;
+}
+
+// End (exclusive) of the span, measured from `from`, in which a possessive is
+// still safely the subject's: cut at the first OTHER cast name or the first
+// person-common-noun.
+function safeSpanEnd(sentence, from, subject, names) {
+  const region = sentence.slice(from);
+  let end = region.length;
+  for (const other of names) {
+    if (other === subject) continue;
+    const at = region.indexOf(other);
+    if (at >= 0 && at < end) end = at;
+  }
+  const pm = region.match(PERSON_NOUN_RX);
+  if (pm && pm.index < end) end = pm.index;
+  // An OBJECT pronoun introduces a referent a following possessive may bind to
+  // ("Lark grabbed him by his collar" — "his" is the object's): stop there too.
+  const om = region.match(/\b(?:him|them)\b/i);
+  if (om && om.index < end) end = om.index;
+  return from + end;
+}
+
+// Possessive + reflexive pronouns ONLY. Bare subjective (he/she) and object
+// (him, bare her) are deliberately excluded — they are where third-party
+// ambiguity lives, and the heal must never flip them.
+function countBoundPossessives(span) {
+  let he = 0;
+  let she = 0;
+  he += (span.match(/\bhis\b/gi) || []).length;
+  he += (span.match(/\bhimself\b/gi) || []).length;
+  she += (span.match(/\bher\b(?=\s+[’'A-Za-z])/gi) || []).length; // possessive her
+  she += (span.match(/\bhers\b/gi) || []).length;
+  she += (span.match(/\bherself\b/gi) || []).length;
+  return { he, she };
+}
+
 /**
- * Attribute each sentence in a scene to a cast subject, in reading order:
- * - a sentence naming exactly ONE cast member sets the current subject and is
- *   attributed to it (pronouns counted after the name);
- * - a pronoun-initial sentence naming NO cast member is attributed to the
- *   current subject ("Lark adjusted the wig. His hands were steady.");
- * - a sentence naming TWO+ cast members clears the subject (ambiguous).
- * Returns { sentences: [{ text, subject, from }], tally: {name:{he,she}} }
- * where `from` is the char index in the sentence at which counting begins
- * (after the name, or 0 for a bound pronoun-initial sentence).
+ * Attribute each sentence in a scene to a cast subject, in reading order, under
+ * the closed-world rules above. Returns { sentences: [{ text, subject, from,
+ * to }], tally: {name:{he,she}} } where [from,to) is the span whose possessives
+ * are safely the subject's.
  */
 function attributeScene(sceneText, allNames) {
   const out = [];
   const tally = {};
   let current = null;
   for (const sentence of sentences(sceneText)) {
-    const present = allNames.filter((n) => sentence.includes(n));
-    if (present.length === 1) {
-      current = present[0];
-      const from = sentence.indexOf(current) + current.length;
-      out.push({ text: sentence, subject: current, from });
-    } else if (present.length === 0 && current && /^(?:He|She|His|Her|Him|They|Their|Them)\b/.test(sentence)) {
-      out.push({ text: sentence, subject: current, from: 0 });
+    const lead = leadingCastName(sentence, allNames);
+    let from;
+    if (lead) {
+      current = lead;
+      from = sentence.indexOf(lead) + lead.length;
+    } else if (
+      current &&
+      POSSESSIVE_INITIAL_RX.test(sentence) &&
+      !allNames.some((n) => sentence.includes(n))
+    ) {
+      from = 0;
     } else {
-      if (present.length >= 2) current = null;
+      current = null; // any other sentence breaks the chain
       continue;
     }
-    const last = out[out.length - 1];
-    const c = countSets(sentence.slice(last.from));
-    tally[last.subject] = tally[last.subject] || { he: 0, she: 0 };
-    tally[last.subject].he += c.he;
-    tally[last.subject].she += c.she;
+    const to = safeSpanEnd(sentence, from, current, allNames);
+    out.push({ text: sentence, subject: current, from, to });
+    const c = countBoundPossessives(sentence.slice(from, to));
+    tally[current] = tally[current] || { he: 0, she: 0 };
+    tally[current].he += c.he;
+    tally[current].she += c.she;
   }
   return { sentences: out, tally };
 }
@@ -313,38 +389,36 @@ export function scanContextVariablePronounDrift(text, variableNames = [], allNam
 
 /**
  * Heal within-scene pronoun drift for a context-variable character: in each
- * scene, flip the MINORITY gendered pronouns to the scene's majority — but
- * ONLY inside that character's sole-name sentences, so a pronoun that refers
- * to someone else is never touched. A scene with no majority (a tie) is left
- * alone. Returns { text, healed: [{ sceneIndex, from, to, count }] }.
+ * scene, flip the MINORITY presentation to the scene's majority — but ONLY the
+ * POSSESSIVE/REFLEXIVE pronouns bound to that character as subject (the same
+ * ones countBoundPossessives counts), inside that character's attributed spans.
+ * Subjective and object pronouns are never touched, so a third party is never
+ * corrupted. A scene with no majority (a tie) is left alone.
+ * Returns { text, healed: [{ sceneIndex, from, to, count }] }.
  */
-function flipPronounsAfter(sentence, from, minority) {
+function flipBoundPossessives(sentence, from, to, minority) {
   const head = sentence.slice(0, from);
-  let tail = sentence.slice(from);
+  let span = sentence.slice(from, to);
+  const rest = sentence.slice(to);
   let count = 0;
   if (minority === 'she') {
-    // she→he. "her <word>" is possessive → "his"; bare "her" is object → "him".
-    tail = tail
-      .replace(/\bshe\b/g, () => { count++; return 'he'; })
-      .replace(/\bShe\b/g, () => { count++; return 'He'; })
+    // she→he: possessive her→his, hers→his, herself→himself.
+    span = span
       .replace(/\bher\b(?=\s+[’'A-Za-z])/g, () => { count++; return 'his'; })
-      .replace(/\bher\b/g, () => { count++; return 'him'; })
       .replace(/\bHer\b(?=\s+[’'A-Za-z])/g, () => { count++; return 'His'; })
-      .replace(/\bHer\b/g, () => { count++; return 'Him'; })
       .replace(/\bhers\b/g, () => { count++; return 'his'; })
-      .replace(/\bherself\b/g, () => { count++; return 'himself'; });
+      .replace(/\bHers\b/g, () => { count++; return 'His'; })
+      .replace(/\bherself\b/g, () => { count++; return 'himself'; })
+      .replace(/\bHerself\b/g, () => { count++; return 'Himself'; });
   } else {
-    // he→she.
-    tail = tail
-      .replace(/\bhe\b/g, () => { count++; return 'she'; })
-      .replace(/\bHe\b/g, () => { count++; return 'She'; })
+    // he→she: possessive his→her, himself→herself.
+    span = span
       .replace(/\bhis\b/g, () => { count++; return 'her'; })
       .replace(/\bHis\b/g, () => { count++; return 'Her'; })
-      .replace(/\bhim\b/g, () => { count++; return 'her'; })
-      .replace(/\bHim\b/g, () => { count++; return 'Her'; })
-      .replace(/\bhimself\b/g, () => { count++; return 'herself'; });
+      .replace(/\bhimself\b/g, () => { count++; return 'herself'; })
+      .replace(/\bHimself\b/g, () => { count++; return 'Herself'; });
   }
-  return { sentence: head + tail, count };
+  return { sentence: head + span + rest, count };
 }
 
 export function healContextVariablePronounScenes(text, name, allNames = []) {
@@ -362,10 +436,10 @@ export function healContextVariablePronounScenes(text, name, allNames = []) {
     const minority = majority === 'he' ? 'she' : 'he';
     let count = 0;
     let out = scene;
-    // Flip minority pronouns to the majority, only in sentences attributed to
-    // THIS character — sole-name sentences and bound pronoun-initial follow-ons.
+    // Flip minority possessives to the majority, only within the spans
+    // attributed to THIS character — so a third party is never touched.
     for (const s of attr.sentences.filter((x) => x.subject === name)) {
-      const { sentence: fixed, count: n } = flipPronounsAfter(s.text, s.from, minority);
+      const { sentence: fixed, count: n } = flipBoundPossessives(s.text, s.from, s.to, minority);
       if (n > 0 && fixed !== s.text) {
         const at = out.indexOf(s.text);
         if (at >= 0) { out = out.slice(0, at) + fixed + out.slice(at + s.text.length); count += n; }
@@ -450,4 +524,4 @@ const NAME_STOPWORDS = new Set([
   'Mr', 'Dr', 'Ms',
 ]);
 
-export const PRONOUN_LOCK_VERSION = 'pronoun-lock-v2'; // PRONOUNVAR-1
+export const PRONOUN_LOCK_VERSION = 'pronoun-lock-v3'; // PRONOUNVAR-2
