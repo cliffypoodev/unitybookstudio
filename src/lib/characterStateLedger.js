@@ -57,6 +57,87 @@ const returnPatterns = (name) => {
   ];
 };
 
+// ── CHARSTATE-2: planner-declared state changes ──
+// Live failure (REDUX ch.11 redraft): the beat plan itself declared "JB
+// returns, explaining his decision to come back" — the writer wrote the
+// return, three repair passes rewrote it, and every version phrased it
+// naturally ("JB pushed through the storm door…") instead of matching the
+// narrow prose returnPatterns above. The audit kept seeing "departed
+// character acting", and the chapter hard-blocked ON ITS OWN RETURN SCENE.
+//
+// The beat contract is the app's own structured, persisted data. When the
+// planner-approved plan DECLARES a return or departure, the state machine
+// honors the declaration instead of regex-guessing the writer's phrasing.
+// Prose stays the source of truth where it speaks; declarations fill the
+// silence. Closed-world: both sides of the check are data the app produced.
+const escName = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const beatReturnPatterns = (name) => {
+  const n = escName(name);
+  return [
+    // Verb form: "JB returns", "JB comes back at last" — subject position,
+    // not a possessive ("JB's voice returns" is excluded).
+    new RegExp(String.raw`\b${n}\b(?!['’]s)[^.!?\n]{0,50}\b(?:returns?|comes? back|came back|rejoins?|rejoined|is back|reunites?)\b`, 'i'),
+    // Noun form: "JB's return", "the return of JB" — beat goals speak in
+    // nouns ("JB's return and the crew's decision to reintegrate him").
+    new RegExp(String.raw`\b${n}(?:['’]s)?\s+return\b`, 'i'),
+    new RegExp(String.raw`\breturn of\s+${n}\b`, 'i'),
+  ];
+};
+
+const beatDeparturePatterns = (name) => {
+  const n = escName(name);
+  return [
+    new RegExp(String.raw`\b${n}\b(?!['’]s)[^.!?\n]{0,50}\b(?:leaves?|left|quits?|departs?|walks? away from)\s+(?:the\s+)?(?:crew|group|team|ship|town)\b`, 'i'),
+    new RegExp(String.raw`\b${n}(?:['’]s)?\s+departure\b(?![^.!?\n]{0,40}\b(?:referenced|explained|mentioned|discussed)\b)`, 'i'),
+  ];
+};
+
+/**
+ * CHARSTATE-2: extract state changes DECLARED by beat-contract text (scene
+ * goals + required events). Returns { returns: [name], departures: [name] }.
+ */
+export function extractBeatDeclaredStateUpdates(eventStrings = [], castNames = []) {
+  const text = (Array.isArray(eventStrings) ? eventStrings : [eventStrings])
+    .map((s) => String(s || '')).filter(Boolean).join('\n');
+  const returns = new Set();
+  const departures = new Set();
+  if (!text) return { returns: [], departures: [] };
+  for (const name of castNames) {
+    if (beatReturnPatterns(name).some((rx) => rx.test(text))) returns.add(name);
+    if (beatDeparturePatterns(name).some((rx) => rx.test(text))) departures.add(name);
+  }
+  return { returns: [...returns], departures: [...departures] };
+}
+
+/**
+ * CHARSTATE-2: pull the declared event strings off a persisted chapter
+ * record's beat contract (scene_beats_json — string or parsed). Fail-safe [].
+ */
+export function collectChapterBeatEvents(chapterRecord) {
+  try {
+    let beats = chapterRecord?.scene_beats_json;
+    if (typeof beats === 'string') {
+      if (!beats.trim()) return [];
+      beats = JSON.parse(beats);
+    }
+    const scenes = Array.isArray(beats) ? beats : (beats?.scenes || beats?.beats || []);
+    const out = [];
+    for (const scene of scenes) {
+      if (scene?.scene_goal) out.push(String(scene.scene_goal));
+      for (const ev of (Array.isArray(scene?.required_events) ? scene.required_events : [])) {
+        if (ev) out.push(String(ev));
+      }
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+const nameAppearsIn = (text, name) =>
+  new RegExp(`\\b${escName(name)}\\b`).test(String(text || ''));
+
 function stripDialogue(prose) {
   // State changes must be narrated, not merely spoken about ("He's gone" in
   // dialogue is a character's claim; narration is the story's fact).
@@ -115,7 +196,11 @@ export function extractCharacterStateUpdates(prose, castNames = []) {
  * Fold chapter prose (in chapter order) into a state map:
  * { [name]: { introduced: chapterNumber|null, partyStatus, statusChapter } }.
  *
- * @param {Array<{chapterNumber, text}>} chapters - drafted prose in order
+ * @param {Array<{chapterNumber, text, beatEvents?}>} chapters - drafted prose
+ *   in order. CHARSTATE-2: when a chapter entry carries `beatEvents` (the
+ *   declared event strings from its persisted beat contract), declared
+ *   returns/departures fill in where the prose patterns were silent —
+ *   corroborated by the character actually appearing in that chapter's text.
  * @param {string[]} castNames
  */
 export function buildCharacterState(chapters = [], castNames = []) {
@@ -146,6 +231,30 @@ export function buildCharacterState(chapters = [], castNames = []) {
       entry.partyStatus = 'returned';
       entry.statusChapter = Number(ch.chapterNumber);
     }
+    // CHARSTATE-2: beat-declared changes fill the prose patterns' silence.
+    // Prose is the source of truth where it spoke (any prose-extracted update
+    // for the name in THIS chapter wins); a declaration only counts when the
+    // character actually appears on the chapter's pages.
+    if (Array.isArray(ch.beatEvents) && ch.beatEvents.length) {
+      const declared = extractBeatDeclaredStateUpdates(ch.beatEvents, castNames);
+      const proseSpoke = new Set([...updates.departures, ...updates.returns]);
+      for (const name of declared.returns) {
+        if (proseSpoke.has(name)) continue;
+        if (!nameAppearsIn(ch.text, name)) continue;
+        const entry = ensure(name);
+        if (entry.partyStatus === 'departed') {
+          entry.partyStatus = 'returned';
+          entry.statusChapter = Number(ch.chapterNumber);
+        }
+      }
+      for (const name of declared.departures) {
+        if (proseSpoke.has(name)) continue;
+        if (!nameAppearsIn(ch.text, name)) continue;
+        const entry = ensure(name);
+        entry.partyStatus = 'departed';
+        entry.statusChapter = Number(ch.chapterNumber);
+      }
+    }
   }
   return state;
 }
@@ -154,11 +263,18 @@ export function buildCharacterState(chapters = [], castNames = []) {
  * Prompt-ready hard contract. Empty string when there is nothing to enforce —
  * no noise for a young book.
  */
-export function buildCharacterStateContract(state = {}) {
+export function buildCharacterStateContract(state = {}, declaredReturns = []) {
   const lines = [];
+  const declaredSet = new Set(Array.isArray(declaredReturns) ? declaredReturns : []);
   for (const [name, entry] of Object.entries(state)) {
     if (entry.partyStatus === 'departed') {
-      lines.push(`${name} DEPARTED the crew in chapter ${entry.statusChapter} and has NOT returned. ${name} may NOT appear with, travel with, or speak to the crew in this scene. If the story needs ${name} back, a RETURN must be written on the page first — arrival, reunion, reason.`);
+      if (declaredSet.has(name)) {
+        // CHARSTATE-2: this chapter's own plan stages the return — the
+        // contract must demand the return be WRITTEN, not ban the character.
+        lines.push(`${name} DEPARTED the crew in chapter ${entry.statusChapter}. THIS chapter's plan DECLARES ${name}'s return: write the return ON THE PAGE — arrival, reunion, and ${name}'s reason for coming back — in the scene that stages it. ${name} may not appear before that scene.`);
+      } else {
+        lines.push(`${name} DEPARTED the crew in chapter ${entry.statusChapter} and has NOT returned. ${name} may NOT appear with, travel with, or speak to the crew in this scene. If the story needs ${name} back, a RETURN must be written on the page first — arrival, reunion, reason.`);
+      }
     }
     if (entry.introduced !== null) {
       lines.push(`${name} already introduced themselves by name (chapter ${entry.introduced}). Never write another first meeting or self-introduction for ${name}.`);
@@ -177,15 +293,22 @@ export function buildCharacterStateContract(state = {}) {
  * DUPLICATE_INTRODUCTION — a named self-introduction for a character the
  *   ledger already has introduced.
  */
-export function auditProseAgainstCharacterState(prose, state = {}, castNames = []) {
+export function auditProseAgainstCharacterState(prose, state = {}, castNames = [], options = {}) {
   const text = String(prose || '');
   if (!text) return [];
   const narration = stripDialogue(text);
   const violations = [];
+  // CHARSTATE-2: names whose return THIS prose's own beat contract declares.
+  // The plan staging the return IS the authorization — the writer's phrasing
+  // of that return is not required to match the narrow prose patterns (the
+  // live ch.11 failure: four natural phrasings of a planned return, none
+  // matched, and the chapter hard-blocked on its own return scene).
+  const declaredReturns = new Set(Array.isArray(options.declaredReturns) ? options.declaredReturns : []);
 
   for (const [name, entry] of Object.entries(state)) {
     if (entry.partyStatus !== 'departed') continue;
     if (!castNames.includes(name)) continue;
+    if (declaredReturns.has(name)) continue; // CHARSTATE-2
     const n = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // A return written in THIS prose legalizes later appearances.
     const returnedHere = returnPatterns(name).some((rx) => rx.test(narration));
@@ -218,4 +341,4 @@ export function auditProseAgainstCharacterState(prose, state = {}, castNames = [
   return violations;
 }
 
-export const CHARACTER_STATE_VERSION = 'character-state-v1';
+export const CHARACTER_STATE_VERSION = 'character-state-v2';
