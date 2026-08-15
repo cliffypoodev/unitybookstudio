@@ -40,7 +40,9 @@ import { runStyleTicSweep } from './styleTicSweep.js';
 import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes } from './quoteFixPolish.js';
 import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from './crossChapterDedupe.js';
 import { healSimileDensity, selectSimileRecastTargets } from './simileRecast.js'; // STYLEBUDGET-2
+import { repairDroppedSubjects, findDroppedSubjectSentences } from './subjectRepair.js'; // SUBJECTREPAIR-1
 import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
+import { harvestCastNames } from './pronounLock.js'; // SUBJECTREPAIR-1
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
 import { repairCanonNameDrift } from './canonNameLock.js';
 import { runPerChapter } from './anthologyPolishHelper.js';
@@ -109,10 +111,12 @@ export async function runManuscriptPolishPipeline({
   sceneDuplicateSweep = null,
   allowDedupeLLM = true,
   allowStyleLLM = true, // STYLEBUDGET-2: simile hard-cap recasts (one verified sentence per call)
+  allowSubjectRepairLLM = true, // SUBJECTREPAIR-1: restore dropped subjects (model picks the subject, verifier enforces shape)
   _llmOverride = null,
   _testInjectHealer = null,
   _crossDedupeLLMOverride = null,
   _simileLLMOverride = null, // STYLEBUDGET-2 test/DI
+  _subjectLLMOverride = null, // SUBJECTREPAIR-1 test/DI
 }) {
   // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the polish-lane
   // ledger sees the same closed world as drafting. Fail-open.
@@ -898,6 +902,41 @@ export async function runManuscriptPolishPipeline({
   }
   verifyInvariant('Simile Hard Cap');
 
+  // SUBJECTREPAIR-1: restore subjects the retired caps deleted ("Was wearing…",
+  // "Looked at Rodge.", "A strange sense of relief wash over her."). Fiction and
+  // nonfiction alike — a subjectless sentence is broken in any genre. The model
+  // only chooses the subject; the verifier enforces candidate === subject +
+  // original. Fail-open; LLM off → report only.
+  let subjectStats = { found: 0, repaired: 0, skipped: 0 };
+  {
+    let castForRepair = [];
+    try { castForRepair = harvestCastNames(project?.characters_md, loaded.map((f) => String(f.content || ''))); } catch { castForRepair = []; }
+    for (const f of loaded) {
+      const chNum = f.chapter?.chapter_number || '?';
+      const found = findDroppedSubjectSentences(String(f.content || ''));
+      if (!found.length) continue;
+      subjectStats.found += found.length;
+      if (allowLLM || allowSubjectRepairLLM || _subjectLLMOverride) {
+        try {
+          const rep = await repairDroppedSubjects(String(f.content || ''), { callLLM: _subjectLLMOverride, project, castNames: castForRepair, onProgress, label: `Ch.${chNum}` });
+          if (rep.repaired > 0) {
+            f.content = rep.text;
+            subjectStats.repaired += rep.repaired;
+            changes.push(`Ch.${chNum}: SUBJECTREPAIR-1 restored ${rep.repaired}/${rep.found} dropped subject(s)`);
+          }
+          subjectStats.skipped += rep.skipped.length;
+        } catch (err) {
+          console.error(`[SUBJECTREPAIR-1] Ch.${chNum} pass failed open:`, err?.message);
+          changes.push(`Ch.${chNum}: SUBJECTREPAIR-1 unavailable (${err?.message || 'unknown'}) — ${found.length} dropped subject(s) NOT repaired.`);
+        }
+      } else {
+        changes.push(`Ch.${chNum}: SUBJECTREPAIR-1 found ${found.length} dropped-subject sentence(s) — LLM disabled, reported only.`);
+      }
+    }
+    if (subjectStats.found > 0) changes.push(`SUBJECTREPAIR-1: ${subjectStats.found} dropped-subject sentence(s) found, ${subjectStats.repaired} restored, ${subjectStats.skipped} left for review.`);
+  }
+  verifyInvariant('Subject Repair');
+
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE D: LLM prose polish (LAST mutating step)
   // ══════════════════════════════════════════════════════════════════════════
@@ -1349,6 +1388,8 @@ export async function runManuscriptPolishPipeline({
       simileChaptersOver: simileStats.chaptersOver, // STYLEBUDGET-2
       simileRecast: simileStats.recast,
       simileSkipped: simileStats.skipped,
+      subjectFound: subjectStats.found, // SUBJECTREPAIR-1
+      subjectRepaired: subjectStats.repaired,
       finalBalanceRepairs,
       quoteGuardReverts,
       bannedRecastCount,
