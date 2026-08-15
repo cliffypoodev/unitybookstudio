@@ -39,6 +39,7 @@ import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
 import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes } from './quoteFixPolish.js';
 import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from './crossChapterDedupe.js';
+import { healSimileDensity, selectSimileRecastTargets } from './simileRecast.js'; // STYLEBUDGET-2
 import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
 import { repairCanonNameDrift } from './canonNameLock.js';
@@ -107,9 +108,11 @@ export async function runManuscriptPolishPipeline({
   mode = 'fiction',
   sceneDuplicateSweep = null,
   allowDedupeLLM = true,
+  allowStyleLLM = true, // STYLEBUDGET-2: simile hard-cap recasts (one verified sentence per call)
   _llmOverride = null,
   _testInjectHealer = null,
   _crossDedupeLLMOverride = null,
+  _simileLLMOverride = null, // STYLEBUDGET-2 test/DI
 }) {
   // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the polish-lane
   // ledger sees the same closed world as drafting. Fail-open.
@@ -860,6 +863,41 @@ export async function runManuscriptPolishPipeline({
   }
   verifyInvariant('Cross-Chapter Dedupe');
 
+  // STYLEBUDGET-2: simile HARD CAP over legacy chapters. Fiction only. Same
+  // discipline as the dedupe healer: one sequential LLM call per sentence,
+  // deterministically verified (no simile left, no new proper nouns, same
+  // framing), fail-open to a report when the LLM is off or unreachable.
+  let simileStats = { chaptersOver: 0, recast: 0, skipped: 0 };
+  if (mode !== 'nonfiction' && !isAnthology) {
+    for (const f of loaded) {
+      const chNum = f.chapter?.chapter_number || '?';
+      const plan = selectSimileRecastTargets(String(f.content || ''));
+      if (!plan.over) continue;
+      simileStats.chaptersOver += 1;
+      if (allowLLM || allowStyleLLM || _simileLLMOverride) {
+        try {
+          const healed = await healSimileDensity(String(f.content || ''), { callLLM: _simileLLMOverride, project, onProgress, label: `Ch.${chNum}` });
+          if (healed.recast > 0) {
+            f.content = healed.text;
+            simileStats.recast += healed.recast;
+            changes.push(`Ch.${chNum}: STYLEBUDGET-2 recast ${healed.recast} simile sentence(s) (${healed.before} → ${healed.after} per 1k)`);
+          }
+          simileStats.skipped += healed.skipped.length;
+        } catch (err) {
+          console.error(`[STYLEBUDGET-2] Ch.${chNum} pass failed open:`, err?.message);
+          changes.push(`Ch.${chNum}: STYLEBUDGET-2 unavailable (${err?.message || 'unknown'}) — similes NOT recast.`);
+        }
+      } else {
+        changes.push(`Ch.${chNum}: STYLEBUDGET-2 over simile budget (${plan.per1k}/1k vs ${plan.budgetPer1k}) — LLM disabled, reported only.`);
+        console.warn(`[STYLEBUDGET-2] Ch.${chNum}: over budget (${plan.per1k}/1k) — LLM disabled, reported only.`);
+      }
+    }
+    if (simileStats.chaptersOver > 0) {
+      changes.push(`STYLEBUDGET-2: ${simileStats.chaptersOver} chapter(s) over simile budget, ${simileStats.recast} sentence(s) recast, ${simileStats.skipped} left for review.`);
+    }
+  }
+  verifyInvariant('Simile Hard Cap');
+
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE D: LLM prose polish (LAST mutating step)
   // ══════════════════════════════════════════════════════════════════════════
@@ -1308,6 +1346,9 @@ export async function runManuscriptPolishPipeline({
     stats: {
       crossDedupeFound: crossDedupeStats.dupesFound,
       crossDedupeRecast: crossDedupeStats.recast,
+      simileChaptersOver: simileStats.chaptersOver, // STYLEBUDGET-2
+      simileRecast: simileStats.recast,
+      simileSkipped: simileStats.skipped,
       finalBalanceRepairs,
       quoteGuardReverts,
       bannedRecastCount,
