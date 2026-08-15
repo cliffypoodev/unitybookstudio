@@ -455,25 +455,14 @@ export function runSentenceStarterVariation(loaded, onProgress) {
     for (const po of pronounOpeners) {
       const matches = f.content.match(po.pattern);
       if (!matches || matches.length <= po.max) continue;
-      const excess = matches.length - po.max;
-      let removed = 0;
-      f.content = f.content.replace(po.pattern, (match, opener, offset) => {
-        if (removed >= excess) return match;
-        // Skip dialogue
-        const before = f.content.substring(Math.max(0, offset - 200), offset);
-        const oQ = (before.match(/[\u201c"]/g) || []).length;
-        const cQ = (before.match(/[\u201d"]/g) || []).length;
-        if (oQ > cQ) return match;
-        removed++;
-        pronounFixed++;
-        // Delete the pronoun, keep the verb (capitalize it)
-        // "He looked at" → "Looked at" — not perfect but breaks monotony
-        const verb = opener.trim().split(/\s+/)[1];
-        return verb.charAt(0).toUpperCase() + verb.slice(1) + ' ';
-      });
-      if (removed > 0) {
-        changes.push('Ch.' + chNum + ': "' + po.name + '" starters capped (' + removed + ' removed)');
-      }
+      // POLISHSAFE-2: deletion RETIRED. Deleting the pronoun left a subjectless
+      // sentence ("He looked at" → "Looked at"; "She was wearing" → "Was
+      // wearing"; "They were ready" → "Were ready") — 40 per pass, 290 measured
+      // in one shipped 81k-word manuscript, quoted by an external audit as
+      // "generation corruption". Monotony is a rewrite problem, not a deletion
+      // problem. Flag-only now; the excess is reported for the LLM polish lane.
+      pronounFixed += 0;
+      changes.push('Ch.' + chNum + ': ⚠️ "' + po.name + '" starters over cap (' + matches.length + ' vs ' + po.max + ') — flagged only, deletion retired (POLISHSAFE-2)');
     }
   }
 
