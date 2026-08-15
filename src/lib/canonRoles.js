@@ -194,6 +194,16 @@ export function findNameVariants(text, canonEntries) {
     // anywhere in the text, the token is a real word. (Same discipline as
     // PRONOUNLOCK-1's harvestCastNames.)
     if (source.includes(` ${token.toLowerCase()}`)) continue;
+    // CANON-2B: a token that is a whole one-word sentence ("Chaotic. Messy.
+    // Loud.") is a fragment-list adjective, not a name reference. Live FP on
+    // REDUX ch.8: "Messy." flagged as a variant of "Missy" and survived the
+    // lowercase-twin test because "messy" appeared nowhere else in the chapter.
+    // A name in narration is never the entire sentence.
+    const idx = m.index;
+    const beforeTok = source.slice(Math.max(0, idx - 3), idx);
+    const afterTok = source.slice(idx + token.length, idx + token.length + 1);
+    const sentenceInitial = idx === 0 || /(?:^|[.!?…"“”]\s|\n)$/.test(beforeTok);
+    if (sentenceInitial && /[.!?…]/.test(afterTok)) continue;
     counts.set(token, (counts.get(token) || 0) + 1);
   }
   const findings = [];
