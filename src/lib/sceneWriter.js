@@ -42,6 +42,7 @@ import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
 import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
 import { buildCharacterState, buildCharacterStateContract } from '@/lib/characterStateLedger'; // CHARSTATE-1
+import { resolveChapterContent } from '@/lib/chapterStorage'; // PROSEFEED-1
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
@@ -3620,15 +3621,39 @@ export async function generateChapterSceneByScene({
     console.log('[EVENTLEDGER] Writer seeded with', priorChapterEvents.length, 'completed events from earlier chapters');
   }
 
+  // PROSEFEED-1: prior-chapter PROSE, resolved through chapterStorage. Every
+  // prose-fed system below (pronoun inference, the style ledger, the character
+  // state machine) used to read `prior.content_md` directly — which is an
+  // EMPTY STRING for every URL-stored chapter, so they all built from nothing.
+  // Measured live: the style ledger shipped empty ban lists for an entire
+  // 80k-word draft (which is why "like a" went UP after STYLEBUDGET-1 landed),
+  // and the CHARSTATE contract silently skipped. One resolved array feeds all
+  // three. Fail open per chapter; the local file store makes this cheap.
+  let resolvedPriorProse = [];
+  try {
+    if (Number(chapter?.chapter_number) > 1) {
+      const priorRecords = allProjectChapters
+        .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter?.chapter_number))
+        .sort((a, b) => Number(a.chapter_number) - Number(b.chapter_number));
+      for (const prior of priorRecords) {
+        try {
+          const inline = String(prior?.content_md || '');
+          const body = inline.length > 200 ? inline : String((await resolveChapterContent(prior)) || '');
+          if (body.length > 200) resolvedPriorProse.push({ chapterNumber: Number(prior.chapter_number), text: body });
+        } catch { /* fail open per chapter */ }
+      }
+      console.log(`[PROSEFEED] Resolved ${resolvedPriorProse.length}/${priorRecords.length} prior chapter(s) of prose for the writer's ledgers`);
+    }
+  } catch (feedError) {
+    console.warn('[PROSEFEED] Prior-prose resolution failed open:', feedError?.message || feedError);
+  }
+
   // PRONOUNLOCK-1: canonical pronouns for the cast, declared in the character
   // sheet or inferred from dominant usage in already-drafted chapters. Fail
   // open: an empty canon adds nothing to the prompt.
   let pronounCanonLine = '';
   try {
-    const priorTexts = allProjectChapters
-      .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter?.chapter_number))
-      .map((prior) => String(prior?.content_md || ''))
-      .filter((body) => body.length > 200);
+    const priorTexts = resolvedPriorProse.map((entry) => entry.text);
     const castNames = harvestCastNames(project?.characters_md, priorTexts);
     if (castNames.length) {
       const pronounCanon = buildPronounCanon(project, priorTexts, castNames);
@@ -3664,9 +3689,7 @@ export async function generateChapterSceneByScene({
   let characterStateCast = [];
   try {
     if (!isAnthologyProject(project) && Number(chapter?.chapter_number) > 1) {
-      const statePriorChapters = allProjectChapters
-        .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter?.chapter_number))
-        .map((prior) => ({ chapterNumber: Number(prior.chapter_number), text: String(prior?.content_md || '') }));
+      const statePriorChapters = resolvedPriorProse; // PROSEFEED-1
       characterStateCast = harvestCastNames(project?.characters_md, statePriorChapters.map((c) => c.text));
       if (characterStateCast.length && statePriorChapters.some((c) => c.text.length > 200)) {
         characterState = buildCharacterState(statePriorChapters, characterStateCast);
@@ -3685,10 +3708,7 @@ export async function generateChapterSceneByScene({
   let styleBudgetBlock = '';
   try {
     if (!isAnthologyProject(project)) {
-      const styleTexts = allProjectChapters
-        .filter((prior) => Number(prior?.chapter_number) > 0 && Number(prior?.chapter_number) < Number(chapter?.chapter_number))
-        .map((prior) => String(prior?.content_md || ''))
-        .filter((body) => body.length > 200);
+      const styleTexts = resolvedPriorProse.map((entry) => entry.text); // PROSEFEED-1
       if (styleTexts.length) {
         const styleLedger = buildBookStyleLedger(styleTexts);
         styleBudgetBlock = buildStyleBudgetPromptBlock(styleLedger);
