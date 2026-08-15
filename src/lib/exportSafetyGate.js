@@ -82,7 +82,7 @@ async function getDialogueDetector() {
  *   timestamp: string,
  * }}
  */
-import { buildPronounCanon, harvestCastNames, scanPronounViolations } from './pronounLock.js'; // PRONOUNLOCK-1
+import { buildPronounCanon, harvestCastNames, scanPronounViolations, scanContextVariablePronounDrift } from './pronounLock.js'; // PRONOUNLOCK-1 / PRONOUNVAR-1
 import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
 import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
 import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants, scanRoleReferenceDrift } from './canonRoles.js'; // CANON-2 / CHARSTATE-1
@@ -569,7 +569,23 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
           reasons: [`PRONOUNLOCK-1: ${pronounCanon.unresolved.length} character(s) with heavy MIXED pronoun usage and no declaration — declare pronouns in the character sheet (e.g. "Name (they/them)"): ${pronounCanon.unresolved.map((entry) => `${entry.name} (he ${entry.he} / she ${entry.she})`).join(', ')}`],
         });
       }
-      console.log(`[PRONOUNLOCK] Gate scan: canon for ${Object.keys(pronounCanon.canon).length} character(s), ${pronounCanon.unresolved.length} unresolved`);
+      // PRONOUNVAR-1: a context-variable character may present differently in
+      // different scenes, but WITHIN one scene the pronouns must be uniform.
+      if (Array.isArray(pronounCanon.variable) && pronounCanon.variable.length) {
+        for (const ch of chapters) {
+          const body = String(ch?.content_md || '');
+          if (body.length <= 200) continue;
+          const vdrift = scanContextVariablePronounDrift(body, pronounCanon.variable, castNames);
+          for (const d of vdrift) {
+            warnings.push({
+              chapterNumber: ch?.chapter_number,
+              title: ch?.title || '',
+              reasons: [`PRONOUNVAR-1: ${d.name} (context-variable) mixes he and she WITHIN one scene (he ${d.he} / she ${d.she}) — pick one presentation per scene ("${d.excerpt}").`],
+            });
+          }
+        }
+      }
+      console.log(`[PRONOUNLOCK] Gate scan: canon for ${Object.keys(pronounCanon.canon).length} character(s), ${pronounCanon.unresolved.length} unresolved, ${(pronounCanon.variable || []).length} context-variable`);
     }
   } catch (pronounError) {
     console.warn('[PRONOUNLOCK] Gate scan failed (non-fatal):', pronounError?.message || pronounError);
