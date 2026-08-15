@@ -82,7 +82,7 @@ import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/proje
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { buildPriorChapterEventLedger, findReintroductions, rewriteReintroductions } from '@/lib/eventLedger'; // EVENTLEDGER-1A
 import { findBeatEventCollisions, rewriteBeatCollisions } from '@/lib/eventCollision'; // SCENECOLLIDE-1
-import { buildCharacterState, buildCharacterStateContract } from '@/lib/characterStateLedger'; // CHARSTATE-1
+import { buildCharacterState, buildCharacterStateContract, collectChapterBeatEvents } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2
 import { harvestCastNames } from '@/lib/pronounLock'; // CHARSTATE-1
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
@@ -3418,7 +3418,9 @@ Return structured JSON:
           try {
             const inline = String(prior?.content_md || '');
             const body = inline.length > 200 ? inline : String((await resolveChapterContent(prior)) || '');
-            if (body.length > 200) statePriorChapters.push({ chapterNumber: Number(prior.chapter_number), text: body });
+            // CHARSTATE-2: carry declared beat events so planner state honors
+            // planner-declared returns/departures the prose patterns miss.
+            if (body.length > 200) statePriorChapters.push({ chapterNumber: Number(prior.chapter_number), text: body, beatEvents: collectChapterBeatEvents(prior) });
           } catch { /* fail open per chapter */ }
         }
         const stateCast = harvestCastNames(promptProject?.characters_md, statePriorChapters.map((c) => c.text));
