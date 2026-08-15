@@ -24,7 +24,7 @@
 // - Sequential LLM calls; fail-open; LLM off → report only.
 import { splitSentencesForDedupe } from './crossChapterDedupe.js';
 
-export const SUBJECT_REPAIR_VERSION = 'subject-repair-v1';
+export const SUBJECT_REPAIR_VERSION = 'subject-repair-v2';
 
 // Openers that a deleted pronoun leaves behind. Sentence-initial, capitalized,
 // followed by a lowercase word (so "Had Rodge…" — a real inversion — is
@@ -35,10 +35,15 @@ const OPENER_RX = new RegExp(`^(?:${OPENERS.map((w) => w.replace(/[.*+?^${}()|[\
 // questions ("Was he there?") — those end with "?" and are excluded below —
 // or imperatives ("Stop." / "Wait."), which are one word: also excluded.
 
-const SENSATION_VERBS = ['wash', 'lighten', 'prickle', 'tighten', 'settle', 'flood', 'creep', 'rise', 'spread', 'surge', 'curl', 'twist', 'drop', 'sink', 'build', 'bloom', 'warm', 'cool', 'pulse', 'crawl', 'slide', 'ripple', 'swell', 'drain', 'loosen', 'ease', 'burn', 'churn', 'flutter', 'coil', 'knot', 'thrum', 'hum', 'buzz', 'ache', 'throb', 'flicker', 'race', 'hammer', 'pound', 'skip', 'catch', 'lodge', 'form', 'grow', 'fade', 'melt', 'stir', 'shift', 'move', 'run', 'roll', 'pass', 'flow', 'pour', 'seep', 'trickle', 'sting', 'itch', 'tug', 'pull', 'press', 'squeeze', 'grip', 'clench', 'unclench', 'relax', 'go'];
+// SUBJECTREPAIR-1B: verb-ONLY forms. The v1 list carried adjective/noun
+// homographs ("cool", "warm", "hum", "pulse", "still"…) and flagged healthy
+// sentences ("The metal was cool against her palm.", "The night was cool.");
+// the closed-world verifier rejected every bogus repair, but the model calls
+// were wasted. A copula guard below also refuses "was/were/felt <verb>".
+const SENSATION_VERBS = ['wash', 'lighten', 'prickle', 'tighten', 'settle', 'flood', 'creep', 'rise', 'spread', 'surge', 'curl', 'twist', 'sink', 'bloom', 'crawl', 'slide', 'ripple', 'swell', 'drain', 'loosen', 'ease', 'churn', 'flutter', 'thrum', 'throb', 'flicker', 'hammer', 'pound', 'lodge', 'seep', 'trickle', 'squeeze', 'clench', 'unclench', 'relax', 'coil', 'knot', 'stir', 'melt', 'fade'];
 // The bare verb is followed by a preposition ("wash over her") or ends the
 // clause ("The weight in her chest lighten.").
-const BARE_VERB_RX = new RegExp(`^(?:A|An|The)\\s+[^.!?\\n]{2,70}?\\s(?:${SENSATION_VERBS.join('|')})(?:\\s+(?:over|in|at|through|down|up|into|across|along|inside|behind|beneath|under|around|out|away|off|from|to|against|between)\\b|[,.!?…]|$)`);
+const BARE_VERB_RX = new RegExp(`^(?:A|An|The)\\s+[^.!?\\n]{2,70}?(?<!\\b(?:was|were|is|are|be|been|being|felt|feels|seemed|seems|looked|looks|became|grew|got|had|has|have)\\s)\\s(?:${SENSATION_VERBS.join('|')})(?:\\s+(?:over|in|at|through|down|up|into|across|along|inside|behind|beneath|under|around|out|away|off|from|to|against|between)\\b|[,.!?…]|$)`);
 
 function inDialogue(paragraph, offset) {
   const before = paragraph.slice(0, offset);
@@ -77,17 +82,27 @@ const SUBJECT_PRONOUNS = ['He', 'She', 'They', 'It'];
  * subject prepended (and, for the bare-verb shape, optionally "felt").
  * Returns { ok, reason, subject }.
  */
+// SUBJECTREPAIR-1B: compare with typography normalized — the model returns
+// straight quotes/apostrophes where the book has curly ones ("Sadie's" vs
+// "Sadie’s"); that is not a content change. The APPLIED text is always built
+// from the ORIGINAL sentence, so the book's typography is preserved.
+const normTypo = (s) => String(s || '').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim();
+
 export function verifySubjectRepair(original, candidate, { castNames = [], kind = 'opener' } = {}) {
   const orig = String(original || '').trim();
-  const cand = String(candidate || '').trim().replace(/\s+/g, ' ');
+  const cand = normTypo(candidate);
   if (!cand) return { ok: false, reason: 'empty' };
   const decap = orig.charAt(0).toLowerCase() + orig.slice(1);
-  const subjects = [...SUBJECT_PRONOUNS, ...castNames.filter(Boolean)];
+  const decapN = normTypo(decap);
+  const names = castNames.filter(Boolean);
+  // "Mr. Thompson" / "Mrs. Henderson" are legal when the surname is cast.
+  const honorifics = names.flatMap((n) => [`Mr. ${n}`, `Mrs. ${n}`, `Ms. ${n}`, `Dr. ${n}`]);
+  const subjects = [...SUBJECT_PRONOUNS, ...names, ...honorifics];
   for (const subj of subjects) {
-    if (cand === `${subj} ${decap}`) return { ok: true, reason: '', subject: subj };
+    if (cand === normTypo(`${subj} ${decap}`) || cand === `${subj} ${decapN}`) return { ok: true, reason: '', subject: subj, applied: `${subj} ${decap}` };
     if (kind === 'bare-verb') {
       // "She felt a strange sense of relief wash over her." — the tag restored.
-      if (cand === `${subj} felt ${decap}`) return { ok: true, reason: '', subject: `${subj} felt` };
+      if (cand === normTypo(`${subj} felt ${decap}`)) return { ok: true, reason: '', subject: `${subj} felt`, applied: `${subj} felt ${decap}` };
     }
   }
   return { ok: false, reason: 'not-a-subject-prefix' };
@@ -164,7 +179,7 @@ export async function repairDroppedSubjects(text, opts = {}) {
     const pIdx = out.indexOf(t.paragraph);
     if (pIdx < 0) { skipped.push({ sentence: t.sentence.slice(0, 80), reason: 'paragraph-not-found' }); continue; }
     const oldPara = t.paragraph;
-    const newPara = oldPara.replace(t.sentence, candidate);
+    const newPara = oldPara.replace(t.sentence, verdict.applied); // SUBJECTREPAIR-1B: book typography preserved
     out = out.slice(0, pIdx) + newPara + out.slice(pIdx + oldPara.length);
     // Later targets in the same paragraph must see the updated paragraph.
     for (const later of targets) if (later.paragraph === oldPara) later.paragraph = newPara;
