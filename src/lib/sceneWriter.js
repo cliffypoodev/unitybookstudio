@@ -45,6 +45,7 @@ import { buildCharacterState, buildCharacterStateContract, extractBeatDeclaredSt
 import { resolveChapterContent } from '@/lib/chapterStorage'; // PROSEFEED-1
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
 import { healSimileDensity } from '@/lib/simileRecast'; // STYLEBUDGET-2
+import { repairDroppedSubjects } from '@/lib/subjectRepair'; // SUBJECTREPAIR-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -3028,6 +3029,14 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
       if (simileHeal.recast > 0) finalProse = simileHeal.text;
     }
   } catch (simileErr) { console.warn('[STYLEBUDGET-2] writer pass failed open:', simileErr?.message || simileErr); }
+
+  // SUBJECTREPAIR-1: a subjectless sentence never ships from the writer either
+  // (models drop subjects in repair/merge passes too). Model picks the subject
+  // from a closed set; verifier enforces candidate === subject + original.
+  try {
+    const subjRepair = await repairDroppedSubjects(finalProse, { project, label: 'writer-final', maxRepairs: 20 });
+    if (subjRepair.repaired > 0) finalProse = subjRepair.text;
+  } catch (subjErr) { console.warn('[SUBJECTREPAIR-1] writer pass failed open:', subjErr?.message || subjErr); }
 
   // GRAMMARREPAIR-2: a/an agreement is healed HERE — the last pass on the
   // artifact that ships — not only in cleanSceneOutput. Live: three exports in
