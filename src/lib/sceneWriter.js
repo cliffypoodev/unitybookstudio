@@ -41,7 +41,7 @@ import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStyleP
 import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
 import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
-import { buildCharacterState, buildCharacterStateContract } from '@/lib/characterStateLedger'; // CHARSTATE-1
+import { buildCharacterState, buildCharacterStateContract, extractBeatDeclaredStateUpdates, collectChapterBeatEvents } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2
 import { resolveChapterContent } from '@/lib/chapterStorage'; // PROSEFEED-1
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
@@ -3639,7 +3639,10 @@ export async function generateChapterSceneByScene({
         try {
           const inline = String(prior?.content_md || '');
           const body = inline.length > 200 ? inline : String((await resolveChapterContent(prior)) || '');
-          if (body.length > 200) resolvedPriorProse.push({ chapterNumber: Number(prior.chapter_number), text: body });
+          // CHARSTATE-2: carry each prior chapter's DECLARED beat events so the
+          // state machine can honor planner-declared returns/departures whose
+          // prose phrasing the narrow patterns miss.
+          if (body.length > 200) resolvedPriorProse.push({ chapterNumber: Number(prior.chapter_number), text: body, beatEvents: collectChapterBeatEvents(prior) });
         } catch { /* fail open per chapter */ }
       }
       console.log(`[PROSEFEED] Resolved ${resolvedPriorProse.length}/${priorRecords.length} prior chapter(s) of prose for the writer's ledgers`);
@@ -3687,13 +3690,24 @@ export async function generateChapterSceneByScene({
   let characterState = null;
   let characterStateContract = '';
   let characterStateCast = [];
+  let chapterDeclaredReturns = []; // CHARSTATE-2
   try {
     if (!isAnthologyProject(project) && Number(chapter?.chapter_number) > 1) {
       const statePriorChapters = resolvedPriorProse; // PROSEFEED-1
       characterStateCast = harvestCastNames(project?.characters_md, statePriorChapters.map((c) => c.text));
       if (characterStateCast.length && statePriorChapters.some((c) => c.text.length > 200)) {
         characterState = buildCharacterState(statePriorChapters, characterStateCast);
-        characterStateContract = buildCharacterStateContract(characterState);
+        // CHARSTATE-2: when THIS chapter's own beat plan declares a departed
+        // character's return, the contract demands the return be written
+        // instead of banning the character (the ban made the writer's own
+        // return scene illegal and hard-blocked the chapter).
+        const chapterBeatStrings = normalizedScenes.flatMap((scene) => [
+          String(scene?.scene_goal || ''),
+          ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
+        ]).filter(Boolean);
+        chapterDeclaredReturns = extractBeatDeclaredStateUpdates(chapterBeatStrings, characterStateCast).returns;
+        if (chapterDeclaredReturns.length) console.log('[CHARSTATE] Beat plan declares return(s):', chapterDeclaredReturns.join(', '));
+        characterStateContract = buildCharacterStateContract(characterState, chapterDeclaredReturns);
         if (characterStateContract) console.log('[CHARSTATE] Contract for this chapter:', characterStateContract.split('\n').length - 1, 'fact(s)');
       }
     }
@@ -3731,6 +3745,20 @@ export async function generateChapterSceneByScene({
       character_state: characterStateContract, // CHARSTATE-1 (prompt block)
       __characterState: characterState, // CHARSTATE-1 (audit object)
       __characterStateCast: characterStateCast, // CHARSTATE-1
+      // CHARSTATE-2: returns DECLARED by the beat plan up to and including
+      // THIS scene. The scene that stages a planned return (and every scene
+      // after it) is legal even when the writer's phrasing does not match the
+      // narrow prose return patterns; scenes BEFORE the declaring scene still
+      // enforce the departure.
+      __beatDeclaredReturns: characterStateCast.length
+        ? extractBeatDeclaredStateUpdates(
+            normalizedScenes.slice(0, i + 1).flatMap((scene) => [
+              String(scene?.scene_goal || ''),
+              ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
+            ]).filter(Boolean),
+            characterStateCast
+          ).returns
+        : [],
       style_budget: styleBudgetBlock, // STYLEBUDGET-1
       holders_of_record: Object.entries(runtimeLedger.possessions || {})
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
