@@ -98,7 +98,7 @@ check('23. straight-quote drafts are typography-normalized before save', STUDIO.
 const WRITER = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
 check('24. writer builds the state machine per chapter and injects the contract', WRITER.includes('buildCharacterState(statePriorChapters, characterStateCast)') && WRITER.includes('character_state: characterStateContract'));
 const GATE_SRC = fs.readFileSync(new URL('../src/lib/sceneContractGate.js', import.meta.url), 'utf8');
-check('25. scene audit enforces the state machine (with in-chapter fold)', GATE_SRC.includes('auditProseAgainstCharacterState(prose, effectiveState, stateCast)') && GATE_SRC.includes('extractCharacterStateUpdates(accumulatedProse'));
+check('25. scene audit enforces the state machine (with in-chapter fold)', /auditProseAgainstCharacterState\(prose, effectiveState, stateCast[,)]/.test(GATE_SRC) && GATE_SRC.includes('extractCharacterStateUpdates(accumulatedProse')); // CHARSTATE-2: audit call gained a declaredReturns options arg
 check('26. beat planner carries the state contract', STUDIO.includes('[CHARSTATE] Planner contract'));
 const EXPORT_GATE = fs.readFileSync(new URL('../src/lib/exportSafetyGate.js', import.meta.url), 'utf8');
 check('27. export gate reports resurrections and role drift as WARNINGS', EXPORT_GATE.includes('CHARSTATE-1:') && EXPORT_GATE.includes('scanRoleReferenceDrift(ch.text') && !/hardFailures\.push\([^)]*CHARSTATE/s.test(EXPORT_GATE));
