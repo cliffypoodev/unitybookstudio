@@ -44,6 +44,7 @@ import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
 import { buildCharacterState, buildCharacterStateContract, extractBeatDeclaredStateUpdates, collectChapterBeatEvents } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2
 import { resolveChapterContent } from '@/lib/chapterStorage'; // PROSEFEED-1
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
+import { healSimileDensity } from '@/lib/simileRecast'; // STYLEBUDGET-2
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -3014,6 +3015,19 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
       console.log('[REPEAT-1] pairs=0');
     }
   } catch (repeatErr) { /* REPEAT-1 never blocks a chapter */ }
+
+  // STYLEBUDGET-2: the simile HARD CAP. STYLEBUDGET-1 only asked the writer to
+  // stay under budget; measured live, whole books shipped at 3.4–4.7 per 1k
+  // anyway. When this chapter is over budget, the densest simile sentences are
+  // recast as plain statements — one sequential LLM call each, accepted only
+  // when the deterministic verifier agrees (one sentence, same framing, no new
+  // proper nouns, and no simile left). Fiction only; fail-open.
+  try {
+    if (!isNonfictionProjectAuthority(project) && !isNonfictionAnthology(project)) {
+      const simileHeal = await healSimileDensity(finalProse, { project, label: 'writer-final' });
+      if (simileHeal.recast > 0) finalProse = simileHeal.text;
+    }
+  } catch (simileErr) { console.warn('[STYLEBUDGET-2] writer pass failed open:', simileErr?.message || simileErr); }
 
   // GRAMMARREPAIR-2: a/an agreement is healed HERE — the last pass on the
   // artifact that ships — not only in cleanSceneOutput. Live: three exports in
