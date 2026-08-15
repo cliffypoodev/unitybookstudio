@@ -59,10 +59,26 @@ export function parseDeclaredPronouns(charactersMd) {
     return null;
   };
   const PRONOUN_SET = /\b(she\s*\/\s*her|he\s*\/\s*him|they\s*\/\s*them)\b/i;
+  // PRONOUNVAR-1: a genderfluid character whose presentation (and pronouns)
+  // change BY SCENE is declared "context-variable" / "variable" / "fluid" /
+  // "pronouns vary". Such a character is exempt from the single-set canon and
+  // from the unresolved warning; instead a WITHIN-SCENE consistency check
+  // applies (one set per scene, no mixing inside a scene).
+  // Connector [\s:=*_-]* absorbs markdown emphasis and label punctuation
+  // between the word "Pronouns" and its value ("**Pronouns:** context-variable").
+  const PRONOUN_VARIABLE = /\bpronoun[s]?[\s:=*_-]*(?:context-?variable|variable|fluid|varies|vary)\b|\bcontext-?variable\b|\bgender[\s-]?fluid\b|\b(?:she\s*\/\s*he|he\s*\/\s*she|any\s+pronouns)\b/i;
 
   let currentName = null;
   for (const line of lines) {
     if (isHeader(line)) currentName = headerName(line);
+    const varMatch = PRONOUN_VARIABLE.test(line);
+    if (varMatch && currentName && !declared[currentName]) {
+      declared[currentName] = 'variable';
+      continue;
+    } else if (varMatch && !currentName) {
+      const name = headerName(line);
+      if (name && !declared[name]) { declared[name] = 'variable'; continue; }
+    }
     const match = line.match(PRONOUN_SET);
     if (match && currentName && !declared[currentName]) {
       const set = normalizeSetLabel(match[1]);
@@ -147,16 +163,28 @@ export function inferPronounsFromProse(texts, names, options = {}) {
 export function buildPronounCanon(project, chapterTexts, names, options = {}) {
   const declared = parseDeclaredPronouns(project?.characters_md);
   const inferred = inferPronounsFromProse(chapterTexts, names, options);
-  const canon = { ...inferred.canon, ...declared };
+  // PRONOUNVAR-1: context-variable characters are pulled OUT of the fixed
+  // canon (a single-set contradiction check would fire on every scene where
+  // their presentation legitimately changes) and OUT of the unresolved
+  // warning (their mixed usage is the point, not a defect). They ride in a
+  // `variable` list and are governed by the within-scene drift check instead.
+  const variable = [];
+  const declaredFixed = {};
+  for (const [name, set] of Object.entries(declared)) {
+    if (set === 'variable') variable.push(name);
+    else declaredFixed[name] = set;
+  }
+  const canon = { ...inferred.canon, ...declaredFixed };
+  for (const name of variable) delete canon[name];
   const unresolved = [];
   for (const name of names) {
-    if (canon[name]) continue;
+    if (canon[name] || variable.includes(name)) continue;
     const t = inferred.tallies[name] || { he: 0, she: 0 };
     if (t.he + t.she >= (Number(options.minSamples) > 0 ? Number(options.minSamples) : 5)) {
       unresolved.push({ name, ...t });
     }
   }
-  return { canon, unresolved, tallies: inferred.tallies, declared };
+  return { canon, unresolved, variable, tallies: inferred.tallies, declared };
 }
 
 /**
@@ -194,6 +222,158 @@ export function scanPronounViolations(text, canon, allNames) {
     }
   }
   return findings;
+}
+
+// ── PRONOUNVAR-1: context-variable pronoun handling ──
+// A scene is the text between "* * *" markers (or the whole chapter when there
+// are none). Within ONE scene, a context-variable character presents as ONE
+// gender: mixing he and she for them inside a single scene is the drift the
+// external audit flagged ("Lark ... he/his throughout that scene" elsewhere
+// she/her). Between scenes, a change is intentional and legal.
+const SCENE_BREAK_RX = /(\n\s*\*\s*\*\s*\*\s*\n)/;
+function splitScenes(text) {
+  // Non-capturing view for tallies.
+  return String(text || '').split(SCENE_BREAK_RX).filter((_, i) => i % 2 === 0);
+}
+// Capturing split: [scene0, sep0, scene1, sep1, …] so a heal can rejoin with
+// the ORIGINAL separators byte-for-byte (the book uses "\n\n* * *\n\n").
+function splitScenesWithSeps(text) {
+  return String(text || '').split(SCENE_BREAK_RX);
+}
+
+/**
+ * Attribute each sentence in a scene to a cast subject, in reading order:
+ * - a sentence naming exactly ONE cast member sets the current subject and is
+ *   attributed to it (pronouns counted after the name);
+ * - a pronoun-initial sentence naming NO cast member is attributed to the
+ *   current subject ("Lark adjusted the wig. His hands were steady.");
+ * - a sentence naming TWO+ cast members clears the subject (ambiguous).
+ * Returns { sentences: [{ text, subject, from }], tally: {name:{he,she}} }
+ * where `from` is the char index in the sentence at which counting begins
+ * (after the name, or 0 for a bound pronoun-initial sentence).
+ */
+function attributeScene(sceneText, allNames) {
+  const out = [];
+  const tally = {};
+  let current = null;
+  for (const sentence of sentences(sceneText)) {
+    const present = allNames.filter((n) => sentence.includes(n));
+    if (present.length === 1) {
+      current = present[0];
+      const from = sentence.indexOf(current) + current.length;
+      out.push({ text: sentence, subject: current, from });
+    } else if (present.length === 0 && current && /^(?:He|She|His|Her|Him|They|Their|Them)\b/.test(sentence)) {
+      out.push({ text: sentence, subject: current, from: 0 });
+    } else {
+      if (present.length >= 2) current = null;
+      continue;
+    }
+    const last = out[out.length - 1];
+    const c = countSets(sentence.slice(last.from));
+    tally[last.subject] = tally[last.subject] || { he: 0, she: 0 };
+    tally[last.subject].he += c.he;
+    tally[last.subject].she += c.she;
+  }
+  return { sentences: out, tally };
+}
+
+/**
+ * Per-scene gendered tally for a context-variable character. Uses ordered
+ * attribution so a bound pronoun-initial sentence counts toward the character.
+ * Returns { he, she, majority, mixed }.
+ */
+function sceneGenderTallies(sceneText, name, allNames) {
+  const t = attributeScene(sceneText, allNames).tally[name] || { he: 0, she: 0 };
+  const he = t.he;
+  const she = t.she;
+  const majority = he === she ? null : (he > she ? 'he' : 'she');
+  return { he, she, majority, mixed: he > 0 && she > 0 };
+}
+
+/**
+ * Within-scene pronoun drift for context-variable characters. Returns
+ * [{ name, sceneIndex, he, she, excerpt }] — one per scene that mixes he and
+ * she for that character. Cross-scene variation is never reported.
+ */
+export function scanContextVariablePronounDrift(text, variableNames = [], allNames = []) {
+  const findings = [];
+  const names = Array.isArray(allNames) && allNames.length ? allNames : variableNames;
+  const scenes = splitScenes(text);
+  for (const name of variableNames) {
+    scenes.forEach((scene, sceneIndex) => {
+      const t = sceneGenderTallies(scene, name, names);
+      if (!t.mixed) return;
+      const sole = soleNameSentences(scene, name, names);
+      const excerpt = (sole[0]?.sentence || '').slice(0, 140);
+      findings.push({ name, sceneIndex, he: t.he, she: t.she, excerpt });
+    });
+  }
+  return findings;
+}
+
+/**
+ * Heal within-scene pronoun drift for a context-variable character: in each
+ * scene, flip the MINORITY gendered pronouns to the scene's majority — but
+ * ONLY inside that character's sole-name sentences, so a pronoun that refers
+ * to someone else is never touched. A scene with no majority (a tie) is left
+ * alone. Returns { text, healed: [{ sceneIndex, from, to, count }] }.
+ */
+function flipPronounsAfter(sentence, from, minority) {
+  const head = sentence.slice(0, from);
+  let tail = sentence.slice(from);
+  let count = 0;
+  if (minority === 'she') {
+    // she→he. "her <word>" is possessive → "his"; bare "her" is object → "him".
+    tail = tail
+      .replace(/\bshe\b/g, () => { count++; return 'he'; })
+      .replace(/\bShe\b/g, () => { count++; return 'He'; })
+      .replace(/\bher\b(?=\s+[’'A-Za-z])/g, () => { count++; return 'his'; })
+      .replace(/\bher\b/g, () => { count++; return 'him'; })
+      .replace(/\bHer\b(?=\s+[’'A-Za-z])/g, () => { count++; return 'His'; })
+      .replace(/\bHer\b/g, () => { count++; return 'Him'; })
+      .replace(/\bhers\b/g, () => { count++; return 'his'; })
+      .replace(/\bherself\b/g, () => { count++; return 'himself'; });
+  } else {
+    // he→she.
+    tail = tail
+      .replace(/\bhe\b/g, () => { count++; return 'she'; })
+      .replace(/\bHe\b/g, () => { count++; return 'She'; })
+      .replace(/\bhis\b/g, () => { count++; return 'her'; })
+      .replace(/\bHis\b/g, () => { count++; return 'Her'; })
+      .replace(/\bhim\b/g, () => { count++; return 'her'; })
+      .replace(/\bHim\b/g, () => { count++; return 'Her'; })
+      .replace(/\bhimself\b/g, () => { count++; return 'herself'; });
+  }
+  return { sentence: head + tail, count };
+}
+
+export function healContextVariablePronounScenes(text, name, allNames = []) {
+  const parts = splitScenesWithSeps(String(text || '')); // [scene, sep, scene, sep, …]
+  const healed = [];
+  let sceneIndex = -1;
+  for (let i = 0; i < parts.length; i += 2) {
+    sceneIndex += 1;
+    const scene = parts[i];
+    const attr = attributeScene(scene, allNames);
+    const t = attr.tally[name] || { he: 0, she: 0 };
+    if (!(t.he > 0 && t.she > 0)) continue; // not mixed
+    const majority = t.he > t.she ? 'he' : (t.she > t.he ? 'she' : null);
+    if (!majority) continue; // tie: leave alone
+    const minority = majority === 'he' ? 'she' : 'he';
+    let count = 0;
+    let out = scene;
+    // Flip minority pronouns to the majority, only in sentences attributed to
+    // THIS character — sole-name sentences and bound pronoun-initial follow-ons.
+    for (const s of attr.sentences.filter((x) => x.subject === name)) {
+      const { sentence: fixed, count: n } = flipPronounsAfter(s.text, s.from, minority);
+      if (n > 0 && fixed !== s.text) {
+        const at = out.indexOf(s.text);
+        if (at >= 0) { out = out.slice(0, at) + fixed + out.slice(at + s.text.length); count += n; }
+      }
+    }
+    if (count > 0) { parts[i] = out; healed.push({ sceneIndex, from: minority, to: majority, count }); }
+  }
+  return { text: parts.join(''), healed };
 }
 
 /** Prompt-ready canon lines for the writer's narrative state contract. */
@@ -270,4 +450,4 @@ const NAME_STOPWORDS = new Set([
   'Mr', 'Dr', 'Ms',
 ]);
 
-export const PRONOUN_LOCK_VERSION = 'pronoun-lock-v1';
+export const PRONOUN_LOCK_VERSION = 'pronoun-lock-v2'; // PRONOUNVAR-1
