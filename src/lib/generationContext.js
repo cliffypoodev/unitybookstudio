@@ -378,6 +378,47 @@ export function findNarrativeMetaLeaks(value = '') {
   return matches;
 }
 
+// LEAKREPAIR-1: deterministic repair of planning-language leaks. Live failure
+// (REDUX ch.12 redraft, 2026-08-15): three scenes passed every scene gate,
+// then the assembled chapter carried ONE phrase — "She remembered the night
+// in Chapter 4, the way she had stared at the stars" — and
+// assertNarrativeTextClean discarded the entire 15-minute draft. The leak
+// shapes in NARRATIVE_META_LEAK_PATTERNS are removable without an LLM:
+//   "the night in Chapter 4, the way…"  → "the night, the way…"
+//   "what happened in the previous chapter" → "what happened before"
+//   "in the next chapter"                → "later"
+// Only after repair does the assertion run; a leak that survives repair still
+// blocks. Nothing here touches nonfiction (callers already skip NF).
+const LEAK_CHAPTER_REF = /\s*\b(?:in|from|during|since|after|before)\s+chapter\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b/gi;
+const LEAK_RELATIVE_CHAPTER = /\b(?:in|from|during|since|after|before)\s+(?:the\s+)?(?:previous|preceding)\s+chapter\b/gi;
+const LEAK_NEXT_CHAPTER = /\b(?:in|from|during|since|after|before)\s+(?:the\s+)?(?:next|following)\s+chapter\b/gi;
+const LEAK_BARE_PREVIOUS = /\b(?:the\s+)?previous\s+chapter\b/gi;
+const LEAK_BARE_NEXT = /\b(?:the\s+)?next\s+chapter\b/gi;
+
+export function repairNarrativeMetaLeaks(value = '') {
+  const source = String(value || '');
+  if (!source) return { text: source, repaired: 0, phrases: [] };
+  const before = findNarrativeMetaLeaks(source);
+  if (!before.length) return { text: source, repaired: 0, phrases: [] };
+  // Preserve sentence-initial capitalization of the phrase being replaced.
+  const matchCase = (replacement) => (match) => (/^[A-Z]/.test(match) ? replacement[0].toUpperCase() + replacement.slice(1) : replacement);
+  let text = source
+    .replace(LEAK_CHAPTER_REF, '')
+    .replace(LEAK_RELATIVE_CHAPTER, matchCase('before'))
+    .replace(LEAK_NEXT_CHAPTER, matchCase('later'))
+    .replace(LEAK_BARE_PREVIOUS, matchCase('what came before'))
+    .replace(LEAK_BARE_NEXT, matchCase('what came next'));
+  // Tidy the seams the removals leave: "night , the" → "night, the"; double spaces.
+  text = text.replace(/[ \t]+([,.;:!?])/g, '$1').replace(/[ \t]{2,}/g, ' ');
+  const after = findNarrativeMetaLeaks(text);
+  return {
+    text,
+    repaired: before.length - after.length,
+    phrases: before.map((item) => item.phrase),
+    remaining: after.map((item) => item.phrase),
+  };
+}
+
 export function assertNarrativeTextClean(value, options = {}) {
   const matches = findNarrativeMetaLeaks(value);
   if (!matches.length) return Object.freeze({ ok: true, matches: Object.freeze([]) });
