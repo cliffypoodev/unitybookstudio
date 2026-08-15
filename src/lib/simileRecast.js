@@ -24,7 +24,7 @@ import {
 } from './crossChapterDedupe.js';
 import { SIMILE_DENSITY_BUDGET_PER_1K, measureSimileDensity } from './aiSlopReduction.js';
 
-export const SIMILE_RECAST_VERSION = 'simile-recast-v1';
+export const SIMILE_RECAST_VERSION = 'simile-recast-v2';
 export const SIMILE_RX = /\b(?:like\s+an?|as\s+if|as\s+though)\b/gi;
 
 // "I like a good fight" / "she'd like an answer" — verb, not comparison.
@@ -55,15 +55,25 @@ function cleanLLMSentence(raw) {
  */
 export function findSimileSentences(text) {
   const out = [];
-  for (const raw of splitSentencesForDedupe(text)) {
-    const s = String(raw || '').trim();
-    if (!s) continue;
-    if (/[“”"]/.test(s)) continue; // any dialogue in the sentence → leave it
-    SIMILE_RX.lastIndex = 0;
-    const hits = s.match(SIMILE_RX) || [];
-    if (!hits.length) continue;
-    if (VERB_LIKE_RX.test(s) && hits.length === 1) continue;
-    out.push({ sentence: s, norm: normalizeSentenceForDedupe(s), similes: hits.length });
+  // STYLEBUDGET-2B: split INSIDE paragraphs, never across them. The
+  // whole-text splitter attached a scene-break marker to the sentence after it
+  // ("* * *\n\nThe wind had settled…"), so a recast would have deleted the
+  // "* * *" and merged two paragraphs — the polish STRUCTURE-GUARD caught it
+  // live and reverted two chapters. A recast target is always one sentence
+  // inside one paragraph, and never the "* * *" line itself.
+  for (const para of String(text || '').split(/\n{2,}/)) {
+    if (!para.trim() || /^\s*\*\s*\*\s*\*\s*$/.test(para)) continue;
+    for (const raw of splitSentencesForDedupe(para)) {
+      const s = String(raw || '').trim();
+      if (!s || /\n/.test(s)) continue;
+      if (/[“”"]/.test(s)) continue; // any dialogue in the sentence → leave it
+      if (/^[a-z]/.test(s)) continue; // a lowercase start is a dialogue-tag continuation ("…,” she said, like a…") — leave it
+      SIMILE_RX.lastIndex = 0;
+      const hits = s.match(SIMILE_RX) || [];
+      if (!hits.length) continue;
+      if (VERB_LIKE_RX.test(s) && hits.length === 1) continue;
+      out.push({ sentence: s, norm: normalizeSentenceForDedupe(s), similes: hits.length });
+    }
   }
   return out;
 }
