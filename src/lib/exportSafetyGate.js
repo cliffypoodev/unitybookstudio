@@ -86,7 +86,7 @@ import { buildPronounCanon, harvestCastNames, scanPronounViolations } from './pr
 import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
 import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
 import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants, scanRoleReferenceDrift } from './canonRoles.js'; // CANON-2 / CHARSTATE-1
-import { buildCharacterState, auditProseAgainstCharacterState } from './characterStateLedger.js'; // CHARSTATE-1
+import { buildCharacterState, auditProseAgainstCharacterState, extractBeatDeclaredStateUpdates, collectChapterBeatEvents } from './characterStateLedger.js'; // CHARSTATE-1 / CHARSTATE-2
 
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
   let { project, stage = 'pre-export' } = options;
@@ -653,12 +653,16 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     const orderedChapters = [...chapters]
       .filter((ch) => Number(ch?.chapter_number) > 0)
       .sort((a, b) => Number(a.chapter_number) - Number(b.chapter_number))
-      .map((ch) => ({ chapterNumber: Number(ch.chapter_number), title: ch?.title || '', text: String(ch?.content_md || ch?.content || '') }));
+      .map((ch) => ({ chapterNumber: Number(ch.chapter_number), title: ch?.title || '', text: String(ch?.content_md || ch?.content || ''), beatEvents: collectChapterBeatEvents(ch) })); // CHARSTATE-2: declared beat events ride along
     const stateCastNames = harvestCastNames(project?.characters_md, orderedChapters.map((c) => c.text));
     if (stateCastNames.length) {
       for (let i = 1; i < orderedChapters.length; i += 1) {
         const priorState = buildCharacterState(orderedChapters.slice(0, i), stateCastNames);
-        const violations = auditProseAgainstCharacterState(orderedChapters[i].text, priorState, stateCastNames);
+        // CHARSTATE-2: a chapter whose own beat contract declares a return is
+        // not a resurrection — the plan staged it, even when the prose phrases
+        // the return outside the narrow patterns.
+        const declaredHere = extractBeatDeclaredStateUpdates(orderedChapters[i].beatEvents, stateCastNames).returns;
+        const violations = auditProseAgainstCharacterState(orderedChapters[i].text, priorState, stateCastNames, { declaredReturns: declaredHere });
         for (const violation of violations) {
           warnings.push({
             chapterNumber: orderedChapters[i].chapterNumber,
