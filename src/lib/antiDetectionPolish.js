@@ -777,28 +777,16 @@ function detectAndFixTellingTags(loaded) {
       const excess = matches.length - tag.cap;
       flagged += excess;
 
-      // Replace excess by dropping the telling tag (keep first `cap` occurrences)
-      let instanceIdx = 0;
-      let chReplaced = 0;
-      f.content = f.content.replace(tag.rx, (match, subject) => {
-        instanceIdx++;
-        if (instanceIdx <= tag.cap || chReplaced >= excess) return match;
-        chReplaced++;
-        chFixed++;
-        fixed++;
-        // Drop the tag: "He felt the cold" → "The cold" (capitalize next word)
-        const afterTag = match.substring(match.indexOf(tag.name) + tag.name.length).trimStart();
-        if (afterTag.length > 0) {
-          return afterTag.charAt(0).toUpperCase() + afterTag.slice(1);
-        }
-        // Fallback: just capitalize what follows
-        return '';
-      });
-
-      if (chReplaced > 0) {
-        changes.push('Ch.' + chNum + ': removed ' + chReplaced + 'x "' + tag.name + '" telling tags (cap ' + tag.cap + ', had ' + matches.length + ')');
-        console.log('[POLISH] Ch.' + chNum + ': removed ' + chReplaced + 'x "' + tag.name + '" (had ' + matches.length + ', cap ' + tag.cap + ')');
-      }
+      // POLISHSAFE-2: deletion RETIRED. Dropping the tag left the complement
+      // stranded as an ungrammatical bare-verb clause — measured live in a
+      // shipped manuscript: "She felt a strange sense of relief wash over her"
+      // → "A strange sense of relief wash over her"; "She felt the weight in
+      // her chest lighten" → "The weight in her chest lighten". An external
+      // audit quoted both as "corrupted prose". Free-indirect style needs the
+      // verb re-conjugated, which is a rewrite, not a deletion. Flag-only now;
+      // the excess is reported for the proofreader / LLM polish lane.
+      changes.push('Ch.' + chNum + ': ⚠️ ' + excess + 'x excess "' + tag.name + '" telling tag(s) flagged (cap ' + tag.cap + ', had ' + matches.length + ') — deletion retired (POLISHSAFE-2)');
+      console.log('[POLISH] Ch.' + chNum + ': ' + excess + 'x excess "' + tag.name + '" flagged only (had ' + matches.length + ', cap ' + tag.cap + ') — POLISHSAFE-2');
     }
   }
   return { fixed, flagged, changes };
