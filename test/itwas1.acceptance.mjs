@@ -29,7 +29,7 @@ const OUT = run(SRC);
 check('1. the live kill shape is untouched ("It was indeed JB, his coat flapping…")', OUT.includes('It was indeed JB, his coat flapping wildly'));
 check('2. a name after the opener is untouched ("It was Zin who…")', OUT.includes('It was Zin who broke first.'));
 check('3. a comma clause after the opener is untouched ("It was raining hard on the roof, and…")', OUT.includes('It was raining hard on the roof, and the crew listened.'));
-check('4. short adjective-only sentences ARE still capped ("It was quiet." → "Quiet.")', OUT.includes('\n\nQuiet. Nobody spoke.') && OUT.includes('\n\nCold and getting colder.') && OUT.includes('\n\nLate. It was raining'));
+check('4. POLISHSAFE-3: "It was" deletion RETIRED — short fragments are now PRESERVED (flag-only, no mutation)', OUT.includes('It was quiet. Nobody spoke.') && OUT.includes('It was cold and getting colder.') && OUT.includes('It was late. It was raining'));
 check('5. the stoplist still protects "It was a …"', OUT.includes('It was a bad idea.'));
 check('6. dialogue is still untouched', (() => { const t = '“It was awful. It was terrible. It was bad. It was worse. It was grim.” She sat.\n\nIt was quiet.'; const o = run(t); return o.startsWith('“It was awful. It was terrible. It was bad. It was worse. It was grim.”'); })());
 check('7. more than six words after the opener is untouched', (() => { const t = 'It was one. It was two. It was three. It was four.\n\nIt was dark enough that nobody could see the far wall anymore.'; return run(t).includes('It was dark enough that nobody could see the far wall anymore.'); })());
