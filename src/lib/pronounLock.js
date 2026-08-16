@@ -318,6 +318,27 @@ function countBoundPossessives(span) {
 }
 
 /**
+ * SUBJECTGUARD-1: the subject-bound gendered pronouns for a sentence whose
+ * leading token IS `subjectName`. Reuses the closed-world span rules so only
+ * possessives/reflexives that safely belong to the subject are counted (object
+ * pronouns, appositive third parties, and other cast members are excluded).
+ * Used by the subject-repair verifier to reject a repair that prepends a subject
+ * whose canon gender clashes with the sentence ("Zinnia was wearing … his hat").
+ * Returns { he, she } — {0,0} when the sentence does not lead with the subject.
+ */
+export function subjectBoundGender(sentence, subjectName, allNames = []) {
+  const s = String(sentence || '');
+  const name = String(subjectName || '');
+  if (!name) return { he: 0, she: 0 };
+  const stripped = s.replace(/^[\s"'“”‘’*_(\-—]+/, '');
+  if (!stripped.startsWith(name)) return { he: 0, she: 0 };
+  const from = s.indexOf(name) + name.length;
+  const names = Array.isArray(allNames) && allNames.length ? allNames : [name];
+  const to = safeSpanEnd(s, from, name, names);
+  return countBoundPossessives(s.slice(from, to));
+}
+
+/**
  * Attribute each sentence in a scene to a cast subject, in reading order, under
  * the closed-world rules above. Returns { sentences: [{ text, subject, from,
  * to }], tally: {name:{he,she}} } where [from,to) is the span whose possessives
