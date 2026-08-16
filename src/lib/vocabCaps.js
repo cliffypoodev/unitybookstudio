@@ -426,14 +426,16 @@ export function runSentenceStarterVariation(loaded, onProgress) {
         if (/[,;:\u2014\u2013]/.test(rest)) return match; // a clause follows \u2014 deleting the opener strands it
         if (/\b[A-Z][a-z]+\b/.test(rest)) return match; // a name in the remainder
         if ((nextWord + rest).trim().split(/\s+/).length > 6) return match; // not a short fragment
-        // Safe: capitalize the next word and drop "It was "
+        // POLISHSAFE-3: deletion RETIRED. "It was quiet." -> "Quiet." and "It
+        // was a cold morning." -> "A cold morning." are fragments, not fixes --
+        // the same delete-the-opener corruption already retired for telling tags
+        // and pronoun openers. Flag-only; the excess ships to the LLM polish lane.
         removed++;
-        itWasFixed++;
-        return nextWord.charAt(0).toUpperCase() + nextWord.slice(1) + rest + terminal;
+        return match;
       }
     );
     if (removed > 0) {
-      changes.push('Ch.' + chNum + ': "It was" starters capped (' + removed + ' removed)');
+      changes.push('Ch.' + chNum + ': "It was" openers over cap (' + removed + ' flagged) - deletion retired (POLISHSAFE-3)');
     }
   }
 
@@ -488,10 +490,10 @@ export function runSentenceStarterVariation(loaded, onProgress) {
         const bWords = newParagraphs[i + 1].trim().split(/\s+/);
         if (bWords.length >= 3 && /^(the|a|an|he|she|it|his|her|its|they|their)$/i.test(bWords[0])) {
           // Try to restructure: if "The [noun] [verb]" → "[Noun] [verb]"
+          // POLISHSAFE-3: restructure RETIRED. "The wind howled." -> "Wind
+          // howled." is a mechanical opener deletion (article dropped); the same
+          // class as the retired caps above. Flag-only, no mutation.
           if (/^the$/i.test(bWords[0]) && bWords.length >= 2) {
-            bWords[1] = bWords[1].charAt(0).toUpperCase() + bWords[1].slice(1);
-            bWords.shift();
-            newParagraphs[i + 1] = bWords.join(' ');
             streaksFixed++;
           }
         }
@@ -503,7 +505,7 @@ export function runSentenceStarterVariation(loaded, onProgress) {
     }
   }
   if (streaksFixed > 0) {
-    changes.push('Consecutive same-opener streaks: ' + streaksFixed + ' fixed');
+    changes.push('Consecutive same-opener streaks: ' + streaksFixed + ' flagged (restructure retired, POLISHSAFE-3)');
   }
 
   if (itWasFixed > 0) console.log('[POLISH] "It was" starters capped:', itWasFixed);
