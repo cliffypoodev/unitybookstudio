@@ -23,6 +23,7 @@
 //   a new word, a different sentence — is rejected and the original stays.
 // - Sequential LLM calls; fail-open; LLM off → report only.
 import { splitSentencesForDedupe } from './crossChapterDedupe.js';
+import { buildPronounCanon, subjectBoundGender } from './pronounLock.js'; // SUBJECTGUARD-1
 
 export const SUBJECT_REPAIR_VERSION = 'subject-repair-v2';
 
@@ -88,7 +89,36 @@ const SUBJECT_PRONOUNS = ['He', 'She', 'They', 'It'];
 // from the ORIGINAL sentence, so the book's typography is preserved.
 const normTypo = (s) => String(s || '').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim();
 
-export function verifySubjectRepair(original, candidate, { castNames = [], kind = 'opener' } = {}) {
+// SUBJECTGUARD-1: deterministic sanity checks on a repair that DID prepend a
+// subject. The old verifier accepted any prefix match and shipped "Zin were
+// ridiculous" (agreement) and "Zinnia was wearing … his hat" (wrong name —
+// the wearer is Nolan). A prefix that is grammatically or referentially wrong is
+// worse than the dropped subject it "fixed"; reject it and leave the sentence
+// flagged instead. Fail toward SKIP.
+function subjectRepairGuard(subj, applied, { castNames = [], subjectGender = {} }) {
+  // (a) number agreement — only "They" legitimately takes "were"; a singular
+  //     subject before "were"/"weren't" is the corruption.
+  const after = applied.slice(subj.length).replace(/^\s+/, '');
+  if (subj !== 'They' && /^(?:were|weren['’]t)\b/i.test(after)) {
+    return { ok: false, reason: 'agreement' };
+  }
+  // (b) gender clash — a NAMED subject whose canon gender is known must not carry
+  //     a subject-bound pronoun of the OTHER gender (that means the wrong name
+  //     was chosen). Pronoun subjects are exempt: the pronoun IS the gender.
+  const isPronoun = SUBJECT_PRONOUNS.includes(subj) || /\sfelt$/.test(subj);
+  if (!isPronoun) {
+    const bare = subj.replace(/^(?:Mr|Mrs|Ms|Dr)\.\s+/, '');
+    const g = subjectGender[bare] || subjectGender[subj];
+    if (g === 'she' || g === 'he') {
+      const counts = subjectBoundGender(applied, subj, castNames);
+      if (g === 'she' && counts.he > 0) return { ok: false, reason: 'gender-clash' };
+      if (g === 'he' && counts.she > 0) return { ok: false, reason: 'gender-clash' };
+    }
+  }
+  return { ok: true };
+}
+
+export function verifySubjectRepair(original, candidate, { castNames = [], kind = 'opener', subjectGender = {} } = {}) {
   const orig = String(original || '').trim();
   const cand = normTypo(candidate);
   if (!cand) return { ok: false, reason: 'empty' };
@@ -99,11 +129,19 @@ export function verifySubjectRepair(original, candidate, { castNames = [], kind 
   const honorifics = names.flatMap((n) => [`Mr. ${n}`, `Mrs. ${n}`, `Ms. ${n}`, `Dr. ${n}`]);
   const subjects = [...SUBJECT_PRONOUNS, ...names, ...honorifics];
   for (const subj of subjects) {
-    if (cand === normTypo(`${subj} ${decap}`) || cand === `${subj} ${decapN}`) return { ok: true, reason: '', subject: subj, applied: `${subj} ${decap}` };
-    if (kind === 'bare-verb') {
+    let applied = null;
+    let subject = subj;
+    if (cand === normTypo(`${subj} ${decap}`) || cand === `${subj} ${decapN}`) {
+      applied = `${subj} ${decap}`;
+    } else if (kind === 'bare-verb' && cand === normTypo(`${subj} felt ${decap}`)) {
       // "She felt a strange sense of relief wash over her." — the tag restored.
-      if (cand === normTypo(`${subj} felt ${decap}`)) return { ok: true, reason: '', subject: `${subj} felt`, applied: `${subj} felt ${decap}` };
+      applied = `${subj} felt ${decap}`;
+      subject = `${subj} felt`;
     }
+    if (applied === null) continue;
+    const guard = subjectRepairGuard(subj, applied, { castNames: names, subjectGender });
+    if (!guard.ok) return { ok: false, reason: guard.reason };
+    return { ok: true, reason: '', subject, applied };
   }
   return { ok: false, reason: 'not-a-subject-prefix' };
 }
@@ -145,6 +183,9 @@ export async function repairDroppedSubjects(text, opts = {}) {
     return agent({ prompt: userPrompt, taskType: 'polish', project, temperature: 0.1, maxTokens, systemPromptOverride: systemPrompt });
   });
   const cast = castNames.filter(Boolean);
+  // SUBJECTGUARD-1: canon gender for the verifier's wrong-name check.
+  let subjectGender = {};
+  try { subjectGender = buildPronounCanon(project, [out], cast).canon || {}; } catch { subjectGender = {}; }
   const SYSTEM = [
     'You are a copy editor. One sentence in a paragraph is missing its grammatical subject (a pronoun or a character name was accidentally deleted).',
     'Your ONLY job: return the same sentence with the missing subject restored at the front. Change nothing else — same words, same order, same punctuation.',
@@ -153,6 +194,8 @@ export async function repairDroppedSubjects(text, opts = {}) {
   ].join('\n');
 
   let repaired = 0;
+  let lastNamedSubject = null; // SUBJECTGUARD-1 repeat guard
+  let lastParaAfter = null;
   for (const t of targets) {
     if (repaired >= maxRepairs) { skipped.push({ sentence: t.sentence.slice(0, 80), reason: 'repair-budget-exhausted' }); continue; }
     if (!out.includes(t.sentence)) { skipped.push({ sentence: t.sentence.slice(0, 80), reason: 'sentence-not-found-verbatim' }); continue; }
@@ -168,10 +211,19 @@ export async function repairDroppedSubjects(text, opts = {}) {
       continue;
     }
     const candidate = cleanLLM(raw);
-    const verdict = verifySubjectRepair(t.sentence, candidate, { castNames: cast, kind: t.kind });
+    const verdict = verifySubjectRepair(t.sentence, candidate, { castNames: cast, kind: t.kind, subjectGender });
     if (!verdict.ok) {
       console.warn(`[SUBJECTREPAIR-1] ${label}: rejected (${verdict.reason}) for "${t.sentence.slice(0, 60)}" → "${candidate.slice(0, 60)}"`);
       skipped.push({ sentence: t.sentence.slice(0, 80), reason: `verify-failed:${verdict.reason}` });
+      continue;
+    }
+    // SUBJECTGUARD-1: reject a NAMED subject prepended to consecutive sentences
+    // in the same paragraph — the mechanical "Thompson looked at Zin. Thompson
+    // looked at the door. Thompson looked back…" run. Pronoun subjects are fine.
+    const baseSubj = String(verdict.subject).replace(/\s+felt$/, '');
+    const named = !SUBJECT_PRONOUNS.includes(baseSubj);
+    if (named && baseSubj === lastNamedSubject && t.paragraph === lastParaAfter) {
+      skipped.push({ sentence: t.sentence.slice(0, 80), reason: 'repeat-subject' });
       continue;
     }
     // Replace only THIS occurrence (the sentence text may recur); anchor on the
@@ -183,6 +235,8 @@ export async function repairDroppedSubjects(text, opts = {}) {
     out = out.slice(0, pIdx) + newPara + out.slice(pIdx + oldPara.length);
     // Later targets in the same paragraph must see the updated paragraph.
     for (const later of targets) if (later.paragraph === oldPara) later.paragraph = newPara;
+    lastNamedSubject = named ? baseSubj : null;
+    lastParaAfter = newPara;
     repaired += 1;
   }
   console.log(`[SUBJECTREPAIR-1] ${label}: found ${targets.length}, repaired ${repaired}, skipped ${skipped.length}`);
