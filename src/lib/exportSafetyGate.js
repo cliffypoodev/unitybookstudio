@@ -84,6 +84,7 @@ async function getDialogueDetector() {
  */
 import { buildPronounCanon, harvestCastNames, scanPronounViolations, scanContextVariablePronounDrift } from './pronounLock.js'; // PRONOUNLOCK-1 / PRONOUNVAR-1
 import { scanDuplicateIntroductions } from './introGuard.js'; // INTRODUP-1
+import { scanMalformedSentences } from './malformedSentence.js'; // MALFORMEDSENT-1
 import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
 import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
 import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants, scanRoleReferenceDrift } from './canonRoles.js'; // CANON-2 / CHARSTATE-1
@@ -618,6 +619,35 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     }
   } catch (introError) {
     console.warn('[INTRODUP] Gate scan failed (non-fatal):', introError?.message || introError);
+  }
+
+  // MALFORMEDSENT-1: sentences left malformed by the pipeline's own passes —
+  // dropped subjects ("Were a ragtag collection…", "Looked at Rodge."), singular
+  // + were agreement ("Zin were ridiculous"), bare-verb fragments ("A strange
+  // sense of relief wash over her."), name-echo ("JB looked at JB."). Warning
+  // only, and NEVER a mutation: a flagged sentence is one to REGENERATE, not to
+  // regex-edit — auto-editing prose is what produced these in the first place.
+  try {
+    const msBodies = chapters.map((ch) => String(ch?.content_md || '')).filter((body) => body.length > 200);
+    const msCast = harvestCastNames(options?.project?.characters_md, msBodies);
+    let msTotal = 0;
+    for (const ch of chapters) {
+      const body = String(ch?.content_md || '');
+      if (body.length <= 200) continue;
+      const bad = scanMalformedSentences(body, msCast);
+      if (!bad.length) continue;
+      msTotal += bad.length;
+      const byKind = bad.reduce((a, f) => { a[f.kind] = (a[f.kind] || 0) + 1; return a; }, {});
+      const summary = Object.entries(byKind).map(([k, n]) => `${n} ${k}`).join(', ');
+      warnings.push({
+        chapterNumber: ch?.chapter_number,
+        title: ch?.title || '',
+        reasons: [`MALFORMEDSENT-1: ${bad.length} malformed sentence(s) (${summary}) — regenerate, do not regex-edit. e.g. "${bad[0].sentence}"`],
+      });
+    }
+    console.log(`[MALFORMEDSENT] Gate scan: ${msTotal} malformed sentence(s) across ${chapters.length} chapter(s)`);
+  } catch (msError) {
+    console.warn('[MALFORMEDSENT] Gate scan failed (non-fatal):', msError?.message || msError);
   }
 
   // STYLEBUDGET-1: book-level style telemetry — warnings only. Style is a
