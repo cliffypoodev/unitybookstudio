@@ -37,6 +37,8 @@
  *      is not an identity.
  */
 
+export const PROJECT_TYPE_VERSION = 'project-type-v2';
+
 /** Genres that genuinely denote nonfiction. Consulted ONLY when no type is declared. */
 export const NONFICTION_GENRE_TERMS = Object.freeze([
   'nonfiction', 'non-fiction', 'memoir', 'biography', 'autobiography', 'true crime',
