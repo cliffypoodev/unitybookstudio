@@ -3,8 +3,6 @@
  * Applies to ALL project types (vocab caps) and NONFICTION only (dichotomy pattern).
  */
 
-import { safeUppercaseReplace } from './safeUppercase.js';
-
 /**
  * ChatGPT vocabulary caps — words that leak from ChatGPT source manuscripts.
  * Caps are per 100K words. For shorter manuscripts, minimum 1 allowed.
@@ -30,98 +28,33 @@ function isLiteralUsage(text, matchIndex, word) {
 }
 
 /**
- * Run ChatGPT vocabulary caps across loaded chapters.
- * Mutates loaded[].content in place.
- * @returns {{ chatgptVocabFixed: number, changes: string[] }}
+ * POLISHSAFE-4: scan ChatGPT vocabulary across loaded chapters and FLAG
+ * excess occurrences — never substitute. loaded[].content is never mutated.
+ * @returns {{ chatgptVocabFixed: 0, changes: string[] }}
  */
 export function runChatGPTVocabCaps(loaded, onProgress) {
-  onProgress?.('Polish: Capping ChatGPT vocabulary…');
+  onProgress?.('Polish: Scanning ChatGPT vocabulary…');
   const changes = [];
-  let chatgptVocabFixed = 0;
+  const chatgptVocabFixed = 0;
 
   const fullText = loaded.map(f => f.content).join('\n\n');
   const totalWords = fullText.split(/\s+/).filter(Boolean).length;
 
   for (const entry of CHATGPT_VOCAB) {
-    const regex = new RegExp('\\b' + entry.word + '(?:s|d|ing)?\\b', 'gi');
-    const currentText = loaded.map(f => f.content).join('\n\n');
-    const allMatches = [...currentText.matchAll(regex)];
-    if (!allMatches.length) continue;
-
     const maxAllowed = Math.max(1, Math.round(entry.maxPer100K * totalWords / 100000));
-    const count = allMatches.length;
-
+    let count = 0;
+    for (const f of loaded) {
+      const chRegex = new RegExp('\\b' + entry.word + '(?:s|d|ing)?\\b', 'gi');
+      let m;
+      while ((m = chRegex.exec(f.content)) !== null) {
+        if (entry.metaphoricalOnly && isLiteralUsage(f.content, m.index, m[0])) continue;
+        count++;
+      }
+    }
     if (count <= maxAllowed) continue;
 
     const excess = count - maxAllowed;
-    let removed = 0;
-    let globalCount = 0;
-
-    for (const f of loaded) {
-      if (removed >= excess) break;
-      const chRegex = new RegExp('\\b' + entry.word + '(?:s|d|ing)?\\b', 'gi');
-      let lastIndex = 0;
-      let result = '';
-      let match;
-
-      // Manual iteration to track index for literal context checking
-      const tempRegex = new RegExp('\\b' + entry.word + '(?:s|d|ing)?\\b', 'gi');
-      while ((match = tempRegex.exec(f.content)) !== null) {
-        globalCount++;
-        if (globalCount <= maxAllowed || removed >= excess) {
-          continue;
-        }
-
-        // Skip literal usage for metaphorical-only words
-        if (entry.metaphoricalOnly && isLiteralUsage(f.content, match.index, match[0])) {
-          continue;
-        }
-
-        removed++;
-        chatgptVocabFixed++;
-      }
-
-      // Now do the actual replacement pass
-      if (removed > 0 || globalCount > maxAllowed) {
-        let instanceInChapter = 0;
-        let globalForReplace = 0;
-        // Reset global count for replacement pass
-        const beforeChapters = loaded.slice(0, loaded.indexOf(f));
-        for (const bc of beforeChapters) {
-          const bcMatches = bc.content.match(new RegExp('\\b' + entry.word + '(?:s|d|ing)?\\b', 'gi'));
-          globalForReplace += bcMatches ? bcMatches.length : 0;
-        }
-
-        f.content = f.content.replace(chRegex, (m, offset) => {
-          globalForReplace++;
-          if (globalForReplace <= maxAllowed) return m;
-
-          if (entry.metaphoricalOnly && isLiteralUsage(f.content, offset, m)) {
-            return m;
-          }
-
-          const alt = entry.replacements[instanceInChapter % entry.replacements.length];
-          instanceInChapter++;
-          if (m.charAt(0) === m.charAt(0).toUpperCase()) {
-            return alt.charAt(0).toUpperCase() + alt.slice(1);
-          }
-          return alt;
-        });
-      }
-    }
-
-    // Recount actual replacements
-    const afterText = loaded.map(f => f.content).join('\n\n');
-    const afterCount = (afterText.match(regex) || []).length;
-    const actualRemoved = count - afterCount;
-
-    if (actualRemoved > 0) {
-      changes.push('"' + entry.word + '": ' + count + ' → ' + afterCount + ' (' + actualRemoved + ' replaced, cap ' + maxAllowed + ')');
-    }
-  }
-
-  if (chatgptVocabFixed > 0) {
-    changes.push('Total ChatGPT vocabulary capped: ' + chatgptVocabFixed + ' replacements');
+    changes.push('"' + entry.word + '": ' + count + ' found, ' + maxAllowed + ' allowed, ' + excess + ' flagged - substitution retired (POLISHSAFE-4)');
   }
 
   return { chatgptVocabFixed, changes };
@@ -134,71 +67,18 @@ export function runChatGPTVocabCaps(loaded, onProgress) {
  * @returns {{ dichotomyFixed: number, changes: string[] }}
  */
 export function runDichotomyPatternReducer(loaded, onProgress) {
-  onProgress?.('Polish (NF): Reducing dichotomy patterns…');
+  onProgress?.('Polish (NF): Scanning dichotomy patterns…');
   const changes = [];
-  let dichotomyFixed = 0;
+  const dichotomyFixed = 0;
 
-  // Count total instances across manuscript
   const dichotomyRegex = /\b(This|It|That) is not\b/gi;
   const fullText = loaded.map(f => f.content).join('\n\n');
   const allMatches = fullText.match(dichotomyRegex);
   const totalCount = allMatches ? allMatches.length : 0;
   const MAX_ALLOWED = 10;
 
-  if (totalCount <= MAX_ALLOWED) {
-    return { dichotomyFixed: 0, changes: [] };
-  }
-
-  const excess = totalCount - MAX_ALLOWED;
-  let globalCount = 0;
-  let removed = 0;
-
-  // Pattern: "This is not X. It is Y." → "Y, not X." or "The response is Y, not X."
-  const fullDichotomyPattern = /\b(This|It|That) is not ([^.!?]+)[.!?]\s*(It|This|That) is ([^.!?]+)[.!?]/gi;
-
-  for (const f of loaded) {
-    if (removed >= excess) break;
-
-    f.content = f.content.replace(fullDichotomyPattern, (match, subj1, negPart, subj2, posPart) => {
-      globalCount++;
-      if (globalCount <= MAX_ALLOWED || removed >= excess) return match;
-
-      removed++;
-      dichotomyFixed++;
-
-      // Restructure: merge into one sentence
-      const neg = negPart.trim().replace(/[,;]$/, '');
-      const pos = posPart.trim().replace(/[,;]$/, '');
-
-      // "This is not failure. It is information." → "It is information, not failure."
-      return pos.charAt(0).toUpperCase() + pos.slice(1) + ', not ' + neg + '.';
-    });
-  }
-
-  // Also handle standalone "This is not" that aren't part of the paired pattern
-  if (removed < excess) {
-    const standaloneRegex = /\b(This|It|That) is not\b/gi;
-    let standaloneGlobal = 0;
-
-    for (const f of loaded) {
-      if (removed >= excess) break;
-
-      f.content = f.content.replace(standaloneRegex, (match, subj) => {
-        standaloneGlobal++;
-        if (standaloneGlobal <= MAX_ALLOWED || removed >= excess) return match;
-
-        removed++;
-        dichotomyFixed++;
-
-        // Simple restructure: "This is not" → "It isn't" or just rephrase
-        const alts = ["It isn't", "That isn't", "This isn't"];
-        return alts[removed % alts.length];
-      });
-    }
-  }
-
-  if (dichotomyFixed > 0) {
-    changes.push('"This/It/That is not" pattern: ' + totalCount + ' → ' + (totalCount - dichotomyFixed) + ' (' + dichotomyFixed + ' restructured, max ' + MAX_ALLOWED + ')');
+  if (totalCount > MAX_ALLOWED) {
+    changes.push('"This/It/That is not" pattern: ' + totalCount + ' found, ' + MAX_ALLOWED + ' allowed, ' + (totalCount - MAX_ALLOWED) + ' flagged - restructuring retired (POLISHSAFE-4)');
   }
 
   return { dichotomyFixed, changes };
@@ -308,31 +188,22 @@ const TRANSITION_WORDS = [
  *
  * @returns {{ transitionWordsFixed: number, changes: string[] }}
  */
+/**
+ * POLISHSAFE-4: scan transition-word repetition and FLAG excess occurrences
+ * — never delete. loaded[].content is never mutated.
+ * @returns {{ transitionWordsFixed: 0, changes: string[] }}
+ */
 export function runTransitionWordCaps(loaded, onProgress) {
-  onProgress?.('Polish: Capping transition-word repetition…');
+  onProgress?.('Polish: Scanning transition-word repetition…');
   const changes = [];
-  let transitionWordsFixed = 0;
+  const transitionWordsFixed = 0;
 
-  // GLOBAL CAP per transition word — applied on top of per-chapter cap.
-  // The per-chapter cap of 1 alone is not enough for manuscripts with
-  // many chapters: "Instead" can still appear 25 times in a 25-chapter
-  // book (once per chapter). This is still an AI-detection red flag.
-  //
-  // Gemini's target is to delete ~70% of introductory transitions to make
-  // prose feel organic. With a 3-5 total cap per word across a typical
-  // 25-chapter manuscript, we hit that reduction target.
-  //
-  // Scale-aware: for longer manuscripts, allow slightly more; shorter
-  // manuscripts get a harder cap. Base is 3 per word, scaled by chapter count.
+  // Same cap-sizing logic as before: global ceiling scaled by chapter count,
+  // on top of the per-chapter ceiling. Detection only now.
   const chapterCount = loaded.length || 1;
   const globalScaleFactor = Math.max(1, chapterCount / 25);
 
-  // ── GLOBAL per-transition-word cap loop ──
-  const chaptersWithRemovals = new Set();
-
   for (const entry of TRANSITION_WORDS) {
-    // Global ceiling: base 3, scaled modestly by manuscript length. "Then"
-    // gets a higher ceiling (5) because it's more commonly used organically.
     const globalCap = entry.word === 'Then'
       ? Math.round(5 * globalScaleFactor)
       : Math.round(3 * globalScaleFactor);
@@ -341,59 +212,30 @@ export function runTransitionWordCaps(loaded, onProgress) {
     for (const f of loaded) {
       const chRegex = new RegExp(entry.regex.source, entry.regex.flags);
       const matches = [...f.content.matchAll(chRegex)];
-
       if (matches.length === 0) continue;
 
-      // Per-chapter ceiling — caps per-chapter first, then global cap takes over
       let kept = 0;
-      let removed = 0;
-      let replacementIdx = 0;
-
-      f.content = f.content.replace(chRegex, (match, prefix) => {
-        // Check BOTH caps: per-chapter AND global
+      let excessHere = 0;
+      for (const _m of matches) {
         kept++;
         const belowPerChapterCap = kept <= entry.perChapterCap;
         const belowGlobalCap = globalCount < globalCap;
+        if (belowPerChapterCap && belowGlobalCap) { globalCount++; continue; }
+        excessHere++;
+      }
 
-        if (belowPerChapterCap && belowGlobalCap) {
-          globalCount++;
-          return match; // keep it
-        }
-
-        // Either cap is exceeded → remove
-        removed++;
-        transitionWordsFixed++;
-        const replacement = entry.replacements[replacementIdx % entry.replacements.length];
-        replacementIdx++;
-
-        return prefix + replacement;
-      });
-
-      if (removed > 0) {
-        chaptersWithRemovals.add(f);
+      if (excessHere > 0) {
         changes.push(
           'Ch.' + (f.chapter?.chapter_number || '?') + ': "' + entry.word +
-          ',"  capped (' + matches.length + ' → ' + (matches.length - removed) +
-          ', replaced ' + removed + ')'
+          ',"  ' + matches.length + ' found, ' + excessHere +
+          ' flagged (cap ' + entry.perChapterCap + '/chapter, ' + globalCap + ' global) - deletion retired (POLISHSAFE-4)'
         );
       }
     }
 
     if (globalCount > 0) {
-      changes.push('"' + entry.word + '" global count after caps: ' + globalCount + '/' + globalCap);
+      changes.push('"' + entry.word + '" global count under cap: ' + globalCount + '/' + globalCap);
     }
-  }
-
-  // Second pass: fix any lowercase letters that are now at start of sentence
-  // because we stripped a capitalized "Still, "/"Instead, " etc.
-  // ONLY run on chapters where this function actually removed transitions,
-  // and use the shared guard to protect abbreviations (e.g., i.e., a.m., etc.)
-  for (const f of chaptersWithRemovals) {
-    f.content = safeUppercaseReplace(f.content);
-  }
-
-  if (transitionWordsFixed > 0) {
-    console.log('[POLISH] Transition words capped:', transitionWordsFixed);
   }
 
   return { transitionWordsFixed, changes };
@@ -414,54 +256,17 @@ export function runTransitionWordCaps(loaded, onProgress) {
  * @returns {{ notJustButFixed: number, changes: string[] }}
  */
 export function runNotJustButReducer(loaded, onProgress) {
-  onProgress?.('Polish: Reducing "not just X, but Y" pattern…');
+  onProgress?.('Polish: Scanning "not just X, but Y" pattern…');
   const changes = [];
-  let notJustButFixed = 0;
+  const notJustButFixed = 0;
 
-  // Count total across manuscript
   const fullText = loaded.map(f => f.content).join('\n\n');
   const totalMatches = (fullText.match(/\bnot just\s+.{3,50},?\s+but\b/gi) || []).length;
 
-  if (totalMatches <= 3) {
-    // Under global cap — leave alone
-    return { notJustButFixed: 0, changes: [] };
+  if (totalMatches > 3) {
+    changes.push('"not just X, but Y": ' + totalMatches + ' found, 3 allowed, ' + (totalMatches - 3) + ' flagged - restructuring retired (POLISHSAFE-4)');
   }
 
-  const globalCap = 3;
-  let globalCount = 0;
-
-  for (const f of loaded) {
-    const chNum = f.chapter?.chapter_number || '?';
-    const rx = /\bnot just\s+(.{3,50}?),?\s+but\b/gi;
-    let chapterCount = 0;
-    let chapterFixed = 0;
-
-    f.content = f.content.replace(rx, (match, middle) => {
-      chapterCount++;
-
-      // Keep first per chapter AND stay under global cap
-      if (chapterCount <= 1 && globalCount < globalCap) {
-        globalCount++;
-        return match;
-      }
-
-      // Over cap — restructure to break the pattern
-      // "not just X, but" → "not only X but" (subtle rhythm change)
-      chapterFixed++;
-      notJustButFixed++;
-      return match
-        .replace(/\bnot just\b/i, 'not only')
-        .replace(/,\s+but\b/, ' but');
-    });
-
-    if (chapterFixed > 0) {
-      changes.push('Ch.' + chNum + ': restructured ' + chapterFixed + 'x "not just X, but Y" → "not only X but Y"');
-    }
-  }
-
-  if (notJustButFixed > 0) {
-    console.log('[POLISH] "Not just X, but Y" reduced:', totalMatches, '→', (totalMatches - notJustButFixed));
-  }
   return { notJustButFixed, changes };
 }
 
@@ -479,9 +284,9 @@ export function runNotJustButReducer(loaded, onProgress) {
  * @returns {{ yetMisuseFixed: number, changes: string[] }}
  */
 export function runYetMisuseFixer(loaded, onProgress) {
-  onProgress?.('Polish: Fixing "yet" misuse…');
+  onProgress?.('Polish: Scanning "yet" misuse…');
   const changes = [];
-  let yetMisuseFixed = 0;
+  const yetMisuseFixed = 0;
 
   const SUBJECT_WORDS = new Set([
     'he','she','it','they','we','you','i','the','a','an','this','that','these',
@@ -493,26 +298,18 @@ export function runYetMisuseFixer(loaded, onProgress) {
 
   for (const f of loaded) {
     const chNum = f.chapter?.chapter_number || '?';
-    let chFixed = 0;
+    let chFlagged = 0;
 
-    f.content = f.content.replace(
-      /,\s+yet\s+([a-z]\w*)/gi,
-      (match, nextWord) => {
-        if (SUBJECT_WORDS.has(nextWord.toLowerCase())) return match; // legitimate usage
-        chFixed++;
-        yetMisuseFixed++;
-        return '. ' + nextWord.charAt(0).toUpperCase() + nextWord.slice(1);
-      }
-    );
+    for (const m of f.content.matchAll(/,\s+yet\s+([a-z]\w*)/gi)) {
+      if (SUBJECT_WORDS.has(m[1].toLowerCase())) continue; // legitimate usage
+      chFlagged++;
+    }
 
-    if (chFixed > 0) {
-      changes.push('Ch.' + chNum + ': fixed ' + chFixed + 'x "yet" misuse (", yet noun" → ". Noun")');
+    if (chFlagged > 0) {
+      changes.push('Ch.' + chNum + ': ' + chFlagged + 'x "yet" misuse flagged - rewrite retired (POLISHSAFE-4)');
     }
   }
 
-  if (yetMisuseFixed > 0) {
-    console.log('[POLISH] "Yet" misuse fixed:', yetMisuseFixed);
-  }
   return { yetMisuseFixed, changes };
 }
 
@@ -525,43 +322,16 @@ export function runYetMisuseFixer(loaded, onProgress) {
  * @returns {{ thinkOfItFixed: number, changes: string[] }}
  */
 export function runThinkOfItAsCapper(loaded, onProgress) {
-  onProgress?.('Polish: Capping "Think of it as"…');
+  onProgress?.('Polish: Scanning "Think of it as"…');
   const changes = [];
-  let thinkOfItFixed = 0;
+  const thinkOfItFixed = 0;
 
   const fullText = loaded.map(f => f.content).join('\n\n');
   const totalMatches = (fullText.match(/\b[Tt]hink of it as\b/g) || []).length;
-  if (totalMatches <= 2) return { thinkOfItFixed: 0, changes: [] };
-
-  const ALTS = ['Consider it', 'Imagine it as', 'Picture it as'];
-  let globalCount = 0;
-  let altIdx = 0;
-
-  for (const f of loaded) {
-    const chNum = f.chapter?.chapter_number || '?';
-    let chFixed = 0;
-
-    f.content = f.content.replace(
-      /\b([Tt])hink of it as\b/g,
-      (match, firstChar) => {
-        globalCount++;
-        if (globalCount <= 2) return match; // keep first 2
-        chFixed++;
-        thinkOfItFixed++;
-        const alt = ALTS[altIdx % ALTS.length];
-        altIdx++;
-        return firstChar === 'T' ? alt : alt.charAt(0).toLowerCase() + alt.slice(1);
-      }
-    );
-
-    if (chFixed > 0) {
-      changes.push('Ch.' + chNum + ': capped ' + chFixed + 'x "Think of it as"');
-    }
+  if (totalMatches > 2) {
+    changes.push('"Think of it as": ' + totalMatches + ' found, 2 allowed, ' + (totalMatches - 2) + ' flagged - substitution retired (POLISHSAFE-4)');
   }
 
-  if (thinkOfItFixed > 0) {
-    console.log('[POLISH] "Think of it as" capped:', totalMatches, '→', (totalMatches - thinkOfItFixed));
-  }
   return { thinkOfItFixed, changes };
 }
 
@@ -577,9 +347,9 @@ export function runThinkOfItAsCapper(loaded, onProgress) {
  * @returns {{ aiPhrasesFixed: number, changes: string[] }}
  */
 export function runAiPhraseCapper(loaded, onProgress) {
-  onProgress?.('Polish: Capping AI-favorite phrases…');
+  onProgress?.('Polish: Scanning AI-favorite phrases…');
   const changes = [];
-  let aiPhrasesFixed = 0;
+  const aiPhrasesFixed = 0;
 
   const PHRASE_CAPS = [
     { phrase: 'the weight of', rx: /\bthe weight of\b/gi, cap: 3 },
@@ -594,54 +364,14 @@ export function runAiPhraseCapper(loaded, onProgress) {
     { phrase: 'threatened to overwhelm', rx: /\bthreatened to (?:overwhelm|consume|drown|engulf)\b/gi, cap: 0 },
   ];
 
+  const fullText = loaded.map(f => f.content).join('\n\n');
   for (const entry of PHRASE_CAPS) {
-    // Count globally
-    const fullText = loaded.map(f => f.content).join('\n\n');
     const allMatches = fullText.match(entry.rx);
     const total = allMatches ? allMatches.length : 0;
-    if (total <= entry.cap) continue;
-
-    const excess = total - entry.cap;
-    let removed = 0;
-    let globalKeep = 0;
-
-    for (const f of loaded) {
-      if (removed >= excess) break;
-
-      f.content = f.content.replace(entry.rx, (match, offset) => {
-        // FICTIONFIX-1: never delete a phrase that STARTS a sentence — the
-        // deletion beheads it ("A wave of applause followed." → " applause
-        // followed."), leaving lowercase orphans. Sentence-initial hits are
-        // kept and do not consume the cap.
-        const pre = f.content.slice(Math.max(0, offset - 6), offset);
-        if (offset === 0 || /(?:^|[.!?…])[”"']?\s*$/.test(pre) || /\n\s*$/.test(pre)) return match;
-        globalKeep++;
-        if (globalKeep <= entry.cap) return match; // keep first N
-        if (removed >= excess) return match;
-
-        removed++;
-        aiPhrasesFixed++;
-
-        // Delete the phrase. Context determines how:
-        // If it starts a clause after comma: ", the weight of X" → ", X"
-        // If it's mid-sentence: "felt the weight of X" → "felt X"
-        // Safest: just remove the phrase and let surrounding text flow
-        return '';
-      });
-    }
-
-    if (removed > 0) {
-      changes.push('"' + entry.phrase + '" capped: ' + total + ' → ' + (total - removed));
-
-      // Clean up any double spaces left by deletion
-      for (const f of loaded) {
-        f.content = f.content.replace(/  +/g, ' ');
-      }
+    if (total > entry.cap) {
+      changes.push('"' + entry.phrase + '": ' + total + ' found, ' + entry.cap + ' allowed, ' + (total - entry.cap) + ' flagged - deletion retired (POLISHSAFE-4)');
     }
   }
 
-  if (aiPhrasesFixed > 0) {
-    console.log('[POLISH] AI phrases capped:', aiPhrasesFixed, 'excess instances removed');
-  }
   return { aiPhrasesFixed, changes };
 }
