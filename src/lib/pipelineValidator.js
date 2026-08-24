@@ -142,8 +142,16 @@ function isEpistolaryLine(paragraph) {
 // mid-thought truncation ("She turned the key and") matches neither and
 // stays a hard block.
 const BACKMATTER_HEADING_RX = /^(?:#{1,6}\s+.*|(?:sources|bibliography|references|works cited|further reading|notes|endnotes|acknowledgm?ents|about the author|glossary|index|appendix(?:\s+[A-Z0-9]+)?|epilogue|prologue|introduction|foreword|preface|afterword|part\s+(?:[IVXLC]+|\d+|one|two|three|four|five|six|seven|eight|nine|ten))\s*)$/i;
+// DEADTEST-5 — a chapter heading is also not truncated prose. Same BACKMATTER-1
+// principle, but "part" was the only numbered-heading word ever added; "chapter"
+// — the single most common heading in a book — was not, so a legitimate opening
+// line like "Chapter 1: The Chase" hard-blocked export as an unterminated
+// paragraph. Chapter headings commonly carry a subtitle after the number, so
+// (unlike bare "part") the trailing content is bounded rather than forbidden.
+const CHAPTER_HEADING_RX = /^chapter\s+(?:[IVXLC]+|\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b(?:\s*[:.\-–—]\s*.{0,80})?\s*$/i;
 function isStructuralHeadingLine(paragraph) {
-  return BACKMATTER_HEADING_RX.test(String(paragraph || '').trim());
+  const text = String(paragraph || '').trim();
+  return BACKMATTER_HEADING_RX.test(text) || CHAPTER_HEADING_RX.test(text);
 }
 
 /** BOOKGATE-1 — structural checks on ONE chapter. Every finding is a hard failure. */
