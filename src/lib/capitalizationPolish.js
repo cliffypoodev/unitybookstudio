@@ -85,52 +85,51 @@ const ABBREVIATION_WHITELIST = /\b(?:e\.g|i\.e|etc|vs|a\.m|p\.m|Dr|Mr|Mrs|Ms|St|
 const PROPER_NOUN_PRESERVE = new Set(['YouTube', 'iPhone', 'iPad', 'iOS', 'macOS', 'eBay', 'OpenAI', 'GitHub', 'TikTok', 'LinkedIn', 'PowerPoint', 'JavaScript', 'WiFi', 'PhD', 'McDonald', 'DeVito', 'McCoy', 'McGregor']);
 
 /**
- * Fix random mid-sentence capitalized words.
- * Scan for pattern: [word][space][CapitalWord] where the second word is on
- * the safe-downcase list and the prior word did NOT end a sentence.
+ * POLISHSAFE-4 follow-up (live-proof finding 2, 2026-08-24): the comma
+ * pattern below lowercased a deliberate capital at the start of an embedded
+ * clause — "…gaze that said, We're still here." became "…said, we're still
+ * here." "We" is on SAFE_DOWNCASE_ALL and the pattern cannot distinguish a
+ * genuine mid-sentence error from the legitimate start of a quoted thought
+ * or clause after a comma. Both patterns share this flaw (the lowercase-
+ * word-then-CapWord pattern has the identical blind spot for embedded
+ * clauses without a preceding comma), so both are flag-only now.
+ *
+ * Scan for pattern: [word][space][CapitalWord] or [,][space][CapitalWord]
+ * where the second word is on the safe-downcase list and the prior word did
+ * NOT end a sentence. Text is never mutated by this function.
  */
 function fixMidSentenceCaps(text) {
-  let fixed = 0;
-  // Original pattern: lowercase word + space + CapWord
-  let out = text.replace(
-    /([a-z][a-z']{0,20})(\s+)([A-Z][a-z]{1,15})/g,
-    (match, prev, gap, capped, offset) => {
-      // Skip proper nouns with unconventional casing (iPhone, GitHub, etc.)
-      if (PROPER_NOUN_PRESERVE.has(capped)) return match;
-      // CamelCase guard: extract the full token from the source text.
-      // The regex captures only up to the first internal uppercase (e.g. "You" from "YouTube").
-      // If the full token has an internal uppercase after position 0, it's camelCase — skip it.
-      const afterMatch = text.substring(offset + prev.length + gap.length);
-      const fullTokenMatch = afterMatch.match(/^([A-Za-z]+)/);
-      if (fullTokenMatch) {
-        const fullToken = fullTokenMatch[1];
-        if (PROPER_NOUN_PRESERVE.has(fullToken)) return match;
-        // Generic camelCase guard: any uppercase after position 0 means never modify
-        if (/[A-Z]/.test(fullToken.slice(1))) return match;
-      }
-      const lower = capped.toLowerCase();
-      if (!SAFE_DOWNCASE_ALL.has(lower)) return match;
-      // Check if preceded by an abbreviation (e.g., i.e., etc.) — the
-      // capital after these is a legitimate sentence start, not an error.
-      const precedingContext = text.substring(Math.max(0, offset - 20), offset + prev.length + gap.length);
-      if (ABBREVIATION_WHITELIST.test(precedingContext)) return match;
-      fixed++;
-      return prev + gap + lower;
+  const fixed = 0;
+  const flagged = [];
+
+  const checkCandidate = (capped, offset, matchLength) => {
+    if (PROPER_NOUN_PRESERVE.has(capped)) return;
+    const lower = capped.toLowerCase();
+    if (!SAFE_DOWNCASE_ALL.has(lower)) return;
+    const snippet = text.slice(Math.max(0, offset - 30), Math.min(text.length, offset + matchLength + 30)).replace(/\s+/g, ' ').trim();
+    flagged.push(`"${capped}" flagged - downcase retired (POLISHSAFE-4): "${snippet}"`);
+  };
+
+  for (const m of text.matchAll(/([a-z][a-z']{0,20})(\s+)([A-Z][a-z]{1,15})/g)) {
+    const [full, prev, gap, capped] = m;
+    const offset = m.index;
+    const afterMatch = text.substring(offset + prev.length + gap.length);
+    const fullTokenMatch = afterMatch.match(/^([A-Za-z]+)/);
+    if (fullTokenMatch) {
+      const fullToken = fullTokenMatch[1];
+      if (PROPER_NOUN_PRESERVE.has(fullToken)) continue;
+      if (/[A-Z]/.test(fullToken.slice(1))) continue; // camelCase guard
     }
-  );
-  // NEW pattern: comma + space + CapWord (catches "The paperwork, Still, it is")
-  // Only downcases words on the safe list — won't touch proper nouns after commas.
-  out = out.replace(
-    /(,\s+)([A-Z][a-z]{1,15})(\b)/g,
-    (match, comma, capped, boundary) => {
-      if (PROPER_NOUN_PRESERVE.has(capped)) return match;
-      const lower = capped.toLowerCase();
-      if (!SAFE_DOWNCASE_ALL.has(lower)) return match;
-      fixed++;
-      return comma + lower + boundary;
-    }
-  );
-  return { text: out, fixed };
+    const precedingContext = text.substring(Math.max(0, offset - 20), offset + prev.length + gap.length);
+    if (ABBREVIATION_WHITELIST.test(precedingContext)) continue;
+    checkCandidate(capped, offset, full.length);
+  }
+
+  for (const m of text.matchAll(/(,\s+)([A-Z][a-z]{1,15})(\b)/g)) {
+    checkCandidate(m[2], m.index, m[0].length);
+  }
+
+  return { text, fixed, flagged };
 }
 
 /**
@@ -311,10 +310,8 @@ export function runCapitalizationHygiene(loaded, onProgress) {
     let chFixed = 0;
 
     const r1 = fixMidSentenceCaps(f.content);
-    if (r1.fixed > 0) {
-      f.content = r1.text;
-      chFixed += r1.fixed;
-      changes.push('Ch.' + ch + ': downcased ' + r1.fixed + ' mid-sentence caps');
+    if (r1.flagged.length > 0) {
+      changes.push('Ch.' + ch + ': ' + r1.flagged.length + ' mid-sentence cap(s) flagged - downcase retired (POLISHSAFE-4)');
     }
 
     const r2 = fixCommaFragmentedTitles(f.content);
