@@ -116,44 +116,15 @@ function normalizeSmartApostropheSpacing(text = '', changes = []) {
   return out;
 }
 
+// POLISHSAFE-4-RETIRE-HARDCODED-BOOK-STRINGS: this used to hard-rename
+// "Arthur" -> "Langston" and "Cora" -> "Clara" unconditionally in every
+// Fix Manuscript run (both call sites pass forceSongbirdAliases: true
+// regardless of the actual project), so any OTHER book with a character
+// named Arthur or Cora was silently renamed. Retired outright - not a
+// general policy substitution, a book-specific string that never
+// belonged in shared pipeline code.
 function forceSongbirdAliases(text = '', changes = [], options = {}) {
-  let out = String(text || '');
-  const before = out;
-  const projectText = `${options?.project?.title || ''} ${options?.project?.name || ''} ${options?.project?.book_title || ''} ${options?.project?.description || ''} ${options?.project?.premise || ''}`;
-  const forcedByProject = /\bSongbird\b/i.test(projectText) || options?.forceSongbirdAliases === true;
-  const songbirdSignal = forcedByProject || /\b(Iris|Pauline|HIDA|Harlem Institute|Port Chicago|Children[’']s Hour|Glass Menagerie|Phillip Cross|Langston Finch|Pauline Carter)\b/i.test(out);
-  if (!songbirdSignal) return out;
-
-  const protectedAliases = [];
-  const protect = (pattern, label) => {
-    out = out.replace(pattern, (m) => {
-      const token = `__SONGBIRD_ARTIFACT_ALIAS_PROTECT_${label}_${protectedAliases.length}__`;
-      protectedAliases.push([token, m]);
-      return token;
-    });
-  };
-
-  protect(/\bArthur Miller\b/g, 'ARTHUR_MILLER');
-  protect(/\bKing Arthur\b/g, 'KING_ARTHUR');
-  protect(/\bArthurian\b/g, 'ARTHURIAN');
-
-  let arthurCount = 0;
-  let coraCount = 0;
-
-  out = out.replace(/\bArthur Finch\b/g, () => { arthurCount += 1; return 'Langston Finch'; });
-  out = out.replace(/\bArthur(['’])s\b/g, (_m, apos) => { arthurCount += 1; return `Langston${apos}s`; });
-  out = out.replace(/\bArthur\b/g, () => { arthurCount += 1; return 'Langston'; });
-
-  out = out.replace(/\bCora(['’])s\b/g, (_m, apos) => { coraCount += 1; return `Clara${apos}s`; });
-  out = out.replace(/\bCora\b/g, () => { coraCount += 1; return 'Clara'; });
-
-  for (const [token, original] of protectedAliases) out = out.split(token).join(original);
-
-  if (out !== before) {
-    if (arthurCount) changes.push(`hard Songbird alias Arthur→Langston (${arthurCount})`);
-    if (coraCount) changes.push(`hard Songbird alias Cora→Clara (${coraCount})`);
-  }
-  return out;
+  return String(text || '');
 }
 
 

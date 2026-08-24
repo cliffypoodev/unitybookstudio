@@ -228,11 +228,15 @@ function softenUnsupportedCertainty(content) {
     fixed += matches.length;
   }
 
+  // POLISHSAFE-4-RETIRE-HARDCODED-BOOK-STRINGS: this used to rewrite one
+  // specific double-question-word artifact ("What was it an act of
+  // containment" -> "Was it an act of containment") via a hardcoded literal
+  // substitution — a book-specific string that never belonged in shared
+  // pipeline code. Flag-only now.
   const malformedQuestion = /\bWhat was it an act of containment\b/gi;
   const malformedMatches = next.match(malformedQuestion);
   if (malformedMatches) {
     fixed += malformedMatches.length;
-    next = next.replace(malformedQuestion, 'Was it an act of containment');
   }
 
   return { content: next, fixed };

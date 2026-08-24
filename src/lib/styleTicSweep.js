@@ -264,28 +264,15 @@ function applyOverExplanationLabelCleanup(loaded, report) {
     },
   ];
 
-  // POLISHSAFE-4: the generic label-deletion rules above are retired to
-  // flag-only — outside rule 0.2/2's whitelist. The two book-specific
-  // fabricated-content rewrites below ("rooms with exits", the Pauline
-  // line) are handled separately (POLISHSAFE-4-RETIRE-HARDCODED-BOOK-STRINGS).
-  const softRewriteRules = [
-    {
-      name: 'you are hiding blunt diagnosis',
-      regex: /([“\"])(You[’']re|You are)\s+hiding\1/g,
-      replace: '$1You keep choosing rooms with exits$1',
-    },
-    {
-      name: 'too-blunt wall metaphor',
-      regex: /(?:^|(?<=[.!?]\s))There\s+is\s+a\s+wall\s+between\s+us\s+now\.\s+You\s+have\s+built\s+it\.\s*/gi,
-      replace: 'Pauline looked toward the window. “You keep measuring the distance as if someone else put it there.” ',
-    },
-  ];
-
+  // POLISHSAFE-4-RETIRE-HARDCODED-BOOK-STRINGS: the two rules that used to
+  // live here ("you are hiding" -> a fabricated "rooms with exits" line;
+  // a wall-metaphor sentence -> a fabricated line naming "Pauline") injected
+  // invented, apparently book-specific prose into shared pipeline code.
+  // Retired outright, folded into the flag-only label rules below.
   const flagOnlyLabelRules = [
-    {
-      name: 'it was a mirror label',
-      regex: /(?:^|(?<=[.!?]\s))It\s+was\s+a\s+mirror\s*,?\s+[^.!?]{0,140}\.\s*/gi,
-    },
+    { name: 'it was a mirror label', regex: /(?:^|(?<=[.!?]\s))It\s+was\s+a\s+mirror\s*,?\s+[^.!?]{0,140}\.\s*/gi },
+    { name: 'you are hiding blunt diagnosis', regex: /([“"])(You['’]re|You are)\s+hiding\1/g },
+    { name: 'too-blunt wall metaphor', regex: /(?:^|(?<=[.!?]\s))There\s+is\s+a\s+wall\s+between\s+us\s+now\.\s+You\s+have\s+built\s+it\.\s*/gi },
   ];
 
   let removedOrRewritten = 0;
@@ -302,19 +289,6 @@ function applyOverExplanationLabelCleanup(loaded, report) {
       removedOrRewritten += kept.length;
       report.changedChapters.add(chNum);
       report.changes.push(`Ch.${chNum}: over-explanation label flagged (${rule.name}) - deletion retired (POLISHSAFE-4)`);
-    }
-
-    for (const rule of softRewriteRules) {
-      const before = String(item.content);
-      item.content = before.replace(rule.regex, (...args) => {
-        removedOrRewritten += 1;
-        if (typeof rule.replace === 'function') return rule.replace(...args);
-        return String(rule.replace).replace('$1', args[1] || '').replace('$2', args[2] || '');
-      });
-      if (item.content !== before) {
-        report.changedChapters.add(chNum);
-        report.changes.push(`Ch.${chNum}: softened blunt explanatory line (${rule.name})`);
-      }
     }
 
     item.content = String(item.content)
