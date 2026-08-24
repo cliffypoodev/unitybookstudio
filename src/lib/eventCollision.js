@@ -303,4 +303,37 @@ export function rewriteBeatCollisions(beats, findings) {
   });
 }
 
+/**
+ * SCENEDUP-1: same-chapter scene-duplication detector (the two-arrivals
+ * class) — regen-lane extraDetectors entry, kind 'scene-duplicate'. Splits
+ * the chapter into paragraphs and, for each paragraph, treats every earlier
+ * paragraph's sentences as "prior events" for findProseEventCollisions. A
+ * collision means a LATER paragraph re-stages an event an EARLIER paragraph
+ * of the same chapter already performed (same entity, same action class) —
+ * the SCENECOLLIDE-1C content-overlap guard is inherited from
+ * findProseEventCollisions unchanged.
+ *
+ * @param {string} text - the whole chapter (all scenes already merged)
+ * @returns {Array<{kind: 'scene-duplicate', sentence: string, reason: string}>}
+ */
+export function detectSameChapterSceneDuplicates(text) {
+  const t = String(text || '');
+  if (!t.trim()) return [];
+  const paragraphs = t.split(/\n{2,}/).filter((p) => p.trim());
+  const targets = [];
+  for (let i = 1; i < paragraphs.length; i += 1) {
+    const priorText = paragraphs.slice(0, i).join(' ');
+    const priorSentences = priorText.split(/(?<=[.!?…”])\s+/).filter(Boolean);
+    for (const c of findProseEventCollisions(priorSentences, paragraphs[i])) {
+      const verb = c.class === 'ARRIVAL' ? 'arrived' : c.class === 'DEPARTURE' ? 'departed' : 'made this revelation';
+      targets.push({
+        kind: 'scene-duplicate',
+        sentence: c.window,
+        reason: `${c.entity} already ${verb} earlier in this chapter`,
+      });
+    }
+  }
+  return targets;
+}
+
 export const EVENT_COLLISION_VERSION = 'event-collision-v1';
