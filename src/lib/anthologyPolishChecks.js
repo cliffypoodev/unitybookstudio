@@ -588,42 +588,30 @@ export async function runCrossChapterBodyLanguageDedup(loaded = [], onProgress) 
     },
   ];
 
+  // POLISHSAFE-4: removeExcessBodyLanguageSentence deleted the containing
+  // sentence, unreported (this stage's verifyInvariant call carries no
+  // allowedRemovals) — outside rule 0.2/2's whitelist. Flag-only now;
+  // item content is never mutated by this loop.
   for (const family of families) {
     let seen = 0;
 
     for (const item of loaded) {
       const chNum = chapterNumber(item);
-      let content = normalizeText(item.content);
+      const content = normalizeText(item.content);
 
       for (const phrase of family.phrases) {
         const count = countOccurrences(content, phrase);
-
         if (!count) continue;
 
         for (let i = 0; i < count; i += 1) {
           seen += 1;
-
           if (seen <= family.maxAcrossBook) continue;
 
-          const result = removeExcessBodyLanguageSentence(content, phrase);
-
-          if (result.removed > 0) {
-            const beforeLen = content.length;
-            content = result.text;
-            const afterLen = content.length;
-
-            console.log(
-              `[ANTHOLOGY-POLISH] Ch.${chNum}: REMOVING small sentence containing "${phrase}" x${result.removed} (group "${family.group}")`
-            );
-            console.log(`[ANTHOLOGY-POLISH] Ch.${chNum}: "${phrase}" — length ${beforeLen} → ${afterLen}`);
-
-            changes.push(`Ch.${chNum}: removed repeated body-language beat "${phrase}"`);
-            totalRemoved += result.removed;
-          }
+          console.log(`[ANTHOLOGY-POLISH] Ch.${chNum}: "${phrase}" flagged (group "${family.group}") - deletion retired (POLISHSAFE-4)`);
+          changes.push(`Ch.${chNum}: repeated body-language beat "${phrase}" flagged - deletion retired (POLISHSAFE-4)`);
+          totalRemoved += 1;
         }
       }
-
-      setItemContent(item, content);
     }
   }
 
@@ -642,46 +630,38 @@ export async function runCrossChapterBodyLanguageDedup(loaded = [], onProgress) 
  * - Replaces common AI-ish anthology words with simpler alternatives.
  * - Does not delete whole sentences.
  */
+/**
+ * Anthology vocabulary bans.
+ *
+ * POLISHSAFE-4: word substitution retired — outside rule 0.2/2's whitelist.
+ * Flag-only; item content is never mutated.
+ */
 export async function runAnthologyVocabBans(loaded = [], onProgress) {
   console.log('[ANTHOLOGY-POLISH] ========== VOCAB BANS START ==========');
 
   reportProgress(onProgress, 'Anthology polish: checking anthology vocabulary bans…');
 
   const changes = [];
-  let totalReplaced = 0;
+  const totalReplaced = 0;
 
-  const replacements = [
-    ['beacon', 'signal'],
-    ['profound', 'deep'],
-    ['crescendo', 'rise'],
-    ['tapestry', 'pattern'],
-    ['symphony', 'noise'],
-    ['cathedral', 'room'],
-    ['geometry', 'shape'],
-    ['architecture', 'structure'],
-  ];
+  const bannedWords = ['beacon', 'profound', 'crescendo', 'tapestry', 'symphony', 'cathedral', 'geometry', 'architecture'];
 
-  console.log(`[ANTHOLOGY-POLISH] Scanning for ${replacements.length} banned words across ${loaded.length} chapters`);
+  console.log(`[ANTHOLOGY-POLISH] Scanning for ${bannedWords.length} banned words across ${loaded.length} chapters`);
 
   for (const item of loaded) {
     const chNum = chapterNumber(item);
-    let content = normalizeText(item.content);
+    const content = normalizeText(item.content);
 
-    for (const [word, replacement] of replacements) {
+    for (const word of bannedWords) {
       const count = countOccurrences(content, word);
       if (!count) continue;
 
-      content = replacePhraseSafely(content, word, replacement);
-      totalReplaced += count;
-
-      console.log(`[ANTHOLOGY-POLISH] Ch.${chNum}: REPLACING "${word}" x${count}`);
-      changes.push(`Ch.${chNum}: replaced "${word}" x${count}`);
+      console.log(`[ANTHOLOGY-POLISH] Ch.${chNum}: "${word}" x${count} flagged - substitution retired (POLISHSAFE-4)`);
+      changes.push(`Ch.${chNum}: "${word}" x${count} flagged - substitution retired (POLISHSAFE-4)`);
     }
-
-    setItemContent(item, content);
   }
 
-  console.log(`[ANTHOLOGY-POLISH] VOCAB BANS COMPLETE. Total replaced/cut: ${totalReplaced}`);
+  console.log('[ANTHOLOGY-POLISH] VOCAB BANS COMPLETE (flag-only).');
 
   return {
     changes,
