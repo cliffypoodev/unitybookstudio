@@ -1,0 +1,7 @@
+[
+  {
+    "file": "src/components/novel/ProjectSettingsFields.jsx",
+    "line": 33,
+    "reason": "Pure UI rendering: values.book_type is the raw enum the user is actively selecting in the Setup form (not a saved project record needing genre-inference fallback). Chooses which POV-mode option list to show, exactly like a radio/select value comparison."
+  }
+]
