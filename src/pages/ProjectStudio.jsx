@@ -84,6 +84,7 @@ import { buildPriorChapterEventLedger, findReintroductions, rewriteReintroductio
 import { findBeatEventCollisions, rewriteBeatCollisions } from '@/lib/eventCollision'; // SCENECOLLIDE-1
 import { collectChapterBeatEvents } from '@/lib/characterStateLedger'; // CHARSTATE-2
 import { buildChapterStateContract } from '@/lib/chapterStateContract'; // STATECONTRACT-1
+import { auditBibleCompleteness } from '@/lib/bibleGate'; // BIBLEGATE-1
 import { harvestCastNames } from '@/lib/pronounLock'; // CHARSTATE-1
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
@@ -3867,6 +3868,24 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       foundation: generationProject.__generationContext,
     });
 
+    // BIBLEGATE-1: the bible must be complete and parseable before drafting.
+    // Fiction only — nonfiction casts are sources, not characters.
+    if (!isNonfictionProjectAuthority(generationProject)) {
+      const bibleAudit = auditBibleCompleteness({ project: generationProject, chapters: generationChapters });
+      console.log('[BIBLEGATE] draftChapter audit:', bibleAudit);
+      if (!bibleAudit.ok) {
+        const parts = [];
+        if (bibleAudit.missing.length) {
+          parts.push(`missing entries: ${bibleAudit.missing.map((m) => `${m.name} (${m.mentions}x in outline/beats)`).join(', ')}`);
+        }
+        if (bibleAudit.malformedHeaders.length) {
+          parts.push(`malformed headers: ${bibleAudit.malformedHeaders.map((h) => `"${h.header}" (${h.reason})`).join('; ')}`);
+        }
+        toast.error(`Story bible incomplete — fix before drafting: ${parts.join(' | ')}`);
+        return;
+      }
+    }
+
     // When called with onProgress callback (from parallel Draft All), route
     // progress through it to the per-chapter slot. Otherwise use global busyLabel.
     const report = (value) => {
@@ -4881,6 +4900,25 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     stopRequestedRef.current = false;
 
     let freshChapters = await base44.entities.Chapter.filter({ project_id: projectId }, 'chapter_number', 100);
+
+    // BIBLEGATE-1: the bible must be complete and parseable before drafting.
+    // Fiction only — nonfiction casts are sources, not characters.
+    if (!isNonfictionProjectAuthority(project)) {
+      const bibleAudit = auditBibleCompleteness({ project, chapters: freshChapters });
+      console.log('[BIBLEGATE] handleDraftAll audit:', bibleAudit);
+      if (!bibleAudit.ok) {
+        const parts = [];
+        if (bibleAudit.missing.length) {
+          parts.push(`missing entries: ${bibleAudit.missing.map((m) => `${m.name} (${m.mentions}x in outline/beats)`).join(', ')}`);
+        }
+        if (bibleAudit.malformedHeaders.length) {
+          parts.push(`malformed headers: ${bibleAudit.malformedHeaders.map((h) => `"${h.header}" (${h.reason})`).join('; ')}`);
+        }
+        toast.error(`Story bible incomplete — fix before drafting: ${parts.join(' | ')}`);
+        return;
+      }
+    }
+
     const draftableCandidates = freshChapters.filter((ch) => (ch.status === 'planned' || ch.status === 'beats_ready' || ch.status === 'error') && isBodyChapter(ch));
     const skippedWithContent = draftableCandidates.filter((ch) => chapterHasPersistedManuscriptContent(ch));
     const remaining = draftableCandidates
