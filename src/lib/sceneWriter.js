@@ -46,6 +46,7 @@ import { resolveChapterContent } from '@/lib/chapterStorage'; // PROSEFEED-1
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
 import { healSimileDensity } from '@/lib/simileRecast'; // STYLEBUDGET-2
 import { repairDroppedSubjects } from '@/lib/subjectRepair'; // SUBJECTREPAIR-1
+import { regenerateFlaggedParagraphs } from './regenerateLane.js'; // REGENLANE-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -3042,6 +3043,26 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
     const subjRepair = await repairDroppedSubjects(finalProse, { project, label: 'writer-final', maxRepairs: 20 });
     if (subjRepair.repaired > 0) finalProse = subjRepair.text;
   } catch (subjErr) { console.warn('[SUBJECTREPAIR-1] writer pass failed open:', subjErr?.message || subjErr); }
+
+  // REGENLANE-1: every flagged paragraph gets ONE chance to be regenerated
+  // under a deterministic verifier before it ships — the block-and-regenerate
+  // lane MALFORMEDSENT-1 could detect but never fix. Fiction only; fail-open.
+  try {
+    if (!isNonfictionProjectAuthority(project) && !isNonfictionAnthology(project)) {
+      const cast = harvestCastNames(project?.characters_md, priorChapterProse);
+      let departed = [];
+      try {
+        const priorEntries = (Array.isArray(priorChapterProse) ? priorChapterProse : [])
+          .map((text, i) => ({ chapterNumber: i + 1, text }));
+        const state = buildCharacterState(priorEntries, cast);
+        departed = Object.entries(state).filter(([, e]) => e.partyStatus === 'departed').map(([name]) => name);
+      } catch { departed = []; }
+      const regen = await regenerateFlaggedParagraphs(finalProse, {
+        project, cast, departed, priorProse: priorChapterProse, label: 'writer-final',
+      });
+      if (regen.regenerated > 0) finalProse = regen.text;
+    }
+  } catch (regenErr) { console.warn('[REGENLANE] writer pass failed open:', regenErr?.message || regenErr); }
 
   // GRAMMARREPAIR-2: a/an agreement is healed HERE — the last pass on the
   // artifact that ships — not only in cleanSceneOutput. Live: three exports in

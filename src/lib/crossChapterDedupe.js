@@ -41,6 +41,14 @@ export function normalizeSentenceForDedupe(s) {
   return String(s || '').replace(/\s+/g, ' ').trim();
 }
 
+// REGENLANE-1: the closed-world proper-noun extractor, single-sourced. Used
+// both here (verifyRecastSentence) and by the regenerate lane
+// (verifyRegeneratedParagraph in regenerateLane.js) so "what counts as a
+// proper noun" never drifts between the two verifiers.
+export function collectProperNouns(text) {
+  return (String(text || '').match(/\b[A-Z][a-z]+(?:’s)?\b/g) || []).map((w) => w.replace(/’s$/, ''));
+}
+
 /**
  * Find verbatim 12+-word sentences appearing in more than one chapter.
  *
@@ -108,10 +116,9 @@ export function verifyRecastSentence(originalSentence, recast, { chapterText = '
 
   // Closed world: no NEW capitalized tokens. Sentence-initial words are
   // exempt (any word can open a sentence).
-  const capTokens = (s) => (s.match(/\b[A-Z][a-z]+(?:’s)?\b/g) || []).map((w) => w.replace(/’s$/, ''));
-  const chapterCaps = new Set(capTokens(chapterText));
+  const chapterCaps = new Set(collectProperNouns(chapterText));
   const candBody = cand.replace(/^[“"]?\s*\S+\s*/, ''); // drop first word
-  for (const tok of capTokens(candBody)) {
+  for (const tok of collectProperNouns(candBody)) {
     if (!chapterCaps.has(tok)) return { ok: false, reason: `new-proper-noun:${tok}` };
   }
 
