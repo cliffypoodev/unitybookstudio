@@ -682,15 +682,18 @@ export function groupObjectSpellings(objects) {
  */
 export function normalizePossessions(...maps) {
   const pairs = [];
+  const allChars = new Set();
   for (const m of maps) {
     for (const [char, objs] of Object.entries(m || {})) {
+      const c = String(char || '').trim();
+      if (c) allChars.add(c);
       for (const obj of Array.isArray(objs) ? objs : []) {
         const o = String(obj || '').trim();
-        if (o) pairs.push([String(char || '').trim(), o]);
+        if (o) pairs.push([c, o]);
       }
     }
   }
-  const nameMap = canonicalizeHolderNames(pairs.map(([c]) => c));
+  const nameMap = canonicalizeHolderNames([...allChars]);
   const portable = pairs.filter(([, obj]) => isPortablePropPhrase(obj));
   const groupMap = groupObjectSpellings(portable.map(([, obj]) => obj));
 
@@ -707,6 +710,27 @@ export function normalizePossessions(...maps) {
   for (const [obj, holder] of holderOf) {
     out[holder] = out[holder] || [];
     if (!out[holder].some((o) => o.toLowerCase() === obj.toLowerCase())) out[holder].push(obj);
+  }
+  // DEADTEST-4: a character explicitly named with a real array (even an empty one,
+  // e.g. { Lena: [] }, "she now has empty hands") in the LATEST map -- the one that
+  // wins, per the ordering rule above -- must appear in the output, even with zero
+  // objects. Without this, a character whose only mention was an explicit empty
+  // list vanished from `out` entirely (contributes zero pairs), which is
+  // indistinguishable from never having been mentioned at all, and callers doing a
+  // direct `.possessions[name]` read (not the `|| []` guard most of this file uses)
+  // saw undefined instead of []. Scoped to the LATEST map only, and only to real
+  // arrays: a character mentioned solely in an EARLIER map must stay silently
+  // carried-forward-or-absent exactly as before (normalizePossessions is
+  // order-sensitive -- the later map wins, it does not remember who used to hold
+  // something), and a malformed non-array value must not manufacture a character
+  // that was never really named.
+  const latestMap = maps[maps.length - 1] || {};
+  for (const [char, objs] of Object.entries(latestMap)) {
+    if (!Array.isArray(objs)) continue;
+    const c = String(char || '').trim();
+    if (!c) continue;
+    const holder = nameMap.get(c) || c;
+    if (holder) out[holder] = out[holder] || [];
   }
   return out;
 }
