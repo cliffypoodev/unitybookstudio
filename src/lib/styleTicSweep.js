@@ -77,6 +77,9 @@ function getChapterCounts(loaded, regex) {
   });
 }
 
+// POLISHSAFE-4: this used to replace (or delete) excess tic occurrences with
+// a rotating phrase pool — outside rule 0.2/2's whitelist. Flag-only now;
+// loaded[].content is never mutated by this function.
 function applySafePhraseCap(loaded, tic, report, options = {}) {
   const regex = tic.regex || makeBoundaryRegex(tic.phrase);
   const total = totalMatches(loaded, regex);
@@ -101,78 +104,10 @@ function applySafePhraseCap(loaded, tic, report, options = {}) {
 
   if (total <= cap) return;
 
-  const maxChangeRatio = typeof tic.maxChangeRatio === 'number' ? tic.maxChangeRatio : 0.55;
-  const maxChanges = Math.max(1, Math.floor((total - cap) * maxChangeRatio));
-  const replacements = Array.isArray(tic.replacements) ? tic.replacements.filter(Boolean) : [];
-
-  if (!replacements.length && tic.remove !== true) {
-    familyReport.skipped = total - cap;
-    report.skippedUnsafe += total - cap;
-    return;
-  }
-
-  const chapterCounts = getChapterCounts(loaded, regex)
-    .filter((row) => row.count > 0)
-    .sort((a, b) => b.count - a.count);
-
-  let changed = 0;
-  let replacementIndex = 0;
-
-  // Target the densest chapters first. This reduces tic clustering without scrubbing every instance.
-  for (const row of chapterCounts) {
-    if (changed >= maxChanges) break;
-    const item = loaded[row.index];
-    if (!item || !item.content) continue;
-
-    const chapterAllowance = Math.max(1, Math.ceil(row.count * 0.45));
-    let chapterChanged = 0;
-    let occurrence = 0;
-
-    item.content = String(item.content).replace(regex, (match, ...args) => {
-      occurrence++;
-      if (changed >= maxChanges) return match;
-      if (chapterChanged >= chapterAllowance) return match;
-
-      // v1.3: do not automatically preserve one occurrence per chapter. That allowed
-      // full-manuscript tics such as cold knot / mouth dry to survive once in
-      // nearly every chapter. Each tic can still opt into preservation.
-      const preserveFirst = tic.preserveFirstInChapter ?? 0;
-      if (occurrence <= preserveFirst) return match;
-
-      if (typeof tic.guard === 'function') {
-        const offset = typeof args[args.length - 2] === 'number' ? args[args.length - 2] : -1;
-        const fullText = String(args[args.length - 1] || item.content || '');
-        const safe = tic.guard({ match, item, fullText, offset, chapterNumber: row.chapterNumber });
-        if (!safe) {
-          familyReport.skipped += 1;
-          report.skippedUnsafe += 1;
-          return match;
-        }
-      }
-
-      changed++;
-      chapterChanged++;
-
-      if (tic.remove === true && replacements.length === 0) return '';
-
-      const nextReplacement = replacements[replacementIndex % replacements.length];
-      replacementIndex++;
-      return preserveCase(match, nextReplacement);
-    });
-
-    if (chapterChanged > 0) {
-      item.content = item.content
-        .replace(/[ \t]{2,}/g, ' ')
-        .replace(/\s+([,.;:!?])/g, '$1')
-        .replace(/\n{4,}/g, '\n\n\n');
-
-      report.changedChapters.add(row.chapterNumber);
-      report.changes.push(`Ch.${row.chapterNumber}: style tic "${tic.name}" adjusted ${chapterChanged}x`);
-    }
-  }
-
-  familyReport.changed = changed;
-  report.safeReplacementsMade += changed;
+  const excess = total - cap;
+  familyReport.skipped = excess;
+  report.skippedUnsafe += excess;
+  report.changes.push(`Style tic "${tic.name}": ${total} found, ${cap} allowed, ${excess} flagged - substitution retired (POLISHSAFE-4)`);
 }
 
 function applyMalformedGrammarFixes(loaded, report) {
@@ -244,6 +179,8 @@ function applyMalformedGrammarFixes(loaded, report) {
     },
   ];
 
+  // POLISHSAFE-4: substitution retired — outside rule 0.2/2's whitelist.
+  // Flag-only now; loaded[].content is never mutated by this loop.
   let fixed = 0;
 
   for (let i = 0; i < (loaded || []).length; i++) {
@@ -252,16 +189,11 @@ function applyMalformedGrammarFixes(loaded, report) {
     const chNum = chapterNumber(item, i);
 
     for (const rule of malformedRules) {
-      const before = item.content;
-      item.content = String(item.content).replace(rule.regex, rule.replace);
-      if (item.content !== before) {
-        const beforeCount = (before.match(rule.regex) || []).length;
-        const afterCount = (item.content.match(rule.regex) || []).length;
-        const delta = Math.max(1, beforeCount - afterCount);
-        fixed += delta;
-        report.changedChapters.add(chNum);
-        report.changes.push(`Ch.${chNum}: fixed malformed grammar artifact (${rule.name})`);
-      }
+      const matches = String(item.content).match(rule.regex);
+      if (!matches || !matches.length) continue;
+      fixed += matches.length;
+      report.changedChapters.add(chNum);
+      report.changes.push(`Ch.${chNum}: malformed grammar artifact flagged (${rule.name}) - substitution retired (POLISHSAFE-4)`);
     }
   }
 
@@ -332,6 +264,10 @@ function applyOverExplanationLabelCleanup(loaded, report) {
     },
   ];
 
+  // POLISHSAFE-4: the generic label-deletion rules above are retired to
+  // flag-only — outside rule 0.2/2's whitelist. The two book-specific
+  // fabricated-content rewrites below ("rooms with exits", the Pauline
+  // line) are handled separately (POLISHSAFE-4-RETIRE-HARDCODED-BOOK-STRINGS).
   const softRewriteRules = [
     {
       name: 'you are hiding blunt diagnosis',
@@ -343,10 +279,12 @@ function applyOverExplanationLabelCleanup(loaded, report) {
       regex: /(?:^|(?<=[.!?]\s))There\s+is\s+a\s+wall\s+between\s+us\s+now\.\s+You\s+have\s+built\s+it\.\s*/gi,
       replace: 'Pauline looked toward the window. “You keep measuring the distance as if someone else put it there.” ',
     },
+  ];
+
+  const flagOnlyLabelRules = [
     {
       name: 'it was a mirror label',
       regex: /(?:^|(?<=[.!?]\s))It\s+was\s+a\s+mirror\s*,?\s+[^.!?]{0,140}\.\s*/gi,
-      replace: '',
     },
   ];
 
@@ -357,17 +295,13 @@ function applyOverExplanationLabelCleanup(loaded, report) {
     if (!item?.content) continue;
     const chNum = chapterNumber(item, i);
 
-    for (const rule of cleanupRules) {
-      const before = String(item.content);
-      item.content = before.replace(rule.regex, (match) => {
-        if (typeof rule.guard === 'function' && !rule.guard(match)) return match;
-        removedOrRewritten += 1;
-        return rule.replace;
-      });
-      if (item.content !== before) {
-        report.changedChapters.add(chNum);
-        report.changes.push(`Ch.${chNum}: removed over-explanation label (${rule.name})`);
-      }
+    for (const rule of [...cleanupRules, ...flagOnlyLabelRules]) {
+      const allMatches = [...String(item.content).matchAll(rule.regex)];
+      const kept = typeof rule.guard === 'function' ? allMatches.filter((m) => rule.guard(m[0])) : allMatches;
+      if (!kept.length) continue;
+      removedOrRewritten += kept.length;
+      report.changedChapters.add(chNum);
+      report.changes.push(`Ch.${chNum}: over-explanation label flagged (${rule.name}) - deletion retired (POLISHSAFE-4)`);
     }
 
     for (const rule of softRewriteRules) {
