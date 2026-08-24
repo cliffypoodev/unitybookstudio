@@ -693,30 +693,18 @@ function detectEmotionalMath(loaded) {
     const chNum = f.chapter.chapter_number || '?';
     let chFlagged = 0;
 
-    // Step 1: Hard-remove phrases that are NEVER world-mechanic
+    // Step 1: emotional-math phrases that are NEVER world-mechanic —
+    // POLISHSAFE-4: sentence-deletion RETIRED. This ran outside the
+    // paragraph-count structural guard (its verifyInvariant call carries no
+    // allowedRemovals), so a within-paragraph sentence it deleted shipped
+    // unreported — not one of rule 0.2/2's four allowed heals. Flag-only now,
+    // same pattern as the telling-tag and pronoun-opener caps below.
     for (const hr of EMOTIONAL_MATH_HARD_REMOVE) {
       const matches = f.content.match(hr.rx);
       if (matches && matches.length > 0) {
-        // Remove the containing sentence for each match
-        for (const m of matches) {
-          // Find the sentence containing this phrase and remove/flag it
-          const idx = f.content.indexOf(m);
-          if (idx !== -1) {
-            // Find sentence boundaries
-            const before = f.content.lastIndexOf('.', idx);
-            const after = f.content.indexOf('.', idx + m.length);
-            if (before !== -1 && after !== -1) {
-              const sentence = f.content.substring(before + 1, after + 1).trim();
-              if (sentence.length < 200) { // safety: don't remove huge chunks
-                f.content = f.content.replace(sentence, '');
-                f.content = f.content.replace(/\n\n\n+/g, '\n\n').replace(/  +/g, ' ');
-                hardRemoved++;
-              }
-            }
-          }
-        }
-        changes.push('Ch.' + chNum + ': ❌ removed ' + matches.length + 'x "' + hr.name + '" (hard emotional-math)');
-        console.log('[POLISH] Ch.' + chNum + ': hard-removed "' + hr.name + '" x' + matches.length);
+        flagged += matches.length;
+        changes.push('Ch.' + chNum + ': ⚠️ ' + matches.length + 'x "' + hr.name + '" emotional-math flagged — deletion retired (POLISHSAFE-4)');
+        console.log('[POLISH] Ch.' + chNum + ': "' + hr.name + '" x' + matches.length + ' flagged only — POLISHSAFE-4');
       }
     }
 
