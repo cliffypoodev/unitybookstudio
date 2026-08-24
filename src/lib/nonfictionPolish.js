@@ -215,14 +215,17 @@ function removeSourcePlaceholdersFromProse(content) {
 }
 
 function softenUnsupportedCertainty(content) {
+  // POLISHSAFE-4: NF_OVERCLAIM_REPLACEMENTS used to rewrite epistemic-hedge
+  // phrases ("proves" -> "suggests", "undeniably" -> "apparently") — a
+  // substitution that changes the claim's strength, not just its style, and
+  // is outside rule 0.2/2's whitelist. Flag-only now; `fixed` counts flags.
   let next = String(content || '');
   let fixed = 0;
 
-  for (const [rx, replacement] of NF_OVERCLAIM_REPLACEMENTS) {
+  for (const [rx] of NF_OVERCLAIM_REPLACEMENTS) {
     const matches = next.match(rx);
     if (!matches) continue;
     fixed += matches.length;
-    next = next.replace(rx, replacement);
   }
 
   const malformedQuestion = /\bWhat was it an act of containment\b/gi;
@@ -303,28 +306,20 @@ function escapeRegExpForGate(value) {
 }
 
 function reduceAbstractPhraseDensity(content) {
+  // POLISHSAFE-4: the per-phrase substitution/deletion loop and the four
+  // hardcoded phrase rewrites are retired \u2014 outside rule 0.2/2's whitelist.
+  // Only the trailing typography cleanups (whitespace, quote spacing) remain
+  // actual mutations. `fixed` now counts flagged excess phrases.
   let next = String(content || '');
   let fixed = 0;
 
   for (const phrase of NF_AI_ABSTRACT_PHRASES) {
     const rx = new RegExp('\\b' + escapeRegExpForGate(phrase) + '\\b', 'gi');
-    let seen = 0;
-    next = next.replace(rx, (match) => {
-      seen += 1;
-      if (seen <= 2) return match;
-      fixed += 1;
-      const replacement = NF_ABSTRACT_REPLACEMENTS.get(phrase.toLowerCase());
-      if (replacement) return replacement;
-      if (match.toLowerCase().includes('institution')) return 'the prison system';
-      return '';
-    });
+    const count = (next.match(rx) || []).length;
+    if (count > 2) fixed += count - 2;
   }
 
   next = next
-    .replace(/\bThis was not merely\b/gi, 'This was not only')
-    .replace(/\bThis was not simply\b/gi, 'This was not only')
-    .replace(/\bThe question was no longer\b/gi, 'The question changed')
-    .replace(/\bWhat remained was\b/gi, 'What remained')
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/\s+([,.;:!?])/g, '$1')
     .replace(/(["\u201d])([a-zA-Z])/g, '$1 $2');
@@ -393,7 +388,7 @@ function runNonfictionCredibilityGate(loaded, onProgress, { project } = {}) {
     const claimResult = softenUnsupportedCertainty(content);
     content = claimResult.content;
     overclaimsSoftened += claimResult.fixed;
-    if (claimResult.fixed) changes.push(`Ch.${chNum}: softened ${claimResult.fixed} unsupported-certainty / overclaim phrase(s)`);
+    if (claimResult.fixed) changes.push(`Ch.${chNum}: ${claimResult.fixed} unsupported-certainty / overclaim phrase(s) flagged - substitution retired (POLISHSAFE-4)`);
 
     const copyeditResult = fixKnownNonfictionCopyeditResidue(content);
     content = copyeditResult.content;
@@ -403,7 +398,7 @@ function runNonfictionCredibilityGate(loaded, onProgress, { project } = {}) {
     const abstractResult = reduceAbstractPhraseDensity(content);
     content = abstractResult.content;
     abstractPhrasesReduced += abstractResult.fixed;
-    if (abstractResult.fixed) changes.push(`Ch.${chNum}: reduced ${abstractResult.fixed} repeated abstract / AI-polished phrase(s)`);
+    if (abstractResult.fixed) changes.push(`Ch.${chNum}: ${abstractResult.fixed} repeated abstract / AI-polished phrase(s) flagged - substitution retired (POLISHSAFE-4)`);
 
     const shapeResult = normalizeParagraphShapeForNonfiction(content);
     content = shapeResult.content;
