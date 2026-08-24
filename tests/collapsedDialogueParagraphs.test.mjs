@@ -166,8 +166,24 @@ check('SCOPE: with the option OFF the pass behaves exactly as it did at d210597'
     return off.orphanFlagged === 4 && off.orphanRepaired === 0 && off.paragraphSplits === 0;
   })());
 
+// DEADTEST-3: this predates DIALOGREPAIR-2 (29401907), which added an UNCONDITIONAL
+// close-heavy quote healer as the last stage of runDialogueMechanicsPass -- it runs
+// regardless of splitCollapsedParagraphs (that option only gates paragraph SPLITTING,
+// per the "Step 0... Opt-in" comment above splitCollapsedDialogueParagraphs's call
+// site). DIALOGREPAIR-2 (missing dialogue opener insertion) is one of the master fix
+// plan's few universally-allowed deterministic mutations (rule 0.2/2) and correctly
+// finishes these 4 fixture quotes here, since repairOrphanClosers declined them all
+// as ambiguous (orphanRepaired === 0, proven above). Byte-identity was never the
+// right bar; paragraph structure being untouched, and nothing but quote characters
+// changing, is.
 check('SCOPE: with the option OFF no paragraph breaks are introduced',
-  runDialogueMechanicsPass(COLLAPSED_CH5, { stage: 'pre-save' }).text === COLLAPSED_CH5);
+  (() => {
+    const off = runDialogueMechanicsPass(COLLAPSED_CH5, { stage: 'pre-save' });
+    const sameStructure = off.text.split('\n').length === COLLAPSED_CH5.split('\n').length;
+    const stripOpenQuotes = (s) => s.split('“').join('');
+    const onlyQuotesChanged = stripOpenQuotes(off.text) === stripOpenQuotes(COLLAPSED_CH5);
+    return sameStructure && onlyQuotesChanged;
+  })());
 
 // ─── (e) the two fiction call sites must actually turn it on ───────────────────
 
