@@ -19,6 +19,7 @@ import {
   formatUnresolvedThreads, sanitizeSeriesBible,
 } from '@/lib/seriesBible';
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
+import { declaredType as declaredTypeOf, TYPE_DECLARATIONS } from '@/lib/projectType';
 import { parseSeriesField, describeFieldFailures } from '@/lib/seriesBibleFields';
 import { pickModel, pickFallbackModel } from '@/lib/modelRouting';
 import { extractAllVolumeBibles, loadVolumeBible, getEntryContractForVolume, getExitContractForVolume } from '@/lib/volumeBible';
@@ -829,7 +830,11 @@ function SequelView({ bible, allProjects, onBack, onCreated }) {
         // WAVE2-ENUMFIX: book_type enum is fiction|nonfiction only —
         // 'anthology' belongs in project_type. The corrupt value used to reach
         // storage (the badge at the series list even compensated for it).
-        projectPayload.book_type = 'fiction';
+        // SERIESHYGIENE-1: an anthology volume carries the SERIES' real type —
+        // a nonfiction anthology series must not be hardcoded to fiction.
+        const inheritedType = declaredTypeOf(lastVolume);
+        if (inheritedType) projectPayload.book_type = inheritedType;
+        else delete projectPayload.book_type;
         projectPayload.project_type = 'anthology';
         // Inject series-level tone and world so anthology volumes stay consistent
         if (bible.tone_and_themes) projectPayload.voice_md = `Series tone & themes: ${bible.tone_and_themes}`;
