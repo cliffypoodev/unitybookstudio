@@ -406,6 +406,7 @@ const MALFORMED_CANARIES = [
   { pattern: /\bfixed on,/gi, name: 'fixed on,' },
   { pattern: /\bfocused on,/gi, name: 'focused on,' },
   { pattern: /\bYou was\b/g, name: 'You was' },
+  { pattern: /\bThey was\b/g, name: 'They was' },
   { pattern: /\bWas was\b/g, name: 'Was was' },
   { pattern: /\bthat ?slippage\b/gi, name: 'that slippage' },
   { pattern: /\breached for the and\b/gi, name: 'reached for the and' },
