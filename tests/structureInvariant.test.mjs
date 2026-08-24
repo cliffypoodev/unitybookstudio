@@ -34,7 +34,11 @@ And another paragraph. That is fine.`;
   runAntiDetectionPolish(loadedFalseNorth, () => {}, {});
 
   const resultShape = loadedFalseNorth[0].content;
-  check('Pattern 4 triggers and merges short fragments', resultShape.includes('I am; you are. We be.'));
+  // POLISHSAFE-4: TRIPLETRETIRE-1 (f8aec8a5) retired the fragment-merge rule —
+  // Step A is a hardcoded no-op (tripletResult = { fixed: 0, changes: [] }).
+  // This check used to assert the merge happened; it now asserts the retired
+  // stage does nothing, which is the corrected, current behavior.
+  check('Pattern 4 (retired) does not merge short fragments', resultShape === originalShape);
 
   const originalSeps = [...originalShape.matchAll(/\n{2,}/g)].map(m => m[0]);
   const resultSeps = [...resultShape.matchAll(/\n{2,}/g)].map(m => m[0]);
