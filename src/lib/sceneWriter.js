@@ -48,6 +48,7 @@ import { healSimileDensity } from '@/lib/simileRecast'; // STYLEBUDGET-2
 import { repairDroppedSubjects } from '@/lib/subjectRepair'; // SUBJECTREPAIR-1
 import { regenerateFlaggedParagraphs } from './regenerateLane.js'; // REGENLANE-1
 import { buildBannedVocabularyPromptBlock, detectBannedVocabulary } from './vocabCaps.js'; // POLISHSAFE-4
+import { buildChapterStateContract } from './chapterStateContract.js'; // STATECONTRACT-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -2336,6 +2337,12 @@ function buildSceneStateContractBlock(spec) {
   if (bannedVocabulary) {
     lines.push(bannedVocabulary);
   }
+  // STATECONTRACT-1: the composed closed-world block (cast/status, events
+  // done, resolved arcs, scene map, style bans).
+  const stateContract = String(spec?.state_contract || '').trim();
+  if (stateContract) {
+    lines.push(stateContract);
+  }
   // CANON-2: roles are canon too — no other character may be given these jobs.
   const roleCanon = String(spec?.role_canon || '').trim();
   if (roleCanon) {
@@ -3812,6 +3819,19 @@ export async function generateChapterSceneByScene({
     console.warn('[STYLEBUDGET] Ledger build failed (non-fatal):', styleError?.message || styleError);
   }
 
+  // STATECONTRACT-1: one closed-world block composing cast/pronouns/roles/
+  // status, the prior-chapter event ledger, resolved-arc protection, this
+  // chapter's own scene map, and the style budget. Built ONCE per chapter;
+  // the existing fields above stay populated (audits still read them).
+  const stateContractResult = buildChapterStateContract({
+    project,
+    chapter,
+    resolvedPriorProse,
+    normalizedScenes,
+    allProjectChapters,
+    cast: characterStateCast,
+  });
+
   for (let i = 0; i < normalizedScenes.length; i += 1) {
     const spec = normalizedScenes[i];
     const priorScenes = normalizedScenes.slice(0, i);
@@ -3840,6 +3860,7 @@ export async function generateChapterSceneByScene({
           ).returns
         : [],
       style_budget: styleBudgetBlock, // STYLEBUDGET-1
+      state_contract: stateContractResult.block, // STATECONTRACT-1
       banned_vocabulary: buildBannedVocabularyPromptBlock(), // POLISHSAFE-4
       holders_of_record: Object.entries(runtimeLedger.possessions || {})
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
