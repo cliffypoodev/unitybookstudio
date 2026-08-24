@@ -9,8 +9,8 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
 
 const CLEAN_SHEET = '**1. Mara** (she/her)\n**Role:** Captain\n\n**2. Dov** (he/him)\n**Role:** Engineer';
 
-// 1. version (bumped to v2 by BIBLEGATE-1B, see check 4)
-check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v2');
+// 1. version (bumped to v3 by BIBLEGATE-1C, see checks 14-15)
+check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v3');
 
 // 2. missing name with 3 mentions blocks
 {
@@ -79,13 +79,14 @@ check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v2');
 }
 
 // 10. BIBLEGATE-1B: a compound proper noun (ship/place name) is never "missing"
+// (fixture hygiene, BIBLEGATE-1C: invented names, not a real book's ship/town)
 {
   const project = {
     characters_md: CLEAN_SHEET,
-    outline_md: 'The Gaudy Galactie left port at dawn. Mara stood at the helm of the Gaudy Galactie. They passed through Elm Fork on the way. Elm Fork was quiet, the streets of Elm Fork empty.',
+    outline_md: 'The Amber Tide left port at dawn. Mara stood at the helm of the Amber Tide. They passed through Briar Hollow on the way. Briar Hollow was quiet, the streets of Briar Hollow empty.',
   };
   const r = auditBibleCompleteness({ project, chapters: [] });
-  check('10. compound proper nouns (ship/place names) are not flagged missing', !r.missing.some((m) => ['Gaudy', 'Galactie', 'Elm', 'Fork'].includes(m.name)), JSON.stringify(r.missing));
+  check('10. compound proper nouns (ship/place names) are not flagged missing', !r.missing.some((m) => ['Amber', 'Tide', 'Briar', 'Hollow'].includes(m.name)), JSON.stringify(r.missing));
 }
 
 // 11. BIBLEGATE-1B: a title-only word (only appears in a chapter heading) is never "missing"
@@ -116,6 +117,26 @@ check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v2');
   };
   const r = auditBibleCompleteness({ project, chapters: [] });
   check('13. a real missing person still survives the filters', r.missing.some((m) => m.name === 'Ilse'), JSON.stringify(r.missing));
+}
+
+// 14. BIBLEGATE-1C: it/its is a legal pronoun declaration (a ship AI, a robot,
+// an animal, a haunted object — any non-human cast member)
+{
+  const project = { characters_md: '**1. Mara** (she/her)\n**Role:** Captain\n\n**3. Aegis** (it/its)\n**Role:** Ship AI' };
+  const r = auditBibleCompleteness({ project, chapters: [] });
+  check('14. it/its pronoun declaration accepted', !r.malformedHeaders.some((h) => h.header === 'Aegis'), JSON.stringify(r));
+}
+
+// 15. BIBLEGATE-1C: a quoted/cited name that never acts is never "missing" —
+// possessive and object mentions only, the actor filter (not the title-only
+// filter) is what saves it
+{
+  const project = {
+    characters_md: CLEAN_SHEET,
+    outline_md: 'Dov quotes Voss to make his point. The plan was pure Voss, everyone agreed. Mara rolled her eyes at Dov\'s Voss obsession.',
+  };
+  const r = auditBibleCompleteness({ project, chapters: [] });
+  check('15. a quoted-author name that never acts is not flagged missing', !r.missing.some((m) => m.name === 'Voss'), JSON.stringify(r.missing));
 }
 
 // 9. wiring source-shape: ProjectStudio.jsx calls the audit in both draftChapter and handleDraftAll
