@@ -1127,11 +1127,22 @@ export function parseAuditPayload(rawText) {
     }
   };
 
+  // DEADTEST-2: an array is only trustworthy if fail-closed still applies to what's
+  // INSIDE it. The AUDITJSON-1 fallback below wraps ANY brace-delimited span in
+  // '[' + ']' the moment JSON.parse succeeds on the result — so an unrelated object
+  // like {"status":"ok"} became a valid-looking one-element array and sailed past
+  // the top-of-function fail-closed guarantee. An explicit empty array is still a
+  // real answer (the model found nothing) and is returned as-is.
+  const isViolationShaped = (v) => v && typeof v === 'object' && ('id' in v || 'excerpt' in v);
   const normalize = (value) => {
-    if (Array.isArray(value)) return value;
+    if (Array.isArray(value)) {
+      if (value.length === 0) return value;
+      const shaped = value.filter(isViolationShaped);
+      return shaped.length ? shaped : null;
+    }
     if (value && typeof value === 'object') {
-      if (Array.isArray(value.violations)) return value.violations;
-      if ('id' in value || 'excerpt' in value) return [value];
+      if (Array.isArray(value.violations)) return normalize(value.violations);
+      if (isViolationShaped(value)) return [value];
     }
     return null;
   };
