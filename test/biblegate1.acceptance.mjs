@@ -9,8 +9,8 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
 
 const CLEAN_SHEET = '**1. Mara** (she/her)\n**Role:** Captain\n\n**2. Dov** (he/him)\n**Role:** Engineer';
 
-// 1. version
-check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v1');
+// 1. version (bumped to v2 by BIBLEGATE-1B, see check 4)
+check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v2');
 
 // 2. missing name with 3 mentions blocks
 {
@@ -26,11 +26,23 @@ check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v1');
   check('3. a name with only 1 mention does not block', !r.missing.some((m) => m.name === 'Ilse'), JSON.stringify(r));
 }
 
-// 4. "**6. Crew: Lark**" shape is malformed
+// 4. BIBLEGATE-1B (live proof on REDUX, 2026-08-24): "**N. Role: Name**" is
+// the app's own foundation-generator shape ("**1. Protagonist: Zinnia 'Zin'
+// Quark**") — parseCanonCast's colon-split already recovers the real name,
+// so it is legitimate and must NOT be flagged. This check used to assert
+// "Crew: Lark" was malformed on the (stale) assumption parseCanonCast
+// extracted "Crew"; live evidence proved parseCanonCast already extracts
+// "Lark" correctly for this exact shape. The real malformed case — no name
+// at all recoverable, just a bare role word — is check 4b.
 {
-  const project = { characters_md: '**1. Mara** (she/her)\n**Role:** Captain\n\n**6. Crew: Lark** (he/him)\n**Role:** Deckhand' };
+  const project = { characters_md: '**1. Mara** (she/her)\n**Role:** Captain\n\n**2. Protagonist: Ilse** (they/them)\n**Role:** Protagonist' };
   const r = auditBibleCompleteness({ project, chapters: [] });
-  check('4. "Crew: Lark" header is flagged malformed', r.ok === false && r.malformedHeaders.some((h) => h.header.includes('Crew: Lark') && h.reason.includes('role word')), JSON.stringify(r));
+  check('4a. "Protagonist: Ilse" (Role: Name shape) is NOT flagged malformed', r.malformedHeaders.length === 0, JSON.stringify(r));
+}
+{
+  const project = { characters_md: '**1. Mara** (she/her)\n**Role:** Captain\n\n**6. Crew**\n**Role:** Deckhand\n**Pronouns:** he/him' };
+  const r = auditBibleCompleteness({ project, chapters: [] });
+  check('4b. a bare role word with no recoverable name IS flagged malformed', r.malformedHeaders.some((h) => h.reason.includes('role word')), JSON.stringify(r));
 }
 
 // 5. missing pronoun declaration flagged
@@ -64,6 +76,46 @@ check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v1');
   const project = { characters_md: '**1. Mara**\nPronouns: context-variable\n**Role:** Captain' };
   const r = auditBibleCompleteness({ project, chapters: [] });
   check('8. context-variable declaration accepted', !r.malformedHeaders.some((h) => h.reason.includes('pronoun')), JSON.stringify(r));
+}
+
+// 10. BIBLEGATE-1B: a compound proper noun (ship/place name) is never "missing"
+{
+  const project = {
+    characters_md: CLEAN_SHEET,
+    outline_md: 'The Gaudy Galactie left port at dawn. Mara stood at the helm of the Gaudy Galactie. They passed through Elm Fork on the way. Elm Fork was quiet, the streets of Elm Fork empty.',
+  };
+  const r = auditBibleCompleteness({ project, chapters: [] });
+  check('10. compound proper nouns (ship/place names) are not flagged missing', !r.missing.some((m) => ['Gaudy', 'Galactie', 'Elm', 'Fork'].includes(m.name)), JSON.stringify(r.missing));
+}
+
+// 11. BIBLEGATE-1B: a title-only word (only appears in a chapter heading) is never "missing"
+{
+  const project = {
+    characters_md: CLEAN_SHEET,
+    outline_md: '## Chapter 10: The Long Winter Silence\n\nMara and Dov argued about the plan long into the night, saying little of comfort.',
+  };
+  const r = auditBibleCompleteness({ project, chapters: [] });
+  check('11. a title-only word is not flagged missing', !r.missing.some((m) => m.name === 'Winter' || m.name === 'Silence'), JSON.stringify(r.missing));
+}
+
+// 12. BIBLEGATE-1B: a "the X" common/place noun is never "missing"
+{
+  const project = {
+    characters_md: CLEAN_SHEET,
+    outline_md: 'They walked past the Lighthouse. The Lighthouse stood dark against the storm. No one had lit the Lighthouse in years.',
+  };
+  const r = auditBibleCompleteness({ project, chapters: [] });
+  check('12. a "the X" common noun is not flagged missing', !r.missing.some((m) => m.name === 'Lighthouse'), JSON.stringify(r.missing));
+}
+
+// 13. BIBLEGATE-1B: a real missing person survives all three filters (regression against over-filtering)
+{
+  const project = {
+    characters_md: CLEAN_SHEET,
+    outline_md: 'Ilse’s voice crackled over the comm. "Warning," Ilse said, "debris ahead." The crew listened as Ilse repeated it. Dov cursed under his breath at Ilse.',
+  };
+  const r = auditBibleCompleteness({ project, chapters: [] });
+  check('13. a real missing person still survives the filters', r.missing.some((m) => m.name === 'Ilse'), JSON.stringify(r.missing));
 }
 
 // 9. wiring source-shape: ProjectStudio.jsx calls the audit in both draftChapter and handleDraftAll

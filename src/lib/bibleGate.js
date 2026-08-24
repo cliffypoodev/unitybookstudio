@@ -17,7 +17,7 @@
 import { harvestCastNames } from './pronounLock.js';
 import { parseCanonCast } from './canonRoles.js';
 
-export const BIBLE_GATE_VERSION = 'bible-gate-v1';
+export const BIBLE_GATE_VERSION = 'bible-gate-v2'; // BIBLEGATE-1B
 
 // Role words that belong in a Role: line, never in the name field itself.
 const ROLE_WORDS = new Set(['Crew', 'Rival', 'Protagonist', 'Antagonist', 'Mentor', 'Sidekick', 'Villain', 'Narrator']);
@@ -30,9 +30,19 @@ function escapeRx(s) {
 }
 
 /**
- * Walk character-sheet entry headers (same shape parseCanonCast recognizes)
- * and flag malformed ones: a role word used in place of (or alongside) the
- * name, or an entry missing a pronoun declaration.
+ * Walk character-sheet entry headers and flag malformed ones. BIBLEGATE-1B
+ * (live proof on REDUX, 2026-08-24): the app's own foundation generator
+ * writes entries as "**N. Role: Name**" ("**1. Protagonist: Zinnia 'Zin'
+ * Quark**") — parseCanonCast's colon-split already recovers "Zinnia" as the
+ * name there, so that shape is legitimate, not the "**6. Crew: Lark**" bug.
+ * The real bug is when parseCanonCast has NO name to recover at all and
+ * falls back to the role word itself (a header with no colon, just the role
+ * label — "**6. Crew**"). Malformed-header detection now asks parseCanonCast
+ * what it actually extracted, instead of pattern-matching the raw header
+ * text, which flagged every correctly-formed "Role: Name" entry as broken.
+ * Only headers parseCanonCast recognizes as entries are audited for a
+ * pronoun declaration — a markdown section heading ("### Major Characters")
+ * is never mistaken for a cast entry.
  * Returns [{ header, reason }].
  */
 function auditHeaders(charactersMd) {
@@ -44,24 +54,15 @@ function auditHeaders(charactersMd) {
     headers.push({ index: match.index, raw: match[1].replace(/\*\*/g, '').trim() });
   }
 
+  const entries = parseCanonCast(text);
   const findings = [];
   for (let i = 0; i < headers.length; i += 1) {
     const { raw, index } = headers[i];
-    // Only real entries — mirrors parseCanonCast's own validity filter, so a
-    // section header ("## World Building") is never mistaken for a cast entry.
-    const looksLikeEntry = /[A-Z][a-z'’-]{2,}/.test(raw);
-    if (!looksLikeEntry) continue;
+    const entry = entries.find((e) => raw.includes(e.name) || [...(e.aliases || [])].some((a) => raw.includes(a)));
+    if (!entry) continue; // parseCanonCast doesn't see this as a cast entry either — a section heading, not a bug
 
-    let malformedShape = false;
-    if (raw.includes(':')) {
-      const before = raw.split(':')[0].trim();
-      if (ROLE_WORDS.has(before)) {
-        findings.push({ header: raw, reason: `role word "${before}" used in place of the name` });
-        malformedShape = true;
-      }
-    } else if (ROLE_WORDS.has(raw)) {
-      findings.push({ header: raw, reason: `entry name is just the role word "${raw}"` });
-      malformedShape = true;
+    if (ROLE_WORDS.has(entry.name)) {
+      findings.push({ header: raw, reason: `role word "${entry.name}" used in place of the name` });
     }
 
     const blockEnd = i + 1 < headers.length ? headers[i + 1].index : text.length;
@@ -69,9 +70,52 @@ function auditHeaders(charactersMd) {
     if (!PRONOUN_DECLARATION_RX.test(block) && !PRONOUN_VARIABLE_RX.test(block)) {
       findings.push({ header: raw, reason: 'missing pronoun declaration (he/him, she/her, or they/them)' });
     }
-    void malformedShape; // both findings for one header are legal and independent
   }
   return findings;
+}
+
+// BIBLEGATE-1B: three non-person filters for the "missing" candidate list,
+// each measured against a real live-proof false positive.
+
+// "Gaudy Galactie" (a ship name), "Elm Fork" (a town) — a token that is
+// ALWAYS immediately adjacent to another capitalized token is one half of a
+// compound proper noun, not a standalone person.
+function isCompoundProperNoun(corpus, name) {
+  const rx = new RegExp(`\\b${escapeRx(name)}\\b`, 'g');
+  let m;
+  let total = 0;
+  let adjacent = 0;
+  while ((m = rx.exec(corpus)) !== null) {
+    total += 1;
+    const before = corpus.slice(Math.max(0, m.index - 20), m.index);
+    const after = corpus.slice(m.index + name.length, m.index + name.length + 20);
+    if (/[A-Z][a-z'’-]{1,}\s*$/.test(before) || /^\s*[A-Z][a-z'’-]{1,}/.test(after)) adjacent += 1;
+  }
+  return total > 0 && adjacent === total;
+}
+
+// "Shakespeare" from a chapter title "## Chapter 10: Sadie's Shakespeare
+// Moment" — a token whose every mention sits on a chapter/section title line
+// is a title word, not a person the outline actually put on the page.
+function isTitleOnlyMention(lines, name) {
+  const rx = new RegExp(`\\b${escapeRx(name)}\\b`);
+  const titleRx = /^\s{0,3}#{1,4}\s|\bChapter\s+\d+\b/i;
+  const matchingLines = lines.filter((l) => rx.test(l));
+  return matchingLines.length > 0 && matchingLines.every((l) => titleRx.test(l));
+}
+
+// A token preceded by "the" in most of its mentions reads as a common or
+// place noun ("the Fork", "the harbor"), not a name.
+function isPrecededByThe(corpus, name) {
+  const rx = new RegExp(`\\b${escapeRx(name)}\\b`, 'g');
+  let m;
+  let total = 0;
+  let precededByThe = 0;
+  while ((m = rx.exec(corpus)) !== null) {
+    total += 1;
+    if (/\bthe\s+$/i.test(corpus.slice(Math.max(0, m.index - 5), m.index))) precededByThe += 1;
+  }
+  return total > 0 && precededByThe / total >= 0.5;
 }
 
 /**
@@ -84,6 +128,7 @@ function auditMissingNames(charactersMd, proseTexts) {
   const texts = (Array.isArray(proseTexts) ? proseTexts : []).map((t) => String(t || '')).filter(Boolean);
   if (!texts.length) return [];
   const corpus = texts.join('\n');
+  const lines = corpus.split('\n');
 
   // Low proseMin so a name mentioned only 3-11 times still surfaces as a
   // candidate — harvestCastNames' default (12) is tuned for prompt cast
@@ -97,7 +142,14 @@ function auditMissingNames(charactersMd, proseTexts) {
   for (const name of candidates) {
     if (hasEntry(name)) continue;
     const mentions = (corpus.match(new RegExp(`\\b${escapeRx(name)}\\b`, 'g')) || []).length;
-    if (mentions >= 3) missing.push({ name, mentions });
+    if (mentions < 3) continue;
+    // BIBLEGATE-1B: skip compound proper nouns, title-only words, and
+    // "the X" common/place nouns — none of these are a person the bible is
+    // missing an entry for.
+    if (isCompoundProperNoun(corpus, name)) continue;
+    if (isTitleOnlyMention(lines, name)) continue;
+    if (isPrecededByThe(corpus, name)) continue;
+    missing.push({ name, mentions });
   }
   return missing.sort((a, b) => b.mentions - a.mentions);
 }

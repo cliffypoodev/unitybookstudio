@@ -3872,7 +3872,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     // Fiction only — nonfiction casts are sources, not characters.
     if (!isNonfictionProjectAuthority(generationProject)) {
       const bibleAudit = auditBibleCompleteness({ project: generationProject, chapters: generationChapters });
-      console.log('[BIBLEGATE] draftChapter audit:', bibleAudit);
+      console.log('[BIBLEGATE] draftChapter audit:', JSON.stringify(bibleAudit));
       if (!bibleAudit.ok) {
         const parts = [];
         if (bibleAudit.missing.length) {
@@ -4905,7 +4905,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     // Fiction only — nonfiction casts are sources, not characters.
     if (!isNonfictionProjectAuthority(project)) {
       const bibleAudit = auditBibleCompleteness({ project, chapters: freshChapters });
-      console.log('[BIBLEGATE] handleDraftAll audit:', bibleAudit);
+      console.log('[BIBLEGATE] handleDraftAll audit:', JSON.stringify(bibleAudit));
       if (!bibleAudit.ok) {
         const parts = [];
         if (bibleAudit.missing.length) {
