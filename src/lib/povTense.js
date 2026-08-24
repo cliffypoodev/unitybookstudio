@@ -1,3 +1,5 @@
+import { isNonfictionProject } from './projectType.js'; // NFCLASS-6
+
 export function suggestPovTense(bookType, genre) {
   const g = (genre || '').toLowerCase();
 
@@ -232,7 +234,7 @@ export function normalizePovTenseSpec(spec = {}) {
 
 export function buildPovTenseBlock(rawSpec) {
   const spec = normalizePovTenseSpec(rawSpec);
-  const isNF = spec.book_type === 'nonfiction';
+  const isNF = isNonfictionProject(spec);
   const povInstructions = isNF
     ? NONFICTION_POV_INSTRUCTIONS[spec.pov_mode] || NONFICTION_POV_INSTRUCTIONS['nf-editorial']
     : FICTION_POV_INSTRUCTIONS[spec.pov_mode] || FICTION_POV_INSTRUCTIONS['third-close'];

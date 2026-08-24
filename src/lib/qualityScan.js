@@ -4,6 +4,7 @@
  */
 
 import { stripDialogue, normalizePovMode } from '@/lib/povTense';
+import { isNonfictionProject } from '@/lib/projectType'; // NFCLASS-6
 
 // Common stop words to exclude from repetition scanning
 const STOP_WORDS = new Set([
@@ -97,7 +98,7 @@ export function scanPovDrift(text, project, chapterNumber) {
  */
 export function scanNonfictionIntegrity(text, project, chapterNumber) {
   const warnings = [];
-  if (!text || project?.book_type !== 'nonfiction') return warnings;
+  if (!text || !isNonfictionProject(project)) return warnings;
 
   // Count composite labels
   const compositeMatches = text.match(/\[The following account is a composite[^\]]*\]/g) || [];
@@ -128,7 +129,7 @@ export function scanNonfictionIntegrity(text, project, chapterNumber) {
 // but tuned to catch invented quotes/officials/documents while sparing real
 // sourced people. Consumed by the scene-writer's blocking-retry check.
 export function crossCheckResearchFabrication(text, project) {
-  if (!text || !project || project.book_type !== 'nonfiction') return { clean: true, violations: [] };
+  if (!text || !project || !isNonfictionProject(project)) return { clean: true, violations: [] };
   const researchRaw = typeof project.research_data === 'string'
     ? project.research_data
     : (project.research_data ? JSON.stringify(project.research_data) : '');
@@ -185,7 +186,7 @@ export function crossCheckResearchFabrication(text, project) {
 
 export function scanNonfictionFabricationRisk(text, project, chapterNumber) {
   const warnings = [];
-  if (!text || project?.book_type !== 'nonfiction') return warnings;
+  if (!text || !isNonfictionProject(project)) return warnings;
 
   const sentences = String(text).split(/(?<=[.!?])\s+/);
   const docNoun = /\b(ledgers?|manifests?|dispatch(?:es)?|diary|diaries|journals?|transcripts?|regist(?:ry|ers?)|archives?|documents?|tapes?|recordings?|letters?|memos?|records?|files?|correspondence|logs?|telegrams?|affidavits?|depositions?)\b/i;

@@ -1,3 +1,5 @@
+import { isNonfictionProject } from '@/lib/projectType'; // NFCLASS-6
+
 export const CONTENT_LANES = [
   {
     value: 'fiction',
@@ -761,7 +763,7 @@ export const CANON_MODES = [
 export function getContentLane(value = {}) {
   if (value.content_lane) return value.content_lane;
   if (value.rights_mode === 'fanfiction_noncommercial') return 'fanfiction';
-  if (value.book_type === 'nonfiction') return 'nonfiction';
+  if (isNonfictionProject(value)) return 'nonfiction';
   if (/erotic|erotica/i.test(value.genre || '')) return 'erotica';
   return 'fiction';
 }

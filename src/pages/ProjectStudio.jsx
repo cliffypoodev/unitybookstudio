@@ -1928,7 +1928,7 @@ export default function ProjectStudio() {
       setResearchCoverageVerdict(null);
       return;
     }
-    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isNonfictionMode = isNonfictionProjectAuthority(project);
     if (!isNonfictionMode) {
       setResearchCoverageVerdict(null);
       return;
@@ -2244,7 +2244,7 @@ export default function ProjectStudio() {
         : '';
 
       return {
-        world_md: parsedBible?.worldMd || `# ${collectionTitle}\n\n## Master Theme\n${theme}\n\n## Collection Logic\nThis anthology is a collection of standalone ${anthologyProject.book_type === 'nonfiction' ? 'chapters/essays' : 'stories'} unified by the theme above. Each entry should have its own subject, conflict, arc, and ending while contributing to the larger collection experience.${fanContext}`,
+        world_md: parsedBible?.worldMd || `# ${collectionTitle}\n\n## Master Theme\n${theme}\n\n## Collection Logic\nThis anthology is a collection of standalone ${isNonfictionProjectAuthority(anthologyProject) ? 'chapters/essays' : 'stories'} unified by the theme above. Each entry should have its own subject, conflict, arc, and ending while contributing to the larger collection experience.${fanContext}`,
         characters_md: parsedBible?.charactersMd || '',
         outline_md: outlineMd || rebuildAnthologyOutlineMd(stories),
         canon_md: parsedBible?.canonMd || `# Canon / Collection Rules\n\n- Each entry must stand alone.\n- Do not reuse the same protagonist/conflict structure unless this is intentionally set as a connected-universe anthology.\n- Maintain the tone, rights mode, and content lane selected in Setup.${fanContext}`,
@@ -3367,7 +3367,7 @@ Return structured JSON:
     const promptProject = buildNameHygieneEnhancedProject(generationProject);
     // Anthology: each story is standalone — no previous chapter context for beats
     const previousChapter = isAnthologyProject(promptProject) ? null : chapterList.find((item) => item.chapter_number === chapter.chapter_number - 1);
-    const isNonfiction = promptProject.book_type === 'nonfiction';
+    const isNonfiction = isNonfictionProjectAuthority(promptProject);
     // Resolve previous chapter content from URL if needed
     const resolvedPrev = previousChapter ? { ...previousChapter, content_md: await resolveChapterContent(previousChapter) } : null;
     const schema = getSceneBeatSchema(promptProject);
@@ -3884,7 +3884,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     let emergencyWordCount = 0;
     // Determine which prose model to use (fiction only)
     // Priority: per-chapter override → global default → fallback constant
-    const isFiction = draftingProject.book_type !== 'nonfiction';
+    const isFiction = !isNonfictionProjectAuthority(draftingProject);
     const globalDefault = normalizeModelId(draftingProject.default_prose_model || settingsDrafts.default_prose_model) || DEFAULT_FICTION_PROSE_MODEL;
     const proseModelOverride = isFiction ? (normalizeModelId(modelOverride) || normalizeModelId(chapterProseModels[chapter.id]) || globalDefault) : undefined;
     const fastDraftOnly = options.fastDraftOnly === true;
@@ -3910,7 +3910,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
 
     // Scene-by-scene generation
     report(`Writing chapter ${chapter.chapter_number} scene by scene…`);
-    const isNonfiction = draftingProject.book_type === 'nonfiction';
+    const isNonfiction = isNonfictionProjectAuthority(draftingProject);
 
     // ── COVERAGE TRACKER INPUT ──
     // Build compact summaries of every chapter BEFORE this one so the LLM can
@@ -3953,7 +3953,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     
     // Verify compact parse and before-draft
     const parsedForDraft = typeof chapterWithBeats.scene_beats_json === 'string' ? JSON.parse(chapterWithBeats.scene_beats_json) : chapterWithBeats.scene_beats_json;
-    if (parsedForDraft?.pipeline_contract && !isAnthologyProject(generationProject) && generationProject.book_type !== 'nonfiction') {
+    if (parsedForDraft?.pipeline_contract && !isAnthologyProject(generationProject) && !isNonfictionProjectAuthority(generationProject)) {
        verifySceneProvenance(parsedForDraft.beats, parsedForDraft.pipeline_contract, 'before-generateChapterByScenes');
     }
 
@@ -4823,7 +4823,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
   // at missingCount > 0 would stop every draft; the banner's Auto-Research
   // Gaps button remains the primary path to close real gaps first.
   const coverageGateAllowsDrafting = (chaptersToCheck, label) => {
-    const isNonfictionMode = project?.book_type === 'nonfiction' || project?.project_type === 'nonfiction';
+    const isNonfictionMode = isNonfictionProjectAuthority(project);
     const gaps = [];
     for (const ch of chaptersToCheck) {
       const cov = researchCoverageCheck(ch, project);
@@ -4895,7 +4895,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     }
 
     const isAnthologyMode = project.project_type === 'anthology';
-    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isNonfictionMode = isNonfictionProjectAuthority(project);
     const isParallelMode = isAnthologyMode || isNonfictionMode;
     const total = remaining.length;
     const failures = [];
@@ -5042,7 +5042,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     }
 
     const isAnthologyMode = project.project_type === 'anthology';
-    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isNonfictionMode = isNonfictionProjectAuthority(project);
     const isParallelMode = isAnthologyMode || isNonfictionMode;
     const total = remaining.length;
     const failures = [];
@@ -5186,7 +5186,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
       return;
     }
 
-    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isNonfictionMode = isNonfictionProjectAuthority(project);
     const isAnthologyMode = project.project_type === 'anthology';
     const isParallelMode = isAnthologyMode || isNonfictionMode;
     const failures = [];
@@ -5295,7 +5295,7 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
     }
 
     const isAnthologyMode = project.project_type === 'anthology';
-    const isNonfictionMode = project.book_type === 'nonfiction' || project.project_type === 'nonfiction';
+    const isNonfictionMode = isNonfictionProjectAuthority(project);
     const isParallelMode = isAnthologyMode || isNonfictionMode;
     const total = draftedChaps.length;
     const useFastRewriteAll = true;
@@ -6775,7 +6775,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                     busyLabel={busyLabel}
                     lastSaved={chapterAutoSave.lastSaved}
                     onStop={handleStop}
-                    isFiction={project?.book_type !== 'nonfiction'}
+                    isFiction={!isNonfictionProjectAuthority(project)}
                     selectedProseModel={
                       normalizeModelId(
                         selectedChapter

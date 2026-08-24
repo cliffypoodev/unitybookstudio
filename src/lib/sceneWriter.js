@@ -256,8 +256,9 @@ function quickSceneEval(proseInput, spec, targetWords, project = {}) {
   }
 
   // SEVERE (nonfiction): invented names not present in research → blocking, retry
-  // NFCLASS-3: this was `project?.book_type === 'nonfiction'` — a raw, case-sensitive
-  // equality that ignored project_type entirely, while isNonfictionProject 2,800 lines
+  // NFCLASS-3: this was a raw, case-sensitive equality against project.book_type
+  // (checking only for the literal string "nonfiction") that ignored project_type
+  // entirely, while isNonfictionProject 2,800 lines
   // below in the same file used the authority. Divergence proven: a project declared
   // { project_type: 'nonfiction' } (a shape this app produces) drafted as nonfiction and
   // skipped every anti-fabrication gate. So did { book_type: 'Nonfiction' }.

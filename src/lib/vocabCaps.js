@@ -4,6 +4,7 @@
  */
 
 import { getSetting } from './settingsRead.js'; // WAVE5-SETTINGS
+import { isNonfictionProject } from './projectType.js'; // NFCLASS-6
 
 const CAPPED_VOCABULARY = [
   // Verified caps per user spec (per 10K words → approx per 100K at 10x)
@@ -77,7 +78,7 @@ export function runVocabCaps(loaded, onProgress, options = {}) {
   onProgress?.('Polish: Capping AI-favorite vocabulary…');
   const changes = [];
   let vocabCapped = 0;
-  const isNF = options?.project?.book_type === 'nonfiction';
+  const isNF = isNonfictionProject(options?.project);
 
   // Build fresh full text from CURRENT content (after prior steps mutated it)
   const fullText = loaded.map(f => f.content).join('\n\n');

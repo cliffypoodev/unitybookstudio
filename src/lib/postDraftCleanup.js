@@ -168,7 +168,8 @@ function getLastSentence(paragraph) {
 }
 
 // NFCLASS-2: this file used to carry its own opinion of what "nonfiction" means
-// (book_type === 'nonfiction' || project_type === 'nonfiction'). It disagreed with
+// (a raw equality check against book_type, with a project_type fallback, each
+// compared to the literal string "nonfiction"). It disagreed with
 // the authority in BOTH directions: it called a declared-fiction project carrying
 // project_type 'nonfiction' nonfiction, and it called { genre: 'Memoir' } with
 // nothing declared fiction. What hangs off this boolean is the NONFICTION RULES

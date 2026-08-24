@@ -3,6 +3,7 @@ import { RefreshCcw, Sparkles, BookOpen, Copyright, FlaskConical, Loader2 } from
 import { runFictionResearch } from '@/lib/fictionResearch';
 import { AI_FAVORITE_NAMES, getUsedCharacterNames, checkForBannedNames } from '@/lib/nameRegistry';
 import { isNonfictionProject } from '@/lib/manuscriptStats';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-6
 import MarkdownPanel from '@/components/novel/MarkdownPanel';
 import { Button } from '@/components/ui/button';
 import ResearchSection from '@/components/notebook/ResearchSection';
@@ -115,7 +116,7 @@ export default function FoundationTab({
           <SaveIndicator onSave={onSave} isSaving={isSaving} lastSaved={lastSaved} label="Save" className="sm:col-span-2 [&_button]:w-full" />
         </div>
 
-        {project.book_type === 'nonfiction' && (
+        {isNonfictionProjectAuthority(project) && (
           <ResearchSection
             researchData={researchData}
             onResearch={onResearch}
@@ -128,7 +129,7 @@ export default function FoundationTab({
         )}
 
         {/* Fiction Plausibility Research */}
-        {project.book_type !== 'nonfiction' && (
+        {!isNonfictionProjectAuthority(project) && (
           <FictionResearchPanel project={project} busyLabel={busyLabel} onResearchComplete={onRefreshAll} onResearchMdChange={(md) => onDocChange && onDocChange('research_md', md)} />
         )}
 

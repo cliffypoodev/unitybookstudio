@@ -1,5 +1,6 @@
 import { buildPovTenseBlock, SCENE_POV_RULES } from '@/lib/povTense';
 import { isNonfictionProject } from '@/lib/manuscriptStats';
+import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-6
 import { buildCondensedAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStylePrompt';
 import { buildSetupConstraints, enforceChapterCount } from '@/lib/setupConstraints';
 import { buildCraftInjection, getChapterOpeningInstruction, getChapterEndingInstruction } from '@/lib/proseQuality';
@@ -773,7 +774,7 @@ export function buildViolenceBeatInstructions(project) {
   const violence = Number(project.violence_level || 0);
   if (violence < 1) return '';
 
-  const isNF = project.book_type === 'nonfiction';
+  const isNF = isNonfictionProjectAuthority(project);
 
   const levels = {
     1: {
@@ -840,7 +841,7 @@ export function applyGenreDefaults(settings, genre) {
     tense: defaults.tense,
     beat_style: defaults.beat || '',
     scene_beat_style: defaults.beat || '',
-    nf_structure_mode: defaults.structure || (base.book_type === 'nonfiction' ? base.nf_structure_mode || 'prescriptive' : ''),
+    nf_structure_mode: defaults.structure || (isNonfictionProjectAuthority(base) ? base.nf_structure_mode || 'prescriptive' : ''),
     spice_level: defaults.spice ?? (base.book_type === 'fiction' ? 0 : 0),
     violence_level: defaults.violence ?? 0,
     erotica_register: defaults.register ?? 0,
@@ -853,7 +854,7 @@ export function applyGenreDefaults(settings, genre) {
 }
 
 export function buildProjectContextHeader(spec) {
-  const type = spec.book_type === 'nonfiction' ? 'NONFICTION' : 'FICTION';
+  const type = isNonfictionProjectAuthority(spec) ? 'NONFICTION' : 'FICTION';
   const parts = [
     `TYPE: ${type}`,
     `GENRE: ${spec.genre || 'General'}${spec.subgenre ? ' / ' + spec.subgenre : ''}`,
@@ -879,7 +880,7 @@ export function buildProjectContextHeader(spec) {
     const regNames = ['Literary', 'Natural', 'Vernacular', 'Raw'];
     parts.push(`REGISTER: ${regNames[spec.erotica_register]}`);
   }
-  if (spec.book_type === 'nonfiction' && spec.nf_structure_mode) {
+  if (isNonfictionProjectAuthority(spec) && spec.nf_structure_mode) {
     parts.push(`STRUCTURE: ${spec.nf_structure_mode.toUpperCase()}`);
   }
   parts.push(`CHAPTERS: ${spec.chapter_target || 20}`);
@@ -1160,7 +1161,7 @@ export const expandFoundationSchema = {
 };
 
 export function buildExpandFoundationPrompt(seedConcept, settings, options = {}) {
-  const isFiction = settings.book_type !== 'nonfiction';
+  const isFiction = !isNonfictionProjectAuthority(settings);
   const chapterCount = settings.chapter_target || 20;
   const constraintBlock = buildSetupConstraints(settings);
   const nameBlock = options.nameExclusionBlock || '';
@@ -1229,7 +1230,7 @@ Return JSON only.`;
 export function buildFoundationPrompt(project, options = {}) {
   const contextHeader = buildProjectContextHeader(project);
   const constraintBlock = buildSetupConstraints(project);
-  const isNonfiction = project.book_type === 'nonfiction';
+  const isNonfiction = isNonfictionProjectAuthority(project);
   const nameBlock = options.nameExclusionBlock || '';
   const researchBlock = isNonfiction && project.research_data
     ? `\n═══ VERIFIED RESEARCH DATA (use these real facts — do NOT invent) ═══\n${typeof project.research_data === 'string' ? project.research_data : JSON.stringify(project.research_data, null, 2)}\n═══ END RESEARCH ═══\n`
@@ -1250,7 +1251,7 @@ export function buildChapterPlanPrompt(project) {
   const contextHeader = buildProjectContextHeader(project);
   const constraintBlock = buildSetupConstraints(project);
   const chapterCount = project.chapter_target || 20;
-  const isNonfiction = project.book_type === 'nonfiction';
+  const isNonfiction = isNonfictionProjectAuthority(project);
   const researchBlock = isNonfiction && project.research_data
     ? `\n═══ VERIFIED RESEARCH DATA (reference real facts in chapter plans) ═══\n${typeof project.research_data === 'string' ? project.research_data.slice(0, 6000) : JSON.stringify(project.research_data, null, 2).slice(0, 6000)}\n═══ END RESEARCH ═══\n`
     : '';
@@ -1264,7 +1265,7 @@ export function buildChapterPlanPrompt(project) {
 
 export async function buildSceneBeatPrompt(project, chapter, previousChapter, chapters, priorCoverage = '') {
   // Nonfiction projects use the structured nonfiction beat system
-  if (project.book_type === 'nonfiction') {
+  if (isNonfictionProjectAuthority(project)) {
     return buildNonfictionBeatPrompt(project, chapter, previousChapter, chapters);
   }
 
@@ -1557,7 +1558,7 @@ Return JSON only.`;
 }
 
 export function getSceneBeatSchema(project) {
-  if (project?.book_type === 'nonfiction') return nonfictionBeatSchema;
+  if (isNonfictionProjectAuthority(project)) return nonfictionBeatSchema;
   return sceneBeatSchema;
 }
 
@@ -1576,7 +1577,7 @@ export function buildChapterPrompt(project, chapter, previousChapter, priorChapt
   // research here, with a hard sourcing rule, so it writes from the record.
   // Nonfiction only. This also counters the "paint every scene" pressure by
   // explicitly forbidding invented texture when the record is thin.
-  const researchBlock = project.book_type === 'nonfiction' && project.research_data
+  const researchBlock = isNonfictionProjectAuthority(project) && project.research_data
     ? `\n═══ VERIFIED RESEARCH — YOUR ONLY SOURCE OF REAL FACTS (use these; do NOT invent) ═══\n${(typeof project.research_data === 'string' ? project.research_data : JSON.stringify(project.research_data, null, 2)).slice(0, 14000)}\n═══ END RESEARCH ═══\n\nSOURCING RULE (NONFICTION — ABSOLUTE):\n- Every named document, ledger, record, dispatch, letter, telegram, newspaper, quotation, person, date, and place in your prose MUST come from the research above or the guides. If it is not there, do NOT write it as fact.\n- Do NOT invent documents, ledgers, dispatches, telegrams, newspaper editions, bale counts, box numbers, or dated archival entries to add texture. When the record is thin, write briefly and analytically and say plainly where the record is silent (for example: "no surviving record shows...").\n- NEVER attribute a quotation to a real person unless that exact quote appears in the research above.\n`
     : '';
 
@@ -1593,7 +1594,7 @@ export function buildChapterPrompt(project, chapter, previousChapter, priorChapt
   // Parses from project.canon_cast (explicit list) with fallback to
   // project.characters_md. Also emits project.deny_characters as FORBIDDEN.
   let castGateBlock = '';
-  if (project.book_type !== 'nonfiction') {
+  if (!isNonfictionProjectAuthority(project)) {
     const canonRaw = (project.canon_cast || '').trim();
     const denyRaw = (project.deny_characters || '').trim();
     const canonList = canonRaw ? canonRaw.split(/[,\n]+/).map(s => s.trim()).filter(Boolean) : [];
@@ -1617,9 +1618,9 @@ export function buildChapterPrompt(project, chapter, previousChapter, priorChapt
     }
   }
 
-  return `${MANDATORY_ENFORCEMENT_BLOCK}\n${eroticaBlocks}${contextHeader}\n\n${buildPovTenseBlock(project)}\n\n${buildCraftInjection(project.book_type)}\n${chapterOpeningRule}\n${chapterEndingRule}\n${coverageBlock}${castGateBlock}\nSCENE POV RULE:\n${scenePovRule}\n\n${buildAuthorVoiceInstruction(project)}\n${buildSpiceInstruction(project)}\n\n=== WORD COUNT ENFORCEMENT (CRITICAL) ===\nYou MUST write at least ${minWords} words and aim for ${targetWords} words.\nA chapter under 500 words is a STUB and is unacceptable — it means you summarized instead of writing prose.\nDo NOT write an outline, summary, or description of what happens. Write the FULL PROSE with dialogue, action, interiority, and scene-level detail.\nIf you find yourself writing less than ${minWords} words, EXPAND scenes with more dialogue, sensory detail, character interiority, and physical action.\n=== END WORD COUNT ENFORCEMENT ===\n\n=== OUTPUT FORMAT (MANDATORY — VIOLATIONS WILL BE STRIPPED) ===\nReturn ONLY prose in content_md. No preamble. No commentary.\nDo NOT include chapter title, number, or heading in content_md.\nDo NOT include scene headers or numbers. Only "* * *" between scenes.\nDo not start with "Here is..." or any assistant-style opening.\nDo not end with "Let me know if..." or any assistant-style closing.\nNo content warnings or disclaimers in output.\nNever output meta-commentary, checklists, or instructions.\nDo NOT use markdown headers (##, ###). Chapter titles go in the title field only.\nDo NOT use bold (**text**) or italic (*text*) markdown.\nWrite clean, unformatted prose. Scene breaks use only: * * *\n=== END OUTPUT FORMAT ===\n\n=== DIALOGUE TAGS — MANDATORY ===\nUse "said/says" no more than 4 times per chapter. For all other dialogue, use ACTION BEATS instead of tags.\nWRONG: "I don\'t trust him," Adam says.\nRIGHT: Adam sets down his glass. "I don\'t trust him."\nWRONG: "We need to leave," Lena says.\nRIGHT: Lena pulls her coat off the hook. "We need to leave."\nEvery dialogue line should be preceded or followed by a CHARACTER ACTION, not a "says" tag. This makes dialogue feel cinematic instead of scripted.\n=== END DIALOGUE TAGS ===\n\n=== DIALOGUE-FILLER PROHIBITION ===\nNEVER insert "yet", "then", "and", or "but" between an action beat and an opening dialogue quote. These create ungrammatical fragments.\nWRONG: Earl eyed them skeptically, yet "Y'all got money?"\nWRONG: Mira gasped, and "The dullness..."\nWRONG: They nodded, then "We need to go."\nRIGHT: Earl eyed them skeptically. "Y'all got money?"\nRIGHT: Mira gasped. "The dullness..."\nRIGHT: They nodded. "We need to go."\nThe action beat and the dialogue are two SEPARATE sentences. End the action with a period, start the dialogue with a capital letter.\n=== END DIALOGUE-FILLER PROHIBITION ===\n\nProject title: ${project.title}\nTagline: ${project.tagline}\nSeed concept: ${project.seed_concept}\n\nVoice guide:\n${clipText(project.voice_md, 1800)}\n\nWorld guide:\n${clipText(project.world_md, 2600)}\n\nCharacter / stakeholder guide:\n${clipText(project.characters_md, 2600)}\n\nOutline guide:\n${clipText(project.outline_md, 2600)}\n\nCanon guide:\n${clipText(project.canon_md, 1800)}\n${researchBlock}\nChapter plan:\nTitle: ${chapter.title}\nBeat summary: ${chapter.beat_summary}\n\n${chapter.scene_beats_json ? (project.book_type === 'nonfiction'
+  return `${MANDATORY_ENFORCEMENT_BLOCK}\n${eroticaBlocks}${contextHeader}\n\n${buildPovTenseBlock(project)}\n\n${buildCraftInjection(project.book_type)}\n${chapterOpeningRule}\n${chapterEndingRule}\n${coverageBlock}${castGateBlock}\nSCENE POV RULE:\n${scenePovRule}\n\n${buildAuthorVoiceInstruction(project)}\n${buildSpiceInstruction(project)}\n\n=== WORD COUNT ENFORCEMENT (CRITICAL) ===\nYou MUST write at least ${minWords} words and aim for ${targetWords} words.\nA chapter under 500 words is a STUB and is unacceptable — it means you summarized instead of writing prose.\nDo NOT write an outline, summary, or description of what happens. Write the FULL PROSE with dialogue, action, interiority, and scene-level detail.\nIf you find yourself writing less than ${minWords} words, EXPAND scenes with more dialogue, sensory detail, character interiority, and physical action.\n=== END WORD COUNT ENFORCEMENT ===\n\n=== OUTPUT FORMAT (MANDATORY — VIOLATIONS WILL BE STRIPPED) ===\nReturn ONLY prose in content_md. No preamble. No commentary.\nDo NOT include chapter title, number, or heading in content_md.\nDo NOT include scene headers or numbers. Only "* * *" between scenes.\nDo not start with "Here is..." or any assistant-style opening.\nDo not end with "Let me know if..." or any assistant-style closing.\nNo content warnings or disclaimers in output.\nNever output meta-commentary, checklists, or instructions.\nDo NOT use markdown headers (##, ###). Chapter titles go in the title field only.\nDo NOT use bold (**text**) or italic (*text*) markdown.\nWrite clean, unformatted prose. Scene breaks use only: * * *\n=== END OUTPUT FORMAT ===\n\n=== DIALOGUE TAGS — MANDATORY ===\nUse "said/says" no more than 4 times per chapter. For all other dialogue, use ACTION BEATS instead of tags.\nWRONG: "I don\'t trust him," Adam says.\nRIGHT: Adam sets down his glass. "I don\'t trust him."\nWRONG: "We need to leave," Lena says.\nRIGHT: Lena pulls her coat off the hook. "We need to leave."\nEvery dialogue line should be preceded or followed by a CHARACTER ACTION, not a "says" tag. This makes dialogue feel cinematic instead of scripted.\n=== END DIALOGUE TAGS ===\n\n=== DIALOGUE-FILLER PROHIBITION ===\nNEVER insert "yet", "then", "and", or "but" between an action beat and an opening dialogue quote. These create ungrammatical fragments.\nWRONG: Earl eyed them skeptically, yet "Y'all got money?"\nWRONG: Mira gasped, and "The dullness..."\nWRONG: They nodded, then "We need to go."\nRIGHT: Earl eyed them skeptically. "Y'all got money?"\nRIGHT: Mira gasped. "The dullness..."\nRIGHT: They nodded. "We need to go."\nThe action beat and the dialogue are two SEPARATE sentences. End the action with a period, start the dialogue with a capital letter.\n=== END DIALOGUE-FILLER PROHIBITION ===\n\nProject title: ${project.title}\nTagline: ${project.tagline}\nSeed concept: ${project.seed_concept}\n\nVoice guide:\n${clipText(project.voice_md, 1800)}\n\nWorld guide:\n${clipText(project.world_md, 2600)}\n\nCharacter / stakeholder guide:\n${clipText(project.characters_md, 2600)}\n\nOutline guide:\n${clipText(project.outline_md, 2600)}\n\nCanon guide:\n${clipText(project.canon_md, 1800)}\n${researchBlock}\nChapter plan:\nTitle: ${chapter.title}\nBeat summary: ${chapter.beat_summary}\n\n${chapter.scene_beats_json ? (isNonfictionProjectAuthority(project)
     ? `NONFICTION SECTION BEATS (you MUST follow this section-by-section structure):\n${chapter.scene_beats_json}\n\nCRITICAL: Write one section per beat above. Each section must:\n- Follow its assigned MODE (${Object.entries(NF_SECTION_MODES).map(([k, v]) => `${k}: ${v}`).join('; ')})\n- Accomplish its stated purpose and content_direction\n- Make its key_claim clearly\n- Open and close as directed (opens_with / closes_with)\n- Hit approximately its word_target\n- Respect fabrication_warnings — do NOT invent unsourced facts\nDo not skip, merge, or reorder sections.\n`
-    : `SCENE BEATS (you MUST follow this beat-by-beat structure):\n${chapter.scene_beats_json}\n\nCRITICAL: Write one scene per beat above. Each scene must accomplish its stated scene_goal, honor its pov_character, hit its emotional_arc, and end with its exit_hook. Do not skip, merge, or reorder beats.\n`) : ''}\nPrevious chapter excerpt:\n${previousChapter?.content_md?.slice(-1600) || 'No previous chapter yet.'}\n\nRequirements:\n- Write strong markdown prose with a chapter heading.\n- Write approximately ${targetWords} words.\n- Keep continuity with the existing canon and voice.\n- revision_notes should be 2 to 4 short bullet-style suggestions for the next pass.\n- score should be a realistic draft quality score from 6.0 to 9.5.\n- word_count should match the draft.\n${project.book_type === 'nonfiction' ? `- This is nonfiction. Do not invent unsupported facts.\n- Use the ${project.nf_structure_mode || 'prescriptive'} pattern: ${structureMode?.pattern || 'Framework → Evidence → Application → Takeaway'}.\n- ${structureMode?.chapterPrompt || 'Write with clarity and evidentiary discipline.'}` : `- Match the requested genre promise and beat style: ${project.beat_style || project.scene_beat_style || 'Not specified'}.\n- For third-multi POV, preserve single-POV scenes and mark POV shifts with scene breaks when needed.\n- End with forward momentum.`}\n\nReturn only structured data matching the requested schema.`;
+    : `SCENE BEATS (you MUST follow this beat-by-beat structure):\n${chapter.scene_beats_json}\n\nCRITICAL: Write one scene per beat above. Each scene must accomplish its stated scene_goal, honor its pov_character, hit its emotional_arc, and end with its exit_hook. Do not skip, merge, or reorder beats.\n`) : ''}\nPrevious chapter excerpt:\n${previousChapter?.content_md?.slice(-1600) || 'No previous chapter yet.'}\n\nRequirements:\n- Write strong markdown prose with a chapter heading.\n- Write approximately ${targetWords} words.\n- Keep continuity with the existing canon and voice.\n- revision_notes should be 2 to 4 short bullet-style suggestions for the next pass.\n- score should be a realistic draft quality score from 6.0 to 9.5.\n- word_count should match the draft.\n${isNonfictionProjectAuthority(project) ? `- This is nonfiction. Do not invent unsupported facts.\n- Use the ${project.nf_structure_mode || 'prescriptive'} pattern: ${structureMode?.pattern || 'Framework → Evidence → Application → Takeaway'}.\n- ${structureMode?.chapterPrompt || 'Write with clarity and evidentiary discipline.'}` : `- Match the requested genre promise and beat style: ${project.beat_style || project.scene_beat_style || 'Not specified'}.\n- For third-multi POV, preserve single-POV scenes and mark POV shifts with scene breaks when needed.\n- End with forward momentum.`}\n\nReturn only structured data matching the requested schema.`;
 }
 
 export function buildEvaluationPrompt(project, chapters) {
@@ -1634,7 +1635,7 @@ export function buildEvaluationPrompt(project, chapters) {
     .map((chapter) => `Chapter ${chapter.chapter_number}: ${chapter.title}\n${clipText(chapter.content_md, 1400)}`)
     .join('\n\n');
 
-  return `${contextHeader}\n\nEvaluate this AutoNovel-style project like a strict developmental editor.\n\nProject title: ${project.title}\nTagline: ${project.tagline}\nCurrent phase: ${project.phase}\n\nFoundation excerpts:\nWorld:\n${clipText(project.world_md, 1200)}\n\nCharacters / stakeholders:\n${clipText(project.characters_md, 1200)}\n\nOutline:\n${clipText(project.outline_md, 1200)}\n\nDrafted chapters:\n${draftedChapters || 'No drafted chapters yet.'}\n\nScoring rules:\n- Penalize drift from the selected genre, POV, tense, and author-voice intent.\n- Deduct heavily for tense drift, POV breaks, clinical descriptors, and second-person intrusion in non-second-person narration.\n- Penalize failure to honor the requested beat style or nonfiction structure mode.\n- Penalize chapters that repeatedly land below ${lowTarget} or above ${highTarget} words.\n${project.book_type === 'nonfiction' ? '- Penalize unsupported claims, weak evidence logic, and vague sourcing discipline.' : '- Penalize flat pacing, weak emotional escalation, or inconsistent intimacy settings.'}\n\nReturn:\n- novel_score from 1 to 10\n- foundation_score from 1 to 10\n- current_focus as the single most important next move\n- arc_summary_md as a concise markdown summary of the story so far\n- notes as a concise editorial assessment with strengths and weaknesses`;
+  return `${contextHeader}\n\nEvaluate this AutoNovel-style project like a strict developmental editor.\n\nProject title: ${project.title}\nTagline: ${project.tagline}\nCurrent phase: ${project.phase}\n\nFoundation excerpts:\nWorld:\n${clipText(project.world_md, 1200)}\n\nCharacters / stakeholders:\n${clipText(project.characters_md, 1200)}\n\nOutline:\n${clipText(project.outline_md, 1200)}\n\nDrafted chapters:\n${draftedChapters || 'No drafted chapters yet.'}\n\nScoring rules:\n- Penalize drift from the selected genre, POV, tense, and author-voice intent.\n- Deduct heavily for tense drift, POV breaks, clinical descriptors, and second-person intrusion in non-second-person narration.\n- Penalize failure to honor the requested beat style or nonfiction structure mode.\n- Penalize chapters that repeatedly land below ${lowTarget} or above ${highTarget} words.\n${isNonfictionProjectAuthority(project) ? '- Penalize unsupported claims, weak evidence logic, and vague sourcing discipline.' : '- Penalize flat pacing, weak emotional escalation, or inconsistent intimacy settings.'}\n\nReturn:\n- novel_score from 1 to 10\n- foundation_score from 1 to 10\n- current_focus as the single most important next move\n- arc_summary_md as a concise markdown summary of the story so far\n- notes as a concise editorial assessment with strengths and weaknesses`;
 }
 
 export const chapterReviewSchema = {
@@ -1735,7 +1736,7 @@ Return JSON only.`;
 }
 
 export function buildCoverPrompt(project) {
-  const typeDescriptor = project.book_type === 'nonfiction' ? 'premium nonfiction book' : 'premium fiction book';
+  const typeDescriptor = isNonfictionProjectAuthority(project) ? 'premium nonfiction book' : 'premium fiction book';
 
   return `Design a sophisticated cover for a ${typeDescriptor} titled "${project.title}"${project.author_name ? ` by ${project.author_name}` : ''}.\n\nGenre: ${project.genre || 'General'}\nTagline: ${project.tagline}\nSeed concept: ${project.seed_concept}\n\nArt direction:\n- elegant, premium publishing feel\n- moody, atmospheric composition\n- symbolic imagery over literal scene recreation\n- rich texture and strong shelf presence\n- no mockup, only cover artwork\n- no readable text baked into the image`;
 }

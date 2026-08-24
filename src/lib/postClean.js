@@ -3,6 +3,8 @@
  * Every function here is pure regex / string manipulation. The model gets no vote.
  */
 
+import { isNonfictionProject } from '@/lib/projectType'; // NFCLASS-6
+
 // ── 1. Strip formatting artifacts ──────────────────────────────────────────
 
 function stripMarkdownHeaders(text) {
@@ -476,7 +478,7 @@ function extractKnownNames(project, chapter) {
  * @returns {{ text: string, compositeNames: string[] }}
  */
 export function labelCompositeCharacters(text, project, chapter) {
-  if (!text || project?.book_type !== 'nonfiction') return { text, compositeNames: [] };
+  if (!text || !isNonfictionProject(project)) return { text, compositeNames: [] };
 
   const knownNames = extractKnownNames(project, chapter);
   const proseNames = text.match(/\b[A-Z][a-z]+ [A-Z][a-z]+\b/g) || [];
