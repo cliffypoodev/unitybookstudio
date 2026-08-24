@@ -607,43 +607,25 @@ export function runBrokenSentenceFixes(loaded, onProgress) {
  * Mutates loaded[].content in place.
  */
 export function runCopingMechanismCaps(loaded, onProgress) {
-  onProgress?.('Polish: Capping recurring actions…');
+  onProgress?.('Polish: Scanning recurring actions…');
   const changes = [];
-  let copingFixed = 0;
+  // POLISHSAFE-4: deletion retired — outside rule 0.2/2's whitelist.
+  // Flag-only now; loaded[].content is never mutated here.
+  const copingFixed = 0;
 
   const copingText = loaded.map(f => f.content).join(' ');
   const copingWords = copingText.split(/\s+/).filter(Boolean).length;
 
   const copingCaps = [
-    {
-      pattern: /\b(?:rubbed?|rubbing)\s+(?:her|his)\s+(?:palm|thumb|hand|wrist)\b/gi,
-      max: 0.5,
-      label: 'palm/thumb rubbing',
-    },
-    {
-      pattern: /\b(?:her|his)\s+(?:calloused?|callused?)\s+(?:palm|ridge|hand|thumb)\b/gi,
-      max: 0.3,
-      label: 'calloused palm/ridge',
-    },
-    {
-      pattern: /\b(?:the|her|his)\s+internal\s+ledger\b/gi,
-      max: 0.3,
-      label: 'ledger metaphor',
-    },
-    {
-      pattern: /\b(?:the|her|his)\s+(?:internal\s+)?(?:machine|mechanism)\s+(?:re-?engaged|engaged|clicked|turned|kicked|whirred|hummed)\b/gi,
-      max: 0.5,
-      label: 'machine metaphor',
-    },
-    {
-      pattern: /\b(?:tasted?|taste of)\s+(?:copper|blood|iron|metal)\b/gi,
-      max: 0.5,
-      label: 'taste of copper/blood',
-    },
+    { pattern: /\b(?:rubbed?|rubbing)\s+(?:her|his)\s+(?:palm|thumb|hand|wrist)\b/gi, max: 0.5, label: 'palm/thumb rubbing' },
+    { pattern: /\b(?:her|his)\s+(?:calloused?|callused?)\s+(?:palm|ridge|hand|thumb)\b/gi, max: 0.3, label: 'calloused palm/ridge' },
+    { pattern: /\b(?:the|her|his)\s+internal\s+ledger\b/gi, max: 0.3, label: 'ledger metaphor' },
+    { pattern: /\b(?:the|her|his)\s+(?:internal\s+)?(?:machine|mechanism)\s+(?:re-?engaged|engaged|clicked|turned|kicked|whirred|hummed)\b/gi, max: 0.5, label: 'machine metaphor' },
+    { pattern: /\b(?:tasted?|taste of)\s+(?:copper|blood|iron|metal)\b/gi, max: 0.5, label: 'taste of copper/blood' },
   ];
 
+  const allText = loaded.map(f => f.content).join('\n\n');
   for (const entry of copingCaps) {
-    const allText = loaded.map(f => f.content).join('\n\n');
     const matches = allText.match(entry.pattern);
     if (!matches) continue;
 
@@ -652,40 +634,10 @@ export function runCopingMechanismCaps(loaded, onProgress) {
     if (count <= maxAllowed) continue;
 
     const excess = count - maxAllowed;
-    let instanceCount = 0;
-    let removed = 0;
-
-    console.log('[POLISH] Coping cap "' + entry.label + '": ' + count + ' found, max: ' + maxAllowed + ', removing: ' + excess);
-
-    for (const f of loaded) {
-      if (removed >= excess) break;
-      f.content = f.content.replace(entry.pattern, (match) => {
-        instanceCount++;
-        if (instanceCount <= maxAllowed) return match;
-        if (removed >= excess) return match;
-        removed++;
-        copingFixed++;
-        return '';
-      });
-    }
-
-    // Clean artifacts from removal
-    for (const f of loaded) {
-      f.content = f.content.replace(/  +/g, ' ');
-      f.content = f.content.replace(/ ,/g, ',');
-      f.content = f.content.replace(/\.\s*\./g, '.');
-      f.content = f.content.replace(/,\s*,/g, ',');
-    }
-
-    if (removed > 0) {
-      changes.push(entry.label + ': ' + count + ' → ' + maxAllowed + ' (' + removed + ' removed)');
-    }
+    console.log('[POLISH] Coping cap "' + entry.label + '": ' + count + ' found, max: ' + maxAllowed + ', flagging: ' + excess);
+    changes.push(entry.label + ': ' + count + ' found, ' + maxAllowed + ' allowed, ' + excess + ' flagged - deletion retired (POLISHSAFE-4)');
   }
 
-  if (copingFixed > 0) {
-    changes.push('Coping mechanism tics capped: ' + copingFixed);
-    console.log('[POLISH] Coping mechanisms capped:', copingFixed);
-  }
   return { copingFixed, changes };
 }
 

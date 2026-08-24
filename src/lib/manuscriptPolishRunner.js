@@ -264,19 +264,19 @@ export async function runManuscriptPolishPipeline({
 
   // A1: Banned vocabulary — POLISHSAFE-4: synonym substitution retired, flag-only.
   onProgress('Polish: Scanning banned vocabulary…');
-  let bannedFlaggedCount = 0;
+  let bannedRecastCount = 0;
   for (const f of loaded) {
     const result = recastBannedVocabulary(f.content);
     if (result.flagged.length > 0) {
       const chNum = f.chapter?.chapter_number || '?';
       for (const fl of result.flagged) {
-        bannedFlaggedCount += fl.count;
+        bannedRecastCount += fl.count;
         changes.push(`Ch.${chNum}: BANNED "${fl.word}" x${fl.count} flagged - substitution retired (POLISHSAFE-4)`);
       }
     }
   }
-  if (bannedFlaggedCount > 0) {
-    changes.push(`Banned vocabulary: ${bannedFlaggedCount} word(s) flagged - substitution retired (POLISHSAFE-4).`);
+  if (bannedRecastCount > 0) {
+    changes.push(`Banned vocabulary: ${bannedRecastCount} word(s) flagged - substitution retired (POLISHSAFE-4).`);
   }
   verifyInvariant('Banned Vocabulary Recast');
 
@@ -1540,79 +1540,46 @@ export async function runManuscriptPolishPipeline({
 // ═══════════════════════════════════════════════════════════════════════════
 // Helper: Repetition caps (extracted from ProjectStudio inline)
 // ═══════════════════════════════════════════════════════════════════════════
+// POLISHSAFE-4: scan repeated word/phrase overuse and FLAG the excess —
+// never substitute or delete. loaded[].content is never mutated here.
 function runRepetitionCaps(loaded, { isAnthology, isComedy, chapterCount, changes }) {
   const targets = [
-    { pattern: /\bthe loop\b/gi, name: 'the loop', maxBase: 20, perChapter: 1, replacements: ['the cycle','the recursion','the reset','the pattern'] },
-    { pattern: /\bshuddered\b/gi, name: 'shuddered', maxBase: 6, perChapter: 0.3, replacements: ['trembled','flinched','stiffened','shook','went rigid'] },
-    { pattern: /\bthe silence\b/gi, name: 'the silence', maxBase: 8, perChapter: 0.4, replacements: ['the quiet','the stillness','the hush','the dead air'] },
-    { pattern: /\bthe bond\b/gi, name: 'the bond', maxBase: 8, perChapter: 0.4, replacements: ['the link','the tether','the connection','the thread','it'] },
-    { pattern: /\bthe darkness\b/gi, name: 'the darkness', maxBase: 8, perChapter: 0.4, replacements: ['the gloom','the shadow','the black','the dark'] },
-    { pattern: /\bwhispered\b/gi, name: 'whispered', maxBase: 12, perChapter: 0.5, replacements: ['murmured','breathed','said softly'] },
-    { pattern: /\bexhaled\b/gi, name: 'exhaled', maxBase: 6, perChapter: 0.3, replacements: ['breathed out','let out a breath','released a breath'] },
-    { pattern: /\bclenched\b/gi, name: 'clenched', maxBase: 10, perChapter: 0.5, replacements: ['tightened','curled','balled','gripped'] },
-    { pattern: /\bthe scent of\b/gi, name: 'the scent of', maxBase: 6, perChapter: 0.3, replacements: ['the smell of','the odor of','the tang of'] },
-    { pattern: /\beyes met\b/gi, name: 'eyes met', maxBase: 6, perChapter: 0.3, replacements: ['gazes locked','gazes caught'] },
-    { pattern: /\bsuddenly\b/gi, name: 'suddenly', maxBase: 6, perChapter: 0.3, replacements: [] },
-    { pattern: /\bsomehow\b/gi, name: 'somehow', maxBase: isComedy ? 12 : 4, perChapter: isComedy ? 0.6 : 0.2, replacements: [] },
+    { pattern: /\bthe loop\b/gi, name: 'the loop', maxBase: 20, perChapter: 1 },
+    { pattern: /\bshuddered\b/gi, name: 'shuddered', maxBase: 6, perChapter: 0.3 },
+    { pattern: /\bthe silence\b/gi, name: 'the silence', maxBase: 8, perChapter: 0.4 },
+    { pattern: /\bthe bond\b/gi, name: 'the bond', maxBase: 8, perChapter: 0.4 },
+    { pattern: /\bthe darkness\b/gi, name: 'the darkness', maxBase: 8, perChapter: 0.4 },
+    { pattern: /\bwhispered\b/gi, name: 'whispered', maxBase: 12, perChapter: 0.5 },
+    { pattern: /\bexhaled\b/gi, name: 'exhaled', maxBase: 6, perChapter: 0.3 },
+    { pattern: /\bclenched\b/gi, name: 'clenched', maxBase: 10, perChapter: 0.5 },
+    { pattern: /\bthe scent of\b/gi, name: 'the scent of', maxBase: 6, perChapter: 0.3 },
+    { pattern: /\beyes met\b/gi, name: 'eyes met', maxBase: 6, perChapter: 0.3 },
+    { pattern: /\bsuddenly\b/gi, name: 'suddenly', maxBase: 6, perChapter: 0.3 },
+    { pattern: /\bsomehow\b/gi, name: 'somehow', maxBase: isComedy ? 12 : 4, perChapter: isComedy ? 0.6 : 0.2 },
   ];
 
-  let repFixed = 0;
+  const repFixed = 0;
 
   if (isAnthology) {
-    // Per-chapter independent caps
     for (const f of loaded) {
       for (const t of targets) {
         const matches = f.content.match(t.pattern);
-        if (!matches || matches.length <= Math.max(2, t.maxBase / 10)) continue;
+        if (!matches) continue;
         const maxThis = Math.max(2, Math.round(t.maxBase / 10));
-        const excess = matches.length - maxThis;
-        let instIdx = 0; let chReplaced = 0; let repIdx = 0;
-        f.content = f.content.replace(t.pattern, (match) => {
-          instIdx++;
-          if (instIdx <= maxThis || chReplaced >= excess) return match;
-          chReplaced++; repFixed++;
-          if (t.replacements.length === 0) return '';
-          const rep = t.replacements[repIdx++ % t.replacements.length];
-          return match[0] === match[0].toUpperCase() ? rep.charAt(0).toUpperCase() + rep.slice(1) : rep;
-        });
-        f.content = f.content.replace(/  +/g, ' ');
-        if (chReplaced > 0) changes.push(`Ch.${f.chapter?.chapter_number || '?'}: replaced ${chReplaced}x "${t.name}"`);
+        if (matches.length <= maxThis) continue;
+        changes.push(`Ch.${f.chapter?.chapter_number || '?'}: "${t.name}" ${matches.length} found, ${maxThis} allowed, ${matches.length - maxThis} flagged - substitution retired (POLISHSAFE-4)`);
       }
     }
   } else {
-    // Novel mode: global repetition caps
     const allText = loaded.map(f => f.content).join('\n\n');
     for (const t of targets) {
       const total = (allText.match(t.pattern) || []).length;
       const cap = Math.round(Math.max(t.maxBase, chapterCount * t.perChapter));
       if (total <= cap) continue;
-      const excess = total - cap;
-      let replaced = 0;
-
-      const chCounts = loaded.map((f, idx) => ({ idx, count: (f.content.match(t.pattern) || []).length }))
-        .sort((a, b) => b.count - a.count);
-
-      for (const cc of chCounts) {
-        if (replaced >= excess) break;
-        if (cc.count <= 1) continue;
-        const f = loaded[cc.idx];
-        let instIdx = 0; let chReplaced = 0; let repIdx = 0;
-        const maxThis = Math.min(cc.count - 1, excess - replaced);
-        f.content = f.content.replace(t.pattern, (match) => {
-          instIdx++;
-          if (instIdx <= 1 || chReplaced >= maxThis) return match;
-          chReplaced++; replaced++; repFixed++;
-          if (t.replacements.length === 0) return '';
-          const rep = t.replacements[repIdx++ % t.replacements.length];
-          return rep === '' ? '' : (match[0] === match[0].toUpperCase() ? rep.charAt(0).toUpperCase() + rep.slice(1) : rep);
-        });
-        f.content = f.content.replace(/  +/g, ' ');
-        if (chReplaced > 0) changes.push(`Ch.${f.chapter?.chapter_number || '?'}: replaced ${chReplaced}x "${t.name}"`);
-      }
+      changes.push(`"${t.name}": ${total} found, ${cap} allowed, ${total - cap} flagged - substitution retired (POLISHSAFE-4)`);
     }
   }
 
-  if (repFixed > 0) changes.push(`Repetition caps: ${repFixed} replacements.`);
   return { repFixed };
 }
 

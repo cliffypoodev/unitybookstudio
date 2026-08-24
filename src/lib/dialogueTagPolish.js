@@ -7,9 +7,11 @@
  * @returns {{ dialogueTagsFixed: number, breathFixed: number, changes: string[] }}
  */
 export function runDialogueTagCaps(loaded, onProgress) {
-  onProgress?.('Polish: Capping dialogue tags…');
+  onProgress?.('Polish: Scanning dialogue tags…');
   const changes = [];
-  let dialogueTagsFixed = 0;
+  // POLISHSAFE-4: word-substitution retired — outside rule 0.2/2's
+  // whitelist. Flag-only now; loaded[].content is never mutated here.
+  const dialogueTagsFixed = 0;
 
   const allChapterText = loaded.map(f => f.content).join(' ');
   const totalWordCount = allChapterText.split(/\s+/).filter(Boolean).length;
@@ -19,70 +21,39 @@ export function runDialogueTagCaps(loaded, onProgress) {
   // Hard caps: breathed max 3/manuscript, murmured max 5/manuscript
   // Other tags use per-10K-word proportional caps
   const tagCaps = [
-    { word: 'breathed', maxFixed: 3, replacements: ['said quietly', 'said softly', 'whispered', 'murmured', 'said'] },
-    { word: 'murmured', maxFixed: 5, replacements: ['said quietly', 'said', 'replied softly'] },
-    { word: 'whispered', max: 1.5, replacements: ['said quietly', 'said, low', 'said', 'murmured'] },
-    { word: 'hissed', max: 0.5, replacements: ['said', 'snapped', 'said through clenched teeth', 'bit out'] },
-    { word: 'growled', max: 0.5, replacements: ['said', 'snapped', 'said, rough', 'grated'] },
-    { word: 'snarled', max: 0.3, replacements: ['snapped', 'said', 'bit out', 'shot back'] },
+    { word: 'breathed', maxFixed: 3 },
+    { word: 'murmured', maxFixed: 5 },
+    { word: 'whispered', max: 1.5 },
+    { word: 'hissed', max: 0.5 },
+    { word: 'growled', max: 0.5 },
+    { word: 'snarled', max: 0.3 },
   ];
 
   const actionCaps = [
-    { word: 'swallowed', max: 1.0, replacements: ['paused', 'hesitated', 'stopped', 'went still', 'held the thought'] },
-    { word: 'exhaled', max: 0.8, replacements: ['let out a breath', 'breathed out', 'steadied', 'released the tension'] },
-    { word: 'inhaled', max: 0.8, replacements: ['drew a breath', 'breathed in', 'steadied', 'filled her lungs'] },
-    { word: 'shuddered', max: 0.5, replacements: ['flinched', 'went rigid', 'stiffened', 'felt it move through her'] },
-    { word: 'trembled', max: 0.5, replacements: ['shook', 'wavered', 'unsteadied', 'went unsteady'] },
+    { word: 'swallowed', max: 1.0 },
+    { word: 'exhaled', max: 0.8 },
+    { word: 'inhaled', max: 0.8 },
+    { word: 'shuddered', max: 0.5 },
+    { word: 'trembled', max: 0.5 },
   ];
 
   const allCaps = [...tagCaps, ...actionCaps];
+  const globalText = loaded.map(f => f.content).join('\n\n');
 
   for (const entry of allCaps) {
     const regex = new RegExp('\\b' + entry.word + '\\b', 'gi');
-    const globalText = loaded.map(f => f.content).join('\n\n');
     const matches = globalText.match(regex);
     if (!matches) continue;
 
     const count = matches.length;
-    // Use fixed cap if defined, otherwise proportional
     const maxAllowed = entry.maxFixed
       ? entry.maxFixed
       : Math.max(2, Math.round(entry.max * totalWordCount / 10000));
     if (count <= maxAllowed) continue;
 
     const excess = count - maxAllowed;
-    let instanceCount = 0;
-    let removed = 0;
-
     console.log('[POLISH][DTAG] "' + entry.word + '": found=' + count + ', maxAllowed=' + maxAllowed + ', excess=' + excess);
-
-    for (const f of loaded) {
-      if (removed >= excess) break;
-      const chRegex = new RegExp('\\b' + entry.word + '\\b', 'gi');
-      f.content = f.content.replace(chRegex, (match) => {
-        instanceCount++;
-        if (instanceCount <= maxAllowed) return match;
-        if (removed >= excess) return match;
-        removed++;
-        dialogueTagsFixed++;
-        const alt = entry.replacements[removed % entry.replacements.length];
-        if (match.charAt(0) === match.charAt(0).toUpperCase()) {
-          return alt.charAt(0).toUpperCase() + alt.slice(1);
-        }
-        return alt;
-      });
-    }
-
-    if (removed > 0) {
-      changes.push('"' + entry.word + '": ' + count + ' → ' + maxAllowed + ' (' + removed + ' replaced)');
-    }
-  }
-
-  if (dialogueTagsFixed > 0) {
-    changes.push('Dialogue tags/actions capped: ' + dialogueTagsFixed + ' replacements');
-    console.log('[POLISH][DTAG] Total capped:', dialogueTagsFixed);
-  } else {
-    console.log('[POLISH][DTAG] No dialogue tags exceeded caps');
+    changes.push('"' + entry.word + '": ' + count + ' found, ' + maxAllowed + ' allowed, ' + excess + ' flagged - substitution retired (POLISHSAFE-4)');
   }
 
   // ── Breath-stem frequency cap ──
