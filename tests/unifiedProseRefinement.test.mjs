@@ -16,18 +16,25 @@ function assert(condition, name) {
 // ═══════════════════════════════════════════════════════════════════════════
 console.log('\n── Group 1: Hard Mechanical Defects ──');
 
-// Test 1: 'Was was biometric autonomy' → 'Was' removes duplicate
+// POLISHSAFE-4: subject-verb agreement substitution ("Was was" -> "Was",
+// "She were" -> "She was") is retired to flag-only — outside rule 0.2/2's
+// whitelist. Tests 1-2 now assert the defect is surfaced (flagged and/or
+// the quality gate blocks) instead of silently substituted.
+
+// Test 1: 'Was was biometric autonomy' is flagged, not silently fixed
 {
   const result = runUnifiedProseRefinement({ text: 'Was was biometric autonomy trending upward' });
-  const hasDouble = /\bWas\s+was\b/i.test(result.text);
-  assert(!hasDouble, "1. 'Was was biometric autonomy' → 'Was' removes duplicate");
+  const stillPresent = /\bWas\s+was\b/i.test(result.text);
+  const surfaced = result.blocked || result.warnings.some(w => w.includes('malformed-grammar'));
+  assert(stillPresent && surfaced, "1. 'Was was biometric autonomy' is flagged (substitution retired), not silently fixed");
 }
 
-// Test 2: 'She were carrying the documents' → 'She was carrying the documents'
+// Test 2: 'She were carrying the documents' is flagged, not silently fixed
 {
   const result = runUnifiedProseRefinement({ text: 'She were carrying the documents through the hallway to the office.' });
-  const fixed = /She was carrying/i.test(result.text) || result.repairs.some(r => r.rule && r.rule.includes('she-were'));
-  assert(fixed, "2. 'She were carrying the documents' → 'She was carrying the documents' (fix or block)");
+  const stillPresent = /She were carrying/i.test(result.text);
+  const surfaced = result.blocked || result.warnings.some(w => w.includes('malformed-grammar'));
+  assert(stillPresent && surfaced, "2. 'She were carrying the documents' is flagged (substitution retired), not silently fixed");
 }
 
 // Test 3: Valid subjunctive 'If Marcus were to leave' is NOT flagged
@@ -243,14 +250,17 @@ console.log('\n── Group 6: Cross-Genre ──');
 console.log('\n── Group 7: Mode Tests ──');
 
 // Test 24: mode='surface-only' only runs phases 1-4 (no slop reduction)
+// POLISHSAFE-4: "Was was" mechanical repair is retired (flag-only, see tests
+// 1-2 above) \u2014 surface-only mode's contract is now "flags it, doesn't fix
+// it, and doesn't run slop reduction," not "silently fixes it."
 {
   const input = 'Was was the record clear now. She realized that the weight of the realization settled over her completely. She felt the palpable tension. The system wasn\u2019t just measuring grief. Something shifted in the stale air. Luminous screens flickered overhead.';
   const surfaceResult = runUnifiedProseRefinement({ text: input, mode: 'surface-only' });
-  // Surface-only should fix mechanical issues (phase 1-4) but skip slop reduction (phase 5+)
-  const surfaceFixedMechanical = !(/\bWas\s+was\b/i.test(surfaceResult.text));
+  // Surface-only should flag mechanical issues (phase 1-4) but skip slop reduction (phase 5+)
+  const surfaceFlaggedMechanical = surfaceResult.warnings.some(w => w.includes('malformed-grammar'));
   const noSlopRepairs = !surfaceResult.repairs.some(r => r.rule && r.rule.startsWith('slop-'));
   const noRecastRepairs = !surfaceResult.repairs.some(r => r.rule === 'sentence-recast');
-  assert(surfaceFixedMechanical && noSlopRepairs && noRecastRepairs, "24. mode='surface-only' only runs phases 1-4 (no slop reduction)");
+  assert(surfaceFlaggedMechanical && noSlopRepairs && noRecastRepairs, "24. mode='surface-only' flags mechanical issues (phase 1-4), skips slop reduction (phase 5+)");
 }
 
 // Test 25: mode='detect-only' returns original text unchanged but reports metrics

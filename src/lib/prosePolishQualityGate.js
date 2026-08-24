@@ -244,64 +244,41 @@ export function runProsePolishQualityGate(text, options = {}) {
 // ─── DETERMINISTIC GRAMMAR REPAIR ───────────────────────────────────────────
 
 /**
- * Automatically repair deterministic grammar issues.
- * Does NOT repair ambiguous cases (You was, She/He was it).
+ * Repair the one deterministic grammar issue rule 0.2/2 allows (a/an
+ * agreement). Every other subject-verb agreement shape this used to silently
+ * fix (She were -> She was, They was -> They were, Was was -> Was, etc.) is
+ * POLISHSAFE-4 flag-only now — it is malformed grammar the shared canary
+ * detector (manuscriptSafetyGate.js) already surfaces via the quality gate's
+ * BLOCK_POLISH_SAVE path; this function no longer silently substitutes it.
  *
  * @param {string} text
- * @returns {{ text: string, repairs: Array<{original, replacement, context}> }}
+ * @returns {{ text: string, repairs: Array<{original, replacement, context}>, flagged: Array<{id, match, context}> }}
  */
 export function runDeterministicGrammarRepair(text) {
   const repairs = [];
+  const flagged = [];
   let result = text;
 
   const REPAIR_RULES = [
-    {
-      id: 'she-were',
-      find: /\bShe were\b/gi,
-      replace: (m, idx, src) => {
-        if (isSubjunctiveContext(src, idx)) return m; // keep subjunctive
-        return m[0] === 'S' ? 'She was' : 'she was';
-      },
-    },
-    {
-      id: 'he-were',
-      find: /\bHe were\b/gi,
-      replace: (m, idx, src) => {
-        if (isSubjunctiveContext(src, idx)) return m;
-        return m[0] === 'H' ? 'He was' : 'he was';
-      },
-    },
-    {
-      id: 'they-was',
-      find: /\bThey was\b/gi,
-      replace: (m) => (m[0] === 'T' ? 'They were' : 'they were'),
-    },
-    {
-      id: 'was-was',
-      find: /\bWas was\b/gi,
-      replace: (m) => (m[0] === 'W' ? 'Was' : 'was'),
-    },
     {
       id: 'a-obvious',
       find: /\ba obvious\b/gi,
       replace: (m) => (m[0] === 'A' ? 'An obvious' : 'an obvious'),
     },
-    {
-      id: 'were-was',
-      find: /\bwere was\b/gi,
-      replace: () => 'was',
-    },
-    {
-      id: 'was-were',
-      find: /\bwas were\b/gi,
-      replace: () => 'were',
-    },
+  ];
+
+  const FLAG_ONLY_RULES = [
+    { id: 'she-were', find: /\bShe were\b/gi, subjunctiveGuard: true },
+    { id: 'he-were', find: /\bHe were\b/gi, subjunctiveGuard: true },
+    { id: 'they-was', find: /\bThey was\b/gi },
+    { id: 'was-was', find: /\bWas was\b/gi },
+    { id: 'were-was', find: /\bwere was\b/gi },
+    { id: 'was-were', find: /\bwas were\b/gi },
   ];
 
   for (const rule of REPAIR_RULES) {
     rule.find.lastIndex = 0;
     result = result.replace(rule.find, function (matched, ...args) {
-      // The offset is the second-to-last argument for String.replace
       const offset = args[args.length - 2];
       const source = args[args.length - 1];
       const replacement = rule.replace(matched, offset, source);
@@ -317,7 +294,16 @@ export function runDeterministicGrammarRepair(text) {
     });
   }
 
-  return { text: result, repairs };
+  for (const rule of FLAG_ONLY_RULES) {
+    rule.find.lastIndex = 0;
+    let m;
+    while ((m = rule.find.exec(result)) !== null) {
+      if (rule.subjunctiveGuard && isSubjunctiveContext(result, m.index)) continue;
+      flagged.push({ id: rule.id, match: m[0], context: contextAround(result, m.index, 40) });
+    }
+  }
+
+  return { text: result, repairs, flagged };
 }
 
 // ─── MISSING OPENING QUOTE REPAIR ───────────────────────────────────────────

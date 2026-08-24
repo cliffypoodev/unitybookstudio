@@ -26,10 +26,15 @@ function test(name, fn) {
 console.log('\n═══ Prose Polish Quality Gate Tests ═══\n');
 
 // ── 1. "She were carrying" is detected as malformed ──
+// POLISHSAFE-4 test-side correction: the shared detector's match shape is
+// { phrase, index, snippet } (manuscriptSafetyGate.js canaries), not the
+// dead { pattern } field from this file's own unused local detector —
+// stale since SAVEFIX-1 (26229d28) switched runProsePolishQualityGate to
+// the shared detector.
 test('1. "She were carrying" is detected as malformed', () => {
   const result = runProsePolishQualityGate('She were carrying a heavy load.');
   assert.ok(result.malformed.count > 0, 'should detect malformed grammar');
-  assert.strictEqual(result.malformed.matches[0].pattern, 'she-were');
+  assert.strictEqual(result.malformed.matches[0].phrase, 'She were');
 });
 
 // ── 2. "as if she were performing" is NOT detected (subjunctive) ──
@@ -40,23 +45,27 @@ test('2. "as if she were performing" is NOT detected (subjunctive)', () => {
   assert.strictEqual(result.malformed.count, 0, 'subjunctive should not flag');
 });
 
-// ── 3. "Was was it a failure?" is detected and repaired ──
-test('3. "Was was it a failure?" is detected and repaired', () => {
+// ── 3. "Was was it a failure?" is detected and flagged ──
+// POLISHSAFE-4: the "Was was" -> "Was" repair is retired (subject-verb
+// agreement substitution is outside rule 0.2/2's whitelist) — flag-only now.
+test('3. "Was was it a failure?" is detected and flagged (repair retired)', () => {
   const gate = runProsePolishQualityGate('Was was it a failure?');
   assert.ok(gate.malformed.count > 0, 'should detect "Was was"');
 
   const repair = runDeterministicGrammarRepair('Was was it a failure?');
-  assert.ok(repair.text.includes('Was it a failure'), 'should repair to "Was it a failure"');
-  assert.ok(!repair.text.includes('Was was'), 'double "Was was" should be gone');
+  assert.strictEqual(repair.text, 'Was was it a failure?', 'text is unchanged - substitution retired');
+  assert.ok(repair.flagged.some((f) => f.id === 'was-was'), 'should flag "was-was" instead of repairing it');
 });
 
-// ── 4. "They was running" is detected and repaired ──
-test('4. "They was running" is detected and repaired to "They were running"', () => {
+// ── 4. "They was running" is detected and flagged ──
+// POLISHSAFE-4: the "They was" -> "They were" repair is retired the same way.
+test('4. "They was running" is detected and flagged (repair retired)', () => {
   const gate = runProsePolishQualityGate('They was running fast.');
   assert.ok(gate.malformed.count > 0);
 
   const repair = runDeterministicGrammarRepair('They was running fast.');
-  assert.ok(repair.text.includes('They were running'));
+  assert.strictEqual(repair.text, 'They was running fast.', 'text is unchanged - substitution retired');
+  assert.ok(repair.flagged.some((f) => f.id === 'they-was'), 'should flag "they-was" instead of repairing it');
 });
 
 // ── 5. "a obvious" is detected and repaired ──
@@ -132,10 +141,11 @@ test('13. Grammar repair doesn\u2019t break clean text', () => {
 });
 
 // ── 14. "He were an exhibit" is detected (not subjunctive) ──
+// POLISHSAFE-4 test-side correction: .phrase, not the dead .pattern field (see test 1).
 test('14. "He were an exhibit" is detected (not subjunctive)', () => {
   const result = runProsePolishQualityGate('He were an exhibit in the museum.');
   assert.ok(result.malformed.count > 0);
-  assert.strictEqual(result.malformed.matches[0].pattern, 'he-were');
+  assert.strictEqual(result.malformed.matches[0].phrase, 'He were');
 });
 
 // ── 15. "as if he were an exhibit" is NOT detected (subjunctive) ──

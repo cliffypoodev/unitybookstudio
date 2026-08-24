@@ -489,6 +489,11 @@ export function runUnifiedProseRefinement({
   for (const r of phase2.repairs) {
     repairs.push({ original: r.original, replacement: r.replacement, rule: r.rule || 'grammar-repair' });
   }
+  // POLISHSAFE-4: subject-verb agreement mutations retired to flag-only —
+  // surface them as warnings instead of silently substituting.
+  if (phase2.flagged && phase2.flagged.length > 0) {
+    warnings.push(`${phase2.flagged.length} malformed-grammar pattern(s) flagged - substitution retired (POLISHSAFE-4)`);
+  }
 
   // ──────────────────────────────────────────────────────────────────────────
   // Phase 3: Repair punctuation/spacing
