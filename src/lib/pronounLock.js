@@ -266,12 +266,14 @@ function splitScenesWithSeps(text) {
 //    ("the vendor, a man ... his upper lip") is never counted.
 
 const PERSON_NOUN_RX = /\b(?:man|men|woman|women|boy|girl|kid|kids|child|children|guy|guys|gal|fellow|lady|ladies|gentleman|gentlemen|stranger|passerby|bystander|vendor|clerk|shopkeeper|keeper|farmer|farmhand|driver|officer|cop|deputy|sheriff|soldier|guard|nurse|doctor|waiter|waitress|bartender|patron|customer|merchant|mechanic|preacher|teacher|mother|father|mom|dad|son|daughter|brother|sister|husband|wife|widow|uncle|aunt|cousin|nephew|niece|neighbor|worker|attendant|guest|host|hostess)\b/i;
-const POSSESSIVE_INITIAL_RX = /^\s*(?:His|Her|Hers|Himself|Herself)\b/;
+// SUBJECTGUARD-2: exported so subjectRepair.js's actor-continuity guard can
+// reuse the same closed-world sentence-lead rule instead of duplicating it.
+export const POSSESSIVE_INITIAL_RX = /^\s*(?:His|Her|Hers|Himself|Herself)\b/;
 
 // Strip leading quotes/emphasis/space so a name at the head of a quoted or
 // styled sentence still reads as the subject. Returns the cast name the
 // sentence LEADS with, or null.
-function leadingCastName(sentence, names) {
+export function leadingCastName(sentence, names) {
   const s = String(sentence).replace(/^[\s"'“”‘’*_(\-—]+/, '');
   let best = null;
   for (const n of names) {

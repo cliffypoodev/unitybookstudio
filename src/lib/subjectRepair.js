@@ -23,7 +23,7 @@
 //   a new word, a different sentence — is rejected and the original stays.
 // - Sequential LLM calls; fail-open; LLM off → report only.
 import { splitSentencesForDedupe } from './crossChapterDedupe.js';
-import { buildPronounCanon, subjectBoundGender } from './pronounLock.js'; // SUBJECTGUARD-1
+import { buildPronounCanon, subjectBoundGender, leadingCastName, POSSESSIVE_INITIAL_RX } from './pronounLock.js'; // SUBJECTGUARD-1 / SUBJECTGUARD-2
 
 export const SUBJECT_REPAIR_VERSION = 'subject-repair-v2';
 
@@ -118,7 +118,42 @@ function subjectRepairGuard(subj, applied, { castNames = [], subjectGender = {} 
   return { ok: true };
 }
 
-export function verifySubjectRepair(original, candidate, { castNames = [], kind = 'opener', subjectGender = {} } = {}) {
+// SUBJECTGUARD-2 (live-proof finding 1, 2026-08-24): guard (a)/(b) above
+// caught agreement and gender clashes WITHIN the repaired sentence itself,
+// but a wrong cast NAME that carries no gender-bound pronoun sailed through
+// — live on REDUX Ch.10, "Thompson stopped wiping. His gaze fell on the
+// notebook. His eyes met Sadie's. Looked back at the notebook." repaired to
+// "Zinnia looked back at the notebook." (the actor is Thompson).
+//
+// establishedActor walks the sentences BEFORE the target, in order: a
+// sentence-initial cast name becomes the current actor; a sentence leading
+// with a possessive/reflexive pronoun (His/Her/Hers/Himself/Herself)
+// continues that actor — even when another cast member is named elsewhere
+// in the same sentence as an OBJECT ("His eyes met Sadie's" stays
+// Thompson's, Sadie is not the subject); any OTHER cast name taking the
+// lead position makes the actor ambiguous (two actors are legitimately in
+// play) and the guard does not fire. Any other sentence shape (dialogue,
+// description) neither confirms nor breaks the chain.
+function establishedActor(precedingText, castNames) {
+  const names = Array.isArray(castNames) ? castNames.filter(Boolean) : [];
+  if (!names.length) return null;
+  let current = null;
+  let ambiguous = false;
+  for (const raw of splitSentencesForDedupe(precedingText)) {
+    const sentence = String(raw || '').trim();
+    if (!sentence) continue;
+    const lead = leadingCastName(sentence, names);
+    if (lead) {
+      if (current && current !== lead) ambiguous = true;
+      current = lead;
+    }
+    // A possessive-initial sentence continues whatever actor is already
+    // established; any other shape neither confirms nor breaks the chain.
+  }
+  return ambiguous ? null : current;
+}
+
+export function verifySubjectRepair(original, candidate, { castNames = [], kind = 'opener', subjectGender = {}, paragraph = '' } = {}) {
   const orig = String(original || '').trim();
   const cand = normTypo(candidate);
   if (!cand) return { ok: false, reason: 'empty' };
@@ -128,6 +163,11 @@ export function verifySubjectRepair(original, candidate, { castNames = [], kind 
   // "Mr. Thompson" / "Mrs. Henderson" are legal when the surname is cast.
   const honorifics = names.flatMap((n) => [`Mr. ${n}`, `Mrs. ${n}`, `Ms. ${n}`, `Dr. ${n}`]);
   const subjects = [...SUBJECT_PRONOUNS, ...names, ...honorifics];
+  // SUBJECTGUARD-2: computed once — independent of which candidate subject
+  // is being checked. Pronoun subjects (He/She/They/It) are exempt.
+  const precedingIdx = paragraph ? String(paragraph).indexOf(orig) : -1;
+  const precedingText = precedingIdx > 0 ? String(paragraph).slice(0, precedingIdx) : '';
+  const actor = precedingText ? establishedActor(precedingText, names) : null;
   for (const subj of subjects) {
     let applied = null;
     let subject = subj;
@@ -141,6 +181,14 @@ export function verifySubjectRepair(original, candidate, { castNames = [], kind 
     if (applied === null) continue;
     const guard = subjectRepairGuard(subj, applied, { castNames: names, subjectGender });
     if (!guard.ok) return { ok: false, reason: guard.reason };
+    // SUBJECTGUARD-2: a NAMED subject that contradicts the one actor the
+    // preceding sentences of this paragraph established is rejected — a
+    // pronoun subject is exempt (the pronoun IS the referent, not a name
+    // choice that can be "wrong").
+    if (!SUBJECT_PRONOUNS.includes(subj) && actor) {
+      const bareSubj = subj.replace(/^(?:Mr|Mrs|Ms|Dr)\.\s+/, '');
+      if (actor !== bareSubj) return { ok: false, reason: 'actor-mismatch' };
+    }
     return { ok: true, reason: '', subject, applied };
   }
   return { ok: false, reason: 'not-a-subject-prefix' };
@@ -211,7 +259,7 @@ export async function repairDroppedSubjects(text, opts = {}) {
       continue;
     }
     const candidate = cleanLLM(raw);
-    const verdict = verifySubjectRepair(t.sentence, candidate, { castNames: cast, kind: t.kind, subjectGender });
+    const verdict = verifySubjectRepair(t.sentence, candidate, { castNames: cast, kind: t.kind, subjectGender, paragraph: t.paragraph });
     if (!verdict.ok) {
       console.warn(`[SUBJECTREPAIR-1] ${label}: rejected (${verdict.reason}) for "${t.sentence.slice(0, 60)}" → "${candidate.slice(0, 60)}"`);
       skipped.push({ sentence: t.sentence.slice(0, 80), reason: `verify-failed:${verdict.reason}` });
