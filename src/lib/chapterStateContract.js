@@ -53,6 +53,42 @@ export function parseResolvedArcs(text) {
   return arcs;
 }
 
+/**
+ * ARCSTATE-1: regen-lane extraDetectors entry, kind 'arc-restart'. Data-
+ * driven — no phrase list lives in code, only what `resolvedArcs` (from
+ * buildChapterStateContract's `facts.resolvedArcs`) declares. Any sentence
+ * containing a resolved arc's forbidden phrase (case-insensitive) is a
+ * target. Bind `resolvedArcs` via a closure at the call site — the generic
+ * lane detector signature is `(text) => targets`.
+ *
+ * @param {string} text
+ * @param {Array<{name, label, chapter, forbidden}>} resolvedArcs
+ * @returns {Array<{kind: 'arc-restart', sentence: string, reason: string}>}
+ */
+export function detectArcRestarts(text, resolvedArcs = []) {
+  const t = String(text || '');
+  if (!t.trim() || !Array.isArray(resolvedArcs) || !resolvedArcs.length) return [];
+  const sentences = t.split(/(?<=[.!?…”])\s+/).filter(Boolean);
+  const targets = [];
+  for (const arc of resolvedArcs) {
+    for (const phrase of Array.isArray(arc?.forbidden) ? arc.forbidden : []) {
+      if (!phrase) continue;
+      let rx;
+      try { rx = new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); } catch { continue; }
+      for (const sentence of sentences) {
+        if (rx.test(sentence)) {
+          targets.push({
+            kind: 'arc-restart',
+            sentence: sentence.trim(),
+            reason: `forbidden phrase "${phrase}" reopens resolved arc "${arc.name}"`,
+          });
+        }
+      }
+    }
+  }
+  return targets;
+}
+
 function pronounLabel(canon, name, variable) {
   if (Array.isArray(variable) && variable.includes(name)) return 'variable';
   const set = canon?.[name];
