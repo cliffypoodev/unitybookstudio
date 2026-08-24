@@ -68,9 +68,11 @@ const ps = read('src/pages/ProjectStudio.jsx');
 check('5. project_type can never be written as \'novel\' again',
   !/project_type[^\n]*'novel'/.test(ps));
 const sm = read('src/pages/SeriesManager.jsx');
-check('5b. anthology volumes write book_type \'fiction\' (enum-legal), project_type \'anthology\'',
-  /projectPayload\.book_type = 'fiction';/.test(sm) &&
-  !/projectPayload\.book_type = 'anthology';/.test(sm));
+check('5b. anthology volumes write project_type \'anthology\'; book_type stays enum-legal and is inherited from the series, not hardcoded (SERIESHYGIENE-1)',
+  /projectPayload\.project_type = 'anthology';/.test(sm) &&
+  !/projectPayload\.book_type = 'anthology';/.test(sm) &&
+  !/projectPayload\.book_type = 'fiction';/.test(sm) &&
+  /declaredTypeOf\(lastVolume\)/.test(sm));
 check('5c. the anth. badge keys on project_type (book_type kept only for legacy rows)',
   /project\.project_type === 'anthology' \|\| project\.book_type === 'anthology'/.test(sm));
 
