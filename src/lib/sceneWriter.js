@@ -47,6 +47,7 @@ import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopR
 import { healSimileDensity } from '@/lib/simileRecast'; // STYLEBUDGET-2
 import { repairDroppedSubjects } from '@/lib/subjectRepair'; // SUBJECTREPAIR-1
 import { regenerateFlaggedParagraphs } from './regenerateLane.js'; // REGENLANE-1
+import { buildBannedVocabularyPromptBlock, detectBannedVocabulary } from './vocabCaps.js'; // POLISHSAFE-4
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -2329,6 +2330,12 @@ function buildSceneStateContractBlock(spec) {
   if (pronounCanon) {
     lines.push(`CHARACTER PRONOUNS (canonical — narration must NEVER vary them): ${pronounCanon}.`);
   }
+  // POLISHSAFE-4: prevention — the polish pass no longer substitutes banned
+  // vocabulary, so the writer's own prompt is what keeps it out.
+  const bannedVocabulary = String(spec?.banned_vocabulary || '').trim();
+  if (bannedVocabulary) {
+    lines.push(bannedVocabulary);
+  }
   // CANON-2: roles are canon too — no other character may be given these jobs.
   const roleCanon = String(spec?.role_canon || '').trim();
   if (roleCanon) {
@@ -3059,6 +3066,7 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
       } catch { departed = []; }
       const regen = await regenerateFlaggedParagraphs(finalProse, {
         project, cast, departed, priorProse: priorChapterProse, label: 'writer-final',
+        extraDetectors: [detectBannedVocabulary], // POLISHSAFE-4
       });
       if (regen.regenerated > 0) finalProse = regen.text;
     }
@@ -3832,6 +3840,7 @@ export async function generateChapterSceneByScene({
           ).returns
         : [],
       style_budget: styleBudgetBlock, // STYLEBUDGET-1
+      banned_vocabulary: buildBannedVocabularyPromptBlock(), // POLISHSAFE-4
       holders_of_record: Object.entries(runtimeLedger.possessions || {})
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
         .map(([char, objs]) => `${char} has the ${objs.join(' and the ')}`),

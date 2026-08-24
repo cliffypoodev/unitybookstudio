@@ -484,3 +484,33 @@ export function runSentenceStarterVariation(loaded, onProgress) {
 
   return { startersFixed: startersFixed + itWasFixed + pronounFixed + streaksFixed, changes };
 }
+
+// POLISHSAFE-4: prevention, not correction. Since the polish pass no longer
+// substitutes banned/capped vocabulary, the writer's own prompt is the
+// place that keeps it out in the first place.
+export function buildBannedVocabularyPromptBlock() {
+  const words = BANNED_WORDS_HARD_REMOVE.map((e) => e.word);
+  if (!words.length) return '';
+  return `BANNED VOCABULARY (never use): ${words.join(', ')}.`;
+}
+
+// POLISHSAFE-4: regen-lane detector — a paragraph containing a banned word
+// is a regeneration target (kind 'banned-vocab'), for the extraDetectors
+// hook regenerateFlaggedParagraphs (src/lib/regenerateLane.js) already
+// accepts. One target per matching sentence; collectRegenTargets caps the
+// total and dedupes by paragraph.
+export function detectBannedVocabulary(text) {
+  const t = String(text || '');
+  if (!t.trim()) return [];
+  const targets = [];
+  for (const entry of BANNED_WORDS_HARD_REMOVE) {
+    const rx = new RegExp('\\b' + entry.word + '\\b', 'gi');
+    for (const sentence of t.split(/(?<=[.!?…”])\s+/)) {
+      rx.lastIndex = 0;
+      if (rx.test(sentence)) {
+        targets.push({ kind: 'banned-vocab', sentence: sentence.trim(), reason: `banned word "${entry.word}"` });
+      }
+    }
+  }
+  return targets;
+}

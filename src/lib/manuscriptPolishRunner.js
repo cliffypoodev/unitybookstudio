@@ -26,7 +26,7 @@ import { runPunctuationCleanup, runSpellingFixes, runBrokenSentenceFixes,
 import { runCapitalizationHygiene } from './capitalizationPolish.js';
 import { fixVoicePatterns } from './voicePatternPolish.js';
 import { runExternalAiPatternFix } from './externalAiPatterns.js';
-import { runVocabCaps, runSentenceStarterVariation, runSentenceStarterVariationNF } from './vocabCaps.js';
+import { runVocabCaps, runSentenceStarterVariation, runSentenceStarterVariationNF, detectBannedVocabulary } from './vocabCaps.js';
 import { runDialogueTagCaps } from './dialogueTagPolish.js';
 import { runChatGPTVocabCaps, runTransitionWordCaps } from './chatgptPatternPolish.js';
 import { runStackedClauseVariation } from './sentencePatternPolish.js';
@@ -972,6 +972,7 @@ export async function runManuscriptPolishPipeline({
         try {
           const regen = await regenerateFlaggedParagraphs(String(f.content || ''), {
             callLLM: _regenLLMOverride, project, cast: castForRegen, priorProse, label: `Ch.${chNum}`, onProgress,
+            extraDetectors: [detectBannedVocabulary], // POLISHSAFE-4
           });
           if (regen.targets.length > 0) regenStats.chaptersWithTargets += 1;
           if (regen.regenerated > 0) {
@@ -985,7 +986,7 @@ export async function runManuscriptPolishPipeline({
           changes.push(`Ch.${chNum}: Regenerate Lane unavailable (${err?.message || 'unknown'}) — flagged paragraph(s) NOT regenerated.`);
         }
       } else {
-        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen });
+        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen, extraDetectors: [detectBannedVocabulary] });
         if (targets.length > 0) {
           regenStats.chaptersWithTargets += 1;
           changes.push(`Ch.${chNum}: Regenerate Lane found ${targets.length} flagged paragraph(s) — LLM disabled, reported only.`);
