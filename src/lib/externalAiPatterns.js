@@ -57,7 +57,9 @@ export function runExternalAiPatternFix(loaded) {
   const chapterCount = loaded.length;
   const allPatterns = getExternalAiPatterns(chapterCount);
   const changes = [];
-  let fixed = 0;
+  // POLISHSAFE-4: phrase deletion retired — outside rule 0.2/2's whitelist.
+  // Flag-only; loaded[].content is never mutated by this loop.
+  const fixed = 0;
 
   for (const t of allPatterns) {
     const allTextNow = loaded.map(f => f.content).join('\n\n');
@@ -67,31 +69,8 @@ export function runExternalAiPatternFix(loaded) {
     if (total <= cap) continue;
 
     const excess = total - cap;
-    let replaced = 0;
-    let globalInstanceCount = 0;
-
-    console.log('[POLISH] External AI pattern "' + t.name + '": ' + total + ' (cap: ' + cap + ', removing ' + excess + ')');
-
-    for (const f of loaded) {
-      if (replaced >= excess) break;
-
-      f.content = f.content.replace(t.pattern, (match) => {
-        globalInstanceCount++;
-        if (globalInstanceCount <= cap || replaced >= excess) return match;
-        replaced++;
-        fixed++;
-        return '';
-      });
-    }
-
-    if (replaced > 0) {
-      changes.push('Removed ' + replaced + 'x "' + t.name + '" (external AI pattern)');
-    }
-  }
-
-  // Clean up double spaces from removals
-  for (const f of loaded) {
-    f.content = f.content.replace(/  +/g, ' ');
+    console.log('[POLISH] External AI pattern "' + t.name + '": ' + total + ' (cap: ' + cap + ', flagging ' + excess + ')');
+    changes.push(excess + 'x "' + t.name + '" flagged (external AI pattern) - deletion retired (POLISHSAFE-4)');
   }
 
   // Strip Sudowrite scene headers

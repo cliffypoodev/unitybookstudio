@@ -24,16 +24,14 @@
  * @returns {{ stackingFixed: number, changes: string[] }}
  */
 export function runStackedClauseVariation(loaded, onProgress) {
-  onProgress?.('Polish: Varying stacked -ing clauses…');
+  onProgress?.('Polish: Scanning stacked -ing clauses…');
   const changes = [];
-  let stackingFixed = 0;
+  // POLISHSAFE-4: this used to delete the -ing clause's descriptive content
+  // outright (dropped, not reported via a paragraph-count allowance) — not
+  // one of rule 0.2/2's four allowed heals. Flag-only now.
+  const stackingFixed = 0;
 
   // Pattern: <SubjectHead>, <verbing phrase up to 50 chars>, <verb phrase>
-  // Capture groups:
-  //   1: subject head (1-3 capitalized/lowercase words starting the sentence)
-  //   2: -ing clause content (between first comma and second comma)
-  //   3: main verb phrase (continues the sentence after the clause)
-  //
   // Anchored to start-of-sentence so we only catch the specific rhythm.
   // Skip short -ing clauses (under 4 words) because those are often just
   // natural participial phrases that don't create the stacking feel.
@@ -44,7 +42,6 @@ export function runStackedClauseVariation(loaded, onProgress) {
   const scaleFactor = totalWords / 50000;
   const globalCap = Math.max(20, Math.round(30 * scaleFactor));
 
-  // Count globally first
   let totalHits = 0;
   for (const f of loaded) {
     const matches = f.content.match(stackRx) || [];
@@ -53,57 +50,8 @@ export function runStackedClauseVariation(loaded, onProgress) {
 
   console.log('[POLISH] Stacked -ing clauses found:', totalHits, '(cap:', globalCap + ')');
 
-  if (totalHits <= globalCap) {
-    return { stackingFixed: 0, changes };
-  }
-
-  const excess = totalHits - globalCap;
-  let globalCount = 0;
-  let removed = 0;
-
-  // Rewrite strategy: split the sentence into two — move the -ing clause
-  // into its own sentence. "X, doing Y, verbed Z." → "X verbed Z. Doing Y."
-  // NOT always clean semantically, so we cap how many we rewrite. Humans
-  // can't tell between 30 and 60 instances, so just breaking up the worst
-  // 50% of the excess is plenty to restore rhythmic variety.
-  //
-  // Only rewrite HALF the excess — conservative. We're breaking the pattern,
-  // not eliminating it. Natural prose has SOME of these. What we want to
-  // avoid is the rhythmic sameness, not the construct itself.
-  const toRemove = Math.ceil(excess * 0.5);
-
-  for (const f of loaded) {
-    if (removed >= toRemove) break;
-
-    const ch = f.chapter?.chapter_number || '?';
-    let chRewrites = 0;
-
-    f.content = f.content.replace(stackRx, (match, prefix, subject, ingClause, mainVerb) => {
-      globalCount++;
-      if (globalCount <= globalCap) return match;
-      if (removed >= toRemove) return match;
-
-      // Rewrite: strip the -ing clause out and promote it to a new sentence
-      // "X, doing Y, verbed Z" → "X verbed Z. Doing Y, at that moment."
-      // Simpler: just remove the parenthetical -ing clause entirely. The
-      // main sentence stands on its own; the descriptive content it carried
-      // is mostly redundant flavor when stacking is this heavy.
-      removed++;
-      chRewrites++;
-      stackingFixed++;
-
-      // Reconstruct without the -ing clause: "Subject verbPhrase..."
-      // (Keeps subject + main verb, drops the participial aside)
-      return prefix + subject.replace(/,$/, '') + ' ' + mainVerb;
-    });
-
-    if (chRewrites > 0) {
-      changes.push('Ch.' + ch + ': unstacked ' + chRewrites + ' "-ing clause" parentheticals');
-    }
-  }
-
-  if (stackingFixed > 0) {
-    console.log('[POLISH] -ing clause stacking reduced by:', stackingFixed);
+  if (totalHits > globalCap) {
+    changes.push('Stacked -ing clauses: ' + totalHits + ' found, ' + globalCap + ' allowed, ' + (totalHits - globalCap) + ' flagged - deletion retired (POLISHSAFE-4)');
   }
 
   return { stackingFixed, changes };
