@@ -48,7 +48,8 @@ import { healSimileDensity } from '@/lib/simileRecast'; // STYLEBUDGET-2
 import { repairDroppedSubjects } from '@/lib/subjectRepair'; // SUBJECTREPAIR-1
 import { regenerateFlaggedParagraphs } from './regenerateLane.js'; // REGENLANE-1
 import { buildBannedVocabularyPromptBlock, detectBannedVocabulary } from './vocabCaps.js'; // POLISHSAFE-4
-import { buildChapterStateContract } from './chapterStateContract.js'; // STATECONTRACT-1
+import { buildChapterStateContract, parseResolvedArcs, detectArcRestarts } from './chapterStateContract.js'; // STATECONTRACT-1
+import { detectSameChapterSceneDuplicates } from './eventCollision.js'; // SCENEDUP-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -2937,7 +2938,7 @@ export function stillRepeats(candidate, original, rules = REPEAT_RULES) {
 // scenes 1 and 3 for exactly this reason). Exported so the save path runs
 // dedupe + repetition alarm + cross-chapter echo repair on the artifact that
 // actually ships. Fail-open throughout: this can never block a chapter.
-export async function finalizeChapterProse(prose, project, priorChapterProse = []) {
+export async function finalizeChapterProse(prose, project, priorChapterProse = [], stateContractResult = null) {
   let finalProse = String(prose || '');
   if (!finalProse) return finalProse;
   finalProse = dedupeRepeatedSentences(finalProse);
@@ -3064,16 +3065,33 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
   try {
     if (!isNonfictionProjectAuthority(project) && !isNonfictionAnthology(project)) {
       const cast = harvestCastNames(project?.characters_md, priorChapterProse);
+      // STATECONTRACT-1: prefer the caller's already-computed facts (the
+      // writer path passes stateContractResult from generateChapterSceneByScene);
+      // fall back to a self-sufficient computation for callers that don't
+      // have one (e.g. ProjectStudio.jsx's salvage/save path).
       let departed = [];
-      try {
-        const priorEntries = (Array.isArray(priorChapterProse) ? priorChapterProse : [])
-          .map((text, i) => ({ chapterNumber: i + 1, text }));
-        const state = buildCharacterState(priorEntries, cast);
-        departed = Object.entries(state).filter(([, e]) => e.partyStatus === 'departed').map(([name]) => name);
-      } catch { departed = []; }
+      let resolvedArcs = [];
+      let stateFactsBlock = '';
+      if (stateContractResult && typeof stateContractResult === 'object') {
+        departed = Array.isArray(stateContractResult.facts?.departed) ? stateContractResult.facts.departed : [];
+        resolvedArcs = Array.isArray(stateContractResult.facts?.resolvedArcs) ? stateContractResult.facts.resolvedArcs : [];
+        stateFactsBlock = stateContractResult.block || '';
+      } else {
+        try {
+          const priorEntries = (Array.isArray(priorChapterProse) ? priorChapterProse : [])
+            .map((text, i) => ({ chapterNumber: i + 1, text }));
+          const state = buildCharacterState(priorEntries, cast);
+          departed = Object.entries(state).filter(([, e]) => e.partyStatus === 'departed').map(([name]) => name);
+        } catch { departed = []; }
+        try {
+          resolvedArcs = [...parseResolvedArcs(project?.canon_md), ...parseResolvedArcs(project?.characters_md)];
+        } catch { resolvedArcs = []; }
+      }
+      const arcRestartDetector = (text) => detectArcRestarts(text, resolvedArcs);
       const regen = await regenerateFlaggedParagraphs(finalProse, {
         project, cast, departed, priorProse: priorChapterProse, label: 'writer-final',
-        extraDetectors: [detectBannedVocabulary], // POLISHSAFE-4
+        stateFacts: stateFactsBlock, // STATECONTRACT-1
+        extraDetectors: [detectBannedVocabulary, detectSameChapterSceneDuplicates, arcRestartDetector], // POLISHSAFE-4 + SCENEDUP-1 + ARCSTATE-1
       });
       if (regen.regenerated > 0) finalProse = regen.text;
     }
@@ -4824,7 +4842,7 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
   // This call keeps the critic/fallback artifact clean; the save path in
   // ProjectStudio passes the prior chapters, so echo repair spends its one
   // LLM call there, not here.
-  finalProse = await finalizeChapterProse(finalProse, project, priorChapterProse);
+  finalProse = await finalizeChapterProse(finalProse, project, priorChapterProse, stateContractResult);
 
   // Semantic source verification (nonfiction): one MODEL pass over the whole
   // chapter (semanticSourceCheck — previously defined but never wired) catches
