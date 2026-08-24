@@ -6,7 +6,10 @@
 import { getSetting } from './settingsRead.js'; // WAVE5-SETTINGS
 import { isNonfictionProject } from './projectType.js'; // NFCLASS-6
 
-const CAPPED_VOCABULARY = [
+// POLISHSAFE-4: exported so the writer prompt (banned-vocabulary prevention
+// block) and the regenerate lane (banned-vocab detector) can read the same
+// list this scanner flags against.
+export const CAPPED_VOCABULARY = [
   // Verified caps per user spec (per 10K words → approx per 100K at 10x)
   { word: 'etched', max: 0.4, replacements: ['carved', 'cut', 'marked', 'lined', 'scored', 'written', 'traced'] },           // 4/100K
   { word: 'crystalline', max: 0.2, replacements: ['clear', 'sharp', 'bright', 'hard', 'clean', 'glass-clear'] },              // 2/100K
@@ -32,7 +35,7 @@ const STARTER_NOUNS = ['sound', 'sight', 'smell', 'feeling', 'thought', 'memory'
 // ── ZERO-TOLERANCE BANNED WORDS ──
 // These are the EXACT words scored as banned in manuscriptStats.js.
 // Remove ALL occurrences — zero tolerance, no per-chapter allowance.
-const BANNED_WORDS_HARD_REMOVE = [
+export const BANNED_WORDS_HARD_REMOVE = [
   { word: 'shimmering', replacements: ['flickering', 'gleaming', 'glinting', 'faint', 'pale'] },
   { word: 'luminous', replacements: ['bright', 'glowing', 'lit', 'warm', 'golden'] },
   { word: 'tapestry', replacements: ['fabric', 'web', 'weave', 'pattern', 'cloth'] },
@@ -70,61 +73,48 @@ const BANNED_WORDS_HARD_REMOVE = [
 ];
 
 /**
- * Run AI-favorite vocabulary frequency caps across loaded chapters.
- * Mutates loaded[].content in place.
- * Returns { vocabCapped, changes }
+ * POLISHSAFE-4: scan AI-favorite vocabulary across loaded chapters and FLAG
+ * every occurrence beyond its allowance — never substitute. Word/phrase
+ * substitution is outside rule 0.2/2's whitelist (typography, a/an
+ * agreement, DIALOGREPAIR-2, CANON-2B, reported structural removals).
+ * `loaded[].content` is never mutated by this function.
+ * Returns { vocabCapped: 0, changes }
  */
 export function runVocabCaps(loaded, onProgress, options = {}) {
-  onProgress?.('Polish: Capping AI-favorite vocabulary…');
+  onProgress?.('Polish: Scanning AI-favorite vocabulary…');
   const changes = [];
-  let vocabCapped = 0;
+  const vocabCapped = 0;
   const isNF = isNonfictionProject(options?.project);
 
-  // Build fresh full text from CURRENT content (after prior steps mutated it)
   const fullText = loaded.map(f => f.content).join('\n\n');
   const totalWords = fullText.split(/\s+/).filter(Boolean).length;
 
   console.log('[POLISH][VOCAB] Step starting. Chapters: ' + loaded.length + ', totalWords: ' + totalWords + ', isNF: ' + isNF);
 
-  // ── PHASE 0: Hard-remove ALL banned words (zero tolerance) ──
-  let bannedRemoved = 0;
+  // ── PHASE 0: banned words (zero tolerance) — flag-only ──
+  let bannedFlagged = 0;
   for (const entry of BANNED_WORDS_HARD_REMOVE) {
     const regex = new RegExp('\\b' + entry.word + '\\b', 'gi');
-    let entryRemoved = 0;
-    for (const f of loaded) {
-      const before = f.content;
-      f.content = f.content.replace(regex, (match) => {
-        const alt = entry.replacements[entryRemoved % entry.replacements.length];
-        entryRemoved++;
-        bannedRemoved++;
-        vocabCapped++;
-        if (match.charAt(0) === match.charAt(0).toUpperCase()) {
-          return alt.charAt(0).toUpperCase() + alt.slice(1);
-        }
-        return alt;
-      });
-    }
-    if (entryRemoved > 0) {
-      changes.push('BANNED "' + entry.word + '": removed all ' + entryRemoved + ' occurrences');
-      console.log('[POLISH][VOCAB] BANNED "' + entry.word + '": removed ' + entryRemoved);
+    const count = (fullText.match(regex) || []).length;
+    if (count > 0) {
+      bannedFlagged += count;
+      changes.push('BANNED "' + entry.word + '": ' + count + ' occurrence(s) flagged - substitution retired (POLISHSAFE-4)');
+      console.log('[POLISH][VOCAB] BANNED "' + entry.word + '": ' + count + ' flagged only - POLISHSAFE-4');
     }
   }
-  if (bannedRemoved > 0) {
-    console.log('[POLISH][VOCAB] Total banned words removed:', bannedRemoved);
+  if (bannedFlagged > 0) {
+    console.log('[POLISH][VOCAB] Total banned words flagged:', bannedFlagged);
   }
 
-  // ── PHASE 1: Cap AI-favorite vocabulary (per-10K-words thresholds) ──
-
+  // ── PHASE 1: AI-favorite vocabulary caps (per-10K-words thresholds) — flag-only ──
+  let cappedFlagged = 0;
   for (const entry of CAPPED_VOCABULARY) {
     const effectiveMax = (isNF && entry.nfMax !== undefined) ? entry.nfMax : entry.max;
     const regex = new RegExp('\\b' + entry.word + '\\b', 'gi');
 
-    // Re-read content from loaded (not stale fullText) for accurate counting
-    const currentText = loaded.map(f => f.content).join('\n\n');
-    const allMatches = currentText.match(regex);
-    if (!allMatches) continue;
+    const count = (fullText.match(regex) || []).length;
+    if (!count) continue;
 
-    const count = allMatches.length;
     const maxAllowed = Math.max(1, Math.round(effectiveMax * totalWords / 10000));
 
     console.log('[POLISH][VOCAB] "' + entry.word + '": found=' + count + ', effectiveMax=' + effectiveMax + '/10K, maxAllowed=' + maxAllowed + ', excess=' + Math.max(0, count - maxAllowed));
@@ -132,35 +122,14 @@ export function runVocabCaps(loaded, onProgress, options = {}) {
     if (count <= maxAllowed) continue;
 
     const excess = count - maxAllowed;
-    let removed = 0;
-    let globalCount = 0;
-
-    for (const f of loaded) {
-      if (removed >= excess) break;
-      const chapterRegex = new RegExp('\\b' + entry.word + '\\b', 'gi');
-      f.content = f.content.replace(chapterRegex, (match) => {
-        globalCount++;
-        if (globalCount <= maxAllowed) return match;
-        if (removed >= excess) return match;
-        const alt = entry.replacements[removed % entry.replacements.length];
-        removed++;
-        vocabCapped++;
-        if (match.charAt(0) === match.charAt(0).toUpperCase()) {
-          return alt.charAt(0).toUpperCase() + alt.slice(1);
-        }
-        return alt;
-      });
-    }
-
-    if (removed > 0) {
-      changes.push('Capped "' + entry.word + '": ' + count + ' → ' + maxAllowed + ' (replaced ' + removed + ')');
-      console.log('[POLISH][VOCAB] "' + entry.word + '": replaced ' + removed + '/' + excess);
-    }
+    cappedFlagged += excess;
+    changes.push('Capped "' + entry.word + '": ' + count + ' found, ' + maxAllowed + ' allowed, ' + excess + ' flagged - substitution retired (POLISHSAFE-4)');
+    console.log('[POLISH][VOCAB] "' + entry.word + '": ' + excess + ' excess flagged only - POLISHSAFE-4');
   }
 
-  if (vocabCapped > 0) {
-    changes.push('Total AI-favorite vocabulary capped: ' + vocabCapped + ' replacements');
-    console.log('[POLISH][VOCAB] Total capped:', vocabCapped);
+  if (bannedFlagged + cappedFlagged > 0) {
+    changes.push('Total AI-favorite vocabulary flagged: ' + (bannedFlagged + cappedFlagged) + ' occurrence(s), substitution retired (POLISHSAFE-4)');
+    console.log('[POLISH][VOCAB] Total flagged:', bannedFlagged + cappedFlagged);
   } else {
     console.log('[POLISH][VOCAB] No vocabulary exceeded caps');
   }

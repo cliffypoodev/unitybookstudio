@@ -426,50 +426,41 @@ export function reduceAISlopDeterministic(text, options = {}) {
   // ── Helper: skip N budget-allowed occurrences, then recast excess ──
 
   /**
-   * Walk through regex matches, skip `budget` occurrences, then apply
-   * a recast function to excess matches.
+   * POLISHSAFE-4: walk through regex matches, skip `budget` occurrences, and
+   * FLAG every excess occurrence — never substitute. Every recast this helper
+   * used to apply was a word/phrase swap outside rule 0.2/2's whitelist
+   * (typography, a/an agreement, DIALOGREPAIR-2, CANON-2B, reported
+   * structural removals). Text is returned unchanged; `recastFn` is kept as
+   * a parameter for call-site compatibility but its decision is only used to
+   * pick a flag reason, never applied.
    *
    * @param {string}   src          Current text.
    * @param {RegExp}   rx           Global, case-insensitive regex.
-   * @param {number}   budget       How many to leave untouched.
+   * @param {number}   budget       How many to leave unflagged.
    * @param {string}   patternName  For bookkeeping.
    * @param {Function} recastFn     (match, surroundingContext) => { replacement, flagReason } | null
-   * @returns {string} Updated text.
+   * @returns {string} `src`, unchanged.
    */
   function recastExcess(src, rx, budget, patternName, recastFn) {
     resetRx(rx);
     let occurrence = 0;
-
-    return src.replace(rx, (match, ...args) => {
+    let m;
+    while ((m = rx.exec(src)) !== null) {
       occurrence++;
-      if (occurrence <= budget) return match;  // within budget — keep
+      if (occurrence <= budget) { if (m[0].length === 0) rx.lastIndex++; continue; }
 
-      // Build a surrounding-context snippet for flagging purposes
-      const offset = typeof args[args.length - 2] === 'number' ? args[args.length - 2] : 0;
+      const offset = m.index;
       const snippetStart = Math.max(0, offset - 60);
-      const snippetEnd = Math.min(src.length, offset + match.length + 60);
+      const snippetEnd = Math.min(src.length, offset + m[0].length + 60);
       const snippet = src.substring(snippetStart, snippetEnd).replace(/\n/g, ' ');
 
-      const decision = recastFn(match, snippet, args);
-
-      if (!decision) {
-        // recastFn returned null — cannot safely recast
-        flaggedForLLM.push({
-          snippet,
-          pattern: patternName,
-          reason: 'Could not safely recast deterministically — needs LLM review.',
-        });
-        return match;
-      }
-
-      if (decision.flagReason) {
-        flaggedForLLM.push({ snippet, pattern: patternName, reason: decision.flagReason });
-        return match;
-      }
-
-      repairs.push({ original: match, replacement: decision.replacement, pattern: patternName });
-      return decision.replacement;
-    });
+      const decision = recastFn(m[0], snippet, [m[1], m[2], m[3], offset, src]);
+      const reason = decision?.flagReason
+        || (decision?.replacement !== undefined ? `"${m[0]}" flagged — substitution retired (POLISHSAFE-4)` : 'Could not safely recast deterministically — needs LLM review.');
+      flaggedForLLM.push({ snippet, pattern: patternName, reason });
+      if (m[0].length === 0) rx.lastIndex++;
+    }
+    return src;
   }
 
   // ── Recast: "wasn't just" family ──
@@ -478,24 +469,11 @@ export function reduceAISlopDeterministic(text, options = {}) {
 
     // Handle "wasn't just" / "wasn't merely" first (more specific patterns)
     // Pattern: "X wasn't just Y; it was Z" → "X was now Z" (gerund) or "X had become Z" (noun)
+    // "X wasn't just Y; it was Z" - POLISHSAFE-4: substitution retired (this
+    // used to rewrite to "X was now Z" / "X had become Z"). Flag only.
     const semicolonRx = /([A-Za-z\s]+)\s+wasn['\u2019]t\s+just\s+([^;.!?]+);\s*it\s+was\s+([^.!?]+)/gi;
-    resetRx(semicolonRx);
-    let sjOccurrence = 0;
-    result = result.replace(semicolonRx, (match, subject, _y, z) => {
-      sjOccurrence++;
-      if (sjOccurrence <= info.budget) return match;
-      const subj = subject.trim();
-      const zTrimmed = z.trim();
-      // If Z starts with a gerund/present participle, use "was now"
-      const verb = zTrimmed.match(/^(\w+ing)\b/);
-      let replacement;
-      if (verb) {
-        replacement = `${subj} was now ${zTrimmed}`;
-      } else {
-        replacement = `${subj} had become ${zTrimmed}`;
-      }
-      repairs.push({ original: match, replacement, pattern: 'not just family' });
-      return replacement;
+    result = recastExcess(result, semicolonRx, info.budget, 'not just family', (match) => {
+      return { flagReason: `"${match}" flagged - substitution retired (POLISHSAFE-4)` };
     });
 
     // Simple "wasn't just" fallback for short phrases
@@ -863,74 +841,38 @@ const BANNED_VOCAB_MAP = {
 };
 
 /**
- * Replace each occurrence of the 33 banned vocabulary words with a cycling
- * synonym. Never deletes to empty string.
+ * POLISHSAFE-4: flag every banned-vocabulary occurrence instead of
+ * substituting a cycling synonym. Detection only — `text` is always
+ * returned unchanged; `recasts` stays empty for call-site compatibility.
  *
  * @param {string} text
- * @returns {{ text: string, recasts: Array<{original: string, replacement: string, word: string}> }}
+ * @returns {{ text: string, recasts: [], flagged: Array<{word: string, count: number}> }}
  */
 export function recastBannedVocabulary(text) {
-  let result = normalizeText(text);
+  const result = normalizeText(text);
   const recasts = [];
+  const flagged = [];
 
   if (!result.trim()) {
-    return { text: result, recasts };
+    return { text: result, recasts, flagged };
   }
 
-  // WAVE5-SETTINGS: user-supplied word=replacement entries join the recast map
-  // (bare words without a replacement are flag-only and handled in reporting —
-  // never blind-deleted; that was bug B4).
+  // WAVE5-SETTINGS: user-supplied word=replacement entries join the banned map.
   const userRecastMap = parseCustomBannedWords().recastMap;
 
-  // ── Special phrase handling: "testament to" needs preposition-aware recast ──
-  let testamentToIdx = 0;
-  result = result.replace(/\btestament\s+to\b/gi, (match) => {
-    const alts = ['tribute to', 'monument to', 'proof of'];
-    const alt = alts[testamentToIdx % alts.length];
-    testamentToIdx++;
-    // Preserve capitalisation
-    let replacement;
-    if (match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()) {
-      replacement = alt.charAt(0).toUpperCase() + alt.slice(1);
-    } else {
-      replacement = alt;
-    }
-    recasts.push({ original: match, replacement, word: 'testament' });
-    return replacement;
-  });
+  // "testament to" is counted separately from bare "testament" below, the
+  // same precedence the retired substitution used to apply.
+  const testamentToCount = (result.match(/\btestament\s+to\b/gi) || []).length;
+  if (testamentToCount > 0) flagged.push({ word: 'testament to', count: testamentToCount });
 
-  // Track per-word cycling index
-  const cycleIndex = {};
-
-  for (const [word, synonyms] of Object.entries({ ...BANNED_VOCAB_MAP, ...userRecastMap })) {
+  for (const word of Object.keys({ ...BANNED_VOCAB_MAP, ...userRecastMap })) {
     const rx = new RegExp('\\b' + word + '\\b', 'gi');
-    cycleIndex[word] = 0;
-
-    result = result.replace(rx, (match) => {
-      const idx = cycleIndex[word];
-      const synonym = synonyms[idx % synonyms.length];
-      cycleIndex[word] = idx + 1;
-
-      // Preserve capitalisation of the original match
-      let replacement;
-      if (match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()) {
-        // First letter was capitalised
-        if (match === match.toUpperCase()) {
-          // ALL CAPS
-          replacement = synonym.toUpperCase();
-        } else {
-          replacement = synonym.charAt(0).toUpperCase() + synonym.slice(1);
-        }
-      } else {
-        replacement = synonym;
-      }
-
-      recasts.push({ original: match, replacement, word });
-      return replacement;
-    });
+    let count = (result.match(rx) || []).length;
+    if (word === 'testament') count -= testamentToCount;
+    if (count > 0) flagged.push({ word, count });
   }
 
-  return { text: result, recasts };
+  return { text: result, recasts, flagged };
 }
 
 export default runAISlopReductionPass;

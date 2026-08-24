@@ -262,19 +262,21 @@ export async function runManuscriptPolishPipeline({
   }
   verifyInvariant('Legacy Artifact Healing');
 
-  // A1: Banned vocabulary RECAST (synonym substitution, never empty-string)
-  onProgress('Polish: Recasting banned vocabulary…');
-  let bannedRecastCount = 0;
+  // A1: Banned vocabulary — POLISHSAFE-4: synonym substitution retired, flag-only.
+  onProgress('Polish: Scanning banned vocabulary…');
+  let bannedFlaggedCount = 0;
   for (const f of loaded) {
     const result = recastBannedVocabulary(f.content);
-    if (result.recasts.length > 0) {
-      f.content = result.text;
-      bannedRecastCount += result.recasts.length;
-      changes.push(`Ch.${f.chapter?.chapter_number || '?'}: recast ${result.recasts.length} banned word(s)`);
+    if (result.flagged.length > 0) {
+      const chNum = f.chapter?.chapter_number || '?';
+      for (const fl of result.flagged) {
+        bannedFlaggedCount += fl.count;
+        changes.push(`Ch.${chNum}: BANNED "${fl.word}" x${fl.count} flagged - substitution retired (POLISHSAFE-4)`);
+      }
     }
   }
-  if (bannedRecastCount > 0) {
-    changes.push(`Banned vocabulary: recast ${bannedRecastCount} word(s) with synonyms (no deletions).`);
+  if (bannedFlaggedCount > 0) {
+    changes.push(`Banned vocabulary: ${bannedFlaggedCount} word(s) flagged - substitution retired (POLISHSAFE-4).`);
   }
   verifyInvariant('Banned Vocabulary Recast');
 
@@ -1174,28 +1176,32 @@ export async function runManuscriptPolishPipeline({
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE D2: Final vocabulary sweep — POLISHFIX-3.
   // The LLM stages above (rewriteFlaggedSpots, polishChapterWithLLM) run after
-  // the early deterministic vocabulary steps and reintroduce banned vocabulary
-  // (29 "testament" instances survived a full-book polish). The deterministic
-  // recast therefore runs again here, after every LLM stage, as the true last
-  // mutating step.
+  // the early deterministic vocabulary steps and can reintroduce banned
+  // vocabulary, so the scan runs again here, after every LLM stage, as the
+  // true last check. POLISHSAFE-4: both the banned-vocabulary recast and the
+  // NF adverb-opener rewrite/delete are retired — flag-only.
   // ══════════════════════════════════════════════════════════════════════════
   onProgress('Polish: Final vocabulary sweep…');
-  let finalVocabFixed = 0;
+  let finalVocabFlagged = 0;
   const FINAL_NF_ADVERBS = ['arguably', 'interestingly', 'remarkably', 'notably', 'undoubtedly', 'unquestionably'];
   for (const f of loaded) {
+    const chNum = f.chapter?.chapter_number || '?';
     const finalRecast = recastBannedVocabulary(f.content || '');
-    if (finalRecast.recasts.length > 0) {
-      f.content = finalRecast.text;
-      finalVocabFixed += finalRecast.recasts.length;
+    for (const fl of finalRecast.flagged) {
+      finalVocabFlagged += fl.count;
+      changes.push(`Ch.${chNum}: BANNED "${fl.word}" x${fl.count} flagged (final sweep) - substitution retired (POLISHSAFE-4)`);
     }
     if (mode === 'nonfiction') {
       for (const w of FINAL_NF_ADVERBS) {
-        f.content = f.content.replace(new RegExp('(^|[.!?]\\s+)' + w + ',?\\s+([a-z])', 'gi'), (m, pre, ch) => { finalVocabFixed++; return pre + ch.toUpperCase(); });
-        f.content = f.content.replace(new RegExp(',?\\s+' + w + '\\b,?', 'gi'), () => { finalVocabFixed++; return ''; });
+        const count = ((f.content || '').match(new RegExp('\\b' + w + '\\b', 'gi')) || []).length;
+        if (count > 0) {
+          finalVocabFlagged += count;
+          changes.push(`Ch.${chNum}: NF adverb "${w}" x${count} flagged (final sweep) - deletion retired (POLISHSAFE-4)`);
+        }
       }
     }
   }
-  if (finalVocabFixed > 0) changes.push('Final vocabulary sweep: ' + finalVocabFixed + ' banned word(s) recast/cleaned after LLM stages.');
+  if (finalVocabFlagged > 0) changes.push('Final vocabulary sweep: ' + finalVocabFlagged + ' word(s) flagged - substitution retired (POLISHSAFE-4).');
   verifyInvariant('Final Vocabulary Sweep');
 
   // ══════════════════════════════════════════════════════════════════════════
