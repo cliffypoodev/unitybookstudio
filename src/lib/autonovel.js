@@ -1302,6 +1302,9 @@ export async function buildSceneBeatPrompt(project, chapter, previousChapter, ch
   // rolling-context block the prose writer already receives, built from each
   // earlier chapter's saved summary_json (falling back to beat_summary). Without
   // it the planner can hand this chapter an event an earlier chapter consumed.
+  // STATECONTRACT-1: ProjectStudio.jsx prepends the full "CHAPTER STATE CONTRACT"
+  // block (buildChapterStateContract) onto priorCoverage before calling this
+  // function, so the planner prompt below carries it too.
   const priorCoverageBlock = (typeof priorCoverage === 'string' && priorCoverage.trim())
     ? `
 ALREADY NARRATED IN EARLIER CHAPTERS — DO NOT PLAN ANY SCENE THAT REPEATS THIS.

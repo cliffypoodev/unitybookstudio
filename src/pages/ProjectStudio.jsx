@@ -82,7 +82,8 @@ import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/proje
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { buildPriorChapterEventLedger, findReintroductions, rewriteReintroductions } from '@/lib/eventLedger'; // EVENTLEDGER-1A
 import { findBeatEventCollisions, rewriteBeatCollisions } from '@/lib/eventCollision'; // SCENECOLLIDE-1
-import { buildCharacterState, buildCharacterStateContract, collectChapterBeatEvents } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2
+import { collectChapterBeatEvents } from '@/lib/characterStateLedger'; // CHARSTATE-2
+import { buildChapterStateContract } from '@/lib/chapterStateContract'; // STATECONTRACT-1
 import { harvestCastNames } from '@/lib/pronounLock'; // CHARSTATE-1
 import { normalizeSceneBeatsForDrafting } from '@/lib/sceneBeatNormalizer';
 import { runVocabCaps, runSentenceStarterVariation } from '@/lib/vocabCaps';
@@ -3403,10 +3404,10 @@ Return structured JSON:
       if (eventLedger.text) priorCoverage = `${eventLedger.text}\n\n${priorCoverage}`;
       console.log('[EVENTLEDGER] Planner ledger:', ledgerEvents.length, 'prior events,', eventLedger.text.length, 'chars');
 
-      // CHARSTATE-1: the planner sees the character state machine too — a
-      // beat plan may not cast a departed character with the crew, and may
-      // not plan a first meeting for a known character. Prepended like the
-      // event ledger so it survives the prompt clip. Fail open.
+      // STATECONTRACT-1: the planner sees the full closed-world contract too
+      // (cast/status, resolved arcs, style bans — no scene map yet, the
+      // planner is what generates the scenes). Prepended like the event
+      // ledger so it survives the prompt clip. Fail open.
       try {
         // PROSEFEED-1: content_md is empty for URL-stored chapters — resolve
         // the real prose, or the state machine builds from nothing.
@@ -3424,13 +3425,17 @@ Return structured JSON:
           } catch { /* fail open per chapter */ }
         }
         const stateCast = harvestCastNames(promptProject?.characters_md, statePriorChapters.map((c) => c.text));
-        if (stateCast.length && statePriorChapters.some((c) => c.text.length > 200)) {
-          const charState = buildCharacterState(statePriorChapters, stateCast);
-          const stateContract = buildCharacterStateContract(charState);
-          if (stateContract) {
-            priorCoverage = `${stateContract}\n\n${priorCoverage}`;
-            console.log('[CHARSTATE] Planner contract:', stateContract.split('\n').length - 1, 'fact(s)');
-          }
+        const stateContractResult = buildChapterStateContract({
+          project: promptProject,
+          chapter,
+          resolvedPriorProse: statePriorChapters,
+          normalizedScenes: [],
+          allProjectChapters: chapterList,
+          cast: stateCast,
+        });
+        if (stateContractResult.block) {
+          priorCoverage = `${stateContractResult.block}\n\n${priorCoverage}`;
+          console.log('[CHARSTATE] Planner contract:', stateContractResult.block.split('\n').length - 1, 'fact(s)');
         }
       } catch (stateError) {
         console.warn('[CHARSTATE] Planner state build failed (non-fatal):', stateError?.message || stateError);
