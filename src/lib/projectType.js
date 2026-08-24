@@ -67,10 +67,30 @@ export function isNonfictionGenreName(genre) {
 }
 
 /**
+ * NFCLASS-2 — formats are not types. `project_type` carries FORMAT values too
+ * (e.g. 'anthology'), and a format is not a declaration of fiction/nonfiction.
+ * Only these two values count as a type declaration.
+ */
+export const TYPE_DECLARATIONS = Object.freeze(['fiction', 'nonfiction']);
+
+/**
+ * Returns the FIRST of book_type, project_type whose lower-cased value is an
+ * actual type declaration ('fiction' | 'nonfiction'), else ''. A format value
+ * like 'anthology' is never returned here.
+ */
+export function declaredType(project) {
+  const bookType = String(project?.book_type || '').toLowerCase().trim();
+  if (TYPE_DECLARATIONS.includes(bookType)) return bookType;
+  const projectType = String(project?.project_type || '').toLowerCase().trim();
+  if (TYPE_DECLARATIONS.includes(projectType)) return projectType;
+  return '';
+}
+
+/**
  * The single answer. `project` may be a project record or a settings object.
  */
 export function isNonfictionProject(project) {
-  const declared = String(project?.book_type || project?.project_type || '').toLowerCase().trim();
+  const declared = declaredType(project);
   if (declared) return declared === 'nonfiction';
   return isNonfictionGenreName(project?.genre);
 }
@@ -85,7 +105,7 @@ export function isFictionProject(project) {
  * classification that cannot say WHY is how six of them drifted apart unnoticed.
  */
 export function explainProjectType(project) {
-  const declared = String(project?.book_type || project?.project_type || '').toLowerCase().trim();
+  const declared = declaredType(project);
   if (declared) {
     return {
       nonfiction: declared === 'nonfiction',
@@ -93,10 +113,13 @@ export function explainProjectType(project) {
       detail: `book_type/project_type = "${declared}"`,
     };
   }
+  const ignoredFormat = String(project?.book_type || project?.project_type || '').toLowerCase().trim();
   const nf = isNonfictionGenreName(project?.genre);
   return {
     nonfiction: nf,
     basis: 'genre-inference',
-    detail: `nothing declared; genre = "${project?.genre || ''}"`,
+    detail: ignoredFormat
+      ? `nothing declared (ignored format "${ignoredFormat}"); genre = "${project?.genre || ''}"`
+      : `nothing declared; genre = "${project?.genre || ''}"`,
   };
 }
