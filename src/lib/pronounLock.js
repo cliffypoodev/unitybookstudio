@@ -192,6 +192,23 @@ export function buildPronounCanon(project, chapterTexts, names, options = {}) {
  * they-canon flags gendered pronouns; gendered canon flags only the OPPOSITE
  * gendered set (plural they is always legitimate prose).
  */
+// PRONOUNLOCK-2: cut a pronoun-counting span at the first OTHER cast name or
+// unnamed-person reference (PERSON_NOUN_RX) — the same closed-world rule
+// safeSpanEnd already applies for PRONOUNVAR-2's possessive attribution.
+// Without it, "Vessa spoke to the vendor. He nodded and walked away." wrongly
+// absorbed the vendor's "He" into Vessa's tally (external audit, REDUX).
+function boundedPronounCounts(span, subjectName, allNames) {
+  let end = span.length;
+  for (const other of allNames) {
+    if (other === subjectName) continue;
+    const at = span.indexOf(other);
+    if (at >= 0 && at < end) end = at;
+  }
+  const pm = span.match(PERSON_NOUN_RX);
+  if (pm && pm.index < end) end = pm.index;
+  return countSets(span.slice(0, end));
+}
+
 export function scanPronounViolations(text, canon, allNames) {
   const findings = [];
   const names = Array.isArray(allNames) && allNames.length ? allNames : Object.keys(canon || {});
@@ -203,15 +220,24 @@ export function scanPronounViolations(text, canon, allNames) {
       const at = sentence.indexOf(name);
       if (at === -1) continue;
       if (others.some((other) => sentence.includes(other))) continue;
-      let tail = sentence.slice(at + name.length);
+      const tail = sentence.slice(at + name.length);
+      const tailCounts = boundedPronounCounts(tail, name, names);
       // Drift usually lands in the NEXT sentence ("Lark stood. His hands..."):
       // extend the window when that sentence is pronoun-initial and names no
-      // other cast member — the pronoun is then bound to this character.
+      // other cast member — the pronoun is then bound to this character. But
+      // NOT when this sentence already introduced an unnamed third party
+      // ("Vessa spoke to the vendor. He nodded…") — the next sentence's
+      // pronoun is then ambiguous between the two, so it is left alone.
       const next = allSentences[s + 1] || '';
-      if (/^(?:He|She|They|His|Her|Their)\b/.test(next) && !names.some((other) => next.includes(other))) {
-        tail += ` ${next}`;
+      let nextCounts = { he: 0, she: 0, they: 0 };
+      if (!PERSON_NOUN_RX.test(tail) && /^(?:He|She|They|His|Her|Their)\b/.test(next) && !names.some((other) => next.includes(other))) {
+        nextCounts = boundedPronounCounts(next, name, names);
       }
-      const counts = countSets(tail);
+      const counts = {
+        he: tailCounts.he + nextCounts.he,
+        she: tailCounts.she + nextCounts.she,
+        they: tailCounts.they + nextCounts.they,
+      };
       let bad = 0;
       if (expected === 'he') bad = counts.she;
       else if (expected === 'she') bad = counts.he;
@@ -547,4 +573,4 @@ const NAME_STOPWORDS = new Set([
   'Mr', 'Dr', 'Ms',
 ]);
 
-export const PRONOUN_LOCK_VERSION = 'pronoun-lock-v3'; // PRONOUNVAR-2
+export const PRONOUN_LOCK_VERSION = 'pronoun-lock-v4'; // PRONOUNLOCK-2

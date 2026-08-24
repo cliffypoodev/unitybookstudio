@@ -96,7 +96,7 @@ check('18. heal flips Lark’s "his own reflection"→"her" but leaves Rodge’s
   mx.text.includes('Lark met her own reflection.') && mx.text.includes('Rodge scowled. His fists clenched.'));
 
 // 19. version bumped
-check('19. version is pronoun-lock-v3', PRONOUN_LOCK_VERSION === 'pronoun-lock-v3');
+check('19. version is pronoun-lock-v4 (bumped by PRONOUNLOCK-2)', PRONOUN_LOCK_VERSION === 'pronoun-lock-v4');
 
 // 20. export-gate wiring intact (scanner still feeds a within-scene WARNING, never a hard block)
 const GATE = fs.readFileSync(new URL('../src/lib/exportSafetyGate.js', import.meta.url), 'utf8');

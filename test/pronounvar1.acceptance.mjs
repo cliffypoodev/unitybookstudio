@@ -64,7 +64,7 @@ check('17. a pronoun bound to ANOTHER character is never touched', (() => {
 })());
 
 // ── 5. wiring ──
-check('18. version bumped', PRONOUN_LOCK_VERSION === 'pronoun-lock-v3');
+check('18. version bumped', PRONOUN_LOCK_VERSION === 'pronoun-lock-v4');
 const GATE = fs.readFileSync(new URL('../src/lib/exportSafetyGate.js', import.meta.url), 'utf8');
 check('19. export gate reports within-scene drift as a warning', GATE.includes('scanContextVariablePronounDrift(body, pronounCanon.variable, castNames)') && GATE.includes('PRONOUNVAR-1:') && !/hardFailures\.push\([^)]*PRONOUNVAR/s.test(GATE));
 const WRITER = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
