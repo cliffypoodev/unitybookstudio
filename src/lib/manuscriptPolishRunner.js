@@ -41,6 +41,7 @@ import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes
 import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from './crossChapterDedupe.js';
 import { healSimileDensity, selectSimileRecastTargets } from './simileRecast.js'; // STYLEBUDGET-2
 import { repairDroppedSubjects, findDroppedSubjectSentences } from './subjectRepair.js'; // SUBJECTREPAIR-1
+import { regenerateFlaggedParagraphs, collectRegenTargets } from './regenerateLane.js'; // REGENLANE-1
 import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
 import { harvestCastNames, buildPronounCanon, healContextVariablePronounScenes } from './pronounLock.js'; // SUBJECTREPAIR-1 / PRONOUNVAR-1
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
@@ -112,11 +113,13 @@ export async function runManuscriptPolishPipeline({
   allowDedupeLLM = true,
   allowStyleLLM = true, // STYLEBUDGET-2: simile hard-cap recasts (one verified sentence per call)
   allowSubjectRepairLLM = true, // SUBJECTREPAIR-1: restore dropped subjects (model picks the subject, verifier enforces shape)
+  allowRegenLLM = true, // REGENLANE-1: block-and-regenerate lane (model rewrites, verifier enforces shape)
   _llmOverride = null,
   _testInjectHealer = null,
   _crossDedupeLLMOverride = null,
   _simileLLMOverride = null, // STYLEBUDGET-2 test/DI
   _subjectLLMOverride = null, // SUBJECTREPAIR-1 test/DI
+  _regenLLMOverride = null, // REGENLANE-1 test/DI
 }) {
   // RESEARCHQUALITY-2C: hydrate URL-backed research evidence so the polish-lane
   // ledger sees the same closed world as drafting. Fail-open.
@@ -943,6 +946,55 @@ export async function runManuscriptPolishPipeline({
     if (subjectStats.found > 0) changes.push(`SUBJECTREPAIR-1: ${subjectStats.found} dropped-subject sentence(s) found, ${subjectStats.repaired} restored, ${subjectStats.skipped} left for review.`);
   }
   verifyInvariant('Subject Repair');
+
+  // REGENLANE-1: legacy chapters get the same one-chance block-and-regenerate
+  // lane the writer applies to new prose — the lane MALFORMEDSENT-1 could
+  // detect but never fix. Fiction only; one sequential LLM call per flagged
+  // paragraph, deterministically verified, fail-open to a report.
+  checkpoint();
+  let regenStats = { chaptersWithTargets: 0, regenerated: 0, skipped: 0 };
+  if (mode !== 'nonfiction' && !isAnthology) {
+    let castForRegen = [];
+    try {
+      castForRegen = harvestCastNames(project?.characters_md, loaded.map((f) => String(f.content || '')));
+      for (const entry of parseCanonCast(project?.characters_md)) {
+        for (const n of [entry.name, ...(entry.aliases || [])]) if (n && !castForRegen.includes(n)) castForRegen.push(n);
+      }
+    } catch { castForRegen = castForRegen || []; }
+    const sortedLoaded = [...loaded].sort((a, b) => (Number(a.chapter?.chapter_number) || 0) - (Number(b.chapter?.chapter_number) || 0));
+    for (let idx = 0; idx < sortedLoaded.length; idx += 1) {
+      const f = sortedLoaded[idx];
+      const chNum = f.chapter?.chapter_number || '?';
+      const priorProse = sortedLoaded.slice(0, idx).map((p) => String(p.content || ''));
+      if (allowLLM || allowRegenLLM || _regenLLMOverride) {
+        try {
+          const regen = await regenerateFlaggedParagraphs(String(f.content || ''), {
+            callLLM: _regenLLMOverride, project, cast: castForRegen, priorProse, label: `Ch.${chNum}`, onProgress,
+          });
+          if (regen.targets.length > 0) regenStats.chaptersWithTargets += 1;
+          if (regen.regenerated > 0) {
+            f.content = regen.text;
+            regenStats.regenerated += regen.regenerated;
+            changes.push(`Ch.${chNum}: Regenerate Lane — regenerated ${regen.regenerated}, skipped ${regen.skipped.length}`);
+          }
+          regenStats.skipped += regen.skipped.length;
+        } catch (err) {
+          console.error(`[REGENLANE] Ch.${chNum} pass failed open:`, err?.message);
+          changes.push(`Ch.${chNum}: Regenerate Lane unavailable (${err?.message || 'unknown'}) — flagged paragraph(s) NOT regenerated.`);
+        }
+      } else {
+        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen });
+        if (targets.length > 0) {
+          regenStats.chaptersWithTargets += 1;
+          changes.push(`Ch.${chNum}: Regenerate Lane found ${targets.length} flagged paragraph(s) — LLM disabled, reported only.`);
+        }
+      }
+    }
+    if (regenStats.chaptersWithTargets > 0) {
+      changes.push(`Regenerate Lane: ${regenStats.chaptersWithTargets} chapter(s) had flagged paragraph(s), ${regenStats.regenerated} regenerated, ${regenStats.skipped} left for review.`);
+    }
+  }
+  verifyInvariant('Regenerate Lane');
 
   // PRONOUNVAR-1: heal WITHIN-scene pronoun drift for context-variable
   // characters (e.g. Lark, declared genderfluid). Between scenes the
