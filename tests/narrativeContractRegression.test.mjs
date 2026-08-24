@@ -233,16 +233,33 @@ test('runtime ledger blocks possession violation for dropped object', () => {
 });
 
 test('runtime ledger blocks possession violation for transferred object', () => {
+  // DEADTEST-1: this test predates KEYLEDGER-1e/1d and was never updated when they
+  // shipped. KEYLEDGER-1e (998b21fe) retired the old "gives X to Y" / "X takes Y" write-path
+  // regexes (measured ZERO possession facts across 21,344 words of live saves, and additive
+  // when they did fire) in favor of setHolderOfRecord, driven by a prose scanner that requires
+  // { sceneCast, trackedObjects } and reads the transfer off sceneProse — never off exit_state,
+  // which is a terse planning directive, not narrated prose. KEYLEDGER-1d then replaced the
+  // read-path check this test exercises with checkPossessionContinuity, which also requires
+  // sceneCast and reports code 'OBJECT_POSSESSION_TELEPORT', not 'OBJECT_POSSESSION_VIOLATION'
+  // (that code is still real, but now belongs only to the separate, simpler droppedObjects
+  // check exercised by the sibling test above). The gate is not dead — it is more capable than
+  // this test ever exercised — but the test called an API shape that no longer does anything
+  // (extractSceneLedgerUpdates fails open without sceneCast/trackedObjects; auditSceneAgainstLedger
+  // skips the possession check entirely without sceneCast), so it silently stopped proving anything.
   let ledger = buildInitialLedger();
-  ledger = extractSceneLedgerUpdates(ledger, '', { exit_state: 'Lena gives the log page to Marcus.' });
-  
+  const sceneCast = ['Lena', 'Marcus'];
+  ledger = extractSceneLedgerUpdates(ledger, 'Lena gives the log page to Marcus.', {}, {
+    sceneCast, trackedObjects: ['log page'],
+  });
+
   const audit = auditSceneAgainstLedger({
     prose: 'Lena holds the log page.',
-    runtimeLedger: ledger
+    runtimeLedger: ledger,
+    sceneCast,
   });
-  
+
   assert.equal(audit.ok, false);
-  assert.ok(audit.issues.some((i) => i.code === 'OBJECT_POSSESSION_VIOLATION'));
+  assert.ok(audit.issues.some((i) => i.code === 'OBJECT_POSSESSION_TELEPORT'));
 });
 
 test('runtime ledger blocks all evidence is gone if objects remain', () => {
