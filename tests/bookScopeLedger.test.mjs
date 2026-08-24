@@ -266,8 +266,13 @@ check('TELEMETRY: summarizeLedger reports the counts that matter',
 
 // ─── wiring, read from source ──────────────────────────────────────────────────
 
+// DEADTEST-4: this predates BOOKECHO-1 (0040a08c), which added a priorChapterProse
+// parameter after priorLedger in the destructured signature -- the anchor here
+// required priorLedger to be the LAST parameter before the closing `}) {`, which
+// is no longer true. The fact being proven (generateChapterSceneByScene declares
+// a priorLedger param defaulting to null) is unaffected by what comes after it.
 check('WIRING: generateChapterSceneByScene accepts priorLedger',
-  /priorLedger = null,\s*\n\}\) \{/.test(sceneWriter));
+  sceneWriter.includes('priorLedger = null,'));
 
 check('WIRING: the ledger is SEEDED from priorLedger instead of always empty',
   sceneWriter.includes('let runtimeLedger = priorLedger ? cloneLedger(priorLedger) : buildInitialLedger();'));
@@ -278,8 +283,13 @@ check('WIRING: seeding is logged either way, so a silent empty seed is visible',
 check('WIRING: the ledger is RETURNED to the caller (it used to die with the function)',
   /narrativeLedger: boundLedger\(runtimeLedger\)/.test(sceneWriter));
 
+// DEADTEST-4: this predates ANTHOLOGYBLEED-1 (1aa21443), which wrapped the call in
+// `isAnth ? null : await buildPriorLedger(...)` so an anthology story never folds
+// another story's ledger. The fact being proven (ProjectStudio actually calls
+// buildPriorLedger and threads the result into the writer as priorLedger) still
+// holds; only the anchor's exact literal text changed.
 check('WIRING: ProjectStudio folds prior chapters and passes the result in',
-  projectStudio.includes('const priorLedger = await buildPriorLedger(')
+  projectStudio.includes('await buildPriorLedger(project?.id || projectId, chapter.chapter_number)')
   && /priorChapterSummaries,\s*\n\s*priorLedger,/.test(projectStudio));
 
 check('WIRING: ProjectStudio persists the ledger after drafting',
