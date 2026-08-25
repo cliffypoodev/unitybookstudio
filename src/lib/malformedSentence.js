@@ -80,3 +80,8 @@ export function scanMalformedSentences(text, castNames = []) {
 }
 
 export const MALFORMEDSENT_VERSION = 'malformed-sentence-v1';
+
+// GATEPROMOTE-1: MALFORMEDSENT-1 stays a warning at export until two
+// consecutive books export with "[MALFORMEDSENT] Gate scan: 0" — flip this
+// to true only then, and record the books in that commit's message.
+export const MALFORMEDSENT_HARD_BLOCK = false;

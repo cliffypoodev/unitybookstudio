@@ -84,11 +84,12 @@ async function getDialogueDetector() {
  */
 import { buildPronounCanon, harvestCastNames, scanPronounViolations, scanContextVariablePronounDrift } from './pronounLock.js'; // PRONOUNLOCK-1 / PRONOUNVAR-1
 import { scanDuplicateIntroductions } from './introGuard.js'; // INTRODUP-1
-import { scanMalformedSentences } from './malformedSentence.js'; // MALFORMEDSENT-1
+import { scanMalformedSentences, MALFORMEDSENT_HARD_BLOCK } from './malformedSentence.js'; // MALFORMEDSENT-1 / GATEPROMOTE-1
 import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1K } from './aiSlopReduction.js'; // STYLEBUDGET-1
 import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
 import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants, scanRoleReferenceDrift } from './canonRoles.js'; // CANON-2 / CHARSTATE-1
 import { buildCharacterState, auditProseAgainstCharacterState, extractBeatDeclaredStateUpdates, collectChapterBeatEvents } from './characterStateLedger.js'; // CHARSTATE-1 / CHARSTATE-2
+import { isFictionProject } from './projectType.js'; // GATEPROMOTE-1
 
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
   let { project, stage = 'pre-export' } = options;
@@ -639,11 +640,31 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       msTotal += bad.length;
       const byKind = bad.reduce((a, f) => { a[f.kind] = (a[f.kind] || 0) + 1; return a; }, {});
       const summary = Object.entries(byKind).map(([k, n]) => `${n} ${k}`).join(', ');
-      warnings.push({
-        chapterNumber: ch?.chapter_number,
-        title: ch?.title || '',
-        reasons: [`MALFORMEDSENT-1: ${bad.length} malformed sentence(s) (${summary}) — regenerate, do not regex-edit. e.g. "${bad[0].sentence}"`],
-      });
+      const msReasons = [`MALFORMEDSENT-1: ${bad.length} malformed sentence(s) (${summary}) — regenerate, do not regex-edit. e.g. "${bad[0].sentence}"`];
+      // GATEPROMOTE-1: stays a warning until MALFORMEDSENT_HARD_BLOCK is
+      // flipped to true (two consecutive clean exports) — do not flip it here.
+      if (isFictionProject(project) && MALFORMEDSENT_HARD_BLOCK) {
+        hardFailures.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          ok: false,
+          recommendedAction: 'REJECT_REGENERATE',
+          processLeakCount: 0,
+          contaminationCount: 0,
+          malformedCount: bad.length,
+          dialogueIssueCount: 0,
+          slopTotal: 0,
+          reasons: msReasons,
+          snippets: [],
+        });
+        console.warn(`[GATEPROMOTE] Ch.${ch?.chapter_number}: MALFORMEDSENT-1 promoted to hard block`);
+      } else {
+        warnings.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          reasons: msReasons,
+        });
+      }
     }
     console.log(`[MALFORMEDSENT] Gate scan: ${msTotal} malformed sentence(s) across ${chapters.length} chapter(s)`);
   } catch (msError) {
@@ -739,12 +760,34 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         const declaredHere = extractBeatDeclaredStateUpdates(orderedChapters[i].beatEvents, stateCastNames).returns;
         const violations = auditProseAgainstCharacterState(orderedChapters[i].text, priorState, stateCastNames, { declaredReturns: declaredHere });
         for (const violation of violations) {
-          warnings.push({
-            chapterNumber: orderedChapters[i].chapterNumber,
-            title: orderedChapters[i].title,
-            reasons: [`CHARSTATE-1: ${violation.message}`],
-          });
           console.warn(`[CHARSTATE] Ch.${orderedChapters[i].chapterNumber}: ${violation.code} — ${violation.name}`);
+          // GATEPROMOTE-1: in fiction, a resurrection (a departed character
+          // acting with no written return) or a duplicate cross-chapter
+          // self-introduction is a continuity break, not an advisory —
+          // promote to a hard failure. Role drift (below) stays a warning.
+          if (isFictionProject(project) && (violation.code === 'DEPARTED_CHARACTER_ACTIVE' || violation.code === 'DUPLICATE_INTRODUCTION')) {
+            hardFailures.push({
+              chapterNumber: orderedChapters[i].chapterNumber,
+              title: orderedChapters[i].title,
+              ok: false,
+              recommendedAction: 'REJECT_REGENERATE',
+              processLeakCount: 0,
+              contaminationCount: 0,
+              malformedCount: 0,
+              dialogueIssueCount: 0,
+              slopTotal: 0,
+              code: violation.code,
+              reasons: [`CHARSTATE-1: ${violation.message}`],
+              snippets: [],
+            });
+            console.warn(`[GATEPROMOTE] Ch.${orderedChapters[i].chapterNumber}: ${violation.code} promoted to hard block`);
+          } else {
+            warnings.push({
+              chapterNumber: orderedChapters[i].chapterNumber,
+              title: orderedChapters[i].title,
+              reasons: [`CHARSTATE-1: ${violation.message}`],
+            });
+          }
         }
       }
     }
