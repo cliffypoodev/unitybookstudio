@@ -55,3 +55,39 @@ export function createInEV(evidenceCorpus) {
     return EV.includes(' ' + alt + ' ') || EV.includes(alt);
   };
 }
+
+// A sentence-initial capitalized function word is never itself a proper
+// noun (GATEFIX-28) — stripped from the front of a phrase before it is
+// treated as a name candidate.
+const SENTENCE_INITIAL_STOPWORDS = new Set([
+  'The', 'A', 'An', 'In', 'On', 'At', 'By', 'For', 'With', 'From', 'To', 'Of',
+  'And', 'But', 'Or', 'Nor', 'As', 'If', 'When', 'Where', 'While', 'After',
+  'Before', 'During', 'Since', 'This', 'That', 'These', 'Those', 'He', 'She',
+  'They', 'It', 'His', 'Her', 'Their', 'Its',
+]);
+
+// A 1-3 capitalized-token phrase, with an optional trailing period per
+// token so a title abbreviation ("Dr.", "Gen.") joins the compound instead
+// of splitting off as its own token. Restricted to space/tab between
+// tokens (not newlines) so a phrase never spans a paragraph break.
+const PROPER_NOUN_PHRASE_RX = /\b[A-Z][a-zA-Z'’-]*\.?(?:[ \t]+[A-Z][a-zA-Z'’-]*\.?){0,2}/g;
+
+/**
+ * Every 1-3 capitalized-token phrase in `text`, with sentence-initial
+ * function words stripped from the front of each match. Returns the raw
+ * (un-normalized) phrases, in order, including duplicates.
+ */
+export function extractProperNounPhrases(text) {
+  const out = [];
+  const s = String(text || '');
+  let m;
+  PROPER_NOUN_PHRASE_RX.lastIndex = 0;
+  while ((m = PROPER_NOUN_PHRASE_RX.exec(s)) !== null) {
+    const toks = m[0].split(/\s+/);
+    while (toks.length > 1 && SENTENCE_INITIAL_STOPWORDS.has(toks[0])) toks.shift();
+    if (toks.length === 1 && SENTENCE_INITIAL_STOPWORDS.has(toks[0])) continue;
+    const phrase = toks.join(' ');
+    if (phrase) out.push(phrase);
+  }
+  return out;
+}

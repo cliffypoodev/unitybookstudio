@@ -21,6 +21,7 @@ import { scrubModelLeaks, scrubOutlineChapters } from '@/lib/modelLeakGuard'; //
 import { BIBLE_FIELD_FLOORS, fieldLengthOk, buildFieldRetryAppendix } from '@/lib/bibleFieldGuard'; // FIELDGUARD-1
 import { unwrapIntegrationResult } from '@/lib/autonovel';
 import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from '@/lib/nameHygieneRules';
+import { normCW, createInEV, extractProperNounPhrases } from './closedWorldText.js'; // BIBLEGUARD-NAMES-1
 
 // TELEMETRY-1: a LOAD banner describes what a module CAN do; it must never read
 // like a statement about the run in front of you. This one said "strict
@@ -882,6 +883,48 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
     mysteryMd = stripUnverifiedQuotes(mysteryMd);
     outlineMd = stripUnverifiedQuotes(outlineMd);
     chapters = chapters.map((ch) => ({ ...ch, title: stripUnverifiedQuotes(ch.title), beat_summary: stripUnverifiedQuotes(ch.beat_summary) }));
+  }
+
+  // BIBLEGUARD-NAMES-1: an invented person, place, or institution is a
+  // fabrication the same way an unverified quote is. Every proper-noun
+  // phrase in a generated nonfiction field must substring-match the
+  // research (closed-world discipline, same normalization/plural-singular
+  // fallback as closedWorldCheck in sceneWriter.js). A violation throws so
+  // the existing catch shows the "nothing was saved" toast naming the noun.
+  if (!isFiction && normCW(getResearchText(settings)).length >= 200) {
+    const researchEvidence = ' ' + normCW(getResearchText(settings)) + ' ';
+    const bibleInEV = createInEV(researchEvidence);
+    // A markdown field-label line ("- **Role:** Protagonist", "Pronouns: she/her")
+    // names a LABEL, not a person/place — those never need research support.
+    const FIELD_LABEL_LINE_RX = /^[\s>*-]*\*{0,2}([A-Z][A-Za-z '’-]{1,40}):\*{0,2}\s/gm;
+    const collectFieldLabels = (text) => {
+      const labels = new Set();
+      let m;
+      FIELD_LABEL_LINE_RX.lastIndex = 0;
+      const s = String(text || '');
+      while ((m = FIELD_LABEL_LINE_RX.exec(s)) !== null) labels.add(normCW(m[1]));
+      return labels;
+    };
+    const checkFieldNames = (text, fieldName) => {
+      const s = String(text || '');
+      if (!s) return;
+      const labels = collectFieldLabels(s);
+      let checked = 0;
+      for (const phrase of extractProperNounPhrases(s)) {
+        if (labels.has(normCW(phrase))) continue;
+        checked += 1;
+        if (!bibleInEV(phrase)) {
+          throw new Error(`BIBLEGUARD-NAMES-1: "${phrase}" in ${fieldName} is not in the research`);
+        }
+      }
+      console.log(`[BIBLE-GUARD] names: ${fieldName} checked ${checked} noun(s), 0 unsupported`);
+    };
+    checkFieldNames(worldMd, 'world_md');
+    checkFieldNames(charactersMd, 'characters_md');
+    checkFieldNames(voiceMd, 'voice_md');
+    checkFieldNames(canonMd, 'canon_md');
+    checkFieldNames(mysteryMd, 'mystery_md');
+    checkFieldNames(outlineMd, 'outline_md');
   }
 
   // LEAKFIX-2: scrub model leaks (control tokens, non-Latin drift) from every
