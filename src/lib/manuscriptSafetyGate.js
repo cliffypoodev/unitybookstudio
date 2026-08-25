@@ -2,6 +2,7 @@
 // manuscriptSafetyGate.js — Unified manuscript safety gate v1
 import { detectModelControlTokens } from './modelLeakGuard.js';
 import { findNarrativeMetaLeaks } from './generationContext.js';
+import { clauseHasPluralCommonNoun } from './malformedSentence.js'; // MALFORMEDSENT-3
 //
 // Shared safety module for the three active UI paths:
 //   1. Draft/Rewrite → draftChapter() save path
@@ -446,10 +447,14 @@ const MALFORMED_CANARIES = [
       if (/\band(?:\s+the)?\s*$/i.test(before)) {
         return false;
       }
-      // Plural head-noun earlier in the clause governs "were", with the proper noun
-      // only inside a modifier. e.g. "the lines between Washington and Texas were"
-      // Look for a plural common noun + a connecting preposition before the proper noun.
-      if (/\b(lines|routes|records|ledgers|papers|newspapers|troops|forces|men|operators|wires|messages|reports|dispatches|documents|states|courts|roads|ports)\b[^.?!]*\b(?:between|from|of|in|across|along|to|and)\s+[A-Za-z]*\s*$/i.test(before)) {
+      // MALFORMEDSENT-3: a plural common noun earlier in the SAME CLAUSE
+      // governs "were", with the proper noun only inside a modifier — e.g.
+      // "the few Union forces that did attempt to operate in Texas were" is
+      // not a Texas-were error; "forces" is plural and "were" agrees with
+      // it. Shared with scanMalformedSentences (malformedSentence.js) —
+      // MALFORMEDSENT-2's guard, not a second, narrower hardcoded list —
+      // so one classifier decides for both entry points.
+      if (clauseHasPluralCommonNoun(before)) {
         return false;
       }
       return true; // likely a real error

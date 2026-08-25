@@ -38,7 +38,10 @@ const PLURAL_NOUN_STOPWORDS = new Set([
 // semicolon / colon / em dash / open paren) so an EARLIER clause's plural
 // noun cannot mask a genuine singular-subject error in a LATER clause of
 // the same sentence.
-function clauseHasPluralCommonNoun(before) {
+// MALFORMEDSENT-3: exported so manuscriptSafetyGate.js's "Singular proper
+// noun + were" canary can share this exact guard instead of maintaining its
+// own narrower, hardcoded plural-noun list — one classifier decides.
+export function clauseHasPluralCommonNoun(before) {
   const boundary = Math.max(before.lastIndexOf(','), before.lastIndexOf(';'), before.lastIndexOf(':'), before.lastIndexOf('—'), before.lastIndexOf('('));
   const clause = before.slice(boundary + 1);
   const rx = /\b([a-z]{3,}s)\b/g;
