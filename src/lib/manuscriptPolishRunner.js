@@ -42,6 +42,7 @@ import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from '
 import { healSimileDensity, selectSimileRecastTargets } from './simileRecast.js'; // STYLEBUDGET-2
 import { repairDroppedSubjects, findDroppedSubjectSentences } from './subjectRepair.js'; // SUBJECTREPAIR-1
 import { regenerateFlaggedParagraphs, collectRegenTargets } from './regenerateLane.js'; // REGENLANE-1
+import { makeTemplateFamilyDetector, makeOpeningEchoDetector } from './templateFamilies.js'; // STYLEBUDGET-3
 import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
 import { harvestCastNames, buildPronounCanon, healContextVariablePronounScenes } from './pronounLock.js'; // SUBJECTREPAIR-1 / PRONOUNVAR-1
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
@@ -968,11 +969,17 @@ export async function runManuscriptPolishPipeline({
       const f = sortedLoaded[idx];
       const chNum = f.chapter?.chapter_number || '?';
       const priorProse = sortedLoaded.slice(0, idx).map((p) => String(p.content || ''));
+      // STYLEBUDGET-3: prior openings for the echo detector, and the family
+      // detector's book spend, both built from the same prior-chapter slice.
+      const priorOpenings = sortedLoaded.slice(0, idx).map((p) => ({ chapterNumber: p.chapter?.chapter_number, text: String(p.content || '') }));
+      const templateFamilyDetector = makeTemplateFamilyDetector({ priorProse });
+      const openingEchoDetector = makeOpeningEchoDetector({ priorOpenings, castNames: castForRegen });
+      console.log(`[STYLEBUDGET-3] Ch.${chNum}: family targets ${templateFamilyDetector(String(f.content || '')).length}, opening-echo targets ${openingEchoDetector(String(f.content || '')).length}`);
       if (allowLLM || allowRegenLLM || _regenLLMOverride) {
         try {
           const regen = await regenerateFlaggedParagraphs(String(f.content || ''), {
             callLLM: _regenLLMOverride, project, cast: castForRegen, priorProse, label: `Ch.${chNum}`, onProgress,
-            extraDetectors: [detectBannedVocabulary], // POLISHSAFE-4
+            extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector], // POLISHSAFE-4 + STYLEBUDGET-3
           });
           if (regen.targets.length > 0) regenStats.chaptersWithTargets += 1;
           if (regen.regenerated > 0) {
@@ -986,7 +993,7 @@ export async function runManuscriptPolishPipeline({
           changes.push(`Ch.${chNum}: Regenerate Lane unavailable (${err?.message || 'unknown'}) — flagged paragraph(s) NOT regenerated.`);
         }
       } else {
-        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen, extraDetectors: [detectBannedVocabulary] });
+        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen, extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector] });
         if (targets.length > 0) {
           regenStats.chaptersWithTargets += 1;
           changes.push(`Ch.${chNum}: Regenerate Lane found ${targets.length} flagged paragraph(s) — LLM disabled, reported only.`);

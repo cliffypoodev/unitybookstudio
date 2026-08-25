@@ -51,6 +51,7 @@ import { buildBannedVocabularyPromptBlock, detectBannedVocabulary } from './voca
 import { buildChapterStateContract, parseResolvedArcs, detectArcRestarts } from './chapterStateContract.js'; // STATECONTRACT-1
 import { checkPromptBudget, AGENT_NUM_CTX } from './localLLM.js'; // STATECONTRACT-1B
 import { detectSameChapterSceneDuplicates, parseOutlineSections } from './eventCollision.js'; // SCENEDUP-1 / LOOKAHEAD-1
+import { makeTemplateFamilyDetector, makeOpeningEchoDetector } from './templateFamilies.js'; // STYLEBUDGET-3
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -3099,10 +3100,18 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
         } catch { resolvedArcs = []; }
       }
       const arcRestartDetector = (text) => detectArcRestarts(text, resolvedArcs);
+      // STYLEBUDGET-3: prior chapters, in order, for template-family book spend
+      // and opening-echo comparison (same index-as-chapter-number convention
+      // priorChapterProse already uses above).
+      const priorChapterEntries = (Array.isArray(priorChapterProse) ? priorChapterProse : [])
+        .map((text, i) => ({ chapterNumber: i + 1, text }));
+      const templateFamilyDetector = makeTemplateFamilyDetector({ priorProse: priorChapterProse });
+      const openingEchoDetector = makeOpeningEchoDetector({ priorOpenings: priorChapterEntries, castNames: cast });
+      console.log(`[STYLEBUDGET-3] writer-final: family targets ${templateFamilyDetector(finalProse).length}, opening-echo targets ${openingEchoDetector(finalProse).length}`);
       const regen = await regenerateFlaggedParagraphs(finalProse, {
         project, cast, departed, priorProse: priorChapterProse, label: 'writer-final',
         stateFacts: stateFactsBlock, // STATECONTRACT-1
-        extraDetectors: [detectBannedVocabulary, detectSameChapterSceneDuplicates, arcRestartDetector], // POLISHSAFE-4 + SCENEDUP-1 + ARCSTATE-1
+        extraDetectors: [detectBannedVocabulary, detectSameChapterSceneDuplicates, arcRestartDetector, templateFamilyDetector, openingEchoDetector], // POLISHSAFE-4 + SCENEDUP-1 + ARCSTATE-1 + STYLEBUDGET-3
       });
       if (regen.regenerated > 0) finalProse = regen.text;
     }
