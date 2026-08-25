@@ -118,10 +118,13 @@ check('5. every key shared with SLOP_BUDGETS has the same book budget in both li
   check('9a. sceneWriter.js logs [STYLEBUDGET-3] unconditionally (not inside an if that skips zero)',
     /console\.log\(`\[STYLEBUDGET-3\] writer-final: family targets \$\{templateFamilyDetector\(finalProse\)\.length\}, opening-echo targets \$\{openingEchoDetector\(finalProse\)\.length\}`\);/.test(SW));
   check('9b. manuscriptPolishRunner.js logs [STYLEBUDGET-3] unconditionally, before the LLM-on/off branch',
-    /console\.log\(`\[STYLEBUDGET-3\] Ch\.\$\{chNum\}: family targets[\s\S]{0,300}opening-echo targets[\s\S]{0,300}`\);\s*\n\s*if \(allowLLM/.test(RUNNER));
+    /console\.log\(`\[STYLEBUDGET-3\] Ch\.\$\{chNum\}: family targets[\s\S]{0,300}opening-echo targets[\s\S]{0,300}`\);[\s\S]{0,400}?if \(allowLLM/.test(RUNNER));
+  // FRAGBUDGET-1 (a later step in this same arc) adds a fourth detector to
+  // the same extraDetectors arrays — this only needs to confirm templateFamilyDetector
+  // and openingEchoDetector are both present, not that the array has exactly these two.
   check('9c. both lane call sites wire the new detectors into extraDetectors',
     SW.includes('templateFamilyDetector, openingEchoDetector') &&
-    (RUNNER.match(/extraDetectors: \[detectBannedVocabulary, templateFamilyDetector, openingEchoDetector\]/g) || []).length === 2);
+    (RUNNER.match(/extraDetectors: \[detectBannedVocabulary, templateFamilyDetector, openingEchoDetector/g) || []).length === 2);
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
