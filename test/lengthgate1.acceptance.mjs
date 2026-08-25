@@ -47,6 +47,7 @@ const gcCtx = {
   ensureResearchEvidence: async (p) => p, // RESEARCHQUALITY-2C: lane hydration is a pass-through in this harness
   checkStructuralIntegrity: () => [],
   checkBookIntegrity: () => ({ shortChapters: [] }),
+  isBackMatter: () => false, // LENGTHGATE-1C: this battery's fixtures are all body chapters
   __e: {},
 };
 vm.createContext(gcCtx);
