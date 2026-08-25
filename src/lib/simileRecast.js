@@ -27,6 +27,14 @@ import { SIMILE_DENSITY_BUDGET_PER_1K, measureSimileDensity } from './aiSlopRedu
 export const SIMILE_RECAST_VERSION = 'simile-recast-v2';
 export const SIMILE_RX = /\b(?:like\s+an?|as\s+if|as\s+though)\b/gi;
 
+// STYLEBUDGET-2C: "less like X, more like Y" (or "less of X, more of Y") asks
+// the model to compare two things — the natural first answer restates the
+// contrast with another comparison, which is exactly the shape
+// verifySimileRecast rejects as 'simile-remains'. Exported so the battery
+// tests the same regex the escalated retry uses.
+export const SIMILE_CONTRAST_RX = /\bless like\b[\s\S]*\bmore like\b|\bless of\b[\s\S]*\bmore of\b/i;
+const SIMILE_CONTRAST_ESCALATION_LINE = "State the contrast as a plain assertion; do not use 'like', 'as if', or 'as though'.";
+
 // "I like a good fight" / "she'd like an answer" — verb, not comparison.
 const VERB_LIKE_RX = /\b(?:I|you|we|they|he|she|it|who|would|d|don['’]t|doesn['’]t|didn['’]t|wouldn['’]t|not|to|really|just|might|may|could|do|does|did)\s+like\s+an?\b/i;
 
@@ -156,29 +164,68 @@ export async function healSimileDensity(text, opts = {}) {
     return agent({ prompt: userPrompt, taskType: 'polish', project, temperature: 0.5, maxTokens, systemPromptOverride: systemPrompt });
   });
 
+  // One recast attempt: same prompt shape, same timeout, whatever SYSTEM text
+  // is passed in. Shared by the primary call and the STYLEBUDGET-2C retry.
+  const attemptRecast = async (sentence, systemPrompt) => {
+    let timer = null;
+    try {
+      const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('timeout')), timeoutMs); });
+      const raw = await Promise.race([callOne(`Rewrite this sentence without the comparison, stating it directly:\n\n${sentence}`, systemPrompt, 220), timeout]);
+      return { raw };
+    } catch (err) {
+      return { error: err };
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  };
+
+  const escalatedSystem = `${SIMILE_CONTRAST_ESCALATION_LINE}\n${SYSTEM}`;
+
   let recast = 0;
   // SEQUENTIAL — one LLM call at a time, always.
   for (const t of plan.targets) {
     if (!out.includes(t.sentence)) { skipped.push({ sentence: t.norm.slice(0, 80), reason: 'sentence-not-found-verbatim' }); continue; }
     onProgress(`Style: recasting a simile (${label})…`);
-    let raw = null;
-    try {
-      let timer = null;
-      const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('timeout')), timeoutMs); });
-      raw = await Promise.race([callOne(`Rewrite this sentence without the comparison, stating it directly:\n\n${t.sentence}`, SYSTEM, 220), timeout]).finally(() => timer && clearTimeout(timer));
-    } catch (err) {
-      skipped.push({ sentence: t.norm.slice(0, 80), reason: `llm-error:${err?.message || 'unknown'}` });
+    const first = await attemptRecast(t.sentence, SYSTEM);
+    if (first.error) {
+      skipped.push({ sentence: t.norm.slice(0, 80), reason: `llm-error:${first.error?.message || 'unknown'}` });
       continue;
     }
-    const candidate = cleanLLMSentence(raw);
+    const candidate = cleanLLMSentence(first.raw);
     const verdict = verifySimileRecast(t.sentence, candidate, { chapterText: out });
-    if (!verdict.ok) {
-      console.warn(`[STYLEBUDGET-2] ${label}: recast rejected (${verdict.reason}): "${t.norm.slice(0, 70)}"`);
-      skipped.push({ sentence: t.norm.slice(0, 80), reason: `verify-failed:${verdict.reason}` });
+    if (verdict.ok) {
+      out = out.replace(t.sentence, candidate);
+      recast += 1;
       continue;
     }
-    out = out.replace(t.sentence, candidate);
-    recast += 1;
+    console.warn(`[STYLEBUDGET-2] ${label}: recast rejected (${verdict.reason}): "${t.norm.slice(0, 70)}"`);
+
+    // STYLEBUDGET-2C: a "less like X, more like Y" contrast is the one shape
+    // where the model's natural next answer is another comparison. One
+    // escalated retry, same call shape, with an explicit ban on comparison
+    // language — never a second unconditional call.
+    if (verdict.reason === 'simile-remains' && SIMILE_CONTRAST_RX.test(t.sentence)) {
+      const second = await attemptRecast(t.sentence, escalatedSystem);
+      if (second.error) {
+        skipped.push({ sentence: t.norm.slice(0, 80), reason: `llm-error:${second.error?.message || 'unknown'}` });
+        console.log(`[STYLEBUDGET-2C] ${label}: escalated retry (rejected)`);
+        continue;
+      }
+      const candidate2 = cleanLLMSentence(second.raw);
+      const verdict2 = verifySimileRecast(t.sentence, candidate2, { chapterText: out });
+      if (verdict2.ok) {
+        out = out.replace(t.sentence, candidate2);
+        recast += 1;
+        console.log(`[STYLEBUDGET-2C] ${label}: escalated retry (accepted)`);
+        continue;
+      }
+      console.warn(`[STYLEBUDGET-2] ${label}: recast rejected (${verdict2.reason}): "${t.norm.slice(0, 70)}"`);
+      skipped.push({ sentence: t.norm.slice(0, 80), reason: 'verify-failed:simile-remains:retried' });
+      console.log(`[STYLEBUDGET-2C] ${label}: escalated retry (rejected)`);
+      continue;
+    }
+
+    skipped.push({ sentence: t.norm.slice(0, 80), reason: `verify-failed:${verdict.reason}` });
   }
   const after = measureSimileDensity(out).per1k;
   console.log(`[STYLEBUDGET-2] ${label}: simile density ${plan.per1k} → ${after} per 1k (budget ${budgetPer1k}); recast ${recast}/${plan.targets.length}, skipped ${skipped.length}`);
