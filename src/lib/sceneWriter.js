@@ -41,7 +41,7 @@ import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStyleP
 import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
 import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
-import { buildCharacterState, buildCharacterStateContract, extractBeatDeclaredStateUpdates, collectChapterBeatEvents } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2
+import { buildCharacterState, buildCharacterStateContract, extractBeatDeclaredStateUpdates, collectChapterBeatEvents, corroborateBeatDeclaredReturns } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2 / CHARSTATE-2B
 import { resolveChapterContent } from '@/lib/chapterStorage'; // PROSEFEED-1
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from '@/lib/aiSlopReduction'; // STYLEBUDGET-1
 import { healSimileDensity } from '@/lib/simileRecast'; // STYLEBUDGET-2
@@ -49,7 +49,8 @@ import { repairDroppedSubjects } from '@/lib/subjectRepair'; // SUBJECTREPAIR-1
 import { regenerateFlaggedParagraphs } from './regenerateLane.js'; // REGENLANE-1
 import { buildBannedVocabularyPromptBlock, detectBannedVocabulary } from './vocabCaps.js'; // POLISHSAFE-4
 import { buildChapterStateContract, parseResolvedArcs, detectArcRestarts } from './chapterStateContract.js'; // STATECONTRACT-1
-import { detectSameChapterSceneDuplicates } from './eventCollision.js'; // SCENEDUP-1
+import { checkPromptBudget, AGENT_NUM_CTX } from './localLLM.js'; // STATECONTRACT-1B
+import { detectSameChapterSceneDuplicates, parseOutlineSections } from './eventCollision.js'; // SCENEDUP-1 / LOOKAHEAD-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -2296,7 +2297,18 @@ function buildSceneStateContractBlock(spec) {
     `UNPLANNED MAJOR EVENTS ARE FORBIDDEN: stage NO arrival at a new location, NO opening/unlocking of any door, vault, hatch, panel, or passage, NO discovery of a new area, and NO major reveal unless it is explicitly listed in REQUIRED EVENTS above. Travel and preparation may approach a threshold; CROSSING it belongs to whichever later scene or chapter owns it. When the required events are done, end the scene at its EXIT STATE — do not escalate past it.`,
     `EXIT STATE (must be true when the scene ends): ${exitState || 'missing'}`,
   ];
-  if (priorCompletedEvents.length) {
+  // STATECONTRACT-1B (live proof Run 3, 2026-08-24): state_contract (below)
+  // already composes cast/pronouns/roles/status, the cross-chapter event
+  // ledger, and the style budget into ONE block. Until now this function
+  // pushed the same facts AGAIN as five separate legacy lines — measured
+  // live, the duplication alone was ~11.7K of a 91.2K-char scene prompt,
+  // most of the reason a 20-chapter book blew a 32K-token context at ch.10.
+  // When state_contract is present these five are redundant prompt text and
+  // are skipped; the underlying spec fields stay populated below (and on
+  // promptSpec upstream) because the replay gate and other audits read the
+  // FIELDS, not the rendered prompt string.
+  const stateContract = String(spec?.state_contract || '').trim();
+  if (priorCompletedEvents.length && !stateContract) {
     lines.push(`COMPLETED EVENTS FROM EARLIER SCENES — NEVER REPLAY: ${priorCompletedEvents.join('; ')}`);
   }
   if (priorExitStates.length) {
@@ -2329,7 +2341,7 @@ function buildSceneStateContractBlock(spec) {
     lines.push(`CONTEXT-VARIABLE PRONOUNS: ${pronounVariable} present differently in different scenes by design. Choose ONE presentation (he/him or she/her) for ${pronounVariable} at the start of THIS scene and use it consistently for the entire scene — never mix he and she for the same character within one scene.`);
   }
   const pronounCanon = String(spec?.pronoun_canon || '').trim();
-  if (pronounCanon) {
+  if (pronounCanon && !stateContract) {
     lines.push(`CHARACTER PRONOUNS (canonical — narration must NEVER vary them): ${pronounCanon}.`);
   }
   // POLISHSAFE-4: prevention — the polish pass no longer substitutes banned
@@ -2340,23 +2352,22 @@ function buildSceneStateContractBlock(spec) {
   }
   // STATECONTRACT-1: the composed closed-world block (cast/status, events
   // done, resolved arcs, scene map, style bans).
-  const stateContract = String(spec?.state_contract || '').trim();
   if (stateContract) {
     lines.push(stateContract);
   }
   // CANON-2: roles are canon too — no other character may be given these jobs.
   const roleCanon = String(spec?.role_canon || '').trim();
-  if (roleCanon) {
+  if (roleCanon && !stateContract) {
     lines.push(`CHARACTER ROLES (canonical — from the character sheet, which OUTRANKS any conflicting world/canon note): ${roleCanon}. Never attribute one character's canonical role to another.`);
   }
   // CHARSTATE-1: the character state machine is a hard contract.
   const charState = String(spec?.character_state || '').trim();
-  if (charState) {
+  if (charState && !stateContract) {
     lines.push(charState);
   }
   // STYLEBUDGET-1: rendered as its own block inside the contract.
   const styleBudget = String(spec?.style_budget || '').trim();
-  if (styleBudget) {
+  if (styleBudget && !stateContract) {
     lines.push(styleBudget);
   }
 
@@ -3795,6 +3806,13 @@ export async function generateChapterSceneByScene({
   let characterStateContract = '';
   let characterStateCast = [];
   let chapterDeclaredReturns = []; // CHARSTATE-2
+  // CHARSTATE-2B (live proof Run 3, Arc D, 2026-08-24): a self-declared beat
+  // return is honored only when THIS chapter's own outline section and beat
+  // summary corroborate it — never a later chapter's outline pulled forward
+  // into this one's beat text (live REDUX ch.10 self-declared "JB returns"
+  // with zero corroboration from ch.10's own outline).
+  const ownOutlineSection = parseOutlineSections(project?.outline_md).find((s) => s.chapterNumber === Number(chapter?.chapter_number));
+  const returnCorroborationText = [ownOutlineSection?.text || '', String(chapter?.beat_summary || '')].join('\n');
   try {
     if (!isAnthologyProject(project) && Number(chapter?.chapter_number) > 1) {
       const statePriorChapters = resolvedPriorProse; // PROSEFEED-1
@@ -3809,7 +3827,10 @@ export async function generateChapterSceneByScene({
           String(scene?.scene_goal || ''),
           ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
         ]).filter(Boolean);
-        chapterDeclaredReturns = extractBeatDeclaredStateUpdates(chapterBeatStrings, characterStateCast).returns;
+        const rawDeclaredReturns = extractBeatDeclaredStateUpdates(chapterBeatStrings, characterStateCast).returns;
+        const returnCorroboration = corroborateBeatDeclaredReturns(rawDeclaredReturns, returnCorroborationText);
+        chapterDeclaredReturns = returnCorroboration.corroborated;
+        if (returnCorroboration.uncorroborated.length) console.warn('[CHARSTATE] Beat plan self-declares return(s) with no outline corroboration — staying departed:', returnCorroboration.uncorroborated.join(', '));
         if (chapterDeclaredReturns.length) console.log('[CHARSTATE] Beat plan declares return(s):', chapterDeclaredReturns.join(', '));
         characterStateContract = buildCharacterStateContract(characterState, chapterDeclaredReturns);
         if (characterStateContract) console.log('[CHARSTATE] Contract for this chapter:', characterStateContract.split('\n').length - 1, 'fact(s)');
@@ -3868,14 +3889,21 @@ export async function generateChapterSceneByScene({
       // after it) is legal even when the writer's phrasing does not match the
       // narrow prose return patterns; scenes BEFORE the declaring scene still
       // enforce the departure.
+      // CHARSTATE-2B: corroborated against this chapter's own outline/beat
+      // summary — the same guard chapterDeclaredReturns above applies, so a
+      // self-declaration with no outline corroboration never legalizes a
+      // departed character's presence in ANY scene, not just earlier ones.
       __beatDeclaredReturns: characterStateCast.length
-        ? extractBeatDeclaredStateUpdates(
-            normalizedScenes.slice(0, i + 1).flatMap((scene) => [
-              String(scene?.scene_goal || ''),
-              ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
-            ]).filter(Boolean),
-            characterStateCast
-          ).returns
+        ? corroborateBeatDeclaredReturns(
+            extractBeatDeclaredStateUpdates(
+              normalizedScenes.slice(0, i + 1).flatMap((scene) => [
+                String(scene?.scene_goal || ''),
+                ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
+              ]).filter(Boolean),
+              characterStateCast
+            ).returns,
+            returnCorroborationText
+          ).corroborated
         : [],
       style_budget: styleBudgetBlock, // STYLEBUDGET-1
       state_contract: stateContractResult.block, // STATECONTRACT-1
@@ -3926,6 +3954,53 @@ export async function generateChapterSceneByScene({
       targetWords: sceneTarget,
       model,
     });
+
+    // STATECONTRACT-1B (live proof Run 3, 2026-08-24): degrade instead of
+    // dying. Mirror ROUTE-1's own budget math locally (checkPromptBudget —
+    // the same pure function callLlama uses to refuse) and, if THIS scene's
+    // prompt would be refused, shrink the EVENTS section (oldest chapters
+    // first — the same elision buildPriorChapterEventLedger already tests)
+    // and rebuild promptSpec.state_contract BEFORE the canonical prompt
+    // assembly below, rather than let a chapter that already survived beat
+    // planning die at scene 1 of the writer with nothing saved. ROUTE-1's
+    // own refusal stays the final backstop when even an empty EVENTS section
+    // does not fit — that refusal is correct behavior, not a bug.
+    if (stateContractResult.telemetry.events > 0) {
+      const buildBudgetProbePrompt = () => buildScenePrompt({
+        project,
+        chapter,
+        chapters: allProjectChapters,
+        spec: promptSpec,
+        accumulatedProse,
+        previousChapterTail: isFirst && !isAnthology ? continuity.previousChapterTail : '',
+        rollingContext: isAnthology ? '' : continuity.rollingContext,
+        previousChapterEnding: isAnthology ? '' : continuity.previousChapterEnding,
+        priorChapterSummaries: isFirst && !isAnthology ? priorChapterSummaries : [],
+        targetWords: sceneTarget,
+        relevantResearch,
+        anthologyContext,
+        twistContext: filterTwistContextForScene(twistContext, promptSpec),
+        seriesContinuityBlock,
+        volumeContractBlock,
+        authorStyleBlock,
+        includeFullCraft,
+        revisionFeedback,
+        runtimeLedger,
+      });
+      const reasoningModel = /deepseek-r1|qwen3/i.test(String(model || ''));
+      const sceneReserveTokens = Math.max(3500, Math.min(8000, sceneTarget * 3)) + (reasoningModel ? 4096 : 0);
+      let budget = checkPromptBudget({ promptChars: buildBudgetProbePrompt().length, reserveTokens: sceneReserveTokens, ctxTokens: AGENT_NUM_CTX });
+      const EVENTS_TRIM_STEPS = [2500, 1000, 400, 0];
+      for (let step = 0; !budget.fits && step < EVENTS_TRIM_STEPS.length; step += 1) {
+        const trimmedContract = buildChapterStateContract({
+          project, chapter, resolvedPriorProse, normalizedScenes, allProjectChapters,
+          cast: characterStateCast, eventsMaxChars: EVENTS_TRIM_STEPS[step],
+        });
+        promptSpec.state_contract = trimmedContract.block;
+        budget = checkPromptBudget({ promptChars: buildBudgetProbePrompt().length, reserveTokens: sceneReserveTokens, ctxTokens: AGENT_NUM_CTX });
+        console.log(`[STATECONTRACT] scene ${i + 1} prompt budget guard: events capped to ${EVENTS_TRIM_STEPS[step]}c -> headroom ${budget.headroom}t, fits=${budget.fits}`);
+      }
+    }
 
     const basePrompt = buildScenePrompt({
       project,

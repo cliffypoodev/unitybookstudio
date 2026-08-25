@@ -108,7 +108,7 @@ export function buildPriorChapterEventLedger(chapters, currentChapterNumber, opt
     text = render();
   }
 
-  return { events, byChapter, text };
+  return { events, byChapter, text, elidedChapterCount: elided };
 }
 
 /** Proper-noun-ish names appearing inside prior ledger events. */

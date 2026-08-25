@@ -12,9 +12,10 @@
 
 import { parseCanonCast } from './canonRoles.js';
 import { parseDeclaredPronouns, buildPronounCanon, harvestCastNames } from './pronounLock.js';
-import { buildCharacterState } from './characterStateLedger.js';
+import { buildCharacterState, extractBeatDeclaredStateUpdates, corroborateBeatDeclaredReturns } from './characterStateLedger.js'; // CHARSTATE-2B
 import { buildPriorChapterEventLedger } from './eventLedger.js';
 import { buildBookStyleLedger, buildStyleBudgetPromptBlock } from './aiSlopReduction.js';
+import { parseOutlineSections } from './eventCollision.js'; // LOOKAHEAD-1
 
 // anthologyEngine.js imports the `@/` alias transitively (unrelated to
 // isAnthologyProject itself), which breaks bare-Node battery resolution for
@@ -28,7 +29,7 @@ function isAnthologyProject(project) {
   return false;
 }
 
-export const CHAPTER_STATE_CONTRACT_VERSION = 'chapter-state-contract-v1';
+export const CHAPTER_STATE_CONTRACT_VERSION = 'chapter-state-contract-v2'; // STATECONTRACT-1B
 
 // ARCSTATE-1: data-declared resolved arcs. No phrase list lives in code —
 // authors write these lines directly into canon_md / characters_md:
@@ -108,6 +109,10 @@ function pronounLabel(canon, name, variable) {
  * @param {Array} [opts.normalizedScenes] - this chapter's scene specs
  * @param {Array} [opts.allProjectChapters] - raw chapter records (for the event ledger)
  * @param {string[]} [opts.cast] - pre-harvested cast names; harvested from the sheet + prior prose if omitted
+ * @param {number} [opts.eventsMaxChars] - STATECONTRACT-1B: cap on the rendered EVENTS
+ *   section; buildPriorChapterEventLedger elides the OLDEST chapters first (never
+ *   cast/status) when the ledger would exceed it. A caller under prompt-budget
+ *   pressure passes a smaller value and rebuilds; never the section's own concern.
  * @returns {{ block: string, facts: object, telemetry: object }}
  */
 export function buildChapterStateContract({
@@ -117,6 +122,7 @@ export function buildChapterStateContract({
   normalizedScenes = [],
   allProjectChapters = [],
   cast = [],
+  eventsMaxChars = 5000,
 } = {}) {
   const telemetry = { cast: 0, departed: 0, events: 0, resolvedArcs: 0, scenes: 0 };
   const facts = { cast: [], departed: [], resolvedArcs: [], events: [] };
@@ -143,10 +149,23 @@ export function buildChapterStateContract({
       // CHARSTATE-2: a return THIS chapter's own beat plan declares flips a
       // departed character's status — the contract must demand the return be
       // written, not ban the character who is about to come back.
+      // CHARSTATE-2B (live proof Run 3, Arc D, 2026-08-24): honored only
+      // when THIS chapter's own outline section / beat summary corroborates
+      // it — never a later chapter's outline pulled forward into this
+      // chapter's beat text (live REDUX ch.10 self-declared "JB returns"
+      // with zero corroboration from ch.10's own outline).
       const chapterBeatStrings = (Array.isArray(normalizedScenes) ? normalizedScenes : []).flatMap((scene) => [
         String(scene?.scene_goal || ''),
         ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
       ]).filter(Boolean);
+      const ownOutlineSection = parseOutlineSections(project?.outline_md).find((s) => s.chapterNumber === chapterNumber);
+      const corroborationText = [ownOutlineSection?.text || '', String(chapter?.beat_summary || '')].join('\n');
+      const rawDeclaredReturns = extractBeatDeclaredStateUpdates(chapterBeatStrings, castNames).returns;
+      const returnCorroboration = corroborateBeatDeclaredReturns(rawDeclaredReturns, corroborationText);
+      if (returnCorroboration.uncorroborated.length) {
+        console.warn(`[STATECONTRACT] Ch.${chapterNumber}: beat plan self-declares return(s) with no outline corroboration — staying departed:`, returnCorroboration.uncorroborated.join(', '));
+      }
+      const declaredReturnSet = new Set(returnCorroboration.corroborated);
 
       const lines = [];
       for (const name of castNames) {
@@ -157,7 +176,7 @@ export function buildChapterStateContract({
         // 'dead' has no detector yet anywhere in this codebase — the status
         // vocabulary reserves the value; nothing sets it today.
         let status = entry ? (entry.partyStatus === 'departed' ? 'departed' : 'present') : 'unknown';
-        if (status === 'departed' && chapterDeclares(chapterBeatStrings, name)) status = 'present';
+        if (status === 'departed' && declaredReturnSet.has(name)) status = 'present';
         const introduced = entry?.introduced ? 'yes' : 'no';
         facts.cast.push({ name, pronouns, role, status, introduced });
         if (status === 'departed') facts.departed.push(name);
@@ -169,14 +188,25 @@ export function buildChapterStateContract({
     }
   } catch (castErr) { console.warn('[STATECONTRACT] CAST section failed (non-fatal):', castErr?.message || castErr); }
 
-  // 2. EVENTS DONE — do not repeat
+  // 2. EVENTS DONE — do not repeat. STATECONTRACT-1B (live proof Run 3,
+  // 2026-08-24): this used to render ledger.events — the FULL flat list,
+  // ignoring the maxChars elision buildPriorChapterEventLedger already
+  // computes for its own `text` — so a 20-chapter book put all 84 events on
+  // the page every scene regardless of the cap. Render ledger.text instead:
+  // the same oldest-chapters-first elision eventLedger.js already tests
+  // (eventledger1.acceptance.mjs #7/#8) now actually reaches the prompt.
+  // facts.events stays the FULL unelided list — replay gates and audits read
+  // every event regardless of what the prompt itself was trimmed to show.
   try {
     if (!isAnthology && chapterNumber > 1) {
-      const ledger = buildPriorChapterEventLedger(allProjectChapters, chapterNumber, { maxChars: 5000 });
+      const ledger = buildPriorChapterEventLedger(allProjectChapters, chapterNumber, { maxChars: eventsMaxChars });
       facts.events = ledger.events;
       telemetry.events = ledger.events.length;
-      if (ledger.events.length) {
-        sections.push(`EVENTS ALREADY HAPPENED (do not repeat, re-stage, or re-introduce):\n${ledger.events.map((e) => `- ${e}`).join('\n')}`);
+      if (ledger.text) {
+        sections.push(ledger.text);
+        if (ledger.elidedChapterCount > 0) {
+          console.log(`[STATECONTRACT] trimmed events to last ${ledger.byChapter.length - ledger.elidedChapterCount} chapter(s)`);
+        }
       }
     }
   } catch (eventErr) { console.warn('[STATECONTRACT] EVENTS section failed (non-fatal):', eventErr?.message || eventErr); }
@@ -221,10 +251,4 @@ export function buildChapterStateContract({
   console.log(`[STATECONTRACT] Ch.${chapterNumber}: cast ${telemetry.cast}, departed ${telemetry.departed}, events ${telemetry.events}, resolved arcs ${telemetry.resolvedArcs}, scenes ${telemetry.scenes}`);
 
   return { block, facts, telemetry };
-}
-
-function chapterDeclares(beatStrings, name) {
-  if (!name || !Array.isArray(beatStrings) || !beatStrings.length) return false;
-  const rx = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b.{0,40}\\b(?:return|returns|returned|back|comes back|rejoin|rejoins)\\b`, 'i');
-  return beatStrings.some((s) => rx.test(s));
 }

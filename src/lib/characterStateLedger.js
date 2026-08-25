@@ -111,6 +111,69 @@ export function extractBeatDeclaredStateUpdates(eventStrings = [], castNames = [
 }
 
 /**
+ * CHARSTATE-2B (live proof Run 3, Arc D, 2026-08-24): a beat-declared return
+ * is honored only when the CHAPTER'S OWN outline/beat-summary text (never a
+ * later chapter's) independently corroborates it with the same name +
+ * return-class verb shape. Live REDUX ch.10's own beat plan declared "JB
+ * returns" — self-declared, unearned — because that scene's text was lifted
+ * wholesale from ch.11's outline; ch.10's own outline never mentioned JB.
+ * Returns { corroborated, uncorroborated } — an uncorroborated name stays
+ * departed and is reported for the beat validator to flag, never silently
+ * trusted the way a self-declaration alone was.
+ *
+ * @param {string[]} returns - names extractBeatDeclaredStateUpdates declared
+ * @param {string} corroborationText - this chapter's own outline_md section
+ *   plus beat_summary (chapter <= N only — never a future chapter's outline)
+ */
+export function corroborateBeatDeclaredReturns(returns, corroborationText) {
+  const text = String(corroborationText || '');
+  const corroborated = [];
+  const uncorroborated = [];
+  for (const name of Array.isArray(returns) ? returns : []) {
+    const hit = beatReturnPatterns(name).some((rx) => rx.test(text)) || returnPatterns(name).some((rx) => rx.test(text));
+    (hit ? corroborated : uncorroborated).push(name);
+  }
+  return { corroborated, uncorroborated };
+}
+
+/**
+ * CHARSTATE-2C (live proof Run 3, Arc D, 2026-08-24): a scene-by-scene
+ * contract check independent of the whole-chapter status flip above. Live
+ * REDUX ch.10: all three scenes listed JB as present, including scene 1 —
+ * BEFORE scene 2's "JB returns" — because the whole-chapter flip honors a
+ * return declared ANYWHERE in the plan for every scene of it. Walks beats in
+ * order; a departed name in `characters_present`/`characters` is a violation
+ * until a scene's OWN text declares their return, and only for scenes AFTER
+ * that one. Returns [{ scene_number, name }] — empty when the plan is clean.
+ */
+export function findPrematureCharacterPresence(beats, departedNames) {
+  const list = Array.isArray(beats) ? beats : [];
+  const stillDeparted = new Set(Array.isArray(departedNames) ? departedNames : []);
+  const findings = [];
+  for (const beat of list) {
+    // A return declared BY THIS SCENE's own text lifts the ban starting HERE
+    // — the scene that stages the return is where the character becomes
+    // present, same as the whole-chapter contract in buildCharacterStateContract
+    // treats the declaring scene as legal. Only scenes STRICTLY BEFORE the
+    // declaring one stay banned.
+    const eventStrings = [String(beat?.scene_goal || ''), ...(Array.isArray(beat?.required_events) ? beat.required_events : [])];
+    const { returns } = extractBeatDeclaredStateUpdates(eventStrings, [...stillDeparted]);
+    for (const name of returns) stillDeparted.delete(name);
+
+    const present = [
+      ...(Array.isArray(beat?.characters_present) ? beat.characters_present : []),
+      ...(Array.isArray(beat?.characters) ? beat.characters : []),
+    ];
+    for (const name of present) {
+      if (stillDeparted.has(name)) {
+        findings.push({ scene_number: beat?.scene_number ?? null, name });
+      }
+    }
+  }
+  return findings;
+}
+
+/**
  * CHARSTATE-2: pull the declared event strings off a persisted chapter
  * record's beat contract (scene_beats_json — string or parsed). Fail-safe [].
  */
@@ -341,4 +404,4 @@ export function auditProseAgainstCharacterState(prose, state = {}, castNames = [
   return violations;
 }
 
-export const CHARACTER_STATE_VERSION = 'character-state-v2';
+export const CHARACTER_STATE_VERSION = 'character-state-v3'; // CHARSTATE-2B/2C

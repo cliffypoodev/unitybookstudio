@@ -10,7 +10,7 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
 const CANON = 'RESOLVED ARC: Mara\'s grief — she stops blaming herself (ch 3); forbidden: "still blames herself"; "her fault"\nRESOLVED ARC: Dov — makes peace with Ilse (ch 5); forbidden: "still furious at Ilse"';
 
 // 1. version
-check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v1');
+check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v2'); // bumped by STATECONTRACT-1B
 
 // 2. parse: two RESOLVED ARC lines parsed with name/label/chapter/forbidden
 {

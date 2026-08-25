@@ -59,7 +59,7 @@ function contentTokens(text) {
   );
 }
 
-function contentOverlap(a, b) {
+export function contentOverlap(a, b) {
   const A = contentTokens(a);
   const B = contentTokens(b);
   let n = 0;
@@ -336,4 +336,117 @@ export function detectSameChapterSceneDuplicates(text) {
   return targets;
 }
 
-export const EVENT_COLLISION_VERSION = 'event-collision-v1';
+// ── LOOKAHEAD-1 (live proof Run 3, Arc D, 2026-08-24) ──
+// The failure this closes: SCENECOLLIDE-1 rejects a beat plan for re-staging
+// a PAST completed event, but nothing checked the other direction — a plan
+// that pulls a LATER chapter's outline content FORWARD. Live REDUX ch.10's
+// beat plan avoided a scenecollide rejection by lifting "## Chapter 11: The
+// Sandstorm Showdown" (a sandstorm, JB's return, a scene reserved for "the
+// engine test in the next chapter") into ch.10 wholesale. Same design as
+// SCENECOLLIDE-1: no book-specific phrase list, closed-world content overlap
+// plus a shared distinctive entity against the outline text itself.
+
+const CHAPTER_HEADING_RX = /^\s{0,3}#{1,4}\s*Chapter\s+(\d+)\s*[:.\-—]?\s*(.*)$/gim;
+
+/**
+ * Split outline_md into per-chapter sections by its own "## Chapter N: Title"
+ * headings (the app's own generator format). Returns every section, in
+ * document order: [{ chapterNumber, title, text }].
+ */
+export function parseOutlineSections(outlineMd) {
+  const text = String(outlineMd || '');
+  const matches = [];
+  let m;
+  CHAPTER_HEADING_RX.lastIndex = 0;
+  while ((m = CHAPTER_HEADING_RX.exec(text)) !== null) {
+    matches.push({ chapterNumber: Number(m[1]), title: (m[2] || '').trim(), index: m.index });
+  }
+  const sections = [];
+  for (let i = 0; i < matches.length; i += 1) {
+    const start = matches[i].index;
+    const end = i + 1 < matches.length ? matches[i + 1].index : text.length;
+    sections.push({ chapterNumber: matches[i].chapterNumber, title: matches[i].title, text: text.slice(start, end) });
+  }
+  return sections;
+}
+
+/**
+ * The sections for chapters AFTER `currentChapterNumber` — the content a
+ * plan for the current chapter must never pull forward.
+ */
+export function parseFutureOutlineSections(outlineMd, currentChapterNumber) {
+  const current = Number(currentChapterNumber) || 0;
+  return parseOutlineSections(outlineMd).filter((s) => s.chapterNumber > current);
+}
+
+/**
+ * Beats in a NEW plan for chapter N whose scene_goal or required_events
+ * substantially overlap a FUTURE chapter's (M > N) outline section — both a
+ * shared distinctive entity AND enough shared content vocabulary to rule out
+ * incidental overlap (two unrelated beats both mentioning "the crew").
+ * Returns [{ scene_number, field, chapter_number, title, entity, text }].
+ */
+export function findBeatFutureOutlineCollisions(beats, futureOutlineSections) {
+  const sections = (Array.isArray(futureOutlineSections) ? futureOutlineSections : [])
+    .filter((s) => contentTokens(s?.text).size >= 6); // too short to signal reliably
+  if (!sections.length) return [];
+
+  const findings = [];
+  for (const beat of Array.isArray(beats) ? beats : []) {
+    const fields = [
+      ['scene_goal', String(beat?.scene_goal || '')],
+      ['required_events', (Array.isArray(beat?.required_events) ? beat.required_events : []).join(' ; ')],
+    ];
+    for (const [field, textValue] of fields) {
+      if (!textValue) continue;
+      for (const section of sections) {
+        if (contentOverlap(section.text, textValue) < 4) continue;
+        const sectionEntities = extractEventEntities(section.text);
+        const sharedEntity = [...sectionEntities].find((e) => (e === e.toLowerCase() ? textValue.toLowerCase().includes(e) : textValue.includes(e)));
+        if (!sharedEntity) continue;
+        findings.push({ scene_number: beat?.scene_number ?? null, field, chapter_number: section.chapterNumber, title: section.title, entity: sharedEntity, text: textValue.slice(0, 140) });
+      }
+    }
+  }
+  return findings;
+}
+
+/**
+ * Deterministic last-resort rewrite when planner regeneration is exhausted:
+ * annotate the colliding beat text so the writer never sees the pulled-
+ * forward content, mirroring rewriteBeatCollisions. Returns a new beats array.
+ */
+export function rewriteFutureOutlineCollisions(beats, findings) {
+  if (!Array.isArray(beats) || !findings?.length) return beats;
+  const byScene = new Map();
+  for (const f of findings) {
+    if (!byScene.has(f.scene_number)) byScene.set(f.scene_number, []);
+    byScene.get(f.scene_number).push(f);
+  }
+  return beats.map((beat) => {
+    const sceneFindings = byScene.get(beat?.scene_number ?? null);
+    if (!sceneFindings) return beat;
+    const seen = new Set();
+    const notes = [];
+    for (const f of sceneFindings) {
+      const key = `${f.entity}::ch${f.chapter_number}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      notes.push(`(${f.entity} belongs to Chapter ${f.chapter_number}'s outline, not this chapter — do NOT stage it here; write only what this chapter's own outline covers)`);
+    }
+    const appendOnce = (text) => {
+      let out = String(text || '');
+      for (const note of notes) {
+        if (!out.includes(note)) out = `${out} ${note}`.trim();
+      }
+      return out;
+    };
+    return {
+      ...beat,
+      scene_goal: appendOnce(beat.scene_goal),
+      required_events: (Array.isArray(beat.required_events) ? beat.required_events : []).map((e, i) => (i === 0 ? appendOnce(e) : e)),
+    };
+  });
+}
+
+export const EVENT_COLLISION_VERSION = 'event-collision-v2'; // LOOKAHEAD-1

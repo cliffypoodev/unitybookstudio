@@ -81,8 +81,8 @@ import { extractPremiseEntities, buildPremiseCoverageBlock, reportPremiseCoverag
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-1
 import { assertNarrativeTextClean, hydrateProjectForGeneration, loadGenerationSnapshot, GenerationContextError, validateSceneBeatContracts, verifySceneProvenance, captureRawArchitectProvenance, NarrativeInvariantError, verifyContiguousSceneSequence } from '@/lib/generationContext';
 import { buildPriorChapterEventLedger, findReintroductions, rewriteReintroductions } from '@/lib/eventLedger'; // EVENTLEDGER-1A
-import { findBeatEventCollisions, rewriteBeatCollisions } from '@/lib/eventCollision'; // SCENECOLLIDE-1
-import { collectChapterBeatEvents } from '@/lib/characterStateLedger'; // CHARSTATE-2
+import { findBeatEventCollisions, rewriteBeatCollisions, parseFutureOutlineSections, findBeatFutureOutlineCollisions, rewriteFutureOutlineCollisions } from '@/lib/eventCollision'; // SCENECOLLIDE-1 / LOOKAHEAD-1
+import { collectChapterBeatEvents, findPrematureCharacterPresence } from '@/lib/characterStateLedger'; // CHARSTATE-2 / CHARSTATE-2C
 import { buildChapterStateContract } from '@/lib/chapterStateContract'; // STATECONTRACT-1
 import { auditBibleCompleteness } from '@/lib/bibleGate'; // BIBLEGATE-1
 import { harvestCastNames } from '@/lib/pronounLock'; // CHARSTATE-1
@@ -3399,6 +3399,15 @@ Return structured JSON:
     // not just summaries. Prepended, not appended: the block must survive the
     // 9000-char clip in buildSceneBeatPrompt.
     let ledgerEvents = [];
+    // CHARSTATE-2C (live proof Run 3, Arc D, 2026-08-24): the departed cast
+    // BEFORE this chapter's own plan runs — the beat validator below rejects
+    // a plan that lists any of these names present in a scene before that
+    // plan's own text declares (and corroborates) their return.
+    let plannerDepartedNames = [];
+    // LOOKAHEAD-1: sections of the outline for chapters AFTER this one — a
+    // plan must never pull them forward. Independent of chapter_number > 1
+    // (a lookahead leak is possible even for chapter 1).
+    const futureOutlineSections = parseFutureOutlineSections(promptProject?.outline_md, Number(chapter.chapter_number));
     if (!isAnthologyProject(promptProject) && Number(chapter.chapter_number) > 1) {
       const eventLedger = buildPriorChapterEventLedger(chapterList, Number(chapter.chapter_number));
       ledgerEvents = eventLedger.events;
@@ -3434,6 +3443,7 @@ Return structured JSON:
           allProjectChapters: chapterList,
           cast: stateCast,
         });
+        plannerDepartedNames = stateContractResult.facts?.departed || [];
         if (stateContractResult.block) {
           priorCoverage = `${stateContractResult.block}\n\n${priorCoverage}`;
           console.log('[CHARSTATE] Planner contract:', stateContractResult.block.split('\n').length - 1, 'fact(s)');
@@ -3719,18 +3729,40 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         if (beatCollisions.length) {
           console.warn('[SCENECOLLIDE] Beat plan re-stages completed events:', beatCollisions);
         }
-        if (!structurallyChanged && beatFieldGaps.length === 0 && reintroductions.length === 0 && beatCollisions.length === 0) {
+        // LOOKAHEAD-1 (live proof Run 3, Arc D, 2026-08-24): the mirror of
+        // SCENECOLLIDE-1 — a plan that pulls a LATER chapter's outline
+        // content forward, the way REDUX ch.10 lifted ch.11's sandstorm/JB
+        // return wholesale to dodge a scenecollide rejection.
+        const futureCollisions = futureOutlineSections.length ? findBeatFutureOutlineCollisions(normalizedBeatPlan, futureOutlineSections) : [];
+        if (futureCollisions.length) {
+          console.warn('[LOOKAHEAD] Beat plan pulls forward a future chapter\'s outline content:', futureCollisions);
+        }
+        // CHARSTATE-2C: a departed character listed present in a scene
+        // BEFORE any scene of this SAME plan declares (and corroborates)
+        // their return — independent of the whole-chapter status the state
+        // contract prompt uses (live REDUX ch.10: all three scenes listed
+        // JB present, including scene 1, before scene 2's "JB returns").
+        const prematurePresence = plannerDepartedNames.length ? findPrematureCharacterPresence(normalizedBeatPlan, plannerDepartedNames) : [];
+        if (prematurePresence.length) {
+          console.warn('[CHARSTATE] Beat plan lists a departed character present before their own plan\'s return:', prematurePresence);
+        }
+        if (!structurallyChanged && beatFieldGaps.length === 0 && reintroductions.length === 0 && beatCollisions.length === 0 && futureCollisions.length === 0 && prematurePresence.length === 0) {
           beatResult.beats = normalizedBeatPlan;
           break;
         }
-        if (!structurallyChanged && beatFieldGaps.length === 0 && (reintroductions.length > 0 || beatCollisions.length > 0) && attempt === maxContractAttempts) {
+        if (!structurallyChanged && beatFieldGaps.length === 0 && (reintroductions.length > 0 || beatCollisions.length > 0 || futureCollisions.length > 0) && prematurePresence.length === 0 && attempt === maxContractAttempts) {
           // Attempts exhausted on reintroduction/collision alone: repair
           // deterministically rather than ship a duplicate or fail the chapter.
+          // prematurePresence has no deterministic rewrite (removing a name from
+          // characters_present risks silently dropping a required actor) — an
+          // exhausted plan with only that finding falls through to the
+          // existing "still overlapping after N attempts" acceptance below.
           let repairedBeats = normalizedBeatPlan;
           if (reintroductions.length) repairedBeats = rewriteReintroductions(repairedBeats, reintroductions);
           if (beatCollisions.length) repairedBeats = rewriteBeatCollisions(repairedBeats, beatCollisions);
+          if (futureCollisions.length) repairedBeats = rewriteFutureOutlineCollisions(repairedBeats, futureCollisions);
           beatResult.beats = repairedBeats;
-          console.warn('[SCENECOLLIDE] Attempts exhausted — rewrote colliding beat phrasing deterministically for', [...reintroductions.map((f) => f.name), ...beatCollisions.map((f) => `${f.entity}/${f.class}`)].join(', '));
+          console.warn('[SCENECOLLIDE] Attempts exhausted — rewrote colliding beat phrasing deterministically for', [...reintroductions.map((f) => f.name), ...beatCollisions.map((f) => `${f.entity}/${f.class}`), ...futureCollisions.map((f) => `${f.entity}/ch${f.chapter_number}`)].join(', '));
           break;
         }
 
@@ -3779,7 +3811,13 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
         const collisionLines = beatCollisions.length
           ? `\nEVENTS ALREADY COMPLETED — this plan wrongly re-stages: ${beatCollisions.map((f) => `${f.class.toLowerCase()} of ${f.entity} (already executed: "${f.event.slice(0, 90)}")`).join('; ')}. These events happened; plan beats that advance the CONSEQUENCES, never a repeat performance.`
           : '';
-        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}${beatFieldGaps.length ? `\nEvery beat MUST fill these required fields — the previous plan left them empty:\n${beatFieldGaps.map((gap) => `- ${gap}`).join('\n')}` : ''}${reintroductionLines}${collisionLines}\n\nReturn a completely new JSON beat contract.`;
+        const futureCollisionLines = futureCollisions.length
+          ? `\nCONTENT THAT BELONGS TO A LATER CHAPTER — this plan wrongly stages: ${futureCollisions.map((f) => `${f.entity} (belongs to Chapter ${f.chapter_number}: "${f.title}")`).join('; ')}. Plan ONLY what THIS chapter's own outline section covers; leave later chapters' events for their own chapters.`
+          : '';
+        const prematurePresenceLines = prematurePresence.length
+          ? `\nDEPARTED CHARACTER STAGED TOO EARLY — this plan lists ${[...new Set(prematurePresence.map((f) => f.name))].join(', ')} as present in a scene BEFORE any scene of this same plan writes their return. Either remove them from those earlier scenes' cast, or move the return event earlier in the scene order.`
+          : '';
+        beatPrompt = `${initialBeatPrompt}\n\nREJECTED BEAT CONTRACT — REGENERATE ALL SCENES:\nThe previous scene plan would be merged by the duplicate/chronology detector, which means it contains alternate takes or repeated story functions. Replace the plan completely. Keep the same chapter outcome, but give every scene one distinct irreversible job. Do not merge or omit any required chapter event.\n\nDetector report: ${overlapReport.report}\nSpecific problems:\n${(overlapReport.warnings || []).slice(0, 8).map((warning) => `- ${warning}`).join('\n')}${beatFieldGaps.length ? `\nEvery beat MUST fill these required fields — the previous plan left them empty:\n${beatFieldGaps.map((gap) => `- ${gap}`).join('\n')}` : ''}${reintroductionLines}${collisionLines}${futureCollisionLines}${prematurePresenceLines}\n\nReturn a completely new JSON beat contract.`;
       }
     } catch (beatError) {
       if (!isNonfiction) throw beatError;
