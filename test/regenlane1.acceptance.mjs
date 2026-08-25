@@ -16,7 +16,7 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
 const CAST = ['Mara', 'Dov', 'Ilse'];
 
 // ── 1. version ──
-check('1. version', REGENLANE_VERSION === 'regen-lane-v1');
+check('1. version', REGENLANE_VERSION === 'regen-lane-v2');
 
 // ── 2. collects a dropped-subject paragraph ──
 {
@@ -156,12 +156,56 @@ check('1. version', REGENLANE_VERSION === 'regen-lane-v1');
   check('17. whole-lane revert when paragraph count changes', result.regenerated === 0 && result.text === text && result.skipped.every((s) => s.reason === 'lane-reverted'), JSON.stringify(result));
 }
 
-// ── 18. NF project → nf-skip, text unchanged ──
+// ── 18. REGENLANE-2 retires the old nf-skip behavior — an NF project now
+// runs through the SAME lane as fiction (the closed-world check (10) is the
+// NF-specific gate now, not a blanket skip). ──
+const NF_PROJECT = {
+  book_type: 'nonfiction',
+  research_data: 'Dr. Hale led the excavation at Port Ellis in 1966, cataloguing forty-two artifacts from the harbor district records for the state archive over a period of several months during that long summer season of careful and painstaking work by the whole team.',
+};
 {
-  const text = 'Were a ragtag collection of misfits, but they kept moving toward the ridge anyway.';
-  const mockLLM = async () => 'should never be called';
-  const result = await regenerateFlaggedParagraphs(text, { cast: CAST, callLLM: mockLLM, project: { book_type: 'nonfiction' } });
-  check('18. NF project → nf-skip, text unchanged', result.regenerated === 0 && result.text === text && result.skipped[0]?.reason === 'nf-skip', JSON.stringify(result));
+  const text = 'Were carefully studying Port Ellis throughout 1966.';
+  const mockLLM = async () => 'The team carefully studied Port Ellis throughout 1966.';
+  const result = await regenerateFlaggedParagraphs(text, { project: NF_PROJECT, callLLM: mockLLM });
+  check('18. NF project runs through the lane (nf-skip retired) — a clean rewrite is accepted', result.regenerated === 1 && result.text.includes('The team carefully studied') && result.skipped[0]?.reason !== 'nf-skip', JSON.stringify(result));
+}
+
+// ── 22. REGENLANE-2 check (10): NF candidate introducing an un-evidenced
+// proper noun is rejected as closed-world (not caught by the narrower
+// single-token new-proper-noun check, since an ALL-CAPS acronym has no
+// lowercase continuation for collectProperNouns to match) ──
+{
+  const original = 'The team studied Port Ellis carefully all season.';
+  const candidate = 'The team studied Port Ellis carefully all season, cross-referencing files from NASA.';
+  const verdict = verifyRegeneratedParagraph(original, candidate, { project: NF_PROJECT });
+  check('22. NF: a candidate introducing an un-evidenced proper noun is rejected (closed-world)', verdict.reason === 'closed-world', JSON.stringify(verdict));
+}
+
+// ── 23. a candidate that only fixes the defect (no new, unsupported
+// content) is accepted ──
+{
+  const original = 'Were carefully studying Port Ellis throughout 1966.';
+  const candidate = 'They were carefully studying Port Ellis throughout 1966.';
+  const verdict = verifyRegeneratedParagraph(original, candidate, { project: NF_PROJECT, rescan: () => [] });
+  check('23. NF: a candidate that only fixes the defect is accepted', verdict.ok === true, JSON.stringify(verdict));
+}
+
+// ── 24. a closed-world violation the ORIGINAL already had is not "new" —
+// the lane is not asked to fact-check pre-existing prose ──
+{
+  const original = 'The site director from NASA reviewed the findings at Port Ellis.';
+  const candidate = 'The site director from NASA carefully reviewed the findings at Port Ellis.';
+  const verdict = verifyRegeneratedParagraph(original, candidate, { project: NF_PROJECT, rescan: () => [] });
+  check('24. NF: a pre-existing closed-world violation is not a new rejection', verdict.reason !== 'closed-world', JSON.stringify(verdict));
+}
+
+// ── 25. fiction is unaffected by check (10) — no project means no closed-world gate ──
+{
+  const original = 'Mara studied the wrench for a long moment.';
+  const candidate = 'Mara studied the wrench and set it down on the bench.';
+  const verdictNoProject = verifyRegeneratedParagraph(original, candidate, { cast: CAST });
+  const verdictFiction = verifyRegeneratedParagraph(original, candidate, { cast: CAST, project: { book_type: 'fiction' } });
+  check('25. fiction: check (10) never fires (no project, and a fiction project)', verdictNoProject.ok === true && verdictFiction.ok === true, JSON.stringify({ verdictNoProject, verdictFiction }));
 }
 
 // ── 19-20. source-shape wiring ──
