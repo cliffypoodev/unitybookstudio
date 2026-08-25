@@ -220,6 +220,59 @@ const NF_PROJECT = {
   check("20. manuscriptPolishRunner.js has verifyInvariant('Regenerate Lane')", RUNNER.includes("verifyInvariant('Regenerate Lane')") && RUNNER.includes('regenerateFlaggedParagraphs'));
 }
 
+// ── 26-27. REGENLANE-2B (finding 45): check (4) accepts an evidence-backed
+// proper noun on NF, still rejects it on fiction ──
+{
+  const evidenceProject = {
+    book_type: 'nonfiction',
+    research_data: 'Dr. Hale led the excavation at Port Ellis in 1966, near Galveston, cataloguing forty-two artifacts from the harbor district records for the state archive over a period of several months during that long summer season of careful and painstaking work by the whole team.',
+  };
+  const original = 'The team studied the harbor district carefully all season.';
+  const candidate = 'The team studied the harbor district near Galveston carefully all season.';
+  const nfVerdict = verifyRegeneratedParagraph(original, candidate, { project: evidenceProject, rescan: () => [] });
+  check('26. NF: check (4) accepts a proper noun inEV finds in the research', nfVerdict.ok === true, JSON.stringify(nfVerdict));
+  const fictionVerdict = verifyRegeneratedParagraph(original, candidate, { project: { book_type: 'fiction' }, rescan: () => [] });
+  check('27. fiction: the same new proper noun is still rejected (unchanged)', fictionVerdict.reason === 'new-proper-noun:Galveston', JSON.stringify(fictionVerdict));
+}
+
+// ── 28. REGENLANE-2B (finding 42): NFGUARD-1's revert-then-reapply
+// algorithm, mirrored exactly from manuscriptPolishRunner.js — a
+// deterministic stage's content change (not just typography) is reverted to
+// the snapshot, but the lane's own recorded replacement survives, and
+// paragraph count is unchanged. ──
+{
+  const snapshot = 'Dr. Hale led the dig at Port Ellis in 1966.\n\nThe team catalogued forty-two artifacts from the site.';
+  const laneReplacements = [{ paragraphIndex: 0, before: 'Dr. Hale led the dig at Port Ellis in 1966.', after: 'Dr. Hale led the excavation at Port Ellis in 1966.' }];
+  let reverted = snapshot;
+  let kept = 0;
+  for (const r of laneReplacements) {
+    const occurrences = reverted.split(r.before).length - 1;
+    if (occurrences === 1) { reverted = reverted.split(r.before).join(r.after); kept += 1; }
+  }
+  const beforeParaCount = snapshot.split(/\n{2,}/).length;
+  const afterParaCount = reverted.split(/\n{2,}/).length;
+  check(
+    '28. NFGUARD-1: deterministic change reverted, lane rewrite kept, paragraph count unchanged',
+    kept === 1 &&
+      reverted.includes('Dr. Hale led the excavation at Port Ellis in 1966.') &&
+      reverted.includes('The team catalogued forty-two artifacts from the site.') &&
+      beforeParaCount === afterParaCount,
+    reverted
+  );
+}
+
+// ── 29. source-shape: manuscriptPolishRunner.js's NFGUARD-1 records and
+// re-applies the lane's accepted replacements ──
+{
+  const RUNNER = fs.readFileSync(new URL('../src/lib/manuscriptPolishRunner.js', import.meta.url), 'utf8');
+  check(
+    '29. manuscriptPolishRunner.js: NFGUARD-1 re-applies kept lane rewrites',
+    RUNNER.includes('laneReplacementsByFile') &&
+      RUNNER.includes('regen.replacements') &&
+      RUNNER.includes('kept ${kept} lane rewrite(s)')
+  );
+}
+
 // ── 21. zero-target telemetry (REGENLANE-1B-ZERO-TARGET-TELEMETRY) ──
 // A run that finds nothing to regenerate must say so, so a live proof can
 // tell "ran clean" from "never ran" (Arc D live-proof finding 17).
