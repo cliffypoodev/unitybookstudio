@@ -89,7 +89,9 @@ import { buildBookStyleLedger, measureSimileDensity, SIMILE_DENSITY_BUDGET_PER_1
 import { findCrossChapterDuplicateSentences } from './crossChapterDedupe.js'; // CROSSDEDUPE-1 / GATEREPORT-1
 import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants, scanRoleReferenceDrift } from './canonRoles.js'; // CANON-2 / CHARSTATE-1
 import { buildCharacterState, auditProseAgainstCharacterState, extractBeatDeclaredStateUpdates, collectChapterBeatEvents } from './characterStateLedger.js'; // CHARSTATE-1 / CHARSTATE-2
-import { isFictionProject } from './projectType.js'; // GATEPROMOTE-1
+import { isFictionProject, isNonfictionProject } from './projectType.js'; // GATEPROMOTE-1 / NFEXPORT-BIB-1
+import { isBackMatter, NF_BIBLIOGRAPHY_HARD_BLOCK } from './bibliographyGenerator.js'; // NFEXPORT-BIB-1
+import { countBibliographyEntries } from './bibliographyEntryShape.js'; // NFEXPORT-BIB-1
 
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
   let { project, stage = 'pre-export' } = options;
@@ -467,6 +469,50 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         referenceWarning: true,
       });
     }
+  }
+
+  // ── NFEXPORT-BIB-1: a nonfiction book without a Sources section is not
+  // done. A title test alone is not enough — the flagship's chapter 21 is
+  // titled "Bibliography & Sources" but holds a different book's fiction.
+  // Every back-matter chapter is checked against the entry SHAPE; the book
+  // is clean when at least one has >= 4 bibliography-shaped entries (the
+  // same floor generateBibliography enforces). Same try/catch discipline as
+  // every other whole-manuscript check above: fail open, never crash export.
+  try {
+    if (isNonfictionProject(project)) {
+      const backMatterChapters = chapters.filter((ch) => isBackMatter(ch));
+      let bestEntryCount = 0;
+      let sourcesFound = false;
+      const namedFailures = [];
+      for (const ch of backMatterChapters) {
+        const entryCount = countBibliographyEntries(ch?.content_md || '');
+        if (entryCount > bestEntryCount) bestEntryCount = entryCount;
+        if (entryCount >= 4) {
+          sourcesFound = true;
+        } else {
+          namedFailures.push(`NFEXPORT-BIB-1: "${ch?.title || 'untitled'}" is titled as Sources but has ${entryCount} entries`);
+        }
+      }
+      console.log(`[NFEXPORT-BIB-1] Gate scan: sources=${sourcesFound ? 'yes' : 'no'} entries=${bestEntryCount}`);
+      if (!sourcesFound) {
+        const reasons = namedFailures.length
+          ? namedFailures
+          : ['NFEXPORT-BIB-1: no Sources section (a back-matter chapter with ≥ 4 bibliography entries)'];
+        const entry = {
+          chapterNumber: 'book',
+          title: 'Sources',
+          reasons,
+          recommendedAction: 'REJECT_MANUAL_REVIEW',
+        };
+        if (NF_BIBLIOGRAPHY_HARD_BLOCK) {
+          hardFailures.push(entry);
+        } else {
+          warnings.push(entry);
+        }
+      }
+    }
+  } catch (bibErr) {
+    console.error('[NFEXPORT-BIB-1] Sources scan failed (non-fatal):', bibErr?.message || bibErr);
   }
 
   // ── Series Contract Gate (whole-manuscript for linked series) ──

@@ -54,6 +54,17 @@ export function isFrontMatter(ch) {
   );
 }
 
+// NFEXPORT-BIB-1: re-exported so existing call sites can keep importing them
+// from here; the implementation lives in bibliographyEntryShape.js (no
+// dependencies) so exportSafetyGate.js and the acceptance battery can use it
+// without pulling in this module's @/lib imports.
+export { BIB_ENTRY_RX, countBibliographyEntries } from './bibliographyEntryShape.js';
+
+// NFEXPORT-BIB-1: a nonfiction book without a real Sources section is not
+// done. Starts as a warning; promote to a hard block only after the
+// flagship ships with one (see the plan).
+export const NF_BIBLIOGRAPHY_HARD_BLOCK = false;
+
 export function isBackMatter(ch) {
   const title = String(ch?.title || '').toLowerCase();
   return (
