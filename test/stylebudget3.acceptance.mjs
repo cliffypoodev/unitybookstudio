@@ -84,6 +84,34 @@ check('5. every key shared with SLOP_BUDGETS has the same book budget in both li
   check('6b. the loose non-contiguous case finds no echo', findOpeningEchoes([chC, chD]).length === 0);
 }
 
+// ── 6c-6e. STYLEBUDGET-3B: apostrophe-spacing artifacts don't manufacture
+// content words out of a cast member's own name ──
+{
+  // A bible nickname rendered inline as a spacing artifact ("Mara ' Mar’
+  // Voss") — live on REDUX: "Zinnia ' Zin' Quark" falsely echoed Ch.4 and
+  // Ch.14 against Ch.1 with gram "zinnia ' zin' quark" because the old
+  // tokenizer split the bare apostrophe into its own "word" and left a
+  // trailing one glued to "zin'", so neither matched the cast set.
+  const artifactA = { chapterNumber: 1, text: "Mara ' Mar’ Voss stared out the viewport at the drifting debris field for a long while." };
+  const artifactB = { chapterNumber: 4, text: "Mara ' Mar’ Voss walked into the cargo bay and checked the manifest twice before signing." };
+  check('6c. a spaced-apostrophe name artifact never manufactures a false echo', findOpeningEchoes([artifactA, artifactB], { castNames: ['Mara', 'Voss'] }).length === 0,
+    JSON.stringify(findOpeningEchoes([artifactA, artifactB], { castNames: ['Mara', 'Voss'] })));
+
+  // A cast member's possessive, repeated — still just the cast member, not
+  // a new content word (name's / name’s both count as the cast name).
+  const possA = { chapterNumber: 1, text: "Mara’s quarters were dark and quiet, the console glowing faint blue in the corner." };
+  const possB = { chapterNumber: 2, text: "Mara’s quarters smelled of oil and dust, untouched since the crew left weeks ago." };
+  check('6d. a cast member’s possessive never manufactures a false echo', findOpeningEchoes([possA, possB], { castNames: ['Mara'] }).length === 0,
+    JSON.stringify(findOpeningEchoes([possA, possB], { castNames: ['Mara'] })));
+
+  // A genuine repeated image survives the fix even when apostrophes and a
+  // cast possessive are present elsewhere in the same openings.
+  const realA = { chapterNumber: 1, text: "Mara’s hands shook as the engine room filled with the smell of ozone and rusted metal, and she couldn’t look away." };
+  const realB = { chapterNumber: 5, text: "Dov’s hands shook as the engine room filled with the smell of ozone again, and he couldn’t look away either." };
+  check('6e. a real repeated image still echoes with apostrophes/possessives present nearby', findOpeningEchoes([realA, realB], { castNames: ['Mara', 'Dov'] }).length === 1,
+    JSON.stringify(findOpeningEchoes([realA, realB], { castNames: ['Mara', 'Dov'] })));
+}
+
 // ── 7. the later chapter is the target, the earlier never ──
 {
   const priorOpenings = [{ chapterNumber: 1, text: 'The heat pressed down on the hull as Mara climbed the ladder toward the bridge slowly.' }];

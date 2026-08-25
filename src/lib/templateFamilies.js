@@ -183,9 +183,39 @@ function firstProseParagraph(text) {
   return '';
 }
 
+// STYLEBUDGET-3B: words with only INTERNAL apostrophes ("don't", "zin's").
+// The old /[a-z’']+/g class matched a bare apostrophe as its own token and
+// swallowed a trailing/leading one into the word — a stored spacing artifact
+// like a bible nickname rendered inline ("Zinnia ' Zin' Quark") tokenized to
+// ["zinnia", "'", "zin'", "quark"], and neither "'" nor "zin'" is a stopword
+// or (as an exact string) a cast name, so they counted as content words and
+// a cast member's own name falsely registered as a repeated "image" between
+// chapters that both open on that character. Requiring a letter on both
+// sides of an internal apostrophe means a bare "'" never starts a token and
+// a dangling "zin'" resolves to "zin" — the clean, cast-recognized name.
+const WORD_RX = /[a-z]+(?:[’'][a-z]+)*/g;
+
+function tokenizeWords(text) {
+  return String(text || '').toLowerCase().match(WORD_RX) || [];
+}
+
 function openingWords(text) {
-  const para = firstProseParagraph(text);
-  return (para.toLowerCase().match(/[a-z’']+/g) || []).slice(0, 40);
+  return tokenizeWords(firstProseParagraph(text)).slice(0, 40);
+}
+
+// Cast names normalized through the SAME tokenizer, plus each name's
+// possessive ("zin's" / "zin’s") — a possessive is still the cast member,
+// not a new content word, and prose may use either apostrophe character.
+function normalizeCastNames(castNames) {
+  const set = new Set();
+  for (const raw of (Array.isArray(castNames) ? castNames : [])) {
+    for (const tok of tokenizeWords(raw)) {
+      set.add(tok);
+      set.add(`${tok}'s`);
+      set.add(`${tok}’s`);
+    }
+  }
+  return set;
 }
 
 function contentWordCount(gram, castLower) {
@@ -207,7 +237,7 @@ function firstSharedContiguousGram(wordsA, wordsB, castLower) {
  * `chapterTexts`: [{ chapterNumber, text }]. Returns [{ earlier, later, gram }].
  */
 export function findOpeningEchoes(chapterTexts, { castNames = [] } = {}) {
-  const castLower = new Set((Array.isArray(castNames) ? castNames : []).map((n) => String(n || '').toLowerCase()));
+  const castLower = normalizeCastNames(castNames);
   const chapters = (Array.isArray(chapterTexts) ? chapterTexts : [])
     .map((c) => ({ chapterNumber: c?.chapterNumber, words: openingWords(c?.text) }))
     .filter((c) => c.words.length >= 4);
@@ -228,7 +258,7 @@ export function findOpeningEchoes(chapterTexts, { castNames = [] } = {}) {
  * already used.
  */
 export function makeOpeningEchoDetector({ priorOpenings = [], castNames = [] } = {}) {
-  const castLower = new Set((Array.isArray(castNames) ? castNames : []).map((n) => String(n || '').toLowerCase()));
+  const castLower = normalizeCastNames(castNames);
   const priors = (Array.isArray(priorOpenings) ? priorOpenings : [])
     .map((c) => ({ chapterNumber: c?.chapterNumber, words: Array.isArray(c?.words) ? c.words : openingWords(c?.text) }))
     .filter((c) => c.words.length >= 4);
