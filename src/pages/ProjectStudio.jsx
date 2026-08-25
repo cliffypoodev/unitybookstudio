@@ -42,7 +42,7 @@ import { calculateManuscriptStats, calculateManuscriptStatsNonfiction, isNonfict
 import { COMPACT_CRAFT_RULES, COMPACT_ANTI_SLOP } from '@/lib/craftCompact';
 import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
-import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup } from '@/lib/chapterStorage';
+import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup, chapterHasPreviousVersion } from '@/lib/chapterStorage';
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
 import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
 import { maybeAutoPolishChapter, maybeFinalCheckAfterPolish } from '@/lib/autoPolishHook'; // WAVE5-SETTINGS
@@ -3246,6 +3246,35 @@ Return structured JSON:
         word_count: countWords(chapterDraft),
       },
     });
+  };
+
+  // VERSIONS-1: every save records previous_content_md_url (prepareChapterContent);
+  // this is the real save path back — through Chapter.update, verified the
+  // same way any other chapter save is, never a direct edit outside it.
+  const handleRestorePreviousVersion = async (chapter) => {
+    if (!chapter?.previous_content_md_url) {
+      toast.error('No previous version to restore.');
+      return;
+    }
+    setBusyLabel(`Restoring Ch.${chapter.chapter_number} previous version…`);
+    try {
+      await saveChapter.mutateAsync({
+        id: chapter.id,
+        payload: {
+          ...clearRichContentFields(),
+          content_md: '',
+          content_md_url: chapter.previous_content_md_url,
+        },
+      });
+      if (chapter.id === selectedChapterId) {
+        const restored = await resolveChapterContent({ ...chapter, content_md: '', content_md_url: chapter.previous_content_md_url });
+        setChapterDraft(restored);
+      }
+      await refreshAll();
+      toast.success(`Restored Ch.${chapter.chapter_number} to its previous version.`);
+    } finally {
+      setBusyLabel('');
+    }
   };
 
   // ── SAFE REJECTED CHAPTER REPLACEMENT ──
@@ -6657,6 +6686,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
           subtitle={project.tagline || project.seed_concept}
           navigateRef={notebookRef}
           initialTab={initialTab}
+          headerActions={<UndoButton snapshot={undoSnapshot} onUndo={handleUndo} isUndoing={isUndoing} />}
           sections={[
             {
               id: 'home',
@@ -6899,6 +6929,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                       await refreshAll();
                       toast.success('Original content restored.');
                     } : undefined}
+                    onRestorePreviousVersion={selectedChapter ? () => handleRestorePreviousVersion(selectedChapter) : undefined}
                   />
                 </div>
               ),

@@ -504,7 +504,7 @@ function MobileView({ projectTitle, subtitle, sections, activeTab, setActiveTab,
 
 /* ═══════════════════ SHELL ═══════════════════ */
 // NotebookShell v5: restored original split layout + auto single-pane mode under 1180px.
-export default function NotebookShell({ projectTitle, subtitle, sections, navigateRef, initialTab }) {
+export default function NotebookShell({ projectTitle, subtitle, sections, navigateRef, initialTab, headerActions }) {
   const { settings, theme: T } = useNotebookTheme();
   const [activeTab, setActiveTab] = React.useState(initialTab || sections[0]?.id || 'home');
   const [railCollapsed, setRailCollapsed] = React.useState(() => { try { return localStorage.getItem('ubs-rail-collapsed') === '1'; } catch { return false; } });
@@ -615,6 +615,11 @@ export default function NotebookShell({ projectTitle, subtitle, sections, naviga
                   {phase.label} › {activeSection.label}
                 </span>
               </div>
+
+              {/* UNDO-1: an in-progress undo snapshot (e.g. after Fix Entire
+                  Manuscript) needs to be reachable from every tab, not just
+                  the one the run happened to leave the user on. */}
+              {headerActions}
 
               <button onClick={() => setForceMobile(true)} title="Preview mobile view" style={{ width: 34, height: 34, borderRadius: 999, border: `1px solid ${T.page.railBorder}`, background: pill, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: inkSoft }}>
                 <Smartphone size={16} />

@@ -434,6 +434,11 @@ function preserveExistingLargeBackup(existingChapter) {
  */
 export async function prepareChapterContent(content, projectId, chapterId, existingChapter = null) {
   const normalized = normalizeText(content);
+  // VERSIONS-1: every save records what content_md_url pointed at BEFORE this
+  // save, so a per-chapter "Restore previous version" action has something
+  // real to restore to. Empty when the previous version was inline-only —
+  // there is no durable URL to go back to in that case.
+  const previousContentMdUrl = existingChapter?.content_md_url || '';
 
   if (!normalized || normalized.length <= MAX_INLINE_SIZE) {
     return {
@@ -443,6 +448,7 @@ export async function prepareChapterContent(content, projectId, chapterId, exist
       content_storage_version: CHAPTER_STORAGE_VERSION,
       content_md_word_count: countWords(normalized),
       content_md_char_count: normalized.length,
+      previous_content_md_url: previousContentMdUrl,
     };
   }
 
@@ -460,11 +466,12 @@ export async function prepareChapterContent(content, projectId, chapterId, exist
       content_storage_version: CHAPTER_STORAGE_VERSION,
       content_md_word_count: countWords(normalized),
       content_md_char_count: normalized.length,
+      previous_content_md_url: previousContentMdUrl,
     };
   }
 
   const preserved = preserveExistingLargeContent(existingChapter);
-  if (preserved) return preserved;
+  if (preserved) return { ...preserved, previous_content_md_url: previousContentMdUrl };
 
   /*
    * Brand-new oversized content cannot fit safely inline.
@@ -481,6 +488,7 @@ export async function prepareChapterContent(content, projectId, chapterId, exist
     content_storage_version: CHAPTER_STORAGE_VERSION,
     content_md_word_count: countWords(normalized),
     content_md_char_count: normalized.length,
+    previous_content_md_url: previousContentMdUrl,
   };
 }
 
@@ -737,6 +745,14 @@ export async function resolveBackupContent(chapter) {
  */
 export function chapterHasBackup(chapter) {
   return !!(chapter?.backup_content || chapter?.backup_content_url);
+}
+
+/**
+ * VERSIONS-1: does this chapter have a previous saved version to restore?
+ * (previous_content_md_url is recorded by prepareChapterContent on every save.)
+ */
+export function chapterHasPreviousVersion(chapter) {
+  return !!chapter?.previous_content_md_url;
 }
 
 export const chapterStorageVersion = CHAPTER_STORAGE_VERSION;

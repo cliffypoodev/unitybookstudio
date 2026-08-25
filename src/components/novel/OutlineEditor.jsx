@@ -8,6 +8,7 @@ import {
   Cpu,
   Gauge,
   GitBranch,
+  History,
   Layers3,
   ListChecks,
   Loader2,
@@ -23,7 +24,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-import { chapterHasContent, chapterHasBackup } from '@/lib/chapterStorage';
+import { chapterHasContent, chapterHasBackup, chapterHasPreviousVersion } from '@/lib/chapterStorage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SaveIndicator from '@/components/notebook/SaveIndicator';
@@ -405,6 +406,7 @@ export default function OutlineEditor({
   lastSaved,
   onStop,
   onRestoreOriginal,
+  onRestorePreviousVersion,
   // WAVE5-MODELPICKER: these six props were passed by ProjectStudio all along
   // but never destructured — the per-chapter model picker literally could not
   // exist. Now it does.
@@ -519,6 +521,19 @@ export default function OutlineEditor({
             >
               <RotateCcw className="mr-1 h-3 w-3" />
               Restore Original
+            </Button>
+          )}
+
+          {onRestorePreviousVersion && chapterHasPreviousVersion(chapter) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRestorePreviousVersion}
+              disabled={!!busyLabel}
+              className="h-8 rounded-full px-3 text-[10px] text-muted-foreground hover:text-foreground"
+            >
+              <History className="mr-1 h-3 w-3" />
+              Restore Previous Version
             </Button>
           )}
 
