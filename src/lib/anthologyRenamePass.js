@@ -58,6 +58,30 @@ function chapterProseNames(ch) {
   return [];
 }
 
+// NAMEREG-2: a capitalized token that only ever OPENS a sentence ("Better.",
+// "Nothing.", "Maybe") never appears lowercase either, so it used to survive
+// the lowercase-elimination check below and register as a "name" (live: the
+// "Better"-style extractor false positive). Require at least one occurrence
+// that is NOT sentence-initial — a real name appears as a mid-sentence
+// subject/object constantly; a sentence adverb or interjection never does.
+function isSentenceInitialOccurrence(text, index) {
+  if (index <= 0) return true;
+  const before = text.slice(Math.max(0, index - 6), index);
+  if (/[.!?…]\s*$/.test(before)) return true; // after terminal punctuation
+  if (/\n\s*$/.test(before)) return true; // paragraph/line start
+  if (/["'‘“]\s*$/.test(before)) return true; // after an opening quote
+  return false;
+}
+
+function hasMidSentenceOccurrence(text, token) {
+  const rx = new RegExp(`\\b${token}\\b`, 'g');
+  let m;
+  while ((m = rx.exec(text))) {
+    if (!isSentenceInitialOccurrence(text, m.index)) return true;
+  }
+  return false;
+}
+
 // NAMEREG-1: deterministic prominent-name extraction from finished prose. A capitalized
 // token counts as a prose name when it appears at least `minCount` times (side characters
 // mentioned once don't register; recurring cast does). COMMON_WORD_NAMES filtered.
@@ -73,6 +97,10 @@ export function extractProminentProseNames(prose, { minCount = 3, maxNames = 16 
   // caught at sentence starts ("The", "She", "Storm raged" vs "the storm"), not a name.
   for (const tok of [...counts.keys()]) {
     if (new RegExp(`\\b${tok.toLowerCase()}\\b`).test(text)) counts.delete(tok);
+  }
+  // NAMEREG-2: a token that only ever opens a sentence is not a name either.
+  for (const tok of [...counts.keys()]) {
+    if (!hasMidSentenceOccurrence(text, tok)) counts.delete(tok);
   }
   return [...counts.entries()]
     .filter(([, c]) => c >= minCount)
