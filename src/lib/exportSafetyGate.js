@@ -152,19 +152,29 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
       ch?.target_words || ch?.targetWords ||
       project?.target_chapter_words || project?.chapter_length_target || 0
     );
-    if (explicitChapterTarget > 0) {
-      const chapterWordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
-      const chapterWordFloor = Math.round(explicitChapterTarget * 0.75);
-      if (chapterWordCount < chapterWordFloor) {
-        console.error(`[LENGTHGATE-1B] Ch.${ch?.chapter_number} BLOCKED: ${chapterWordCount} words against a ${explicitChapterTarget}-word target (floor ${chapterWordFloor}).`);
-        hardFailures.push({
-          chapterNumber: ch?.chapter_number,
-          title: ch?.title || '',
-          reasons: [`[LENGTHGATE-1B] Chapter assembled at ${chapterWordCount} words against a ${explicitChapterTarget}-word target (floor ${chapterWordFloor}). Under-length chapters do not export — expand or redraft this chapter.`],
-        });
-        continue;
+    // LENGTHGATE-1C (finding 49): a Sources/Bibliography/appendix chapter is
+    // never going to be chapter-target length, and NFEXPORT-BIB-1 already
+    // requires it to exist — the two requirements contradicted each other,
+    // hard-blocking every NF book that has both a length target and a real
+    // Sources chapter. Back matter is exempt from the length floor. Wrapped
+    // like every other check in this loop: fail open, never crash export.
+    let lengthGateHardFailed = false;
+    try {
+      if (explicitChapterTarget > 0 && !isBackMatter(ch)) {
+        const chapterWordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+        const chapterWordFloor = Math.round(explicitChapterTarget * 0.75);
+        if (chapterWordCount < chapterWordFloor) {
+          console.error(`[LENGTHGATE-1B] Ch.${ch?.chapter_number} BLOCKED: ${chapterWordCount} words against a ${explicitChapterTarget}-word target (floor ${chapterWordFloor}).`);
+          hardFailures.push({
+            chapterNumber: ch?.chapter_number,
+            title: ch?.title || '',
+            reasons: [`[LENGTHGATE-1B] Chapter assembled at ${chapterWordCount} words against a ${explicitChapterTarget}-word target (floor ${chapterWordFloor}). Under-length chapters do not export — expand or redraft this chapter.`],
+          });
+          lengthGateHardFailed = true;
+        }
       }
-    }
+    } catch (e) { console.error('[LENGTHGATE-1B] check unavailable — length NOT verified:', e?.message); }
+    if (lengthGateHardFailed) continue;
 
     // ARCH-1C: no un-evidenced clock time or life-outcome claim ships. The
     // draft lane blocks and strips; polish heals saved chapters; this is the
@@ -418,20 +428,26 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   // around protects nothing. These surface loudly and go in the report.
   try {
     const bookReport = checkBookIntegrity(chapters.map((ch) => ch?.content_md || ''));
+    // LENGTHGATE-1C (finding 49): a back-matter chapter (Sources/Bibliography/
+    // appendix) is never going to be body-chapter length — exclude it from
+    // the SHORT advisory the same way LENGTHGATE-1B excludes it from the
+    // hard block below. `d.n` is the 1-based position in `chapters`.
+    const shortChaptersFiltered = bookReport.shortChapters.details.filter((d) => !isBackMatter(chapters[d.n - 1]));
+    const bookPassEffective = bookReport.crossChapterEchoes.count === 0 && bookReport.openingEchoes.count === 0 && shortChaptersFiltered.length === 0;
     if (typeof window !== 'undefined') window.__UBS_LAST_BOOK_INTEGRITY = bookReport;
     console.log(
       `[BOOKGATE-2] cross-chapter: echoes=${bookReport.crossChapterEchoes.count} ` +
       `openingEchoes=${bookReport.openingEchoes.count} ` +
-      `shortChapters=${bookReport.shortChapters.details.length} ` +
+      `shortChapters=${shortChaptersFiltered.length} ` +
       `(median ${bookReport.medianWords} words, floor ${bookReport.shortChapters.floor})`
     );
     for (const d of bookReport.openingEchoes.details) {
       console.warn(`[BOOKGATE-2:OPENING-ECHO] ch${d.chapters[0]} + ch${d.chapters[1]} share ${JSON.stringify(d.shared)}`);
     }
-    for (const d of bookReport.shortChapters.details) {
+    for (const d of shortChaptersFiltered) {
       console.warn(`[BOOKGATE-2:SHORT] ch${d.n} is ${d.words} words, below the ${bookReport.shortChapters.floor}-word floor`);
     }
-    if (!bookReport.pass) {
+    if (!bookPassEffective) {
       warnings.push({
         chapterNumber: 'book',
         title: 'Cross-chapter integrity',
@@ -439,7 +455,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         reasons: [
           `${bookReport.crossChapterEchoes.count} phrase(s) repeated across chapters`,
           `${bookReport.openingEchoes.count} chapter pair(s) opening on the same image`,
-          `${bookReport.shortChapters.details.length} chapter(s) below the length floor`,
+          `${shortChaptersFiltered.length} chapter(s) below the length floor`,
         ],
         details: bookReport,
       });
