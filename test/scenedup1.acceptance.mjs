@@ -7,7 +7,7 @@ let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
 
 // 1. version (shared with eventCollision.js's other exports)
-check('1. version', EVENT_COLLISION_VERSION === 'event-collision-v1');
+check('1. version', EVENT_COLLISION_VERSION === 'event-collision-v2'); // bumped by LOOKAHEAD-1
 
 // 2. same-chapter re-arrival flagged (the two-arrivals class)
 {

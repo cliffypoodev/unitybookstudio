@@ -12,8 +12,8 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
 const CHAR_SHEET = '**1. Mara** (she/her)\n**Role:** Captain\n\n**2. Dov** (he/him)\n**Role:** Engineer\n\n**3. Ilse** (they/them)\n**Role:** Navigator';
 const CANON_MD = 'RESOLVED ARC: Mara\'s grief — she stops blaming herself (ch 3); forbidden: "still blames herself"; "her fault"';
 
-// 1. version
-check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v1');
+// 1. version (bumped to v2 by STATECONTRACT-1B, see checks 14-17)
+check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v2');
 
 // 2. block has all five sections
 {
@@ -45,18 +45,25 @@ check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v
   check('3. departed character listed as departed', dov?.status === 'departed' && r.facts.departed.includes('Dov'), JSON.stringify(r.facts.cast));
 }
 
-// 4. declared return flips status
+// 4. declared return flips status — CHARSTATE-2B (STATECONTRACT-1B, live
+// proof Run 3, Arc D, 2026-08-24): honored only when THIS chapter's own
+// outline section or beat summary corroborates it.
 {
   const priorChapters = [
     { chapterNumber: 1, text: 'Mara walked into the room and sat down at the table. Dov followed her in and closed the door. '.repeat(15) },
     { chapterNumber: 2, text: 'Dov packed his bag and left the crew for good, saying goodbye to no one. '.repeat(15) },
   ];
-  const chapter = { chapter_number: 3 };
+  const chapter = { chapter_number: 3, beat_summary: 'Dov returns to the crew after weeks away.' };
   const normalizedScenes = [{ scene_goal: 'Dov returns to the crew after weeks away', required_events: ['Dov comes back and apologizes'] }];
   const project = { characters_md: CHAR_SHEET };
   const r = buildChapterStateContract({ project, chapter, resolvedPriorProse: priorChapters, normalizedScenes, allProjectChapters: [], cast: ['Mara', 'Dov'] });
   const dov = r.facts.cast.find((c) => c.name === 'Dov');
-  check('4. declared return flips status to present', dov?.status === 'present', JSON.stringify(dov));
+  check('4a. a declared return CORROBORATED by this chapter\'s beat_summary flips status to present', dov?.status === 'present', JSON.stringify(dov));
+
+  const chapterNoCorroboration = { chapter_number: 3 };
+  const rUncorroborated = buildChapterStateContract({ project, chapter: chapterNoCorroboration, resolvedPriorProse: priorChapters, normalizedScenes, allProjectChapters: [], cast: ['Mara', 'Dov'] });
+  const dovUncorroborated = rUncorroborated.facts.cast.find((c) => c.name === 'Dov');
+  check('4b. a self-declared return with NO outline/beat_summary corroboration stays departed', dovUncorroborated?.status === 'departed', JSON.stringify(dovUncorroborated));
 }
 
 // 5. resolved-arc line parsed with forbidden phrases
@@ -108,6 +115,25 @@ check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v
   check('9. EVENTS section path runs without throwing', Array.isArray(r.facts.events));
 }
 
+// 14-15. STATECONTRACT-1B: the EVENTS section respects eventsMaxChars and
+// elides the OLDEST chapters first (the same elision buildPriorChapterEventLedger
+// already tests), logging the trim — instead of always rendering every event
+// regardless of the cap.
+{
+  const bigChapters = Array.from({ length: 20 }, (_, i) => ({
+    chapter_number: i + 1,
+    scene_beats_json: JSON.stringify({ beats: [{ scene_number: 1, scene_id: `ch${i + 1}-s01`, required_events: [`Chapter ${i + 1} event: the crew advances the ${i + 1}th leg of the journey across the wastes`] }] }),
+  }));
+  const project = { characters_md: CHAR_SHEET };
+  const wide = buildChapterStateContract({ project, chapter: { chapter_number: 21 }, resolvedPriorProse: [], normalizedScenes: [], allProjectChapters: bigChapters, cast: ['Mara'], eventsMaxChars: 20000 });
+  check('14a. a generous eventsMaxChars keeps the earliest chapter, no elision', wide.block.includes('Ch.1:') && !/elided for length/.test(wide.block));
+  check('14b. facts.events is the FULL unelided list regardless of the prompt cap', wide.facts.events.length === 20);
+
+  const narrow = buildChapterStateContract({ project, chapter: { chapter_number: 21 }, resolvedPriorProse: [], normalizedScenes: [], allProjectChapters: bigChapters, cast: ['Mara'], eventsMaxChars: 400 });
+  check('15a. a tight eventsMaxChars elides the OLDEST chapters and says so', /elided for length/.test(narrow.block) && !narrow.block.includes('Ch.1:') && narrow.block.includes('Ch.20:'));
+  check('15b. facts.events stays the FULL list even when the prompt is trimmed', narrow.facts.events.length === 20);
+}
+
 // 10-13. source-shape: sceneWriter.js, chapterStateContract.js, autonovel.js, ProjectStudio.jsx wiring (D2)
 {
   const SW = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
@@ -118,6 +144,13 @@ check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v
   check('12. autonovel.js documents the STATE CONTRACT arriving via priorCoverage', AN.includes('STATE CONTRACT'));
   const PS = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
   check('13. ProjectStudio.jsx planner wires buildChapterStateContract into priorCoverage', PS.includes('buildChapterStateContract') && PS.includes('priorCoverage = `${stateContractResult.block}'));
+
+  // 16-17. STATECONTRACT-1B (D2): the five legacy duplicate lines are gated
+  // behind `!stateContract`, and a local budget guard mirrors ROUTE-1's own
+  // checkPromptBudget before the writer call, trimming EVENTS instead of
+  // letting the chapter die at the wire.
+  check('16. legacy pronoun/role/character-state/style lines are gated behind !stateContract', (SW.match(/&& !stateContract\)/g) || []).length >= 3);
+  check('17. a local budget guard mirrors ROUTE-1 and trims EVENTS on overflow', SW.includes('checkPromptBudget') && SW.includes('EVENTS_TRIM_STEPS') && SW.includes('eventsMaxChars: EVENTS_TRIM_STEPS[step]'));
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

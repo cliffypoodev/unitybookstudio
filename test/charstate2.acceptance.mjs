@@ -23,6 +23,8 @@ import {
   buildCharacterState,
   buildCharacterStateContract,
   auditProseAgainstCharacterState,
+  corroborateBeatDeclaredReturns,
+  findPrematureCharacterPresence,
   CHARACTER_STATE_VERSION,
 } from '../src/lib/characterStateLedger.js';
 
@@ -85,7 +87,7 @@ check('16. prose-extracted updates in the same chapter outrank the declaration',
   const s = buildCharacterState([ch9, ch11ProseDeparts], CAST);
   return s.JB.partyStatus === 'departed' && s.JB.statusChapter === 11;
 })());
-check('17. version bumped to character-state-v2', CHARACTER_STATE_VERSION === 'character-state-v2');
+check('17. version bumped to character-state-v3', CHARACTER_STATE_VERSION === 'character-state-v3'); // CHARSTATE-2B/2C
 
 // ── 6. wiring (source-level) ──
 const WRITER = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
@@ -98,6 +100,48 @@ const STUDIO = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.
 check('22. beat planner state fold carries beat events', /statePriorChapters\.push\(\{ chapterNumber: Number\(prior\.chapter_number\), text: body, beatEvents: collectChapterBeatEvents\(prior\) \}\)/.test(STUDIO));
 const EXPORT_GATE = fs.readFileSync(new URL('../src/lib/exportSafetyGate.js', import.meta.url), 'utf8');
 check('23. export gate folds beat events and audits with per-chapter declarations', EXPORT_GATE.includes('beatEvents: collectChapterBeatEvents(ch)') && EXPORT_GATE.includes('{ declaredReturns: declaredHere }'));
+
+// 24-26. CHARSTATE-2B (live proof Run 3, Arc D, 2026-08-24): a beat-declared
+// return is honored only when THIS chapter's own outline/beat-summary
+// corroborates it. Live REDUX ch.10 self-declared "JB returns" with no
+// corroboration from ch.10's own outline (the text was lifted from ch.11).
+// Generic fixture names (Mara, Dov, Ilse), not the live book's cast.
+{
+  const { corroborated, uncorroborated } = corroborateBeatDeclaredReturns(['Ilse'], 'Ilse returns to the depot at dawn, soaked and shaking.');
+  check('24. a declared return corroborated by the outline/beat-summary is honored', corroborated.includes('Ilse') && uncorroborated.length === 0, JSON.stringify({ corroborated, uncorroborated }));
+}
+{
+  const { corroborated, uncorroborated } = corroborateBeatDeclaredReturns(['Ilse'], 'Mara and Dov wait out the storm; nothing here mentions Ilse at all.');
+  check('25. a self-declared return with NO outline corroboration is rejected', uncorroborated.includes('Ilse') && corroborated.length === 0, JSON.stringify({ corroborated, uncorroborated }));
+}
+{
+  const { corroborated, uncorroborated } = corroborateBeatDeclaredReturns(['Ilse', 'Dov'], "Ilse's return lifts the crew's spirits, though Dov stays behind at the depot packing supplies.");
+  check('26. corroboration is checked per name, not all-or-nothing', corroborated.includes('Ilse') && uncorroborated.includes('Dov'), JSON.stringify({ corroborated, uncorroborated }));
+}
+
+// 27-29. CHARSTATE-2C (live proof Run 3, Arc D, 2026-08-24): a scene listing
+// a departed character as present BEFORE any scene's own text declares their
+// return is a contract violation, independent of the whole-chapter status
+// flip (live REDUX ch.10: all three scenes listed JB present, including
+// scene 1, before scene 2's "JB returns").
+{
+  const beats = [
+    { scene_number: 1, scene_goal: 'Mara searches the depot alone.', characters_present: ['Mara', 'Ilse'], required_events: [] },
+    { scene_number: 2, scene_goal: 'Ilse returns, having repaired the transmitter.', characters_present: ['Mara', 'Ilse'], required_events: [] },
+    { scene_number: 3, scene_goal: 'The crew celebrates.', characters_present: ['Mara', 'Ilse', 'Dov'], required_events: [] },
+  ];
+  const findings = findPrematureCharacterPresence(beats, ['Ilse']);
+  check('27. a departed character listed present BEFORE the return scene is flagged', findings.some((f) => f.scene_number === 1 && f.name === 'Ilse'), JSON.stringify(findings));
+  check('28. the return scene itself and every scene after it are clean', !findings.some((f) => f.scene_number >= 2), JSON.stringify(findings));
+}
+{
+  const beats = [
+    { scene_number: 1, scene_goal: 'Mara waits alone in the depot.', characters_present: ['Mara'], required_events: [] },
+    { scene_number: 2, scene_goal: 'Ilse returns, having repaired the transmitter.', characters_present: ['Mara', 'Ilse'], required_events: [] },
+  ];
+  const findings = findPrematureCharacterPresence(beats, ['Ilse']);
+  check('29. a plan that correctly withholds the departed character until the return scene is clean', findings.length === 0, JSON.stringify(findings));
+}
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
