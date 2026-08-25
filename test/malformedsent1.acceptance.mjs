@@ -55,5 +55,28 @@ check('19. export gate calls it, stays a WARNING unless MALFORMEDSENT_HARD_BLOCK
 const MS_SRC = fs.readFileSync(new URL('../src/lib/malformedSentence.js', import.meta.url), 'utf8');
 check('20. MALFORMEDSENT_HARD_BLOCK defaults to false', /export const MALFORMEDSENT_HARD_BLOCK = false;/.test(MS_SRC));
 
+// ── MALFORMEDSENT-2 (finding 44): a plural common noun earlier in the same
+// clause is the TRUE subject — "were" agrees with IT, not the nearby proper
+// noun the regex would otherwise flag. Fixture names only (Port Ellis /
+// Dr. Vance), never a real book's cast or place. ──
+const NF_CAST = ['Port Ellis', 'Dr. Vance', 'Zin'];
+const nfKinds = (t) => scanMalformedSentences(t, NF_CAST).map((f) => f.kind);
+check(
+  '21. plural subject before a proper noun ("investigators ... Port Ellis were") is clean',
+  nfKinds('The few investigators that did attempt to operate near Port Ellis were reassigned before the season ended.').length === 0
+);
+check(
+  '22. a second live shape (plural "reports" before a proper noun) is clean',
+  nfKinds('The reports that shaped the inquiry into Port Ellis were widespread across the region.').length === 0
+);
+check(
+  '23. a true singular-subject case (no preceding plural noun) still fires',
+  nfKinds('Dr. Vance were reassigned before the season ended.').includes('agreement')
+);
+check(
+  '24. a plural noun in an EARLIER clause does not mask a genuine agreement error in a later clause',
+  nfKinds('The investigators filed their reports, but Dr. Vance were reassigned regardless.').includes('agreement')
+);
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
