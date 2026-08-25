@@ -12,6 +12,7 @@
 import { stripDroppedWordSentences, stripMangledSentences, fixIndefiniteArticles, buildFactLedger, checkClockTimeViolations, checkFateViolations, stripFactLedgerViolations, buildFactLedgerPromptBlock } from './nfContentGuard.js'; // DRAFTGATE-2 & 3 + ARCH-1C
 import { invokeLLMWithRetry } from '@/lib/integrationRetry';
 import { isNonfictionProject as isNonfictionProjectAuthority } from '@/lib/projectType'; // NFCLASS-3
+import { buildStoryEntityOwnership, fenceForeignEntities, cacheStoryEntityOwnership, getCachedStoryEntityOwnership } from '@/lib/storyEntityOwnership'; // NFANTH-CW-1
 import { extractRequiredFinalLine, enforceExactFinalLine } from '@/lib/exactFinalLine';
 import { buildProjectContextHeader, unwrapIntegrationResult, countWords, buildAuthorVoiceInstruction } from '@/lib/autonovel';
 import { verifySceneProvenance, verifyContiguousSceneSequence } from '@/lib/generationContext';
@@ -1121,14 +1122,33 @@ function extractLikelySourceSignals(text = '') {
   return sourceLike;
 }
 
-function buildSourceAudit(relevantResearch = '', project = {}) {
-  const combined = [
-    relevantResearch,
+function buildSourceAudit(relevantResearch = '', project = {}, chapter = null) {
+  // NFANTH-CW-1: relevantResearch is already fenced by getProjectResearchText
+  // by the time this runs, but the project-level fields below are not — a
+  // sibling story's names could still leak into this story's source-signal
+  // extraction through research_md/sources_md/etc. Fence those too, using
+  // the ownership computed earlier in the same drafting call (fail-open when
+  // the cache has not been warmed).
+  let fields = [
     project?.research_md,
     project?.sources_md,
     project?.bibliography_md,
     project?.citations_md,
     project?.source_notes_md,
+  ];
+  if (isNonfictionAnthology(project) && chapter) {
+    try {
+      const ownership = getCachedStoryEntityOwnership(project?.id);
+      if (ownership) {
+        const chapterNumber = getChapterNumber(chapter);
+        fields = fields.map((f) => (f ? fenceForeignEntities(f, ownership, chapterNumber).text : f));
+      }
+    } catch { /* fail-open: haystack stays unfenced */ }
+  }
+
+  const combined = [
+    relevantResearch,
+    ...fields,
     project?.research_data && (typeof project.research_data === 'string' ? project.research_data : JSON.stringify(project.research_data, null, 2)),
   ].filter(Boolean).join('\n\n');
 
@@ -1150,8 +1170,8 @@ function buildSourceAudit(relevantResearch = '', project = {}) {
   };
 }
 
-function buildCitationBibliographyDisciplineBlock(project, relevantResearch = '') {
-  const audit = buildSourceAudit(relevantResearch, project);
+function buildCitationBibliographyDisciplineBlock(project, relevantResearch = '', chapter = null) {
+  const audit = buildSourceAudit(relevantResearch, project, chapter);
   const sourceLines = audit.sourceSignals.length
     ? audit.sourceSignals.map((line, i) => `${i + 1}. ${line}`).join('\n')
     : 'No explicit source lines detected. Use only broad source categories already present in project context and avoid invented citations.';
@@ -1517,7 +1537,7 @@ function buildNonfictionPrompt({
     targetWords,
   });
   const nonfictionPublicationQualityBlock = buildNonfictionPublicationQualityBlock({ chapter, spec, accumulatedProse });
-  const citationBibliographyDisciplineBlock = buildCitationBibliographyDisciplineBlock(project, relevantResearch);
+  const citationBibliographyDisciplineBlock = buildCitationBibliographyDisciplineBlock(project, relevantResearch, chapter);
   const authorVoiceReminder = buildAuthorVoiceReminder(project);
 
   return [
@@ -2074,9 +2094,24 @@ async function getProjectResearchText(project, chapter) {
       '';
 
     const beatText = extractTextFromLLMResult(beatSource);
-    const relevant = getRelevantResearch(resolved, chapterNumber, beatText);
+    let researchResolved = resolved;
+    let relevant = getRelevantResearch(resolved, chapterNumber, beatText);
 
-    let combined = [resolved, relevant].filter(Boolean).join('\n\n');
+    // NFANTH-CW-1: a nonfiction anthology's closed world is per STORY, not
+    // whole-project — Case A's facts are not valid evidence for Case C.
+    // Fence research paragraphs that belong to a sibling story out of this
+    // chapter's research text BEFORE they are combined below.
+    if (isNonfictionAnthology(project)) {
+      try {
+        const ownershipChapters = await base44.entities.Chapter.filter({ project_id: project.id });
+        const ownership = buildStoryEntityOwnership(project, ownershipChapters);
+        cacheStoryEntityOwnership(project.id, ownership);
+        researchResolved = fenceForeignEntities(researchResolved, ownership, chapterNumber).text;
+        relevant = fenceForeignEntities(relevant, ownership, chapterNumber).text;
+      } catch (fenceErr) { /* fail-open: unfenced research still drafts */ }
+    }
+
+    let combined = [researchResolved, relevant].filter(Boolean).join('\n\n');
     // ARCH2-4a: a verbatim witness quote has exactly one home chapter (derived
     // from the outline). Foreign-homed quotes are excised from this chapter's
     // research block so the writer references the testimony without re-quoting.
@@ -5060,7 +5095,7 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
   const cleanResult = buildCleanResult(finalProse, generatedScenes, repairReports, {
     sceneBeatPreflight: beatPreflight,
     sceneBeatPreflightReport: beatPreflight?.report || '',
-    sourceAudit: isNF ? buildSourceAudit(relevantResearch, project) : null,
+    sourceAudit: isNF ? buildSourceAudit(relevantResearch, project, chapter) : null,
     ...(sceneExecutionShadowState.enabled
       ? { sceneExecutionShadow: sceneExecutionShadowState }
       : {}),
