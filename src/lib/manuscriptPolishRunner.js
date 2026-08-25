@@ -55,7 +55,7 @@ import { isAnthologyProject } from './anthologyEngine.js';
 import { isComedyProject } from './manuscriptStats.js';
 import { rewriteFlaggedSpots, buildGlobalOpeningStats, buildGlobalActionBeatStats, buildCrossChapterPhraseStats } from './repetitionRewrite.js';
 import { buildQuoteLedger, consolidateForeignQuotes } from './quoteLedger.js';
-import { getAllBlockedNames, getReplacementSuggestionsForName, countNameOccurrences, applyApprovedNameReplacementMap } from './nameHygieneRules.js';
+import { getAllBlockedNames, countNameOccurrences } from './nameHygieneRules.js'; // POLISHSAFE-5: flag only, never rewrite
 
 // ── Per-chapter modules (operate on single text strings) ──
 import { runDeterministicGrammarRepair, runProsePolishQualityGate,
@@ -177,12 +177,24 @@ export async function runManuscriptPolishPipeline({
       __snapshots.set(key, { text: f.content, pCount: countParagraphs(f.content), chNum });
     }
   }
+  // PROSE-GUARD-1 (report mode): every stage boundary already runs through
+  // verifyInvariant, so this is the one place to measure — not read off
+  // comments — what each deterministic stage actually changed. Compares
+  // only the letters-and-digits SEQUENCE (punctuation/whitespace-only edits,
+  // like a repaired apostrophe or a normalized quote, stay silent); no
+  // reverting yet, this is the stage inventory Arc C was meant to produce.
+  function lettersAndDigitsOnly(text) {
+    return String(text || '').replace(/[^a-zA-Z0-9]/g, '');
+  }
   function verifyInvariant(stageName, allowedRemovals = {}) {
     for (let i = 0; i < loaded.length; i++) {
       const f = loaded[i];
       const key = getChapterKey(f, i);
       const snap = __snapshots.get(key);
       if (!snap) continue;
+      if (lettersAndDigitsOnly(snap.text) !== lettersAndDigitsOnly(f.content)) {
+        console.warn(`[PROSE-GUARD] ${stageName} Ch.${snap.chNum}: letters changed`);
+      }
       const afterCount = countParagraphs(f.content);
       const reduction = snap.pCount - afterCount;
       if (reduction > 0) {
@@ -600,41 +612,25 @@ export async function runManuscriptPolishPipeline({
   }
   verifyInvariant('Repetition Rewrite');
 
-  // B3.5: Banned AI-slop character-name auto-rename (FICTION ONLY — nonfiction names are real people)
+  // POLISHSAFE-5: Banned AI-slop character-name detection (FICTION ONLY —
+  // nonfiction names are real people). This used to auto-rename ("B3.5")
+  // with no approval ever given despite the function name
+  // applyApprovedNameReplacementMap — live, it rewrote REDUX Ch.10's
+  // antagonist "Silas" to "Dean" x20, the exact name the book's own bible
+  // says he is never called ("never 'Dean', never 'Russell'"). Prose was
+  // regex-edited and canon ignored with no gate catching it afterward.
+  // Flag only now; a banned name in the manuscript is an author decision
+  // (who this character actually is), never a mechanical rename.
   if (mode !== 'nonfiction') {
     const fullText = loaded.map(f => String(f.content || '')).join('\n');
     const present = getAllBlockedNames().filter(n => countNameOccurrences(fullText, n) > 0);
-    if (present.length) {
-      const used = new Set(present.map(n => n.toLowerCase()));
-      const autoMap = {};
-      for (const name of present) {
-        const sugg = getReplacementSuggestionsForName(name);
-        const pick = sugg.find(s => !used.has(s.toLowerCase()) && countNameOccurrences(fullText, s) === 0) || sugg[0];
-        autoMap[name] = pick;
-        used.add(pick.toLowerCase());
-      }
-      console.log('[NAME-HYGIENE] auto-renaming banned names: ' + JSON.stringify(autoMap));
-      for (const f of loaded) {
-        // Titles are metadata (not body content); rename banned names there too so a chapter
-        // heading like "Elias's Final Words" stays consistent with the renamed body prose.
-        if (f.chapter && f.chapter.title) {
-          const tr = applyApprovedNameReplacementMap(f.chapter.title, autoMap);
-          if (tr.changed) {
-            changes.push('Ch.' + (f.chapter?.chapter_number || '?') + ': title renamed -> ' + tr.text);
-            f.chapter.title = tr.text;
-          }
-        }
-        const r = applyApprovedNameReplacementMap(f.content, autoMap);
-        if (r.changed) {
-          f.content = r.text;
-          for (const a of r.applied) {
-            changes.push('Ch.' + (f.chapter?.chapter_number || '?') + ': banned name "' + a.from + '" -> "' + a.to + '" (' + a.count + ')');
-          }
-        }
-      }
+    for (const name of present) {
+      const count = countNameOccurrences(fullText, name);
+      console.warn(`[NAME-HYGIENE] banned name present: "${name}" (${count}x) — flagged only`);
+      changes.push(`Banned name "${name}" (${count}x) present in the manuscript — flagged only, not renamed. Review manually.`);
     }
   }
-  verifyInvariant('Banned Name Auto-Rename');
+  verifyInvariant('Banned Name Flag');
 
   // B4: Dialogue tag caps + coping mechanism caps + broken sentence fixes (fiction-only)
   if (mode !== 'nonfiction') {
