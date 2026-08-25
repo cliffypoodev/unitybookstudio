@@ -270,6 +270,16 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   if (straightQuoteCount(cand) > straightQuoteCount(orig)) return { ok: false, reason: 'typography' };
   if (/“\s/.test(cand) || /\s”/.test(cand)) return { ok: false, reason: 'typography' };
 
+  // (3c) a departed name may not be reintroduced — checked before the
+  // closed-world checks below so a departed cast member coming back gets
+  // the specific, actionable "departed-reintroduced" reason rather than
+  // being lumped in with an ordinary new-proper-noun/cast violation.
+  for (const name of (Array.isArray(departed) ? departed : [])) {
+    if (!name) continue;
+    const rx = new RegExp(`\\b${escapeRx(name)}\\b`);
+    if (rx.test(cand) && !rx.test(orig)) return { ok: false, reason: 'departed-reintroduced' };
+  }
+
   // (4) closed world: candidate proper nouns must be a SUBSET of the
   // original paragraph's own — REGENLANE-1C tightened this from "original +
   // cast", which let the model swap one cast member's name for another's
@@ -347,13 +357,6 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   // (7) no more similes than the original had.
   const countSimiles = (s) => (String(s).match(SIMILE_RX) || []).length;
   if (countSimiles(cand) > countSimiles(orig)) return { ok: false, reason: 'simile-density' };
-
-  // (8) a departed name may not be reintroduced.
-  for (const name of (Array.isArray(departed) ? departed : [])) {
-    if (!name) continue;
-    const rx = new RegExp(`\\b${escapeRx(name)}\\b`);
-    if (rx.test(cand) && !rx.test(orig)) return { ok: false, reason: 'departed-reintroduced' };
-  }
 
   // (9) actually different.
   if (cand === orig.trim()) return { ok: false, reason: 'unchanged' };
