@@ -52,6 +52,7 @@ import { buildChapterStateContract, parseResolvedArcs, detectArcRestarts } from 
 import { checkPromptBudget, AGENT_NUM_CTX } from './localLLM.js'; // STATECONTRACT-1B
 import { detectSameChapterSceneDuplicates, parseOutlineSections } from './eventCollision.js'; // SCENEDUP-1 / LOOKAHEAD-1
 import { makeTemplateFamilyDetector, makeOpeningEchoDetector } from './templateFamilies.js'; // STYLEBUDGET-3
+import { makeFragmentDensityDetector, measureFragmentDensity, FRAGMENT_DENSITY_BUDGET_PER_1K } from './fragmentDensity.js'; // FRAGBUDGET-1
 import { buildSeriesContinuityBlock } from '@/lib/seriesBible';
 import { buildVolumeContractBlock } from '@/lib/volumeBible';
 import { runSeriesContractGate } from '@/lib/seriesContractGate';
@@ -3108,10 +3109,13 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
       const templateFamilyDetector = makeTemplateFamilyDetector({ priorProse: priorChapterProse });
       const openingEchoDetector = makeOpeningEchoDetector({ priorOpenings: priorChapterEntries, castNames: cast });
       console.log(`[STYLEBUDGET-3] writer-final: family targets ${templateFamilyDetector(finalProse).length}, opening-echo targets ${openingEchoDetector(finalProse).length}`);
+      const fragmentDensityDetector = makeFragmentDensityDetector();
+      const fragDensityNow = measureFragmentDensity(finalProse);
+      console.log(`[FRAGBUDGET-1] writer-final: fragments ${fragDensityNow.fragments} (${fragDensityNow.per1k}/1k, budget ${FRAGMENT_DENSITY_BUDGET_PER_1K}), targets ${fragmentDensityDetector(finalProse).length}`);
       const regen = await regenerateFlaggedParagraphs(finalProse, {
         project, cast, departed, priorProse: priorChapterProse, label: 'writer-final',
         stateFacts: stateFactsBlock, // STATECONTRACT-1
-        extraDetectors: [detectBannedVocabulary, detectSameChapterSceneDuplicates, arcRestartDetector, templateFamilyDetector, openingEchoDetector], // POLISHSAFE-4 + SCENEDUP-1 + ARCSTATE-1 + STYLEBUDGET-3
+        extraDetectors: [detectBannedVocabulary, detectSameChapterSceneDuplicates, arcRestartDetector, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector], // POLISHSAFE-4 + SCENEDUP-1 + ARCSTATE-1 + STYLEBUDGET-3 + FRAGBUDGET-1
       });
       if (regen.regenerated > 0) finalProse = regen.text;
     }

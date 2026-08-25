@@ -43,6 +43,7 @@ import { healSimileDensity, selectSimileRecastTargets } from './simileRecast.js'
 import { repairDroppedSubjects, findDroppedSubjectSentences } from './subjectRepair.js'; // SUBJECTREPAIR-1
 import { regenerateFlaggedParagraphs, collectRegenTargets } from './regenerateLane.js'; // REGENLANE-1
 import { makeTemplateFamilyDetector, makeOpeningEchoDetector } from './templateFamilies.js'; // STYLEBUDGET-3
+import { makeFragmentDensityDetector, measureFragmentDensity, FRAGMENT_DENSITY_BUDGET_PER_1K } from './fragmentDensity.js'; // FRAGBUDGET-1
 import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
 import { harvestCastNames, buildPronounCanon, healContextVariablePronounScenes } from './pronounLock.js'; // SUBJECTREPAIR-1 / PRONOUNVAR-1
 import { repairLoadedManuscriptArtifacts } from './manuscriptArtifactRepair.js';
@@ -975,11 +976,14 @@ export async function runManuscriptPolishPipeline({
       const templateFamilyDetector = makeTemplateFamilyDetector({ priorProse });
       const openingEchoDetector = makeOpeningEchoDetector({ priorOpenings, castNames: castForRegen });
       console.log(`[STYLEBUDGET-3] Ch.${chNum}: family targets ${templateFamilyDetector(String(f.content || '')).length}, opening-echo targets ${openingEchoDetector(String(f.content || '')).length}`);
+      const fragmentDensityDetector = makeFragmentDensityDetector();
+      const fragDensityNow = measureFragmentDensity(String(f.content || ''));
+      console.log(`[FRAGBUDGET-1] Ch.${chNum}: fragments ${fragDensityNow.fragments} (${fragDensityNow.per1k}/1k, budget ${FRAGMENT_DENSITY_BUDGET_PER_1K}), targets ${fragmentDensityDetector(String(f.content || '')).length}`);
       if (allowLLM || allowRegenLLM || _regenLLMOverride) {
         try {
           const regen = await regenerateFlaggedParagraphs(String(f.content || ''), {
             callLLM: _regenLLMOverride, project, cast: castForRegen, priorProse, label: `Ch.${chNum}`, onProgress,
-            extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector], // POLISHSAFE-4 + STYLEBUDGET-3
+            extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector], // POLISHSAFE-4 + STYLEBUDGET-3 + FRAGBUDGET-1
           });
           if (regen.targets.length > 0) regenStats.chaptersWithTargets += 1;
           if (regen.regenerated > 0) {
@@ -993,7 +997,7 @@ export async function runManuscriptPolishPipeline({
           changes.push(`Ch.${chNum}: Regenerate Lane unavailable (${err?.message || 'unknown'}) — flagged paragraph(s) NOT regenerated.`);
         }
       } else {
-        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen, extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector] });
+        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen, extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector] });
         if (targets.length > 0) {
           regenStats.chaptersWithTargets += 1;
           changes.push(`Ch.${chNum}: Regenerate Lane found ${targets.length} flagged paragraph(s) — LLM disabled, reported only.`);
