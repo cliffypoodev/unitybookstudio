@@ -72,5 +72,15 @@ check('20. the writer prompt tells it to hold one presentation per scene', WRITE
 const RUNNER = fs.readFileSync(new URL('../src/lib/manuscriptPolishRunner.js', import.meta.url), 'utf8');
 check('21. Fix Manuscript heals within-scene drift with a structure guard', RUNNER.includes('healContextVariablePronounScenes(String(f.content') && RUNNER.includes("verifyInvariant('Context-Variable Pronoun Heal')") && RUNNER.includes('pronounVarFlips'));
 
+// ── 6. it/its declaration (PRONOUNLOCK-2B-IT-ITS-DECLARATION) ──
+// A non-human cast member (a ship AI, a robot, an animal) declared "it/its"
+// must be parsed as canon, not ignored and inferred from prose (live REDUX
+// defect: a declared it/its cast member was inferred as she/her instead).
+const AI_BIBLE = "### Major Characters\n\n**8. Vex**\n\n- **Role:** The ship's AI voice.\n- **Pronouns:** it/its.\n\n**9. Ilse**\n\n- **Pronouns:** she/her";
+const aiDeclared = parseDeclaredPronouns(AI_BIBLE);
+check('22. "Pronouns: it/its" parses to it (non-human cast member)', aiDeclared.Vex === 'it');
+const aiCanon = buildPronounCanon({ characters_md: AI_BIBLE }, [], ['Vex', 'Ilse']);
+check('23. an it/its declaration reaches canon as fixed "it", not inferred from prose', aiCanon.canon.Vex === 'it');
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);

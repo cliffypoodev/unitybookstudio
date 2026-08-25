@@ -26,7 +26,7 @@ const SETS = {
   she: ['she', 'her', 'hers', 'herself'],
   they: ['they', 'them', 'their', 'theirs', 'themself', 'themselves'],
 };
-const SET_LABEL = { he: 'he/him', she: 'she/her', they: 'they/them' };
+const SET_LABEL = { he: 'he/him', she: 'she/her', they: 'they/them', it: 'it/its' };
 const WORD_TO_SET = {};
 for (const [set, words] of Object.entries(SETS)) {
   for (const word of words) WORD_TO_SET[word] = set;
@@ -38,6 +38,7 @@ function normalizeSetLabel(raw) {
   if (first === 'he') return 'he';
   if (first === 'she') return 'she';
   if (first === 'they') return 'they';
+  if (first === 'it') return 'it';
   return null;
 }
 
@@ -58,7 +59,7 @@ export function parseDeclaredPronouns(charactersMd) {
     }
     return null;
   };
-  const PRONOUN_SET = /\b(she\s*\/\s*her|he\s*\/\s*him|they\s*\/\s*them)\b/i;
+  const PRONOUN_SET = /\b(she\s*\/\s*her|he\s*\/\s*him|they\s*\/\s*them|it\s*\/\s*its)\b/i;
   // PRONOUNVAR-1: a genderfluid character whose presentation (and pronouns)
   // change BY SCENE is declared "context-variable" / "variable" / "fluid" /
   // "pronouns vary". Such a character is exempt from the single-set canon and
