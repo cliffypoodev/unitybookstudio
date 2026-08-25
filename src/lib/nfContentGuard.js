@@ -167,8 +167,35 @@ const FATE_CLASSES = [
 const FATE_COUNT_RX = /^(?:\d+[,.\d]*|hundred(?:s)?|thousand(?:s)?|dozen(?:s)?|million(?:s)?|score(?:s)?|many|several|countless|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)$/i;
 const FATE_TITLE_RX = /^(?:major general|brigadier general|general|colonel|major|captain|lieutenant|reverend|president|governor|mr|mrs|ms|dr|aunt|uncle)\s+/i;
 
+// TEMPORAL-1: parse a research timeline/key_events date string into
+// { y, m, d, precision }, at whatever precision it actually has —
+// "June 19, 1865" (day), "March 1919" (month), "1915" (year). Unparseable
+// strings return null (the event is not a checkable ledger entry).
+const MONTHS_MAP = {
+  january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
+  july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+};
+
+export function parseLedgerDate(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return null;
+  let m = s.match(/^([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{3,4})$/);
+  if (m) {
+    const mo = MONTHS_MAP[m[1].toLowerCase()];
+    if (mo) return { y: Number(m[3]), m: mo, d: Number(m[2]), precision: 'day' };
+  }
+  m = s.match(/^([A-Za-z]+)\s+(\d{3,4})$/);
+  if (m) {
+    const mo = MONTHS_MAP[m[1].toLowerCase()];
+    if (mo) return { y: Number(m[2]), m: mo, d: null, precision: 'month' };
+  }
+  m = s.match(/^(\d{3,4})$/);
+  if (m) return { y: Number(m[1]), m: null, d: null, precision: 'year' };
+  return null;
+}
+
 export function buildFactLedger(project) {
-  const empty = { ok: false, clockTimes: [], figures: [] };
+  const empty = { ok: false, clockTimes: [], figures: [], events: [] };
   try {
     if (!project) return empty;
     const rawEvidence = [project.research_data, project.research_md, project.seed_concept]
@@ -246,7 +273,26 @@ export function buildFactLedger(project) {
       }
       figures.push({ name: rawName, stripped, surname, attested });
     }
-    return { ok: true, clockTimes, figures };
+
+    // TEMPORAL-1: timeline ∪ key_events, keeping only entries with a
+    // parseable date. `norm` uses the same normalization as substring
+    // matching against prose elsewhere in this codebase's closed-world checks.
+    const events = [];
+    if (rd && typeof rd === 'object') {
+      const timeline = Array.isArray(rd.timeline) ? rd.timeline : [];
+      const keyEvents = Array.isArray(rd.key_events) ? rd.key_events : [];
+      for (const e of [...timeline, ...keyEvents]) {
+        const name = String(e?.event || '').trim();
+        if (!name) continue;
+        const date = parseLedgerDate(e?.date);
+        if (!date) continue;
+        const norm = name.toLowerCase().replace(/[‘’']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!norm) continue;
+        events.push({ name, date, norm });
+      }
+    }
+
+    return { ok: true, clockTimes, figures, events };
   } catch (e) {
     console.warn('[FACT-LEDGER] ledger build failed — clock/fate closed-world NOT enforced this pass:', e?.message);
     return empty;
@@ -353,11 +399,160 @@ export function checkFateViolations(text, ledger) {
   return out;
 }
 
+// TEMPORAL-1: a relative-time claim ("nearly two years later", "the next
+// morning") checked against two named, dated ledger events (timeline ∪
+// key_events). Precision over recall: only a sentence naming exactly two
+// UNAMBIGUOUS ledger events (each event name matches at most one date) with
+// a parseable magnitude+unit is checkable; everything else is counted (in
+// the R/C/K telemetry the caller logs) but not judged. Order/gap are
+// compared at the COARSER of the two events' date precisions — a year-only
+// date and a day-precision date are compared in years.
+export const RELATIVE_TIME_RX = /\b(\d+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|several|nearly\s+\w+)\s+(days?|weeks?|months?|years?)\s+(after|before|later|earlier)\b|\bthe\s+(next|following)\s+(day|morning|week|month|year)\b/gi;
+
+const TEMPORAL_NUM_WORDS = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
+const TEMPORAL_STOPWORDS = new Set(['the', 'a', 'an', 'in', 'on', 'at', 'by', 'for', 'with', 'from', 'to', 'of', 'and', 'but', 'or']);
+
+function temporalNormText(s) {
+  return String(s || '').toLowerCase().replace(/[‘’']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function temporalContentWordCount(norm) {
+  return norm.split(' ').filter((w) => w.length >= 3 && !TEMPORAL_STOPWORDS.has(w)).length;
+}
+
+function parseTemporalMagnitude(raw) {
+  const s = String(raw || '').trim();
+  const nearlyM = s.match(/^nearly\s+(\w+)$/i);
+  const token = nearlyM ? nearlyM[1] : s;
+  if (/^\d+$/.test(token)) return Number(token);
+  return TEMPORAL_NUM_WORDS[token.toLowerCase()] ?? null;
+}
+
+function normalizeTemporalUnit(u) {
+  const s = String(u || '').toLowerCase();
+  if (s.startsWith('day') || s === 'morning') return 'day';
+  if (s.startsWith('week')) return 'week';
+  if (s.startsWith('month')) return 'month';
+  if (s.startsWith('year')) return 'year';
+  return null;
+}
+
+const TEMPORAL_UNIT_DAYS = { day: 1, week: 7, month: 30.44, year: 365.25 };
+const TEMPORAL_PRECISION_RANK = { year: 1, month: 2, day: 3 };
+
+function temporalDateDaysAtPrecision(date, rank) {
+  const y = date.y;
+  const m = rank >= 2 ? (date.m || 1) : 1;
+  const d = rank >= 3 ? (date.d || 1) : 1;
+  return Date.UTC(y, m - 1, d) / 86400000;
+}
+
+export function checkTemporalViolations(text, ledger) {
+  const out = [];
+  let R = 0;
+  let C = 0;
+  if (!ledger || !ledger.ok || !Array.isArray(ledger.events) || !ledger.events.length) {
+    out.stats = { R, C, K: 0 };
+    return out;
+  }
+
+  // Group events by normalized name: a name matching >1 ledger entry with
+  // different dates is ambiguous — not checkable. Only names with >= 2
+  // content words are candidates for matching against a sentence at all
+  // (a one-word event name matches too much prose to be meaningful).
+  const byNorm = new Map();
+  for (const ev of ledger.events) {
+    if (!byNorm.has(ev.norm)) byNorm.set(ev.norm, []);
+    byNorm.get(ev.norm).push(ev);
+  }
+  const candidates = [...byNorm.entries()].filter(([norm]) => temporalContentWordCount(norm) >= 2);
+
+  const paragraphs = String(text || '').split(/\n{2,}/);
+  for (const para of paragraphs) {
+    if (!para.trim()) continue;
+    for (const raw of splitLedgerSentences(para)) {
+      const s = String(raw || '').trim();
+      if (!s) continue;
+      RELATIVE_TIME_RX.lastIndex = 0;
+      const m = RELATIVE_TIME_RX.exec(s);
+      if (!m) continue;
+      R += 1;
+
+      const sNorm = temporalNormText(s);
+      const mentioned = [];
+      for (const [norm, entries] of candidates) {
+        const idx = sNorm.indexOf(norm);
+        if (idx === -1) continue;
+        mentioned.push({ norm, entries, idx });
+      }
+      if (mentioned.length !== 2) continue; // not exactly two named events — not checkable
+      mentioned.sort((a, b) => a.idx - b.idx);
+      const [ref, target] = mentioned;
+      const ambiguous = new Set(ref.entries.map((e) => JSON.stringify(e.date))).size > 1 ||
+        new Set(target.entries.map((e) => JSON.stringify(e.date))).size > 1;
+      if (ambiguous) continue; // an event name matching >1 date — not checkable
+
+      let magnitude;
+      let unit;
+      let direction;
+      if (m[1] !== undefined) {
+        magnitude = parseTemporalMagnitude(m[1]);
+        unit = normalizeTemporalUnit(m[2]);
+        direction = /after|later/i.test(m[3]) ? 'after' : 'before';
+      } else {
+        magnitude = 1;
+        unit = normalizeTemporalUnit(m[5]);
+        direction = 'after';
+      }
+      if (magnitude == null || !unit) continue; // e.g. "several" has no exact number — not checkable
+
+      C += 1;
+
+      const refDate = ref.entries[0].date;
+      const targetDate = target.entries[0].date;
+      const rank = Math.min(TEMPORAL_PRECISION_RANK[refDate.precision], TEMPORAL_PRECISION_RANK[targetDate.precision]);
+      const deltaDays = temporalDateDaysAtPrecision(targetDate, rank) - temporalDateDaysAtPrecision(refDate, rank);
+      const deltaInUnit = deltaDays / TEMPORAL_UNIT_DAYS[unit];
+      const expectedSign = direction === 'after' ? 1 : -1;
+      const actualSign = deltaInUnit > 0 ? 1 : deltaInUnit < 0 ? -1 : 0;
+
+      if (actualSign !== 0 && actualSign !== expectedSign) {
+        out.push({
+          snippet: s,
+          claim: `${magnitude} ${unit}(s) ${direction} ${ref.norm}`,
+          eventA: ref.norm,
+          eventB: target.norm,
+          actual: `${deltaInUnit.toFixed(2)} ${unit}(s)`,
+          reason: 'wrong-order',
+        });
+        continue;
+      }
+      const tolerance = Math.max(1, 0.25 * Math.abs(deltaInUnit));
+      if (Math.abs(Math.abs(deltaInUnit) - magnitude) > tolerance) {
+        out.push({
+          snippet: s,
+          claim: `${magnitude} ${unit}(s) ${direction} ${ref.norm}`,
+          eventA: ref.norm,
+          eventB: target.norm,
+          actual: `${deltaInUnit.toFixed(2)} ${unit}(s)`,
+          reason: 'gap-mismatch',
+        });
+      }
+    }
+  }
+  out.stats = { R, C, K: out.length };
+  return out;
+}
+
 export function stripFactLedgerViolations(text, ledger) {
   const removed = [];
   if (!ledger || !ledger.ok) return { text: String(text || ''), removed };
+  const temporalViolations = checkTemporalViolations(text, ledger);
+  for (const v of temporalViolations) {
+    console.warn(`[TEMPORAL-1] stripped: ${v.snippet.slice(0, 90)}`);
+  }
   const bad = new Set(
-    [...checkClockTimeViolations(text, ledger), ...checkFateViolations(text, ledger)]
+    [...checkClockTimeViolations(text, ledger), ...checkFateViolations(text, ledger), ...temporalViolations]
       .map((v) => v.snippet)
   );
   if (!bad.size) return { text: String(text || ''), removed };
@@ -396,6 +591,17 @@ export function buildFactLedgerPromptBlock(ledger) {
     lines.push(...attestedLines);
     if (unattested.length) {
       lines.push(`  * NO death, survival, or injury is attested for: ${unattested.join('; ')}. Do NOT state whether any of these people lived, died, escaped, were rescued, or were injured — write only what the research documents about them.`);
+    }
+  }
+  if (Array.isArray(ledger.events) && ledger.events.length) {
+    lines.push('- DATED EVENTS (a relative-time claim, "two years later" etc., must match the true order and gap between these):');
+    for (const ev of ledger.events.slice(0, 40)) {
+      const label = ev.date.precision === 'day'
+        ? `${ev.date.y}-${String(ev.date.m).padStart(2, '0')}-${String(ev.date.d).padStart(2, '0')}`
+        : ev.date.precision === 'month'
+          ? `${ev.date.y}-${String(ev.date.m).padStart(2, '0')}`
+          : `${ev.date.y}`;
+      lines.push(`  * ${ev.name}: ${label}`);
     }
   }
   return lines.join('\n');

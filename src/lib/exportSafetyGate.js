@@ -48,7 +48,7 @@ export function assertExportSnapshotIntegrity({
 }
 
 import { runManuscriptSafetyGate } from './manuscriptSafetyGate.js';
-import { buildFactLedger, checkClockTimeViolations, checkFateViolations } from './nfContentGuard.js'; // ARCH-1C
+import { buildFactLedger, checkClockTimeViolations, checkFateViolations, checkTemporalViolations } from './nfContentGuard.js'; // ARCH-1C / TEMPORAL-1
 import { ensureResearchEvidence } from './researchStorage.js'; // RESEARCHQUALITY-2C
 import { runReferenceIntegrityGate } from './referenceIntegrityGate.js';
 import { checkStructuralIntegrity, checkBookIntegrity } from './pipelineValidator.js';
@@ -184,6 +184,27 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         continue;
       }
     } catch (e) { console.error('[FATE-GATE] check unavailable — clock/fate NOT verified:', e?.message); }
+
+    // TEMPORAL-1: a relative-time claim ("nearly two years later") that
+    // contradicts the research timeline's own order or gap does not ship.
+    // Precision over recall: only claims naming two unambiguous, dated
+    // ledger events are checkable; everything else is counted but skipped.
+    try {
+      const flLedger = buildFactLedger(project);
+      const temporalV = checkTemporalViolations(content, flLedger);
+      const stats = temporalV.stats || { R: 0, C: 0, K: temporalV.length };
+      console.log(`[TEMPORAL-1] Ch.${ch?.chapter_number}: ${stats.R} relative-time claim(s), ${stats.C} checkable, ${stats.K} contradiction(s)`);
+      if (temporalV.length > 0) {
+        console.error(`[TEMPORAL-1] Ch.${ch?.chapter_number} BLOCKED: ${temporalV.length} temporal contradiction(s): ` + temporalV.slice(0, 3).map((v) => `[${v.reason}] "${v.snippet.slice(0, 80)}"`).join(' | '));
+        hardFailures.push({
+          chapterNumber: ch?.chapter_number,
+          title: ch?.title || '',
+          recommendedAction: 'REJECT_REGENERATE',
+          reasons: temporalV.slice(0, 5).map((v) => `[TEMPORAL-1] ${v.reason} — "${v.snippet.slice(0, 120)}"`),
+        });
+        continue;
+      }
+    } catch (e) { console.error('[TEMPORAL-1] check unavailable — temporal claims NOT verified:', e?.message); }
 
     const gate = runManuscriptSafetyGate(content, {
       project,
