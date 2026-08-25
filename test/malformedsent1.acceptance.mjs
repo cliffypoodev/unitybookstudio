@@ -2,7 +2,8 @@
 // sentence shapes the pipeline's own mutating passes produced (root-cause trace
 // 2026-08-15). Detection only, warning at export, never a mutation.
 import fs from 'node:fs';
-import { scanMalformedSentences, MALFORMEDSENT_VERSION } from '../src/lib/malformedSentence.js';
+import vm from 'node:vm';
+import { scanMalformedSentences, MALFORMEDSENT_VERSION, clauseHasPluralCommonNoun } from '../src/lib/malformedSentence.js';
 
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
@@ -77,6 +78,47 @@ check(
   '24. a plural noun in an EARLIER clause does not mask a genuine agreement error in a later clause',
   nfKinds('The investigators filed their reports, but Dr. Vance were reassigned regardless.').includes('agreement')
 );
+
+// ── MALFORMEDSENT-3 (finding 50): manuscriptSafetyGate.js's "Singular
+// proper noun + were" canary now shares malformedSentence.js's clause-scoped
+// plural-subject guard (clauseHasPluralCommonNoun) instead of a second,
+// narrower hardcoded plural-noun list — one classifier decides for both
+// entry points. manuscriptSafetyGate.js has a transitive @/-aliased
+// dependency (generationContext.js -> projectType.js), so it is run in a VM
+// sandbox — same technique as gatepromote1/lengthgate1/exportscrub2 — with
+// the REAL clauseHasPluralCommonNoun (dependency-free) provided, not a mock.
+{
+  const MSG_SRC = fs.readFileSync(new URL('../src/lib/manuscriptSafetyGate.js', import.meta.url), 'utf8');
+  check('25. manuscriptSafetyGate.js imports the shared guard from malformedSentence.js', MSG_SRC.includes("clauseHasPluralCommonNoun } from './malformedSentence.js'") && MSG_SRC.includes('clauseHasPluralCommonNoun(before)'));
+
+  const msgCtx = {
+    console: { log: () => {}, warn: () => {}, error: () => {} },
+    detectModelControlTokens: () => ({ found: false, matches: [] }),
+    findNarrativeMetaLeaks: () => [],
+    clauseHasPluralCommonNoun,
+    __e: {},
+  };
+  vm.createContext(msgCtx);
+  const msgVmSrc = MSG_SRC
+    .replace(/^import .*$/gm, '')
+    .replace(/^export (async )?function/gm, '$1function')
+    .replace(/^export (const|class|let)/gm, '$1')
+    + '\n__e = { detectMalformedGrammar };';
+  vm.runInContext(msgVmSrc, msgCtx);
+  const { detectMalformedGrammar } = msgCtx.__e;
+  const gateAgreementHits = (t) => detectMalformedGrammar(t).matches.filter((m) => m.phrase === 'Singular proper noun + were').length;
+
+  const ch2Shape = 'The few investigators that did attempt to operate near Port Ellis were reassigned before the season ended.';
+  const ch11Shape = 'The reports that shaped the inquiry into Port Ellis were widespread across the region.';
+  const trueSingular = 'Port Ellis were free by the season end.';
+
+  check('26. Ch.2-shaped fixture: zero agreement hits from scanMalformedSentences', !nfKinds(ch2Shape).includes('agreement'));
+  check('27. Ch.2-shaped fixture: zero agreement hits from the safety gate', gateAgreementHits(ch2Shape) === 0);
+  check('28. Ch.11-shaped fixture: zero agreement hits from scanMalformedSentences', !nfKinds(ch11Shape).includes('agreement'));
+  check('29. Ch.11-shaped fixture: zero agreement hits from the safety gate', gateAgreementHits(ch11Shape) === 0);
+  check('30. a true singular subject (no preceding plural noun) still fires in scanMalformedSentences', nfKinds(trueSingular).includes('agreement'));
+  check('31. a true singular subject (no preceding plural noun) still fires in the safety gate', gateAgreementHits(trueSingular) === 1);
+}
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
