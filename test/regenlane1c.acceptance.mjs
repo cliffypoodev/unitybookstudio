@@ -14,11 +14,13 @@
 // `cast` (finding 30); and the flat 0.6-1.6x length ratio rejected every
 // short template-phrase paragraph outright (finding 31). Generic fixture
 // names only (Mara, Dov, Ilse).
+import fs from 'node:fs';
 import {
   collectRegenTargets,
   verifyRegeneratedParagraph,
   regenerateFlaggedParagraphs,
 } from '../src/lib/regenerateLane.js';
+import { normalizeModelTypography } from '../src/lib/crossChapterDedupe.js';
 
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
@@ -69,8 +71,13 @@ const reallyLookedDetector = (text) => {
   const verdictGood = verifyRegeneratedParagraph(original, fixed, { mustNotContain: ['really looked'] });
   check('28c. a candidate that actually removes the defect phrase passes this check', verdictGood.ok, JSON.stringify(verdictGood));
 
-  // End-to-end: the lane itself rejects the still-broken candidate and ships nothing.
-  const badMock = async () => stillBroken;
+  // End-to-end: the lane itself rejects the still-broken candidate and ships
+  // nothing. REGENLANE-1D (finding 37): keeps the ORIGINAL's own cast name
+  // (Dov, unchanged) rather than swapping to a different cast member — this
+  // isolates defect-remains from the now-fixed sentence-initial proper-noun
+  // check, which would otherwise catch a name swap first.
+  const stillBrokenSameName = 'Dov studied him, really looked at him, and said nothing at all that mattered.';
+  const badMock = async () => stillBrokenSameName;
   const result = await regenerateFlaggedParagraphs(original, { cast: CAST, callLLM: badMock, project: { book_type: 'fiction' }, extraDetectors: [reallyLookedDetector] });
   check('28d. end-to-end: the lane rejects the still-broken candidate and ships the original untouched',
     result.regenerated === 0 && result.text === original && result.skipped.some((s) => s.reason === 'defect-remains'), JSON.stringify(result));
@@ -126,6 +133,106 @@ const reallyLookedDetector = (text) => {
   const doubled = longOriginal + ' ' + longOriginal;
   check('31d. a long original (>= 120 chars) still uses the tight 0.6-1.6x ratio — not loosened by this fix',
     verifyRegeneratedParagraph(longOriginal, doubled, {}).reason === 'length-ratio');
+}
+
+// ── 36. REGENLANE-1D: defects/mustNotContain come from the CHAPTER-level
+// scan, grouped by paragraphIndex — never from a re-scan of the isolated
+// paragraph. A budget-based detector (like a real template-family hit) only
+// fires once the CHAPTER carries 2+ occurrences; a single paragraph in
+// isolation is never "over budget" on its own — reproducing the live Ch.2
+// bug where defects/mustNotContain shipped empty. ──
+{
+  const para1 = 'Mara stared blankly at the readout, unwilling to speak first.';
+  const para2 = 'Ilse stared blankly at the door, waiting for someone else to move.';
+  const chapterText = `${para1}\n\n${para2}`;
+
+  const chapterBudgetDetector = (text) => {
+    const body = String(text || '');
+    const matches = body.match(/[^.\n]*stared blankly[^.\n]*\./gi) || [];
+    if (matches.length < 2) return [];
+    const last = matches[matches.length - 1].trim();
+    return [{
+      kind: 'template-family',
+      sentence: last,
+      reason: `template "stared blankly" (chapter budget 1; book spend ${matches.length}/${matches.length}) — replace the template phrase`,
+      mustNotContain: ['stared blankly'],
+    }];
+  };
+
+  check('36a. sanity: the detector finds nothing scanning paragraph 2 alone — an isolated re-scan would miss the chapter-budget defect',
+    chapterBudgetDetector(para2).length === 0);
+
+  const targets = collectRegenTargets(chapterText, { cast: CAST, extraDetectors: [chapterBudgetDetector] });
+  const target2 = targets.find((t) => t.paragraph === para2);
+  check('36b. collectRegenTargets still claims a target in paragraph 2 for the chapter-budget hit',
+    !!target2, JSON.stringify(targets));
+  check('36c. that target\'s defects carry the chapter-level finding, not an empty list',
+    !!target2 && Array.isArray(target2.defects) && target2.defects.some((d) => d.reason.includes('stared blankly')),
+    JSON.stringify(target2));
+  check('36d. that target\'s mustNotContain carries the template phrase',
+    !!target2 && target2.mustNotContain.includes('stared blankly'), JSON.stringify(target2));
+}
+
+// ── 37. REGENLANE-1D: a cast-name token counts as a proper noun wherever it
+// sits, including sentence-initial — the general exemption exists so an
+// ordinary sentence-opening word isn't mistaken for a proper noun, but a
+// cast member's own canonical name is never ambiguous. Live: "Zin looked at
+// him…" -> "Zinnia looked at him…" was ACCEPTED because "Zinnia" opened its
+// sentence and got stripped from scrutiny. ──
+{
+  const CAST_ZINNIA = ['Zinnia', 'Dov', 'Ilse'];
+  const original = 'Zin looked at him, and said nothing at all that mattered.';
+  const swappedInitial = 'Zinnia looked at him, and said nothing at all that mattered.';
+
+  const verdictWithCast = verifyRegeneratedParagraph(original, swappedInitial, { cast: CAST_ZINNIA });
+  check('37a. a sentence-initial cast-name swap ("Zin" -> "Zinnia") is rejected once cast is checked wherever it sits',
+    verdictWithCast.reason === 'new-proper-noun:Zinnia', JSON.stringify(verdictWithCast));
+
+  const verdictNoCast = verifyRegeneratedParagraph(original, swappedInitial, {});
+  check('37b. without cast passed, the general sentence-initial exemption still lets it through — confirms 37a is the new cast-aware check, not a change to the general rule',
+    verdictNoCast.ok, JSON.stringify(verdictNoCast));
+
+  const keepsNickname = 'Zin studied him closely, and said nothing that mattered at all.';
+  check('37c. a rewrite that keeps the original\'s own name/nickname untouched still passes',
+    verifyRegeneratedParagraph(original, keepsNickname, { cast: CAST_ZINNIA }).ok,
+    JSON.stringify(verifyRegeneratedParagraph(original, keepsNickname, { cast: CAST_ZINNIA })));
+}
+
+// ── 38. REGENLANE-1D: typography normalization runs before the guard, the
+// SYSTEM prompt demands the complete paragraph and forbids new facts, and a
+// new digit/number-word the original lacked is rejected. ──
+{
+  check('38a. normalizeModelTypography converts paired straight double quotes, word-internal apostrophes, and a leading opening quote to the manuscript convention',
+    normalizeModelTypography(`"Hold on," Dov didn't move. 'Tis strange, he thought.`) === '“Hold on,” Dov didn’t move. ‘Tis strange, he thought.',
+    normalizeModelTypography(`"Hold on," Dov didn't move. 'Tis strange, he thought.`));
+
+  const orig = '“Wait,” Dov said, and no one moved at all, not even a fraction.';
+  const asciiCandidate = `"Hold on," Dov said, and didn't move at all, not even a fraction.`;
+  const waitDetector = (text) => {
+    const m = String(text || '').match(/[^.]*\bWait\b[^.]*\./i);
+    if (!m) return [];
+    return [{ kind: 'template-family', sentence: m[0].trim(), reason: 'template "Wait" — replace with a concrete beat', mustNotContain: ['Wait'] }];
+  };
+  const asciiMock = async () => asciiCandidate;
+  const asciiResult = await regenerateFlaggedParagraphs(orig, { cast: CAST, callLLM: asciiMock, project: { book_type: 'fiction' }, extraDetectors: [waitDetector] });
+  check('38b. a candidate answered in ASCII quotes/apostrophes with no other typography change is ACCEPTED after normalisation, and ships smart-quoted',
+    asciiResult.regenerated === 1 && asciiResult.text.includes('“Hold on,” Dov said, and didn’t move at all, not even a fraction.'),
+    JSON.stringify(asciiResult));
+
+  const noNumOrig = 'Her heartbeat felt urgent and irregular as she waited in the dark hallway.';
+  const newNumberCandidate = 'Her heartbeat raced at thirty-seven beats per minute as she waited in the dark hallway.';
+  const numVerdict = verifyRegeneratedParagraph(noNumOrig, newNumberCandidate, {});
+  check('38c. a candidate that introduces a number the original lacked is rejected (new-number)',
+    numVerdict.reason === 'new-number:thirty-seven', JSON.stringify(numVerdict));
+
+  const ratioOrig = 'This is a plain original sentence of moderate length for testing the ratio log.';
+  const ratioVerdict = verifyRegeneratedParagraph(ratioOrig, 'Nope.', {});
+  check('38d. a length-ratio rejection carries the numeric ratio for logging',
+    ratioVerdict.reason === 'length-ratio' && typeof ratioVerdict.ratio === 'number', JSON.stringify(ratioVerdict));
+
+  const SRC = fs.readFileSync(new URL('../src/lib/regenerateLane.js', import.meta.url).pathname, 'utf8');
+  check('38e. the lane SYSTEM prompt demands the COMPLETE paragraph', /COMPLETE paragraph/.test(SRC));
+  check('38f. the lane SYSTEM prompt forbids new facts, numbers, backstory, or events', /do not add any fact, number/i.test(SRC));
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

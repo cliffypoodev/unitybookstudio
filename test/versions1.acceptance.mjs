@@ -166,5 +166,70 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
   check('17. chapterStorage.js never calls the entity .list( form for this feature', !STORAGE.includes('.list('));
 }
 
+// ── VERSIONS-1C: findImmediatelyOlderVersion stays inside the current key's
+// filename family (chapter-... vs backup-...) — a naive lexical sort across
+// every key under the prefix could otherwise hand back a backup blob
+// ("backup-..." sorts before "chapter-..."), since the two are independent
+// save tracks (prepareChapterContent vs prepareBackupContent), not versions
+// of the same thing ──
+{
+  const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'ubs-versions1c-'));
+  process.env.UBS_DATA_DIR = TMP;
+  const { handleRequest } = await import('../vite-server-store-plugin.js');
+
+  const TEST_UID = 'test-uid-versions1c';
+  let server;
+  await new Promise((resolve) => {
+    server = http.createServer((req, res) => handleRequest(req, res, TEST_UID));
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (url, opts) => {
+    const u = String(url);
+    if (u.startsWith('/api/store/')) return realFetch(`${baseUrl}${u}`, opts);
+    return realFetch(url, opts);
+  };
+
+  try {
+    const create = (id, content) => realFetch(`${baseUrl}/api/store/_FileStore/create`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, content }),
+    });
+    // A backup key sorts lexically BEFORE the chapter's own oldest
+    // chapter-content key ("backup-" < "chapter-") even though it belongs to
+    // a completely separate save track.
+    await create('proj1/ch3/backup-ch3-20260101000000-zzz', 'a backup blob, not a chapter-content version at all');
+    await create('proj1/ch3/chapter-ch3-20260105000000-aaa', 'oldest real chapter-content version');
+    await create('proj1/ch3/chapter-ch3-20260106000000-bbb', 'current chapter-content version');
+
+    const current = { id: 'ch3', project_id: 'proj1', content_md_url: 'local://proj1/ch3/chapter-ch3-20260106000000-bbb' };
+    const older = await findImmediatelyOlderVersion(current);
+    check('18. findImmediatelyOlderVersion picks the oldest CHAPTER-content version (aaa), never the lexically-earlier backup blob',
+      older === 'local://proj1/ch3/chapter-ch3-20260105000000-aaa', older);
+
+    const oldestChapterVersion = { id: 'ch3', project_id: 'proj1', content_md_url: 'local://proj1/ch3/chapter-ch3-20260105000000-aaa' };
+    check('19. the oldest chapter-content version has no older fallback — the backup blob is never counted, even though it sorts earlier',
+      await findImmediatelyOlderVersion(oldestChapterVersion) === '');
+  } finally {
+    globalThis.fetch = realFetch;
+    await new Promise((resolve) => server.close(resolve));
+    fs.rmSync(TMP, { recursive: true, force: true });
+  }
+}
+
+// ── VERSIONS-1C: a restore records what it replaced, so the restore itself
+// is undoable the same way ──
+{
+  const STUDIO = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url).pathname, 'utf8');
+  const handlerBody = (() => {
+    const start = STUDIO.indexOf('const handleRestorePreviousVersion');
+    const end = STUDIO.indexOf('\n  };', start);
+    return start >= 0 ? STUDIO.slice(start, end) : '';
+  })();
+  check('20. the restore payload records previous_content_md_url as the version being replaced, so the restore itself can be undone',
+    /previous_content_md_url:\s*chapter\?\.content_md_url \|\| ''/.test(handlerBody), handlerBody);
+}
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
