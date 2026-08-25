@@ -40,11 +40,20 @@ check('17. version', MALFORMEDSENT_VERSION === 'malformed-sentence-v1');
 // ── export-gate wiring: imported, called, WARNING (never a hard block) ──
 const GATE = fs.readFileSync(new URL('../src/lib/exportSafetyGate.js', import.meta.url), 'utf8');
 check('18. export gate imports the detector', GATE.includes("from './malformedSentence.js'") && GATE.includes('scanMalformedSentences'));
-check('19. export gate calls it and pushes a MALFORMEDSENT-1 WARNING, not a hard block',
+// 19. RETIRED (unconditional) by GATEPROMOTE-1-CONTINUITY-BREAKS-BLOCK-EXPORT:
+// MALFORMEDSENT-1 CAN become a hard block, gated by MALFORMEDSENT_HARD_BLOCK
+// (malformedSentence.js), which stays false until two consecutive books
+// export with "[MALFORMEDSENT] Gate scan: 0" — read the constant, not an
+// absolute absence of hardFailures.push. Behavior proven live in
+// test/gatepromote1.acceptance.mjs checks 3–4.
+check('19. export gate calls it, stays a WARNING unless MALFORMEDSENT_HARD_BLOCK is true',
   GATE.includes('scanMalformedSentences(body, msCast)') &&
   GATE.includes('MALFORMEDSENT-1:') &&
-  !/createExportHardBlockError\([^)]*MALFORMEDSENT/s.test(GATE) &&
-  !/hardFailures\.push\([^)]*MALFORMEDSENT/s.test(GATE));
+  GATE.includes("import { scanMalformedSentences, MALFORMEDSENT_HARD_BLOCK } from './malformedSentence.js'") &&
+  GATE.includes('isFictionProject(project) && MALFORMEDSENT_HARD_BLOCK') &&
+  !/createExportHardBlockError\([^)]*MALFORMEDSENT/s.test(GATE));
+const MS_SRC = fs.readFileSync(new URL('../src/lib/malformedSentence.js', import.meta.url), 'utf8');
+check('20. MALFORMEDSENT_HARD_BLOCK defaults to false', /export const MALFORMEDSENT_HARD_BLOCK = false;/.test(MS_SRC));
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);

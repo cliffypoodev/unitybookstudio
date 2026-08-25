@@ -101,7 +101,17 @@ const GATE_SRC = fs.readFileSync(new URL('../src/lib/sceneContractGate.js', impo
 check('25. scene audit enforces the state machine (with in-chapter fold)', /auditProseAgainstCharacterState\(prose, effectiveState, stateCast[,)]/.test(GATE_SRC) && GATE_SRC.includes('extractCharacterStateUpdates(accumulatedProse')); // CHARSTATE-2: audit call gained a declaredReturns options arg
 check('26. beat planner carries the state contract', STUDIO.includes('[CHARSTATE] Planner contract'));
 const EXPORT_GATE = fs.readFileSync(new URL('../src/lib/exportSafetyGate.js', import.meta.url), 'utf8');
-check('27. export gate reports resurrections and role drift as WARNINGS', EXPORT_GATE.includes('CHARSTATE-1:') && EXPORT_GATE.includes('scanRoleReferenceDrift(ch.text') && !/hardFailures\.push\([^)]*CHARSTATE/s.test(EXPORT_GATE));
+// 27. RETIRED by GATEPROMOTE-1-CONTINUITY-BREAKS-BLOCK-EXPORT: resurrections
+// (DEPARTED_CHARACTER_ACTIVE) and duplicate cross-chapter self-introductions
+// (DUPLICATE_INTRODUCTION) are now hard blocks in fiction; only role drift
+// stays a warning-only advisory. The full behavior is proven live in
+// test/gatepromote1.acceptance.mjs; this source-shape check confirms the
+// wiring still matches that contract.
+check('27. GATEPROMOTE-1: resurrections/dup-intro are hard blocks in fiction, role drift stays a WARNING',
+  EXPORT_GATE.includes('CHARSTATE-1:') &&
+  EXPORT_GATE.includes('scanRoleReferenceDrift(ch.text') &&
+  EXPORT_GATE.includes("isFictionProject(project) && (violation.code === 'DEPARTED_CHARACTER_ACTIVE' || violation.code === 'DUPLICATE_INTRODUCTION')") &&
+  !/scanRoleReferenceDrift\(ch\.text[\s\S]{0,400}hardFailures\.push/.test(EXPORT_GATE));
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
