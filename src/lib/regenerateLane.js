@@ -29,8 +29,9 @@ import {
 } from './crossChapterDedupe.js';
 import { SIMILE_RX } from './simileRecast.js';
 import { isNonfictionProject } from './projectType.js';
+import { closedWorldCheck } from './closedWorldText.js'; // REGENLANE-2
 
-export const REGENLANE_VERSION = 'regen-lane-v1';
+export const REGENLANE_VERSION = 'regen-lane-v2';
 
 let _callAgent = null;
 async function getCallAgent() {
@@ -223,7 +224,7 @@ function collectNumberTokens(s) {
  * Deterministic verdict on a regenerated paragraph. ALL checks must pass.
  */
 export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
-  const { cast = [], priorProse = [], departed = [], rescan = null, mustNotContain = [] } = opts;
+  const { cast = [], priorProse = [], departed = [], rescan = null, mustNotContain = [], project = null } = opts;
   const orig = String(original || '');
   const cand = String(candidate || '').trim();
   if (!cand) return { ok: false, reason: 'empty' };
@@ -361,6 +362,24 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   // (9) actually different.
   if (cand === orig.trim()) return { ok: false, reason: 'unchanged' };
 
+  // (10) REGENLANE-2: for NF projects, the candidate may introduce no
+  // closed-world violation the original did not already have — an
+  // un-evidenced proper noun, date, or number smuggled in during the
+  // "fix the defect" rewrite is exactly the fabrication ARCH-1B exists to
+  // catch, and the lane must not ship one just because it fixed something
+  // else. A violation the ORIGINAL already carried is not new — the lane
+  // regenerates a flagged paragraph without being asked to also fact-check
+  // pre-existing prose.
+  if (isNonfictionProject(project)) {
+    // Diff by ATOM, not by sentence snippet — the candidate sentence is
+    // never byte-identical to the original by construction, so a
+    // snippet-only diff would treat every pre-existing violation as "new"
+    // on every single rewrite.
+    const origAtoms = new Set(closedWorldCheck(orig, project).map((v) => v.atom));
+    const newViolations = closedWorldCheck(cand, project).filter((v) => !origAtoms.has(v.atom));
+    if (newViolations.length) return { ok: false, reason: 'closed-world' };
+  }
+
   return { ok: true, reason: '' };
 }
 
@@ -384,7 +403,8 @@ const SYSTEM = [
 
 /**
  * Regenerate every flagged paragraph in `text`, one LLM call at a time.
- * Fiction only — nonfiction gets its lane in Arc G (closed-world verifier).
+ * Fiction and nonfiction alike — REGENLANE-2 added the NF closed-world
+ * verifier check (10), so nonfiction no longer needs a separate skip.
  *
  * @returns {{text, regenerated, skipped: Array<{kind, sentence, reason}>, targets}}
  */
@@ -404,9 +424,6 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
   } = opts;
 
   const original = String(text || '');
-  if (isNonfictionProject(project)) {
-    return { text: original, regenerated: 0, skipped: [{ reason: 'nf-skip' }], targets: [] };
-  }
   if (!original.trim()) return { text: original, regenerated: 0, skipped: [], targets: [] };
 
   const targets = collectRegenTargets(original, { cast, departed, extraDetectors, maxUnits });
@@ -455,7 +472,7 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
     }
 
     const candidate = cleanLLMParagraph(raw);
-    const verdict = verifyRegeneratedParagraph(paragraph, candidate, { kind, cast, priorProse, departed, rescan, mustNotContain });
+    const verdict = verifyRegeneratedParagraph(paragraph, candidate, { kind, cast, priorProse, departed, rescan, mustNotContain, project });
     if (!verdict.ok) {
       const detail = verdict.ratio != null ? ` ratio=${verdict.ratio}` : '';
       console.warn(`[REGENLANE] rejected (${verdict.reason}${detail}): "${sentence.slice(0, 70)}"`);

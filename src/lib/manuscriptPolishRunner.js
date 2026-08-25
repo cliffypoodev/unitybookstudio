@@ -947,13 +947,16 @@ export async function runManuscriptPolishPipeline({
   }
   verifyInvariant('Subject Repair');
 
-  // REGENLANE-1: legacy chapters get the same one-chance block-and-regenerate
-  // lane the writer applies to new prose — the lane MALFORMEDSENT-1 could
-  // detect but never fix. Fiction only; one sequential LLM call per flagged
-  // paragraph, deterministically verified, fail-open to a report.
+  // REGENLANE-1 / REGENLANE-2: legacy chapters get the same one-chance
+  // block-and-regenerate lane the writer applies to new prose — the lane
+  // MALFORMEDSENT-1 could detect but never fix. Fiction AND nonfiction (the
+  // lane's own verifier gates NF's closed-world check through the
+  // projectType authority — no mode string test here); one sequential LLM
+  // call per flagged paragraph, deterministically verified, fail-open to a
+  // report.
   checkpoint();
   let regenStats = { chaptersWithTargets: 0, regenerated: 0, skipped: 0 };
-  if (mode !== 'nonfiction' && !isAnthology) {
+  if (!isAnthology) {
     let castForRegen = [];
     try {
       castForRegen = harvestCastNames(project?.characters_md, loaded.map((f) => String(f.content || '')));
