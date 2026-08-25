@@ -185,8 +185,10 @@ const reallyLookedDetector = (text) => {
   const swappedInitial = 'Zinnia looked at him, and said nothing at all that mattered.';
 
   const verdictWithCast = verifyRegeneratedParagraph(original, swappedInitial, { cast: CAST_ZINNIA });
+  // REGENLANE-2C (finding 47b): check (4b)'s reason is now new-cast-name:<tok>
+  // (was new-proper-noun:<tok>) so a live run can attribute which check fired.
   check('37a. a sentence-initial cast-name swap ("Zin" -> "Zinnia") is rejected once cast is checked wherever it sits',
-    verdictWithCast.reason === 'new-proper-noun:Zinnia', JSON.stringify(verdictWithCast));
+    verdictWithCast.reason === 'new-cast-name:Zinnia', JSON.stringify(verdictWithCast));
 
   const verdictNoCast = verifyRegeneratedParagraph(original, swappedInitial, {});
   check('37b. without cast passed, the general sentence-initial exemption still lets it through — confirms 37a is the new cast-aware check, not a change to the general rule',

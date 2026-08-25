@@ -9,7 +9,9 @@ import {
   collectRegenTargets,
   verifyRegeneratedParagraph,
   regenerateFlaggedParagraphs,
+  paragraphsOf,
 } from '../src/lib/regenerateLane.js';
+import { nfContentEquivalent } from '../src/lib/nfContentGuard.js';
 
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
@@ -220,8 +222,11 @@ const NF_PROJECT = {
   check("20. manuscriptPolishRunner.js has verifyInvariant('Regenerate Lane')", RUNNER.includes("verifyInvariant('Regenerate Lane')") && RUNNER.includes('regenerateFlaggedParagraphs'));
 }
 
-// ── 26-27. REGENLANE-2B (finding 45): check (4) accepts an evidence-backed
-// proper noun on NF, still rejects it on fiction ──
+// ── 26-27. REGENLANE-2C (finding 47) RETIRES REGENLANE-2B's finding-45
+// loosening: check (4) for NF no longer accepts a proper noun just because
+// it is evidence-backed — the candidate's proper nouns must be a SUBSET of
+// the ORIGINAL paragraph's, evidence or not (fiction was already this
+// strict; NF now matches it exactly). ──
 {
   const evidenceProject = {
     book_type: 'nonfiction',
@@ -230,39 +235,111 @@ const NF_PROJECT = {
   const original = 'The team studied the harbor district carefully all season.';
   const candidate = 'The team studied the harbor district near Galveston carefully all season.';
   const nfVerdict = verifyRegeneratedParagraph(original, candidate, { project: evidenceProject, rescan: () => [] });
-  check('26. NF: check (4) accepts a proper noun inEV finds in the research', nfVerdict.ok === true, JSON.stringify(nfVerdict));
+  check('26. NF: check (4) rejects an evidence-backed noun absent from the original paragraph (finding-45 loosening retired)', nfVerdict.reason === 'new-proper-noun:Galveston', JSON.stringify(nfVerdict));
   const fictionVerdict = verifyRegeneratedParagraph(original, candidate, { project: { book_type: 'fiction' }, rescan: () => [] });
   check('27. fiction: the same new proper noun is still rejected (unchanged)', fictionVerdict.reason === 'new-proper-noun:Galveston', JSON.stringify(fictionVerdict));
 }
 
-// ── 28. REGENLANE-2B (finding 42): NFGUARD-1's revert-then-reapply
-// algorithm, mirrored exactly from manuscriptPolishRunner.js — a
-// deterministic stage's content change (not just typography) is reverted to
-// the snapshot, but the lane's own recorded replacement survives, and
-// paragraph count is unchanged. ──
+// ── 26b-26c. REGENLANE-2C (finding 47b): reason strings distinguish check
+// (4) (new-proper-noun) from check (4b) (new-cast-name) ──
 {
-  const snapshot = 'Dr. Hale led the dig at Port Ellis in 1966.\n\nThe team catalogued forty-two artifacts from the site.';
-  const laneReplacements = [{ paragraphIndex: 0, before: 'Dr. Hale led the dig at Port Ellis in 1966.', after: 'Dr. Hale led the excavation at Port Ellis in 1966.' }];
+  const original = 'Rodge crossed the room and sat down by the window.';
+  const candidate = 'Roderick crossed the room and sat down by the window.';
+  const verdict = verifyRegeneratedParagraph(original, candidate, { cast: ['Rodge', 'Roderick'], rescan: () => [] });
+  check('26b. fiction cast-swap reports new-cast-name (check 4b)', verdict.reason === 'new-cast-name:Roderick', JSON.stringify(verdict));
+}
+{
+  const nfProject = { book_type: 'nonfiction', research_data: 'Dr. Hale led the excavation at Port Ellis in 1966, near Galveston, cataloguing forty-two artifacts from the harbor district records for the state archive over a period of several months during that long summer season of careful work.' };
+  const original = 'The team studied the harbor district carefully all season.';
+  const candidate = 'The team studied the harbor district near Galveston carefully all season.';
+  const verdict = verifyRegeneratedParagraph(original, candidate, { project: nfProject, rescan: () => [] });
+  check('26c. NF new noun reports new-proper-noun (check 4)', verdict.reason === 'new-proper-noun:Galveston', JSON.stringify(verdict));
+}
+
+// ── 28, 30-31. REGENLANE-2B/2C (findings 42, 48): NFGUARD-1's
+// revert-then-reapply algorithm, mirrored exactly from
+// manuscriptPolishRunner.js using the REAL exported building blocks
+// (paragraphsOf, nfContentEquivalent) — exact-match first, then a
+// paragraphIndex + typography-equivalence fallback, then drop+log. ──
+function nfguardReapply(snapshot, replacements) {
   let reverted = snapshot;
   let kept = 0;
-  for (const r of laneReplacements) {
-    const occurrences = reverted.split(r.before).length - 1;
-    if (occurrences === 1) { reverted = reverted.split(r.before).join(r.after); kept += 1; }
+  let dropped = 0;
+  for (const r of replacements) {
+    if (!r?.before) continue;
+    const exactOccurrences = reverted.split(r.before).length - 1;
+    if (exactOccurrences === 1) {
+      reverted = reverted.split(r.before).join(r.after);
+      kept += 1;
+      continue;
+    }
+    const revertedParagraphs = paragraphsOf(reverted);
+    const targetParagraph = revertedParagraphs[r.paragraphIndex];
+    if (targetParagraph && nfContentEquivalent(targetParagraph, r.before)) {
+      const occurrences = reverted.split(targetParagraph).length - 1;
+      if (occurrences === 1) {
+        reverted = reverted.split(targetParagraph).join(r.after);
+        kept += 1;
+        continue;
+      }
+    }
+    dropped += 1;
   }
-  const beforeParaCount = snapshot.split(/\n{2,}/).length;
-  const afterParaCount = reverted.split(/\n{2,}/).length;
+  return { text: reverted, kept, dropped };
+}
+
+{
+  // (iii) the existing "kept K" case still passes — exact-match path.
+  const snapshot = 'Dr. Hale led the dig at Port Ellis in 1966.\n\nThe team catalogued forty-two artifacts from the site.';
+  const laneReplacements = [{ paragraphIndex: 0, before: 'Dr. Hale led the dig at Port Ellis in 1966.', after: 'Dr. Hale led the excavation at Port Ellis in 1966.' }];
+  const beforeParaCount = paragraphsOf(snapshot).length;
+  const result = nfguardReapply(snapshot, laneReplacements);
   check(
-    '28. NFGUARD-1: deterministic change reverted, lane rewrite kept, paragraph count unchanged',
-    kept === 1 &&
-      reverted.includes('Dr. Hale led the excavation at Port Ellis in 1966.') &&
-      reverted.includes('The team catalogued forty-two artifacts from the site.') &&
-      beforeParaCount === afterParaCount,
-    reverted
+    '28. NFGUARD-1: deterministic change reverted, lane rewrite kept (exact match), paragraph count unchanged',
+    result.kept === 1 && result.dropped === 0 &&
+      result.text.includes('Dr. Hale led the excavation at Port Ellis in 1966.') &&
+      result.text.includes('The team catalogued forty-two artifacts from the site.') &&
+      paragraphsOf(result.text).length === beforeParaCount,
+    JSON.stringify(result)
+  );
+}
+
+{
+  // (i) a `before` that differs from the snapshot paragraph only by a
+  // double space and a curly-vs-straight apostrophe is still re-applied
+  // (the paragraphIndex + nfContentEquivalent fallback).
+  const snapshot = 'Dr. Hale led the team’s dig at Port Ellis in 1966.\n\nThe crew catalogued the artifacts from the site.';
+  const laneReplacements = [{ paragraphIndex: 0, before: "Dr. Hale led the team's  dig at Port Ellis in 1966.", after: "Dr. Hale led the team's excavation at Port Ellis in 1966." }];
+  const beforeParaCount = paragraphsOf(snapshot).length;
+  const result = nfguardReapply(snapshot, laneReplacements);
+  check(
+    '30. NFGUARD-1: typography-drifted `before` (double space + straight apostrophe) still re-applied via the paragraphIndex fallback',
+    result.kept === 1 && result.dropped === 0 &&
+      result.text.includes("Dr. Hale led the team's excavation at Port Ellis in 1966.") &&
+      paragraphsOf(result.text).length === beforeParaCount,
+    JSON.stringify(result)
+  );
+}
+
+{
+  // (ii) a genuinely different paragraph (real content difference, not
+  // typography) is dropped AND logged.
+  const snapshot = 'Dr. Hale led the dig at Port Ellis in 1966.\n\nThe crew catalogued the artifacts from the site.';
+  const laneReplacements = [{ paragraphIndex: 0, before: 'Dr. Vance supervised the dig at Port Ellis in 1966.', after: 'Dr. Vance led the excavation at Port Ellis in 1966.' }];
+  const beforeParaCount = paragraphsOf(snapshot).length;
+  const result = nfguardReapply(snapshot, laneReplacements);
+  check(
+    '31. NFGUARD-1: a genuinely different paragraph is dropped, text stays reverted, paragraph count unchanged',
+    result.kept === 0 && result.dropped === 1 &&
+      result.text === snapshot &&
+      paragraphsOf(result.text).length === beforeParaCount,
+    JSON.stringify(result)
   );
 }
 
 // ── 29. source-shape: manuscriptPolishRunner.js's NFGUARD-1 records and
-// re-applies the lane's accepted replacements ──
+// re-applies the lane's accepted replacements, with the paragraphIndex
+// fallback and the drop+log path ──
 {
   const RUNNER = fs.readFileSync(new URL('../src/lib/manuscriptPolishRunner.js', import.meta.url), 'utf8');
   check(
@@ -270,6 +347,12 @@ const NF_PROJECT = {
     RUNNER.includes('laneReplacementsByFile') &&
       RUNNER.includes('regen.replacements') &&
       RUNNER.includes('kept ${kept} lane rewrite(s)')
+  );
+  check(
+    '29b. manuscriptPolishRunner.js: NFGUARD-1 paragraphIndex fallback + drop+log',
+    RUNNER.includes('paragraphsOf(reverted)') &&
+      RUNNER.includes('nfContentEquivalent(targetParagraph, r.before)') &&
+      RUNNER.includes('dropped ${dropped} lane rewrite(s) (span not found)')
   );
 }
 
