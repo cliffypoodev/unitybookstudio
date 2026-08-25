@@ -41,7 +41,7 @@ import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes
 import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from './crossChapterDedupe.js';
 import { healSimileDensity, selectSimileRecastTargets } from './simileRecast.js'; // STYLEBUDGET-2
 import { repairDroppedSubjects, findDroppedSubjectSentences } from './subjectRepair.js'; // SUBJECTREPAIR-1
-import { regenerateFlaggedParagraphs, collectRegenTargets } from './regenerateLane.js'; // REGENLANE-1
+import { regenerateFlaggedParagraphs, collectRegenTargets, paragraphsOf } from './regenerateLane.js'; // REGENLANE-1 / REGENLANE-2C
 import { makeTemplateFamilyDetector, makeOpeningEchoDetector } from './templateFamilies.js'; // STYLEBUDGET-3
 import { makeFragmentDensityDetector, measureFragmentDensity, FRAGMENT_DENSITY_BUDGET_PER_1K } from './fragmentDensity.js'; // FRAGBUDGET-1
 import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
@@ -1398,24 +1398,48 @@ export async function runManuscriptPolishPipeline({
       if (!nfContentEquivalent(beforeText, afterText)) {
         const chLabel = f.chapter?.chapter_number ?? gi + 1;
         console.error(`[NFGUARD-1] Ch.${chLabel}: a polish pass changed prose content — REVERTED. Deterministic NF polish may alter typography only; rewrite passes must flag, not fix.`);
-        // REGENLANE-2B: revert to the snapshot as before, then re-apply ONLY
-        // the regenerate lane's own accepted replacements for this chapter —
-        // each already closed-world-verified (check 10) when NF. A
-        // replacement whose `before` text isn't found exactly once in the
-        // reverted text (an earlier deterministic stage already touched that
-        // span) is skipped rather than applied — fail open, never corrupt.
+        // REGENLANE-2B/2C: revert to the snapshot as before, then re-apply
+        // ONLY the regenerate lane's own accepted replacements for this
+        // chapter — each already closed-world-verified (check 10) when NF.
+        // Finding 48: the snapshot is taken BEFORE "Nonfiction Core" /
+        // "Anti-Detection Polish" / typography run, so the lane's `before`
+        // (the paragraph as it stood AFTER those stages) can fail the exact
+        // string match even though nothing content-wise actually diverged.
+        // Fallback: locate the paragraph by its recorded `paragraphIndex` in
+        // the reverted text and accept it when it is typography-equivalent
+        // to `before` (nfContentEquivalent) — an earlier stage's quote/
+        // whitespace drift, not a real conflict. Only when NEITHER the exact
+        // match nor the index+equivalence fallback finds a unique span is
+        // the replacement dropped, loudly.
         let reverted = beforeText;
         let kept = 0;
+        let dropped = 0;
         for (const r of (laneReplacementsByFile.get(f) || [])) {
           if (!r?.before) continue;
-          const occurrences = reverted.split(r.before).length - 1;
-          if (occurrences === 1) {
+          const exactOccurrences = reverted.split(r.before).length - 1;
+          if (exactOccurrences === 1) {
             reverted = reverted.split(r.before).join(r.after);
             kept += 1;
+            continue;
           }
+          const revertedParagraphs = paragraphsOf(reverted);
+          const targetParagraph = revertedParagraphs[r.paragraphIndex];
+          if (targetParagraph && nfContentEquivalent(targetParagraph, r.before)) {
+            const occurrences = reverted.split(targetParagraph).length - 1;
+            if (occurrences === 1) {
+              reverted = reverted.split(targetParagraph).join(r.after);
+              kept += 1;
+              continue;
+            }
+          }
+          dropped += 1;
         }
         if (kept > 0) console.log(`[NFGUARD-1] Ch.${chLabel}: kept ${kept} lane rewrite(s)`);
-        changes.push(`Ch.${chLabel}: NFGUARD-1 reverted content changes made by style passes (typography-only policy)${kept > 0 ? `, kept ${kept} lane rewrite(s)` : ''}`);
+        if (dropped > 0) console.log(`[NFGUARD-1] Ch.${chLabel}: dropped ${dropped} lane rewrite(s) (span not found)`);
+        const nfguardNotes = [];
+        if (kept > 0) nfguardNotes.push(`kept ${kept} lane rewrite(s)`);
+        if (dropped > 0) nfguardNotes.push(`dropped ${dropped} lane rewrite(s) (span not found)`);
+        changes.push(`Ch.${chLabel}: NFGUARD-1 reverted content changes made by style passes (typography-only policy)${nfguardNotes.length ? `, ${nfguardNotes.join(', ')}` : ''}`);
         f.content = reverted;
       }
     });

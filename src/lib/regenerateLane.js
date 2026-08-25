@@ -29,7 +29,7 @@ import {
 } from './crossChapterDedupe.js';
 import { SIMILE_RX } from './simileRecast.js';
 import { isNonfictionProject } from './projectType.js';
-import { closedWorldCheck, createInEV, buildEvidenceCorpus } from './closedWorldText.js'; // REGENLANE-2 / REGENLANE-2B
+import { closedWorldCheck } from './closedWorldText.js'; // REGENLANE-2
 
 export const REGENLANE_VERSION = 'regen-lane-v2';
 
@@ -48,7 +48,10 @@ function escapeRx(s) {
 
 const collapseWs = (s) => String(s || '').replace(/\s+/g, ' ');
 
-function paragraphsOf(text) {
+// REGENLANE-2C: exported so a caller holding a target's `paragraphIndex`
+// (NFGUARD-1's re-apply fallback) can locate the same paragraph by the same
+// convention this module used to build it — never re-derive the split rule.
+export function paragraphsOf(text) {
   return String(text || '')
     .replace(/\r\n/g, '\n')
     .split(/\n{2,}/)
@@ -285,17 +288,17 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   // original paragraph's own — REGENLANE-1C tightened this from "original +
   // cast", which let the model swap one cast member's name for another's
   // (Rodge -> Roderick, live) since both were in the allowed set.
-  // REGENLANE-2B (finding 45): for NF, a proper noun the ORIGINAL paragraph
-  // didn't have is still legitimate when the RESEARCH has it — check (10)
-  // below is the real closed-world judge; check (4) alone was rejecting
-  // real, evidence-backed historical terms (Galveston, Congress, Union...)
-  // on every NF rewrite. Fiction is unchanged (nfInEV stays null).
+  // REGENLANE-2B loosened this for NF (a proper noun in the research was
+  // accepted even if absent from the original paragraph) and REGENLANE-2C
+  // (finding 47) RETIRES that loosening: a style rewrite must not introduce
+  // ANY proper noun the paragraph did not have, evidence-backed or not — a
+  // "carried the weight of the past" rewrite that adds "Galveston" is a
+  // content addition check (10) cannot catch (the atom IS in the evidence)
+  // and can be wrong in context (this chapter may not be about Galveston).
+  // Fiction was already this strict; NF now matches it exactly.
   const allowedCaps = new Set(collectProperNouns(orig));
-  const nfInEV = isNonfictionProject(project) ? createInEV(buildEvidenceCorpus(project)) : null;
   for (const tok of collectProperNouns(stripSentenceInitialWords(cand))) {
-    if (allowedCaps.has(tok)) continue;
-    if (nfInEV && nfInEV(tok)) continue;
-    return { ok: false, reason: `new-proper-noun:${tok}` };
+    if (!allowedCaps.has(tok)) return { ok: false, reason: `new-proper-noun:${tok}` };
   }
   // (4b) REGENLANE-1D (finding 37): a cast name (or its possessive) counts
   // wherever it sits, sentence-initial included — the sentence-initial
@@ -310,7 +313,11 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
     const origCastPresent = new Set(collectProperNouns(orig).filter((tok) => castLower.has(tok.toLowerCase())));
     for (const tok of collectProperNouns(cand)) {
       if (!castLower.has(tok.toLowerCase())) continue;
-      if (!origCastPresent.has(tok)) return { ok: false, reason: `new-proper-noun:${tok}` };
+      // REGENLANE-2C (finding 47b): distinct reason from check (4) — a
+      // rejection here is specifically a cast-name substitution/introduction,
+      // not a generic new proper noun, so a live run can attribute which
+      // check actually fired.
+      if (!origCastPresent.has(tok)) return { ok: false, reason: `new-cast-name:${tok}` };
     }
   }
   // (4c) REGENLANE-1D (finding 38): no new fact — a digit sequence or a
