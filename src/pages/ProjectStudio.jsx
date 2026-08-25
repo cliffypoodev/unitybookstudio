@@ -111,6 +111,7 @@ import { runAISlopReductionPass } from '@/lib/aiSlopReduction';
 import { shouldRunDialogueRepair, shouldRunAISlopReduction, shouldRunReferenceIntegrity } from '@/lib/polishPipelineConfig';
 import { runReferenceIntegrityGate } from '@/lib/referenceIntegrityGate';
 import { runManuscriptPolishPipeline } from '@/lib/manuscriptPolishRunner';
+import { verifyExtractedAtoms, ATOM_BUCKETS } from '@/lib/researchAtomGuard'; // ARCH-2
 // Inline duplicate sweep: do not import stale '@/lib/sceneDuplicateSweep' during polish.
 
 console.log('[PROJECTSTUDIO] v16.0 loaded: HARDFIX — strict safety gate enforcement on draft/polish paths');
@@ -2939,13 +2940,21 @@ Return structured JSON:
           });
 
           if (partial && typeof partial === 'object') {
-            mergeBucket('key_figures', partial.key_figures);
-            mergeBucket('key_events', partial.key_events);
-            mergeBucket('institutions', partial.institutions);
-            mergeBucket('timeline', partial.timeline);
-            mergeBucket('primary_sources', partial.primary_sources);
-            mergeBucket('competing_narratives', partial.competing_narratives);
-            mergeBucket('key_documents', partial.key_documents);
+            // ARCH-2: the researcher layer is closed-world too — every atom
+            // (name/event/institution, year, month-year, number) the LLM
+            // wrote into this batch's extraction must substring-match the
+            // batch's own fetched pages, or it is a fabrication one level
+            // upstream of drafting.
+            const { kept: verifiedPartial, dropped: droppedAtoms } = verifyExtractedAtoms(partial, batch);
+            const keptCount = ATOM_BUCKETS.reduce((n, bucket) => n + (verifiedPartial[bucket]?.length || 0), 0);
+            console.log(`[ARCH-2] batch ${b + 1}: kept ${keptCount} item(s), dropped ${droppedAtoms.length} unsupported atom(s)`);
+            mergeBucket('key_figures', verifiedPartial.key_figures);
+            mergeBucket('key_events', verifiedPartial.key_events);
+            mergeBucket('institutions', verifiedPartial.institutions);
+            mergeBucket('timeline', verifiedPartial.timeline);
+            mergeBucket('primary_sources', verifiedPartial.primary_sources);
+            mergeBucket('competing_narratives', verifiedPartial.competing_narratives);
+            mergeBucket('key_documents', verifiedPartial.key_documents);
           }
         } catch (batchErr) {
           failedBatches++; // RESEARCHFAIL-1
