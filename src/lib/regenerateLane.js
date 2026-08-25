@@ -29,7 +29,7 @@ import {
 } from './crossChapterDedupe.js';
 import { SIMILE_RX } from './simileRecast.js';
 import { isNonfictionProject } from './projectType.js';
-import { closedWorldCheck } from './closedWorldText.js'; // REGENLANE-2
+import { closedWorldCheck, createInEV, buildEvidenceCorpus } from './closedWorldText.js'; // REGENLANE-2 / REGENLANE-2B
 
 export const REGENLANE_VERSION = 'regen-lane-v2';
 
@@ -285,9 +285,17 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   // original paragraph's own — REGENLANE-1C tightened this from "original +
   // cast", which let the model swap one cast member's name for another's
   // (Rodge -> Roderick, live) since both were in the allowed set.
+  // REGENLANE-2B (finding 45): for NF, a proper noun the ORIGINAL paragraph
+  // didn't have is still legitimate when the RESEARCH has it — check (10)
+  // below is the real closed-world judge; check (4) alone was rejecting
+  // real, evidence-backed historical terms (Galveston, Congress, Union...)
+  // on every NF rewrite. Fiction is unchanged (nfInEV stays null).
   const allowedCaps = new Set(collectProperNouns(orig));
+  const nfInEV = isNonfictionProject(project) ? createInEV(buildEvidenceCorpus(project)) : null;
   for (const tok of collectProperNouns(stripSentenceInitialWords(cand))) {
-    if (!allowedCaps.has(tok)) return { ok: false, reason: `new-proper-noun:${tok}` };
+    if (allowedCaps.has(tok)) continue;
+    if (nfInEV && nfInEV(tok)) continue;
+    return { ok: false, reason: `new-proper-noun:${tok}` };
   }
   // (4b) REGENLANE-1D (finding 37): a cast name (or its possessive) counts
   // wherever it sits, sentence-initial included — the sentence-initial
@@ -424,12 +432,12 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
   } = opts;
 
   const original = String(text || '');
-  if (!original.trim()) return { text: original, regenerated: 0, skipped: [], targets: [] };
+  if (!original.trim()) return { text: original, regenerated: 0, skipped: [], targets: [], replacements: [] };
 
   const targets = collectRegenTargets(original, { cast, departed, extraDetectors, maxUnits });
   if (!targets.length) {
     console.log(`[REGENLANE] ${label}: targets 0, regenerated 0, skipped 0`);
-    return { text: original, regenerated: 0, skipped: [], targets: [] };
+    return { text: original, regenerated: 0, skipped: [], targets: [], replacements: [] };
   }
 
   const beforeParagraphs = countParagraphs(original);
@@ -443,6 +451,10 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
   const rescan = (candidateText) => collectRegenTargets(candidateText, { cast, departed, extraDetectors, maxUnits: 1 });
 
   const skipped = [];
+  // REGENLANE-2B: every accepted replacement, so a caller (NFGUARD-1) can
+  // revert everything ELSE it did to a chapter and re-apply only these —
+  // each one already closed-world-verified by check (10) when NF.
+  const replacements = [];
   let regenerated = 0;
 
   // SEQUENTIAL — one LLM call at a time, always.
@@ -485,6 +497,7 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
     }
     out = out.split(paragraph).join(candidate);
     regenerated += 1;
+    replacements.push({ paragraphIndex: target.paragraphIndex, before: paragraph, after: candidate });
   }
 
   // TEST ONLY (regenlane1.acceptance.mjs): the verifier makes a genuine
@@ -502,9 +515,10 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
       regenerated: 0,
       skipped: targets.map((t) => ({ kind: t.kind, sentence: t.sentence, reason: 'lane-reverted' })),
       targets,
+      replacements: [],
     };
   }
 
   console.log(`[REGENLANE] ${label}: targets ${targets.length}, regenerated ${regenerated}, skipped ${skipped.length}`);
-  return { text: out, regenerated, skipped, targets };
+  return { text: out, regenerated, skipped, targets, replacements };
 }

@@ -956,6 +956,10 @@ export async function runManuscriptPolishPipeline({
   // report.
   checkpoint();
   let regenStats = { chaptersWithTargets: 0, regenerated: 0, skipped: 0 };
+  // REGENLANE-2B: keyed by the loaded-file object itself (stable across the
+  // sortedLoaded reorder below — same references, just resorted) so
+  // NFGUARD-1 can find each chapter's accepted lane rewrites later.
+  const laneReplacementsByFile = new Map();
   if (!isAnthology) {
     let castForRegen = [];
     try {
@@ -989,6 +993,10 @@ export async function runManuscriptPolishPipeline({
             f.content = regen.text;
             regenStats.regenerated += regen.regenerated;
             changes.push(`Ch.${chNum}: Regenerate Lane — regenerated ${regen.regenerated}, skipped ${regen.skipped.length}`);
+            // REGENLANE-2B: recorded so NFGUARD-1 (below) can revert everything
+            // ELSE this chapter's polish pass did and re-apply just these —
+            // each already closed-world-verified by check (10) when NF.
+            if (regen.replacements?.length) laneReplacementsByFile.set(f, regen.replacements);
           }
           regenStats.skipped += regen.skipped.length;
         } catch (err) {
@@ -1388,9 +1396,27 @@ export async function runManuscriptPolishPipeline({
       const beforeText = nfGuardSnapshots[gi];
       const afterText = String(f.content || '');
       if (!nfContentEquivalent(beforeText, afterText)) {
-        console.error(`[NFGUARD-1] Ch.${f.chapter?.chapter_number ?? gi + 1}: a polish pass changed prose content — REVERTED. Deterministic NF polish may alter typography only; rewrite passes must flag, not fix.`);
-        changes.push(`Ch.${f.chapter?.chapter_number ?? gi + 1}: NFGUARD-1 reverted content changes made by style passes (typography-only policy)`);
-        f.content = beforeText;
+        const chLabel = f.chapter?.chapter_number ?? gi + 1;
+        console.error(`[NFGUARD-1] Ch.${chLabel}: a polish pass changed prose content — REVERTED. Deterministic NF polish may alter typography only; rewrite passes must flag, not fix.`);
+        // REGENLANE-2B: revert to the snapshot as before, then re-apply ONLY
+        // the regenerate lane's own accepted replacements for this chapter —
+        // each already closed-world-verified (check 10) when NF. A
+        // replacement whose `before` text isn't found exactly once in the
+        // reverted text (an earlier deterministic stage already touched that
+        // span) is skipped rather than applied — fail open, never corrupt.
+        let reverted = beforeText;
+        let kept = 0;
+        for (const r of (laneReplacementsByFile.get(f) || [])) {
+          if (!r?.before) continue;
+          const occurrences = reverted.split(r.before).length - 1;
+          if (occurrences === 1) {
+            reverted = reverted.split(r.before).join(r.after);
+            kept += 1;
+          }
+        }
+        if (kept > 0) console.log(`[NFGUARD-1] Ch.${chLabel}: kept ${kept} lane rewrite(s)`);
+        changes.push(`Ch.${chLabel}: NFGUARD-1 reverted content changes made by style passes (typography-only policy)${kept > 0 ? `, kept ${kept} lane rewrite(s)` : ''}`);
+        f.content = reverted;
       }
     });
   }
