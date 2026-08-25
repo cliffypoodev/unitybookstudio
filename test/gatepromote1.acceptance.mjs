@@ -203,7 +203,9 @@ const MALFORMED_CH = {
 // ── 8. source-shape: the gate imports isFictionProject and gates on it, not a new book_type check ──
 {
   const GATE = sgCodeRaw;
-  check('8. export gate imports isFictionProject from projectType.js', GATE.includes("import { isFictionProject } from './projectType.js'"));
+  // NFEXPORT-BIB-1 (Arc G) added isNonfictionProject to the same import line —
+  // isFictionProject is still imported from the one authority either way.
+  check('8. export gate imports isFictionProject from projectType.js', /import \{[^}]*\bisFictionProject\b[^}]*\} from '\.\/projectType\.js'/.test(GATE));
   check('9. both promotions gate on isFictionProject(project)', (GATE.match(/isFictionProject\(project\)/g) || []).length >= 2);
   check('10. no new book_type literal comparison was introduced', !/book_type\s*===\s*['"]fiction['"]/.test(GATE) && !/book_type\s*!==\s*['"]fiction['"]/.test(GATE));
 }
