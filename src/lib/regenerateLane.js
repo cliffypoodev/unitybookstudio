@@ -79,6 +79,66 @@ function stripSentenceInitialWords(text) {
     .join(' ');
 }
 
+// REGENLANE-1C: every defect the built-in detectors + extraDetectors find
+// inside ONE paragraph, with no one-per-paragraph exclusivity — unlike
+// collectRegenTargets, which lets only the first detector to claim a
+// paragraph report anything. Two uses: (a) the lane prompt names every
+// defect in the paragraph, not just the one that happened to claim it
+// first (finding 27); (b) each defect's `mustNotContain` becomes part of
+// the verifier's defect-remains check (finding 28) — the specific template
+// key / echo gram / banned word a detector supplies, or the flagged
+// sentence verbatim when a detector doesn't supply anything narrower
+// (true for the malformed-sentence kinds, which ARE the sentence-level
+// defect).
+function collectAllDefectsInParagraph(paragraph, opts = {}) {
+  const { cast = [], departed = [], extraDetectors = [] } = opts;
+  const p = String(paragraph || '');
+  const findings = [];
+  const push = (kind, sentence, reason, mustNotContain) => {
+    const list = Array.isArray(mustNotContain)
+      ? mustNotContain.filter(Boolean)
+      : (mustNotContain ? [mustNotContain] : (sentence ? [sentence] : []));
+    findings.push({ kind, sentence, reason, mustNotContain: list });
+  };
+
+  for (const f of scanMalformedSentences(p, cast)) push(f.kind, f.sentence, f.kind, f.sentence);
+
+  for (const d of scanDuplicateIntroductions(p, cast)) {
+    for (const excerpt of (d.excerpts || []).slice(1)) {
+      push('duplicate-introduction', excerpt, `${d.name} introduces themselves again (${d.count}x total)`, excerpt);
+    }
+  }
+
+  if (Array.isArray(departed) && departed.length) {
+    const nameAlt = departed.filter(Boolean).map(escapeRx).join('|');
+    if (nameAlt) {
+      const rx = new RegExp(`^[“"'’]*\\s*(${nameAlt})\\b`);
+      for (const raw of splitSentencesForDedupe(p)) {
+        const s = String(raw || '').trim();
+        if (!s) continue;
+        const m = s.match(rx);
+        if (m) push('departed-active', s, `${m[1]} appears active after departing`, s);
+      }
+    }
+  }
+
+  for (const det of (Array.isArray(extraDetectors) ? extraDetectors : [])) {
+    let found = [];
+    try { found = det(p) || []; } catch { found = []; }
+    for (const f of found) {
+      push(f?.kind || 'custom', f?.sentence || '', f?.reason || f?.kind || 'custom', f?.mustNotContain || f?.sentence);
+    }
+  }
+
+  const seen = new Set();
+  return findings.filter((f) => {
+    const key = f.kind + '::' + f.reason;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /**
  * Collect regeneration targets: at most one per paragraph, first detector to
  * claim a paragraph wins, capped at `maxUnits`.
@@ -89,7 +149,7 @@ function stripSentenceInitialWords(text) {
  * `extraDetectors` are `(text) => [{ kind, sentence, reason }]` functions for
  * later arcs (banned vocabulary, template families, fragments, arc restarts).
  *
- * @returns {Array<{kind, sentence, paragraphIndex, paragraph, reason}>}
+ * @returns {Array<{kind, sentence, paragraphIndex, paragraph, reason, defects, mustNotContain}>}
  */
 export function collectRegenTargets(text, opts = {}) {
   const {
@@ -109,7 +169,13 @@ export function collectRegenTargets(text, opts = {}) {
     if (targets.length >= maxUnits) return false;
     if (paragraphIndex < 0 || claimed.has(paragraphIndex)) return false;
     claimed.add(paragraphIndex);
-    targets.push({ kind, sentence, paragraphIndex, paragraph: paragraphs[paragraphIndex], reason });
+    const paragraph = paragraphs[paragraphIndex];
+    // REGENLANE-1C: every defect in this paragraph, not just the one that
+    // claimed it — feeds the prompt's DEFECTS list and the verifier's
+    // mustNotContain check.
+    const defects = collectAllDefectsInParagraph(paragraph, { cast, departed, extraDetectors });
+    const mustNotContain = [...new Set(defects.flatMap((d) => d.mustNotContain))];
+    targets.push({ kind, sentence, paragraphIndex, paragraph, reason, defects, mustNotContain });
     return true;
   };
 
@@ -163,7 +229,7 @@ export function collectRegenTargets(text, opts = {}) {
  * Deterministic verdict on a regenerated paragraph. ALL checks must pass.
  */
 export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
-  const { cast = [], priorProse = [], departed = [], rescan = null } = opts;
+  const { priorProse = [], departed = [], rescan = null, mustNotContain = [] } = opts;
   const orig = String(original || '');
   const cand = String(candidate || '').trim();
   if (!cand) return { ok: false, reason: 'empty' };
@@ -171,9 +237,23 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   // (1) exactly one paragraph.
   if (/\n{2,}/.test(cand)) return { ok: false, reason: 'paragraph-count' };
 
-  // (2) length envelope.
-  const ratio = cand.length / Math.max(1, orig.trim().length);
-  if (ratio < 0.6 || ratio > 1.6) return { ok: false, reason: 'length-ratio' };
+  // (2) length envelope. REGENLANE-1C: a short original (a template-phrase
+  // fragment like "Indifferent." or "For now, it had to be.") cannot be
+  // replaced with a concrete, specific detail inside 0.6-1.6x of a dozen
+  // characters — live, this rejected every short-paragraph regeneration
+  // outright. Originals under 120 chars get a wider ratio window (0.5-3.0x)
+  // OR an absolute +100-char allowance, whichever passes; longer originals
+  // keep the tight 0.6-1.6x ratio.
+  const origLen = orig.trim().length;
+  const ratio = cand.length / Math.max(1, origLen);
+  // The +100-char allowance widens the UPPER bound only (rescuing a short
+  // template phrase expanded into a full concrete sentence) — it must never
+  // let a short original be gutted down to almost nothing, so the 0.5x
+  // floor still applies either way.
+  const ratioOk = origLen < 120
+    ? (ratio >= 0.5 && (ratio <= 3.0 || cand.length <= origLen + 100))
+    : (ratio >= 0.6 && ratio <= 1.6);
+  if (!ratioOk) return { ok: false, reason: 'length-ratio' };
 
   // (3) smart-quote imbalance no worse than the original.
   const imbalance = (s) => {
@@ -183,10 +263,38 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   };
   if (imbalance(cand) > imbalance(orig)) return { ok: false, reason: 'quote-balance' };
 
-  // (4) closed world: no new capitalized token beyond the original paragraph + cast.
-  const allowedCaps = new Set([...collectProperNouns(orig), ...cast]);
+  // (3b) REGENLANE-1C typography guard: live, accepted candidates introduced
+  // a straight quote the original never had (curly '’' -> straight "'") and
+  // a space jammed inside a smart quote ("“ Coolant circulating,”") — the
+  // export gate's "mixed straight and curly" hard block and the typographic
+  // scrub exist because of exactly this class of damage.
+  const straightQuoteCount = (s) => (String(s).match(/['"]/g) || []).length;
+  if (straightQuoteCount(cand) > straightQuoteCount(orig)) return { ok: false, reason: 'typography' };
+  if (/“\s/.test(cand) || /\s”/.test(cand)) return { ok: false, reason: 'typography' };
+
+  // (4) closed world: candidate proper nouns must be a SUBSET of the
+  // original paragraph's own — REGENLANE-1C tightened this from "original +
+  // cast", which let the model swap one cast member's name for another's
+  // (Rodge -> Roderick, live) since both were in the allowed set.
+  const allowedCaps = new Set(collectProperNouns(orig));
   for (const tok of collectProperNouns(stripSentenceInitialWords(cand))) {
     if (!allowedCaps.has(tok)) return { ok: false, reason: `new-proper-noun:${tok}` };
+  }
+
+  // (4b) REGENLANE-1C defect-remains: none of the specific content that
+  // trips a defect in this paragraph (a template key, an opening-echo gram,
+  // a banned word, or the flagged sentence itself for the malformed kinds)
+  // may still be present verbatim. Rescan (5) below runs the detectors
+  // fresh on the lone candidate — invisible to a template hit now under the
+  // per-paragraph chapter budget, or an echo gram, since a single paragraph
+  // is never "over budget" on its own. Live: "Zin looked at him, really
+  // looked at him..." was ACCEPTED after the model only swapped
+  // Rodge -> Roderick and kept "really looked" — rescan never saw it because
+  // one occurrence of a chapter-budget-1 family isn't over budget in
+  // isolation; this check catches the literal phrase directly.
+  for (const needle of (Array.isArray(mustNotContain) ? mustNotContain : [])) {
+    if (!needle) continue;
+    if (cand.toLowerCase().includes(String(needle).toLowerCase())) return { ok: false, reason: 'defect-remains' };
   }
 
   // (5) the rewrite must not still trip any detector.
@@ -240,7 +348,7 @@ function cleanLLMParagraph(raw) {
 }
 
 const SYSTEM = [
-  'You are line-editing ONE paragraph of a novel chapter. Rewrite the paragraph to fix exactly the defect named. Keep every event, name, object and fact. Keep dialogue quoted as it is unless the defect is inside it. Keep tense and point of view. Return exactly one paragraph, no commentary.',
+  'You are line-editing ONE paragraph of a novel chapter. Rewrite the paragraph to fix EVERY defect listed below — a rewrite that fixes only one and leaves another is not acceptable. Keep every event, name, object and fact. Keep dialogue quoted as it is unless a defect is inside it. Keep tense and point of view. Return exactly one paragraph, no commentary.',
 ].join('\n');
 
 /**
@@ -291,14 +399,20 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
 
   // SEQUENTIAL — one LLM call at a time, always.
   for (const target of targets) {
-    const { kind, sentence, paragraph } = target;
+    const { kind, sentence, paragraph, defects, mustNotContain } = target;
     if (!paragraph || countOccurrences(out, paragraph) !== 1) {
       skipped.push({ kind, sentence, reason: 'paragraph-not-unique' });
       continue;
     }
     onProgress(`Regen: rewriting a flagged paragraph (${label})…`);
 
-    const userPrompt = `DEFECT (${kind}): "${sentence}"\nKNOWN CAST: ${cast.join(', ')}\n${stateFacts}\n\nPARAGRAPH:\n${paragraph}`;
+    // REGENLANE-1C: every defect this paragraph carries, numbered — not
+    // just the one that happened to claim the paragraph first. A candidate
+    // that fixes the claiming defect but leaves a second one untouched
+    // still ships wrong; the model needs to see all of them.
+    const defectsList = (Array.isArray(defects) && defects.length) ? defects : [{ kind, sentence, reason: kind }];
+    const defectsBlock = defectsList.map((d, i) => `${i + 1}. ${d.reason}`).join('\n');
+    const userPrompt = `DEFECTS:\n${defectsBlock}\nKNOWN CAST: ${cast.join(', ')}\n${stateFacts}\n\nPARAGRAPH:\n${paragraph}`;
     let raw = null;
     try {
       let timer = null;
@@ -310,7 +424,7 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
     }
 
     const candidate = cleanLLMParagraph(raw);
-    const verdict = verifyRegeneratedParagraph(paragraph, candidate, { kind, cast, priorProse, departed, rescan });
+    const verdict = verifyRegeneratedParagraph(paragraph, candidate, { kind, priorProse, departed, rescan, mustNotContain });
     if (!verdict.ok) {
       console.warn(`[REGENLANE] rejected (${verdict.reason}): "${sentence.slice(0, 70)}"`);
       skipped.push({ kind, sentence, reason: verdict.reason });

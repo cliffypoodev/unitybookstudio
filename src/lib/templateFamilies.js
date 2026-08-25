@@ -151,6 +151,7 @@ export function makeTemplateFamilyDetector({ priorProse = [], budgets = TEMPLATE
       kind: 'template-family',
       sentence: hit.sentence,
       reason: `template "${hit.key}" (chapter budget ${budgets.find((f) => f.name === hit.family)?.chapterBudget}; book spend ${spentByFamily[hit.family]}/${budgets.find((f) => f.name === hit.family)?.bookBudget ?? '—'}) — replace the template phrase with a concrete, specific detail`,
+      mustNotContain: [hit.key], // REGENLANE-1C: the specific phrase, not the whole (rewritable) sentence
     }));
 }
 
@@ -273,6 +274,7 @@ export function makeOpeningEchoDetector({ priorOpenings = [], castNames = [] } =
           kind: 'opening-echo',
           sentence: para,
           reason: `opening echoes Ch.${prior.chapterNumber}'s opening ("${gram}") — open on a different image or action`,
+          mustNotContain: [gram], // REGENLANE-1C: the shared gram, not the whole (rewritable) paragraph
         }];
       }
     }

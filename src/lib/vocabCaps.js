@@ -508,7 +508,7 @@ export function detectBannedVocabulary(text) {
     for (const sentence of t.split(/(?<=[.!?…”])\s+/)) {
       rx.lastIndex = 0;
       if (rx.test(sentence)) {
-        targets.push({ kind: 'banned-vocab', sentence: sentence.trim(), reason: `banned word "${entry.word}"` });
+        targets.push({ kind: 'banned-vocab', sentence: sentence.trim(), reason: `banned word "${entry.word}"`, mustNotContain: [entry.word] }); // REGENLANE-1C
       }
     }
   }
