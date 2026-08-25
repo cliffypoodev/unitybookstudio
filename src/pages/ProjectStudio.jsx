@@ -42,7 +42,7 @@ import { calculateManuscriptStats, calculateManuscriptStatsNonfiction, isNonfict
 import { COMPACT_CRAFT_RULES, COMPACT_ANTI_SLOP } from '@/lib/craftCompact';
 import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { runWithNetworkRetry } from '@/lib/requestRetry';
-import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup, chapterHasPreviousVersion } from '@/lib/chapterStorage';
+import { prepareChapterContent, resolveChapterContent, chapterHasContent, prepareBackupContent, resolveBackupContent, chapterHasBackup, chapterHasPreviousVersion, findImmediatelyOlderVersion } from '@/lib/chapterStorage';
 import { verifiedChapterSave } from '@/lib/verifiedChapterSave';
 import { getSetting } from '@/lib/settingsRead'; // WAVE5-SETTINGS
 import { maybeAutoPolishChapter, maybeFinalCheckAfterPolish } from '@/lib/autoPolishHook'; // WAVE5-SETTINGS
@@ -1818,6 +1818,20 @@ export default function ProjectStudio() {
   const project = projectRows[0] || null;
   const selectedChapter = chapters.find((chapter) => chapter.id === selectedChapterId) || chapters[0] || null;
 
+  // VERSIONS-1B: chapterHasPreviousVersion is async (it may need a store
+  // round-trip for a chapter saved before VERSIONS-1 landed), so it cannot
+  // be called directly inside JSX render the way a sync check would be —
+  // compute it here and hand OutlineEditor a plain boolean.
+  const [hasPreviousVersion, setHasPreviousVersion] = React.useState(false);
+  React.useEffect(() => {
+    let cancelled = false;
+    if (!selectedChapter) { setHasPreviousVersion(false); return undefined; }
+    chapterHasPreviousVersion(selectedChapter).then((result) => {
+      if (!cancelled) setHasPreviousVersion(result);
+    });
+    return () => { cancelled = true; };
+  }, [selectedChapter?.id, selectedChapter?.content_md_url, selectedChapter?.previous_content_md_url]);
+
   // Destructive-generation safety helpers. Keep these AFTER project/chapters are initialized
   // to avoid React initialization-order crashes.
   const chapterHasPersistedManuscriptContent = (chapter) => Boolean(
@@ -3249,10 +3263,16 @@ Return structured JSON:
   };
 
   // VERSIONS-1: every save records previous_content_md_url (prepareChapterContent);
-  // this is the real save path back — through Chapter.update, verified the
-  // same way any other chapter save is, never a direct edit outside it.
+  // this is the real save path back — through Chapter.update (saveChapter's
+  // mutation), verified the same way any other chapter save is, never a
+  // direct edit outside it.
+  // VERSIONS-1B: a chapter saved before VERSIONS-1 landed never got
+  // previous_content_md_url — fall back to the version immediately before
+  // the current one in the store's own history (findImmediatelyOlderVersion).
+  // Still only ever a single saveChapter.mutateAsync call either way.
   const handleRestorePreviousVersion = async (chapter) => {
-    if (!chapter?.previous_content_md_url) {
+    const targetUrl = chapter?.previous_content_md_url || await findImmediatelyOlderVersion(chapter);
+    if (!targetUrl) {
       toast.error('No previous version to restore.');
       return;
     }
@@ -3263,11 +3283,11 @@ Return structured JSON:
         payload: {
           ...clearRichContentFields(),
           content_md: '',
-          content_md_url: chapter.previous_content_md_url,
+          content_md_url: targetUrl,
         },
       });
       if (chapter.id === selectedChapterId) {
-        const restored = await resolveChapterContent({ ...chapter, content_md: '', content_md_url: chapter.previous_content_md_url });
+        const restored = await resolveChapterContent({ ...chapter, content_md: '', content_md_url: targetUrl });
         setChapterDraft(restored);
       }
       await refreshAll();
@@ -6930,6 +6950,7 @@ Style Tic Sweep changed ${ps.styleTic.chaptersChanged} chapter(s).` : '') + (sav
                       toast.success('Original content restored.');
                     } : undefined}
                     onRestorePreviousVersion={selectedChapter ? () => handleRestorePreviousVersion(selectedChapter) : undefined}
+                    hasPreviousVersion={hasPreviousVersion}
                   />
                 </div>
               ),

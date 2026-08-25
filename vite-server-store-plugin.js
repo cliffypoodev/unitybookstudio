@@ -218,7 +218,7 @@ async function handleRequest(req, res, uid) {
   }
 
   // Read-only actions — no lock needed, serve directly from cache
-  if (action === 'list' || action === 'filter' || action === 'get') {
+  if (action === 'list' || action === 'filter' || action === 'get' || action === 'versions') {
     const store = loadStore(uid, entity);
     try {
       switch (action) {
@@ -239,6 +239,26 @@ async function handleRequest(req, res, uid) {
           const record = store.find(r => r.id === id);
           if (!record) return sendError(res, `${entity} with id ${id} not found`, 404);
           sendJSON(res, record);
+          break;
+        }
+        // VERSIONS-1B: version history by key prefix, metadata only. _FileStore
+        // is ~110MB — `list` sends every record's full content over the wire,
+        // which is exactly wrong for "does an older version of this one
+        // chapter exist" and would balloon the response for no reason. This
+        // filters server-side and never puts `content` in the response.
+        case 'versions': {
+          const body = await readBody(req);
+          const prefix = String(body?.prefix || '');
+          if (!prefix) return sendError(res, 'Missing prefix');
+          const results = store
+            .filter((r) => typeof r?.id === 'string' && r.id.startsWith(prefix))
+            .map((r) => ({
+              id: r.id,
+              created_date: r.created_date || null,
+              bytes: typeof r.content === 'string' ? Buffer.byteLength(r.content, 'utf8') : 0,
+            }))
+            .sort((a, b) => a.id.localeCompare(b.id));
+          sendJSON(res, results);
           break;
         }
       }

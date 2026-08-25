@@ -205,6 +205,21 @@ export async function retrieveFile(key) {
   }
 }
 
+/**
+ * VERSIONS-1B: every version of a file ever stored under `keyPrefix`,
+ * metadata only (never content — the server-side `versions` action never
+ * puts it in the response). Sorted by id ascending (the id embeds a
+ * zero-padded YYYYMMDDHHMMSS timestamp, so this is chronological order).
+ * @returns {Promise<Array<{id, created_date, bytes}>>}
+ */
+export async function listFileVersions(keyPrefix) {
+  try {
+    return await serverFetch('_FileStore', 'versions', { body: { prefix: keyPrefix } });
+  } catch {
+    return [];
+  }
+}
+
 export async function isLocalFileUrl(url) {
   return url && typeof url === 'string' && url.startsWith('local://');
 }

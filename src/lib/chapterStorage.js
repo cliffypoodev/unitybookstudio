@@ -13,6 +13,7 @@
  */
 
 import { base44 } from '@/api/base44Client';
+import { listFileVersions } from '@/lib/localDB'; // VERSIONS-1B
 
 // Base44 enforces a field size limit on content_md.
 // Chapters over this size must be uploaded as files and stored as content_md_url.
@@ -748,11 +749,49 @@ export function chapterHasBackup(chapter) {
 }
 
 /**
- * VERSIONS-1: does this chapter have a previous saved version to restore?
- * (previous_content_md_url is recorded by prepareChapterContent on every save.)
+ * VERSIONS-1B: every stored version of this chapter's content, oldest first
+ * (metadata only — id, created_date, bytes; never content). A chapter's
+ * _FileStore keys all share the `${projectId}/${chapterId}/` prefix
+ * (handleUploadToGitHub, base44Client.js) regardless of which save wrote them,
+ * so this finds every version ever saved, not just the immediately-previous one.
  */
-export function chapterHasPreviousVersion(chapter) {
-  return !!chapter?.previous_content_md_url;
+export async function listChapterVersions(chapter) {
+  const projectId = chapter?.project_id;
+  const chapterId = chapter?.id;
+  if (!projectId || !chapterId) return [];
+  return listFileVersions(`${projectId}/${chapterId}/`);
+}
+
+const stripLocalPrefix = (url) => String(url || '').replace(/^local:\/\//, '');
+
+/**
+ * VERSIONS-1B: the version immediately before `chapter`'s CURRENT
+ * content_md_url in the store's own history — the fallback restore target
+ * for a chapter saved before VERSIONS-1 landed (no previous_content_md_url
+ * recorded). History is sorted oldest-first; the current version's own key
+ * (and anything at or after it) is excluded — only strictly-older entries
+ * count, and the LAST of those (closest to current) is the answer. Returns
+ * a `local://` URL, or '' when there is nothing older.
+ */
+export async function findImmediatelyOlderVersion(chapter) {
+  const currentKey = stripLocalPrefix(chapter?.content_md_url);
+  if (!currentKey) return '';
+  const versions = await listChapterVersions(chapter);
+  const older = versions.filter((v) => v.id < currentKey);
+  if (!older.length) return '';
+  return `local://${older[older.length - 1].id}`;
+}
+
+/**
+ * VERSIONS-1 / VERSIONS-1B: does this chapter have a previous saved version
+ * to restore? True when previous_content_md_url was recorded directly (every
+ * save since VERSIONS-1), OR — for a chapter saved before VERSIONS-1 landed
+ * — when findImmediatelyOlderVersion finds one in the store's own history.
+ * Async: the history check is a server round-trip.
+ */
+export async function chapterHasPreviousVersion(chapter) {
+  if (chapter?.previous_content_md_url) return true;
+  return !!(await findImmediatelyOlderVersion(chapter));
 }
 
 export const chapterStorageVersion = CHAPTER_STORAGE_VERSION;
