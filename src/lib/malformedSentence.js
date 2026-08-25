@@ -20,6 +20,35 @@ const DROPPED_OPENERS = ['Was', 'Were', 'Had', 'Looked', 'Felt', 'Seemed', 'Stoo
 const DROPPED_OPENER_RX = new RegExp(`^(?:${DROPPED_OPENERS.join('|')})\\s+[a-z]`);
 const ECHO_VERBS = 'looked|stared|glanced|nodded|turned|smiled|gestured|pointed|gazed';
 
+// MALFORMEDSENT-2: common words ending in "s" that are not plural nouns —
+// excluded so they can never mask a genuine singular-subject agreement
+// error ("always were" is not a real sentence, but the exclusion costs
+// nothing and guards against future fixture drift).
+const PLURAL_NOUN_STOPWORDS = new Set([
+  'always', 'unless', 'towards', 'perhaps', 'besides', 'regardless',
+  'nonetheless', 'status', 'focus', 'bonus', 'campus', 'virus', 'across',
+  'outwards', 'thus', 'plus', 'less', 'this', 'was', 'has', 'yes',
+]);
+
+// MALFORMEDSENT-2: a plural common noun (lowercase, >= 4 letters, ends "s")
+// earlier in the SAME CLAUSE as the matched proper noun is the true
+// subject — "The few Union forces that did attempt to operate in Texas
+// were free" is not a Texas-were agreement error; "forces" is plural and
+// "were" agrees with it. Clause-scoped (split on the nearest comma /
+// semicolon / colon / em dash / open paren) so an EARLIER clause's plural
+// noun cannot mask a genuine singular-subject error in a LATER clause of
+// the same sentence.
+function clauseHasPluralCommonNoun(before) {
+  const boundary = Math.max(before.lastIndexOf(','), before.lastIndexOf(';'), before.lastIndexOf(':'), before.lastIndexOf('—'), before.lastIndexOf('('));
+  const clause = before.slice(boundary + 1);
+  const rx = /\b([a-z]{3,}s)\b/g;
+  let m;
+  while ((m = rx.exec(clause)) !== null) {
+    if (!PLURAL_NOUN_STOPWORDS.has(m[1])) return true;
+  }
+  return false;
+}
+
 function escapeRx(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 // Sentence splitter — abbreviation-aware, matches the app's other passes.
@@ -59,7 +88,7 @@ export function scanMalformedSentences(text, castNames = []) {
       const m = s.match(new RegExp(`(^|[.!?“”"'’\\s])((?:${nameAlt})|He|She|It)\\s+(?:were|weren['’]t)\\b`));
       if (m) {
         const before = s.slice(0, m.index + m[1].length).trim();
-        if (!/\b(?:and|&|,|nor|or|both|either|neither)\s*$/i.test(before)) push('agreement', s);
+        if (!/\b(?:and|&|,|nor|or|both|either|neither)\s*$/i.test(before) && !clauseHasPluralCommonNoun(before)) push('agreement', s);
       }
     }
 
