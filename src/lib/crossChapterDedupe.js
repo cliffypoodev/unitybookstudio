@@ -41,6 +41,26 @@ export function normalizeSentenceForDedupe(s) {
   return String(s || '').replace(/\s+/g, ' ').trim();
 }
 
+// REGENLANE-1D: models routinely answer in ASCII typewriter quotes even when
+// the manuscript is set in smart quotes throughout — live, 84 of 125 lane
+// rejections were the typography guard catching exactly that, not a real
+// defect. This is cleanup of the model's OWN output, never a prose edit: a
+// paired '"..."' becomes '"..."', a leading quote before a letter (an
+// opening quote — 'Tis, 'cause) becomes the opening curly mark, and every
+// remaining straight apostrophe (a contraction or possessive) becomes the
+// smart one. Single-sourced so regenerateLane.js and simileRecast.js can
+// never drift on what "the original's convention" means. Runs BEFORE the
+// verifier's typography guard, never after — normalizing what already
+// passed would be pointless, and the guard still catches anything left over
+// (a genuinely unpaired stray quote).
+export function normalizeModelTypography(text) {
+  let out = String(text || '');
+  out = out.replace(/"([^"]*)"/g, '“$1”');
+  out = out.replace(/(^|[\s(“])'(?=[A-Za-z])/g, '$1‘');
+  out = out.replace(/'/g, '’');
+  return out;
+}
+
 // REGENLANE-1: the closed-world proper-noun extractor, single-sourced. Used
 // both here (verifyRecastSentence) and by the regenerate lane
 // (verifyRegeneratedParagraph in regenerateLane.js) so "what counts as a

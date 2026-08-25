@@ -764,20 +764,36 @@ export async function listChapterVersions(chapter) {
 
 const stripLocalPrefix = (url) => String(url || '').replace(/^local:\/\//, '');
 
+// VERSIONS-1C: a chapter's key prefix holds TWO independent filename
+// families — `chapter-...` (uploadViaGitHub(..., 'chapter'), every real
+// content save) and `backup-...` (uploadViaGitHub(..., 'backup'),
+// prepareBackupContent's separate backup_content_url track). Because
+// "backup-" sorts lexically before "chapter-", a naive sort across every
+// key under the prefix can hand findImmediatelyOlderVersion a backup blob
+// as if it were the chapter's own oldest content version. A restore must
+// only ever walk within the current key's own family.
+function keyFamily(key) {
+  const basename = String(key || '').split('/').pop() || '';
+  const m = basename.match(/^([a-zA-Z0-9]+)-/);
+  return m ? m[1] : '';
+}
+
 /**
  * VERSIONS-1B: the version immediately before `chapter`'s CURRENT
  * content_md_url in the store's own history — the fallback restore target
  * for a chapter saved before VERSIONS-1 landed (no previous_content_md_url
  * recorded). History is sorted oldest-first; the current version's own key
  * (and anything at or after it) is excluded — only strictly-older entries
- * count, and the LAST of those (closest to current) is the answer. Returns
- * a `local://` URL, or '' when there is nothing older.
+ * IN THE SAME FILENAME FAMILY count (VERSIONS-1C), and the LAST of those
+ * (closest to current) is the answer. Returns a `local://` URL, or '' when
+ * there is nothing older.
  */
 export async function findImmediatelyOlderVersion(chapter) {
   const currentKey = stripLocalPrefix(chapter?.content_md_url);
   if (!currentKey) return '';
+  const currentFamily = keyFamily(currentKey);
   const versions = await listChapterVersions(chapter);
-  const older = versions.filter((v) => v.id < currentKey);
+  const older = versions.filter((v) => v.id < currentKey && keyFamily(v.id) === currentFamily);
   if (!older.length) return '';
   return `local://${older[older.length - 1].id}`;
 }

@@ -3270,6 +3270,10 @@ Return structured JSON:
   // previous_content_md_url — fall back to the version immediately before
   // the current one in the store's own history (findImmediatelyOlderVersion).
   // Still only ever a single saveChapter.mutateAsync call either way.
+  // VERSIONS-1C: a restore is itself a save, so it must record what it
+  // replaced too — otherwise a restore is a dead end (live: Ch.10's
+  // previous_content_md_url was empty right after a restore, so the restore
+  // itself could never be undone the same way).
   const handleRestorePreviousVersion = async (chapter) => {
     const targetUrl = chapter?.previous_content_md_url || await findImmediatelyOlderVersion(chapter);
     if (!targetUrl) {
@@ -3284,6 +3288,7 @@ Return structured JSON:
           ...clearRichContentFields(),
           content_md: '',
           content_md_url: targetUrl,
+          previous_content_md_url: chapter?.content_md_url || '',
         },
       });
       if (chapter.id === selectedChapterId) {

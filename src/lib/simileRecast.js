@@ -21,6 +21,7 @@ import {
   splitSentencesForDedupe,
   normalizeSentenceForDedupe,
   verifyRecastSentence,
+  normalizeModelTypography,
 } from './crossChapterDedupe.js';
 import { SIMILE_DENSITY_BUDGET_PER_1K, measureSimileDensity } from './aiSlopReduction.js';
 
@@ -53,6 +54,10 @@ function cleanLLMSentence(raw) {
   s = s.replace(/^(?:here(?:'s| is)[^:]*:|rewritten sentence:|recast:|new sentence:|plain version:)\s*/i, '');
   s = s.replace(/^```[a-z]*\n?|\n?```$/g, '').trim();
   s = s.split('\n')[0].trim();
+  // REGENLANE-1D: normalize the model's own typography to the manuscript's
+  // smart-quote convention BEFORE verifyRecastSentence's typography checks
+  // ever see it.
+  s = normalizeModelTypography(s);
   return s;
 }
 

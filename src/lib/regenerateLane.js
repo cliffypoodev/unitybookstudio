@@ -25,6 +25,7 @@ import {
   normalizeSentenceForDedupe,
   collectProperNouns,
   CROSS_DUPE_MIN_WORDS,
+  normalizeModelTypography,
 } from './crossChapterDedupe.js';
 import { SIMILE_RX } from './simileRecast.js';
 import { isNonfictionProject } from './projectType.js';
@@ -79,66 +80,6 @@ function stripSentenceInitialWords(text) {
     .join(' ');
 }
 
-// REGENLANE-1C: every defect the built-in detectors + extraDetectors find
-// inside ONE paragraph, with no one-per-paragraph exclusivity — unlike
-// collectRegenTargets, which lets only the first detector to claim a
-// paragraph report anything. Two uses: (a) the lane prompt names every
-// defect in the paragraph, not just the one that happened to claim it
-// first (finding 27); (b) each defect's `mustNotContain` becomes part of
-// the verifier's defect-remains check (finding 28) — the specific template
-// key / echo gram / banned word a detector supplies, or the flagged
-// sentence verbatim when a detector doesn't supply anything narrower
-// (true for the malformed-sentence kinds, which ARE the sentence-level
-// defect).
-function collectAllDefectsInParagraph(paragraph, opts = {}) {
-  const { cast = [], departed = [], extraDetectors = [] } = opts;
-  const p = String(paragraph || '');
-  const findings = [];
-  const push = (kind, sentence, reason, mustNotContain) => {
-    const list = Array.isArray(mustNotContain)
-      ? mustNotContain.filter(Boolean)
-      : (mustNotContain ? [mustNotContain] : (sentence ? [sentence] : []));
-    findings.push({ kind, sentence, reason, mustNotContain: list });
-  };
-
-  for (const f of scanMalformedSentences(p, cast)) push(f.kind, f.sentence, f.kind, f.sentence);
-
-  for (const d of scanDuplicateIntroductions(p, cast)) {
-    for (const excerpt of (d.excerpts || []).slice(1)) {
-      push('duplicate-introduction', excerpt, `${d.name} introduces themselves again (${d.count}x total)`, excerpt);
-    }
-  }
-
-  if (Array.isArray(departed) && departed.length) {
-    const nameAlt = departed.filter(Boolean).map(escapeRx).join('|');
-    if (nameAlt) {
-      const rx = new RegExp(`^[“"'’]*\\s*(${nameAlt})\\b`);
-      for (const raw of splitSentencesForDedupe(p)) {
-        const s = String(raw || '').trim();
-        if (!s) continue;
-        const m = s.match(rx);
-        if (m) push('departed-active', s, `${m[1]} appears active after departing`, s);
-      }
-    }
-  }
-
-  for (const det of (Array.isArray(extraDetectors) ? extraDetectors : [])) {
-    let found = [];
-    try { found = det(p) || []; } catch { found = []; }
-    for (const f of found) {
-      push(f?.kind || 'custom', f?.sentence || '', f?.reason || f?.kind || 'custom', f?.mustNotContain || f?.sentence);
-    }
-  }
-
-  const seen = new Set();
-  return findings.filter((f) => {
-    const key = f.kind + '::' + f.reason;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
 /**
  * Collect regeneration targets: at most one per paragraph, first detector to
  * claim a paragraph wins, capped at `maxUnits`.
@@ -148,6 +89,19 @@ function collectAllDefectsInParagraph(paragraph, opts = {}) {
  * (every self-intro after the first), departed cast acting in a sentence.
  * `extraDetectors` are `(text) => [{ kind, sentence, reason }]` functions for
  * later arcs (banned vocabulary, template families, fragments, arc restarts).
+ *
+ * REGENLANE-1D (finding 36): every detector above runs against the WHOLE
+ * chapter text `t`, not the isolated paragraph — that is precisely why a
+ * budget-based extraDetector (a template family, an opening echo) can fire
+ * here at all: its budget is measured across the chapter, and a single
+ * paragraph in isolation is never "over budget" on its own. Each target's
+ * `defects`/`mustNotContain` must therefore come from THESE chapter-level
+ * findings, grouped by which paragraph they landed in — never from a fresh
+ * re-scan of the lone paragraph, which throws that chapter-wide context
+ * away and silently ships `defects: []` for a target the chapter scan did
+ * flag (live: a Ch.2 target's DEFECTS list was empty and only a name got
+ * swapped; the actual defect — a template phrase — was never in the
+ * prompt).
  *
  * @returns {Array<{kind, sentence, paragraphIndex, paragraph, reason, defects, mustNotContain}>}
  */
@@ -164,33 +118,45 @@ export function collectRegenTargets(text, opts = {}) {
   const paragraphs = paragraphsOf(t);
   const claimed = new Set();
   const targets = [];
+  // Every finding any detector produced against the whole chapter,
+  // regardless of which one (if any) went on to claim its paragraph —
+  // grouped by paragraphIndex so a claimed paragraph's DEFECTS list carries
+  // ALL of the chapter-level findings that landed inside it, not just the
+  // claiming one.
+  const findingsByParagraph = new Map();
+
+  const recordFinding = (paragraphIndex, kind, sentence, reason, mustNotContain) => {
+    if (paragraphIndex < 0) return;
+    const list = Array.isArray(mustNotContain)
+      ? mustNotContain.filter(Boolean)
+      : (mustNotContain ? [mustNotContain] : (sentence ? [sentence] : []));
+    if (!findingsByParagraph.has(paragraphIndex)) findingsByParagraph.set(paragraphIndex, []);
+    const bucket = findingsByParagraph.get(paragraphIndex);
+    const key = kind + '::' + reason;
+    if (bucket.some((f) => (f.kind + '::' + f.reason) === key)) return;
+    bucket.push({ kind, sentence, reason, mustNotContain: list });
+  };
 
   const tryAdd = (kind, sentence, paragraphIndex, reason) => {
     if (targets.length >= maxUnits) return false;
     if (paragraphIndex < 0 || claimed.has(paragraphIndex)) return false;
     claimed.add(paragraphIndex);
-    const paragraph = paragraphs[paragraphIndex];
-    // REGENLANE-1C: every defect in this paragraph, not just the one that
-    // claimed it — feeds the prompt's DEFECTS list and the verifier's
-    // mustNotContain check.
-    const defects = collectAllDefectsInParagraph(paragraph, { cast, departed, extraDetectors });
-    const mustNotContain = [...new Set(defects.flatMap((d) => d.mustNotContain))];
-    targets.push({ kind, sentence, paragraphIndex, paragraph, reason, defects, mustNotContain });
+    targets.push({ kind, sentence, paragraphIndex, paragraph: paragraphs[paragraphIndex], reason });
     return true;
   };
 
   for (const f of scanMalformedSentences(t, cast)) {
-    if (targets.length >= maxUnits) break;
     const idx = findParagraphIndex(paragraphs, f.sentence);
+    recordFinding(idx, f.kind, f.sentence, f.kind, f.sentence);
     tryAdd(f.kind, f.sentence, idx, f.kind);
   }
 
   for (const d of scanDuplicateIntroductions(t, cast)) {
-    if (targets.length >= maxUnits) break;
     for (const excerpt of (d.excerpts || []).slice(1)) {
-      if (targets.length >= maxUnits) break;
       const idx = findParagraphIndex(paragraphs, excerpt, collapseWs);
-      tryAdd('duplicate-introduction', excerpt, idx, `${d.name} introduces themselves again (${d.count}x total)`);
+      const reason = `${d.name} introduces themselves again (${d.count}x total)`;
+      recordFinding(idx, 'duplicate-introduction', excerpt, reason, excerpt);
+      tryAdd('duplicate-introduction', excerpt, idx, reason);
     }
   }
 
@@ -199,37 +165,65 @@ export function collectRegenTargets(text, opts = {}) {
     if (nameAlt) {
       const rx = new RegExp(`^[“"'’]*\\s*(${nameAlt})\\b`);
       for (const raw of splitSentencesForDedupe(t)) {
-        if (targets.length >= maxUnits) break;
         const s = String(raw || '').trim();
         if (!s) continue;
         const m = s.match(rx);
         if (!m) continue;
         const idx = findParagraphIndex(paragraphs, s);
-        tryAdd('departed-active', s, idx, `${m[1]} appears active after departing`);
+        const reason = `${m[1]} appears active after departing`;
+        recordFinding(idx, 'departed-active', s, reason, s);
+        tryAdd('departed-active', s, idx, reason);
       }
     }
   }
 
   for (const det of (Array.isArray(extraDetectors) ? extraDetectors : [])) {
-    if (targets.length >= maxUnits) break;
     let found = [];
     try { found = det(t) || []; } catch { found = []; }
     for (const f of found) {
-      if (targets.length >= maxUnits) break;
       const sentence = f?.sentence || '';
       const idx = findParagraphIndex(paragraphs, sentence);
-      tryAdd(f?.kind || 'custom', sentence, idx, f?.reason || f?.kind || 'custom');
+      const kind = f?.kind || 'custom';
+      const reason = f?.reason || f?.kind || 'custom';
+      recordFinding(idx, kind, sentence, reason, f?.mustNotContain || sentence);
+      tryAdd(kind, sentence, idx, reason);
     }
   }
 
+  for (const target of targets) {
+    const defects = findingsByParagraph.get(target.paragraphIndex)
+      || [{ kind: target.kind, sentence: target.sentence, reason: target.reason, mustNotContain: target.sentence ? [target.sentence] : [] }];
+    target.defects = defects;
+    target.mustNotContain = [...new Set(defects.flatMap((d) => d.mustNotContain))];
+  }
+
   return targets;
+}
+
+// REGENLANE-1D (finding 38): cardinal number words the model might invent as
+// a fabricated fact ("thirty-seven beats per minute"). Ordinals ("second",
+// "third") are deliberately excluded — they show up constantly in ordinary
+// idiom ("a second later") and are not the failure mode finding 38 targets.
+const NUMBER_WORDS = [
+  'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen',
+  'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety',
+  'hundred', 'thousand', 'million', 'billion',
+];
+const NUMBER_WORD_RX = new RegExp(`\\b(?:${NUMBER_WORDS.join('|')})(?:-(?:${NUMBER_WORDS.join('|')}))?\\b`, 'gi');
+
+function collectNumberTokens(s) {
+  const text = String(s || '');
+  const digits = text.match(/\d+/g) || [];
+  const words = (text.match(NUMBER_WORD_RX) || []).map((w) => w.toLowerCase());
+  return new Set([...digits, ...words]);
 }
 
 /**
  * Deterministic verdict on a regenerated paragraph. ALL checks must pass.
  */
 export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
-  const { priorProse = [], departed = [], rescan = null, mustNotContain = [] } = opts;
+  const { cast = [], priorProse = [], departed = [], rescan = null, mustNotContain = [] } = opts;
   const orig = String(original || '');
   const cand = String(candidate || '').trim();
   if (!cand) return { ok: false, reason: 'empty' };
@@ -253,7 +247,11 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   const ratioOk = origLen < 120
     ? (ratio >= 0.5 && (ratio <= 3.0 || cand.length <= origLen + 100))
     : (ratio >= 0.6 && ratio <= 1.6);
-  if (!ratioOk) return { ok: false, reason: 'length-ratio' };
+  // REGENLANE-1D (finding 38): log the actual ratio on a length-ratio
+  // rejection — 27 live rejections looked like the model answering with
+  // one sentence instead of the whole paragraph, and there was no way to
+  // tell from the log alone.
+  if (!ratioOk) return { ok: false, reason: 'length-ratio', ratio: Number(ratio.toFixed(2)) };
 
   // (3) smart-quote imbalance no worse than the original.
   const imbalance = (s) => {
@@ -280,8 +278,33 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   for (const tok of collectProperNouns(stripSentenceInitialWords(cand))) {
     if (!allowedCaps.has(tok)) return { ok: false, reason: `new-proper-noun:${tok}` };
   }
+  // (4b) REGENLANE-1D (finding 37): a cast name (or its possessive) counts
+  // wherever it sits, sentence-initial included — the sentence-initial
+  // exemption above exists so an ordinary word opening a sentence isn't
+  // mistaken for a proper noun, but a cast member's own name is never
+  // ambiguous that way. Live: "Zin looked at him..." -> "Zinnia looked at
+  // him..." was ACCEPTED because "Zinnia" opened its sentence and got
+  // stripped from scrutiny; the candidate's cast names must be a subset of
+  // the ORIGINAL paragraph's own cast names present, full stop.
+  const castLower = new Set((Array.isArray(cast) ? cast : []).filter(Boolean).map((n) => String(n).toLowerCase()));
+  if (castLower.size) {
+    const origCastPresent = new Set(collectProperNouns(orig).filter((tok) => castLower.has(tok.toLowerCase())));
+    for (const tok of collectProperNouns(cand)) {
+      if (!castLower.has(tok.toLowerCase())) continue;
+      if (!origCastPresent.has(tok)) return { ok: false, reason: `new-proper-noun:${tok}` };
+    }
+  }
+  // (4c) REGENLANE-1D (finding 38): no new fact — a digit sequence or a
+  // cardinal number word the original paragraph didn't have. Live: an
+  // accepted rewrite invented "thirty-seven beats per minute, the same
+  // rhythm her grandmother had counted during her final days" — a fact with
+  // no source anywhere in the paragraph.
+  const origNumbers = collectNumberTokens(orig);
+  for (const num of collectNumberTokens(cand)) {
+    if (!origNumbers.has(num)) return { ok: false, reason: `new-number:${num}` };
+  }
 
-  // (4b) REGENLANE-1C defect-remains: none of the specific content that
+  // (4d) REGENLANE-1C defect-remains: none of the specific content that
   // trips a defect in this paragraph (a template key, an opening-echo gram,
   // a banned word, or the flagged sentence itself for the malformed kinds)
   // may still be present verbatim. Rescan (5) below runs the detectors
@@ -344,11 +367,16 @@ function cleanLLMParagraph(raw) {
   s = s.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
   s = s.replace(/^(?:here(?:'s| is)[^:]*:|rewritten paragraph:|paragraph:)\s*/i, '');
   s = s.replace(/^```[a-z]*\n?|\n?```$/g, '').trim();
-  return s.trim();
+  s = s.trim();
+  // REGENLANE-1D (finding 38): normalize the model's own typography to the
+  // manuscript's smart-quote convention BEFORE the verifier's typography
+  // guard ever sees it — cleanup of model output, not a prose edit.
+  s = normalizeModelTypography(s);
+  return s;
 }
 
 const SYSTEM = [
-  'You are line-editing ONE paragraph of a novel chapter. Rewrite the paragraph to fix EVERY defect listed below — a rewrite that fixes only one and leaves another is not acceptable. Keep every event, name, object and fact. Keep dialogue quoted as it is unless a defect is inside it. Keep tense and point of view. Return exactly one paragraph, no commentary.',
+  'You are line-editing ONE paragraph of a novel chapter. Rewrite the paragraph to fix EVERY defect listed below — a rewrite that fixes only one and leaves another is not acceptable. Return the COMPLETE paragraph, start to finish — never a single sentence, a fragment, or an excerpt. Keep every event, name, object and fact exactly as given; do not add any fact, number, name, backstory detail, or event that is not already in the paragraph. Keep dialogue quoted as it is unless a defect is inside it. Keep tense and point of view. Return exactly one paragraph, no commentary.',
 ].join('\n');
 
 /**
@@ -424,9 +452,10 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
     }
 
     const candidate = cleanLLMParagraph(raw);
-    const verdict = verifyRegeneratedParagraph(paragraph, candidate, { kind, priorProse, departed, rescan, mustNotContain });
+    const verdict = verifyRegeneratedParagraph(paragraph, candidate, { kind, cast, priorProse, departed, rescan, mustNotContain });
     if (!verdict.ok) {
-      console.warn(`[REGENLANE] rejected (${verdict.reason}): "${sentence.slice(0, 70)}"`);
+      const detail = verdict.ratio != null ? ` ratio=${verdict.ratio}` : '';
+      console.warn(`[REGENLANE] rejected (${verdict.reason}${detail}): "${sentence.slice(0, 70)}"`);
       skipped.push({ kind, sentence, reason: verdict.reason });
       continue;
     }
