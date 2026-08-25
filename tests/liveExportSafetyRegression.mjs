@@ -46,7 +46,7 @@ Action Plan:
 
 Julian dipped the brush into cerulean, watching the pigment dissolve into the medium with a deliberate slowness. The Unity Supported Living Services contract had been sitting on his desk for three weeks. Unity Media Solutions would handle the distribution. The care documentation was overdue, compliance documentation piling up in the corner.
 
-You was Julian talking about the painting or the deal? Was was it a failure, or was it something else?`;
+You was Julian talking about the painting or the deal? Was it a failure, or was it something else?`;
 
 const CLEAN_CHAPTER_1 = `Sarah pushed through the double doors and stopped. The gallery was empty at this hour, just her and the paintings. Fluorescent tubes hummed overhead, casting everything in a flat, institutional light.
 
@@ -108,7 +108,15 @@ console.log('\n── REGRESSION 2: All chapters contaminated ──');
   });
 
   assert(report.blocked === true, 'Export is BLOCKED (all contaminated)');
-  assert(report.hardFailures.length === 2, `Both chapters failed (got: ${report.hardFailures.length})`);
+  // GATEPROMOTE-1-RETIRE-LIVEEXPORT-REPORT-SHAPE-ASSERTIONS: identical text in
+  // both chapters also trips BOOKGATE-3 (verbatim cross-chapter duplication),
+  // which adds its own manuscript-level hardFailures entry alongside the two
+  // per-chapter ones — 3 total, not 2. That whole-manuscript check is correct
+  // behavior (this fixture is byte-identical in both chapters on purpose), so
+  // the expectation is corrected here rather than the gate.
+  assert(report.hardFailures.length === 3, `Both chapters failed, plus one manuscript-level BOOKGATE-3 entry (got: ${report.hardFailures.length})`);
+  assert(report.hardFailures.filter((f) => f.title !== 'Cross-chapter duplication').length === 2, 'Both chapters have their own per-chapter hard failure');
+  assert(report.hardFailures.some((f) => f.title === 'Cross-chapter duplication'), 'A manuscript-level BOOKGATE-3 cross-chapter duplication entry rides along');
 }
 
 // ── REGRESSION 3: Clean manuscript passes ──
@@ -164,7 +172,11 @@ console.log('\n── REGRESSION 5: Short/empty chapters skipped ──');
   });
 
   assert(report.blocked === false, 'Export NOT blocked');
-  assert(report.passed.some(p => p.skipped), 'Short chapter was skipped, not scanned');
+  // GATEPROMOTE-1-RETIRE-LIVEEXPORT-REPORT-SHAPE-ASSERTIONS: EXPORTSCRUB-1
+  // moved unscanned chapters out of `passed` into their own `skipped` bucket
+  // (a stub chapter no longer counts as "passed safety gate" — it was never
+  // scanned). Read the bucket the gate actually reports it in.
+  assert(report.skipped.some((s) => s.chapterNumber === 1 && s.skipped), 'Short chapter was skipped, not scanned');
 }
 
 // ── REGRESSION 6: Extracted (4).docx Chapter 2 if available ──
