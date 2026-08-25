@@ -102,6 +102,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   const warnings = [];
   const passed = [];
   const skipped = [];
+  let gatePromoteCount = 0; // GATEPROMOTE-1: incremented at every promotion site (CHARSTATE-1 + MALFORMEDSENT-1)
 
   for (const ch of chapters) {
     const content = ch?.content_md || '';
@@ -658,6 +659,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
           snippets: [],
         });
         console.warn(`[GATEPROMOTE] Ch.${ch?.chapter_number}: MALFORMEDSENT-1 promoted to hard block`);
+        gatePromoteCount += 1;
       } else {
         warnings.push({
           chapterNumber: ch?.chapter_number,
@@ -744,6 +746,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   // character — live: Sadie in ch.11). Warnings, not hard blocks: both need
   // an author decision (write the return / fix the sentence), and the fix is
   // a redraft, not a mechanical repair.
+  let charstateViolationCount = 0;
   try {
     const canonCastForState = parseCanonCast(project?.characters_md);
     const orderedChapters = [...chapters]
@@ -760,6 +763,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         const declaredHere = extractBeatDeclaredStateUpdates(orderedChapters[i].beatEvents, stateCastNames).returns;
         const violations = auditProseAgainstCharacterState(orderedChapters[i].text, priorState, stateCastNames, { declaredReturns: declaredHere });
         for (const violation of violations) {
+          charstateViolationCount += 1;
           console.warn(`[CHARSTATE] Ch.${orderedChapters[i].chapterNumber}: ${violation.code} — ${violation.name}`);
           // GATEPROMOTE-1: in fiction, a resurrection (a departed character
           // acting with no written return) or a duplicate cross-chapter
@@ -781,6 +785,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
               snippets: [],
             });
             console.warn(`[GATEPROMOTE] Ch.${orderedChapters[i].chapterNumber}: ${violation.code} promoted to hard block`);
+            gatePromoteCount += 1;
           } else {
             warnings.push({
               chapterNumber: orderedChapters[i].chapterNumber,
@@ -794,6 +799,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     if (canonCastForState.length) {
       for (const ch of orderedChapters) {
         for (const drift of scanRoleReferenceDrift(ch.text, canonCastForState, stateCastNames)) {
+          charstateViolationCount += 1;
           warnings.push({
             chapterNumber: ch.chapterNumber,
             title: ch.title,
@@ -806,6 +812,12 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   } catch (stateError) {
     console.warn('[CHARSTATE] Gate telemetry failed (non-fatal):', stateError?.message || stateError);
   }
+  // GATEPROMOTE-1B: finding 20 — the promotion/violation console lines were
+  // silent at zero, so a live proof could not tell "ran clean" from "never
+  // ran" (same class as finding 17). Summary lines next to the other
+  // "Gate scan:" lines.
+  console.log(`[CHARSTATE] Gate scan: ${charstateViolationCount} violation(s)`);
+  console.log(`[GATEPROMOTE] Gate scan: ${gatePromoteCount} promotion(s) across ${chapters.length} chapter(s)`);
 
   const blocked = hardFailures.length > 0;
 

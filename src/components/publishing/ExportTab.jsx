@@ -817,8 +817,13 @@ export default function ExportTab({
       // ── PRE-EXPORT SAFETY GATE (STRICT) ──
       // Scan all resolved chapters for process leaks, contamination, and dialogue issues.
       // HARD BLOCK: Do not produce DOCX if any chapter has hard failures.
-      // This gate runs AFTER surface repair, so repaired text is what gets checked.
-      const safetyReport = await runPreExportSafetyGate(cleaned, { project, stage: 'pre-export' });
+      // EXPORTSCRUB-2: this used to gate on `cleaned` — text `applyFinalExportCleanup`
+      // had already regex-edited — so the live verdict could differ from what the
+      // same offline check produces on the stored chapter (Arc E live-proof finding
+      // 19: a duplicate-phrase survivor silently fixed REDUX Ch.5's glued "Is itIs
+      // it" before the gate ever saw it). The gate sees the STORED text now; export
+      // cleanup is typography-only and does not change what the gate finds.
+      const safetyReport = await runPreExportSafetyGate(resolved, { project, stage: 'pre-export' });
 
       assertExportSafetyAllowed(safetyReport);
 
@@ -1555,71 +1560,6 @@ function closeOddDoubleQuoteParagraphs(text = '', changes = []) {
   return after;
 }
 
-function thinSongbirdStyleTics(text = '', changes = []) {
-  // Deterministic manuscript-level tic thinning. Kept conservative:
-  // - Preserves the first few uses of core motifs.
-  // - Replaces only repeated phrasing, not plot content.
-  let out = String(text || '');
-
-  const replaceAfter = (pattern, keep, replacements, label) => {
-    let seen = 0;
-    let idx = 0;
-    const before = out;
-    out = out.replace(pattern, (match) => {
-      seen += 1;
-      if (seen <= keep) return match;
-      const repl = replacements[idx % replacements.length];
-      idx += 1;
-      return typeof repl === 'function' ? repl(match) : repl;
-    });
-    if (out !== before) changes.push(label);
-  };
-
-  replaceAfter(/\bcold knot\b/g, 2, [
-    'hard pressure',
-    'tightness',
-    'cold weight',
-    'small stone',
-    'dense pressure',
-  ], 'thinned repeated cold-knot tic');
-
-  replaceAfter(/\bmouth was dry\b/g, 1, [
-    'throat felt dry',
-    'tongue felt thick',
-    'mouth felt papery',
-    'throat tightened',
-  ], 'thinned repeated mouth-was-dry tic');
-
-  replaceAfter(/\bmouth went dry\b/g, 0, [
-    'throat tightened',
-    'tongue felt thick',
-  ], 'thinned repeated mouth-went-dry tic');
-
-  replaceAfter(/\bA memory surfaced, (?:unbidden|irrelevant and sharp|unbidden and useless|unbidden, irrelevant)\b/g, 1, [
-    'A memory rose',
-    'A memory returned',
-    'A memory came back',
-  ], 'thinned repeated memory-surfaced-unbidden tic');
-
-  replaceAfter(/\bThe silence was a physical presence\b/g, 1, [
-    'The silence pressed close',
-    'The silence thickened around her',
-  ], 'thinned repeated silence-physical-presence tic');
-
-  replaceAfter(/\bnot quite ([^.,;:\n]{1,60}), not quite ([^.,;:\n]{1,60})/gi, 1, [
-    (_m) => 'a feeling with no clean name',
-    (_m) => 'something between the two',
-    (_m) => 'some unnamed middle state',
-  ], 'thinned repeated not-quite/not-quite construction');
-
-  replaceAfter(/\bnot quite ([^.!?\n]{1,60})\.\s+not quite ([^.!?\n]{1,60})\./gi, 1, [
-    (_m) => 'Something between the two.',
-    (_m) => 'Some unnamed middle state.',
-  ], 'thinned repeated not-quite sentence pair construction');
-
-  return out;
-}
-
 function thinSongbirdStyleTicsAcrossChapters(chapters = [], enabled = true) {
   if (!enabled) return chapters;
 
@@ -1834,121 +1774,41 @@ function runExportTextSafetyNet(text = '', project = {}, options = {}) {
   const before = out;
   const changes = [];
 
-  const artifact1 = repairManuscriptArtifacts(out, {
-    project,
-    forceSongbirdAliases: options.forceSongbirdAliases === true,
-  });
-  out = artifact1?.text || out;
-  if (artifact1?.changed) changes.push(...(artifact1.changes || ['artifact repair']));
-
-  // IMPORTANT:
-  // Do NOT run quoteFixPolish during export.
-  // The stored chapter body may already contain valid smart quotes. The quote
-  // fixer is useful during controlled polish flows, but when it runs over a full
-  // exported chapter snapshot it can remove opening quotes, jam quote spacing,
-  // and create duplicate fragments such as YesYes/NoNo/GoodGood.
-  //
-  // Export should only apply deterministic alias/mechanical cleanup.
-  const artifact2 = repairManuscriptArtifacts(out, {
-    project,
-    forceSongbirdAliases: options.forceSongbirdAliases === true,
-  });
-  out = artifact2?.text || out;
-  if (artifact2?.changed) changes.push(...(artifact2.changes || ['final artifact repair']));
+  // EXPORTSCRUB-2: repairManuscriptArtifacts carries dozens of rules written
+  // for one book's cast (Iris, Pauline, Langston, Cross, Clara, Cora, Duke,
+  // Sol) and specific lines. It ran twice, unconditionally, on every export.
+  // Nothing may regex-edit prose a project did not ask for — same rule as
+  // every other book-specific pass in this file (isSongbirdExportProject
+  // below). One gated call, not two.
+  if (exportRuleEnabled(project, 'songbird')) {
+    const artifact = repairManuscriptArtifacts(out, {
+      project,
+      forceSongbirdAliases: options.forceSongbirdAliases === true,
+    });
+    out = artifact?.text || out;
+    if (artifact?.changed) changes.push(...(artifact.changes || ['artifact repair']));
+  }
 
   // Safe final quote edge repair only: close unmatched smart openings; do not move attribution/narration.
   out = closeOddDoubleQuoteParagraphs(out, changes);
 
-  // Conservative manuscript-level tic thinning for export quality. This does not mutate DB records.
-  out = thinSongbirdStyleTics(out, changes);
-
   // Repair any apostrophe spacing inherited from earlier exports before applying survivor rules.
   out = normalizeSmartApostropheSpacing(out);
 
-  // Export-only hard survivors. These are intentionally narrow and do not mutate DB records.
+  // Export-only survivors, always on. Typographic normalisation only.
+  // EXPORTSCRUB-2: every word-level mutation and manuscript-named line edit
+  // that used to run here unconditionally is gone. The gate's own detectors
+  // (BOOKGATE-2 glued/duplicate-word, MALFORMEDSENT-1) and REGENLANE-1 own
+  // detecting and regenerating malformed, glued-word, and duplicate-phrase
+  // prose now — masking it here just hid it from them. Arc E live-proof
+  // finding 19: the "duplicate short phrase" rule below (now deleted) rewrote
+  // REDUX Ch.5's stored "Is itIs it" glued word to "Is it" at export time, so
+  // the live gate never saw the defect the offline gate correctly blocks on.
   const rules = [
-    // Repair duplicates created by earlier quote/export passes if they already exist
-    // in saved content. Do not create or move quote marks here.
-    [/\b(Yes|No|Good|Fine|Okay|Sure|Please|Thanks)\1\b/g, '$1', 'duplicate short reply word'],
-    [/\b(I know|I see|Is it|Do what|What|Why|How|When|Where|Who|A new challenge)\1\b/g, '$1', 'duplicate short phrase'],
-    [/\bThank youThank you\b/g, 'Thank you.', 'duplicate Thank you'],
-    [/\bI doubt thatI doubt that\b/g, 'I doubt that.', 'duplicate I doubt that'],
-    [/\bAren[’']t youAren[’']t you\b/g, 'Aren’t you?', 'duplicate Aren’t you'],
-
     // Stubborn plural possessive jam only. Single quoted phrase spacing is handled
     // by addSafeSpaceAfterClosingSingleQuotes() so contractions inside quotes
     // like ‘I don’t hear anything’ are not split into don’ t.
     [/\b([A-Za-z]+s)[’'](?=([a-z]{2,}))\b/g, '$1’ ', 'space after plural possessive apostrophe'],
-
-    // Stubborn orphan dialogue openers. Keep narrow and do not run broad quote repair.
-    // EXPORTSCRUB-1: four "missing opener" rules were deleted here. Each inserted an
-    // opening quote before a fixed phrase wherever it followed whitespace — including
-    // when that phrase was the tail of an already-correct quoted line. Proven:
-    //   in : “You kept the letters safe. Thank you.”
-    //   out: “You kept the letters safe. “Thank you.”   (2 open, 1 close)
-    // applyFinalExportCleanup runs BEFORE runPreExportSafetyGate, so the gate then
-    // hard-blocked the book for unclosed dialogue the export path had just created,
-    // reproducibly, with no way for the author to clear it.
-
-    // Mechanical survivors only.
-    [/\bThe coffee, when it came was\b/g, 'The coffee, when it came, was', 'missing comma: coffee came'],
-    [/\bShe sat took out\b/g, 'She sat, took out', 'missing comma: sat took'],
-    [/\bPauline opened a drawer took out\b/g, 'Pauline opened a drawer, took out', 'missing comma: drawer took'],
-    [/\b([Hh]e|[Ss]he) said cutting through\b/g, '$1 said, cutting through', 'missing comma: said cutting through'],
-    [/\bif the window opened it\b/g, 'if the window opened', 'window opened it'],
-    [/\bif the door opened it\b/g, 'if the door opened', 'door opened it'],
-    [/\bThe door opened it\b/g, 'The door opened', 'The door opened it'],
-    [/\bthe door opened it\b/g, 'the door opened', 'the door opened it'],
-    [/\bThe window opened it\b/g, 'The window opened', 'The window opened it'],
-    [/\bthe window opened it\b/g, 'the window opened', 'the window opened it'],
-    [/\b((?:[A-Z][A-Za-z]+|[A-Z][A-Za-z]+[’']s|[Hh]er|[Hh]is|[Tt]he [a-z]+[’']s)) mouth opened it\b/g, '$1 mouth opened', 'mouth opened it'],
-    [/\broom was small dominated by\b/g, 'room was small, dominated by', 'missing comma: small dominated'],
-    [/\bvoice high clear cut\b/g, 'voice, high and clear, cut', 'missing commas: voice high clear cut'],
-    [/\bvoice low urgent cutting through\b/g, 'voice low and urgent, cutting through', 'missing comma: urgent cutting through'],
-    [/\bThe room was small dominated by\b/g, 'The room was small, dominated by', 'missing comma: room small dominated'],
-    [/\bIt was\. Preparation\./g, 'It was preparation.', 'It was. Preparation'],
-    [/\bHe said the words as if tasting them\b/g, 'He spoke as if tasting the words', 'he said words tic'],
-    [/\bHe said it like a headline\b/g, 'He delivered it like a headline', 'he said headline tic'],
-    [/\bHe said it without malice\b/g, 'His tone held no malice', 'he said without malice tic'],
-    [/\bHe said it without inflection\b/g, 'His voice held no inflection', 'he said without inflection tic'],
-    [/“Was it not\?”\s+It[’']s not about volume\.”/g, '“Was it not?” “It’s not about volume.”', 'final climax quote-edge survivor: volume'],
-    [/“How do I play a silence\?”\s+You don[’']t play it\./g, '“How do I play a silence?” “You don’t play it.', 'final climax quote-edge survivor: silence opener'],
-    [/fail\. The failure is the point\.”/g, 'fail. The failure is the point.”', 'final climax quote-edge survivor: silence closer'],
-    [/\bwho smelled always of hair tonic and nervous sweat played\b/g, 'who always smelled of hair tonic and nervous sweat, played', 'Marty comma/order repair'],
-    [/\bHe nodded took a beat\b/g, 'He nodded, took a beat', 'missing comma: nodded took'],
-    [/\bzips the duffel doesn’t look at her\b/g, 'zips the duffel, doesn’t look at her', 'missing comma: duffel action'],
-
-
-
-    // Manual-quality line-edit survivors from clean Songbird exports.
-    // These are narrow grammar/typography fixes, not quote reconstruction.
-    [/\bLillian Hellman is a clever woman\. She builds a box onstage puts\b/g, 'Lillian Hellman is a clever woman. She builds a box onstage, puts', 'manual line edit: Hellman onstage comma'],
-    [/\bTennessee Williams’s the Glass Menagerie\b/g, 'Tennessee Williams’s The Glass Menagerie', 'manual line edit: capitalize Glass Menagerie title'],
-    [/\bThe current production in rehearsal appears to be a domestic drama\b/g, 'The current production appears to be a domestic drama', 'manual line edit: report wording'],
-    [/\bthe head of the theatre department, a Miss Pauline Carter was\b/g, 'the head of the theatre department, Miss Pauline Carter, was', 'manual line edit: Pauline Carter appositive'],
-    [/\bThe director, Mr\. Henderson is\b/g, 'The director, Mr. Henderson, is', 'manual line edit: Henderson appositive comma'],
-    [/\bsunlight, thick and golden with dust fell\b/g, 'sunlight, thick and golden with dust, fell', 'manual line edit: dust comma'],
-    [/\bshe took a breath held it\b/gi, 'she took a breath, held it', 'manual line edit: breath comma'],
-    [/\bShe took another drag held the smoke\b/g, 'She took another drag, held the smoke', 'manual line edit: drag comma'],
-    [/\bThe smell of fresh bread, usually a comfort turned\b/g, 'The smell of fresh bread, usually a comfort, turned', 'manual line edit: comfort comma'],
-    [/\bthe other play, the one in her bag seemed\b/g, 'the other play, the one in her bag, seemed', 'manual line edit: bag comma'],
-    [/\bwith a sudden, somatic certainty would not hold\b/g, 'with a sudden, somatic certainty, would not hold', 'manual line edit: certainty comma'],
-    [/\bolder than she’d seemed in the shadow maybe mid-thirties\b/g, 'older than she’d seemed in the shadow, maybe mid-thirties', 'manual line edit: shadow comma'],
-    [/\bthe man, Davies turned to leave\b/g, 'the man, Davies, turned to leave', 'manual line edit: Davies appositive comma'],
-    [/\bthe theatre is the Ethel Barrymore\b/g, 'the theatre is the Ethel Barrymore Theatre', 'manual line edit: theatre name'],
-    [/\bTennessee Williams play\b/g, 'Tennessee Williams play', 'manual line edit placeholder no-op'],
-
-    // v15: last narrow mechanical survivors from Songbird 17.
-    [/\bsunlight, thick and golden with dust fell\b/gi, 'sunlight, thick and golden with dust, fell', 'manual line edit v15: dust comma any case'],
-    [/\bthe smell of fresh bread, usually a comfort turned\b/gi, 'the smell of fresh bread, usually a comfort, turned', 'manual line edit v15: comfort comma any case'],
-    [/\bforced a breath in held it\b/gi, 'forced a breath in, held it', 'manual line edit v15: breath-in comma'],
-    [/\btook another drag held the smoke\b/gi, 'took another drag, held the smoke', 'manual line edit v15: drag comma any case'],
-    [/\beyes, in this light were\b/gi, 'eyes, in this light, were', 'manual line edit v15: in-this-light comma'],
-    [/\bActor’s Studio crowd—They felt\b/g, 'Actor’s Studio crowd—they felt', 'manual line edit v15: lower em-dash continuation'],
-    [/\bThe Children’s Hour\. Yes\.\s+”\s*“And\?\s*”\s*“It’s… a well-made play\./g, 'The Children’s Hour. Yes.”\n“And?”\n“It’s… a well-made play.', 'manual line edit v15: restore And? dialogue line'],
-    [/\bThe Children’s Hour\. Yes\. ” “And\? ” “It’s… a well-made play\./g, 'The Children’s Hour. Yes.”\n“And?”\n“It’s… a well-made play.', 'manual line edit v15: restore And? dialogue line compact'],
-    [/\bthe man, Davies turned to leave\b/gi, 'the man, Davies, turned to leave', 'manual line edit v15: Davies appositive any case'],
-    [/\bMr\. Henderson is Thursday\b/g, 'Mr. Henderson is Thursday', 'manual line edit v15 placeholder: Henderson sentence is correct'],
 
     // Spacing around double smart quotes only.
     // DO NOT include the single smart apostrophe (’) here. Treating ’ as a
@@ -1964,13 +1824,61 @@ function runExportTextSafetyNet(text = '', project = {}, options = {}) {
     out = next;
   }
 
-  // Final sniper repair for the remaining Songbird climax paragraph. This only
-  // inserts the missing opening quote before Pauline's answer; it does not run
-  // broad quote reconstruction.
-  out = out.replace(
-    /“How do I play a silence\?”\s+You don[’']t play it\./g,
-    '“How do I play a silence?” “You don’t play it.'
-  );
+  // EXPORTSCRUB-2: everything below names Songbird's cast or lines (Pauline,
+  // Marty, Hellman, Davies, Henderson, the Glass Menagerie/Ethel Barrymore
+  // references) or rewrites one exact sentence found only in that manuscript's
+  // climax. Opt-in only, same rule as the sniper repair and isSongbirdExportProject.
+  if (exportRuleEnabled(project, 'songbird')) {
+    const songbirdRules = [
+      [/\bPauline opened a drawer took out\b/g, 'Pauline opened a drawer, took out', 'missing comma: drawer took'],
+      [/\bIt was\. Preparation\./g, 'It was preparation.', 'It was. Preparation'],
+      [/“Was it not\?”\s+It[’']s not about volume\.”/g, '“Was it not?” “It’s not about volume.”', 'final climax quote-edge survivor: volume'],
+      [/“How do I play a silence\?”\s+You don[’']t play it\./g, '“How do I play a silence?” “You don’t play it.', 'final climax quote-edge survivor: silence opener'],
+      [/fail\. The failure is the point\.”/g, 'fail. The failure is the point.”', 'final climax quote-edge survivor: silence closer'],
+      [/\bwho smelled always of hair tonic and nervous sweat played\b/g, 'who always smelled of hair tonic and nervous sweat, played', 'Marty comma/order repair'],
+
+      // Manual-quality line-edit survivors from clean Songbird exports.
+      [/\bLillian Hellman is a clever woman\. She builds a box onstage puts\b/g, 'Lillian Hellman is a clever woman. She builds a box onstage, puts', 'manual line edit: Hellman onstage comma'],
+      [/\bTennessee Williams’s the Glass Menagerie\b/g, 'Tennessee Williams’s The Glass Menagerie', 'manual line edit: capitalize Glass Menagerie title'],
+      [/\bThe current production in rehearsal appears to be a domestic drama\b/g, 'The current production appears to be a domestic drama', 'manual line edit: report wording'],
+      [/\bthe head of the theatre department, a Miss Pauline Carter was\b/g, 'the head of the theatre department, Miss Pauline Carter, was', 'manual line edit: Pauline Carter appositive'],
+      [/\bThe director, Mr\. Henderson is\b/g, 'The director, Mr. Henderson, is', 'manual line edit: Henderson appositive comma'],
+      [/\bsunlight, thick and golden with dust fell\b/g, 'sunlight, thick and golden with dust, fell', 'manual line edit: dust comma'],
+      [/\bshe took a breath held it\b/gi, 'she took a breath, held it', 'manual line edit: breath comma'],
+      [/\bShe took another drag held the smoke\b/g, 'She took another drag, held the smoke', 'manual line edit: drag comma'],
+      [/\bThe smell of fresh bread, usually a comfort turned\b/g, 'The smell of fresh bread, usually a comfort, turned', 'manual line edit: comfort comma'],
+      [/\bthe other play, the one in her bag seemed\b/g, 'the other play, the one in her bag, seemed', 'manual line edit: bag comma'],
+      [/\bwith a sudden, somatic certainty would not hold\b/g, 'with a sudden, somatic certainty, would not hold', 'manual line edit: certainty comma'],
+      [/\bolder than she’d seemed in the shadow maybe mid-thirties\b/g, 'older than she’d seemed in the shadow, maybe mid-thirties', 'manual line edit: shadow comma'],
+      [/\bthe man, Davies turned to leave\b/g, 'the man, Davies, turned to leave', 'manual line edit: Davies appositive comma'],
+      [/\bthe theatre is the Ethel Barrymore\b/g, 'the theatre is the Ethel Barrymore Theatre', 'manual line edit: theatre name'],
+
+      // v15: last narrow mechanical survivors from Songbird 17.
+      [/\bsunlight, thick and golden with dust fell\b/gi, 'sunlight, thick and golden with dust, fell', 'manual line edit v15: dust comma any case'],
+      [/\bthe smell of fresh bread, usually a comfort turned\b/gi, 'the smell of fresh bread, usually a comfort, turned', 'manual line edit v15: comfort comma any case'],
+      [/\bforced a breath in held it\b/gi, 'forced a breath in, held it', 'manual line edit v15: breath-in comma'],
+      [/\btook another drag held the smoke\b/gi, 'took another drag, held the smoke', 'manual line edit v15: drag comma any case'],
+      [/\beyes, in this light were\b/gi, 'eyes, in this light, were', 'manual line edit v15: in-this-light comma'],
+      [/\bActor’s Studio crowd—They felt\b/g, 'Actor’s Studio crowd—they felt', 'manual line edit v15: lower em-dash continuation'],
+      [/\bThe Children’s Hour\. Yes\.\s+”\s*“And\?\s*”\s*“It’s… a well-made play\./g, 'The Children’s Hour. Yes.”\n“And?”\n“It’s… a well-made play.', 'manual line edit v15: restore And? dialogue line'],
+      [/\bThe Children’s Hour\. Yes\. ” “And\? ” “It’s… a well-made play\./g, 'The Children’s Hour. Yes.”\n“And?”\n“It’s… a well-made play.', 'manual line edit v15: restore And? dialogue line compact'],
+      [/\bthe man, Davies turned to leave\b/gi, 'the man, Davies, turned to leave', 'manual line edit v15: Davies appositive any case'],
+    ];
+
+    for (const [rx, replacement, label] of songbirdRules) {
+      const next = out.replace(rx, replacement);
+      if (next !== out) changes.push(label);
+      out = next;
+    }
+
+    // Final sniper repair for the remaining Songbird climax paragraph. This only
+    // inserts the missing opening quote before Pauline's answer; it does not run
+    // broad quote reconstruction.
+    out = out.replace(
+      /“How do I play a silence\?”\s+You don[’']t play it\./g,
+      '“How do I play a silence?” “You don’t play it.'
+    );
+  }
 
   out = addSafeSpaceAfterClosingSingleQuotes(out);
   out = normalizeSmartApostropheSpacing(out);
