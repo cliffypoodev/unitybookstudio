@@ -94,5 +94,22 @@ const finStart = WRITER.indexOf('export async function finalizeChapterProse');
 const FIN = WRITER.slice(finStart, WRITER.indexOf('\n}\n', finStart));
 check('23. the writer runs the repair on the shipping artifact (after the simile cap, before the article heal)', FIN.includes("repairDroppedSubjects(finalProse, { project, label: 'writer-final', maxRepairs: 20 })") && FIN.indexOf('repairDroppedSubjects') > FIN.indexOf('healSimileDensity') && FIN.indexOf('repairDroppedSubjects') < FIN.indexOf('fixIndefiniteArticles'));
 
+// ── 6. zero-target telemetry (REGENLANE-1B-ZERO-TARGET-TELEMETRY) ──
+// A run that finds no dropped subject must say so, so a live proof can tell
+// "ran clean" from "never ran" (Arc D live-proof finding 17).
+{
+  const cleanText = 'Zin walked into the room and sat down at the table quietly.';
+  const lines = [];
+  const origLog = console.log;
+  console.log = (...args) => { lines.push(args.join(' ')); };
+  let result;
+  try {
+    result = await repairDroppedSubjects(cleanText, { castNames: CAST, label: 'zero-target-test' });
+  } finally {
+    console.log = origLog;
+  }
+  check('24. zero targets logs "found 0" telemetry', result.found === 0 && lines.some((l) => l.includes('[SUBJECTREPAIR-1]') && l.includes('found 0')), JSON.stringify(lines));
+}
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);

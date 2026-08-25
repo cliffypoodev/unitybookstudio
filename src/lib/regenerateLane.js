@@ -271,7 +271,10 @@ export async function regenerateFlaggedParagraphs(text, opts = {}) {
   if (!original.trim()) return { text: original, regenerated: 0, skipped: [], targets: [] };
 
   const targets = collectRegenTargets(original, { cast, departed, extraDetectors, maxUnits });
-  if (!targets.length) return { text: original, regenerated: 0, skipped: [], targets: [] };
+  if (!targets.length) {
+    console.log(`[REGENLANE] ${label}: targets 0, regenerated 0, skipped 0`);
+    return { text: original, regenerated: 0, skipped: [], targets: [] };
+  }
 
   const beforeParagraphs = countParagraphs(original);
   let out = original;

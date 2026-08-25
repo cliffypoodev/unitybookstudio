@@ -176,5 +176,22 @@ check('1. version', REGENLANE_VERSION === 'regen-lane-v1');
   check("20. manuscriptPolishRunner.js has verifyInvariant('Regenerate Lane')", RUNNER.includes("verifyInvariant('Regenerate Lane')") && RUNNER.includes('regenerateFlaggedParagraphs'));
 }
 
+// ── 21. zero-target telemetry (REGENLANE-1B-ZERO-TARGET-TELEMETRY) ──
+// A run that finds nothing to regenerate must say so, so a live proof can
+// tell "ran clean" from "never ran" (Arc D live-proof finding 17).
+{
+  const text = 'Mara walked into the room and sat down at the table quietly.';
+  const lines = [];
+  const origLog = console.log;
+  console.log = (...args) => { lines.push(args.join(' ')); };
+  let result;
+  try {
+    result = await regenerateFlaggedParagraphs(text, { cast: CAST, project: { book_type: 'fiction' } });
+  } finally {
+    console.log = origLog;
+  }
+  check('21. zero targets logs "targets 0" telemetry', result.targets.length === 0 && lines.some((l) => l.includes('[REGENLANE]') && l.includes('targets 0')), JSON.stringify(lines));
+}
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);

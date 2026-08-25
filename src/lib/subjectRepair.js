@@ -224,7 +224,10 @@ export async function repairDroppedSubjects(text, opts = {}) {
   let out = String(text || '');
   const targets = findDroppedSubjectSentences(out);
   const skipped = [];
-  if (!targets.length) return { text: out, repaired: 0, skipped, found: 0 };
+  if (!targets.length) {
+    console.log(`[SUBJECTREPAIR-1] ${label}: found 0, repaired 0, skipped 0`);
+    return { text: out, repaired: 0, skipped, found: 0 };
+  }
 
   const callOne = callLLM || (async (userPrompt, systemPrompt, maxTokens) => {
     const agent = await getCallAgent();
