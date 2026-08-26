@@ -76,6 +76,7 @@ function makeFakeStore(project, chapters) {
   return {
     NovelProject: { get: async (id) => (id === project.id ? { ...project } : null) },
     Chapter: {
+      get: async (id) => chapterMap.get(id) || null,
       filter: async () => [...chapterMap.values()].sort((a, b) => a.chapter_number - b.chapter_number),
       update: async (id, fields) => {
         const merged = { ...chapterMap.get(id), ...fields, id };
@@ -120,6 +121,52 @@ const FIXTURE_CHAPTERS = [
     check('6c. the run state persists to disk under the scratch data dir (not data/)',
       loadRunState(dataDir, result.runId) !== null);
     check('7. chapters ran strictly sequentially, in chapter_number order', JSON.stringify(callOrder) === JSON.stringify([1, 2, 3]));
+  } finally {
+    fs.rmSync(dataDir, { recursive: true, force: true });
+  }
+}
+
+// ── 7b. ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS: paragraphCount is read from
+// the chapter's actually-stored content (via store.Chapter.get), not from
+// runChapterDraftFn's raw pre-save return value — proven by having the mock
+// return one paragraph count while separately updating the fake store with a
+// DIFFERENT (already-"normalized") paragraph count, the same divergence the
+// real chapterOrchestrator.js/prepareChapterContent pipeline can produce ──
+{
+  const dataDir = mkScratchDir('ubs-runner1-paracount-');
+  try {
+    const store = makeFakeStore(FIXTURE_PROJECT, [FIXTURE_CHAPTERS[0]]);
+    const mockRunChapterDraft = async ({ chapter }) => {
+      // Raw return value looks like ONE paragraph (no \n{2,} run) ...
+      const rawContent = 'First line.\n   \nSecond line.';
+      // ... but simulate the real save pipeline normalizing that
+      // whitespace-only line into a real blank-line paragraph break before
+      // it lands in the store, exactly like chapterStorage.js's
+      // normalizeText does.
+      await store.Chapter.update(chapter.id, { content_md: rawContent.replace(/\n[ \t]+\n/g, '\n\n') });
+      return { content: rawContent, status: 'drafted' };
+    };
+    const result = await runDraftCommand({ projectId: 'proj-1', store, runChapterDraft: mockRunChapterDraft, deps: {}, dataDir, log: () => {} });
+    check('7b. paragraphCount reflects the stored (normalized) content, not the raw pre-save return value',
+      result.state.chapters['ch-1']?.paragraphCount === 2, JSON.stringify(result.state.chapters['ch-1']));
+  } finally {
+    fs.rmSync(dataDir, { recursive: true, force: true });
+  }
+}
+
+// ── 7c. a chapter saved URL-backed (no content_md) omits paragraphCount
+// rather than recording a wrong count against an empty string ──
+{
+  const dataDir = mkScratchDir('ubs-runner1-urlbacked-');
+  try {
+    const store = makeFakeStore(FIXTURE_PROJECT, [FIXTURE_CHAPTERS[0]]);
+    const mockRunChapterDraft = async ({ chapter }) => {
+      await store.Chapter.update(chapter.id, { content_md: '', content_md_url: 'local://big-chapter-blob' });
+      return { content: 'a very long chapter that ended up stored by URL', status: 'drafted' };
+    };
+    const result = await runDraftCommand({ projectId: 'proj-1', store, runChapterDraft: mockRunChapterDraft, deps: {}, dataDir, log: () => {} });
+    check('7c. a URL-backed chapter (empty content_md) omits paragraphCount instead of recording 0',
+      result.state.chapters['ch-1']?.status === 'done' && !('paragraphCount' in (result.state.chapters['ch-1'] || {})), JSON.stringify(result.state.chapters['ch-1']));
   } finally {
     fs.rmSync(dataDir, { recursive: true, force: true });
   }

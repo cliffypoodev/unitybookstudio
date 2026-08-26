@@ -154,7 +154,10 @@ const CLEAN_FICTION_PROJECT = { book_type: 'fiction', characters_md: CHAR_BIBLE,
 {
   const anthologyProject = {
     book_type: 'nonfiction', project_type: 'anthology', anthology_theme: 'lost expeditions', characters_md: '',
-    research_data: 'Dr. Alaric Voss led the harbor excavation in Port Ellis during the summer months of that year, cataloguing dozens of artifacts.\n\nProfessor Ines Calloway surveyed the ridge near Blackwater Pass, mapping the old mining tunnels in careful detail over several weeks.',
+    // research_md is the field the live app (and this script) actually
+    // resolves prose from — resolveResearchContent treats anything under
+    // 600 chars as a stub, so this is deliberately padded well past that.
+    research_md: 'Dr. Alaric Voss led the harbor excavation in Port Ellis during the summer months of that year, cataloguing dozens of artifacts recovered from the silted harbor floor and the surrounding warehouses that once served the old shipping trade in that stretch of coastline, work that would later be cited in three separate regional histories of the port.\n\nProfessor Ines Calloway surveyed the ridge near Blackwater Pass, mapping the old mining tunnels in careful detail over several weeks, noting the collapsed sections and the equipment left behind by crews who had abandoned the site decades earlier without any formal record of why, a mystery the survey team could only partially resolve from surviving company ledgers.',
   };
   const chapters = [
     makeChapter(1, 'Case A: The Harbor Excavation', 'x'.repeat(150), { beat_summary: 'Dr. Alaric Voss led the harbor excavation in Port Ellis.' }),
@@ -170,7 +173,7 @@ const CLEAN_FICTION_PROJECT = { book_type: 'fiction', characters_md: CHAR_BIBLE,
 {
   const anthologyProject = {
     book_type: 'nonfiction', project_type: 'anthology', anthology_theme: 'lost expeditions', characters_md: '',
-    research_data: 'Dr. Alaric Voss led the harbor excavation in Port Ellis during the summer months of that year, cataloguing dozens of artifacts found near the old pier.',
+    research_md: 'Dr. Alaric Voss led the harbor excavation in Port Ellis during the summer months of that year, cataloguing dozens of artifacts found near the old pier and logging each one in a leather-bound notebook that later became part of the state archive, alongside photographs and hand-drawn site maps recording exactly where every item had been recovered from the silted harbor floor, a record that archivists still consult today when questions arise about the site chronology, since so much of the original excavation paperwork was lost when the regional office relocated twice in the decades that followed the original dig, leaving the notebook as one of the few surviving primary sources historians can still cite directly.',
   };
   const chapters = [makeChapter(1, 'Case A: The Harbor Excavation', 'x'.repeat(150), { beat_summary: 'Dr. Alaric Voss led the harbor excavation in Port Ellis.' })];
   const report = await withCapturedConsole(() => buildAcceptanceReport({ project: anthologyProject, chapters }));
@@ -226,6 +229,88 @@ const CLEAN_FICTION_PROJECT = { book_type: 'fiction', characters_md: CHAR_BIBLE,
 
 // ── 9. version constant present ──
 check('9. UBS_ACCEPT_VERSION is exported', typeof UBS_ACCEPT_VERSION === 'string' && UBS_ACCEPT_VERSION.length > 0);
+
+// ── 10. ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS: a plain-paragraph
+// character bio (no headings/lists/bold — harvestCastNames' sheet-only
+// regex yields nothing for this shape) must NOT silently disable departed-
+// character detection — the cast has to fall back to prose discovery. ──
+{
+  const plainBioProject = { book_type: 'fiction', characters_md: 'Priya is the dive coordinator. Marcus is the boat captain.', title: 'Plain Bio Book' };
+  // harvestCastNames' prose-prominence fallback (Source 2) only admits a
+  // name once it appears at least 12 times across the supplied bodies — a
+  // real threshold this fixture has to actually clear, not merely gesture
+  // at, for the fix to be exercised rather than accidentally short-circuited
+  // by a different code path.
+  const priyaIntro = 'Priya had run this boat longer than anyone else aboard. Priya knew every reef by name, and Priya never once forgot a diver underwater. Everyone on the crew trusted Priya completely, and Priya had earned every bit of it over the years. Priya kept a logbook of every dive, and Priya read it over most evenings before sleep, the way Priya always had since her very first season on the water.';
+  const chapters = [
+    makeChapter(1, 'Chapter 1', `${priyaIntro}\n\nPriya pressed the regulator into Marcus’s hands. “You need someone else.” They watched Priya go, a small figure against the pier.\n\nThe dock swallowed her outline, and Priya was gone. The boat felt larger and quieter than it had any right to feel that particular morning, long after the wake had settled.`),
+    makeChapter(2, 'Chapter 2', 'The shop smelled of salt and diesel that morning, the same as it always did on a slow weekday. Priya fidgeted near the counter, her eyes darting toward the exit every few seconds.\n\nMarcus rang up the order without a word, still thinking about the regulator Priya had left behind on the bench.'),
+  ];
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project: plainBioProject, chapters }));
+  const c = findCriterion(report, 'departed-character');
+  check('10. a plain-paragraph character bio still catches a departed-character violation (cast falls back to prose discovery)', c.status === 'FAIL', JSON.stringify(c));
+}
+
+// ── 11. ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS: quote-balance must not let
+// a scanned front-matter chapter's .structural entry mask a BODY chapter
+// that hard-failed earlier in the gate's own pipeline (before it ever
+// reached the structural-integrity check) and so was never actually
+// assessed for quote balance. ──
+{
+  const longEnoughFrontMatter = 'This book is the product of years of careful, patient work by everyone involved in its making. '.repeat(3);
+  const severelyUnbalanced = '“'.repeat(40) + 'Something happened here without any closing quotes at all in this entire chapter of text that goes on for a while.';
+  const project = { book_type: 'fiction', characters_md: CHAR_BIBLE, title: 'Quote Balance Edge Case', target_chapter_words: 100000 };
+  const chapters = [
+    makeChapter(0, 'Foreword', longEnoughFrontMatter),
+    makeChapter(1, 'Chapter 1', severelyUnbalanced),
+  ];
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project, chapters }));
+  const c = findCriterion(report, 'quote-balance');
+  check('11. a body chapter that hard-fails before the structural check is never silently counted as balanced', c.status === 'FAIL', JSON.stringify(c));
+}
+
+// ── 12. ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS: an NF chapter that trips a
+// critical process-leak hard failure (nothing to do with time/date claims)
+// must not be misattributed as a TEMPORAL-1 violation just because it shares
+// the same {chapterNumber, recommendedAction: 'REJECT_REGENERATE'} shape. ──
+{
+  const nfProject = { book_type: 'nonfiction', characters_md: '', title: 'Process Leak NF Book' };
+  const leakedChapter = 'Here is the revised opening section as you requested, incorporating the changes discussed above. '.repeat(3);
+  const chapters = [makeChapter(1, 'Introduction', leakedChapter)];
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project: nfProject, chapters }));
+  const gateCriterion = findCriterion(report, 'gate');
+  const temporalCriterion = findCriterion(report, 'temporal');
+  check('12. the process-leak fixture actually fails the export gate (sanity check on the fixture itself)', gateCriterion.status === 'FAIL', JSON.stringify(gateCriterion));
+  check('12b. a process-leak hard failure is not misattributed as a TEMPORAL-1 violation', temporalCriterion.status === 'PASS', JSON.stringify(temporalCriterion));
+}
+
+// ── 13. ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS: EVENT_CLASS_REPLAY is no
+// longer a blanket N/A — a chapter that re-stages (with fresh wording) an
+// event a PRIOR chapter's own persisted beat contract already completed
+// must FAIL, reconstructed from chapter.scene_beats_json (which the store
+// actually has), using the live app's own detection functions. ──
+{
+  const arrivalEvent = 'A rival salvage team arrives, led by a ruthless collector who knows the crew’s true identities.';
+  const project = { book_type: 'fiction', characters_md: CHAR_BIBLE, title: 'Event Replay Book' };
+  const chapters = [
+    makeChapter(1, 'Chapter 1', 'Ottie tightened the last bolt on the manifold and wiped grease from her hands. The engine hummed back to life as Ludo watched from the doorway, arms crossed, saying nothing at all for a long moment.', {
+      scene_beats_json: JSON.stringify([{ scene_id: 's1', required_events: [arrivalEvent] }]),
+    }),
+    makeChapter(2, 'Chapter 2', 'Ottie looked at the chip in her hand.\n\nThe rival team did not so much arrive as they did unfold, like a complex origami crane made of rusted steel and bad intentions. Three vehicles crunched over the dry scrub outside.'),
+  ];
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project, chapters }));
+  const c = findCriterion(report, 'event-class-replay');
+  check('13. a cross-chapter event re-stage (from a persisted beat contract) FAILs event-class-replay', c.status === 'FAIL', JSON.stringify(c));
+}
+
+// ── 13b. a book with no persisted beat contracts at all reports
+// event-class-replay PASS (nothing to detect), not a false FAIL ──
+{
+  const chapters = buildCleanFictionChapters();
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project: CLEAN_FICTION_PROJECT, chapters }));
+  const c = findCriterion(report, 'event-class-replay');
+  check('13b. a book with no scene_beats_json anywhere PASSes event-class-replay (no ledger to violate)', c.status === 'PASS', JSON.stringify(c));
+}
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
