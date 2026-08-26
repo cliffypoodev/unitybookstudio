@@ -587,14 +587,14 @@ const routerHealSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 //      even with modelsOk false - and the 5-minute cooldown then refused the
 //      next heal ({"healed":false,"reason":"cooldown"}), so three retries hit
 //      a dead router and the chapter lost its critique pass.
-// Fixes: poll the port until it is genuinely free before relaunching; poll
-// /v1/models until the router actually serves (a 35B cold load takes far
-// longer than the old 5s); retry the spawn once if the first never binds;
-// report healed = modelsOk, never a bare PID; and let the cooldown be bypassed
-// when the router is NOT serving - a cooldown exists to stop thrashing, not to
-// prevent recovery from a dead router.
-const ROUTERHEAL_PORT_FREE_MS = 20000;
-const ROUTERHEAL_SERVING_MS = 90000;
+// These two failures are why recovery must poll the port until it is
+// genuinely free before relaunching, poll /v1/models until the router
+// actually serves (a 35B cold load takes far longer than the old 5s), retry
+// the spawn once if the first never binds, report healed = modelsOk (never a
+// bare PID), and let the cooldown be bypassed when the router is NOT serving
+// - a cooldown exists to stop thrashing, not to prevent recovery from a dead
+// router. ROUTERHEAL-3 (below) is what actually does this polling and
+// retrying now, out of process in the detached shell script - not here.
 const ROUTERHEAL_MIN_INTERVAL_MS = 45000;
 
 // ROUTERHEAL-3 — the recovery runs OUT OF PROCESS.
