@@ -149,6 +149,18 @@ console.warn = originalWarn;
   const updateBlock = src.slice(src.indexOf("case 'update'"), src.indexOf("case 'delete'"));
   check('7. checkUrlwriteGuard1 is wired into case \'create\' exactly once', (createBlock.match(/checkUrlwriteGuard1\(/g) || []).length === 1);
   check('7b. checkUrlwriteGuard1 is wired into case \'update\' exactly once', (updateBlock.match(/checkUrlwriteGuard1\(/g) || []).length === 1);
+
+  // Adversarial-review finding: the enclosing switch's own `finally { release(); }`
+  // already releases the per-entity mutex exactly once when a case returns early —
+  // an explicit `release();` right before the guard's `return` would fire it TWICE,
+  // letting a second queued Chapter request acquire the lock while the first is
+  // still mid-response (a real, reproduced double-grant, not theoretical). Pin the
+  // guard's rejection line to call release() zero times, not once, so this can't
+  // silently regress back to the double-release shape.
+  const guardRejectLines = [...createBlock.matchAll(/if \(guardError\) \{ ([^}]+) \}/g), ...updateBlock.matchAll(/if \(guardError\) \{ ([^}]+) \}/g)];
+  check('8. the guard\'s early return does not manually release the mutex (the enclosing finally already does, exactly once)',
+    guardRejectLines.length === 2 && guardRejectLines.every((m) => !/\brelease\(\)/.test(m[1])),
+    JSON.stringify(guardRejectLines.map((m) => m[1])));
 }
 
 fs.rmSync(TMP, { recursive: true, force: true });

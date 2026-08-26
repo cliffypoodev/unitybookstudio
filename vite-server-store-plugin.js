@@ -385,7 +385,7 @@ async function handleRequest(req, res, uid) {
         };
         if (entity === 'Chapter') {
           const guardError = checkUrlwriteGuard1(uid, record);
-          if (guardError) { release(); return sendError(res, guardError, 422); }
+          if (guardError) { return sendError(res, guardError, 422); }
         }
         store.push(record);
         cache[storeKey(uid, entity)] = store;
@@ -407,7 +407,7 @@ async function handleRequest(req, res, uid) {
         };
         if (entity === 'Chapter') {
           const guardError = checkUrlwriteGuard1(uid, updated);
-          if (guardError) { release(); return sendError(res, guardError, 422); }
+          if (guardError) { return sendError(res, guardError, 422); }
         }
         store[idx] = updated;
         cache[storeKey(uid, entity)] = store;
