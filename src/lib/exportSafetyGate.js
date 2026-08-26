@@ -762,18 +762,24 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   // was never in any bible field, and no gate ever fired ([PRONOUNLOCK]
   // "2 unresolved" was the only trace). Fiction only — NF already has its
   // own closed-world check via NFEXPORT-BIB-1 above.
+  // NAMEGATE-1B (finding 54): cast is SHEET-ONLY — harvestCastNames() with no
+  // prose bodies. The prose-augmented cast used before this fix treats any
+  // name mentioned >= 12 times as "cast," which silently absorbed the exact
+  // fabricated names this gate exists to catch (live: Henderson, Halvard both
+  // became "cast" this way and the gate found 0 unknown persons on all 20
+  // chapters). Evidence is bible-only for the same reason — see
+  // buildFictionEvidence's own doc comment.
   try {
     if (isFictionProject(project)) {
-      const ngBodies = chapters.map((ch) => String(ch?.content_md || '')).filter((body) => body.length > 200);
-      const ngCast = harvestCastNames(options?.project?.characters_md, ngBodies);
-      const ngEvidence = buildFictionEvidence(project, { chapters });
+      const ngCast = harvestCastNames(options?.project?.characters_md, []);
+      const ngEvidence = buildFictionEvidence(project, { chapters: [] });
       for (const ch of chapters) {
         const body = String(ch?.content_md || '');
         if (body.length <= 200) continue;
         const unknowns = findUnknownPersons(body, { evidence: ngEvidence, cast: ngCast });
         console.log(`[NAMEGATE-1] Gate scan: Ch.${ch?.chapter_number} ${unknowns.length} unknown person(s)`);
         for (const u of unknowns) {
-          const reason = `NAMEGATE-1: "${u.name}" (${u.count} mention(s)) is not in the bible or cast`;
+          const reason = `NAMEGATE-1: "${u.name}" (${u.mentions} mention(s), ${u.count} signal(s)) is not in the bible or cast`;
           // GATEPROMOTE-1: stays a warning until NAMEGATE_HARD_BLOCK is
           // flipped to true — do not flip it here.
           if (NAMEGATE_HARD_BLOCK) {

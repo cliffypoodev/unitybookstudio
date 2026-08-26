@@ -3152,7 +3152,12 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
       // NAMEGATE-1: no chapter objects (with beat summaries) are in scope
       // here, only raw prior-chapter prose strings — the evidence corpus is
       // built from the project's bible fields alone (chapters: []).
-      const unknownPersonDetector = makeUnknownPersonDetector({ project, cast, chapters: [] });
+      // NAMEGATE-1B (finding 54): `cast` above is prose-augmented (any name
+      // mentioned enough times counts) — exactly right for the OTHER checks
+      // in this block, wrong for NAMEGATE, which must judge a name against
+      // what the author actually declared. sheetCast is bible-only.
+      const sheetCast = harvestCastNames(project?.characters_md, []);
+      const unknownPersonDetector = makeUnknownPersonDetector({ project, cast: sheetCast, chapters: [] });
       const unknownPersonsNow = unknownPersonDetector(finalProse);
       console.log(`[NAMEGATE-1] writer-final: checked ${collectProperNouns(finalProse).length} proper noun(s), ${unknownPersonsNow.length} unknown person(s)`);
       unknownPersonsNow.forEach((u) => console.log(`[NAMEGATE-1] writer-final: ${u.reason}`));

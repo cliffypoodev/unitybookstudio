@@ -53,14 +53,25 @@ const SIGNALS = [
 ];
 
 /**
- * Build the padded, normalized evidence corpus for a FICTION project:
- * title, seed_concept, every `project[k]` ending in `_md` (characters_md,
- * world_md, canon_md, outline_md, voice_md, mystery_md, twists_md,
- * research_md, ...), canon_characters, and each chapter's title +
- * beat_summary + summary + scene_beats_json. Keys are discovered, never
- * hard-coded, so a new `_md` field is picked up automatically.
+ * Build the padded, normalized evidence corpus for a FICTION project: title,
+ * seed_concept, every `project[k]` ending in `_md` (characters_md, world_md,
+ * canon_md, outline_md, voice_md, mystery_md, twists_md, research_md, ...),
+ * and canon_characters. Keys are discovered, never hard-coded, so a new
+ * `_md` field is picked up automatically.
+ *
+ * NAMEGATE-1B (finding 54): the `chapters` parameter is accepted for API
+ * stability but deliberately NOT folded in, and every call site now passes
+ * `chapters: []`. Chapter `title` / `beat_summary` / `summary` /
+ * `scene_beats_json` are OUTLINE OUTPUT — generated downstream of the bible,
+ * not part of it — and folding them into evidence made the gate blind to
+ * the exact failure it exists to catch: live, the outline stage invented
+ * "Halvard" straight into two chapters' own `scene_beats_json`, and because
+ * that text counted as "evidence," findUnknownPersons treated the
+ * fabricated name as established and never flagged it. Evidence is the
+ * BIBLE only — what the author declared before any chapter existed.
  */
 export function buildFictionEvidence(project, { chapters = [] } = {}) {
+  void chapters; // intentionally unused — see NAMEGATE-1B note above
   const parts = [];
   if (project?.title) parts.push(String(project.title));
   if (project?.seed_concept) parts.push(String(project.seed_concept));
@@ -72,15 +83,13 @@ export function buildFictionEvidence(project, { chapters = [] } = {}) {
   if (project?.canon_characters) {
     parts.push(typeof project.canon_characters === 'string' ? project.canon_characters : JSON.stringify(project.canon_characters));
   }
-  for (const ch of (Array.isArray(chapters) ? chapters : [])) {
-    if (!ch) continue;
-    parts.push(String(ch.title || ''));
-    parts.push(String(ch.beat_summary || ''));
-    parts.push(String(ch.summary || ''));
-    const beats = ch.scene_beats_json;
-    if (beats) parts.push(typeof beats === 'string' ? beats : JSON.stringify(beats));
-  }
   return ' ' + normCW(parts.filter(Boolean).join(' ')) + ' ';
+}
+
+/** Whole-word occurrences of `name` in `text` — NAMEGATE-1B's "mentions" count. */
+function wholeWordMentions(text, name) {
+  const rx = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+  return (String(text || '').match(rx) || []).length;
 }
 
 /**
@@ -143,7 +152,14 @@ function scanCandidateNames(text) {
  * (possessive-part) and the name IS flagged — a place does not have a
  * shoulder, so that second occurrence is the real tell.
  *
- * @returns {Array<{name, count, signals: string[], paragraphIndex}>}
+ * NAMEGATE-1B (finding 55): `count` is signal HITS, not raw mentions of the
+ * name — a name can appear far more often than it carries a person signal
+ * (live: Ch.13 "Henderson," 33 whole-word mentions, only 21 with a signal
+ * nearby). `mentions` is added alongside `count` for exactly that reason;
+ * `count` is kept, unchanged, for callers already reading it as "signal
+ * hits" (the lane's rescan/defect-remains path does not care about mentions).
+ *
+ * @returns {Array<{name, count, mentions, signals: string[], paragraphIndex}>}
  */
 export function findUnknownPersons(prose, { evidence, cast = [] } = {}) {
   const text = String(prose || '');
@@ -160,7 +176,7 @@ export function findUnknownPersons(prose, { evidence, cast = [] } = {}) {
     if (castNorm.has(n)) continue;
     if (inEV(name)) continue;
     if (rec.allSentenceInitial && rec.signals.size === 1) continue;
-    results.push({ name, count: rec.count, signals: [...rec.signals], paragraphIndex: rec.firstParagraphIndex });
+    results.push({ name, count: rec.count, mentions: wholeWordMentions(text, name), signals: [...rec.signals], paragraphIndex: rec.firstParagraphIndex });
   }
   return results.sort((a, b) => a.paragraphIndex - b.paragraphIndex);
 }

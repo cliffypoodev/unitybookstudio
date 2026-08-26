@@ -973,7 +973,13 @@ export async function runManuscriptPolishPipeline({
     // NAMEGATE-1: built once (evidence computed once), reused across every
     // chapter in this pass; a no-op for nonfiction (already has its own
     // closed-world check).
-    const unknownPersonDetector = makeUnknownPersonDetector({ project, cast: castForRegen, chapters: sortedLoaded.map((f) => f.chapter) });
+    // NAMEGATE-1B (finding 54): `castForRegen` above is prose-augmented (plus
+    // canon aliases) — exactly right for the OTHER regen-lane checks, wrong
+    // for NAMEGATE, which must judge a name against what the author actually
+    // declared. sheetCast is bible-only; evidence is bible-only too
+    // (chapters: []) — chapter beats are outline output, not the bible.
+    const sheetCast = harvestCastNames(project?.characters_md, []);
+    const unknownPersonDetector = makeUnknownPersonDetector({ project, cast: sheetCast, chapters: [] });
     for (let idx = 0; idx < sortedLoaded.length; idx += 1) {
       const f = sortedLoaded[idx];
       const chNum = f.chapter?.chapter_number || '?';
