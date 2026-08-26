@@ -435,6 +435,35 @@ const SCENE_DUPE_FIXTURE_PARAGRAPHS = [
   check('16b. both over-budget families are named in the detail, not only the first', c.detail.includes('ozone') && c.detail.includes('burnt sugar'), c.detail);
 }
 
+// ── 17. ACCEPT-1C (finding 70): scene-dupes is N/A for nonfiction projects
+// (the polish pipeline's own mode !== 'nonfiction' gate never runs the sweep
+// on NF), and that N/A never drags down allPass/scoredCount — the same
+// generic N/A-exclusion mechanism check 6b already locks for the report as
+// a whole, exercised here specifically for this criterion. ──
+{
+  const nfProject = { book_type: 'nonfiction', characters_md: '', title: 'NF Scene Dupes Test' };
+  const chapters = [
+    makeChapter(1, 'Introduction', 'The excavation began quietly, without any of the fanfare later accounts would claim it deserved by the crew.'.repeat(3)),
+    makeChapter(2, 'The Discovery', 'Weeks into the dig, the first real find emerged from the packed earth near the northern wall of the site.'.repeat(3)),
+  ];
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project: nfProject, chapters }));
+  const c = findCriterion(report, 'scene-dupes');
+  check('17. scene-dupes reports N/A for a nonfiction project', c.status === 'N/A', JSON.stringify(c));
+  check('17b. the N/A detail matches the ticket\'s exact wording',
+    c.detail === 'nonfiction — the polish pipeline does not run the scene-duplicate sweep on NF projects', c.detail);
+  check('17c. scene-dupes is excluded from scoring (an N/A criterion can never affect allPass)',
+    !report.criteria.filter((x) => x.status !== 'N/A').some((x) => x.key === 'scene-dupes'));
+}
+
+// ── 18. ACCEPT-1C: fiction projects are unchanged — scene-dupes is still a
+// real, scored measurement (never N/A) using the live library. ──
+{
+  const chapters = buildCleanFictionChapters();
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project: CLEAN_FICTION_PROJECT, chapters }));
+  const c = findCriterion(report, 'scene-dupes');
+  check('18. scene-dupes is still measured (not N/A) for a fiction project', c.status === 'PASS' || c.status === 'FAIL', JSON.stringify(c));
+  check('18b. a clean fiction fixture with no duplicated scenes PASSes scene-dupes', c.status === 'PASS', JSON.stringify(c));
+}
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
