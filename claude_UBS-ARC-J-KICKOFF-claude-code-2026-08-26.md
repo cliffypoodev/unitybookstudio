@@ -141,7 +141,13 @@ git rev-parse --short HEAD; git rev-parse --short origin/main; git rev-parse --s
 ```
 Then stop and say: "Arc J Session 1 VERIFY passed at <sha>." Do not start Session 2 in the same session.
 
-## SESSION 2 — polish-runner retirements (fresh session; baseline = Session 1's SHA, 155 files)
+## SESSION 2 — polish-runner retirements (fresh session; baseline = fc066ccc, 155 files)
+**Step 0 — DOCS-4**: `git add claude_UBS-LIVEPROOF-ARC-J-2026-08-26.md claude_UBS-ARC-J-KICKOFF-claude-code-2026-08-26.md`
+(this kickoff was amended after Session 1 — it shows as ` M`), commit `DOCS-4: Arc J Session 1 evidence and Session 2 amendments`. Nothing else in it.
+**STOREMUTEX-1 (finding 63, tiny, source-only, no new battery — add 2 checks to urlwriteguard1 and name them)**: in
+`vite-server-store-plugin.js` `handleRequest`, remove every explicit `release()` call on an error path that sits inside the
+`try` whose `finally` already releases (the `update`/`delete` "Missing id" / not-found returns); behaviour: a rejected
+request never releases the mutex twice. Commit `STOREMUTEX-1-SINGLE-RELEASE`.
 ### J6. LEGACYSTAGES-1 (finding 34) — `Pre-Quote Artifact Repair` and `Final Artifact Cleanup` become flag-only
 Neither stage may DELETE a paragraph any more: where each would remove a paragraph, it instead records
 `{ chapter, paragraphIndex, reason }` in the run report and logs `[LEGACYSTAGES-1] Ch.N: would have deleted paragraph P
