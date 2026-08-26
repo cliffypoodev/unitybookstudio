@@ -153,7 +153,7 @@ function inferAliasPairs(projectText = '', content = '') {
 
   const checks = [
     { a: 'Langston', b: 'Arthur', surname: 'Finch' },
-    { a: 'Nikolai', b: 'Halvard' },
+    { a: 'Nikolai', b: 'Silas' },
     { a: 'Clara', b: 'Cora' },
     { a: 'Pauline', b: 'Paula' },
   ];

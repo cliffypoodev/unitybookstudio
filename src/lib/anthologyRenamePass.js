@@ -35,7 +35,7 @@ const MALE_POOL = [
   'Emmanuel', 'Horace', 'Rodrigo', 'Percival', 'Lionel', 'Everett', 'Mordecai', 'Ambrose',
 ];
 const NEUTRAL_POOL = [
-  'Emerson', 'Quillon', 'Sterling', 'Ellery', 'Sutton', 'Lennox', 'Sidney', 'Kingsley',
+  'Emerson', 'Marlowe', 'Sterling', 'Ellery', 'Sutton', 'Lennox', 'Sidney', 'Kingsley',
   'Quincy', 'Adair', 'Wynn', 'Blair',
 ];
 
