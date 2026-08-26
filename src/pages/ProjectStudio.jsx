@@ -3079,11 +3079,20 @@ Return structured JSON:
   const handleResearch = async () => {
     if (!project) return;
 
+    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
+    if (!topic.trim()) {
+      toast.error('Add a seed concept/topic before running deep research.');
+      return;
+    }
+
     // RERESEARCH-CONFIRM-1: this handler always REPLACES research_data/
     // research_md (executeResearchPipeline's appendToExisting is false
     // below) and is the same function bound to both the first-run "Research
     // This Topic" button and the "Re-Research" button — the gate is a no-op
     // (no dialog, no snapshot) whenever there's little/nothing to lose.
+    // Runs AFTER the topic check above so confirming re-research on a
+    // project that's missing a seed concept doesn't snapshot research it's
+    // about to abort re-running anyway.
     const { proceed, info } = shouldRunReResearch(project, (msg) => window.confirm(msg));
     if (!proceed) return;
     if (info.needsConfirm) {
@@ -3094,12 +3103,6 @@ Return structured JSON:
         toast.error('Could not snapshot existing research; re-research was not started.');
         return;
       }
-    }
-
-    const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
-    if (!topic.trim()) {
-      toast.error('Add a seed concept/topic before running deep research.');
-      return;
     }
 
     // RESEARCHQUALITY-1: focus-term queries first, capped total, built by the

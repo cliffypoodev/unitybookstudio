@@ -166,5 +166,21 @@ const mk = () => {
   check('7b. below-threshold path proceeds without a dialog', proceed === true);
 }
 
+// ── wiring: handleResearch checks the seed-concept/topic BEFORE the confirm/
+// snapshot gate, so confirming re-research on a project with no seed
+// concept doesn't snapshot research it's about to abort re-running anyway ──
+{
+  const studioSrc = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
+  const start = studioSrc.indexOf('const handleResearch = async () => {');
+  const end = studioSrc.indexOf('const handleOutlineResearch = async () => {');
+  const body = studioSrc.slice(start, end);
+  const topicCheckIdx = body.indexOf("if (!topic.trim())");
+  const gateIdx = body.indexOf('shouldRunReResearch(');
+  check('8. handleResearch validates the seed concept/topic before the RERESEARCH-CONFIRM-1 gate',
+    topicCheckIdx !== -1 && gateIdx !== -1 && topicCheckIdx < gateIdx, `topicCheckIdx=${topicCheckIdx} gateIdx=${gateIdx}`);
+  check('8b. the gate itself still runs before executeResearchPipeline',
+    body.indexOf('shouldRunReResearch(') < body.indexOf('executeResearchPipeline('));
+}
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
