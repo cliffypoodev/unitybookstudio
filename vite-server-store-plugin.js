@@ -183,6 +183,34 @@ function flushStore(uid, entityName) {
   fs.renameSync(tmpPath, filePath);
 }
 
+// ── URLWRITE-GUARD-1 ─────────────────────────────────────────────────────
+// Rejects the Base44-era corruption shape for Chapter records: content_md
+// empty while content_md_url points at nothing this store can actually
+// resolve (a remote URL, or a local:// key with no _FileStore record for
+// this uid). local:// + resolvable is the normal/common shape (158+ live
+// chapters) and must keep working unchanged; inline content_md always wins
+// regardless of content_md_url; both empty is a legal brand-new chapter.
+// Pure: reads uid's _FileStore cache and the candidate record, never writes
+// or mutates either.
+function resolveLocalFileStoreRecord(uid, url) {
+  if (typeof url !== 'string' || !url.startsWith('local://')) return null;
+  const key = url.slice('local://'.length);
+  if (!key) return null;
+  return loadStore(uid, '_FileStore').find((r) => r.id === key) || null;
+}
+
+function checkUrlwriteGuard1(uid, record) {
+  if (record && record.content_md) return null; // inline content present -> always accepted
+  const url = record && record.content_md_url;
+  if (!url) return null; // both empty -> new empty chapter, accepted
+  if (resolveLocalFileStoreRecord(uid, url)) return null; // local:// + resolvable -> accepted
+
+  const projectId = (record && record.project_id) || 'unknown-project';
+  const chapterNum = record && record.chapter_number != null ? record.chapter_number : '?';
+  console.warn(`[URLWRITE-GUARD-1] Ch.${chapterNum} of ${projectId} rejected: content_md empty while content_md_url=${url} does not resolve`);
+  return `URLWRITE-GUARD-1: content_md is empty and content_md_url does not resolve to a stored file for this account (${url}).`;
+}
+
 function generateId() {
   return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
 }
@@ -355,6 +383,10 @@ async function handleRequest(req, res, uid) {
           updated_date: data.updated_date || now,
           created_by: data.created_by || 'local@unitybookstudio.app',
         };
+        if (entity === 'Chapter') {
+          const guardError = checkUrlwriteGuard1(uid, record);
+          if (guardError) { release(); return sendError(res, guardError, 422); }
+        }
         store.push(record);
         cache[storeKey(uid, entity)] = store;
         flushStore(uid, entity);
@@ -373,6 +405,10 @@ async function handleRequest(req, res, uid) {
           id, // preserve original id
           updated_date: nowISO(),
         };
+        if (entity === 'Chapter') {
+          const guardError = checkUrlwriteGuard1(uid, updated);
+          if (guardError) { release(); return sendError(res, guardError, 422); }
+        }
         store[idx] = updated;
         cache[storeKey(uid, entity)] = store;
         flushStore(uid, entity);
