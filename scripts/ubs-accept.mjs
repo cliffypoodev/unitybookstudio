@@ -166,17 +166,28 @@ export async function buildAcceptanceReport({ project, chapters, runState = null
         : replayHits.join(' | ')));
   }
 
-  // ── same-chapter scene dups 0. SCENEDUP-3 moved the live sweep (formerly an
-  // inline fork in src/pages/ProjectStudio.jsx) into src/lib/sceneDuplicateSweep.js,
-  // so this now measures the SAME function the app and the headless runner
+  // ── same-chapter scene dups 0 (fiction only) — ACCEPT-1C (finding 70):
+  // manuscriptPolishRunner.js's own gate (`mode !== 'nonfiction' && sceneDuplicateSweep`,
+  // line 736) never runs the scene-duplicate sweep for NF projects, so a
+  // number/FAIL here on an NF project would be measuring something the
+  // polish pipeline itself never checks. isNonfictionProject (projectType.js,
+  // the plan's one classification authority) decides this — no `mode` string
+  // test. SCENEDUP-3 moved the live sweep (formerly an inline fork in
+  // src/pages/ProjectStudio.jsx) into src/lib/sceneDuplicateSweep.js, so the
+  // fiction path measures the SAME function the app and the headless runner
   // both use — report-only: dupeLoaded is a scratch copy that is never saved
   // back to the store, so any block the sweep would remove is only removed
   // from this disposable copy, purely to compute the count below. ──
-  const dupeLoaded = bodyChapters.map((ch) => ({ chapter: ch, content: ch.content_md || '', original: ch.content_md || '' }));
-  const dupeReport = runSceneDuplicateSweep(dupeLoaded, null, {});
-  const sceneDupeCount = (dupeReport.chapterReports || []).reduce((sum, r) => sum + (r.removals || []).length + (r.reportedOnly || 0), 0);
-  criteria.push(line('scene-dupes', 'Same-chapter scene duplicates 0', sceneDupeCount === 0 ? 'PASS' : 'FAIL',
-    `${sceneDupeCount} duplicate block(s) (measured with src/lib/sceneDuplicateSweep.js, the live implementation as of SCENEDUP-3)`));
+  if (isNF) {
+    criteria.push(line('scene-dupes', 'Same-chapter scene duplicates 0 (fiction-only)', 'N/A',
+      'nonfiction — the polish pipeline does not run the scene-duplicate sweep on NF projects'));
+  } else {
+    const dupeLoaded = bodyChapters.map((ch) => ({ chapter: ch, content: ch.content_md || '', original: ch.content_md || '' }));
+    const dupeReport = runSceneDuplicateSweep(dupeLoaded, null, {});
+    const sceneDupeCount = (dupeReport.chapterReports || []).reduce((sum, r) => sum + (r.removals || []).length + (r.reportedOnly || 0), 0);
+    criteria.push(line('scene-dupes', 'Same-chapter scene duplicates 0', sceneDupeCount === 0 ? 'PASS' : 'FAIL',
+      `${sceneDupeCount} duplicate block(s) (measured with src/lib/sceneDuplicateSweep.js, the live implementation as of SCENEDUP-3)`));
+  }
 
   // ── simile density ≤ 3.0/1k book-wide, per-chapter max ──
   const styleLedger = buildBookStyleLedger(bodies);
