@@ -76,9 +76,8 @@
  * - Keeps the v12 storage-safe save/export pipeline and title-only export support.
  * - Moves the stubborn literal survivor patch into a forced final save-gate step.
  * - Runs the same literal patch immediately before final save validation as a backstop.
- * - Targets the two exact survivors still visible in the v12 exported DOCX:
+ * - Targets an exact survivor still visible in the v12 exported DOCX:
  *   "10:15 a.m. When..." -> "10:15 a.m., when..."
- *   "Caspian's hand, the one that had touched him felt..." -> adds comma before felt
  * - Does not rewrite prose or change story content.
  * - Large chapter prose remains URL/file-storage only. No full prose is written into
  *   Base44 inline entity fields for long chapters.
@@ -4962,11 +4961,6 @@ function applyFragmentAndConjunctionRefinements(text) {
       replacement: '$1, $2',
     },
     {
-      label: 'repair sentence fragment: Then the line went dead. Elias sat',
-      pattern: /\b(The line went dead)\s+(Elias sat\b)/g,
-      replacement: '$1. $2',
-    },
-    {
       label: 'repair list: cleansing positioning application collection',
       pattern: /\b(The cleansing,\s+the positioning,\s+the application of the targeted stimuli)\s+(the collection apparatus\b)/gi,
       replacement: '$1, and $2',
@@ -5035,16 +5029,6 @@ function applyForcedFinalLiteralSurvivorPatch(text) {
       'forced literal: 10:15 a.m. When',
     ],
     [
-      'Caspian’s hand, the one that had touched him felt alien.',
-      'Caspian’s hand, the one that had touched him, felt alien.',
-      'forced literal: Caspian hand touched him felt alien',
-    ],
-    [
-      'Caspian’s hand, the one that had touched him felt',
-      'Caspian’s hand, the one that had touched him, felt',
-      'forced literal: Caspian hand touched him felt',
-    ],
-    [
       'His hand, the one that had touched him felt',
       'His hand, the one that had touched him, felt',
       'forced literal: His hand touched him felt',
@@ -5058,11 +5042,6 @@ function applyForcedFinalLiteralSurvivorPatch(text) {
       'The Owner’s tone shifted became',
       'The Owner’s tone shifted, becoming',
       'forced literal: Owner tone shifted became',
-    ],
-    [
-      'older than Jonah had expected maybe',
-      'older than Jonah had expected, maybe',
-      'forced literal: Jonah expected maybe',
     ],
     [
       'His curses were hesitated by',
@@ -5278,16 +5257,6 @@ function applyLiteralExportSurvivorPatch(text) {
       'direct: 10:15 a.m. When',
     ],
     [
-      'Caspian’s hand, the one that had touched him felt alien.',
-      'Caspian’s hand, the one that had touched him, felt alien.',
-      'direct: Caspian hand touched him felt alien',
-    ],
-    [
-      'Caspian’s hand, the one that had touched him felt',
-      'Caspian’s hand, the one that had touched him, felt',
-      'direct: Caspian hand touched him felt',
-    ],
-    [
       'His hand, the one that had touched him felt',
       'His hand, the one that had touched him, felt',
       'direct: His hand touched him felt',
@@ -5324,11 +5293,6 @@ function applyLiteralExportSurvivorPatch(text) {
       replacement: '$1, when',
     },
     {
-      label: 'literal: Caspian hand parenthetical comma',
-      pattern: /\b(Caspian\u2019s hand,\s+the one that had touched him)\s+(felt\b)/g,
-      replacement: '$1, $2',
-    },
-    {
       label: 'literal: possessive hand parenthetical comma',
       pattern: /\b([A-Z][A-Za-z]+\u2019s hand,\s+the one that had touched him)\s+(felt\b)/g,
       replacement: '$1, $2',
@@ -5352,11 +5316,6 @@ function applyLiteralExportSurvivorPatch(text) {
       label: 'literal: tone shifted became',
       pattern: /\b(tone shifted)\s+(became\b)/gi,
       replacement: '$1, becoming',
-    },
-    {
-      label: 'literal: older than Jonah had expected maybe',
-      pattern: /\b(older than Jonah had expected)\s+(maybe\b)/gi,
-      replacement: '$1, $2',
     },
     {
       label: 'literal: older than he had expected maybe',
@@ -6077,7 +6036,6 @@ function findFinalSaveGateSurvivors(text) {
     /The window,[”"]\s+Zonk said/i,
 
     /10:15\s+a\.m\.\s+When/,
-    /Caspian’s hand,\s+the one that had touched him\s+felt/,
     /\bswung shut cutting\b/i,
     /\bshut cutting off\b/i,
     /\bstraightened setting\b/i,
@@ -6148,7 +6106,6 @@ function findFinalSaveGateSurvivors(text) {
     /\b[A-Z][A-Za-z]+\u2019s hand,\s+the one that had touched him\s+felt\b/,
     /\bThe Owner\u2019s tone shifted\s+became\b/,
     /\btone shifted\s+became\b/i,
-    /\bolder than Jonah had expected\s+maybe\b/i,
     /\bcurses were hesitated by\b/i,
 
 
