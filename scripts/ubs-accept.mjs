@@ -54,7 +54,6 @@ function line(key, label, status, detail = '') {
 export async function buildAcceptanceReport({ project, chapters, runState = null }) {
   const [
     { runPreExportSafetyGate },
-    { scanMalformedSentences },
     { buildCharacterState, auditProseAgainstCharacterState },
     { measureSimileDensity, buildBookStyleLedger, SIMILE_DENSITY_BUDGET_PER_1K },
     { TEMPLATE_FAMILIES, computeFamilyBookSpend },
@@ -69,7 +68,6 @@ export async function buildAcceptanceReport({ project, chapters, runState = null
     { findProseEventCollisions },
   ] = await Promise.all([
     import('../src/lib/exportSafetyGate.js'),
-    import('../src/lib/malformedSentence.js'),
     import('../src/lib/characterStateLedger.js'),
     import('../src/lib/aiSlopReduction.js'),
     import('../src/lib/templateFamilies.js'),
@@ -111,8 +109,13 @@ export async function buildAcceptanceReport({ project, chapters, runState = null
       ? (gate.hardFailures || []).map((f) => `Ch.${f.chapterNumber}: ${(f.reasons || [])[0] || 'no reason given'}`).join(' | ')
       : `${(gate.hardFailures || []).length} hard failure(s)`));
 
-  // ── [MALFORMEDSENT] Gate scan: 0 ──
-  const malformedTotal = bodyChapters.reduce((sum, ch) => sum + scanMalformedSentences(ch.content_md || '', cast).length, 0);
+  // ── [MALFORMEDSENT] Gate scan: 0 — ACCEPT-1B (finding 68): read the GATE's
+  // own number instead of re-scanning. The gate's own scan (exportSafetyGate.js
+  // 717-718) builds its cast from only chapters over 200 chars; this script's
+  // `cast` (above) is built from every body chapter — a different cast can
+  // disagree with the gate's own count on the same manuscript, which is
+  // exactly what this criterion is supposed to be reporting on. ──
+  const malformedTotal = gate.malformedTotal ?? 0;
   criteria.push(line('malformedsent', '[MALFORMEDSENT] Gate scan', malformedTotal === 0 ? 'PASS' : 'FAIL', `${malformedTotal} malformed sentence(s)`));
 
   // ── DEPARTED_CHARACTER_ACTIVE 0, DUPLICATE_INTRODUCTION 0 — each chapter
@@ -163,24 +166,17 @@ export async function buildAcceptanceReport({ project, chapters, runState = null
         : replayHits.join(' | ')));
   }
 
-  // ── same-chapter scene dups 0. NOTE (ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS,
-  // strengthened): src/lib/sceneDuplicateSweep.js declares itself dead code in
-  // its own header (nothing imports it; the live implementation is an inline
-  // fork in src/pages/ProjectStudio.jsx) — this measures the standalone
-  // library function the plan named (sceneDuplicateSweep.js:793). This is NOT
-  // merely "a slightly stale copy": the two implementations have diverged in
-  // their confidence thresholds (e.g. maxRemovalRatioPerChapter 0.55 here vs.
-  // 0.10 live) and CAN, and empirically do, produce OPPOSITE PASS/FAIL
-  // verdicts on the identical manuscript — a paraphrased (non-verbatim)
-  // alternate-draft duplicate can score FAIL here while the live app's own
-  // pipeline would only flag it for human review, not block on it. Treat this
-  // criterion's result as informational about this specific library function,
-  // not as a proxy for what the shipping app would actually do. ──
+  // ── same-chapter scene dups 0. SCENEDUP-3 moved the live sweep (formerly an
+  // inline fork in src/pages/ProjectStudio.jsx) into src/lib/sceneDuplicateSweep.js,
+  // so this now measures the SAME function the app and the headless runner
+  // both use — report-only: dupeLoaded is a scratch copy that is never saved
+  // back to the store, so any block the sweep would remove is only removed
+  // from this disposable copy, purely to compute the count below. ──
   const dupeLoaded = bodyChapters.map((ch) => ({ chapter: ch, content: ch.content_md || '', original: ch.content_md || '' }));
   const dupeReport = runSceneDuplicateSweep(dupeLoaded, null, {});
   const sceneDupeCount = (dupeReport.chapterReports || []).reduce((sum, r) => sum + (r.removals || []).length + (r.reportedOnly || 0), 0);
   criteria.push(line('scene-dupes', 'Same-chapter scene duplicates 0', sceneDupeCount === 0 ? 'PASS' : 'FAIL',
-    `${sceneDupeCount} duplicate block(s) [measured against the dead-code src/lib/sceneDuplicateSweep.js, NOT the live inline fork in ProjectStudio.jsx — the two can produce opposite verdicts on the same input; treat this as informational, not a proxy for live app behavior]`));
+    `${sceneDupeCount} duplicate block(s) (measured with src/lib/sceneDuplicateSweep.js, the live implementation as of SCENEDUP-3)`));
 
   // ── simile density ≤ 3.0/1k book-wide, per-chapter max ──
   const styleLedger = buildBookStyleLedger(bodies);

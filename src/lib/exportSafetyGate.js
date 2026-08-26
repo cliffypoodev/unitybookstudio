@@ -80,6 +80,7 @@ async function getDialogueDetector() {
  *   passed: Array,
  *   summary: string,
  *   timestamp: string,
+ *   malformedTotal: number,
  * }}
  */
 import { buildPronounCanon, harvestCastNames, scanPronounViolations, scanContextVariablePronounDrift } from './pronounLock.js'; // PRONOUNLOCK-1 / PRONOUNVAR-1
@@ -106,6 +107,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   const passed = [];
   const skipped = [];
   let gatePromoteCount = 0; // GATEPROMOTE-1: incremented at every promotion site (CHARSTATE-1 + MALFORMEDSENT-1)
+  let malformedTotal = 0; // ACCEPT-1B: exposed on the returned report so callers read the gate's own [MALFORMEDSENT] number instead of re-scanning with a different cast
 
   for (const ch of chapters) {
     const content = ch?.content_md || '';
@@ -716,13 +718,12 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   try {
     const msBodies = chapters.map((ch) => String(ch?.content_md || '')).filter((body) => body.length > 200);
     const msCast = harvestCastNames(options?.project?.characters_md, msBodies);
-    let msTotal = 0;
     for (const ch of chapters) {
       const body = String(ch?.content_md || '');
       if (body.length <= 200) continue;
       const bad = scanMalformedSentences(body, msCast);
       if (!bad.length) continue;
-      msTotal += bad.length;
+      malformedTotal += bad.length;
       const byKind = bad.reduce((a, f) => { a[f.kind] = (a[f.kind] || 0) + 1; return a; }, {});
       const summary = Object.entries(byKind).map(([k, n]) => `${n} ${k}`).join(', ');
       const msReasons = [`MALFORMEDSENT-1: ${bad.length} malformed sentence(s) (${summary}) — regenerate, do not regex-edit. e.g. "${bad[0].sentence}"`];
@@ -752,7 +753,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
         });
       }
     }
-    console.log(`[MALFORMEDSENT] Gate scan: ${msTotal} malformed sentence(s) across ${chapters.length} chapter(s)`);
+    console.log(`[MALFORMEDSENT] Gate scan: ${malformedTotal} malformed sentence(s) across ${chapters.length} chapter(s)`);
   } catch (msError) {
     console.warn('[MALFORMEDSENT] Gate scan failed (non-fatal):', msError?.message || msError);
   }
@@ -992,6 +993,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     scannedChapters: hardFailures.length + warnings.length + passed.length,
     referenceReport,
     seriesReport,
+    malformedTotal,
   };
 
   // Store report globally for live inspection
