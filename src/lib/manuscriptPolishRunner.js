@@ -188,9 +188,18 @@ export async function runManuscriptPolishPipeline({
     return String(text || '').replace(/[^a-zA-Z0-9]/g, '');
   }
   function verifyInvariant(stageName, allowedRemovals = {}) {
+    // VERSIONS-1D: two `loaded` entries can resolve to the SAME chapter key
+    // (getChapterKey keys on f.chapter.id — a duplicate chapter record hits
+    // this) and both then get checked against the one shared snapshot,
+    // logging the identical [PROSE-GUARD]/[STRUCTURE-GUARD] line twice for
+    // what is really one logical chapter. Report (and revert) a given key
+    // at most once per stage.
+    const seenKeys = new Set();
     for (let i = 0; i < loaded.length; i++) {
       const f = loaded[i];
       const key = getChapterKey(f, i);
+      if (seenKeys.has(key)) continue;
+      seenKeys.add(key);
       const snap = __snapshots.get(key);
       if (!snap) continue;
       if (lettersAndDigitsOnly(snap.text) !== lettersAndDigitsOnly(f.content)) {

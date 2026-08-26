@@ -441,6 +441,38 @@ export async function prepareChapterContent(content, projectId, chapterId, exist
   // there is no durable URL to go back to in that case.
   const previousContentMdUrl = existingChapter?.content_md_url || '';
 
+  // VERSIONS-1D: a save whose body is byte-identical to what's already
+  // stored must not mint a new version — every prior save already did that
+  // work. Gated by the cheap, already-computed char/word-count metadata
+  // before paying for an exact-content comparison, so a normal (changed)
+  // save's cost is unaffected; a chapter that never went through this
+  // helper before (no char/word-count fields yet) safely falls through to
+  // today's full-save path, since Number(undefined) can never equal a real
+  // length. Returns the record UNCHANGED — including its own existing
+  // previous_content_md_url, not today's content_md_url — so nothing about
+  // the version chain moves.
+  if (existingChapter && normalized) {
+    const sameLen = Number(existingChapter.content_md_char_count) === normalized.length;
+    const sameWords = Number(existingChapter.content_md_word_count) === countWords(normalized);
+    if (sameLen && sameWords) {
+      const previousBody = existingChapter.content_md_url
+        ? normalizeText(await resolveChapterContent(existingChapter))
+        : normalizeText(existingChapter.content_md || '');
+      if (previousBody && previousBody === normalized) {
+        console.log(`[VERSIONS-1D] Ch.${existingChapter.chapter_number ?? chapterId}: unchanged, no version minted`);
+        return {
+          content_md: existingChapter.content_md || '',
+          content_md_url: existingChapter.content_md_url || '',
+          content_md_upload_failed: false,
+          content_storage_version: CHAPTER_STORAGE_VERSION,
+          content_md_word_count: countWords(normalized),
+          content_md_char_count: normalized.length,
+          previous_content_md_url: existingChapter.previous_content_md_url || '',
+        };
+      }
+    }
+  }
+
   if (!normalized || normalized.length <= MAX_INLINE_SIZE) {
     return {
       content_md: normalized || '',

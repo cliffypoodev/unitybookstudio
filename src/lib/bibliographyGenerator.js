@@ -540,7 +540,11 @@ export async function saveBibliographyChapter({ project, chapters, bibText }) {
     return title.includes('bibliography') || title.includes('sources') || title.includes('works cited') || title.includes('references');
   });
 
-  const contentFields = await prepareChapterContent(bibText, project.id, 'bibliography');
+  // VERSIONS-1D: pass the existing chapter (mirroring copyrightGenerator.js's
+  // saveCopyrightChapter call shape) so prepareChapterContent can record
+  // previous_content_md_url — omitting it left every bibliography resave
+  // with no way back to the version it replaced.
+  const contentFields = await prepareChapterContent(bibText, project.id, existingBib?.id || 'bibliography', existingBib || null);
 
   if (existingBib) {
     await runWithNetworkRetry(() => base44.entities.Chapter.update(existingBib.id, {
