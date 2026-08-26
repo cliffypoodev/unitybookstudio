@@ -281,7 +281,8 @@ export async function runDraftCommand(opts) {
     try {
       const result = await runChapterDraftFn({ project, chapter, chapters: allChapters, deps, options: {} });
       const contentSha256 = sha256(result?.content || '');
-      markChapterStatus(state, chapter.id, 'done', { contentSha256 });
+      const paragraphCount = String(result?.content || '').split(/\n{2,}/).filter((p) => p.trim()).length;
+      markChapterStatus(state, chapter.id, 'done', { contentSha256, paragraphCount });
       appendRunLog(dataDir, runId, `Chapter ${chapter.chapter_number}: done (sha256 ${contentSha256.slice(0, 12)}…).`);
       log(`[RUNNER-1] chapter ${chapter.chapter_number}: done.`);
     } catch (err) {
