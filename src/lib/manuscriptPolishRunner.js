@@ -54,6 +54,7 @@ import { runCrossChapterBodyLanguageDedup, runAnthologyVocabBans, runContaminati
   from './anthologyPolishChecks.js';
 import { isAnthologyProject } from './anthologyEngine.js';
 import { isComedyProject } from './manuscriptStats.js';
+import { isNonfictionProject } from './projectType.js'; // POLISHSAFE-6: the authority — never a `mode` string test
 import { rewriteFlaggedSpots, buildGlobalOpeningStats, buildGlobalActionBeatStats, buildCrossChapterPhraseStats } from './repetitionRewrite.js';
 import { buildQuoteLedger, consolidateForeignQuotes } from './quoteLedger.js';
 import { getAllBlockedNames, countNameOccurrences } from './nameHygieneRules.js'; // POLISHSAFE-5: flag only, never rewrite
@@ -531,10 +532,25 @@ export async function runManuscriptPolishPipeline({
   // NF-SPECIFIC: Run NF deterministic core
   let nfCoreStats = {};
   if (mode === 'nonfiction') {
-    onProgress('Polish (NF): Running nonfiction deterministic core…');
-    const nfCore = runNonfictionDeterministicCore(loaded, onProgress, project);
-    changes.push(...nfCore.changes);
-    nfCoreStats = nfCore.stats || {};
+    if (isNonfictionProject(project)) {
+      // POLISHSAFE-6: runNonfictionDeterministicCore's sub-steps (grammar/
+      // spelling rewrites, repetition substitution, scaffold removal,
+      // credibility-gate rewrites, em-dash-to-comma swaps) either change
+      // letters directly or fail NFGUARD-1's own equivalence check
+      // (nfContentEquivalent does not tolerate a dash becoming a comma, or a
+      // new punctuation mark being inserted) — so NFGUARD-1 was reverting
+      // this stage's work on every NF run regardless. Typography (quote
+      // glyphs, whitespace) is still normalized later by the pipeline's
+      // unconditional PHASE H; nothing real is lost by skipping this stage.
+      for (const f of loaded) {
+        console.log(`[POLISHSAFE-6] Nonfiction Core Ch.${f.chapter?.chapter_number || '?'}: typography-only (NF)`);
+      }
+    } else {
+      onProgress('Polish (NF): Running nonfiction deterministic core…');
+      const nfCore = runNonfictionDeterministicCore(loaded, onProgress, project);
+      changes.push(...nfCore.changes);
+      nfCoreStats = nfCore.stats || {};
+    }
   }
   verifyInvariant('Nonfiction Core');
 
@@ -682,21 +698,36 @@ export async function runManuscriptPolishPipeline({
   verifyInvariant('Vocab & ChatGPT Caps');
 
   // B7: Anti-AI detection
-  const antiDetect = isAnthology
-    ? runPerChapter(loaded, (l, prog) => runAntiDetectionPolish(l, prog, { project }), [onProgress])
-    : runAntiDetectionPolish(loaded, onProgress, { project });
+  let antiDetect = { changes: [] };
+  let starterResultSafe = { changes: [] };
+  if (isNonfictionProject(project)) {
+    // POLISHSAFE-6: runAntiDetectionPolish's remaining NF-reachable sub-step
+    // (em-dash density fix, inside extraPolishChecks) fails NFGUARD-1's own
+    // equivalence check the same way Nonfiction Core's did, and
+    // runSentenceStarterVariationNF's "The"->"That"/sentence-join rewrite is
+    // 100% letter-changing with no typography-only residue to preserve.
+    // Typography is still normalized later by the pipeline's unconditional
+    // PHASE H.
+    for (const f of loaded) {
+      console.log(`[POLISHSAFE-6] Anti-Detection Polish Ch.${f.chapter?.chapter_number || '?'}: typography-only (NF)`);
+    }
+  } else {
+    antiDetect = isAnthology
+      ? runPerChapter(loaded, (l, prog) => runAntiDetectionPolish(l, prog, { project }), [onProgress])
+      : runAntiDetectionPolish(loaded, onProgress, { project });
+    starterResultSafe = runSentenceStarterVariationNF(loaded, onProgress);
+  }
   changes.push(...antiDetect.changes);
   // FICTIONFIX-2: the referent-preserving starter pass runs for ALL modes —
   // article swaps corrupted fiction referents too (Songbird blind test). The
   // legacy fiction pass still runs for fiction, but its swap strategies are
   // disabled; it now only caps "It was" and pronoun openers.
-  const starterResultSafe = runSentenceStarterVariationNF(loaded, onProgress);
   changes.push(...starterResultSafe.changes);
   const starterResult = mode === 'nonfiction'
     ? { changes: [] }
     : runSentenceStarterVariation(loaded, onProgress);
   changes.push(...starterResult.changes);
-  const aiResist = runAiDetectionResistance(loaded, onProgress);
+  const aiResist = runAiDetectionResistance(loaded, onProgress); // unconditional — confirmed typography-safe for NF too
   changes.push(...aiResist.changes);
   verifyInvariant('Anti-Detection Polish');
 
