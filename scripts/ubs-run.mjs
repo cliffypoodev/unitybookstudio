@@ -281,8 +281,30 @@ export async function runDraftCommand(opts) {
     try {
       const result = await runChapterDraftFn({ project, chapter, chapters: allChapters, deps, options: {} });
       const contentSha256 = sha256(result?.content || '');
-      const paragraphCount = String(result?.content || '').split(/\n{2,}/).filter((p) => p.trim()).length;
-      markChapterStatus(state, chapter.id, 'done', { contentSha256, paragraphCount });
+      // ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS: runChapterDraftFn's
+      // returned `content` is the RAW pre-save text (chapterOrchestrator.js
+      // passes it to prepareChapterContent, which normalizes it — collapsing
+      // leading whitespace on a line, among other things — before it is
+      // ever written to content_md). Computing paragraphCount from the raw
+      // return value would compare apples to oranges against
+      // scripts/ubs-accept.mjs's later read of the actually-stored,
+      // normalized content_md, producing a spurious mismatch unrelated to
+      // polish. Re-read the chapter's real stored content instead, so both
+      // the "before" and "after" figures are computed on the same
+      // normalized text through the same pipeline.
+      const savedChapter = await store.Chapter.get(chapter.id);
+      // A large chapter can be saved URL-backed (content_md empty,
+      // content_md_url set) — resolving that URL here would need the same
+      // localDB machinery chapterStorage.js's resolveChapterContent uses,
+      // which is more coupling than this narrow fix warrants. Omit
+      // paragraphCount for that chapter rather than recording a wrong count
+      // computed against an empty string; ubs-accept.mjs already treats a
+      // missing paragraphCount as "not measured", not a mismatch.
+      const extra = { contentSha256 };
+      if (savedChapter?.content_md) {
+        extra.paragraphCount = String(savedChapter.content_md).split(/\n{2,}/).filter((p) => p.trim()).length;
+      }
+      markChapterStatus(state, chapter.id, 'done', extra);
       appendRunLog(dataDir, runId, `Chapter ${chapter.chapter_number}: done (sha256 ${contentSha256.slice(0, 12)}…).`);
       log(`[RUNNER-1] chapter ${chapter.chapter_number}: done.`);
     } catch (err) {
