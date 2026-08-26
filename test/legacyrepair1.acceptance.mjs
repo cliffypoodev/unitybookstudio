@@ -125,15 +125,16 @@ function wholeWordCount(text, name) {
     wholeWordCount(MF_SRC, RETIRED_EIGHTH_NAME) === 0);
 }
 {
-  // Expected, documented, NOT a failure: Caspian/Jonah/Elias persist via out-of-
-  // scope literal-phrase rules this ticket does not touch (a doc comment, a
-  // fragment-merge target, and two literal find/replace patch arrays — a
-  // different rule SHAPE: one exact verbatim sentence, not a substitutable
-  // "subject is one of N names" class). Asserting non-zero (not silently
-  // grep-and-pass) so a future accidental removal of those rules is visible.
+  // RETIRED by Arc FINAL-ACCEPTANCE-prep LEGACYREPAIR-2 (finding 65): the three
+  // out-of-scope literal-phrase rule families this ticket deliberately left
+  // alone (a doc comment, a fragment-merge target, and two literal find/
+  // replace patch arrays — one exact verbatim sentence each, not a
+  // substitutable "subject is one of N names" class) were deleted outright,
+  // not generalized, since they can never fire on any other manuscript.
+  // This check now asserts their absence instead of their documented presence.
   const stillPresent = ['Caspian', 'Jonah', 'Elias'].filter((n) => wholeWordCount(MF_SRC, n) > 0);
-  check('11c. Caspian/Jonah/Elias remain in manuscriptFixer.js via out-of-scope literal-phrase rules (expected, documented)',
-    stillPresent.length === 3, `found: ${stillPresent.join(', ')}`);
+  check('11c. Caspian/Jonah/Elias no longer occur in manuscriptFixer.js (LEGACYREPAIR-2 deleted the out-of-scope literal-phrase rules)',
+    stillPresent.length === 0, `found: ${stillPresent.join(', ')}`);
 }
 
 // ── (d) hygiene1 shrinks correctly and stays green ──

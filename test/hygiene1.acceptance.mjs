@@ -144,5 +144,28 @@ check('4c. the two HYGIENE-1B files are exempted specifically as Arc J LEGACYREP
     wholeWordCount(stripNolanValeExemption(sample), 'Nolan') === 0 && wholeWordCount(sample, 'Nolan') === 1);
 }
 
+// ── 7. LEGACYREPAIR names — a THIRD, independent retired cast (a book this
+// arc never otherwise names) that hard-coded 8 character names into
+// legacyProseRepairs.data.js and manuscriptFixer.js specifically. LEGACYREPAIR-1
+// generalized every subject-alternation regex away from these names (Arc J);
+// LEGACYREPAIR-2 (finding 65) then deleted the last out-of-scope literal-phrase
+// rules that still named three of them directly. This is a standing check for
+// BOTH files, independent of the 18-name RETIRED list above (a different
+// incident, a different cast) and independent of test/legacyrepair1.acceptance.mjs's
+// own point-in-time check of the same fact.
+const LEGACYREPAIR_NAMES = ['Elias', 'Caspian', 'Jonah', 'Orin', 'Silas', 'Lev', 'Ronan', 'Kael'];
+{
+  const targets = ['legacyProseRepairs.data.js', 'manuscriptFixer.js'];
+  const offenders = [];
+  for (const file of targets) {
+    const text = fs.readFileSync(new URL(file, SRC_LIB_DIR), 'utf8');
+    for (const name of LEGACYREPAIR_NAMES) {
+      if (wholeWordCount(text, name) > 0) offenders.push(`${file}:${name}`);
+    }
+  }
+  check('7. none of the 8 LEGACYREPAIR names occurs as a whole word in legacyProseRepairs.data.js or manuscriptFixer.js',
+    offenders.length === 0, offenders.join(', '));
+}
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
