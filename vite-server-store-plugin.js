@@ -118,6 +118,7 @@ function loadStore(uid, entityName) {
     try {
       const raw = fs.readFileSync(filePath, 'utf8');
       cache[key] = JSON.parse(raw);
+      if (entityName === '_FileStore') dedupeFileStoreOnLoad(uid, entityName);
     } catch {
       cache[key] = [];
     }
@@ -125,6 +126,47 @@ function loadStore(uid, entityName) {
     cache[key] = [];
   }
   return cache[key];
+}
+
+// ── STOREKEY-1: _FileStore load-time dedupe ─────────────────────────────
+// _FileStore keys are content-addressed (same id == same logical blob).
+// Before the create-time upsert below existed, a resave appended a
+// duplicate id instead of replacing it, so a later `find`/`findIndex` could
+// resolve to whichever duplicate came first — not necessarily the newest
+// one. This runs once, the moment a _FileStore array is first read off disk
+// into the cache (loadStore's cache-miss branch, above — the existing
+// `if (cache[key]) return cache[key];` fast path guarantees it never runs
+// twice for the same uid+entity in one process lifetime), collapses every
+// duplicate id to its LAST occurrence, and flushes the cleaned array back
+// to disk. No-op (no log, no rewrite) when the loaded array has no
+// duplicate ids. Never runs for any other entity.
+function dedupeFileStoreOnLoad(uid, entityName) {
+  const key = storeKey(uid, entityName);
+  const records = cache[key];
+  if (!Array.isArray(records) || records.length === 0) return;
+
+  const lastIndexById = new Map();
+  const idCounts = new Map();
+  for (let i = 0; i < records.length; i++) {
+    const r = records[i];
+    if (r && typeof r.id === 'string') {
+      lastIndexById.set(r.id, i);
+      idCounts.set(r.id, (idCounts.get(r.id) || 0) + 1);
+    }
+  }
+
+  const duplicateKeyCount = [...idCounts.values()].filter((c) => c > 1).length;
+  if (duplicateKeyCount === 0) return;
+
+  const deduped = records.filter((r, i) => {
+    if (!r || typeof r.id !== 'string') return true; // no id to key on — never drop it
+    return lastIndexById.get(r.id) === i; // keep only the LAST occurrence of each id
+  });
+  const removedCount = records.length - deduped.length;
+
+  cache[key] = deduped;
+  console.log(`[STOREKEY-1] ${uid}: collapsed ${removedCount} duplicate _FileStore record(s) across ${duplicateKeyCount} key(s)`);
+  flushStore(uid, entityName);
 }
 
 /**
@@ -281,9 +323,34 @@ async function handleRequest(req, res, uid) {
       case 'create': {
         const data = await readBody(req);
         const now = nowISO();
+        const id = data.id || generateId();
+
+        // STOREKEY-1: _FileStore is content-addressed — a second create for
+        // an id that already exists is a resave of the same blob, not a new
+        // record. Replace it in place (same array index), keep the original
+        // created_date, stamp updated_date, respond 200. Every other entity
+        // keeps today's plain append (201, unconditional push) untouched.
+        if (entity === '_FileStore') {
+          const existingIdx = store.findIndex((r) => r.id === id);
+          if (existingIdx >= 0) {
+            const merged = {
+              ...store[existingIdx],
+              ...data,
+              id,
+              created_date: store[existingIdx].created_date,
+              updated_date: now,
+            };
+            store[existingIdx] = merged;
+            cache[storeKey(uid, entity)] = store;
+            flushStore(uid, entity);
+            sendJSON(res, merged, 200);
+            break;
+          }
+        }
+
         const record = {
           ...data,
-          id: data.id || generateId(),
+          id,
           created_date: data.created_date || now,
           updated_date: data.updated_date || now,
           created_by: data.created_by || 'local@unitybookstudio.app',
