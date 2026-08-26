@@ -128,9 +128,23 @@ function wholeWordCount(text, name) {
   }
   const fragBody = sliceBetween('function applyFragmentAndConjunctionRefinements(', 'function applyForcedFinalLiteralSurvivorPatch(');
   const forcedBody = sliceBetween('function applyForcedFinalLiteralSurvivorPatch(', 'function applyLiteralExportSurvivorPatch(');
-  const literalBody = sliceBetween('function applyLiteralExportSurvivorPatch(', 'function findFinalSaveGateSurvivors(');
-  const detectorStart = MF_SRC.indexOf('function findFinalSaveGateSurvivors(');
-  const detectorBody = MF_SRC.slice(detectorStart, detectorStart + 15000);
+  // ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS: applyLiteralExportSurvivorPatch
+  // is NOT immediately followed by findFinalSaveGateSurvivors — several
+  // unrelated functions (applyFinalGrammarIntegrityRepairs and others) sit
+  // between them, so slicing to that far-away marker swept ~7 unrelated
+  // functions into literalBody and made both the triples and label-object
+  // counts wrong (the check only passed because the arithmetic delta across
+  // the oversized span happened to still equal 2). Bound to the array's own
+  // consumption point instead, the same way every other slice in this file
+  // is bounded to real, adjacent structure.
+  const literalStart = MF_SRC.indexOf('function applyLiteralExportSurvivorPatch(');
+  const literalLoopIdx = MF_SRC.indexOf('for (const item of replacements) {', literalStart);
+  const literalBody = MF_SRC.slice(literalStart, literalLoopIdx);
+  // Same class of bug: findFinalSaveGateSurvivors's patterns[] array is far
+  // shorter than 15000 chars — that fixed window swept ~4 unrelated
+  // functions (runFinalSaveGateSurvivorSweep and others) into detectorBody.
+  // Bound to the real next function instead.
+  const detectorBody = sliceBetween('function findFinalSaveGateSurvivors(', 'function runFinalSaveGateSurvivorSweep(');
 
   const countLabelObjects = (body) => (body.match(/^\s*label:/gm) || []).length;
   const countTriples = (body) => (body.match(/\[\s*\n\s*'[^']*',\s*\n\s*'[^']*',\s*\n\s*'[^']*',\s*\n\s*\],?/g) || []).length;
@@ -142,8 +156,8 @@ function wholeWordCount(text, name) {
     { name: 'applyFragmentAndConjunctionRefinements replacements[] (Elias)', before: 29, removed: 1, actual: countLabelObjects(fragBody) },
     { name: 'applyForcedFinalLiteralSurvivorPatch pairs[] (Caspian x2 + Jonah x1)', before: 36, removed: 3, actual: countTriples(forcedBody) },
     { name: 'applyLiteralExportSurvivorPatch directStringReplacements[] (Caspian x2)', before: 6, removed: 2, actual: countTriples(literalBody) },
-    { name: 'applyLiteralExportSurvivorPatch regex replacements[] (Caspian x1 + Jonah x1)', before: 67, removed: 2, actual: countLabelObjects(literalBody) },
-    { name: 'findFinalSaveGateSurvivors patterns[] (Caspian x1 + Jonah x1)', before: 104, removed: 2, actual: countBareRegex(detectorBody) },
+    { name: 'applyLiteralExportSurvivorPatch regex replacements[] (Caspian x1 + Jonah x1)', before: 18, removed: 2, actual: countLabelObjects(literalBody) },
+    { name: 'findFinalSaveGateSurvivors patterns[] (Caspian x1 + Jonah x1)', before: 84, removed: 2, actual: countBareRegex(detectorBody) },
   ];
   let totalRemoved = 0;
   const mismatches = [];
