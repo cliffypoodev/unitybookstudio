@@ -161,6 +161,22 @@ console.warn = originalWarn;
   check('8. the guard\'s early return does not manually release the mutex (the enclosing finally already does, exactly once)',
     guardRejectLines.length === 2 && guardRejectLines.every((m) => !/\brelease\(\)/.test(m[1])),
     JSON.stringify(guardRejectLines.map((m) => m[1])));
+
+  // STOREMUTEX-1 (finding 63): the SAME double-release shape predates this
+  // ticket entirely — case 'update'/'delete's "Missing id" and not-found
+  // early returns already called release() explicitly under the identical
+  // enclosing finally. Fixed at the source; pin both cases' error paths to
+  // never manually release either.
+  const deleteBlock = src.slice(src.indexOf("case 'delete'"), src.indexOf('default:'));
+  const missingOrNotFoundRx = /if \([^)]+\) \{ (return sendError\(res, (?:'Missing id'|`\$\{entity\}[^}]+)[^}]*)\}/g;
+  const updateErrorLines = [...updateBlock.matchAll(missingOrNotFoundRx)];
+  const deleteErrorLines = [...deleteBlock.matchAll(missingOrNotFoundRx)];
+  check('9. case \'update\'\'s "Missing id" / not-found error paths do not manually release the mutex',
+    updateErrorLines.length === 2 && updateErrorLines.every((m) => !/\brelease\(\)/.test(m[1])),
+    JSON.stringify(updateErrorLines.map((m) => m[1])));
+  check('10. case \'delete\'\'s "Missing id" / not-found error paths do not manually release the mutex',
+    deleteErrorLines.length === 2 && deleteErrorLines.every((m) => !/\brelease\(\)/.test(m[1])),
+    JSON.stringify(deleteErrorLines.map((m) => m[1])));
 }
 
 fs.rmSync(TMP, { recursive: true, force: true });

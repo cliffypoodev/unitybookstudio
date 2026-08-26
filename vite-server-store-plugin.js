@@ -395,9 +395,9 @@ async function handleRequest(req, res, uid) {
       }
 
       case 'update': {
-        if (!id) { release(); return sendError(res, 'Missing id'); }
+        if (!id) { return sendError(res, 'Missing id'); }
         const idx = store.findIndex(r => r.id === id);
-        if (idx < 0) { release(); return sendError(res, `${entity} with id ${id} not found`, 404); }
+        if (idx < 0) { return sendError(res, `${entity} with id ${id} not found`, 404); }
         const fields = await readBody(req);
         const updated = {
           ...store[idx],
@@ -417,9 +417,9 @@ async function handleRequest(req, res, uid) {
       }
 
       case 'delete': {
-        if (!id) { release(); return sendError(res, 'Missing id'); }
+        if (!id) { return sendError(res, 'Missing id'); }
         const delIdx = store.findIndex(r => r.id === id);
-        if (delIdx < 0) { release(); return sendError(res, `${entity} with id ${id} not found`, 404); }
+        if (delIdx < 0) { return sendError(res, `${entity} with id ${id} not found`, 404); }
         store.splice(delIdx, 1);
         cache[storeKey(uid, entity)] = store;
         flushStore(uid, entity);
