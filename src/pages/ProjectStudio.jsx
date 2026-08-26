@@ -63,7 +63,7 @@ import { runAiDetectionResistance } from '@/lib/aiDetectionResist';
 import { runAntiDetectionPolish } from '@/lib/antiDetectionPolish';
 import { isAnthologyProject, buildAnthologyBiblePrompt, anthologyBibleSchema, parseAnthologyBible, storiesToChapterPlans, buildAnthologyStoryContext } from '@/lib/anthologyEngine';
 import { generateAnthologyOutlinesBatched, rebuildAnthologyOutlineMd, hasInvalidAnthologyStories } from '@/lib/anthologyBatchOutline';
-import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity } from '@/lib/researchStorage';
+import { resolveResearchContent, prepareResearchContent, checkResearchIntegrity, shouldRunReResearch, snapshotResearchBeforeReResearch } from '@/lib/researchStorage';
 import { researchCoverageCheck } from '@/lib/researchCoverage';
 import { buildIdeaProjectFields } from '@/lib/ideaInjection';
 import { prepareFoundationPayload, resolveAllFoundationFields } from '@/lib/foundationStorage';
@@ -3078,6 +3078,23 @@ Return structured JSON:
 
   const handleResearch = async () => {
     if (!project) return;
+
+    // RERESEARCH-CONFIRM-1: this handler always REPLACES research_data/
+    // research_md (executeResearchPipeline's appendToExisting is false
+    // below) and is the same function bound to both the first-run "Research
+    // This Topic" button and the "Re-Research" button — the gate is a no-op
+    // (no dialog, no snapshot) whenever there's little/nothing to lose.
+    const { proceed, info } = shouldRunReResearch(project, (msg) => window.confirm(msg));
+    if (!proceed) return;
+    if (info.needsConfirm) {
+      try {
+        await snapshotResearchBeforeReResearch(project);
+      } catch (snapErr) {
+        console.error('[RERESEARCH-CONFIRM-1] snapshot failed, aborting re-research:', snapErr);
+        toast.error('Could not snapshot existing research; re-research was not started.');
+        return;
+      }
+    }
 
     const topic = await resolveSeedConcept(project) || settingsDrafts.seed_concept || '';
     if (!topic.trim()) {

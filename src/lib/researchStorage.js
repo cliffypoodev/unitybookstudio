@@ -3,9 +3,81 @@
  * Mirrors the same upload-then-URL pattern used in chapterStorage.js.
  */
 import { base44 } from '@/api/base44Client';
-import { retrieveFile } from '@/lib/localDB';
+import { retrieveFile, storeFile } from '@/lib/localDB';
 
 const MAX_INLINE_SIZE = 10000;
+
+// RERESEARCH-CONFIRM-1: below this many characters of existing research,
+// re-running research is cheap to lose and the confirm dialog would just be
+// noise on a project's very first research run (which always starts empty).
+export const RERESEARCH_CONFIRM_MIN_CHARS = 2000;
+
+/**
+ * Pure, React-free sizing for the re-research confirm gate. Accepts
+ * research_data as either a JSON string (the shape it's stored on the
+ * project entity) or an already-parsed object — malformed JSON falls back
+ * to a raw character count rather than throwing, since the confirm gate
+ * must never be the reason a re-research click breaks.
+ */
+export function describeResearchSize(project) {
+  const md = typeof project?.research_md === 'string' ? project.research_md : '';
+  const rawData = project?.research_data;
+  const rawDataStr = typeof rawData === 'string'
+    ? rawData
+    : (rawData && typeof rawData === 'object' ? (() => { try { return JSON.stringify(rawData); } catch { return ''; } })() : '');
+  const chars = Math.max(md.length, rawDataStr.length);
+
+  let parsed = null;
+  if (typeof rawData === 'string' && rawData) {
+    try { parsed = JSON.parse(rawData); } catch { parsed = null; }
+  } else if (rawData && typeof rawData === 'object') {
+    parsed = rawData;
+  }
+
+  const timeline = parsed && Array.isArray(parsed.timeline) ? parsed.timeline.length : 0;
+  const events = parsed && Array.isArray(parsed.key_events) ? parsed.key_events.length : 0;
+
+  return { chars, timeline, events, needsConfirm: chars >= RERESEARCH_CONFIRM_MIN_CHARS };
+}
+
+export function buildReResearchConfirmMessage(info) {
+  return `Re-run research? This project already holds ${info.chars} characters of research ` +
+    `(${info.timeline} timeline entries, ${info.events} key events). Re-Research REPLACES it. ` +
+    `The current research is snapshotted first.`;
+}
+
+/**
+ * Sync gate: below the threshold, proceeds without ever calling confirmFn
+ * (a first-ever research run must stay a single click). At/above it, calls
+ * confirmFn with the exact sized message; a cancel logs and proceeds=false.
+ */
+export function shouldRunReResearch(project, confirmFn) {
+  const info = describeResearchSize(project);
+  if (!info.needsConfirm) return { proceed: true, info };
+  const proceed = !!(confirmFn && confirmFn(buildReResearchConfirmMessage(info)));
+  if (!proceed) {
+    console.log(`[RERESEARCH-CONFIRM-1] cancelled (${info.chars} chars)`);
+  }
+  return { proceed, info };
+}
+
+/**
+ * Snapshots the current research into _FileStore, through the same
+ * storeFile() primitive every other save path uses, BEFORE a re-research
+ * pipeline (which always replaces, never merges) can overwrite it.
+ */
+export async function snapshotResearchBeforeReResearch(project) {
+  const projectId = project?.id || 'unknown-project';
+  const key = `${projectId}/research/pre-reresearch-${Date.now()}`;
+  const payload = JSON.stringify({
+    research_data: project?.research_data || '',
+    research_md: project?.research_md || '',
+    snapshotted_at: new Date().toISOString(),
+  });
+  const url = await storeFile(key, payload);
+  console.log(`[RERESEARCH-CONFIRM-1] snapshotted existing research to ${key}`);
+  return { key, url };
+}
 
 /**
  * Uploads content to GitHub via the uploadToGitHub backend function.
