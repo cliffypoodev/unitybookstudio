@@ -36,3 +36,23 @@ dup-intro 0 · rest as NF where applicable.
 
 ## Still to do before the acceptance RUN
 Prep session 2 (code): DOCS-6, SCENEDUP-3, ACCEPT-1B → 161 batteries. Then the live protocol in the kickoff.
+
+## Prep session 2 landing check (a02a4d6d) — 2026-08-26 ~21:30 UTC
+HEAD = origin/main = origin/agent/narrative-connect-1 = **a02a4d6d** (ls-remote agrees); tree clean. Five commits since
+b66adaf3: DOCS-6 (59e36dc1) · SCENEDUP-3 ×2 (9cdc2ed4, 35ac3910) · ACCEPT-1B ×2 (18c5e67b, a02a4d6d).
+Batteries: **161 files, 161 green offline** (device VM, 3 chunks); polish-pipeline reds 0-line diff.
+SCENEDUP-3 (finding 67 CLOSED): `src/lib/sceneDuplicateSweep.js` is now the live implementation (1,024 lines, no DEAD-CODE
+stamp); `ProjectStudio.jsx` 6055 → 5059 lines with 3 references to `runSceneDuplicateSweep` (import + call sites);
+`scripts/ubs-run.mjs` injects the sweep (328/349–350) so headless polish has parity with in-app polish. Live: the library
+sweep over the NF flagship's 21 chapters = 0 blocks removed (26 s in the VM).
+ACCEPT-1B (finding 68 CLOSED): the harness reads the gate's own `malformedTotal`; scene-dupes measures the library export;
+every over-budget template family is listed.
+
+## Findings (continued)
+70. Harness nit: the polish pipeline never runs the scene-duplicate sweep on NONFICTION (runner 736), so ACCEPT's
+    `scene-dupes` criterion must be N/A for NF projects (today it reports a number/FAIL). → ACCEPT-1C, two lines + one check,
+    fold into the first live-session paste.
+
+## STATUS: every code item of the master plan (PREFLIGHT, Arcs A–J, FINAL-ACCEPTANCE prep) is LANDED and verified at a02a4d6d.
+What remains is LIVE work on Cliff's machine: the acceptance RUNS (two fresh books × two runs, via the runner + harness),
+the Arc H/I live proofs, I3 SPEED-1, the two flagships' DATA fixes, and my triage of SMOKEOUT-1 / TESTSWEEP-2.
