@@ -147,5 +147,50 @@ const countParas = (text) => text.split(/\n{2,}/).filter((p) => p.trim().length 
   check('8c. the clean chapter (1) is completely untouched by this mechanism', countParas(loaded[0].content) === 1 && loaded[0].content === chA);
 }
 
+// ── 9. LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: the two reviewer-found
+// gaps (normalizeSmartApostropheSpacing/finalPossessiveApostropheGuard's
+// unguarded \s*, and the ~30 plain-applyRule \s+ call sites the original
+// commit's audit missed) no longer silently merge a paragraph ──
+{
+  // Reviewer's exact repro: an apostrophe split by an export artifact right
+  // at a paragraph break used to collapse two paragraphs into one via
+  // normalizeSmartApostropheSpacing's unguarded \s* rule.
+  const r = repairManuscriptArtifacts('Something about Iris’\n\ns coat was still damp from the rain. She said nothing.');
+  check('9. an apostrophe split at a paragraph break no longer silently merges the paragraph', countParas(r.text) === 2, r.text);
+  check('9b. the merge is recorded as a flag, not silently applied', (r.flaggedDeletions || []).length > 0, JSON.stringify(r.flaggedDeletions));
+}
+{
+  // Reviewer's exact repro: a contraction corrupted across a paragraph break
+  // (plain applyRule, \s+ connector) used to trigger STRUCTURE-GUARD, which
+  // reverted the WHOLE chapter — discarding an unrelated, legitimate,
+  // same-stage, in-paragraph fix elsewhere in that same chapter.
+  const text = 'She said she didn t know what to say next, and neither did he.\n\nHe insisted he didn\n\nt change his mind about anything that mattered to her.';
+  const loaded = [{ chapter: { chapter_number: 1, title: 'Ch 1', id: 'ch1' }, content: text, original: text }];
+  const { result, lines } = await withCapturedConsole(() => runManuscriptPolishPipeline({
+    loaded, project: { title: 'Test', genre: 'Fantasy', book_type: 'fiction' }, allowLLM: false, mode: 'fiction',
+  }));
+  check('10. the co-located, non-boundary-crossing contraction fix still lands', loaded[0].content.includes('didn’t know what to say next'), loaded[0].content);
+  check('10b. no [STRUCTURE-GUARD] ... REVERTED line fires for either stage', !lines.some((l) => l.includes('[STRUCTURE-GUARD]') && l.includes('REVERTED')), JSON.stringify(lines.filter((l) => l.includes('STRUCTURE-GUARD'))));
+  check('10c. the boundary-crossing contraction split is flagged, not merged', (result.paragraphDeletionFlags || []).some((f) => f.chapter === 1 && f.reason === 'fixed did not contraction corruption'), JSON.stringify(result.paragraphDeletionFlags));
+}
+{
+  // Source-shape audit: no plain (non-paragraph-safe) applyRule(out, ...)
+  // call site anywhere in the file uses a QUANTIFIED \s+/\s* connector any
+  // more — the exact class of gap this follow-up closes. A bare, unquantified
+  // \s (e.g. the "(^|\s)" restored-opener rules) matches exactly one
+  // character and can never span a \n{2,} boundary by itself, so it is
+  // deliberately excluded here — this check only rules out the
+  // one-or-more/zero-or-more shape that CAN. A future rule added the old,
+  // unguarded way should fail this check rather than ship a silent regression.
+  const src = fs.readFileSync(new URL('../src/lib/manuscriptArtifactRepair.js', import.meta.url), 'utf8');
+  const offenders = [];
+  const rx = /applyRule\(out, (\/(?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\])*\/[a-z]*),/g;
+  let m;
+  while ((m = rx.exec(src)) !== null) {
+    if (/\\s[+*]/.test(m[1])) offenders.push(m[1]);
+  }
+  check('11. no plain applyRule(out, ...) call site uses a quantified \\s+/\\s* connector', offenders.length === 0, offenders.join(', '));
+}
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
