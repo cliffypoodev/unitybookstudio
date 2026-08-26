@@ -52,8 +52,9 @@ const novelSeed = folded ? cloneLedger(folded) : buildInitialLedger();
 check('A4. folded priorLedger (novel path) still carries inherited holders (unchanged)',
   Object.keys(novelSeed.possessions || {}).length > 0);
 
-// ── Part B: the guard is wired in ProjectStudio.draftChapter ──
-const ps = fs.readFileSync(path.join(ROOT, 'src/pages/ProjectStudio.jsx'), 'utf8');
+// ── Part B: the guard is wired in draftChapter — ORCH-1 moved its body into
+// src/lib/chapterOrchestrator.js's runChapterDraft ──
+const ps = fs.readFileSync(path.join(ROOT, 'src/lib/chapterOrchestrator.js'), 'utf8');
 check('B1. prior-ledger fold is guarded off for anthology',
   ps.includes('const priorLedger = isAnth ? null : await buildPriorLedger('));
 check('B2. saveChapterLedger is skipped for anthology',

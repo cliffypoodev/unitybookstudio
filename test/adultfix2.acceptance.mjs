@@ -108,7 +108,9 @@ check('15. nonfiction anthology still gets NO variety/banned block (SCOPINGFIX-1
 const SCENEWRITER = fs.readFileSync(path.join(ROOT, 'src/lib/sceneWriter.js'), 'utf8');
 check('16. sceneWriter computes prose names AFTER the rename pass', SCENEWRITER.includes('anthologyProseNames = extractProminentProseNames(finalProse)'));
 check('17. sceneWriter returns anthologyProseNames', /anthologyProseNames, \/\/ NAMEREG-1/.test(SCENEWRITER));
-check('18. fast-save persists prose_names', STUDIO.includes('prose_names: JSON.stringify(sceneResult.anthologyProseNames)'));
+// ORCH-1 moved draftChapter's fast-save body into chapterOrchestrator.js.
+const ORCH_FOR_18 = fs.readFileSync(path.join(ROOT, 'src/lib/chapterOrchestrator.js'), 'utf8');
+check('18. fast-save persists prose_names', ORCH_FOR_18.includes('prose_names: JSON.stringify(sceneResult.anthologyProseNames)'));
 const SCHEMA = fs.readFileSync(path.join(ROOT, 'base44/entities/Chapter.jsonc'), 'utf8');
 check('19. Chapter schema declares prose_names (WAVE3 discipline)', SCHEMA.includes('"prose_names"'));
 

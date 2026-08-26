@@ -267,17 +267,22 @@ await test('Brass Meridian planning-language leaks are rejected from prose', () 
 });
 
 if (!skipWiring) await test('production wiring is fail-closed across planning, beats, and scenes', () => {
+  // ORCH-1 moved draftChapter's body (and several of these markers) out of
+  // ProjectStudio.jsx into src/lib/chapterOrchestrator.js's runChapterDraft;
+  // the beat-planning markers that live in a different, untouched function
+  // (generateSceneBeats / handleDraftAll) stayed in ProjectStudio.jsx.
   const studio = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
+  const orch = fs.readFileSync(new URL('../src/lib/chapterOrchestrator.js', import.meta.url), 'utf8');
   const writer = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
   const bible = fs.readFileSync(new URL('../src/lib/parallelBibleGenerator.js', import.meta.url), 'utf8');
   const auto = fs.readFileSync(new URL('../src/lib/autonovel.js', import.meta.url), 'utf8');
 
-  assert.match(studio, /loadGenerationSnapshot\s*\(/);
+  assert.match(orch, /loadGenerationSnapshot\s*\(/);
   assert.match(studio, /validateSceneBeatContracts\s*\(/);
-  assert.match(studio, /shouldBlockEmergencySave\(draftError\)/);
+  assert.match(orch, /shouldBlockEmergencySave\(draftError\)/);
   assert.match(studio, /SCENE_CONTRACT_OVERLAP_UNRESOLVED/);
-  assert.match(studio, /revisionFeedback:\s*retryFeedback/);
-  assert.match(studio, /NARRATIVE_CONTRACT_UNRESOLVED/);
+  assert.match(orch, /revisionFeedback:\s*retryFeedback/);
+  assert.match(orch, /NARRATIVE_CONTRACT_UNRESOLVED/);
   assert.match(studio, /fiction-scene-contract-v1/);
   assert.match(writer, /SCENE_DUPLICATE_UNRESOLVED/);
   assert.doesNotMatch(writer, /duplicate repair still looked unsafe; keeping original but flagging/);

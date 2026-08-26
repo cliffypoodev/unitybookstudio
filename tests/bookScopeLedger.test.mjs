@@ -41,7 +41,10 @@ import path from 'node:path';
 const root = process.cwd();
 const sceneWriter = fs.readFileSync(path.join(root, 'src/lib/sceneWriter.js'), 'utf8');
 const cohesion = fs.readFileSync(path.join(root, 'src/lib/chapterCohesion.js'), 'utf8');
-const projectStudio = fs.readFileSync(path.join(root, 'src/pages/ProjectStudio.jsx'), 'utf8');
+// ORCH-1 moved draftChapter's body — including this ledger fold/persist
+// wiring — out of ProjectStudio.jsx into src/lib/chapterOrchestrator.js;
+// projectId became deps.projectId in the move (see that module's header).
+const projectStudio = fs.readFileSync(path.join(root, 'src/lib/chapterOrchestrator.js'), 'utf8');
 
 let pass = 0;
 let fail = 0;
@@ -289,7 +292,7 @@ check('WIRING: the ledger is RETURNED to the caller (it used to die with the fun
 // buildPriorLedger and threads the result into the writer as priorLedger) still
 // holds; only the anchor's exact literal text changed.
 check('WIRING: ProjectStudio folds prior chapters and passes the result in',
-  projectStudio.includes('await buildPriorLedger(project?.id || projectId, chapter.chapter_number)')
+  projectStudio.includes('await buildPriorLedger(project?.id || deps.projectId, chapter.chapter_number)')
   && /priorChapterSummaries,\s*\n\s*priorLedger,/.test(projectStudio));
 
 check('WIRING: ProjectStudio persists the ledger after drafting',

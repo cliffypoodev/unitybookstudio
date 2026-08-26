@@ -139,15 +139,19 @@ check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v3');
   check('15. a quoted-author name that never acts is not flagged missing', !r.missing.some((m) => m.name === 'Voss'), JSON.stringify(r.missing));
 }
 
-// 9. wiring source-shape: ProjectStudio.jsx calls the audit in both draftChapter and handleDraftAll
+// 9. wiring source-shape: the audit runs in both draftChapter and handleDraftAll.
+// ORCH-1 moved draftChapter's body (and its bible-gate call) out of
+// ProjectStudio.jsx into src/lib/chapterOrchestrator.js's runChapterDraft;
+// handleDraftAll's own, separate bible check was untouched by that move.
 {
   const PS = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
-  const draftChapterIdx = PS.indexOf('const draftChapter = async');
+  const ORCH = fs.readFileSync(new URL('../src/lib/chapterOrchestrator.js', import.meta.url), 'utf8');
+  const runChapterDraftIdx = ORCH.indexOf('export async function runChapterDraft');
   const handleDraftAllIdx = PS.indexOf('const handleDraftAll = async');
-  check('9a. draftChapter wires auditBibleCompleteness', draftChapterIdx >= 0 && PS.slice(draftChapterIdx, draftChapterIdx + 3000).includes('auditBibleCompleteness'));
+  check('9a. draftChapter (now runChapterDraft) wires auditBibleCompleteness', runChapterDraftIdx >= 0 && ORCH.slice(runChapterDraftIdx, runChapterDraftIdx + 3000).includes('auditBibleCompleteness'));
   check('9b. handleDraftAll wires auditBibleCompleteness', handleDraftAllIdx >= 0 && PS.slice(handleDraftAllIdx, handleDraftAllIdx + 2000).includes('auditBibleCompleteness'));
-  check('9c. wiring is fiction-only (gated by isNonfictionProjectAuthority)', PS.includes('if (!isNonfictionProjectAuthority(generationProject)) {') && PS.includes('if (!isNonfictionProjectAuthority(project)) {'));
-  check('9d. blocks via toast.error and return', PS.includes("toast.error(`Story bible incomplete"));
+  check('9c. wiring is fiction-only (gated by isNonfictionProjectAuthority)', ORCH.includes('if (!isNonfictionProjectAuthority(generationProject)) {') && PS.includes('if (!isNonfictionProjectAuthority(project)) {'));
+  check('9d. blocks via toast.error and return', PS.includes("toast.error(`Story bible incomplete") && ORCH.includes("deps.toast.error(`Story bible incomplete"));
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

@@ -92,7 +92,9 @@ check('21. retries re-prepare content (fresh upload), not the same stale payload
 const CSTORE = fs.readFileSync(new URL('../src/lib/chapterStorage.js', import.meta.url), 'utf8');
 check('22. every upload failure retries (3 attempts), and the preserve path SCREAMS', CSTORE.includes('attempt <= 3') && CSTORE.includes('[DRAFTSAVE-1] Upload failed after retries'));
 const STUDIO = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
-check('23. straight-quote drafts are typography-normalized before save', STUDIO.includes('[DRAFTSAVE-1]') && STUDIO.includes('normalizeSmartQuotesOnly(chapterContent)'));
+// ORCH-1 moved draftChapter's pre-save quote normalization into chapterOrchestrator.js.
+const ORCH_FOR_23 = fs.readFileSync(new URL('../src/lib/chapterOrchestrator.js', import.meta.url), 'utf8');
+check('23. straight-quote drafts are typography-normalized before save', ORCH_FOR_23.includes('[DRAFTSAVE-1]') && ORCH_FOR_23.includes('normalizeSmartQuotesOnly(chapterContent)'));
 
 // ── 8. wiring ──
 const WRITER = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');

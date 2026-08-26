@@ -168,13 +168,15 @@ test('judge schema requires semantic continuity results', () => {
 });
 
 test('contract-aware rewrite feedback is actually injected into prose prompts', () => {
+  // ORCH-1 moved draftChapter's body — and both of these markers — out of
+  // ProjectStudio.jsx into src/lib/chapterOrchestrator.js's runChapterDraft.
   const writer = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
-  const studio = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
+  const orch = fs.readFileSync(new URL('../src/lib/chapterOrchestrator.js', import.meta.url), 'utf8');
   assert.match(writer, /REJECTED-DRAFT CORRECTIONS — BINDING/);
   assert.match(writer, /revisionFeedback/);
   assert.match(writer, /assertSceneContractUnchanged\(immutableContract, normalizedScenes/);
-  assert.match(studio, /revisionFeedback:\s*retryFeedback/);
-  assert.match(studio, /Emergency save skipped because generated content violated a hard contract/);
+  assert.match(orch, /revisionFeedback:\s*retryFeedback/);
+  assert.match(orch, /Emergency save skipped because generated content violated a hard contract/);
 });
 
 import { auditSceneAgainstLedger, auditChapterLedgerContinuity, filterConcreteCriticFindings } from '../src/lib/sceneContractGate.js';

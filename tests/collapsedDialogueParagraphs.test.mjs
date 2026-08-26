@@ -189,7 +189,10 @@ check('SCOPE: with the option OFF no paragraph breaks are introduced',
 
 import fs from 'node:fs';
 import path from 'node:path';
-const projectStudio = fs.readFileSync(path.join(process.cwd(), 'src/pages/ProjectStudio.jsx'), 'utf8');
+// ORCH-1 moved draftChapter's body — including both fiction pre-save call
+// sites and the untouched nonfiction one — out of ProjectStudio.jsx into
+// src/lib/chapterOrchestrator.js's runChapterDraft.
+const projectStudio = fs.readFileSync(path.join(process.cwd(), 'src/lib/chapterOrchestrator.js'), 'utf8');
 
 check('WIRING: both fiction call sites pass splitCollapsedParagraphs: true',
   (projectStudio.match(/runDialogueMechanicsFinal\([^)]*splitCollapsedParagraphs: true/g) || []).length === 2);

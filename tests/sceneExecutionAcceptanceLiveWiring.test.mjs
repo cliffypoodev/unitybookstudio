@@ -22,20 +22,28 @@ function runTests() {
   const studioPath = new URL('../src/pages/ProjectStudio.jsx', import.meta.url);
   const studioCode = readFileSync(studioPath, 'utf-8');
 
+  // ORCH-1 moved draftChapter's body — including both generateChapterByScenes
+  // call sites (primary and retry) — out of ProjectStudio.jsx into
+  // src/lib/chapterOrchestrator.js's runChapterDraft.
+  const orchPath = new URL('../src/lib/chapterOrchestrator.js', import.meta.url);
+  const orchCode = readFileSync(orchPath, 'utf-8');
+
   const runnersPath = new URL('../src/lib/sceneExecutionAcceptanceRunners.js', import.meta.url);
   const runnersCode = readFileSync(runnersPath, 'utf-8');
 
-  test('1. ProjectStudio.jsx imports createSceneExecutionAcceptanceRunners from the dedicated module', () => {
+  test('1. chapterOrchestrator.js imports createSceneExecutionAcceptanceRunners from the dedicated module', () => {
+    // ORCH-1 moved draftChapter's body (and this import) out of ProjectStudio.jsx
+    // into src/lib/chapterOrchestrator.js, which uses a relative import since it
+    // has no @/ aliases of its own.
     assert.ok(
-      /import\s+.*createSceneExecutionAcceptanceRunners.*\s+from\s+['"]@\/lib\/sceneExecutionAcceptanceRunners['"];/.test(studioCode) ||
-      /import\s+\{\s*createSceneExecutionAcceptanceRunners\s*\}\s+from\s+['"]@\/lib\/sceneExecutionAcceptanceRunners['"];/.test(studioCode),
-      'Missing or incorrect import in ProjectStudio.jsx'
+      /import\s+\{\s*createSceneExecutionAcceptanceRunners\s*\}\s+from\s+['"]\.\/sceneExecutionAcceptanceRunners\.js['"];/.test(orchCode),
+      'Missing or incorrect import in chapterOrchestrator.js'
     );
   });
 
   test('2 & 3. Factory is constructed once in chapter-drafting scope and receives project: draftingProject', () => {
     const factoryCallRegex = /const\s+sceneExecutionAcceptanceRunners\s*=\s*createSceneExecutionAcceptanceRunners\s*\(\s*\{\s*project:\s*draftingProject,?\s*\}\s*\)/g;
-    const matches = studioCode.match(factoryCallRegex);
+    const matches = orchCode.match(factoryCallRegex);
     assert.ok(matches, 'Could not find the factory call with { project: draftingProject }');
     assert.strictEqual(matches.length, 1, 'Factory should be constructed exactly once per chapter-drafting attempt');
   });
@@ -44,7 +52,7 @@ function runTests() {
     const genCallBlockRegex = /await\s+generateChapterByScenes\s*\(\s*\{([^}]+)\}/g;
     let match;
     let passCount = 0;
-    while ((match = genCallBlockRegex.exec(studioCode)) !== null) {
+    while ((match = genCallBlockRegex.exec(orchCode)) !== null) {
       const block = match[1];
       if (block.includes('sceneExecutionAcceptanceRunners')) {
         passCount++;

@@ -49,7 +49,10 @@ const wired = [
   ['trim size → FullWrapComposite', 'src/components/cover/FullWrapComposite.jsx', /getSetting\('default_trim_size'/],
   ['default project type → NewProjectModal', 'src/components/dashboard/NewProjectModal.jsx', /getSetting\('default_project_type'/],
   ['floating brainstorm → App mount gate', 'src/App.jsx', /enable_floating_brainstorm/],
-  ['auto-polish hook → draftChapter (3 paths)', 'src/pages/ProjectStudio.jsx', null],
+  // ORCH-1 moved draftChapter's body (and its 3 maybeAutoPolishChapter call
+  // sites) out of ProjectStudio.jsx into src/lib/chapterOrchestrator.js; the
+  // final-check hook lives in a different, untouched function and stayed put.
+  ['auto-polish hook → draftChapter (3 paths)', 'src/lib/chapterOrchestrator.js', null],
   ['final check hook → both polish reports', 'src/pages/ProjectStudio.jsx', null],
 ];
 for (const [name, file, rx] of wired) {
@@ -94,7 +97,7 @@ const oe = read('src/components/novel/OutlineEditor.jsx');
 check('5b. OutlineEditor destructures the six picker props and renders the picker',
   /selectedProseModel,\s*\n\s*onProseModelChange,/.test(oe) && /FICTION_PROSE_MODELS\.map/.test(oe));
 check('5c. prose continuation honors the same override',
-  /proseModelOverride \|\| pickModel\('prose_continuation'/.test(read('src/pages/ProjectStudio.jsx')));
+  /proseModelOverride \|\| pickModel\('prose_continuation'/.test(read('src/lib/chapterOrchestrator.js')));
 
 // ── WAVE5-DEADSTAMP ──────────────────────────────────────────────────────────
 const walk = (dir, out = []) => {

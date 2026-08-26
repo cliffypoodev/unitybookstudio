@@ -35,7 +35,9 @@ import path from 'node:path';
 
 const root = process.cwd();
 const sceneWriter = fs.readFileSync(path.join(root, 'src/lib/sceneWriter.js'), 'utf8');
-const projectStudio = fs.readFileSync(path.join(root, 'src/pages/ProjectStudio.jsx'), 'utf8');
+// ORCH-1 moved draftChapter's body — including the DIALOGUEPOLICY-1 fallback
+// path checked below — out of ProjectStudio.jsx into chapterOrchestrator.js.
+const projectStudio = fs.readFileSync(path.join(root, 'src/lib/chapterOrchestrator.js'), 'utf8');
 const sceneContractGate = fs.readFileSync(path.join(root, 'src/lib/sceneContractGate.js'), 'utf8');
 
 let pass = 0;
