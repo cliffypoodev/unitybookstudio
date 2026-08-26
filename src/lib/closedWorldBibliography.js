@@ -127,20 +127,24 @@ export function buildClosedWorldBibliography(project) {
     if (!categoryEntries.includes(line)) categoryEntries.push(line);
   }
 
+  // BIBFORMAT-1 — section headings are markdown `##` lines: the export gate's
+  // BACKMATTER-1 exemption recognizes markdown headings (plain heading lines
+  // hard-block as unterminated paragraphs), and ExportTab's DOCX writer
+  // renders `##` as a real heading.
   const sections = ['Bibliography'];
   if (primaryEntries.length) {
-    sections.push('\nPrimary Sources and Archival Records');
+    sections.push('\n## Primary Sources and Archival Records');
     sections.push([...new Set(primaryEntries)].sort().join('\n\n'));
   }
   if (webEntries.length) {
-    sections.push('\nGovernment, Institutional, and Web Sources');
+    sections.push('\n## Government, Institutional, and Web Sources');
     sections.push([...new Set(webEntries)].sort().join('\n\n'));
   }
   if (categoryEntries.length) {
-    sections.push('\nSource Categories Consulted');
+    sections.push('\n## Source Categories Consulted');
     sections.push(categoryEntries.sort().join('\n\n'));
   }
-  sections.push('\nSource Integrity Note');
+  sections.push('\n## Source Integrity Note');
   sections.push('Every entry above derives from a source URL or document recorded in this project’s verified research. No citation was composed from memory. Before final publication, expand archival entries with exact collection titles where the repository provides them.');
 
   const text = sections.join('\n\n').replace(/\n{4,}/g, '\n\n\n').trim();

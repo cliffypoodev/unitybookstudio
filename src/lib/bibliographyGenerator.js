@@ -364,31 +364,35 @@ function buildFallbackBibliography({ project, domain, manuscriptText, researchTe
     }
   });
 
+  // BIBFORMAT-1 — section headings are markdown `##` lines: the export gate's
+  // BACKMATTER-1 exemption recognizes markdown headings (plain heading lines
+  // hard-block as unterminated paragraphs), and ExportTab's DOCX writer
+  // renders `##` as a real heading.
   sections.push('Bibliography');
-  if (title) sections.push(`\nSource list for ${title}`);
+  if (title) sections.push(`\n## Source list for ${title}`);
 
   if (primary.length) {
-    sections.push('\nPrimary Sources and Archival Records');
+    sections.push('\n## Primary Sources and Archival Records');
     sections.push(primary.join('\n\n'));
   }
 
   if (journalism.length) {
-    sections.push('\nNewspapers, Magazines, and Contemporary Journalism');
+    sections.push('\n## Newspapers, Magazines, and Contemporary Journalism');
     sections.push(journalism.join('\n\n'));
   }
 
   if (secondary.length) {
-    sections.push('\nBooks and Secondary Sources');
+    sections.push('\n## Books and Secondary Sources');
     sections.push(secondary.join('\n\n'));
   }
 
   if (webGov.length) {
-    sections.push('\nGovernment, Institutional, and Web Sources');
+    sections.push('\n## Government, Institutional, and Web Sources');
     sections.push(webGov.join('\n\n'));
   }
 
   const note = [
-    '\nSource Integrity Note',
+    '\n## Source Integrity Note',
     'This bibliography was rebuilt from the manuscript domain and project-relevant research lanes. Before final publication, tighten archive-specific entries with exact collection names, box/folder numbers, document titles, dates, and URLs where available.',
     'Do not add sources from unrelated projects. Do not publish placeholder citations.',
   ].join('\n\n');
