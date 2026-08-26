@@ -16,6 +16,7 @@ import {
   buildFictionEvidence, findUnknownPersons, makeUnknownPersonDetector,
 } from '../src/lib/nameGate.js';
 import { verifyRegeneratedParagraph, collectRegenTargets } from '../src/lib/regenerateLane.js';
+import { harvestCastNames } from '../src/lib/pronounLock.js';
 
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
@@ -152,8 +153,8 @@ const evidence = buildFictionEvidence(fictionProject, { chapters: [] });
     GATE.includes("from './nameGate.js'") && GATE.includes('findUnknownPersons') && GATE.includes('buildFictionEvidence') && GATE.includes('NAMEGATE_HARD_BLOCK'));
   check('11b. zero-telemetry-included per-chapter scan line present',
     GATE.includes('[NAMEGATE-1] Gate scan: Ch.${ch?.chapter_number} ${unknowns.length} unknown person(s)'));
-  check('11c. warning entry text is exact: NAMEGATE-1: "<Name>" (<count> mention(s)) is not in the bible or cast',
-    GATE.includes('NAMEGATE-1: "${u.name}" (${u.count} mention(s)) is not in the bible or cast'));
+  check('11c. warning entry text is exact: NAMEGATE-1: "<Name>" (<mentions> mention(s), <signals> signal(s)) is not in the bible or cast',
+    GATE.includes('NAMEGATE-1: "${u.name}" (${u.mentions} mention(s), ${u.count} signal(s)) is not in the bible or cast'));
   const blockStart = GATE.indexOf("// NAMEGATE-1 (finding 35b)");
   const blockEnd = GATE.indexOf('// STYLEBUDGET-1', blockStart);
   const block = blockStart >= 0 && blockEnd > blockStart ? GATE.slice(blockStart, blockEnd) : '';
@@ -161,6 +162,10 @@ const evidence = buildFictionEvidence(fictionProject, { chapters: [] });
   check('11e. hardFailures only populated when NAMEGATE_HARD_BLOCK is true, with REJECT_REGENERATE',
     block.includes('if (NAMEGATE_HARD_BLOCK)') && block.includes("recommendedAction: 'REJECT_REGENERATE'") &&
     /hardFailures\.push\(/.test(block) && /warnings\.push\(/.test(block));
+  check('11f. NAMEGATE-1B: the gate cast is sheet-only (harvestCastNames with no prose bodies)',
+    /harvestCastNames\(options\?\.project\?\.characters_md,\s*\[\]\)/.test(block));
+  check('11g. NAMEGATE-1B: the gate evidence is bible-only (chapters: [])',
+    /buildFictionEvidence\(project,\s*\{\s*chapters:\s*\[\]\s*\}\)/.test(block));
 }
 
 // ── 12. nonfiction project → no NAMEGATE line at all (runtime, via makeUnknownPersonDetector) ──
@@ -179,6 +184,73 @@ const evidence = buildFictionEvidence(fictionProject, { chapters: [] });
 
 // ── PERSON_VERBS / PERSON_PARTS sanity (exported closed lists) ──
 check('14. PERSON_VERBS and PERSON_PARTS are non-empty exported closed lists', Array.isArray(PERSON_VERBS) && PERSON_VERBS.length > 10 && Array.isArray(PERSON_PARTS) && PERSON_PARTS.length > 5);
+
+// ── 15. NAMEGATE-1B (finding 54a): sheet-only cast still catches a name the prose-augmented harvest would have hidden ──
+{
+  const heavyMentionProse = [
+    'The fence line ran for miles behind the old barn.',
+    ...Array.from({ length: 13 }, (_, i) => `Henderson walked past the fence post again near marker ${i + 1}, saying nothing.`),
+    'Everyone in the valley knew that Henderson walked that same line every single morning without fail.',
+  ].join(' ');
+
+  const proseAugmentedCast = harvestCastNames(fictionProject.characters_md, [heavyMentionProse]);
+  check('15a. the OLD prose-augmented harvest WOULD have hidden Henderson as cast (>= 12 mentions, no lowercase twin)',
+    proseAugmentedCast.includes('Henderson'), JSON.stringify(proseAugmentedCast));
+
+  const sheetOnlyCast = harvestCastNames(fictionProject.characters_md, []);
+  check('15b. the sheet-only harvest (NAMEGATE-1B) does NOT include Henderson',
+    !sheetOnlyCast.includes('Henderson'), JSON.stringify(sheetOnlyCast));
+
+  const withProseAugmentedCast = findUnknownPersons(heavyMentionProse, { evidence, cast: proseAugmentedCast });
+  check('15c. with the OLD prose-augmented cast, Henderson is NOT flagged — this is the bug finding 54 describes',
+    withProseAugmentedCast.length === 0, JSON.stringify(withProseAugmentedCast));
+
+  const withSheetOnlyCast = findUnknownPersons(heavyMentionProse, { evidence, cast: sheetOnlyCast });
+  check('15d. with the sheet-only cast (NAMEGATE-1B fix), Henderson IS flagged, mentions >= 14',
+    withSheetOnlyCast.length === 1 && withSheetOnlyCast[0].name === 'Henderson' && withSheetOnlyCast[0].mentions >= 14,
+    JSON.stringify(withSheetOnlyCast));
+}
+
+// ── 16. NAMEGATE-1B (finding 54b): evidence is bible-only — a name in a chapter's own beats does not protect it ──
+{
+  const chapterWithBeatsOnly = {
+    chapter_number: 3,
+    title: 'A Quiet Morning',
+    beat_summary: 'Henderson confronts the group about the missing key.',
+    summary: 'Henderson demands answers.',
+    scene_beats_json: JSON.stringify({ scenes: [{ description: 'Henderson enters and accuses everyone in the room.' }] }),
+  };
+  const evidenceIgnoringChapterBeats = buildFictionEvidence(fictionProject, { chapters: [chapterWithBeatsOnly] });
+  check('16a. buildFictionEvidence does not fold a name sitting only in a chapter\'s title/beat_summary/summary/scene_beats_json into evidence',
+    !evidenceIgnoringChapterBeats.includes('henderson'), evidenceIgnoringChapterBeats.slice(0, 200));
+
+  const prose16 = [
+    'The fence line ran for miles behind the old barn.',
+    ...Array.from({ length: 3 }, (_, i) => `Henderson looked at the group and said nothing at post ${i + 1}.`),
+    'Everyone remembered that Henderson looked away first, every single time.',
+  ].join(' ');
+  const sheetOnlyCast16 = harvestCastNames(fictionProject.characters_md, []);
+  const flagged16 = findUnknownPersons(prose16, { evidence: evidenceIgnoringChapterBeats, cast: sheetOnlyCast16 });
+  check('16b. a name that exists only in a chapter\'s own beats (never in the bible) is still flagged when it appears in prose',
+    flagged16.length === 1 && flagged16[0].name === 'Henderson', JSON.stringify(flagged16));
+}
+
+// ── 17. NAMEGATE-1B (finding 55): mentions and signal count are tracked independently, and both surface in the reason ──
+{
+  const mixedProse = [
+    '"Wait," said Henderson. Henderson looked at the door.',
+    'Henderson\'s coat hung by the door, forgotten in the rush.',
+    'No one else touched Henderson\'s coat all winter.',
+  ].join(' ');
+  const sheetOnlyCast17 = harvestCastNames(fictionProject.characters_md, []);
+  const found17 = findUnknownPersons(mixedProse, { evidence, cast: sheetOnlyCast17 });
+  check('17a. mentions (whole-word occurrences) exceed count (signal hits) when some mentions carry no person signal',
+    found17.length === 1 && found17[0].mentions === 4 && found17[0].count === 2, JSON.stringify(found17));
+
+  const GATE17 = fs.readFileSync(new URL('../src/lib/exportSafetyGate.js', import.meta.url), 'utf8');
+  check('17b. the export-gate reason string interpolates both u.mentions and u.count',
+    GATE17.includes('${u.mentions} mention(s), ${u.count} signal(s)'));
+}
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
