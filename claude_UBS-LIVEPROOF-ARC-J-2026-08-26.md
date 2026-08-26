@@ -27,3 +27,40 @@ duplicate _FileStore record(s) across 5 key(s)` on the next server start → 4,6
 ## Pending for Session 2 (fresh session; baseline fc066ccc, 155 files → 158)
 J6 LEGACYSTAGES-1, J7 POLISHSAFE-6, J8 LEGACYREPAIR-1 (+ DOCS-4 for this file). Live proofs unchanged (Arc H list +
 runner smoke + I3); DATA fixes through the app: NF flagship Ch.8/9/11, fiction flagship Ch.5 gate block + Ch.10 "Silas".
+
+## Session 2 landing check (80a54a70) — 2026-08-26 ~17:30 UTC
+HEAD = origin/main = origin/agent/narrative-connect-1 = **80a54a70** (ls-remote agrees); tree clean. Ten commits since
+fc066ccc: DOCS-4 (9c152eef) · STOREMUTEX-1-SINGLE-RELEASE (6ffe4c76) · LEGACYSTAGES-1 ×2 (78686a23, 42d8ee8e) · POLISHSAFE-6 ×2
+(64e605e2, adbf53fa) · LEGACYREPAIR-1 ×2 (1dfe9850, 230b2e2b) · LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE ×2 (8728f039,
+80a54a70 — Claude Code's own adversarial pass found that the first landing left the unbounded `\s+`/`\s*` rules unguarded;
+the follow-up threads every rule through `applyRuleParagraphSafe`/`guardedReplace` and pins the two repro fixtures).
+`git diff --stat fc066ccc..HEAD`: 12 files, +829/−116; nothing under data/.
+Batteries: **158 files — 157 green + 1 FLAKY offline** (device VM, 3 parallel chunks): `storekey1` check 4b "updated_date is
+refreshed on the upsert" fails when both creates land in the same millisecond (passed on rerun; passes on the Mac). A battery
+timing defect, not a store defect → finding 66. Polish-pipeline reds 0-line diff vs fb62d573. `test:legacy` 67 green.
+LEGACYREPAIR-1: `legacyProseRepairs.data.js` now has ZERO occurrences of the eight retired names; the generalized class is
+`[A-Z][a-z]+’s` (e.g. line 270). Claude Code flagged that this class also matches non-name capitalised words ("Monday's pause
+fogged") and left the call to me → finding 64, ACCEPTED: the repaired PHRASE is the slop, whoever the subject is; a
+proper-noun heuristic here would add complexity for no precision gain. `hygiene1` exempt list is now three files.
+ARC J CODE-CLOSED at 80a54a70 (findings 53–66 across H/I/J).
+
+## Findings (continued)
+64. ACCEPTED as designed — LEGACYREPAIR-1's `[A-Z][a-z]+’s` subject class matches any capitalised possessive before the
+    slop phrase. The phrase is the defect; no change.
+65. `manuscriptFixer.js` still carries SINGLE-MANUSCRIPT literal repairs outside J8's scope (alternation lists were the
+    scope): `'The line went dead' + 'Elias sat'` (4965–4966), the "Caspian’s hand, the one that had touched him felt"
+    family (5038–5045, 5281–5288, 5327–5328, 6080), "older than Jonah had expected maybe" (5063–5065, 5357–5358, 6151),
+    plus the doc comment at 81 — 24 lines naming three real characters, rules that cannot fire on any other book (rule 0.2).
+    → LEGACYREPAIR-2: delete those rules and their self-tests; hygiene1 tracks Silas only, so add Elias/Caspian/Jonah/Orin/
+    Lev/Ronan/Kael to the battery's retired list for the two repair files.
+66. `test/storekey1.acceptance.mjs` check 4b is timing-flaky (same-millisecond creates). → STOREKEY-1B: force ≥ 2 ms
+    between the two creates (or compare `>=` with a distinct injected clock) so the check is deterministic.
+
+## What remains after Arc J
+FINAL-ACCEPTANCE (plan §12) = a RUN, not a code arc: two fresh books through the headless runner, twice each, judged
+against the §12 PASS list. Prep session (code): STOREKEY-1B, LEGACYREPAIR-2, and ACCEPT-1 — a report harness
+(`scripts/ubs-accept.mjs`) that computes every §12 criterion from the stored book + gate result and prints PASS/FAIL per
+criterion, so the bar is machine-checked. Then the live runs with Cliff. Live proofs from Arcs H/I (NAMEGATE on Ch.10/13,
+Fix Manuscript both flagships, SCENEGATE-ON-1, ARCH-2, BIBLEGUARD-NAMES-1, NFANTH-CW-1, REWRITE-E2E-1, KDP-CHAIN-1, runner
+smoke, I3 SPEED-1) and the DATA fixes (NF Ch.8/9/11; fiction Ch.5 gate block, Ch.10 "Silas") fold into the same live
+sessions. SMOKEOUT-1 and TESTSWEEP-2 (25 legacy `regression` tests) still wait for my triage.
