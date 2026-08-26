@@ -129,3 +129,45 @@ or the harness against the live server or real projects — that is the live pro
 A DISCOVERY line disagrees; any existing battery goes red; run-all ≠ 160/0/0; the build fails; a regex that CHANGES prose;
 a real title, pen name, character or place name inside code or a test (F2 removes them); any write under data/. Paste the
 raw output and stop.
+
+---
+## PREP SESSION 2 (added 2026-08-26 after the prep-1 landing, baseline b66adaf3, 160 files → 161)
+Read claude_UBS-LIVEPROOF-FINAL-ACCEPTANCE-2026-08-26.md (findings 67–69) first.
+**Step 0 — DOCS-6**: `git add claude_UBS-LIVEPROOF-FINAL-ACCEPTANCE-2026-08-26.md claude_UBS-FINAL-ACCEPTANCE-KICKOFF-claude-code-2026-08-26.md`,
+commit `DOCS-6: FINAL-ACCEPTANCE prep-1 evidence and prep-2 amendments`.
+
+### P1. SCENEDUP-3 (finding 67) — the live sweep becomes a library module; headless polish gets parity
+`src/pages/ProjectStudio.jsx:140–1144` holds the live `runSceneDuplicateSweep` (IIFE at 140, function at 997,
+`applyStrandedAlternateDraftQuarantine` attached at 1150, and its helpers 287–~990: chapterNumber, countWords, clamp, uniq,
+normalizeText, stemWord, tokenizeSignificant, makeTermSet, jaccard, containmentScore, cosineLike, splitIntoParagraphs,
+joinParagraphs, paragraphProfile, detectEventTags, extractNameSet, leadingAnchor, anchorSimilarity, … — DISCOVER the full
+list; `logSafetyGateResult` 111 and `storeSafetyReport` 133 are NOT part of the sweep, leave them). MOVE it (ORCH-1
+discipline: the diff of the moved body is limited to import/export lines; no logic change) into
+`src/lib/sceneDuplicateSweep.js`, REPLACING the dead-stamp file's content entirely (delete the WAVE5 header; the new header
+says it is the live implementation as of SCENEDUP-3 and that the page imports it). `ProjectStudio.jsx` imports
+`runSceneDuplicateSweep` from `@/lib/sceneDuplicateSweep` and the inline fork is gone (page shrinks by ~1,000 lines).
+`scripts/ubs-run.mjs` `polish` injects it: `sceneDuplicateSweep: runSceneDuplicateSweep` in the options it passes to
+`runManuscriptPolishPipeline` (same as the page does — DISCOVER the page's exact option object at the pipeline call and
+mirror it). Update `tests/run-legacy.mjs` classification for any legacy test that imported the dead file (they may now be
+`run`). Battery `test/scenedup3.acceptance.mjs` ≥ 6: the page no longer defines `runSceneDuplicateSweep`; the library
+exports it and `applyStrandedAlternateDraftQuarantine`; normalized diff of the moved body vs the b66adaf3 page source is
+empty (embed the b66adaf3 hash of the extracted region, ORCH-1 style); a fixture with a duplicated scene block gets the
+same `{ blocksRemoved, wordsRemoved, reportedOnly, skippedUnsafe }` from the library as the page produced at b66adaf3
+(embed the expected object); `ubs-run.mjs polish` passes a `sceneDuplicateSweep` function (source-shape + a mocked
+pipeline call that records the option); nonfiction still skips the sweep (runner 736 `mode !== 'nonfiction'` — note the
+`mode` string test there is a pre-existing POLISHSAFE-6-class item; do not change it in this ticket, name it in the commit).
+Commits: `SCENEDUP-3-EXTRACT-LIVE-SWEEP-TO-LIB`, `SCENEDUP-3-ACCEPTANCE-BATTERY`.
+
+### P2. ACCEPT-1B (finding 68 + the scene-dupes criterion)
+(a) `malformedsent` reports the gate's own number: run `runPreExportSafetyGate` once and read its `[MALFORMEDSENT] Gate scan`
+total from the returned structure (add a `malformedTotal` field to the gate's return if it does not expose one — additive,
+name it) instead of re-scanning; (b) `scene-dupes` measures `runSceneDuplicateSweep` from the library (now live) in
+report-only mode and the disclaimer text is removed; (c) `template-budget` lists every family over budget, not only the
+first. Battery `accept1` gains ≥ 3 named checks (malformed number equals the gate's on a fixture where the two casts
+differ; scene-dupes uses the library export; two families over budget both listed). Commits: `ACCEPT-1B-GATE-NUMBERS-AND-LIVE-SWEEP`,
+`ACCEPT-1B-ACCEPTANCE-BATTERY`.
+
+VERIFY (prep 2): same block as prep 1 with baseline b66adaf3, battery list `scenedup3 accept1 orch1 runner1 polishsafe4
+polishsafe6`, run-all = **161 green, 0 red, 0 quarantined**, plus `wc -l src/pages/ProjectStudio.jsx` (expect ≈ 5,050) and
+`grep -c "runSceneDuplicateSweep" src/pages/ProjectStudio.jsx` (import + call sites only). Then stop and say:
+"FINAL-ACCEPTANCE prep 2 VERIFY passed at <sha> — ready for the acceptance runs."
