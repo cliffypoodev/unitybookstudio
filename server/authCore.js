@@ -167,6 +167,69 @@ export function parseCookies(cookieHeader) {
   return out;
 }
 
+// ── RUNNER-1: localhost-only headless token ──────────────────────────────
+//
+// A second, non-expiring credential for scripts/ubs-run.mjs — a Node CLI
+// with no browser to hold a session cookie. Deliberately narrower than a
+// session: valid only from the loopback interface, and bound forever to
+// whichever account existed first (there is no "log in as" for a token).
+
+function runnerTokenFile(dataDir) { return path.join(authDir(dataDir), 'runner.token'); }
+function runnerTokenMetaFile(dataDir) { return path.join(authDir(dataDir), 'runner.token.json'); }
+
+const RUNNER_TOKEN_LOCAL_ADDRESSES = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+
+/**
+ * Create data/_auth/runner.token on first call (32 random bytes hex, mode
+ * 600). Idempotent. Also binds runner.token.json to the first user the
+ * moment one exists — called again from the setup handler for that reason.
+ */
+export function ensureRunnerToken(dataDir) {
+  ensureAuthDir(dataDir);
+  const f = runnerTokenFile(dataDir);
+  if (!fs.existsSync(f)) {
+    const token = crypto.randomBytes(32).toString('hex');
+    fs.writeFileSync(f, token, { encoding: 'utf8', mode: 0o600 });
+  }
+  const metaFile = runnerTokenMetaFile(dataDir);
+  if (!fs.existsSync(metaFile)) {
+    const users = loadUsers(dataDir);
+    if (users.length) {
+      fs.writeFileSync(metaFile, JSON.stringify({ uid: users[0].id }, null, 2), { encoding: 'utf8', mode: 0o600 });
+    }
+  }
+  return fs.readFileSync(f, 'utf8').trim();
+}
+
+export function getRunnerTokenOwnerUid(dataDir) {
+  const f = runnerTokenMetaFile(dataDir);
+  if (!fs.existsSync(f)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(f, 'utf8')).uid || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Resolve a request to its runner-token user, or null. Both conditions are
+ * mandatory: the remote address must be loopback AND the presented token
+ * must match (constant-time). Neither check is skippable by the other.
+ */
+export function verifyRunnerToken(dataDir, remoteAddress, presentedToken) {
+  if (!RUNNER_TOKEN_LOCAL_ADDRESSES.has(String(remoteAddress || ''))) return null;
+  if (!presentedToken) return null;
+  const f = runnerTokenFile(dataDir);
+  if (!fs.existsSync(f)) return null;
+  const stored = fs.readFileSync(f, 'utf8').trim();
+  const a = Buffer.from(String(presentedToken));
+  const b = Buffer.from(stored);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  const uid = getRunnerTokenOwnerUid(dataDir);
+  if (!uid) return null;
+  return getUserById(dataDir, uid);
+}
+
 // ── Per-user data scoping ───────────────────────────────────────────────
 
 export function userDataDir(dataDir, uid) {

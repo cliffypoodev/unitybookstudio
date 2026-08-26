@@ -27,7 +27,8 @@ import {
   SESSION_COOKIE, usersExist, createUser, authenticate, getUserById,
   getSecret, createSessionToken, verifySessionToken, parseCookies,
   userDataDir, migrateLegacyData,
-} from './server/authCore.js'; // AUTH-1
+  ensureRunnerToken, verifyRunnerToken,
+} from './server/authCore.js'; // AUTH-1 / RUNNER-1
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -355,6 +356,21 @@ function getSessionUser(req) {
   return getUserById(DATA_DIR, session.uid);
 }
 
+// RUNNER-1: a second, narrower credential for scripts/ubs-run.mjs (a Node
+// CLI with no browser to hold a session cookie) — valid only from loopback,
+// never accepted from any other address even with a correct token.
+const RUNNER_TOKEN_HEADER = 'x-ubs-runner-token';
+
+function getRunnerTokenUser(req) {
+  const presented = req.headers && req.headers[RUNNER_TOKEN_HEADER];
+  if (!presented) return null;
+  const user = verifyRunnerToken(DATA_DIR, req.socket && req.socket.remoteAddress, presented);
+  if (!user) {
+    console.warn(`[RUNNER-1] Rejected runner token from ${req.socket && req.socket.remoteAddress}: invalid token or non-loopback address.`);
+  }
+  return user;
+}
+
 function setSessionCookie(res, uid) {
   const token = createSessionToken(uid, getSecret(DATA_DIR));
   res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${token}; ${AUTH_COOKIE_ATTRS}`);
@@ -386,6 +402,7 @@ async function handleAuth(req, res) {
         // First account inherits every legacy book: atomic renames, manifest-guarded.
         const migration = migrateLegacyData(DATA_DIR, user.id, ENTITY_STORES);
         console.log(`[AUTH-1] First account '${user.username}' created; migrated legacy stores: ${migration.migrated.join(', ') || 'none'}`);
+        ensureRunnerToken(DATA_DIR); // RUNNER-1: bind runner.token.json to the first user immediately
         setSessionCookie(res, user.id);
         return sendJSON(res, { user, migrated: migration.migrated }, 201);
       }
@@ -525,13 +542,14 @@ export default function serverStorePlugin() {
   return {
     name: 'server-store',
     configureServer(server) {
+      ensureRunnerToken(DATA_DIR); // RUNNER-1: data/_auth/runner.token ready before the first request
       server.middlewares.use((req, res, next) => {
         if (req.url && req.url.startsWith('/api/auth/')) {
           handleAuth(req, res);
           return;
         }
         if (req.url && PROTECTED_PREFIXES.some((p) => req.url.startsWith(p))) {
-          const user = getSessionUser(req);
+          const user = getSessionUser(req) || getRunnerTokenUser(req);
           if (!user) {
             return sendError(res, 'Not authenticated', 401);
           }
