@@ -69,6 +69,11 @@ async function list(entity) {
   })());
   const originalCreatedDate = createdAt.created_date;
 
+  // STOREKEY-1B: nowISO() is new Date().toISOString() (millisecond precision).
+  // Two creates issued back-to-back can land in the same millisecond, making
+  // check 4b flaky rather than deterministic. The store has no injectable
+  // clock, so force the second create's timestamp into a later millisecond.
+  await new Promise((resolve) => { setTimeout(resolve, 3); });
   const res2 = await create('_FileStore', { id: 'blob-a', content: 'v2' });
   check('2. a second create with the same id does not add a new record', (await list('_FileStore')).length === 1,
     `store now has ${(await list('_FileStore')).length} record(s)`);
