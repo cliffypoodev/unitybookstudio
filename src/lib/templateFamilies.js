@@ -184,16 +184,16 @@ function firstProseParagraph(text) {
   return '';
 }
 
-// STYLEBUDGET-3B: words with only INTERNAL apostrophes ("don't", "zin's").
+// STYLEBUDGET-3B: words with only INTERNAL apostrophes ("don't", "ottie's").
 // The old /[a-z’']+/g class matched a bare apostrophe as its own token and
 // swallowed a trailing/leading one into the word — a stored spacing artifact
-// like a bible nickname rendered inline ("Zinnia ' Zin' Quark") tokenized to
-// ["zinnia", "'", "zin'", "quark"], and neither "'" nor "zin'" is a stopword
+// like a bible nickname rendered inline ("Ottilie ' Ottie' Brisa") tokenized to
+// ["ottilie", "'", "ottie'", "brisa"], and neither "'" nor "ottie'" is a stopword
 // or (as an exact string) a cast name, so they counted as content words and
 // a cast member's own name falsely registered as a repeated "image" between
 // chapters that both open on that character. Requiring a letter on both
 // sides of an internal apostrophe means a bare "'" never starts a token and
-// a dangling "zin'" resolves to "zin" — the clean, cast-recognized name.
+// a dangling "ottie'" resolves to "ottie" — the clean, cast-recognized name.
 const WORD_RX = /[a-z]+(?:[’'][a-z]+)*/g;
 
 function tokenizeWords(text) {
@@ -205,7 +205,7 @@ function openingWords(text) {
 }
 
 // Cast names normalized through the SAME tokenizer, plus each name's
-// possessive ("zin's" / "zin’s") — a possessive is still the cast member,
+// possessive ("ottie's" / "ottie’s") — a possessive is still the cast member,
 // not a new content word, and prose may use either apostrophe character.
 function normalizeCastNames(castNames) {
   const set = new Set();

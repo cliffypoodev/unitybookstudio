@@ -8,7 +8,7 @@
 //   Zorblax computes a 4.2% return chance) and ch.10 opened with JB fidgeting
 //   at a counter — no return, no reunion. Every scene generator saw
 //   "JB = main cast" and resurrected him.
-// - REDUX ch.3 (redraft) staged Nolan's self-introduction twice: the beat
+// - REDUX ch.3 (redraft) staged Idris's self-introduction twice: the beat
 //   contract never carried the name, so scene 2 had no fact to collide with.
 //   Introductions are PROSE facts; the state must be read from the prose that
 //   shipped, not the beats that were planned.

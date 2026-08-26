@@ -5,7 +5,7 @@
 // auto-rename" built an automatic replacement map from getAllBlockedNames()
 // and called applyApprovedNameReplacementMap ("Approved" — nothing was ever
 // approved) with no gate afterward. Live: it rewrote REDUX Ch.10's
-// antagonist "Silas" to "Dean" x20 — the exact name the book's own bible
+// antagonist "Halvard" to "Fenwick" x20 — the exact name the book's own bible
 // says he is never called. Fixed: flag only, never rewrite. PROSE-GUARD-1
 // (report mode) measures what every deterministic stage actually changes —
 // the stage inventory Arc C was meant to produce — instead of relying on

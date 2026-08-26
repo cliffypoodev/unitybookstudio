@@ -295,7 +295,7 @@ check('an empty or malformed input does not throw',
 // ── HOLDER-5: the PASSIVE opening state ──
 {
   const CAST = ['Lena Ortiz', 'Marcus Reed'];
-  const GILDED = ['Nell Carrow', 'Silas Bram', 'Edmund Wexcombe'];
+  const GILDED = ['Ilka Thornbury', 'Halvard Oriel', 'Edmund Ashby'];
   const h = (state, cast = CAST) => [...holdersFromSpecState({ entry_state: state }, cast)];
 
   // Verbatim from the live ch.5 contract at 88b13fdb - the state HOLDER-4 could not read.
@@ -306,12 +306,12 @@ check('an empty or malformed input does not throw',
     JSON.stringify(h('Lena holds the broken brass key handle, while Marcus has a bandaged left hand.'))
       === JSON.stringify([['broken brass key handle', 'Lena Ortiz']]));
   check('HOLDER-5: both forms in one state yield two separate objects',
-    JSON.stringify(h("The brass winding key is in Silas Bram's possession. Nell holds the steel winding key.", GILDED))
-      === JSON.stringify([['brass winding key', 'Silas Bram'], ['steel winding key', 'Nell Carrow']]));
+    JSON.stringify(h("The brass winding key is in Halvard Oriel's possession. Ilka holds the steel winding key.", GILDED))
+      === JSON.stringify([['brass winding key', 'Halvard Oriel'], ['steel winding key', 'Ilka Thornbury']]));
   check('HOLDER-5: a passive owner who is not in the cast is ignored',
     h("The key is in Ambrose's possession.").length === 0);
   check('HOLDER-5: a body part in the passive form is still rejected',
-    h("The bandaged left hand is in Nell's possession.", GILDED).length === 0);
+    h("The bandaged left hand is in Ilka's possession.", GILDED).length === 0);
 }
 
 // ── LEAKSCRUB-2: a scrubbed field left broken is dropped ──

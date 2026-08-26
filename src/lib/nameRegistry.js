@@ -10,7 +10,7 @@ export const AI_FAVORITE_NAMES = [
   // First names AI loves
   'Elara', 'Kaelen', 'Kael', 'Elias', 'Evelina', 'Aria', 'Lyra',
   'Rowan', 'Asher', 'Caspian', 'Soren', 'Theron', 'Zara', 'Seraphina',
-  'Isolde', 'Elowen', 'Aiden', 'Kira', 'Riven', 'Silas', 'Orion',
+  'Isolde', 'Elowen', 'Aiden', 'Kira', 'Riven', 'Halvard', 'Orion',
   'Luna', 'Sage', 'Ember', 'Ivy', 'Wren', 'Jasper', 'Felix',
   'Aurora', 'Celeste', 'Darius', 'Ezra', 'Kai', 'Lila', 'Maren',
   'Nyx', 'Quinn', 'Rhys', 'Sable', 'Talon', 'Vale', 'Zephyr',
@@ -70,15 +70,15 @@ export async function getUsedCharacterNames(excludeProjectId) {
  * NAMEHYGIENE-1 — the names the AUTHOR chose, taken from their own premise.
  *
  * MEASURED on The Gilded Hour, 2026-08-04. The premise names the house steward
- * **Silas Bram**, and says he hands Nell the key in front of witnesses and is found
- * dead in chapter 3. "Silas" is on the Tier-1 blocked AI-default list, and
- * DEFAULT_NAME_REPLACEMENT_SUGGESTIONS offers Silas -> ["Nolan", ...] first. The
+ * **Halvard Oriel**, and says he hands Ilka the key in front of witnesses and is found
+ * dead in chapter 3. "Halvard" is on the Tier-1 blocked AI-default list, and
+ * DEFAULT_NAME_REPLACEMENT_SUGGESTIONS offers Halvard -> ["Idris", ...] first. The
  * exclusion block below ends with "If ANY match the banned list, replace them
  * immediately", so the architect obeyed and shipped an outline starring
- * **Nolan Bram** — a character the author never wrote, carrying the first name of
+ * **Idris Oriel** — a character the author never wrote, carrying the first name of
  * the protagonist's colleague in a completely different book.
  *
- * The hygiene system is right in general: "Silas" IS an AI-slop name and banning it
+ * The hygiene system is right in general: "Halvard" IS an AI-slop name and banning it
  * for INVENTED characters is the entire point. But a name in the premise is not the
  * model's invention, it is a specification. Nothing may silently overwrite what the
  * author asked for — the same closed-world principle the gates apply to facts,

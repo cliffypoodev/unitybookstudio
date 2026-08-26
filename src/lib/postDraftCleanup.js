@@ -714,7 +714,7 @@ function regexCleanup(inputText, options = {}) {
   //   in : Nobody used the word "asked" anymore.
   //   out: Nobody used the word," asked" anymore.
   // The artifact this rule exists for is a quote fused to the preceding word with no
-  // space — `…he was safe" said Nell`. Requiring no whitespace before the quote keeps
+  // space — `…he was safe" said Ilka`. Requiring no whitespace before the quote keeps
   // that repair and makes the false positive impossible.
   let brokenDialogFixed = 0;
   t = t.replace(/([a-zA-Z])"\s*(said|asked|whispered|murmured|shouted|snapped|replied|answered)\b/g, (match, prev, tag) => {

@@ -123,7 +123,7 @@ function proseParagraphs(text) {
 }
 
 // EPISTOLARY-1 — a letter's salutation and sign-off legitimately end without
-// terminal punctuation ("My dearest Elise," / "Yours, always, / Wexcombe").
+// terminal punctuation ("My dearest Elise," / "Yours, always, / Ashby").
 // They are letter format, not truncated prose, so they must not trip the
 // unterminated-paragraph hard block. Deliberately narrow: a salutation is a short
 // greeting line ending in a comma; a closing STARTS with a valediction. Genuine

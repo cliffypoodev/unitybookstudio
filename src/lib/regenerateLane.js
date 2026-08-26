@@ -287,7 +287,7 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   // (4) closed world: candidate proper nouns must be a SUBSET of the
   // original paragraph's own — REGENLANE-1C tightened this from "original +
   // cast", which let the model swap one cast member's name for another's
-  // (Rodge -> Roderick, live) since both were in the allowed set.
+  // (Ludo -> Ludovic, live) since both were in the allowed set.
   // REGENLANE-2B loosened this for NF (a proper noun in the research was
   // accepted even if absent from the original paragraph) and REGENLANE-2C
   // (finding 47) RETIRES that loosening: a style rewrite must not introduce
@@ -304,8 +304,8 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   // wherever it sits, sentence-initial included — the sentence-initial
   // exemption above exists so an ordinary word opening a sentence isn't
   // mistaken for a proper noun, but a cast member's own name is never
-  // ambiguous that way. Live: "Zin looked at him..." -> "Zinnia looked at
-  // him..." was ACCEPTED because "Zinnia" opened its sentence and got
+  // ambiguous that way. Live: "Ottie looked at him..." -> "Ottilie looked at
+  // him..." was ACCEPTED because "Ottilie" opened its sentence and got
   // stripped from scrutiny; the candidate's cast names must be a subset of
   // the ORIGINAL paragraph's own cast names present, full stop.
   const castLower = new Set((Array.isArray(cast) ? cast : []).filter(Boolean).map((n) => String(n).toLowerCase()));
@@ -336,9 +336,9 @@ export function verifyRegeneratedParagraph(original, candidate, opts = {}) {
   // may still be present verbatim. Rescan (5) below runs the detectors
   // fresh on the lone candidate — invisible to a template hit now under the
   // per-paragraph chapter budget, or an echo gram, since a single paragraph
-  // is never "over budget" on its own. Live: "Zin looked at him, really
+  // is never "over budget" on its own. Live: "Ottie looked at him, really
   // looked at him..." was ACCEPTED after the model only swapped
-  // Rodge -> Roderick and kept "really looked" — rescan never saw it because
+  // Ludo -> Ludovic and kept "really looked" — rescan never saw it because
   // one occurrence of a chapter-budget-1 family isn't over budget in
   // isolation; this check catches the literal phrase directly.
   for (const needle of (Array.isArray(mustNotContain) ? mustNotContain : [])) {

@@ -5,7 +5,7 @@
 // noun must be in the bible" test is far too strict for fiction (Nebula,
 // Andromeda, Kevlar, a ship's name — none of them people, all of them
 // flagged). Finding 35b is the live case this narrows to: Arc D's redraft
-// of a chapter invented "Silas", a Tier-1 banned name that was never in any
+// of a chapter invented "Halvard", a Tier-1 banned name that was never in any
 // bible field, and the only trace was an unrelated pronoun-lock warning.
 //
 // NAMEGATE-1's answer is PERSON-SIGNAL, not proper-noun: a name only

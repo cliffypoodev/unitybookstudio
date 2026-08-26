@@ -781,9 +781,9 @@ export function repairUnclosedDialogue(text) {
  * The missing-opener class that survived every stage above (proven on the
  * 2026-08-14 82k-word live draft: 16 defects, 8 healed, 8 refused):
  *   - a paragraph that OPENS mid-dialogue with no opener ("Um.\u201d",
- *     "\u2018They have their exits\u2026\u2019\u201d", "Your stance\u2026\u201d Rodge said")
+ *     "\u2018They have their exits\u2026\u2019\u201d", "Your stance\u2026\u201d Ludo said")
  *   - an echo reply whose opener the writer dropped after a closed quote
- *     ("\u2026You skimmed it.\u201d I skimmed the chapter\u2026\u201d Lark shot back")
+ *     ("\u2026You skimmed it.\u201d I skimmed the chapter\u2026\u201d Solveig shot back")
  * The verb-tag detector needs a dialogue tag it can see; the orphan-closer
  * healer flags paragraph-leading closes as "ambiguous" and repairs nothing.
  *

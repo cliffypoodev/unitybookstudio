@@ -6,8 +6,8 @@
 // indifferent."` with no idea WHICH word was the problem (finding 27); the
 // rescan verifier check missed a template hit that survived because a
 // single candidate paragraph is never "over budget" on its own, so
-// "Zin looked at him, really looked at him..." shipped after the model only
-// swapped Rodge -> Roderick and kept "really looked" (finding 28); accepted
+// "Ottie looked at him, really looked at him..." shipped after the model only
+// swapped Ludo -> Ludovic and kept "really looked" (finding 28); accepted
 // candidates introduced a straight quote the original lacked and a space
 // inside a smart quote (finding 29); the closed-world check allowed the
 // model to swap one cast member's name for another's since both were in
@@ -176,28 +176,28 @@ const reallyLookedDetector = (text) => {
 // ── 37. REGENLANE-1D: a cast-name token counts as a proper noun wherever it
 // sits, including sentence-initial — the general exemption exists so an
 // ordinary sentence-opening word isn't mistaken for a proper noun, but a
-// cast member's own canonical name is never ambiguous. Live: "Zin looked at
-// him…" -> "Zinnia looked at him…" was ACCEPTED because "Zinnia" opened its
+// cast member's own canonical name is never ambiguous. Live: "Ottie looked at
+// him…" -> "Ottilie looked at him…" was ACCEPTED because "Ottilie" opened its
 // sentence and got stripped from scrutiny. ──
 {
-  const CAST_ZINNIA = ['Zinnia', 'Dov', 'Ilse'];
-  const original = 'Zin looked at him, and said nothing at all that mattered.';
-  const swappedInitial = 'Zinnia looked at him, and said nothing at all that mattered.';
+  const CAST_OTTILIE = ['Ottilie', 'Dov', 'Ilse'];
+  const original = 'Ottie looked at him, and said nothing at all that mattered.';
+  const swappedInitial = 'Ottilie looked at him, and said nothing at all that mattered.';
 
-  const verdictWithCast = verifyRegeneratedParagraph(original, swappedInitial, { cast: CAST_ZINNIA });
+  const verdictWithCast = verifyRegeneratedParagraph(original, swappedInitial, { cast: CAST_OTTILIE });
   // REGENLANE-2C (finding 47b): check (4b)'s reason is now new-cast-name:<tok>
   // (was new-proper-noun:<tok>) so a live run can attribute which check fired.
-  check('37a. a sentence-initial cast-name swap ("Zin" -> "Zinnia") is rejected once cast is checked wherever it sits',
-    verdictWithCast.reason === 'new-cast-name:Zinnia', JSON.stringify(verdictWithCast));
+  check('37a. a sentence-initial cast-name swap ("Ottie" -> "Ottilie") is rejected once cast is checked wherever it sits',
+    verdictWithCast.reason === 'new-cast-name:Ottilie', JSON.stringify(verdictWithCast));
 
   const verdictNoCast = verifyRegeneratedParagraph(original, swappedInitial, {});
   check('37b. without cast passed, the general sentence-initial exemption still lets it through — confirms 37a is the new cast-aware check, not a change to the general rule',
     verdictNoCast.ok, JSON.stringify(verdictNoCast));
 
-  const keepsNickname = 'Zin studied him closely, and said nothing that mattered at all.';
+  const keepsNickname = 'Ottie studied him closely, and said nothing that mattered at all.';
   check('37c. a rewrite that keeps the original\'s own name/nickname untouched still passes',
-    verifyRegeneratedParagraph(original, keepsNickname, { cast: CAST_ZINNIA }).ok,
-    JSON.stringify(verifyRegeneratedParagraph(original, keepsNickname, { cast: CAST_ZINNIA })));
+    verifyRegeneratedParagraph(original, keepsNickname, { cast: CAST_OTTILIE }).ok,
+    JSON.stringify(verifyRegeneratedParagraph(original, keepsNickname, { cast: CAST_OTTILIE })));
 }
 
 // ── 38. REGENLANE-1D: typography normalization runs before the guard, the

@@ -3843,7 +3843,7 @@ export async function generateChapterSceneByScene({
   }
 
   // CANON-2: canonical roles from the character sheet — the single source of
-  // truth. The REDUX draft opened with "Sadie, the ship's navigator" because a
+  // truth. The REDUX draft opened with "Yusra, the ship's navigator" because a
   // contradictory world_md line reached the prompt with equal authority; this
   // line outranks it. Fail open: no declared roles adds nothing.
   let roleCanonLine = '';

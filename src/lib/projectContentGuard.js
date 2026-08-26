@@ -39,7 +39,7 @@ const MODERN_SPY_HEIST_TERMS = [
 ];
 
 const COMMON_FOREIGN_EXAMPLE_NAMES = [
-  'Kael','Kaelen','Voss','Silas','Holt','Merrick','Mikhail','Veldt','Aris','Perennial','Quietus',
+  'Kael','Kaelen','Voss','Halvard','Holt','Merrick','Mikhail','Veldt','Aris','Perennial','Quietus',
   'Drax','Corin','Vance','Ryker','Nikolai',
 ];
 

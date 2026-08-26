@@ -29,7 +29,7 @@ const check = (label, ok, detail) => {
 // code is a fix being fitted to one manuscript.
 const BOOK_TOKENS = [
   'Lena', 'Ortiz', 'Marcus Reed', 'Nolan Vale', 'Brass Meridian',
-  'Nell Carrow', 'Wexcombe', 'Gilded Hour', 'Silas Bram',
+  'Ilka Thornbury', 'Ashby', 'Gilded Hour', 'Halvard Oriel',
   'Juneteenth', 'Hollywood Unhinged',
   'the brass key', 'the winding key', 'clockwork songbird',
   // Fabricated-character scrubbers hardcoded for one nonfiction book.

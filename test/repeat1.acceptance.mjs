@@ -126,7 +126,7 @@ check('stillRepeats: an identical string is REJECTED', stillRepeats(A, A) === tr
 // ── book-agnostic: the same structure, three unrelated books, same verdicts ──
 const BOOKS = [
   { id: 'arctic thriller', who: 'Marcus', thing: 'the brass key', place: 'the corridor' },
-  { id: 'gothic mystery', who: 'Silas', thing: 'the winding key', place: 'the stair' },
+  { id: 'gothic mystery', who: 'Halvard', thing: 'the winding key', place: 'the stair' },
   { id: 'legal thriller', who: 'Peter', thing: 'the deposition folder', place: 'the lobby' },
 ];
 const SHAPES = [

@@ -23,7 +23,7 @@ const check = (label, ok) => { console.log((ok ? 'PASS ' : 'FAIL ') + label); if
 // pronoun paths are exercised identically in each.
 const BOOKS = [
   { id: 'arctic thriller', a: 'Lena Ortiz', b: 'Marcus Reed', obj: 'brass key', place: 'the corridor' },
-  { id: 'gothic mystery', a: 'Nell Carrow', b: 'Silas Bram', obj: 'brass winding key', place: 'the stair' },
+  { id: 'gothic mystery', a: 'Ilka Thornbury', b: 'Halvard Oriel', obj: 'brass winding key', place: 'the stair' },
   { id: 'legal thriller', a: 'Ana Okonkwo', b: 'Peter Halloway', obj: 'deposition folder', place: 'the lobby' },
 ];
 const castOf = (bk) => [{ name: bk.a, gender: 'f' }, { name: bk.b, gender: 'm' }];

@@ -24,10 +24,10 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
 // ── ITWAS-1 ──
 const run = (text) => { const loaded = [{ chapter: { chapter_number: 11 }, content: text }]; runSentenceStarterVariation(loaded, () => {}); return loaded[0].content; };
 // Six "It was" openers → excess 3 → the cap wants to remove three.
-const SRC = 'It was indeed JB, his coat flapping wildly behind him like the wings of a distressed bat. He plodded on.\n\nIt was quiet. Nobody spoke.\n\nIt was Zin who broke first. She laughed.\n\nIt was cold and getting colder. The wind rose.\n\nIt was a bad idea. Everyone knew it.\n\nIt was late. It was raining hard on the roof, and the crew listened.';
+const SRC = 'It was indeed JB, his coat flapping wildly behind him like the wings of a distressed bat. He plodded on.\n\nIt was quiet. Nobody spoke.\n\nIt was Ottie who broke first. She laughed.\n\nIt was cold and getting colder. The wind rose.\n\nIt was a bad idea. Everyone knew it.\n\nIt was late. It was raining hard on the roof, and the crew listened.';
 const OUT = run(SRC);
 check('1. the live kill shape is untouched ("It was indeed JB, his coat flapping…")', OUT.includes('It was indeed JB, his coat flapping wildly'));
-check('2. a name after the opener is untouched ("It was Zin who…")', OUT.includes('It was Zin who broke first.'));
+check('2. a name after the opener is untouched ("It was Ottie who…")', OUT.includes('It was Ottie who broke first.'));
 check('3. a comma clause after the opener is untouched ("It was raining hard on the roof, and…")', OUT.includes('It was raining hard on the roof, and the crew listened.'));
 check('4. POLISHSAFE-3: "It was" deletion RETIRED — short fragments are now PRESERVED (flag-only, no mutation)', OUT.includes('It was quiet. Nobody spoke.') && OUT.includes('It was cold and getting colder.') && OUT.includes('It was late. It was raining'));
 check('5. the stoplist still protects "It was a …"', OUT.includes('It was a bad idea.'));

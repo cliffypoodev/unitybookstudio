@@ -16,7 +16,7 @@ const check = (label, ok) => { console.log((ok ? 'PASS ' : 'FAIL ') + label); if
 
 const BOOKS = [
   { id: 'arctic thriller', a: 'Lena Ortiz', b: 'Marcus Reed', c: 'Dr. Nolan Vale', short: 'Vale', obj: 'brass key' },
-  { id: 'gothic mystery', a: 'Nell Carrow', b: 'Silas Bram', c: 'Mrs. Aldous', short: 'Aldous', obj: 'brass winding key' },
+  { id: 'gothic mystery', a: 'Ilka Thornbury', b: 'Halvard Oriel', c: 'Mrs. Aldous', short: 'Aldous', obj: 'brass winding key' },
   { id: 'legal thriller', a: 'Ana Okonkwo', b: 'Peter Halloway', c: 'Judge Rennard', short: 'Rennard', obj: 'deposition folder' },
 ];
 const castOf = (bk) => [{ name: bk.a, gender: 'f' }, { name: bk.b, gender: 'm' }];

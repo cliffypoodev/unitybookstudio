@@ -27,12 +27,12 @@ check('1. version', BIBLE_GATE_VERSION === 'bible-gate-v3');
 }
 
 // 4. BIBLEGATE-1B (live proof on REDUX, 2026-08-24): "**N. Role: Name**" is
-// the app's own foundation-generator shape ("**1. Protagonist: Zinnia 'Zin'
-// Quark**") — parseCanonCast's colon-split already recovers the real name,
+// the app's own foundation-generator shape ("**1. Protagonist: Ottilie 'Ottie'
+// Brisa**") — parseCanonCast's colon-split already recovers the real name,
 // so it is legitimate and must NOT be flagged. This check used to assert
-// "Crew: Lark" was malformed on the (stale) assumption parseCanonCast
+// "Crew: Solveig" was malformed on the (stale) assumption parseCanonCast
 // extracted "Crew"; live evidence proved parseCanonCast already extracts
-// "Lark" correctly for this exact shape. The real malformed case — no name
+// "Solveig" correctly for this exact shape. The real malformed case — no name
 // at all recoverable, just a bare role word — is check 4b.
 {
   const project = { characters_md: '**1. Mara** (she/her)\n**Role:** Captain\n\n**2. Protagonist: Ilse** (they/them)\n**Role:** Protagonist' };

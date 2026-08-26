@@ -44,7 +44,7 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
 const q = (t) => { let o = 0, c = 0; for (const ch of t) { if (ch === '“') o++; else if (ch === '”') c++; } return `${o}/${c}`; };
 
 // ── 1. POLISHSAFE-1A: do-no-harm quote rescue ──
-const healthy = '“Blueberries are good,” Zin said. “Then we eat,” Rodge said.\n\nThe yard was quiet. He looked at the sky. “Fine.” “Deal.”\n\n“Last word,” she said.';
+const healthy = '“Blueberries are good,” Ottie said. “Then we eat,” Ludo said.\n\nThe yard was quiet. He looked at the sky. “Fine.” “Deal.”\n\n“Last word,” she said.';
 const rHealthy = repairChapterQuotes(healthy);
 check('1. healthy chapter is returned byte-for-byte untouched', rHealthy.changed === false && rHealthy.text === healthy);
 check('2. healthy adjacent close-open pairs survive (no quote deletion)', q(rHealthy.text) === q(healthy));

@@ -1,7 +1,7 @@
 // src/lib/subjectRepair.js — SUBJECTREPAIR-1
 //
 // The defect: subjectless narration sentences — "Was wearing his signature
-// leather jacket…", "Were a mess.", "Looked at Rodge. Looked back.", and
+// leather jacket…", "Were a mess.", "Looked at Ludo. Looked back.", and
 // bare-verb clauses — "A strange sense of relief wash over her." An external
 // audit quoted these as "generation corruption"; measured in one shipped
 // 81k-word manuscript: 290 sentence-initial dropped subjects. Two polish caps
@@ -28,7 +28,7 @@ import { buildPronounCanon, subjectBoundGender, leadingCastName, POSSESSIVE_INIT
 export const SUBJECT_REPAIR_VERSION = 'subject-repair-v2';
 
 // Openers that a deleted pronoun leaves behind. Sentence-initial, capitalized,
-// followed by a lowercase word (so "Had Rodge…" — a real inversion — is
+// followed by a lowercase word (so "Had Ludo…" — a real inversion — is
 // excluded).
 const OPENERS = ['Was', 'Were', 'Had', 'Looked', 'Felt', 'Seemed', 'Didn’t', "Didn't", 'Wasn’t', "Wasn't", 'Weren’t', "Weren't", 'Hadn’t', "Hadn't", 'Kept', 'Stood', 'Sat', 'Turned', 'Nodded', 'Shook', 'Reached', 'Leaned', 'Glanced', 'Stared', 'Smiled', 'Grinned', 'Shrugged', 'Sighed', 'Laughed', 'Frowned', 'Blinked', 'Paused', 'Waited', 'Watched', 'Followed', 'Stepped', 'Walked', 'Moved', 'Pulled', 'Pushed', 'Held', 'Took', 'Gave', 'Made', 'Went', 'Came', 'Ran', 'Knew', 'Thought', 'Wanted', 'Needed', 'Tried', 'Started', 'Began', 'Stopped', 'Opened', 'Closed', 'Dropped', 'Grabbed', 'Pressed', 'Rubbed', 'Wiped', 'Tapped', 'Pointed', 'Whispered', 'Muttered', 'Snorted', 'Chuckled', 'Swallowed', 'Exhaled', 'Inhaled', 'Breathed', 'Hesitated', 'Studied', 'Considered', 'Remembered', 'Realized', 'Understood', 'Wondered', 'Hoped', 'Feared', 'Managed', 'Refused', 'Agreed', 'Answered', 'Replied', 'Added', 'Continued', 'Finished', 'Lifted', 'Lowered', 'Raised', 'Set', 'Put', 'Let', 'Got', 'Threw', 'Caught', 'Slid', 'Slipped', 'Climbed', 'Jumped', 'Crossed', 'Entered', 'Left', 'Returned', 'Arrived'];
 const OPENER_RX = new RegExp(`^(?:${OPENERS.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\s+[a-z]`);
@@ -84,15 +84,15 @@ const SUBJECT_PRONOUNS = ['He', 'She', 'They', 'It'];
  * Returns { ok, reason, subject }.
  */
 // SUBJECTREPAIR-1B: compare with typography normalized — the model returns
-// straight quotes/apostrophes where the book has curly ones ("Sadie's" vs
-// "Sadie’s"); that is not a content change. The APPLIED text is always built
+// straight quotes/apostrophes where the book has curly ones ("Yusra's" vs
+// "Yusra’s"); that is not a content change. The APPLIED text is always built
 // from the ORIGINAL sentence, so the book's typography is preserved.
 const normTypo = (s) => String(s || '').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim();
 
 // SUBJECTGUARD-1: deterministic sanity checks on a repair that DID prepend a
-// subject. The old verifier accepted any prefix match and shipped "Zin were
-// ridiculous" (agreement) and "Zinnia was wearing … his hat" (wrong name —
-// the wearer is Nolan). A prefix that is grammatically or referentially wrong is
+// subject. The old verifier accepted any prefix match and shipped "Ottie were
+// ridiculous" (agreement) and "Ottilie was wearing … his hat" (wrong name —
+// the wearer is Idris). A prefix that is grammatically or referentially wrong is
 // worse than the dropped subject it "fixed"; reject it and leave the sentence
 // flagged instead. Fail toward SKIP.
 function subjectRepairGuard(subj, applied, { castNames = [], subjectGender = {} }) {
@@ -122,15 +122,15 @@ function subjectRepairGuard(subj, applied, { castNames = [], subjectGender = {} 
 // caught agreement and gender clashes WITHIN the repaired sentence itself,
 // but a wrong cast NAME that carries no gender-bound pronoun sailed through
 // — live on REDUX Ch.10, "Thompson stopped wiping. His gaze fell on the
-// notebook. His eyes met Sadie's. Looked back at the notebook." repaired to
-// "Zinnia looked back at the notebook." (the actor is Thompson).
+// notebook. His eyes met Yusra's. Looked back at the notebook." repaired to
+// "Ottilie looked back at the notebook." (the actor is Thompson).
 //
 // establishedActor walks the sentences BEFORE the target, in order: a
 // sentence-initial cast name becomes the current actor; a sentence leading
 // with a possessive/reflexive pronoun (His/Her/Hers/Himself/Herself)
 // continues that actor — even when another cast member is named elsewhere
-// in the same sentence as an OBJECT ("His eyes met Sadie's" stays
-// Thompson's, Sadie is not the subject); any OTHER cast name taking the
+// in the same sentence as an OBJECT ("His eyes met Yusra's" stays
+// Thompson's, Yusra is not the subject); any OTHER cast name taking the
 // lead position makes the actor ambiguous (two actors are legitimately in
 // play) and the guard does not fire. Any other sentence shape (dialogue,
 // description) neither confirms nor breaks the chain.
@@ -269,7 +269,7 @@ export async function repairDroppedSubjects(text, opts = {}) {
       continue;
     }
     // SUBJECTGUARD-1: reject a NAMED subject prepended to consecutive sentences
-    // in the same paragraph — the mechanical "Thompson looked at Zin. Thompson
+    // in the same paragraph — the mechanical "Thompson looked at Ottie. Thompson
     // looked at the door. Thompson looked back…" run. Pronoun subjects are fine.
     const baseSubj = String(verdict.subject).replace(/\s+felt$/, '');
     const named = !SUBJECT_PRONOUNS.includes(baseSubj);

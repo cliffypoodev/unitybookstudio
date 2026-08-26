@@ -1,7 +1,7 @@
 // MALFORMEDSENT-1 — deterministic detector for the malformed-sentence shapes the
 // pipeline's own mutating passes produced (root-cause trace 2026-08-15):
-//   dropped subject   "Were a ragtag collection…", "Looked at Rodge.", "Was wearing…"
-//   agreement         "Zin were ridiculous.", "Nolan were empty."
+//   dropped subject   "Were a ragtag collection…", "Looked at Ludo.", "Was wearing…"
+//   agreement         "Ottie were ridiculous.", "Idris were empty."
 //   bare-verb frag     "A strange sense of relief wash over her."
 //   name-echo          "JB looked at JB."
 //
@@ -86,7 +86,7 @@ export function scanMalformedSentences(text, castNames = []) {
     const bare = s.replace(/^[“"'‘’\s]+/, '');
 
     // 1. agreement: a SINGULAR subject before "were"/"weren't" (not "They were",
-    //    not a compound "Sadie and Lark were").
+    //    not a compound "Yusra and Solveig were").
     if (nameAlt) {
       const m = s.match(new RegExp(`(^|[.!?“”"'’\\s])((?:${nameAlt})|He|She|It)\\s+(?:were|weren['’]t)\\b`));
       if (m) {

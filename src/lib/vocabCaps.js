@@ -392,7 +392,7 @@ export function runSentenceStarterVariation(loaded, onProgress) {
         if (/^(a|the|an|not|his|her|their|its|there|here|then|also|still|only|just|like|as|what|who|where|when|how|why|all|every|no|nothing|something|everything)$/i.test(nextWord)) return match;
         // ITWAS-1 guards
         if (ITWAS_ADVERB_OPENERS.test(nextWord)) return match; // "It was indeed\u2026"
-        if (/^[A-Z]/.test(nextWord)) return match; // "It was JB\u2026" / "It was Zin who\u2026"
+        if (/^[A-Z]/.test(nextWord)) return match; // "It was JB\u2026" / "It was Ottie who\u2026"
         if (/[,;:\u2014\u2013]/.test(rest)) return match; // a clause follows \u2014 deleting the opener strands it
         if (/\b[A-Z][a-z]+\b/.test(rest)) return match; // a name in the remainder
         if ((nextWord + rest).trim().split(/\s+/).length > 6) return match; // not a short fragment

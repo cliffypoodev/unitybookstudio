@@ -5,8 +5,8 @@
 //   1. A name mentioned repeatedly in the outline/beats with no matching
 //      character-sheet entry — the writer improvises a character the bible
 //      never described.
-//   2. A malformed entry header — "**6. Crew: Lark**" — where a role word
-//      landed in the name field. parseCanonCast silently recovers "Lark" as
+//   2. A malformed entry header — "**6. Crew: Solveig**" — where a role word
+//      landed in the name field. parseCanonCast silently recovers "Solveig" as
 //      the name (colon-split workaround), so the character still drafts,
 //      but the role ("Crew") is lost from the header and the header itself
 //      reads as broken to anyone editing the sheet by hand.
@@ -36,9 +36,9 @@ function escapeRx(s) {
 /**
  * Walk character-sheet entry headers and flag malformed ones. BIBLEGATE-1B
  * (live proof on REDUX, 2026-08-24): the app's own foundation generator
- * writes entries as "**N. Role: Name**" ("**1. Protagonist: Zinnia 'Zin'
- * Quark**") — parseCanonCast's colon-split already recovers "Zinnia" as the
- * name there, so that shape is legitimate, not the "**6. Crew: Lark**" bug.
+ * writes entries as "**N. Role: Name**" ("**1. Protagonist: Ottilie 'Ottie'
+ * Brisa**") — parseCanonCast's colon-split already recovers "Ottilie" as the
+ * name there, so that shape is legitimate, not the "**6. Crew: Solveig**" bug.
  * The real bug is when parseCanonCast has NO name to recover at all and
  * falls back to the role word itself (a header with no colon, just the role
  * label — "**6. Crew**"). Malformed-header detection now asks parseCanonCast
@@ -98,7 +98,7 @@ function isCompoundProperNoun(corpus, name) {
   return total > 0 && adjacent === total;
 }
 
-// "Shakespeare" from a chapter title "## Chapter 10: Sadie's Shakespeare
+// "Shakespeare" from a chapter title "## Chapter 10: Yusra's Shakespeare
 // Moment" — a token whose every mention sits on a chapter/section title line
 // is a title word, not a person the outline actually put on the page.
 function isTitleOnlyMention(lines, name) {
@@ -125,8 +125,8 @@ function isPrecededByThe(corpus, name) {
 // Dialogue/action verbs that put the PRECEDING token in an actor position
 // ("Ilse said", "Mara insisted", "Dov turned"). Deliberately curated and
 // narrow rather than a suffix heuristic: an infinitive purpose clause
-// ("Sadie quotes Shakespeare to negotiate…") must NOT count — "to negotiate"
-// sits within 2 tokens of "Shakespeare" but describes Sadie's action, not
+// ("Yusra quotes Shakespeare to negotiate…") must NOT count — "to negotiate"
+// sits within 2 tokens of "Shakespeare" but describes Yusra's action, not
 // Shakespeare's, so a loose -ed/-s suffix match would wrongly save it.
 const ACTOR_VERBS = new Set([
   'said', 'says', 'saying', 'asked', 'asks', 'ask', 'replied', 'replies', 'reply',
@@ -145,7 +145,7 @@ const ACTOR_VERBS = new Set([
 ]);
 
 // BIBLEGATE-1C (live proof Run 2, 2026-08-24): "Shakespeare" (a chapter
-// title's quoted author — "Sadie's Shakespeare Moment", "Sadie quotes
+// title's quoted author — "Yusra's Shakespeare Moment", "Yusra quotes
 // Shakespeare to negotiate…") survived BIBLEGATE-1B's title-only filter
 // because two of its three mentions are body lines. A person the bible must
 // know about ACTS at least once on the page: sentence-initial (reusing

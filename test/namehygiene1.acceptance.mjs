@@ -1,18 +1,18 @@
 // NAMEHYGIENE-1 acceptance — the app must not rename a character the author named.
 //
 // MEASURED on The Gilded Hour, 2026-08-04. The premise names the house steward
-// **Silas Bram** — he hands Nell the key in front of witnesses and is found dead in
-// chapter 3. The generated outline instead starred **Nolan Bram**:
+// **Halvard Oriel** — he hands Ilka the key in front of witnesses and is found dead in
+// chapter 3. The generated outline instead starred **Idris Oriel**:
 //
-//   nameHygieneRules.js:53    "Silas"  is on the Tier-1 blocked AI-default list
-//   nameHygieneRules.js:334   Silas: ["Nolan", "Dean", "Russell", ...]
+//   nameHygieneRules.js:53    "Halvard"  is on the Tier-1 blocked AI-default list
+//   nameHygieneRules.js:334   Halvard: ["Idris", "Fenwick", "Russell", ...]
 //   buildNameExclusionBlock   "...If ANY match the banned list, replace them immediately."
 //
 // So the architect obeyed and renamed a character the author had specified — and the
-// replacement it reached for, "Nolan", is the first name of a character in an
+// replacement it reached for, "Idris", is the first name of a character in an
 // entirely different book in the same library.
 //
-// The hygiene system is right in general: "Silas" IS an AI-slop name and banning it
+// The hygiene system is right in general: "Halvard" IS an AI-slop name and banning it
 // for INVENTED characters is the whole point. But a name in the premise is not the
 // model's invention, it is a specification.
 //
@@ -42,24 +42,24 @@ const check = (label, ok, detail) => {
   if (!ok) failures += 1;
 };
 
-const PREMISE = "Nell Carrow, a repairer of automata, is summoned to Wexcombe House. "
-  + "Silas Bram, the house steward, insists he handed her the brass winding key in front of witnesses. "
-  + "Her employer is Edmund Wexcombe. Housekeeper Mrs. Aldous speaks to Nell in French.";
-const BANNED = ['Silas', 'Elias', 'Kaelen', 'Nolan', 'Aria', 'Thorne'];
+const PREMISE = "Ilka Thornbury, a repairer of automata, is summoned to Ashby House. "
+  + "Halvard Oriel, the house steward, insists he handed her the brass winding key in front of witnesses. "
+  + "Her employer is Edmund Ashby. Housekeeper Mrs. Aldous speaks to Ilka in French.";
+const BANNED = ['Halvard', 'Elias', 'Kaelen', 'Idris', 'Aria', 'Thorne'];
 
 // ── the defect ──
 {
   const b = buildNameExclusionBlock(BANNED, PREMISE);
   check('a banned name the author used is NOT in the ban list',
-    !/BANNED NAMES:[^\n]*\bSilas\b/.test(b), (b.match(/BANNED NAMES:.*/) || [''])[0]);
+    !/BANNED NAMES:[^\n]*\bHalvard\b/.test(b), (b.match(/BANNED NAMES:.*/) || [''])[0]);
   check('it is stated positively as required instead',
-    /AUTHOR-SPECIFIED NAMES[^\n]*\bSilas\b/.test(b), (b.match(/AUTHOR-SPECIFIED NAMES.*/) || [''])[0]);
+    /AUTHOR-SPECIFIED NAMES[^\n]*\bHalvard\b/.test(b), (b.match(/AUTHOR-SPECIFIED NAMES.*/) || [''])[0]);
   check('the model is told not to substitute it', /Do not substitute/.test(b));
   check('banned names the author did NOT use are still banned',
     ['Elias', 'Kaelen', 'Aria', 'Thorne'].every((n) => new RegExp(`BANNED NAMES:[^\\n]*\\b${n}\\b`).test(b)),
     (b.match(/BANNED NAMES:.*/) || [''])[0]);
   check('the replacement the model actually reached for stays banned',
-    /BANNED NAMES:[^\n]*\bNolan\b/.test(b));
+    /BANNED NAMES:[^\n]*\bIdris\b/.test(b));
 }
 
 // ── unchanged behaviour when no premise is supplied ──
@@ -76,18 +76,18 @@ const BANNED = ['Silas', 'Elias', 'Kaelen', 'Nolan', 'Aria', 'Thorne'];
 // ── extraction is literal: exact capitalised tokens only, no guessing ──
 {
   const names = extractAuthorChosenNames(PREMISE);
-  check('a capitalised name in the premise is found', names.has('Silas') && names.has('Nell'));
+  check('a capitalised name in the premise is found', names.has('Halvard') && names.has('Ilka'));
   check('a lowercase word is not a name', !names.has('steward') && !names.has('witnesses'));
-  check('a name the premise does not contain is not found', !names.has('Nolan'));
+  check('a name the premise does not contain is not found', !names.has('Idris'));
   check('empty text yields nothing', extractAuthorChosenNames('').size === 0);
   check('null text does not throw', extractAuthorChosenNames(null).size === 0);
   check('a lowercase mention does NOT protect a banned name',
-    /BANNED NAMES:[^\n]*\bSilas\b/.test(buildNameExclusionBlock(['Silas'], 'the silas mechanism was old')));
+    /BANNED NAMES:[^\n]*\bHalvard\b/.test(buildNameExclusionBlock(['Halvard'], 'the halvard mechanism was old')));
 }
 
 // ── book-agnostic: three unrelated premises, same behaviour ──
 const BOOKS = [
-  { id: 'gothic mystery', premise: 'Silas Bram, the house steward, kept the key.', used: 'Silas' },
+  { id: 'gothic mystery', premise: 'Halvard Oriel, the house steward, kept the key.', used: 'Halvard' },
   { id: 'arctic thriller', premise: 'Kaelen Ortiz sealed the reactor door behind her.', used: 'Kaelen' },
   { id: 'legal thriller', premise: 'Thorne filed the deposition on a Friday.', used: 'Thorne' },
 ];

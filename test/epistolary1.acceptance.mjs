@@ -7,9 +7,9 @@ const ok = (name, cond) => { assert.ok(cond, 'FAIL  ' + name); if (cond) { conso
 ok('salutation exempted',
   checkStructuralIntegrity('The room was cold.\n\nMy dearest Elise,\n\nShe folded the page.').unterminatedParagraphs.count === 0);
 ok('sign-off (valediction + name) exempted',
-  checkStructuralIntegrity('He read the last line.\n\nYours, always,\nWexcombe\n\nThe candle guttered.').unterminatedParagraphs.count === 0);
+  checkStructuralIntegrity('He read the last line.\n\nYours, always,\nAshby\n\nThe candle guttered.').unterminatedParagraphs.count === 0);
 ok('titled salutation exempted',
-  checkStructuralIntegrity('A knock at the door.\n\nDear Mr. Bram,\n\nShe sealed it.').unterminatedParagraphs.count === 0);
+  checkStructuralIntegrity('A knock at the door.\n\nDear Mr. Oriel,\n\nShe sealed it.').unterminatedParagraphs.count === 0);
 ok('genuine truncation STILL flagged',
   checkStructuralIntegrity('She turned the key and\n\nThe lock held.').unterminatedParagraphs.count === 1);
 ok('normal terminal prose passes',

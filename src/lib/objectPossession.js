@@ -171,7 +171,7 @@ const SPEC_POSSESSIVE_ONE = new RegExp(SPEC_POSSESSIVE_RX.source, 'iu');
 // from the resolver's; it is now the resolver's list, derived once.
 
 // HOLDER-4c: aliases that identify nobody on their own. castNameTokens() admits
-// any whitespace token of 3+ characters, so "Edmund Wexcombe the younger" answers
+// any whitespace token of 3+ characters, so "Edmund Ashby the younger" answers
 // to "the" - which matches every clause ever written and would resolve a holder
 // from a definite article. The full-name alias is never filtered.
 const ALIAS_FUNCTION_WORDS = new Set([
@@ -188,13 +188,13 @@ const ALIAS_FUNCTION_WORDS = new Set([
  * castNameTokens, KEYLEDGER-2a) instead of matching the first whitespace token,
  * which silently resolved nobody for any name the app had not been debugged
  * against: "Mrs. Aldous", "O'Brien", "José Ramírez", "Mary Anne Fitch", and both
- * Edmund Wexcombes.
+ * Edmund Ashbys.
  *
  * Boundaries are Unicode-safe. \b is ASCII, so \bjosé\b cannot match "José's" -
  * the accented letter is not a word character and the boundary never fires.
  *
  * A match wholly CONTAINED in another member's match is dropped, so
- * "Edmund Wexcombe the younger" is the younger brother and not both brothers.
+ * "Edmund Ashby the younger" is the younger brother and not both brothers.
  * That is HOLDER-1a's prefix rule applied at the resolution layer.
  */
 export function castMembersIn(text, roster) {

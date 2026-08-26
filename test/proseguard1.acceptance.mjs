@@ -14,7 +14,7 @@
 //     re-joined on spaces, flattening every single-newline line break in the chapter.
 //
 //  2. About 150 verbatim phrases from ONE dead manuscript — its cast (Husbandman,
-//     Orin, Elias, Jonah, Caspian, Ronan, Kael, Lev, Silas), its props ("stale coffee
+//     Orin, Elias, Jonah, Caspian, Ronan, Kael, Lev, Halvard), its props ("stale coffee
 //     on his pause"), its own broken sentences — hardcoded across five regions, several
 //     of which were word substitutions rather than repairs.
 //
@@ -153,9 +153,9 @@ const textOf = (r) => (typeof r === 'string' ? r : r?.text);
     !/\. Nothing at all/.test(textOf(M.runSurgicalArtifactRepair(ordinary))),
     `got → ${JSON.stringify(textOf(M.runSurgicalArtifactRepair(ordinary)))}`);
 
-  const named = 'She found Marlowe by the gate. She watched Marlowe for a while. marlowe turned away.';
+  const named = 'She found Quillon by the gate. She watched Quillon for a while. quillon turned away.';
   check('a real proper name is still capitalized at a sentence start',
-    /\. Marlowe turned away/.test(textOf(M.runSurgicalArtifactRepair(named))),
+    /\. Quillon turned away/.test(textOf(M.runSurgicalArtifactRepair(named))),
     `got → ${JSON.stringify(textOf(M.runSurgicalArtifactRepair(named)))}`);
 }
 
@@ -179,7 +179,7 @@ const textOf = (r) => (typeof r === 'string' ? r : r?.text);
 {
   const cases = [
     ['genuinely broken contraction', "He doesn' care about any of it.", "doesn't"],
-    ['fused closing quote before a tag', 'It was over" said Nell.', '," said'],
+    ['fused closing quote before a tag', 'It was over" said Ilka.', '," said'],
   ];
   for (const [label, input, want] of cases) {
     const out = textOf(M.regexCleanup(input));

@@ -23,7 +23,7 @@ let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
 
 // A dense 500-word-ish chapter: 12 similes → ~24/1k, budget 3/1k → allowed 1.
-const filler = 'Zin checked the coupling and tightened the last bolt while Rodge counted the parts on the tarp. '.repeat(24); // ~430 words, no similes
+const filler = 'Ottie checked the coupling and tightened the last bolt while Ludo counted the parts on the tarp. '.repeat(24); // ~430 words, no similes
 const simileText = [
   'The hull groaned, a sound like a giant cello being played with a rusty spoon.',
   'The sky was blue, the kind of blue that suggested the atmosphere was offended, like a bouncer.',
@@ -31,17 +31,17 @@ const simileText = [
   'The wreckage sprawled across the plains like a spilled box of neon LEGOs.',
   'JB stood there like a fence post, saying nothing.',
   'The engine hummed like a hive and glowed as if it had swallowed a sunset.',
-  '“I like a good storm,” Sadie said.',
-  'Rodge would like an answer before dark.',
+  '“I like a good storm,” Yusra said.',
+  'Ludo would like an answer before dark.',
   'The dust rose like a curtain.',
-  'Lark laughed as though nothing was wrong.',
+  'Solveig laughed as though nothing was wrong.',
 ].join(' ');
 const CHAPTER = filler + '\n\n' + simileText;
 
 // ── 1. finder ──
 const found = findSimileSentences(CHAPTER);
-check('1. finder skips dialogue ("I like a good storm," Sadie said)', !found.some((f) => f.sentence.includes('good storm')));
-check('2. finder skips verb-like ("Rodge would like an answer")', !found.some((f) => f.sentence.includes('would like an answer')));
+check('1. finder skips dialogue ("I like a good storm," Yusra said)', !found.some((f) => f.sentence.includes('good storm')));
+check('2. finder skips verb-like ("Ludo would like an answer")', !found.some((f) => f.sentence.includes('would like an answer')));
 check('3. finder counts multi-simile sentences (engine: like a hive + as if)', found.find((f) => f.sentence.startsWith('The engine hummed'))?.similes === 2);
 check('4. finder catches "as though"', found.some((f) => f.sentence.includes('as though nothing was wrong')));
 
@@ -69,20 +69,20 @@ const stub = async (userPrompt) => {
   if (s.startsWith('The wreckage')) return 'The wreckage sprawled across the plains in bright, scattered pieces.';
   if (s.startsWith('JB stood')) return 'JB stood there rigid, saying nothing.';
   if (s.startsWith('The dust rose')) return 'The dust rose in a wall.';
-  if (s.startsWith('Lark laughed')) return 'Lark laughed like a kid at a fair.'; // keeps a simile → must be rejected
+  if (s.startsWith('Solveig laughed')) return 'Solveig laughed like a kid at a fair.'; // keeps a simile → must be rejected
   return 'Here is the sentence: it did the thing.';
 };
 const healed = await healSimileDensity(CHAPTER, { callLLM: stub, label: 'test' });
 check('13. healer brings the text under budget (measured, not assumed)', healed.over === true && healed.recast >= 6 && measureSimileDensity(healed.text).per1k <= 3.0 + 3.0 /* one 12-word tolerance on a 470-word text */);
-check('14. rejected recasts leave the original sentence untouched', healed.text.includes('Lark laughed as though nothing was wrong.') || !plan.targets.some((t) => t.sentence.startsWith('Lark laughed')) );
-check('15. dialogue and verb-like sentences are byte-identical after healing', healed.text.includes('“I like a good storm,” Sadie said.') && healed.text.includes('Rodge would like an answer before dark.'));
+check('14. rejected recasts leave the original sentence untouched', healed.text.includes('Solveig laughed as though nothing was wrong.') || !plan.targets.some((t) => t.sentence.startsWith('Solveig laughed')) );
+check('15. dialogue and verb-like sentences are byte-identical after healing', healed.text.includes('“I like a good storm,” Yusra said.') && healed.text.includes('Ludo would like an answer before dark.'));
 check('16. filler prose is untouched (only targeted sentences change)', healed.text.startsWith(filler));
 const errRun = await healSimileDensity(CHAPTER, { callLLM: async () => { throw new Error('boom'); }, label: 'err' });
 check('17. LLM error fails open (original text returned, skips reported)', errRun.text === CHAPTER && errRun.recast === 0 && errRun.skipped.length > 0);
 check('18. version tag present', SIMILE_RECAST_VERSION === 'simile-recast-v2');
 
 // ── 4b. STYLEBUDGET-2B: paragraph-bounded targets (live: STRUCTURE-GUARD reverted ch.11/12) ──
-const withBreak = filler + '\n\n* * *\n\nThe wind had settled into a low hum, like a giant purring. Zin listened.\n\n' + simileText;
+const withBreak = filler + '\n\n* * *\n\nThe wind had settled into a low hum, like a giant purring. Ottie listened.\n\n' + simileText;
 const fb = findSimileSentences(withBreak);
 check('22. a sentence after a scene break is targeted WITHOUT the "* * *" marker attached', fb.some((f) => f.sentence === 'The wind had settled into a low hum, like a giant purring.') && !fb.some((f) => f.sentence.includes('* * *')));
 check('23b. a lowercase dialogue-tag continuation is not a target', findSimileSentences('“Fine,” she said, like a woman who was not fine.').length === 0);

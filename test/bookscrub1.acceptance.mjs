@@ -71,7 +71,7 @@ const apply = (text, pairs) => pairs.reduce((out, [rx, rep]) => out.replace(rx, 
   check('the persona warning still fires on a leftover name',
     R.personaWarningNames.test('and then Hawkins left the room'));
   check('the persona warning does not fire on clean text',
-    !R.personaWarningNames.test('Nell Carrow repaired the songbird.'));
+    !R.personaWarningNames.test('Ilka Thornbury repaired the songbird.'));
 }
 
 // ── a project with its own rules never sees another book's names ──

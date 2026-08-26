@@ -5,7 +5,7 @@
 // Arc E live-proof finding 19: `runExportTextSafetyNet` (ExportTab.jsx) ran a
 // 60-rule table on every book, unconditionally, then an unconditional "Songbird
 // climax" sniper repair. One rule ("duplicate short phrase") silently rewrote
-// REDUX Ch.5's stored `"Is itIs it" Lark asked.` glued word to `"Is it" Lark
+// REDUX Ch.5's stored `"Is itIs it" Solveig asked.` glued word to `"Is it" Solveig
 // asked.` at export time — masking the exact defect the offline gate correctly
 // blocks on, because `runPreExportSafetyGate` was called on the ALREADY-CLEANED
 // text (`cleaned`), not the resolved/stored text.

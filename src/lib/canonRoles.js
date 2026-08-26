@@ -5,12 +5,12 @@
 //
 // The failures this closes (all measured on the REDUX draft):
 // 1. FOUNDATION CONTRADICTION: the story bible itself disagreed — characters_md
-//    made Zin the navigator while world_md AND canon_md both called Sadie "the
+//    made Ottie the navigator while world_md AND canon_md both called Yusra "the
 //    ship's navigator". The writer faithfully reproduced the contradiction on
 //    page 3. No draft-time canon enforcement can work when the canon disagrees
 //    with itself, so contradictions are detected at the FOUNDATION level.
-// 2. NAME-VARIANT DRIFT: "Rodger" appeared 3× in a book whose canon is
-//    Roderick/Rodge. Near-miss variants of canonical names are detected and
+// 2. NAME-VARIANT DRIFT: "Ludor" appeared 3× in a book whose canon is
+//    Ludovic/Ludo. Near-miss variants of canonical names are detected and
 //    (in polish) healed deterministically.
 //
 // Nothing book-specific: everything derives from the project's own foundation
@@ -47,7 +47,7 @@ function uniqueRoleIn(roleText) {
  * Parse the character sheet into canon entries:
  * [{ name, aliases: Set, role, uniqueRole }].
  * Aliases come from quoted nicknames in entry headers
- * ("Zinnia 'Zin' Quark" → Zinnia, Zin, Quark).
+ * ("Ottilie 'Ottie' Brisa" → Ottilie, Ottie, Brisa).
  */
 export function parseCanonCast(charactersMd) {
   const text = String(charactersMd || '');
@@ -76,8 +76,8 @@ export function parseCanonCast(charactersMd) {
       const r = rx.exec(block);
       if (r) { role = r[1].trim(); break; }
     }
-    // Primary = the first name token as written ("Missy 'The Spanner' Marlowe"
-    // → Missy), never the longest alias.
+    // Primary = the first name token as written ("Perpetua 'The Tamsin' Quillon"
+    // → Perpetua), never the longest alias.
     const primary = [...aliases][0];
     entries.push({ name: primary, aliases, role, uniqueRole: uniqueRoleIn(role) });
   }
@@ -174,7 +174,7 @@ function editDistanceAtMostOne(a, b) {
 /**
  * Capitalized tokens in `text` that are a one-edit near-miss of exactly ONE
  * canonical name/alias. Constraints that keep this safe on real prose:
- * token length >= 5 (protects Zin/JB-class short names from ordinary words),
+ * token length >= 5 (protects Ottie/JB-class short names from ordinary words),
  * same first letter as the canonical it matches, token itself not canon and
  * not a common capitalized word. Returns [{ variant, canonical, count }].
  */
@@ -196,7 +196,7 @@ export function findNameVariants(text, canonEntries) {
     if (source.includes(` ${token.toLowerCase()}`)) continue;
     // CANON-2B: a token that is a whole one-word sentence ("Chaotic. Messy.
     // Loud.") is a fragment-list adjective, not a name reference. Live FP on
-    // REDUX ch.8: "Messy." flagged as a variant of "Missy" and survived the
+    // REDUX ch.8: "Messy." flagged as a variant of "Perpetua" and survived the
     // lowercase-twin test because "messy" appeared nowhere else in the chapter.
     // A name in narration is never the entire sentence.
     const idx = m.index;
@@ -245,8 +245,8 @@ export function buildRoleCanonLine(charactersMd) {
 
 /**
  * CHARSTATE-1: role-reference drift in prose. The live case (REDUX ch.11):
- * "Sadie, plot a course for Elm Fork." … "The navigator grinned" — narration
- * hands Zin's canonical role to Sadie by referring to Sadie as "The
+ * "Yusra, plot a course for Elm Fork." … "The navigator grinned" — narration
+ * hands Ottie's canonical role to Yusra by referring to Yusra as "The
  * navigator". Detection mirrors PRONOUNLOCK's sole-name attribution: a
  * sentence that names exactly ONE cast member, followed within two sentences
  * by a sentence-initial "The <unique role>" reference, attributes that role

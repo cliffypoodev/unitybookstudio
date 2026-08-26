@@ -617,8 +617,8 @@ export async function runManuscriptPolishPipeline({
   // nonfiction names are real people). This used to auto-rename ("B3.5")
   // with no approval ever given despite the function name
   // applyApprovedNameReplacementMap — live, it rewrote REDUX Ch.10's
-  // antagonist "Silas" to "Dean" x20, the exact name the book's own bible
-  // says he is never called ("never 'Dean', never 'Russell'"). Prose was
+  // antagonist "Halvard" to "Fenwick" x20, the exact name the book's own bible
+  // says he is never called ("never 'Fenwick', never 'Russell'"). Prose was
   // regex-edited and canon ignored with no gate catching it afterward.
   // Flag only now; a banned name in the manuscript is an author decision
   // (who this character actually is), never a mechanical rename.
@@ -804,8 +804,8 @@ export async function runManuscriptPolishPipeline({
   // ══════════════════════════════════════════════════════════════════════════
   // ══════════════════════════════════════════════════════════════════════════
   // CANON-2: name-variant heal. A capitalized token that is a one-edit
-  // near-miss of exactly one canonical cast name ("Rodger" in a book whose
-  // canon is Rodge/Roderick — 3 live hits) is generation drift, not a
+  // near-miss of exactly one canonical cast name ("Ludor" in a book whose
+  // canon is Ludo/Ludovic — 3 live hits) is generation drift, not a
   // character. Deterministic, and only when the canonical form dominates
   // (>=5x), so a legitimately similar minor character is never clobbered.
   // ══════════════════════════════════════════════════════════════════════════
@@ -907,7 +907,7 @@ export async function runManuscriptPolishPipeline({
   verifyInvariant('Simile Hard Cap');
 
   // SUBJECTREPAIR-1: restore subjects the retired caps deleted ("Was wearing…",
-  // "Looked at Rodge.", "A strange sense of relief wash over her."). Fiction and
+  // "Looked at Ludo.", "A strange sense of relief wash over her."). Fiction and
   // nonfiction alike — a subjectless sentence is broken in any genre. The model
   // only chooses the subject; the verifier enforces candidate === subject +
   // original. Fail-open; LLM off → report only.
@@ -916,7 +916,7 @@ export async function runManuscriptPolishPipeline({
     let castForRepair = [];
     try {
       castForRepair = harvestCastNames(project?.characters_md, loaded.map((f) => String(f.content || '')));
-      // SUBJECTREPAIR-1B: the model answers with bible names too ("Roderick was
+      // SUBJECTREPAIR-1B: the model answers with bible names too ("Ludovic was
       // focused…"); every canon name and alias is a legal subject.
       for (const entry of parseCanonCast(project?.characters_md)) {
         for (const n of [entry.name, ...(entry.aliases || [])]) if (n && !castForRepair.includes(n)) castForRepair.push(n);
@@ -1026,7 +1026,7 @@ export async function runManuscriptPolishPipeline({
   verifyInvariant('Regenerate Lane');
 
   // PRONOUNVAR-1: heal WITHIN-scene pronoun drift for context-variable
-  // characters (e.g. Lark, declared genderfluid). Between scenes the
+  // characters (e.g. Solveig, declared genderfluid). Between scenes the
   // presentation may change by design; inside one scene it must be uniform.
   // Deterministic (no LLM): flip the minority gendered pronouns to the scene's
   // majority, ONLY in sentences attributed to that character. A tie is left

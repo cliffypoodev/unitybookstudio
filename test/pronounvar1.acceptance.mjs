@@ -1,11 +1,11 @@
 // PRONOUNVAR-1 acceptance battery — context-variable (genderfluid) pronouns.
 //
-// The external audit of REDUX v3 (75/100): "Lark's pronouns/state still drift
+// The external audit of REDUX v3 (75/100): "Solveig's pronouns/state still drift
 // … he/his throughout that scene … elsewhere she/her … elsewhere they/them.
-// If intentional, the story bible could declare Lark pronouns = context-
+// If intentional, the story bible could declare Solveig pronouns = context-
 // variable with a per-scene value." Cliff chose context-variable.
 //
-// The rule that makes that shippable: Lark may present as a different gender in
+// The rule that makes that shippable: Solveig may present as a different gender in
 // DIFFERENT scenes (intentional), but WITHIN one scene the pronouns must be
 // uniform. This battery covers: declaration parsing, canon exclusion (a
 // variable character is neither fixed-canon nor an "unresolved" warning), the
@@ -24,43 +24,43 @@ import {
 
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
-const NAMES = ['Lark', 'Zin', 'Sadie', 'Rodge'];
-const BIBLE = "### Major Characters\n\n**5. Lark**\n\n- **Role:** The crew's disguise artist.\n- **Pronouns:** context-variable (presentation changes by scene)\n\n**6. Sadie**\n\n- **Pronouns:** she/her\n\n**7. Rodge**\n\n- **Pronouns:** he/him";
+const NAMES = ['Solveig', 'Ottie', 'Yusra', 'Ludo'];
+const BIBLE = "### Major Characters\n\n**5. Solveig**\n\n- **Role:** The crew's disguise artist.\n- **Pronouns:** context-variable (presentation changes by scene)\n\n**6. Yusra**\n\n- **Pronouns:** she/her\n\n**7. Ludo**\n\n- **Pronouns:** he/him";
 
 // ── 1. declaration ──
 const declared = parseDeclaredPronouns(BIBLE);
-check('1. "Pronouns: context-variable" parses to variable (through markdown bold)', declared.Lark === 'variable');
-check('2. a normal set still parses ("Sadie she/her", "Rodge he/him")', declared.Sadie === 'she' && declared.Rodge === 'he');
-check('3. "genderfluid" is also recognized', parseDeclaredPronouns("### Lark\n\n- Genderfluid disguise artist.").Lark === 'variable');
+check('1. "Pronouns: context-variable" parses to variable (through markdown bold)', declared.Solveig === 'variable');
+check('2. a normal set still parses ("Yusra she/her", "Ludo he/him")', declared.Yusra === 'she' && declared.Ludo === 'he');
+check('3. "genderfluid" is also recognized', parseDeclaredPronouns("### Solveig\n\n- Genderfluid disguise artist.").Solveig === 'variable');
 
 // ── 2. canon exclusion ──
 const canon = buildPronounCanon({ characters_md: BIBLE }, [], NAMES);
-check('4. a variable character is NOT in the fixed canon', canon.canon.Lark === undefined);
-check('5. a variable character IS in the variable list', canon.variable.includes('Lark'));
-check('6. a variable character is NOT an "unresolved" warning', !canon.unresolved.some((u) => u.name === 'Lark'));
-check('7. fixed characters still get canon', canon.canon.Sadie === 'she' && canon.canon.Rodge === 'he');
+check('4. a variable character is NOT in the fixed canon', canon.canon.Solveig === undefined);
+check('5. a variable character IS in the variable list', canon.variable.includes('Solveig'));
+check('6. a variable character is NOT an "unresolved" warning', !canon.unresolved.some((u) => u.name === 'Solveig'));
+check('7. fixed characters still get canon', canon.canon.Yusra === 'she' && canon.canon.Ludo === 'he');
 
 // ── 3. within-scene drift ──
-const mixedScene = 'Lark adjusted the collar. Her fingers were quick. Lark smoothed the lapels. Her posture shifted. Lark met his own eyes in the glass.\n\n* * *\n\nLark stepped onto the stage. He owned it. Lark tipped his hat.';
-const drift = scanContextVariablePronounDrift(mixedScene, ['Lark'], NAMES);
-check('8. mixing he and she for a variable character WITHIN one scene is flagged', drift.length === 1 && drift[0].name === 'Lark' && drift[0].sceneIndex === 0);
+const mixedScene = 'Solveig adjusted the collar. Her fingers were quick. Solveig smoothed the lapels. Her posture shifted. Solveig met his own eyes in the glass.\n\n* * *\n\nSolveig stepped onto the stage. He owned it. Solveig tipped his hat.';
+const drift = scanContextVariablePronounDrift(mixedScene, ['Solveig'], NAMES);
+check('8. mixing he and she for a variable character WITHIN one scene is flagged', drift.length === 1 && drift[0].name === 'Solveig' && drift[0].sceneIndex === 0);
 check('9. a DIFFERENT presentation in a different scene is NOT flagged', !drift.some((d) => d.sceneIndex === 1));
-const cleanBothWays = 'Lark walked in as a woman. She owned the room. Her heels clicked.\n\n* * *\n\nLark walked in as a man. He owned the room. His boots thudded.';
-check('10. cross-scene variation with each scene internally consistent is clean', scanContextVariablePronounDrift(cleanBothWays, ['Lark'], NAMES).length === 0);
-check('11. a pronoun bound across sentences is attributed ("Lark adjusted the wig. His hands…")', scanContextVariablePronounDrift('Lark adjusted the wig. His hands were steady. Lark smiled, and her reflection smiled back.', ['Lark'], NAMES).length === 1);
+const cleanBothWays = 'Solveig walked in as a woman. She owned the room. Her heels clicked.\n\n* * *\n\nSolveig walked in as a man. He owned the room. His boots thudded.';
+check('10. cross-scene variation with each scene internally consistent is clean', scanContextVariablePronounDrift(cleanBothWays, ['Solveig'], NAMES).length === 0);
+check('11. a pronoun bound across sentences is attributed ("Solveig adjusted the wig. His hands…")', scanContextVariablePronounDrift('Solveig adjusted the wig. His hands were steady. Solveig smiled, and her reflection smiled back.', ['Solveig'], NAMES).length === 1);
 
 // ── 4. heal ──
-const h = healContextVariablePronounScenes(mixedScene, 'Lark', NAMES);
-check('12. the heal flips the minority to the scene majority (his→her; scene was she-majority)', h.text.includes('Lark met her own eyes in the glass.') && h.healed[0].to === 'she' && h.healed[0].from === 'he');
-check('13. after the heal, no within-scene drift remains', scanContextVariablePronounDrift(h.text, ['Lark'], NAMES).length === 0);
-check('14. the OTHER scene is byte-identical (cross-scene variation preserved)', h.text.split('* * *')[1].includes('Lark stepped onto the stage. He owned it. Lark tipped his hat.'));
+const h = healContextVariablePronounScenes(mixedScene, 'Solveig', NAMES);
+check('12. the heal flips the minority to the scene majority (his→her; scene was she-majority)', h.text.includes('Solveig met her own eyes in the glass.') && h.healed[0].to === 'she' && h.healed[0].from === 'he');
+check('13. after the heal, no within-scene drift remains', scanContextVariablePronounDrift(h.text, ['Solveig'], NAMES).length === 0);
+check('14. the OTHER scene is byte-identical (cross-scene variation preserved)', h.text.split('* * *')[1].includes('Solveig stepped onto the stage. He owned it. Solveig tipped his hat.'));
 check('15. scene-break separators are preserved byte-for-byte', h.text.includes('\n\n* * *\n\n'));
-check('16. a tie is left alone (no guess)', (() => { const r = healContextVariablePronounScenes('Lark checked the mirror. His jaw was set. Lark turned, and her eyes were bright.', 'Lark', NAMES); return r.healed.length === 0; })());
+check('16. a tie is left alone (no guess)', (() => { const r = healContextVariablePronounScenes('Solveig checked the mirror. His jaw was set. Solveig turned, and her eyes were bright.', 'Solveig', NAMES); return r.healed.length === 0; })());
 check('17. a pronoun bound to ANOTHER character is never touched', (() => {
-  // Rodge (he) is the sole subject of the 2nd sentence; Lark's scene majority is she.
-  const t = 'Lark fixed her makeup. Rodge grunted. He crossed his arms. Lark laughed, and her smile was wide. Lark caught his eye in the mirror.';
-  const r = healContextVariablePronounScenes(t, 'Lark', NAMES);
-  return r.text.includes('Rodge grunted. He crossed his arms.'); // Rodge untouched
+  // Ludo (he) is the sole subject of the 2nd sentence; Solveig's scene majority is she.
+  const t = 'Solveig fixed her makeup. Ludo grunted. He crossed his arms. Solveig laughed, and her smile was wide. Solveig caught his eye in the mirror.';
+  const r = healContextVariablePronounScenes(t, 'Solveig', NAMES);
+  return r.text.includes('Ludo grunted. He crossed his arms.'); // Ludo untouched
 })());
 
 // ── 5. wiring ──

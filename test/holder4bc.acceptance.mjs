@@ -23,7 +23,7 @@ const H = (text, cast) =>
 const eq = (label, text, want, cast) => check(label, H(text, cast) === JSON.stringify(want));
 
 const BM = ['Lena Ortiz', 'Marcus Reed'];
-const WEX = ['Nell Carrow', 'Silas Bram', 'Edmund Wexcombe', 'Edmund Wexcombe the younger', 'Mrs. Aldous'];
+const WEX = ['Ilka Thornbury', 'Halvard Oriel', 'Edmund Ashby', 'Edmund Ashby the younger', 'Mrs. Aldous'];
 const PUN = ["O'Brien", 'Marie-Claire Dupont', 'José Ramírez', 'van Dijk', 'Mary Anne Fitch'];
 
 // ── the ACTIVE voice must be byte-for-byte unchanged ──
@@ -64,16 +64,16 @@ eq('empty cast', "The key handle is in Lena's possession.", {}, []);
 
 // ── HOLDER-4c: identity on a DIFFERENT book's cast ──
 eq('identity: plain cast member',
-  "The brass winding key is in Nell's possession.",
-  { 'brass winding key': 'Nell Carrow' }, WEX);
+  "The brass winding key is in Ilka's possession.",
+  { 'brass winding key': 'Ilka Thornbury' }, WEX);
 eq('identity: a bare shared first name stays ambiguous',
   "The brass winding key is in Edmund's possession.", {}, WEX);
 eq('identity: the elder brother by full name',
-  "The brass winding key is in Edmund Wexcombe's possession.",
-  { 'brass winding key': 'Edmund Wexcombe' }, WEX);
+  "The brass winding key is in Edmund Ashby's possession.",
+  { 'brass winding key': 'Edmund Ashby' }, WEX);
 eq('identity: the longer name wins over the name it contains',
-  "The brass winding key is in Edmund Wexcombe the younger's possession.",
-  { 'brass winding key': 'Edmund Wexcombe the younger' }, WEX);
+  "The brass winding key is in Edmund Ashby the younger's possession.",
+  { 'brass winding key': 'Edmund Ashby the younger' }, WEX);
 eq('identity: honorific possessor', // the period is not a clause boundary
   "The brass winding key is in Mrs. Aldous's possession.",
   { 'brass winding key': 'Mrs. Aldous' }, WEX);
@@ -81,11 +81,11 @@ eq('identity: honorific character by surname alone',
   "The brass winding key is in Aldous's possession.",
   { 'brass winding key': 'Mrs. Aldous' }, WEX);
 eq('identity: two objects sharing a noun stay separate',
-  "The steel winding key is in Nell's possession, while Silas holds the brass winding key.",
-  { 'steel winding key': 'Nell Carrow', 'brass winding key': 'Silas Bram' }, WEX);
+  "The steel winding key is in Ilka's possession, while Halvard holds the brass winding key.",
+  { 'steel winding key': 'Ilka Thornbury', 'brass winding key': 'Halvard Oriel' }, WEX);
 eq('identity: active voice, full colliding name',
-  'Edmund Wexcombe the younger holds the brass winding key.',
-  { 'brass winding key': 'Edmund Wexcombe the younger' }, WEX);
+  'Edmund Ashby the younger holds the brass winding key.',
+  { 'brass winding key': 'Edmund Ashby the younger' }, WEX);
 eq('identity: active voice, bare colliding name is ambiguous',
   'Edmund holds the brass winding key.', {}, WEX);
 
@@ -97,7 +97,7 @@ eq('name shape: accented, full name', "The ledger is in José Ramírez's possess
 eq('name shape: lowercase particle', "The ledger is in van Dijk's possession.", { ledger: 'van Dijk' }, PUN);
 eq('name shape: three parts', "The ledger is in Mary Anne Fitch's possession.", { ledger: 'Mary Anne Fitch' }, PUN);
 eq('name shape: mononym', "The ledger is in Sable's possession.", { ledger: 'Sable' }, ['Sable', 'Cray']);
-eq('name shape: name ending in s, bare apostrophe', "The ledger is in Silas' possession.", { ledger: 'Silas Bram' }, WEX);
+eq('name shape: name ending in s, bare apostrophe', "The ledger is in Halvard' possession.", { ledger: 'Halvard Oriel' }, WEX);
 eq('object noun with an accent', "The déjeuner tray is in José's possession.", { 'déjeuner tray': 'José Ramírez' }, PUN);
 
 // ── castMembersIn is the shared resolver, and it never invents anybody ──
@@ -106,12 +106,12 @@ check('castMembersIn: a definite article resolves nobody',
 check('castMembersIn: an unknown name resolves nobody',
   JSON.stringify(castMembersIn('Vale crossed the hall.', normalizeCast(WEX))) === '[]');
 check('castMembersIn: two distinct members are both reported',
-  JSON.stringify(castMembersIn('Nell watched Silas.', normalizeCast(WEX))) === JSON.stringify(['Nell Carrow', 'Silas Bram']));
+  JSON.stringify(castMembersIn('Ilka watched Halvard.', normalizeCast(WEX))) === JSON.stringify(['Ilka Thornbury', 'Halvard Oriel']));
 
 // ── BOOK-AGNOSTIC: the same structure, three unrelated books, identical verdicts ──
 const BOOKS = [
   { cast: ['Lena Ortiz', 'Marcus Reed'], obj: 'broken brass key handle', a: 'Lena', b: 'Marcus', obj2: 'flare gun', fixture: 'console', part: 'bandaged left hand' },
-  { cast: ['Nell Carrow', 'Silas Bram'], obj: 'brass winding key', a: 'Nell', b: 'Silas', obj2: 'clockwork songbird', fixture: 'window', part: 'bandaged left hand' },
+  { cast: ['Ilka Thornbury', 'Halvard Oriel'], obj: 'brass winding key', a: 'Ilka', b: 'Halvard', obj2: 'clockwork songbird', fixture: 'window', part: 'bandaged left hand' },
   { cast: ['Ana Okonkwo', 'Peter Halloway'], obj: 'sealed deposition folder', a: 'Ana', b: 'Peter', obj2: 'burner phone', fixture: 'window', part: 'bandaged left hand' },
 ];
 const SHAPES = [

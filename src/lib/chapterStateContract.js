@@ -33,7 +33,7 @@ export const CHAPTER_STATE_CONTRACT_VERSION = 'chapter-state-contract-v2'; // ST
 
 // ARCSTATE-1: data-declared resolved arcs. No phrase list lives in code —
 // authors write these lines directly into canon_md / characters_md:
-//   RESOLVED ARC: Zin's grief — she stops blaming herself (ch 12); forbidden: "still blames herself"; "her fault"
+//   RESOLVED ARC: Ottie's grief — she stops blaming herself (ch 12); forbidden: "still blames herself"; "her fault"
 const RESOLVED_ARC_RX = /^\s*RESOLVED ARC:\s*([^—-]+?)\s*[—-]\s*(.+?)\s*\(ch\s*(\d+)\)\s*(?:;\s*forbidden:\s*(.+))?\s*$/gim;
 
 /**

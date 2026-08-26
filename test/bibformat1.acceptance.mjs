@@ -23,7 +23,7 @@ const researchData = {
     { name: 'Municipal Charter of Bellhaven', issuer: 'Bellhaven Town Council', date: '1902', source: 'https://example.org/records/bellhaven-charter' },
   ],
   key_figures: [
-    { name: 'Adelia Fenwick', sources: 'https://example.org/testimony/fenwick-recollections' },
+    { name: 'Adelia Winslow', sources: 'https://example.org/testimony/winslow-recollections' },
   ],
   key_events: [
     { event: 'The Bellhaven grain exchange fire', date: '1904', sources: 'https://example.org/reports/grain-exchange-fire' },
@@ -100,7 +100,7 @@ check('12. isBackMatter is untouched (title-based back-matter detection still ex
   const sampleEntries = [
     'Bellhaven Town Council. "Municipal Charter of Bellhaven." 1902. https://example.org/records/bellhaven-charter.',
     'The Bellhaven Weekly Ledger. "Grain Exchange Fire Contained." 1904. https://example.org/ledger/fire-contained.',
-    'Adelia Fenwick. A Field Guide to Invented Bellhaven. Harborlight Press, 1961.',
+    'Adelia Winslow. A Field Guide to Invented Bellhaven. Harborlight Press, 1961.',
     'Bellhaven Records Bureau. Digitized town registry of invented residents. https://example.org/registry.',
   ];
   const sections = ['Bibliography', `\n${titleHeading} An Invented Field Guide`];

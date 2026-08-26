@@ -1,8 +1,8 @@
 // INTRODUP-1 — in-chapter duplicate self-introduction guard.
 //
 // The defect (external audit of REDUX v3): in Ch3 the antagonist introduces
-// himself twice in the same conversation — "I am Nolan. And these … are my
-// associates." then, fourteen sentences later, "I'm Nolan. I collect things."
+// himself twice in the same conversation — "I am Idris. And these … are my
+// associates." then, fourteen sentences later, "I'm Idris. I collect things."
 // A character who has already told the room their name does not re-announce it;
 // the second self-introduction reads as a continuity slip.
 //
@@ -11,7 +11,7 @@
 // fires only when a KNOWN cast name is spoken as a FIRST-PERSON self-reference
 // ("I am NAME", "I'm NAME", "My name is NAME", "Call me NAME", "NAME's the
 // name") two or more times inside one chapter. Third-person naming ("He was
-// Nolan"), possessives ("I am Nolan's associate"), and other characters saying
+// Idris"), possessives ("I am Idris's associate"), and other characters saying
 // the name are never counted.
 
 export const INTRO_GUARD_VERSION = 'intro-guard-v1';
@@ -22,7 +22,7 @@ function escapeRegExp(s) {
 
 // The five first-person self-introduction shapes. Each captures nothing; the
 // cast name is baked in. A trailing (?!['’]s) rejects the possessive
-// "I am Nolan's associate" (the speaker is NOT Nolan there).
+// "I am Idris's associate" (the speaker is NOT Idris there).
 function selfIntroPatterns(name) {
   const n = escapeRegExp(name);
   const notPossessive = `(?![’'\\w])`; // name must end here — not "'s", not more letters

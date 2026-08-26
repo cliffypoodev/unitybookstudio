@@ -944,8 +944,8 @@ export async function generateBibleParallel(seedConcept, settings, options = {})
 
   // CANON-2: a freshly generated bible that disagrees with itself about who
   // holds a unique role ships that contradiction into every chapter (REDUX:
-  // world_md and canon_md both called Sadie "the ship's navigator" while
-  // characters_md made Zin the navigator — the drafted book printed it on
+  // world_md and canon_md both called Yusra "the ship's navigator" while
+  // characters_md made Ottie the navigator — the drafted book printed it on
   // page 3). Detection at birth, loudly; the fields still return so the
   // author decides, but the console names the exact conflict.
   try {

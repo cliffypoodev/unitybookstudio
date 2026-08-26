@@ -38,7 +38,7 @@ check('empty text does not throw and raises nothing', formatRhythmLine('empty', 
 // ── INJURYSCALE-1: severity is a scale, and the ledger owns where a body ends ──
 const BOOKS = [
   { id: 'arctic thriller', who: 'Marcus Reed', other: 'Lena Ortiz' },
-  { id: 'gothic mystery', who: 'Silas Bram', other: 'Nell Carrow' },
+  { id: 'gothic mystery', who: 'Halvard Oriel', other: 'Ilka Thornbury' },
   { id: 'legal thriller', who: 'Peter Halloway', other: 'Ana Okonkwo' },
 ];
 for (const b of BOOKS) {

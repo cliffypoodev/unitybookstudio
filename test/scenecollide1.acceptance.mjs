@@ -6,10 +6,10 @@
 //    "A rival salvage team arrives…" — the bag-of-words PRIOR_EVENT_REPLAY
 //    gate matched 3 of 11 tokens and passed it. Design under test: class-based
 //    (entity, action) collision detection, planner-side and prose-side.
-// 2. The story bible contradicted itself (characters_md: Zin = navigator;
-//    world_md AND canon_md: "Sadie, the ship's navigator") and the book
+// 2. The story bible contradicted itself (characters_md: Ottie = navigator;
+//    world_md AND canon_md: "Yusra, the ship's navigator") and the book
 //    printed it. Design under test: foundation role-consistency checking.
-// 3. "Rodger" appeared 3x in a Rodge/Roderick book. Design under test:
+// 3. "Ludor" appeared 3x in a Ludo/Ludovic book. Design under test:
 //    near-miss name-variant detection + deterministic polish heal.
 import fs from 'node:fs';
 import {
@@ -38,18 +38,18 @@ check('2. group entities include dropped-modifier forms (rival team, salvage tea
 check('3. verbs before group nouns are not entities ("knows the crew")', ![...entities].some((e) => e.includes('knows')));
 
 // ── 2. prose-side collision: the REAL ch.3 failure shape ──
-const RESTAGE = 'Zin looked at the chip in her hand.\n\nThe rival team did not so much arrive as they did unfold, like a complex origami crane made of rusted steel and bad intentions. Three vehicles crunched over the dry scrub.';
+const RESTAGE = 'Ottie looked at the chip in her hand.\n\nThe rival team did not so much arrive as they did unfold, like a complex origami crane made of rusted steel and bad intentions. Three vehicles crunched over the dry scrub.';
 const hits = findProseEventCollisions([ARRIVAL_EVENT], RESTAGE);
 check('4. vocabulary-independent re-staging is caught (the exact REDUX ch.3 miss)', hits.length === 1 && hits[0].class === 'ARRIVAL' && hits[0].entity === 'rival team');
 check('5. narration ABOUT the arrival is NOT a collision', findProseEventCollisions([ARRIVAL_EVENT], 'The rival team had arrived hours earlier, and the camp still smelled of their exhaust.').length === 0);
 check('6. dialogue ABOUT the arrival is NOT a collision', findProseEventCollisions([ARRIVAL_EVENT], '“The rival team arrives tonight, I hear,” Thompson said, spitting into the dust and shaking his head slowly.').length === 0);
-check('7. "arrived at a decision" idiom is NOT a collision', findProseEventCollisions(['Dean arrives at the crash site with his crew.'], 'Dean arrived at a decision that surprised everyone standing there.').length === 0);
-check('8. REVEAL needs shared substance, not just verb + name ("It\'s pretty," Zin admitted)', findProseEventCollisions(['Zin reveals her past failure as a navigator to the assembled crew.'], 'The paint caught the light. It really was something to see. “It’s pretty,” Zin admitted, tilting her head at the hull.').length === 0);
+check('7. "arrived at a decision" idiom is NOT a collision', findProseEventCollisions(['Fenwick arrives at the crash site with his crew.'], 'Fenwick arrived at a decision that surprised everyone standing there.').length === 0);
+check('8. REVEAL needs shared substance, not just verb + name ("It\'s pretty," Ottie admitted)', findProseEventCollisions(['Ottie reveals her past failure as a navigator to the assembled crew.'], 'The paint caught the light. It really was something to see. “It’s pretty,” Ottie admitted, tilting her head at the hull.').length === 0);
 
 // ── 3. planner-side collision ──
 const beats = [
   { scene_number: 1, scene_goal: 'The rival team arrives at the crash site and confronts the crew.', required_events: ['A rival team arrives at the crash site.'] },
-  { scene_number: 2, scene_goal: 'Zin repairs the manifold under pressure.', required_events: ['Zin repairs the manifold.'] },
+  { scene_number: 2, scene_goal: 'Ottie repairs the manifold under pressure.', required_events: ['Ottie repairs the manifold.'] },
 ];
 const beatHits = findBeatEventCollisions(beats, [ARRIVAL_EVENT]);
 check('9. a beat plan re-staging a completed arrival is flagged', beatHits.length >= 1 && beatHits.every((f) => f.scene_number === 1));
@@ -64,33 +64,33 @@ check('11. exhausted-attempt rewrite annotates the colliding beat only', rewritt
 check('12. ordinary prose with arrivals of OTHER entities stays clean', findProseEventCollisions([ARRIVAL_EVENT], 'Mr. Thompson arrived with the wagon at noon. The mail arrived late. A storm arrived from the west that evening.').length === 0);
 
 // ── 5. canon cast parsing ──
-const SHEET = `### Major Characters\n\n**1. Protagonist: Zinnia 'Zin' Quark**\n\n- **Role:** Navigator and heart of the crew.\n\n**2. Antagonist: Roderick 'Rodge' Krye**\n\n- **Role:** The gruff, no-nonsense leader of the crew.\n\n**4. Key Supporting: Missy 'The Spanner' Marlowe**\n\n- **Role:** The ship's engineer, tough and resourceful.`;
+const SHEET = `### Major Characters\n\n**1. Protagonist: Ottilie 'Ottie' Brisa**\n\n- **Role:** Navigator and heart of the crew.\n\n**2. Antagonist: Ludovic 'Ludo' Vashti**\n\n- **Role:** The gruff, no-nonsense leader of the crew.\n\n**4. Key Supporting: Perpetua 'The Tamsin' Quillon**\n\n- **Role:** The ship's engineer, tough and resourceful.`;
 const cast = parseCanonCast(SHEET);
-check('13. cast parses names, nicknames, and roles ("Major Characters" header is not a character)', cast.length === 3 && cast[0].name === 'Zinnia' && cast[0].aliases.has('Zin') && cast[0].uniqueRole === 'navigator' && cast[2].name === 'Missy' && cast[2].aliases.has('Spanner'));
+check('13. cast parses names, nicknames, and roles ("Major Characters" header is not a character)', cast.length === 3 && cast[0].name === 'Ottilie' && cast[0].aliases.has('Ottie') && cast[0].uniqueRole === 'navigator' && cast[2].name === 'Perpetua' && cast[2].aliases.has('Tamsin'));
 
-// ── 6. foundation contradictions (the REAL Sadie-navigator shape) ──
+// ── 6. foundation contradictions (the REAL Yusra-navigator shape) ──
 const project = {
   characters_md: SHEET,
-  world_md: '**Sadie**, the ship’s navigator, is a tiny, hyperactive alien with a penchant for quoting Shakespeare.',
-  canon_md: "The crew includes Zinnia 'Zin' Quark, the navigator and heart of the crew; and Lark, the genderfluid engineer.",
+  world_md: '**Yusra**, the ship’s navigator, is a tiny, hyperactive alien with a penchant for quoting Shakespeare.',
+  canon_md: "The crew includes Ottilie 'Ottie' Brisa, the navigator and heart of the crew; and Solveig, the genderfluid engineer.",
 };
 const contradictions = checkFoundationRoleConsistency(project);
-check('14. a unique role claimed for two characters across fields is a contradiction', contradictions.length === 1 && contradictions[0].role === 'navigator' && contradictions[0].distinctNames.includes('Sadie'));
-check('15. the same character under an alias is NOT a contradiction (Quark = Zinnia)', !contradictions[0].distinctNames.includes('Quark') || contradictions[0].distinctNames.length === 2);
+check('14. a unique role claimed for two characters across fields is a contradiction', contradictions.length === 1 && contradictions[0].role === 'navigator' && contradictions[0].distinctNames.includes('Yusra'));
+check('15. the same character under an alias is NOT a contradiction (Brisa = Ottilie)', !contradictions[0].distinctNames.includes('Brisa') || contradictions[0].distinctNames.length === 2);
 check('16. shared roles (engineer) never flag — multi-holder roles are craft, not contradiction', !contradictions.some((c) => c.role === 'engineer'));
-check('17. a consistent foundation is clean', checkFoundationRoleConsistency({ characters_md: SHEET, world_md: 'The ship is gaudy.', canon_md: 'Zin navigates.' }).length === 0);
+check('17. a consistent foundation is clean', checkFoundationRoleConsistency({ characters_md: SHEET, world_md: 'The ship is gaudy.', canon_md: 'Ottie navigates.' }).length === 0);
 
 // ── 7. name variants ──
-const prose = 'Rodge grabbed the wrench. Rodge swore. Rodge, Rodge, Rodge — always fixing. Then Rodger looked up at the sky. Messy tools covered the bench, and the messy bench annoyed him.';
+const prose = 'Ludo grabbed the wrench. Ludo swore. Ludo, Ludo, Ludo — always fixing. Then Ludor looked up at the sky. Messy tools covered the bench, and the messy bench annoyed him.';
 const variants = findNameVariants(prose, cast);
-check('18. one-edit near-miss of a canonical name is flagged (Rodger -> Rodge)', variants.length === 1 && variants[0].variant === 'Rodger' && variants[0].canonical === 'Rodge');
+check('18. one-edit near-miss of a canonical name is flagged (Ludor -> Ludo)', variants.length === 1 && variants[0].variant === 'Ludor' && variants[0].canonical === 'Ludo');
 check('19. capitalized ordinary words are NOT variants (Messy has a lowercase twin)', !variants.some((v) => v.variant === 'Messy'));
 const healed = healNameVariants(prose, cast);
-check('20. heal replaces the variant when canon dominates (>=5x)', healed.repairs.length === 1 && !/\bRodger\b/.test(healed.text));
-check('21. heal refuses when the "variant" is too established to be drift', healNameVariants('Rodger walked in. Rodger sat. Rodger spoke. Rodge nodded.', cast).repairs.length === 0);
+check('20. heal replaces the variant when canon dominates (>=5x)', healed.repairs.length === 1 && !/\bLudor\b/.test(healed.text));
+check('21. heal refuses when the "variant" is too established to be drift', healNameVariants('Ludor walked in. Ludor sat. Ludor spoke. Ludo nodded.', cast).repairs.length === 0);
 
 // ── 8. role canon prompt line + wiring ──
-check('22. role canon line renders from the sheet', buildRoleCanonLine(SHEET).startsWith('Zinnia: Navigator'));
+check('22. role canon line renders from the sheet', buildRoleCanonLine(SHEET).startsWith('Ottilie: Navigator'));
 const WRITER = fs.readFileSync(new URL('../src/lib/sceneWriter.js', import.meta.url), 'utf8');
 check('23. writer contract carries the role canon', WRITER.includes('buildRoleCanonLine(project?.characters_md)') && WRITER.includes('CHARACTER ROLES (canonical'));
 const GATE_SRC = fs.readFileSync(new URL('../src/lib/sceneContractGate.js', import.meta.url), 'utf8');

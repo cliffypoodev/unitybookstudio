@@ -69,7 +69,7 @@ check('attempt exhaustion still accepts rather than killing the chapter',
 
 // ── generality: nothing here names a book ──
 check('the fix names no book, cast or prop',
-  !/Gilded|Wexcombe|Nell|Brass Meridian|Lena|Marcus/.test(
+  !/Gilded|Ashby|Ilka|Brass Meridian|Lena|Marcus/.test(
     SCHEMA_SRC.slice(SCHEMA_SRC.indexOf('BEATFIELD-1'), SCHEMA_SRC.indexOf('BEATFIELD-1') + 400)
       .split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n'),
   ));

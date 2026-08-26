@@ -7,32 +7,32 @@ import { scanMalformedSentences, MALFORMEDSENT_VERSION, clauseHasPluralCommonNou
 
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
-const CAST = ['Zin', 'Zinnia', 'Nolan', 'JB', 'Rodge', 'Lark', 'Sadie', 'Missy', 'Thompson'];
+const CAST = ['Ottie', 'Ottilie', 'Idris', 'JB', 'Ludo', 'Solveig', 'Yusra', 'Perpetua', 'Thompson'];
 const kinds = (t) => scanMalformedSentences(t, CAST).map((f) => f.kind);
 const has = (t, k) => kinds(t).includes(k);
 
 // ── must FLAG (real corruptions) ──
-check('1. singular + were is flagged (agreement): "Zin were ridiculous."', has('Zin were ridiculous.', 'agreement'));
-check('2. "Nolan were empty" is flagged (agreement)', has('Nolan were empty, but his fingers twitched.', 'agreement'));
+check('1. singular + were is flagged (agreement): "Ottie were ridiculous."', has('Ottie were ridiculous.', 'agreement'));
+check('2. "Idris were empty" is flagged (agreement)', has('Idris were empty, but his fingers twitched.', 'agreement'));
 check('3. dropped subject "Were a ragtag collection…" is flagged', has('Were a ragtag collection of scavengers, each covered in grime.', 'dropped-subject'));
 check('4. dropped subject "Was wearing a duster coat…" is flagged', has('Was wearing a duster coat, and his hat was pulled low.', 'dropped-subject'));
-check('5. dropped subject "Looked at Rodge." is flagged', has('Looked at Rodge.', 'dropped-subject'));
+check('5. dropped subject "Looked at Ludo." is flagged', has('Looked at Ludo.', 'dropped-subject'));
 check('6. bare-verb "A strange sense of relief wash over her." is flagged', has('A strange sense of relief wash over her.', 'bare-verb'));
 check('7. bare-verb "The weight in her chest lighten." is flagged', has('The weight in her chest lighten.', 'bare-verb'));
 check('8. name-echo "JB looked at JB." is flagged', has('JB looked at JB.', 'name-echo'));
 
 // ── must NOT flag (clean prose) ──
 check('9. plural "They were a ragtag collection." is clean', kinds('They were a ragtag collection of scavengers.').length === 0);
-check('10. compound "Sadie and Lark were arguing." is clean', kinds('Sadie and Lark were arguing softly near the cargo bay.').length === 0);
+check('10. compound "Yusra and Solveig were arguing." is clean', kinds('Yusra and Solveig were arguing softly near the cargo bay.').length === 0);
 check('11. inverted question "Was that clever?" is clean', kinds('Was that clever?').length === 0);
 check('12. "She felt a strange sense of relief wash over her." is clean', kinds('She felt a strange sense of relief wash over her.').length === 0);
-check('13. "Zin looked at Rodge, then at the door." is clean (different name)', kinds('Zin looked at Rodge, then at the door.').length === 0);
-check('14. "Nolan was wearing a duster coat, and his hat was pulled low." is clean', kinds('Nolan was wearing a duster coat, and his hat was pulled low.').length === 0);
-check('15. ordinary prose is clean', kinds('The wind howled across the plain. Zin gripped the wrench and looked up at the sky.').length === 0);
+check('13. "Ottie looked at Ludo, then at the door." is clean (different name)', kinds('Ottie looked at Ludo, then at the door.').length === 0);
+check('14. "Idris was wearing a duster coat, and his hat was pulled low." is clean', kinds('Idris was wearing a duster coat, and his hat was pulled low.').length === 0);
+check('15. ordinary prose is clean', kinds('The wind howled across the plain. Ottie gripped the wrench and looked up at the sky.').length === 0);
 
 // ── counts + version ──
 check('16. a paragraph of mixed corruptions returns all of them', (() => {
-  const t = 'Zin were ridiculous. Were a ragtag collection of scavengers. A strange sense of relief wash over her. JB looked at JB.';
+  const t = 'Ottie were ridiculous. Were a ragtag collection of scavengers. A strange sense of relief wash over her. JB looked at JB.';
   const ks = kinds(t).sort();
   return ks.length === 4 && ks.join(',') === 'agreement,bare-verb,dropped-subject,name-echo';
 })());
@@ -60,7 +60,7 @@ check('20. MALFORMEDSENT_HARD_BLOCK defaults to false', /export const MALFORMEDS
 // clause is the TRUE subject — "were" agrees with IT, not the nearby proper
 // noun the regex would otherwise flag. Fixture names only (Port Ellis /
 // Dr. Vance), never a real book's cast or place. ──
-const NF_CAST = ['Port Ellis', 'Dr. Vance', 'Zin'];
+const NF_CAST = ['Port Ellis', 'Dr. Vance', 'Ottie'];
 const nfKinds = (t) => scanMalformedSentences(t, NF_CAST).map((f) => f.kind);
 check(
   '21. plural subject before a proper noun ("investigators ... Port Ellis were") is clean',

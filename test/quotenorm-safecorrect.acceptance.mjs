@@ -17,8 +17,8 @@ console.log('QUOTENORM-1 — function behaviour');
   ok('straight doubles become curly, none left', straight(r.text) === 0 && r.text.includes('“hello”'));
 }
 {
-  const r = normalizeSmartQuotesOnly("don't stop, it's Silas' book");
-  ok('contraction + possessive apostrophes curl', r.text === 'don’t stop, it’s Silas’ book');
+  const r = normalizeSmartQuotesOnly("don't stop, it's Halvard' book");
+  ok('contraction + possessive apostrophes curl', r.text === 'don’t stop, it’s Halvard’ book');
 }
 {
   const r = normalizeSmartQuotesOnly("say 'tis odd now");

@@ -88,10 +88,10 @@ check('5. every key shared with SLOP_BUDGETS has the same book budget in both li
 // content words out of a cast member's own name ──
 {
   // A bible nickname rendered inline as a spacing artifact ("Mara ' Mar’
-  // Voss") — live on REDUX: "Zinnia ' Zin' Quark" falsely echoed Ch.4 and
-  // Ch.14 against Ch.1 with gram "zinnia ' zin' quark" because the old
+  // Voss") — live on REDUX: "Ottilie ' Ottie' Brisa" falsely echoed Ch.4 and
+  // Ch.14 against Ch.1 with gram "ottilie ' ottie' brisa" because the old
   // tokenizer split the bare apostrophe into its own "word" and left a
-  // trailing one glued to "zin'", so neither matched the cast set.
+  // trailing one glued to "ottie'", so neither matched the cast set.
   const artifactA = { chapterNumber: 1, text: "Mara ' Mar’ Voss stared out the viewport at the drifting debris field for a long while." };
   const artifactB = { chapterNumber: 4, text: "Mara ' Mar’ Voss walked into the cargo bay and checked the manifest twice before signing." };
   check('6c. a spaced-apostrophe name artifact never manufactures a false echo', findOpeningEchoes([artifactA, artifactB], { castNames: ['Mara', 'Voss'] }).length === 0,

@@ -25,7 +25,7 @@ const H = (text, cast) =>
 const eq = (label, text, want, cast) => check(label, H(text, cast) === JSON.stringify(want));
 
 const BM = ['Lena Ortiz', 'Marcus Reed', 'Dr. Nolan Vale'];
-const WEX = ['Nell Carrow', 'Silas Bram'];
+const WEX = ['Ilka Thornbury', 'Halvard Oriel'];
 const LEG = ['Ana Okonkwo', 'Peter Halloway'];
 
 // ── the defect, from the live saved contract ──
@@ -34,20 +34,20 @@ eq('live ch.2 contract no longer seeds a phantom',
   { 'activated brass decoder key': 'Lena Ortiz' }, BM);
 
 // ── every locative preposition ends the object and begins a place ──
-eq('locative: in', 'Nell holds the steel winding key in her apron.', { 'steel winding key': 'Nell Carrow' }, WEX);
-eq('locative: against', 'Silas holds the lantern against the wall.', { lantern: 'Silas Bram' }, WEX);
+eq('locative: in', 'Ilka holds the steel winding key in her apron.', { 'steel winding key': 'Ilka Thornbury' }, WEX);
+eq('locative: against', 'Halvard holds the lantern against the wall.', { lantern: 'Halvard Oriel' }, WEX);
 eq('locative: over', 'Ana holds the coat over her arm.', { coat: 'Ana Okonkwo' }, LEG);
 eq('locative: under', 'Peter holds the folder under his coat.', { folder: 'Peter Halloway' }, LEG);
 eq('locative: inside', 'Lena holds the flare gun inside her parka.', { 'flare gun': 'Lena Ortiz' }, BM);
 eq('locative: beneath', 'Marcus holds the map beneath the lamp.', { map: 'Marcus Reed' }, BM);
-eq('locative: between', 'Nell holds the songbird between her hands.', { songbird: 'Nell Carrow' }, WEX);
-eq('particle: up', 'Nell holds the songbird up to the light.', { songbird: 'Nell Carrow' }, WEX);
+eq('locative: between', 'Ilka holds the songbird between her hands.', { songbird: 'Ilka Thornbury' }, WEX);
+eq('particle: up', 'Ilka holds the songbird up to the light.', { songbird: 'Ilka Thornbury' }, WEX);
 eq('particle: out', 'Lena holds the flare gun out in front of her.', { 'flare gun': 'Lena Ortiz' }, BM);
 eq('adverb: tightly', 'Peter holds the burner phone tightly in one hand.', { 'burner phone': 'Peter Halloway' }, LEG);
 
 // ── compound objects must SURVIVE: "of" is deliberately not a cut point ──
 eq('compound survives: sheaf of documents', 'Ana holds the sheaf of documents.', { 'sheaf of documents': 'Ana Okonkwo' }, LEG);
-eq('compound survives: set of winding keys', 'Nell holds the set of winding keys.', { 'set of winding keys': 'Nell Carrow' }, WEX);
+eq('compound survives: set of winding keys', 'Ilka holds the set of winding keys.', { 'set of winding keys': 'Ilka Thornbury' }, WEX);
 eq('compound survives: multi-word prop', 'Marcus holds the broken brass key handle.', { 'broken brass key handle': 'Marcus Reed' }, BM);
 
 // ── the SEEDING path now obeys the identical rule (it is the same Set) ──
@@ -81,7 +81,7 @@ for (const w of ['and', 'to', 'into', 'with', 'from', 'at', 'on', 'onto', 'towar
 // ── book-agnostic: same structure, three books, identical verdicts ──
 const BOOKS = [
   { cast: BM, who: 'Lena', obj: 'flare gun', place: 'her parka' },
-  { cast: WEX, who: 'Nell', obj: 'winding key', place: 'her apron' },
+  { cast: WEX, who: 'Ilka', obj: 'winding key', place: 'her apron' },
   { cast: LEG, who: 'Ana', obj: 'deposition folder', place: 'her briefcase' },
 ];
 for (const prep of ['in', 'inside', 'under', 'against', 'beside', 'behind']) {

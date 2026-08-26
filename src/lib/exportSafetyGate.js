@@ -708,8 +708,8 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   }
 
   // MALFORMEDSENT-1: sentences left malformed by the pipeline's own passes —
-  // dropped subjects ("Were a ragtag collection…", "Looked at Rodge."), singular
-  // + were agreement ("Zin were ridiculous"), bare-verb fragments ("A strange
+  // dropped subjects ("Were a ragtag collection…", "Looked at Ludo."), singular
+  // + were agreement ("Ottie were ridiculous"), bare-verb fragments ("A strange
   // sense of relief wash over her."), name-echo ("JB looked at JB."). Warning
   // only, and NEVER a mutation: a flagged sentence is one to REGENERATE, not to
   // regex-edit — auto-editing prose is what produced these in the first place.
@@ -758,7 +758,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   }
 
   // NAMEGATE-1 (finding 35b): a person the story bible never established.
-  // Arc D's redraft of a chapter invented "Silas", a Tier-1 banned name that
+  // Arc D's redraft of a chapter invented "Halvard", a Tier-1 banned name that
   // was never in any bible field, and no gate ever fired ([PRONOUNLOCK]
   // "2 unresolved" was the only trace). Fiction only — NF already has its
   // own closed-world check via NFEXPORT-BIB-1 above.
@@ -839,8 +839,8 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   }
 
   // CANON-2: canon integrity — warnings only, but loud. A foundation that
-  // disagrees with itself (REDUX: characters_md made Zin the navigator while
-  // world_md AND canon_md called Sadie "the ship's navigator") is an author
+  // disagrees with itself (REDUX: characters_md made Ottie the navigator while
+  // world_md AND canon_md called Yusra "the ship's navigator") is an author
   // decision to make, not an auto-fix; the gate makes it impossible to miss.
   // Name variants that survived polish are listed the same way.
   try {
@@ -876,7 +876,7 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
   // Resurrections (a departed character acting in a later chapter with no
   // written return — live: JB departed ch.9, "fidgeted near the counter" in
   // ch.10) and role-reference drift ("The navigator" pointing at the wrong
-  // character — live: Sadie in ch.11). Warnings, not hard blocks: both need
+  // character — live: Yusra in ch.11). Warnings, not hard blocks: both need
   // an author decision (write the return / fix the sentence), and the fix is
   // a redraft, not a mechanical repair.
   let charstateViolationCount = 0;

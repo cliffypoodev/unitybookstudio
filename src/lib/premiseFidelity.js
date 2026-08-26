@@ -4,9 +4,9 @@
  * MEASURED on The Gilded Hour, 2026-08-04. The premise named five people, a house, a
  * strongroom, two keys and a language. The generated character sheet contained:
  *
- *   present   Nell Carrow · Edmund Wexcombe · Ned · Mrs. Aldous
- *   absent    Silas Bram                    <- hands over the key AND dies in ch.3
- *   absent    Edmund Wexcombe the younger   <- the whole point of the two brothers
+ *   present   Ilka Thornbury · Edmund Ashby · Ned · Mrs. Aldous
+ *   absent    Halvard Oriel                    <- hands over the key AND dies in ch.3
+ *   absent    Edmund Ashby the younger   <- the whole point of the two brothers
  *   absent    strongroom · French · "brass winding key"
  *
  * Nothing checked. A named character the author put in the brief simply did not
@@ -44,8 +44,8 @@ const PREMISE_STOPWORDS = new Set([
 const CAP_RUN = /\b[A-Z][\p{L}'’-]*(?:\.)?(?:\s+[A-Z][\p{L}'’-]*(?:\.)?)*/gu;
 
 // Abbreviations whose trailing period does NOT end a sentence. Without this, a run
-// spans the boundary and "Edmund Wexcombe. His brother" becomes the entity
-// "Edmund Wexcombe. His" — measured on the live premise, first implementation.
+// spans the boundary and "Edmund Ashby. His brother" becomes the entity
+// "Edmund Ashby. His" — measured on the live premise, first implementation.
 const ABBREV = new Set([
   'mr', 'mrs', 'ms', 'miss', 'dr', 'prof', 'rev', 'fr', 'st', 'mt', 'jr', 'sr',
   'lt', 'sgt', 'capt', 'col', 'gen', 'maj', 'hon', 'gov', 'sen', 'rep',
@@ -138,7 +138,7 @@ REQUIRED: ${list.join(' · ')}
 
 /**
  * Which of the brief's entities failed to reach the generated material.
- * Exact, case-sensitive matching: "Nolan Bram" must never satisfy "Silas Bram".
+ * Exact, case-sensitive matching: "Idris Oriel" must never satisfy "Halvard Oriel".
  */
 export function checkPremiseCoverage(entities, generatedText) {
   const text = String(generatedText || '');

@@ -2,7 +2,7 @@
 //
 // MEASURED on The Gilded Hour, 2026-08-04. The premise named five people, a house, a
 // strongroom, two keys and a language. The generated character sheet contained
-// Nell Carrow, Edmund Wexcombe, Ned and Mrs. Aldous — and NOT Silas Bram, the steward
+// Ilka Thornbury, Edmund Ashby, Ned and Mrs. Aldous — and NOT Halvard Oriel, the steward
 // who hands over the key and is the corpse in chapter 3. Nothing checked. The first
 // anyone knew was a human reading the outline and noticing a stranger in it.
 //
@@ -19,27 +19,27 @@ const check = (label, ok, detail) => {
 };
 
 // The live premise, verbatim in shape.
-const PREMISE = 'The Gilded Hour - a gothic historical mystery. London and Wexcombe House, '
-  + 'winter 1908. Nell Carrow, a repairer of automata, is summoned to Wexcombe House to service '
-  + 'a clockwork songbird. Silas Bram, the house steward, insists he handed her the brass winding '
-  + 'key. Her employer is Edmund Wexcombe. His brother, Edmund Wexcombe the younger, known as Ned, '
-  + 'arrives on the second day. Housekeeper Mrs. Aldous speaks to Nell in French.';
+const PREMISE = 'The Gilded Hour - a gothic historical mystery. London and Ashby House, '
+  + 'winter 1908. Ilka Thornbury, a repairer of automata, is summoned to Ashby House to service '
+  + 'a clockwork songbird. Halvard Oriel, the house steward, insists he handed her the brass winding '
+  + 'key. Her employer is Edmund Ashby. His brother, Edmund Ashby the younger, known as Ned, '
+  + 'arrives on the second day. Housekeeper Mrs. Aldous speaks to Ilka in French.';
 const ENTITIES = extractPremiseEntities(PREMISE, { exclude: ['Gilded Hour'] });
 
 // ── the defect, reproduced ──
 {
-  const bible = 'Nell Carrow is a repairer at Wexcombe House in London. Edmund Wexcombe employs her. '
-    + 'Ned is his brother. Mrs. Aldous keeps house. Nolan Bram is the steward.';
+  const bible = 'Ilka Thornbury is a repairer at Ashby House in London. Edmund Ashby employs her. '
+    + 'Ned is his brother. Mrs. Aldous keeps house. Idris Oriel is the steward.';
   const r = checkPremiseCoverage(ENTITIES, bible);
-  check('the renamed character is reported missing', r.missing.includes('Silas Bram'), r.summary);
-  check('a renamed lookalike does NOT satisfy the brief — "Nolan Bram" is not "Silas Bram"',
-    !r.present.includes('Silas Bram'));
+  check('the renamed character is reported missing', r.missing.includes('Halvard Oriel'), r.summary);
+  check('a renamed lookalike does NOT satisfy the brief — "Idris Oriel" is not "Halvard Oriel"',
+    !r.present.includes('Halvard Oriel'));
   check('the dropped language is reported missing', r.missing.includes('French'), r.summary);
   check('the entities that DID arrive are reported present',
-    ['Nell Carrow', 'Edmund Wexcombe', 'Mrs. Aldous', 'Ned'].every((e) => r.present.includes(e)),
+    ['Ilka Thornbury', 'Edmund Ashby', 'Mrs. Aldous', 'Ned'].every((e) => r.present.includes(e)),
     JSON.stringify(r.present));
   check('the verdict is not ok', r.ok === false);
-  check('the summary names what went missing', /MISSING: .*Silas Bram/.test(r.summary), r.summary);
+  check('the summary names what went missing', /MISSING: .*Halvard Oriel/.test(r.summary), r.summary);
 }
 {
   const complete = ENTITIES.join(' and ') + ' all appear here.';
@@ -49,13 +49,13 @@ const ENTITIES = extractPremiseEntities(PREMISE, { exclude: ['Gilded Hour'] });
 
 // ── extraction: conservative, no NER, no book knowledge ──
 {
-  check('multi-word names are captured', ENTITIES.includes('Nell Carrow') && ENTITIES.includes('Silas Bram'));
+  check('multi-word names are captured', ENTITIES.includes('Ilka Thornbury') && ENTITIES.includes('Halvard Oriel'));
   check('an honorific name survives its period', ENTITIES.includes('Mrs. Aldous'), JSON.stringify(ENTITIES));
   check('a role word before an honorific is dropped',
     !ENTITIES.some((e) => /Housekeeper/.test(e)), JSON.stringify(ENTITIES));
   check('a capitalised run never spans a sentence boundary',
     !ENTITIES.some((e) => /\.\s/.test(e) && !/^(Mr|Mrs|Ms|Dr|St|Mt)\./.test(e)), JSON.stringify(ENTITIES));
-  check('a place is captured', ENTITIES.includes('Wexcombe House'));
+  check('a place is captured', ENTITIES.includes('Ashby House'));
   check('a lone capitalised word used mid-sentence is captured', ENTITIES.includes('French'));
   check('an excluded term is honoured', !ENTITIES.includes('Gilded Hour'));
   check('sentence-opening function words are not entities',
@@ -84,7 +84,7 @@ const ENTITIES = extractPremiseEntities(PREMISE, { exclude: ['Gilded Hour'] });
   const warns = []; const logs = [];
   const w = console.warn; const l = console.log;
   console.warn = (...a) => warns.push(a.join(' ')); console.log = (...a) => logs.push(a.join(' '));
-  reportPremiseCoverage(ENTITIES, 'Nell Carrow only.', 'bible');
+  reportPremiseCoverage(ENTITIES, 'Ilka Thornbury only.', 'bible');
   reportPremiseCoverage(ENTITIES, ENTITIES.join(' '), 'bible');
   reportPremiseCoverage([], 'anything', 'bible');
   console.warn = w; console.log = l;
@@ -96,7 +96,7 @@ const ENTITIES = extractPremiseEntities(PREMISE, { exclude: ['Gilded Hour'] });
 // ── book-agnostic: three unrelated briefs, same behaviour ──
 const BRIEFS = [
   { id: 'arctic thriller', premise: 'Lena Ortiz and Marcus Reed are trapped at Halvorsen Station.', drop: 'Marcus Reed' },
-  { id: 'gothic mystery', premise: 'Nell Carrow meets Silas Bram at Wexcombe House.', drop: 'Silas Bram' },
+  { id: 'gothic mystery', premise: 'Ilka Thornbury meets Halvard Oriel at Ashby House.', drop: 'Halvard Oriel' },
   { id: 'legal thriller', premise: 'Ana Okonkwo deposes Peter Halloway in Trenton.', drop: 'Peter Halloway' },
 ];
 for (const b of BRIEFS) {
@@ -113,7 +113,7 @@ for (const b of BRIEFS) {
   const src = (await import('fs')).readFileSync(new URL('../src/lib/premiseFidelity.js', import.meta.url), 'utf8');
   const code = src.split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
   check('no book, cast or prop appears in the code',
-    !/Gilded|Wexcombe|Nell|Silas|Brass Meridian|Lena|Marcus/.test(code));
+    !/Gilded|Ashby|Ilka|Halvard|Brass Meridian|Lena|Marcus/.test(code));
 }
 
 console.log(failures === 0 ? 'ACCEPTANCE: ALL CHECKS MATCHED' : `ACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

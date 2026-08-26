@@ -40,7 +40,7 @@ const ACTION_CLASSES = [
     prose: /\b(?:reveal(?:s|ed)?|confess(?:es|ed)?|admit(?:s|ted)?)\b/i,
     idiom: null,
     // Characters "admit" trivial things in dialogue tags constantly ("It's
-    // pretty," Zin admitted). A REVEAL collision must also share substance
+    // pretty," Ottie admitted). A REVEAL collision must also share substance
     // with the ledgered revelation, not just the verb class and the name.
     needsContentOverlap: 2,
   },
@@ -250,7 +250,7 @@ export function findBeatEventCollisions(beats, priorEvents) {
           // SCENECOLLIDE-1C: the substance requirement applies to BEATS too.
           // Live REDUX ch.3: the legitimate beat "Reveal the rival team's
           // knowledge of the crew's true identities" was flagged against ch.2's
-          // unrelated "Rodge reveals his hidden fears about losing the crew"
+          // unrelated "Ludo reveals his hidden fears about losing the crew"
           // (REVEAL + shared entity, zero shared substance) and burned all four
           // planner attempts.
           if (cls.needsContentOverlap && contentOverlap(p.event, textValue) < cls.needsContentOverlap + 1) continue;

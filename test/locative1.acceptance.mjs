@@ -22,7 +22,7 @@ const check = (label, ok, detail) => {
 
 const BOOKS = [
   { id: 'arctic thriller', a: 'Lena Ortiz', b: 'Marcus Reed', obj: 'brass key' },
-  { id: 'gothic mystery', a: 'Nell Carrow', b: 'Silas Bram', obj: 'brass winding key' },
+  { id: 'gothic mystery', a: 'Ilka Thornbury', b: 'Halvard Oriel', obj: 'brass winding key' },
   { id: 'legal thriller', a: 'Ana Okonkwo', b: 'Peter Halloway', obj: 'deposition folder' },
 ];
 const castOf = (bk) => [{ name: bk.a, gender: 'f' }, { name: bk.b, gender: 'm' }];

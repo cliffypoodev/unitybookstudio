@@ -31,7 +31,7 @@ import {
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
 
-const CAST = ['Zin', 'Rodge', 'JB', 'Sadie', 'Lark'];
+const CAST = ['Ottie', 'Ludo', 'JB', 'Yusra', 'Solveig'];
 
 // ── 1. beat-declared extraction (the real live beat strings) ──
 const d1 = extractBeatDeclaredStateUpdates(['JB returns, explaining his decision to come back.'], CAST);
@@ -55,16 +55,16 @@ check('8. malformed/missing beat JSON fails safe to []', collectChapterBeatEvent
 
 // ── 3. the audit accepts a DECLARED return phrased naturally (the exact live kill shape) ──
 const departedState = { JB: { introduced: null, partyStatus: 'departed', statusChapter: 9 } };
-const naturalReturn = 'The figure pushed through the wall of dust and resolved into a man they knew. JB stood at the edge of the yard, hat in hand, sand in every crease of his coat. He said he had heard the warning on the road out of town. Nobody spoke for a moment, and then Rodge stepped forward.';
+const naturalReturn = 'The figure pushed through the wall of dust and resolved into a man they knew. JB stood at the edge of the yard, hat in hand, sand in every crease of his coat. He said he had heard the warning on the road out of town. Nobody spoke for a moment, and then Ludo stepped forward.';
 const withoutDeclaration = auditProseAgainstCharacterState(naturalReturn, departedState, CAST);
 check('9. WITHOUT the declaration the natural-phrasing return is still flagged (CHARSTATE-1 behavior preserved)', withoutDeclaration.some((v) => v.code === 'DEPARTED_CHARACTER_ACTIVE' && v.name === 'JB'));
 const withDeclaration = auditProseAgainstCharacterState(naturalReturn, departedState, CAST, { declaredReturns: ['JB'] });
 check('10. WITH the beat-declared return the same prose is legal (the live hard-block is dead)', withDeclaration.length === 0);
 check('11. a declaration for JB does not legalize a DIFFERENT departed character', (() => {
-  const state2 = { JB: { introduced: null, partyStatus: 'departed', statusChapter: 9 }, Lark: { introduced: null, partyStatus: 'departed', statusChapter: 7 } };
-  const prose = 'JB stood at the edge of the yard. Lark grabbed the toolbox and followed the crew inside.';
+  const state2 = { JB: { introduced: null, partyStatus: 'departed', statusChapter: 9 }, Solveig: { introduced: null, partyStatus: 'departed', statusChapter: 7 } };
+  const prose = 'JB stood at the edge of the yard. Solveig grabbed the toolbox and followed the crew inside.';
   const v = auditProseAgainstCharacterState(prose, state2, CAST, { declaredReturns: ['JB'] });
-  return v.length === 1 && v[0].name === 'Lark';
+  return v.length === 1 && v[0].name === 'Solveig';
 })());
 
 // ── 4. the chapter contract demands the declared return be WRITTEN ──
@@ -78,7 +78,7 @@ const ch9 = { chapterNumber: 9, text: 'Long chapter. '.repeat(20) + 'They watche
 const ch11ReturnedNaturally = { chapterNumber: 11, text: 'Storm chapter. '.repeat(20) + naturalReturn, beatEvents: collectChapterBeatEvents(record) };
 const foldedState = buildCharacterState([ch9, ch11ReturnedNaturally], CAST);
 check('14. a beat-declared return + the character on the page folds to RETURNED', foldedState.JB.partyStatus === 'returned' && foldedState.JB.statusChapter === 11);
-const ch11WithoutJB = { chapterNumber: 11, text: 'Storm chapter without him. '.repeat(20) + 'Zin secured the tarp while Rodge cursed the wind.', beatEvents: collectChapterBeatEvents(record) };
+const ch11WithoutJB = { chapterNumber: 11, text: 'Storm chapter without him. '.repeat(20) + 'Ottie secured the tarp while Ludo cursed the wind.', beatEvents: collectChapterBeatEvents(record) };
 check('15. a declared return with the character ABSENT from the page does NOT fold (the page is truth)', buildCharacterState([ch9, ch11WithoutJB], CAST).JB.partyStatus === 'departed');
 check('16. prose-extracted updates in the same chapter outrank the declaration', (() => {
   // The plan declared a return, but the page actually wrote ANOTHER departure

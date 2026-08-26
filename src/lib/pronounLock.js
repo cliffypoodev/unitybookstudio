@@ -7,7 +7,7 @@
 //
 // Design constraints, learned from this codebase's gate history:
 // - Canon comes from an EXPLICIT declaration in the character sheet when one
-//   exists ("Lark (they/them)"); otherwise it is INFERRED from dominant early
+//   exists ("Solveig (they/them)"); otherwise it is INFERRED from dominant early
 //   usage. A character with no declaration and no dominant usage stays
 //   UNRESOLVED and is never enforced — fail open, surface it as a warning.
 // - Inference decides only between he/him and she/her. They/them canon must be
@@ -15,7 +15,7 @@
 //   repair, so inferring singular-they would manufacture false canon.
 // - Scanning counts a pronoun only when it appears AFTER the character's name
 //   inside a sentence naming EXACTLY ONE known character — two-name sentences
-//   ("Lark handed it to Zin; she smiled") are unattributable and skipped.
+//   ("Solveig handed it to Ottie; she smiled") are unattributable and skipped.
 // - Enforcement is PREVENTIVE (a hard prompt contract for the writer) and
 //   VISIBLE (export-gate warnings). There is no destructive auto-rewrite:
 //   disguise plots make automated pronoun "fixes" wrong exactly when the
@@ -85,7 +85,7 @@ export function parseDeclaredPronouns(charactersMd) {
       const set = normalizeSetLabel(match[1]);
       if (set) declared[currentName] = set;
     } else if (match && !currentName) {
-      // Loose one-liner outside any entry: "Lark (they/them)".
+      // Loose one-liner outside any entry: "Solveig (they/them)".
       const name = headerName(line);
       if (name && !declared[name]) {
         const set = normalizeSetLabel(match[1]);
@@ -223,7 +223,7 @@ export function scanPronounViolations(text, canon, allNames) {
       if (others.some((other) => sentence.includes(other))) continue;
       const tail = sentence.slice(at + name.length);
       const tailCounts = boundedPronounCounts(tail, name, names);
-      // Drift usually lands in the NEXT sentence ("Lark stood. His hands..."):
+      // Drift usually lands in the NEXT sentence ("Solveig stood. His hands..."):
       // extend the window when that sentence is pronoun-initial and names no
       // other cast member — the pronoun is then bound to this character. But
       // NOT when this sentence already introduced an unnamed third party
@@ -255,7 +255,7 @@ export function scanPronounViolations(text, canon, allNames) {
 // A scene is the text between "* * *" markers (or the whole chapter when there
 // are none). Within ONE scene, a context-variable character presents as ONE
 // gender: mixing he and she for them inside a single scene is the drift the
-// external audit flagged ("Lark ... he/his throughout that scene" elsewhere
+// external audit flagged ("Solveig ... he/his throughout that scene" elsewhere
 // she/her). Between scenes, a change is intentional and legal.
 const SCENE_BREAK_RX = /(\n\s*\*\s*\*\s*\*\s*\n)/;
 function splitScenes(text) {
@@ -272,9 +272,9 @@ function splitScenesWithSeps(text) {
 // PRONOUNVAR-1 attributed EVERY pronoun after a name to that name and chained
 // bound follow-ons loosely. On real prose (external audit of REDUX) that
 // absorbed THIRD PARTIES into the context-variable character: object pronouns
-// ("Lark handed him the bird"), an unnamed man introduced mid-sentence ("toward
+// ("Solveig handed him the bird"), an unnamed man introduced mid-sentence ("toward
 // the vendor, a man ... his upper lip"), a boy narrated only as "He", and a
-// dialogue tag for another speaker ("... Lark salvaged," he said). The heal then
+// dialogue tag for another speaker ("... Solveig salvaged," he said). The heal then
 // flipped those third-party pronouns and would have corrupted the book.
 //
 // The fix is closed-world and fail-safe — a wrong flip corrupts, a missed flip
@@ -287,7 +287,7 @@ function splitScenesWithSeps(text) {
 //    were steady.") that names no cast member. A SUBJECTIVE-initial sentence
 //    ("He held out the toy.") may introduce a new actor and BREAKS the chain, as
 //    does any other sentence (quote-only, "The vendor...", two names, or the
-//    name in object position "He knelt beside Lark").
+//    name in object position "He knelt beside Solveig").
 //  - Counting/flipping stops at the first NEW human referent inside the span
 //    (another cast name or a person-common-noun), so an appositive third party
 //    ("the vendor, a man ... his upper lip") is never counted.
@@ -326,7 +326,7 @@ function safeSpanEnd(sentence, from, subject, names) {
   const pm = region.match(PERSON_NOUN_RX);
   if (pm && pm.index < end) end = pm.index;
   // An OBJECT pronoun introduces a referent a following possessive may bind to
-  // ("Lark grabbed him by his collar" — "his" is the object's): stop there too.
+  // ("Solveig grabbed him by his collar" — "his" is the object's): stop there too.
   const om = region.match(/\b(?:him|them)\b/i);
   if (om && om.index < end) end = om.index;
   return from + end;
@@ -352,7 +352,7 @@ function countBoundPossessives(span) {
  * possessives/reflexives that safely belong to the subject are counted (object
  * pronouns, appositive third parties, and other cast members are excluded).
  * Used by the subject-repair verifier to reject a repair that prepends a subject
- * whose canon gender clashes with the sentence ("Zinnia was wearing … his hat").
+ * whose canon gender clashes with the sentence ("Ottilie was wearing … his hat").
  * Returns { he, she } — {0,0} when the sentence does not lead with the subject.
  */
 export function subjectBoundGender(sentence, subjectName, allNames = []) {

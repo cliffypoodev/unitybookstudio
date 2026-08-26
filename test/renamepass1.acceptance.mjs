@@ -49,7 +49,7 @@ const whole = (name, text) => new RegExp(`\\b${name}\\b`).test(text);
 }
 
 const FEMALE_POOL = ['Delphine', 'Rosalind', 'Imelda', 'Corinne', 'Yolanda', 'Priya', 'Fatima', 'Ingrid', 'Bernadette', 'Odette', 'Marisol', 'Constance', 'Leona', 'Vivienne', 'Harriet', 'Cordelia'];
-const NEUTRAL_POOL = ['Emerson', 'Marlowe', 'Sterling', 'Ellery', 'Sutton', 'Lennox', 'Sidney', 'Kingsley', 'Quincy', 'Adair', 'Wynn', 'Blair'];
+const NEUTRAL_POOL = ['Emerson', 'Quillon', 'Sterling', 'Ellery', 'Sutton', 'Lennox', 'Sidney', 'Kingsley', 'Quincy', 'Adair', 'Wynn', 'Blair'];
 
 // 2b — clean female-only context (mirrors the real first-person Story 4: "my wife ... She ...")
 // yields a clearly-female replacement.

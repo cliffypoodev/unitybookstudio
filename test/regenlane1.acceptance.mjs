@@ -243,10 +243,10 @@ const NF_PROJECT = {
 // ── 26b-26c. REGENLANE-2C (finding 47b): reason strings distinguish check
 // (4) (new-proper-noun) from check (4b) (new-cast-name) ──
 {
-  const original = 'Rodge crossed the room and sat down by the window.';
-  const candidate = 'Roderick crossed the room and sat down by the window.';
-  const verdict = verifyRegeneratedParagraph(original, candidate, { cast: ['Rodge', 'Roderick'], rescan: () => [] });
-  check('26b. fiction cast-swap reports new-cast-name (check 4b)', verdict.reason === 'new-cast-name:Roderick', JSON.stringify(verdict));
+  const original = 'Ludo crossed the room and sat down by the window.';
+  const candidate = 'Ludovic crossed the room and sat down by the window.';
+  const verdict = verifyRegeneratedParagraph(original, candidate, { cast: ['Ludo', 'Ludovic'], rescan: () => [] });
+  check('26b. fiction cast-swap reports new-cast-name (check 4b)', verdict.reason === 'new-cast-name:Ludovic', JSON.stringify(verdict));
 }
 {
   const nfProject = { book_type: 'nonfiction', research_data: 'Dr. Hale led the excavation at Port Ellis in 1966, near Galveston, cataloguing forty-two artifacts from the harbor district records for the state archive over a period of several months during that long summer season of careful work.' };
