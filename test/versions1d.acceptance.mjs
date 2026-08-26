@@ -173,12 +173,45 @@ const withCapturedConsole = async (fn) => {
     ch1Fires > 0 && ch2Fires > 0, JSON.stringify({ ch1Fires, ch2Fires, lines: lines.filter((l) => l.includes('PROSE-GUARD')) }));
 }
 
-// ── (c) source-shape: the dedupe guard is present in verifyInvariant ──
+// ── (c) CRITICAL: STRUCTURE-GUARD's revert safety net still runs independently
+// per entry even when two loaded[] entries share a chapter.id — an EARLIER
+// version of this fix gated the whole per-entry check (not just the
+// [PROSE-GUARD] log line) on "have I seen this key before", which silently
+// skipped the paragraph-count revert for the second same-keyed entry the
+// moment its content diverged from the first (e.g. a downstream cross-
+// chapter dedup pass strips a duplicated paragraph from only one of the two).
+// That is real, silent content loss with zero warning — reproduced below and
+// confirmed absent before the fix, present after. ──
+{
+  const dupSentence = 'This exact twelve word or longer sentence appears identically in more than one chapter for testing purposes.';
+  const text0 = `${dupSentence}\n\nSome short unrelated closing paragraph for chapter one.`;
+  const text1 = `${dupSentence}\n\nSome short unrelated closing paragraph for chapter two.`;
+  const loaded = [
+    { chapter: { chapter_number: 1, title: 'Ch 1', id: 'ch1' }, content: text0, original: text0 },
+    { chapter: { chapter_number: 1, title: 'Ch 1 (duplicate record)', id: 'ch1' }, content: text1, original: text1 },
+  ];
+  const { lines } = await withCapturedConsole(() => runManuscriptPolishPipeline({
+    loaded,
+    project: { title: 'Test', genre: 'History', book_type: 'nonfiction' },
+    allowLLM: false,
+    mode: 'nonfiction',
+  }));
+  check('10. BOOKGATE-3 strips the duplicated paragraph from only the second same-keyed entry (precondition for the regression)',
+    lines.some((l) => l.includes('[BOOKGATE-3] Ch.1: stripped 1 cross-chapter duplicate sentence')), JSON.stringify(lines.filter((l) => l.includes('BOOKGATE-3'))));
+  check('11. STRUCTURE-GUARD still catches and reverts the second entry\'s paragraph-count reduction, even though it shares a key with the first (already-checked) entry',
+    lines.includes('[STRUCTURE-GUARD] Nonfiction Core Ch.1: count reduced 2 -> 1 (allowed: 0). REVERTED.'),
+    JSON.stringify(lines.filter((l) => l.includes('STRUCTURE-GUARD'))));
+}
+
+// ── (c) source-shape: the [PROSE-GUARD] log-line dedupe is present, and is scoped
+// to the log call only — NOT wrapped around the STRUCTURE-GUARD check/revert ──
 {
   const SRC = fs.readFileSync(new URL('../src/lib/manuscriptPolishRunner.js', import.meta.url).pathname, 'utf8');
-  const fnBody = SRC.slice(SRC.indexOf('function verifyInvariant'), SRC.indexOf('function verifyInvariant') + 800);
-  check('10. verifyInvariant contains a seenKeys dedupe guard before reading __snapshots',
-    /const seenKeys = new Set\(\)/.test(fnBody) && fnBody.indexOf('seenKeys') < fnBody.indexOf('__snapshots.get(key)'));
+  const fnBody = SRC.slice(SRC.indexOf('function verifyInvariant'), SRC.indexOf('function verifyInvariant') + 2000);
+  check('12. verifyInvariant dedupes the [PROSE-GUARD] log line by key',
+    /const reportedProseGuardKeys = new Set\(\)/.test(fnBody) && /reportedProseGuardKeys\.has\(key\)/.test(fnBody));
+  check('12b. the dedupe does not gate the loop body itself — every entry still reaches the paragraph-count/STRUCTURE-GUARD check',
+    !/if \(seenKeys\.has\(key\)\) continue;/.test(fnBody) && fnBody.indexOf('const afterCount = countParagraphs') > fnBody.indexOf('const snap = __snapshots.get(key);'));
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

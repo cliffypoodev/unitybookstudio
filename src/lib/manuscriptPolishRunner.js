@@ -190,19 +190,24 @@ export async function runManuscriptPolishPipeline({
   function verifyInvariant(stageName, allowedRemovals = {}) {
     // VERSIONS-1D: two `loaded` entries can resolve to the SAME chapter key
     // (getChapterKey keys on f.chapter.id — a duplicate chapter record hits
-    // this) and both then get checked against the one shared snapshot,
-    // logging the identical [PROSE-GUARD]/[STRUCTURE-GUARD] line twice for
-    // what is really one logical chapter. Report (and revert) a given key
-    // at most once per stage.
-    const seenKeys = new Set();
+    // this) and both get compared against the one shared snapshot; if a
+    // stage changes both entries' letters identically, that's two real,
+    // independent findings that happen to print the same text, logged as
+    // [PROSE-GUARD] twice for what reads as one logical chapter. Dedupe ONLY
+    // that printed line per key per stage — the STRUCTURE-GUARD paragraph
+    // check/revert below still runs for every entry unconditionally, because
+    // a downstream stage (e.g. cross-chapter dedup) can make two
+    // same-keyed entries diverge in content, and each needs its own
+    // independent safety-net check; skipping it for a repeat key would
+    // silently drop that entry's revert protection.
+    const reportedProseGuardKeys = new Set();
     for (let i = 0; i < loaded.length; i++) {
       const f = loaded[i];
       const key = getChapterKey(f, i);
-      if (seenKeys.has(key)) continue;
-      seenKeys.add(key);
       const snap = __snapshots.get(key);
       if (!snap) continue;
-      if (lettersAndDigitsOnly(snap.text) !== lettersAndDigitsOnly(f.content)) {
+      if (lettersAndDigitsOnly(snap.text) !== lettersAndDigitsOnly(f.content) && !reportedProseGuardKeys.has(key)) {
+        reportedProseGuardKeys.add(key);
         console.warn(`[PROSE-GUARD] ${stageName} Ch.${snap.chNum}: letters changed`);
       }
       const afterCount = countParagraphs(f.content);
