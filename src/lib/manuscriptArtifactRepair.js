@@ -21,6 +21,58 @@ function applyRule(text, rx, replacement, changes, label) {
   return after;
 }
 
+// LEGACYSTAGES-1: a handful of rules below connect two parts of a sentence
+// with an unbounded \s+/\s* — which, unlike every OTHER rule in this file,
+// can match straight through a real \n{2,} paragraph break and silently
+// MERGE two paragraphs into one (this file has no paragraph array to
+// "delete" from; the loss was always this kind of whitespace-spanning
+// merge). guardedReplace is a drop-in for text.replace(rx, replacement)
+// that refuses to let a match cross a paragraph break: it leaves that one
+// match untouched and records { paragraphIndex, reason } instead, while
+// every other match (the overwhelming majority — same-paragraph prose)
+// is replaced exactly as before. Rules that cannot span a break (bounded
+// character classes, no whitespace connector) are left on plain applyRule.
+function paragraphIndexAt(text, offset) {
+  // The 0-based index of the paragraph containing `offset` is exactly the
+  // number of paragraph BREAKS already crossed before it — not the number of
+  // (possibly still-partial) text segments before it, which is off by one
+  // whenever offset falls partway through a paragraph rather than at its very
+  // start.
+  return (text.slice(0, offset).match(/\n{2,}/g) || []).length;
+}
+
+function guardedReplace(text, rx, replacement, flagSink, reason) {
+  const re = new RegExp(rx.source, rx.flags.includes('g') ? rx.flags : `${rx.flags}g`);
+  const plain = new RegExp(rx.source, rx.flags.replace('g', ''));
+  let result = '';
+  let lastIndex = 0;
+  let changed = false;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const fullMatch = m[0];
+    if (/\n[ \t]*\n/.test(fullMatch)) {
+      flagSink.push({ paragraphIndex: paragraphIndexAt(text, m.index), reason });
+      result += text.slice(lastIndex, m.index) + fullMatch;
+    } else {
+      const replaced = typeof replacement === 'function'
+        ? replacement(...m, m.index, text)
+        : fullMatch.replace(plain, replacement);
+      if (replaced !== fullMatch) changed = true;
+      result += text.slice(lastIndex, m.index) + replaced;
+    }
+    lastIndex = re.lastIndex;
+    if (re.lastIndex === m.index) re.lastIndex += 1; // never loop forever on a zero-length match
+  }
+  result += text.slice(lastIndex);
+  return { text: result, changed };
+}
+
+function applyRuleParagraphSafe(text, rx, replacement, changes, label, flagSink) {
+  const { text: out, changed } = guardedReplace(text, rx, replacement, flagSink, label);
+  if (changed) changes.push(label);
+  return out;
+}
+
 function capFirst(s = '') {
   const str = String(s || '');
   return str ? str[0].toUpperCase() + str.slice(1) : str;
@@ -164,22 +216,26 @@ function closeOddDoubleQuoteParagraphs(text = '', changes = []) {
   return after;
 }
 
-function repairClimaxQuoteEdgeSurvivors(text = '', changes = []) {
+function repairClimaxQuoteEdgeSurvivors(text = '', changes = [], flagSink = []) {
   // Ultra-narrow survivor rescue for the remaining Songbird climax paragraph.
   // This avoids the dangerous old cluster-rebuild behavior and only restores
   // missing opening smart quotes on two known speech fragments.
   const before = String(text || '');
   let out = before;
 
-  out = out.replace(
+  out = guardedReplace(
+    out,
     /“Was it not\?”\s+It[’']s not about volume\.”/g,
-    '“Was it not?” “It’s not about volume.”'
-  );
+    '“Was it not?” “It’s not about volume.”',
+    flagSink, 'repaired final climax quote-edge survivor'
+  ).text;
 
-  out = out.replace(
+  out = guardedReplace(
+    out,
     /“How do I play a silence\?”\s+You don[’']t play it\./g,
-    '“How do I play a silence?” “You don’t play it.'
-  );
+    '“How do I play a silence?” “You don’t play it.',
+    flagSink, 'repaired final climax quote-edge survivor'
+  ).text;
 
   out = out.replace(
     /fail\. The failure is the point\.”/g,
@@ -260,6 +316,7 @@ export function repairManuscriptArtifacts(text, options = {}) {
   let out = normalize(text);
   const before = out;
   const changes = [];
+  const flagSink = []; // LEGACYSTAGES-1: { paragraphIndex, reason } records for a match this stage refused to let cross a paragraph break
 
   // Normalize apostrophe spacing before other rules so contraction patterns work.
   out = normalizeSmartApostropheSpacing(out, changes);
@@ -273,7 +330,7 @@ export function repairManuscriptArtifacts(text, options = {}) {
   const rescueNames = 'He|She|he|she|Iris|Pauline|Langston|Cross|Clara|Cora|Duke|Sol|Strauss|James|Michael';
   const rescueActions = 'said it|said the words?|said the word|said it like|said it without|said it as|said the name|said the sentence|said the last word|said this|spoke|asked it';
   const rescueCluster1 = new RegExp('[“"]([^“”"\\n]{2,260}?)\\s+(' + rescueNames + ')\\s+((?:' + rescueActions + ')[^“”"\\n]{0,420}?)\\.[”"]\\s*[“"]?([^“”"\\n]{2,320})[.!?][”"]+', 'gi');
-  out = out.replace(rescueCluster1, (_m, speech, who, action, next) => {
+  out = guardedReplace(out, rescueCluster1, (_m, speech, who, action, next) => {
     changes.push('rescued swallowed quote/action cluster v5');
     const s = String(speech || '').trim().replace(/[,.!?;:]+$/, '');
     const a = String(action || '').trim().replace(/[,.!?;:]+$/, '');
@@ -282,22 +339,22 @@ export function repairManuscriptArtifacts(text, options = {}) {
       return `“${s},” ${String(who).toLowerCase()} ${a.replace(/^said it\s*/i, 'said ')}. “${n}.”`;
     }
     return `“${s}.” ${capFirst(who)} ${a}. “${n}.”`;
-  });
+  }, flagSink, 'rescued swallowed quote/action cluster v5').text;
 
-  out = out.replace(/\bA song\. Of course you did\s+(she|he)\s+said it quietly, almost to herself\./gi, (_m, who) => {
+  out = guardedReplace(out, /\bA song\. Of course you did\s+(she|he)\s+said it quietly, almost to herself\./gi, (_m, who) => {
     changes.push('repaired unquoted speech/action survivor');
     return `“A song. Of course you did,” ${who.toLowerCase()} said quietly, almost to herself.`;
-  });
+  }, flagSink, 'repaired unquoted speech/action survivor').text;
 
   // Undo the specific v5/v3 quote-swallow corruption without trying to be a full quote fixer.
   // “Speech He said it/action.”Next speech.“” -> “Speech.” He said it/action. “Next speech.”
   const swallowed = /[“"]([^“”"\n]{2,260}?)\s+(He|She|he|she)\s+(said\s+(?:it|the\s+words?|the\s+word)[^“”"\n]{0,360}?)\.[”"]\s*([^“”"\n]{2,260})\.[”"]+/gi;
-  out = out.replace(swallowed, (_m, speech, who, action, next) => {
+  out = guardedReplace(out, swallowed, (_m, speech, who, action, next) => {
     changes.push('repaired swallowed action/dialogue cluster');
     const s = String(speech || '').trim().replace(/[,.!?;:]+$/, '');
     const n = String(next || '').trim().replace(/[,.!?;:]+$/, '');
     return `“${s}.” ${capFirst(who)} ${String(action || '').trim()}. “${n}.”`;
-  });
+  }, flagSink, 'repaired swallowed action/dialogue cluster').text;
 
   // Apostrophe / contraction corruption.
   out = applyRule(out, /\bdidn[’']?\s+change\b/gi, 'didn’t change', changes, 'fixed didn’t apostrophe corruption');
@@ -346,15 +403,15 @@ export function repairManuscriptArtifacts(text, options = {}) {
   out = applyRule(out, /\b(he|she|they|Iris|Pauline|Langston|Arthur|Cross|Clara|Cora|Duke|Sol)\s+asked\s+(cutting|turning|looking|leaning|watching|without|quietly now|softly now|settling|low)\b/gi, '$1 asked, $2', changes, 'fixed asked attribution comma');
 
   // Action sentence after dialogue should be capitalized; do NOT move quote marks.
-  out = out.replace(/([.!?][”"])\s+(he|she)\s+(said\s+(?:it|the\s+word|the\s+words)|spoke\b)/g, (_m, close, who, phrase) => {
+  out = guardedReplace(out, /([.!?][”"])\s+(he|she)\s+(said\s+(?:it|the\s+word|the\s+words)|spoke\b)/g, (_m, close, who, phrase) => {
     changes.push('capitalized action sentence after dialogue');
     return `${close} ${capFirst(who)} ${phrase}`;
-  });
+  }, flagSink, 'capitalized action sentence after dialogue').text;
 
   // Em dash speech/action fragments.
-  out = applyRule(out, /\b(She|He|Iris|Pauline|Langston|Cross|Clara|Cora)\s+spoke\s+—\s+low\b/g, '$1 spoke low', changes, 'fixed spoke-em-dash fragment');
-  out = applyRule(out, /\b(She|He|Iris|Pauline|Langston|Cross|Clara|Cora)\s+spoke\s+—\s+([^\n.]+)\./g, '$1 spoke, $2.', changes, 'fixed spoke-em-dash fragment');
-  out = applyRule(out, /\bWhen\s+she\s+spoke,\s+She\s+spoke\b/g, 'When she spoke, she spoke', changes, 'fixed duplicated spoke fragment');
+  out = applyRuleParagraphSafe(out, /\b(She|He|Iris|Pauline|Langston|Cross|Clara|Cora)\s+spoke\s+—\s+low\b/g, '$1 spoke low', changes, 'fixed spoke-em-dash fragment', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(She|He|Iris|Pauline|Langston|Cross|Clara|Cora)\s+spoke\s+—\s+([^\n.]+)\./g, '$1 spoke, $2.', changes, 'fixed spoke-em-dash fragment', flagSink);
+  out = applyRuleParagraphSafe(out, /\bWhen\s+she\s+spoke,\s+She\s+spoke\b/g, 'When she spoke, she spoke', changes, 'fixed duplicated spoke fragment', flagSink);
 
   // Small grammar shards observed in Songbird exports.
   out = applyRule(out, /\bThe\s+dust\s+motes\s+swirling\b/g, 'The dust motes swirled', changes, 'fixed dangling dust-motes clause');
@@ -381,7 +438,7 @@ export function repairManuscriptArtifacts(text, options = {}) {
   out = applyRule(out, /\bbeing\s+opened\s+it\b/gi, 'being opened', changes, 'fixed being-opened-it artifact');
 
   // Dialogue tag punctuation survivors.
-  out = applyRule(out, /“Now, Iris\.”\s+He said it mildly, chiding\./g, '“Now, Iris,” he said mildly, chiding.', changes, 'fixed Now-Iris tag punctuation');
+  out = applyRuleParagraphSafe(out, /“Now, Iris\.”\s+He said it mildly, chiding\./g, '“Now, Iris,” he said mildly, chiding.', changes, 'fixed Now-Iris tag punctuation', flagSink);
   out = applyRule(out, /\b(The clock, as they say)\s+is ticking\b/g, '$1, is ticking', changes, 'fixed as-they-say comma');
 
   // v8 extra mechanical survivors from Songbird exports. Kept narrow and deterministic.
@@ -440,7 +497,7 @@ export function repairManuscriptArtifacts(text, options = {}) {
 
 
   // Safe quote-edge guard after local repairs. It only closes unmatched openings.
-  out = repairClimaxQuoteEdgeSurvivors(out, changes);
+  out = repairClimaxQuoteEdgeSurvivors(out, changes, flagSink);
   out = closeOddDoubleQuoteParagraphs(out, changes);
 
   // Conservative tic thinning for polish/export artifact cleanup.
@@ -449,14 +506,22 @@ export function repairManuscriptArtifacts(text, options = {}) {
   // Final apostrophe normalization after other repairs.
   out = normalizeSmartApostropheSpacing(out, changes);
 
-  // Tidy spacing left by repairs/removals.
+  // Tidy spacing left by repairs/removals. The first three sub-steps below only
+  // ever touch horizontal ([ \t]) whitespace immediately beside a newline, or
+  // collapse extra ([.!?])([A-Z])/\n{4,} runs down to a still-real paragraph
+  // break — none of them can reduce a \n{2,} boundary to nothing, so they stay
+  // a plain chained .replace(). The three LEGACYSTAGES-1-guarded steps use \s+/
+  // \s*, which — unlike the others — CAN match straight through a \n{2,}
+  // boundary and erase it; pulled out of the chain so each gets the same
+  // paragraph-break protection as every other risky rule above.
   out = out
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/\n[ \t]+/g, '\n')
-    .replace(/[ \t]+\n/g, '\n')
-    .replace(/\s+([,.!?;:])/g, '$1')
-    .replace(/([,]”)\s*(he|she)\b/g, '$1 $2')
-    .replace(/([.!?]”)\s*(He|She|Iris|Pauline|Langston|Cross|Clara|Duke|Sol)\b/g, '$1 $2')
+    .replace(/[ \t]+\n/g, '\n');
+  out = applyRuleParagraphSafe(out, /\s+([,.!?;:])/g, '$1', changes, 'tidied spacing before punctuation', flagSink);
+  out = applyRuleParagraphSafe(out, /([,]”)\s*(he|she)\b/g, '$1 $2', changes, 'tidied spacing: comma-quote then pronoun', flagSink);
+  out = applyRuleParagraphSafe(out, /([.!?]”)\s*(He|She|Iris|Pauline|Langston|Cross|Clara|Duke|Sol)\b/g, '$1 $2', changes, 'tidied spacing: terminal-quote then capitalized continuation', flagSink);
+  out = out
     .replace(/([.!?])([A-Z])/g, '$1 $2')
     .replace(/\n{4,}/g, '\n\n\n')
     .trim();
@@ -472,12 +537,14 @@ export function repairManuscriptArtifacts(text, options = {}) {
     changed: out !== before,
     changes: [...new Set(changes)],
     count: changes.length,
+    flaggedDeletions: flagSink,
   };
 }
 
 export function repairLoadedManuscriptArtifacts(loaded = [], options = {}) {
   let artifactsFixed = 0;
   const changes = [];
+  const flags = [];
   for (const f of loaded) {
     const before = f.content || '';
     const result = repairManuscriptArtifacts(before, { ...options, chapter: f.chapter });
@@ -486,9 +553,16 @@ export function repairLoadedManuscriptArtifacts(loaded = [], options = {}) {
       artifactsFixed += result.count || 1;
       changes.push(`Ch.${f.chapter?.chapter_number || '?'}: artifact repair v19 final narrow mechanical guard mode (${result.changes.join(', ')})`);
     }
+    // LEGACYSTAGES-1: a flag can fire even on a chapter where nothing else
+    // changed (the guard's whole point is to refuse the merge, not to make it
+    // conditional on some OTHER edit also happening), so this is not gated by
+    // result.changed above.
+    for (const fd of result.flaggedDeletions || []) {
+      flags.push({ chapter: f.chapter?.chapter_number || '?', paragraphIndex: fd.paragraphIndex, reason: fd.reason });
+    }
   }
   if (artifactsFixed) changes.push(`Total deterministic artifact repairs v19: ${artifactsFixed}`);
-  return { artifactsFixed, changes };
+  return { artifactsFixed, changes, flags };
 }
 
 export default {

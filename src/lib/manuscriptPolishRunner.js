@@ -163,6 +163,7 @@ export async function runManuscriptPolishPipeline({
   }
 
   const structureViolations = [];
+  const paragraphDeletionFlags = []; // LEGACYSTAGES-1: { chapter, paragraphIndex, reason } — Pre-Quote Artifact Repair / Final Artifact Cleanup no longer merge a paragraph away; they flag it here instead.
   function countParagraphs(text) {
     return String(text || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim().length > 0).length;
   }
@@ -734,6 +735,11 @@ export async function runManuscriptPolishPipeline({
   onProgress('Polish: Cleaning deterministic artifacts…');
   const artifactPreResult = repairLoadedManuscriptArtifacts(loaded, { project, forceSongbirdAliases: true });
   changes.push(...artifactPreResult.changes);
+  for (const fl of artifactPreResult.flags || []) {
+    console.warn(`[LEGACYSTAGES-1] Ch.${fl.chapter}: would have deleted paragraph ${fl.paragraphIndex} (${fl.reason}) — flagged, not removed`);
+    changes.push(`Ch.${fl.chapter}: LEGACYSTAGES-1 flagged paragraph ${fl.paragraphIndex} (${fl.reason}) — kept, not removed`);
+    paragraphDeletionFlags.push({ ...fl, stage: 'Pre-Quote Artifact Repair' });
+  }
   verifyInvariant('Pre-Quote Artifact Repair');
 
   // C2: Quote fixes
@@ -760,6 +766,11 @@ export async function runManuscriptPolishPipeline({
   onProgress('Polish: Final safe mechanical cleanup…');
   const artifactResult = repairLoadedManuscriptArtifacts(loaded, { project, forceSongbirdAliases: true });
   changes.push(...artifactResult.changes);
+  for (const fl of artifactResult.flags || []) {
+    console.warn(`[LEGACYSTAGES-1] Ch.${fl.chapter}: would have deleted paragraph ${fl.paragraphIndex} (${fl.reason}) — flagged, not removed`);
+    changes.push(`Ch.${fl.chapter}: LEGACYSTAGES-1 flagged paragraph ${fl.paragraphIndex} (${fl.reason}) — kept, not removed`);
+    paragraphDeletionFlags.push({ ...fl, stage: 'Final Artifact Cleanup' });
+  }
   verifyInvariant('Final Artifact Cleanup');
 
   // C5: Deterministic grammar repair + dialogue mechanics
@@ -1564,6 +1575,7 @@ export async function runManuscriptPolishPipeline({
 
   return {
     structureViolations,
+    paragraphDeletionFlags,
     changes,
     gateFailures,
     llmLog: llmPolishLog,
