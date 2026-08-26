@@ -145,8 +145,12 @@ check('5. every key shared with SLOP_BUDGETS has the same book budget in both li
   const RUNNER = fs.readFileSync(new URL('../src/lib/manuscriptPolishRunner.js', import.meta.url).pathname, 'utf8');
   check('9a. sceneWriter.js logs [STYLEBUDGET-3] unconditionally (not inside an if that skips zero)',
     /console\.log\(`\[STYLEBUDGET-3\] writer-final: family targets \$\{templateFamilyDetector\(finalProse\)\.length\}, opening-echo targets \$\{openingEchoDetector\(finalProse\)\.length\}`\);/.test(SW));
+  // NAMEGATE-1 (a later step in this same arc) adds a fifth detector, plus
+  // its own zero-telemetry log lines, between here and the LLM-on/off
+  // branch — widened from {0,400} to tolerate that gap growing rather than
+  // pin it to a fixed size.
   check('9b. manuscriptPolishRunner.js logs [STYLEBUDGET-3] unconditionally, before the LLM-on/off branch',
-    /console\.log\(`\[STYLEBUDGET-3\] Ch\.\$\{chNum\}: family targets[\s\S]{0,300}opening-echo targets[\s\S]{0,300}`\);[\s\S]{0,400}?if \(allowLLM/.test(RUNNER));
+    /console\.log\(`\[STYLEBUDGET-3\] Ch\.\$\{chNum\}: family targets[\s\S]{0,300}opening-echo targets[\s\S]{0,300}`\);[\s\S]{0,900}?if \(allowLLM/.test(RUNNER));
   // FRAGBUDGET-1 (a later step in this same arc) adds a fourth detector to
   // the same extraDetectors arrays — this only needs to confirm templateFamilyDetector
   // and openingEchoDetector are both present, not that the array has exactly these two.

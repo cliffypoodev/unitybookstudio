@@ -557,7 +557,7 @@ export function harvestCastNames(charactersMd, proseTexts = [], options = {}) {
   return [...names].slice(0, max);
 }
 
-const NAME_STOPWORDS = new Set([
+export const NAME_STOPWORDS = new Set([
   'The', 'And', 'But', 'She', 'Her', 'His', 'He', 'They', 'Their', 'Them', 'It', 'Its', 'When', 'While',
   'After', 'Before', 'With', 'From', 'Into', 'That', 'This', 'These', 'Those', 'What', 'Then', 'There',
   'Who', 'Why', 'How', 'Not', 'Now', 'Once', 'Chapter', 'Character', 'Characters', 'Protagonist',

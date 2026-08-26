@@ -38,10 +38,11 @@ import { countParagraphs } from './structureUtils.js';
 import { runAiDetectionResistance } from './aiDetectionResist.js';
 import { runStyleTicSweep } from './styleTicSweep.js';
 import { fixHangingQuotes, normalizeSmartQuotesOnly, closeTrailingUnclosedQuotes } from './quoteFixPolish.js';
-import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences } from './crossChapterDedupe.js';
+import { healCrossChapterDuplicates, findCrossChapterDuplicateSentences, collectProperNouns } from './crossChapterDedupe.js';
 import { healSimileDensity, selectSimileRecastTargets } from './simileRecast.js'; // STYLEBUDGET-2
 import { repairDroppedSubjects, findDroppedSubjectSentences } from './subjectRepair.js'; // SUBJECTREPAIR-1
 import { regenerateFlaggedParagraphs, collectRegenTargets, paragraphsOf } from './regenerateLane.js'; // REGENLANE-1 / REGENLANE-2C
+import { makeUnknownPersonDetector } from './nameGate.js'; // NAMEGATE-1
 import { makeTemplateFamilyDetector, makeOpeningEchoDetector } from './templateFamilies.js'; // STYLEBUDGET-3
 import { makeFragmentDensityDetector, measureFragmentDensity, FRAGMENT_DENSITY_BUDGET_PER_1K } from './fragmentDensity.js'; // FRAGBUDGET-1
 import { parseCanonCast, healNameVariants } from './canonRoles.js'; // CANON-2
@@ -969,6 +970,10 @@ export async function runManuscriptPolishPipeline({
       }
     } catch { castForRegen = castForRegen || []; }
     const sortedLoaded = [...loaded].sort((a, b) => (Number(a.chapter?.chapter_number) || 0) - (Number(b.chapter?.chapter_number) || 0));
+    // NAMEGATE-1: built once (evidence computed once), reused across every
+    // chapter in this pass; a no-op for nonfiction (already has its own
+    // closed-world check).
+    const unknownPersonDetector = makeUnknownPersonDetector({ project, cast: castForRegen, chapters: sortedLoaded.map((f) => f.chapter) });
     for (let idx = 0; idx < sortedLoaded.length; idx += 1) {
       const f = sortedLoaded[idx];
       const chNum = f.chapter?.chapter_number || '?';
@@ -982,11 +987,14 @@ export async function runManuscriptPolishPipeline({
       const fragmentDensityDetector = makeFragmentDensityDetector();
       const fragDensityNow = measureFragmentDensity(String(f.content || ''));
       console.log(`[FRAGBUDGET-1] Ch.${chNum}: fragments ${fragDensityNow.fragments} (${fragDensityNow.per1k}/1k, budget ${FRAGMENT_DENSITY_BUDGET_PER_1K}), targets ${fragmentDensityDetector(String(f.content || '')).length}`);
+      const unknownPersonsNow = unknownPersonDetector(String(f.content || ''));
+      console.log(`[NAMEGATE-1] Ch.${chNum}: checked ${collectProperNouns(String(f.content || '')).length} proper noun(s), ${unknownPersonsNow.length} unknown person(s)`);
+      unknownPersonsNow.forEach((u) => console.log(`[NAMEGATE-1] Ch.${chNum}: ${u.reason}`));
       if (allowLLM || allowRegenLLM || _regenLLMOverride) {
         try {
           const regen = await regenerateFlaggedParagraphs(String(f.content || ''), {
             callLLM: _regenLLMOverride, project, cast: castForRegen, priorProse, label: `Ch.${chNum}`, onProgress,
-            extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector], // POLISHSAFE-4 + STYLEBUDGET-3 + FRAGBUDGET-1
+            extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector, unknownPersonDetector], // POLISHSAFE-4 + STYLEBUDGET-3 + FRAGBUDGET-1 + NAMEGATE-1
           });
           if (regen.targets.length > 0) regenStats.chaptersWithTargets += 1;
           if (regen.regenerated > 0) {
@@ -1004,7 +1012,7 @@ export async function runManuscriptPolishPipeline({
           changes.push(`Ch.${chNum}: Regenerate Lane unavailable (${err?.message || 'unknown'}) — flagged paragraph(s) NOT regenerated.`);
         }
       } else {
-        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen, extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector] });
+        const targets = collectRegenTargets(String(f.content || ''), { cast: castForRegen, extraDetectors: [detectBannedVocabulary, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector, unknownPersonDetector] });
         if (targets.length > 0) {
           regenStats.chaptersWithTargets += 1;
           changes.push(`Ch.${chNum}: Regenerate Lane found ${targets.length} flagged paragraph(s) — LLM disabled, reported only.`);

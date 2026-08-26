@@ -85,11 +85,20 @@ for (const s of ['Dov, stoic and dusty.', 'A long corridor of rust and silence.'
   const RUNNER = fs.readFileSync(new URL('../src/lib/manuscriptPolishRunner.js', import.meta.url).pathname, 'utf8');
   check('8a. sceneWriter.js logs [FRAGBUDGET-1] unconditionally',
     /console\.log\(`\[FRAGBUDGET-1\] writer-final: fragments/.test(SW));
+  // NAMEGATE-1 (a later step in this same arc) adds a fifth detector, plus
+  // its own zero-telemetry log lines, in the same gap between the
+  // FRAGBUDGET-1 log line and the LLM-on/off branch — widened the same way
+  // stylebudget3.acceptance.mjs's 9b already does, to tolerate that gap
+  // growing rather than pin it to an exact adjacency.
   check('8b. manuscriptPolishRunner.js logs [FRAGBUDGET-1] unconditionally, before the LLM-on/off branch',
-    /console\.log\(`\[FRAGBUDGET-1\] Ch\.\$\{chNum\}: fragments[\s\S]{0,300}`\);\s*\n\s*if \(allowLLM/.test(RUNNER));
+    /console\.log\(`\[FRAGBUDGET-1\] Ch\.\$\{chNum\}: fragments[\s\S]{0,300}`\);[\s\S]{0,900}?if \(allowLLM/.test(RUNNER));
+  // NAMEGATE-1 also appends a detector after fragmentDensityDetector — this
+  // only needs to confirm fragmentDensityDetector itself is present, not
+  // that it is the last element (same relaxation stylebudget3's 9c already
+  // applies to templateFamilyDetector/openingEchoDetector).
   check('8c. both lane call sites wire fragmentDensityDetector into extraDetectors',
-    SW.includes('fragmentDensityDetector]') &&
-    (RUNNER.match(/extraDetectors: \[detectBannedVocabulary, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector\]/g) || []).length === 2);
+    SW.includes('fragmentDensityDetector') &&
+    (RUNNER.match(/extraDetectors: \[detectBannedVocabulary, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector/g) || []).length === 2);
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

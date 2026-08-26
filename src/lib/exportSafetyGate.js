@@ -91,6 +91,7 @@ import { checkFoundationRoleConsistency, parseCanonCast, findNameVariants, scanR
 import { buildCharacterState, auditProseAgainstCharacterState, extractBeatDeclaredStateUpdates, collectChapterBeatEvents } from './characterStateLedger.js'; // CHARSTATE-1 / CHARSTATE-2
 import { isFictionProject, isNonfictionProject } from './projectType.js'; // GATEPROMOTE-1 / NFEXPORT-BIB-1
 import { isBackMatter, NF_BIBLIOGRAPHY_HARD_BLOCK } from './bibliographyGenerator.js'; // NFEXPORT-BIB-1
+import { findUnknownPersons, buildFictionEvidence, NAMEGATE_HARD_BLOCK } from './nameGate.js'; // NAMEGATE-1
 import { countBibliographyEntries } from './bibliographyEntryShape.js'; // NFEXPORT-BIB-1
 
 export async function runPreExportSafetyGate(chapters = [], options = {}) {
@@ -754,6 +755,55 @@ export async function runPreExportSafetyGate(chapters = [], options = {}) {
     console.log(`[MALFORMEDSENT] Gate scan: ${msTotal} malformed sentence(s) across ${chapters.length} chapter(s)`);
   } catch (msError) {
     console.warn('[MALFORMEDSENT] Gate scan failed (non-fatal):', msError?.message || msError);
+  }
+
+  // NAMEGATE-1 (finding 35b): a person the story bible never established.
+  // Arc D's redraft of a chapter invented "Silas", a Tier-1 banned name that
+  // was never in any bible field, and no gate ever fired ([PRONOUNLOCK]
+  // "2 unresolved" was the only trace). Fiction only — NF already has its
+  // own closed-world check via NFEXPORT-BIB-1 above.
+  try {
+    if (isFictionProject(project)) {
+      const ngBodies = chapters.map((ch) => String(ch?.content_md || '')).filter((body) => body.length > 200);
+      const ngCast = harvestCastNames(options?.project?.characters_md, ngBodies);
+      const ngEvidence = buildFictionEvidence(project, { chapters });
+      for (const ch of chapters) {
+        const body = String(ch?.content_md || '');
+        if (body.length <= 200) continue;
+        const unknowns = findUnknownPersons(body, { evidence: ngEvidence, cast: ngCast });
+        console.log(`[NAMEGATE-1] Gate scan: Ch.${ch?.chapter_number} ${unknowns.length} unknown person(s)`);
+        for (const u of unknowns) {
+          const reason = `NAMEGATE-1: "${u.name}" (${u.count} mention(s)) is not in the bible or cast`;
+          // GATEPROMOTE-1: stays a warning until NAMEGATE_HARD_BLOCK is
+          // flipped to true — do not flip it here.
+          if (NAMEGATE_HARD_BLOCK) {
+            hardFailures.push({
+              chapterNumber: ch?.chapter_number,
+              title: ch?.title || '',
+              ok: false,
+              recommendedAction: 'REJECT_REGENERATE',
+              processLeakCount: 0,
+              contaminationCount: 0,
+              malformedCount: 0,
+              dialogueIssueCount: 0,
+              slopTotal: 0,
+              reasons: [reason],
+              snippets: [],
+            });
+            console.warn(`[GATEPROMOTE] Ch.${ch?.chapter_number}: NAMEGATE-1 promoted to hard block`);
+            gatePromoteCount += 1;
+          } else {
+            warnings.push({
+              chapterNumber: ch?.chapter_number,
+              title: ch?.title || '',
+              reasons: [reason],
+            });
+          }
+        }
+      }
+    }
+  } catch (ngError) {
+    console.warn('[NAMEGATE-1] Gate scan failed (non-fatal):', ngError?.message || ngError);
   }
 
   // STYLEBUDGET-1: book-level style telemetry — warnings only. Style is a

@@ -41,6 +41,8 @@ import {
 import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStylePrompt';
 import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
+import { makeUnknownPersonDetector } from '@/lib/nameGate'; // NAMEGATE-1
+import { collectProperNouns } from '@/lib/crossChapterDedupe';
 import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
 import { buildCharacterState, buildCharacterStateContract, extractBeatDeclaredStateUpdates, collectChapterBeatEvents, corroborateBeatDeclaredReturns } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2 / CHARSTATE-2B
 import { resolveChapterContent } from '@/lib/chapterStorage'; // PROSEFEED-1
@@ -3147,10 +3149,17 @@ export async function finalizeChapterProse(prose, project, priorChapterProse = [
       const fragmentDensityDetector = makeFragmentDensityDetector();
       const fragDensityNow = measureFragmentDensity(finalProse);
       console.log(`[FRAGBUDGET-1] writer-final: fragments ${fragDensityNow.fragments} (${fragDensityNow.per1k}/1k, budget ${FRAGMENT_DENSITY_BUDGET_PER_1K}), targets ${fragmentDensityDetector(finalProse).length}`);
+      // NAMEGATE-1: no chapter objects (with beat summaries) are in scope
+      // here, only raw prior-chapter prose strings — the evidence corpus is
+      // built from the project's bible fields alone (chapters: []).
+      const unknownPersonDetector = makeUnknownPersonDetector({ project, cast, chapters: [] });
+      const unknownPersonsNow = unknownPersonDetector(finalProse);
+      console.log(`[NAMEGATE-1] writer-final: checked ${collectProperNouns(finalProse).length} proper noun(s), ${unknownPersonsNow.length} unknown person(s)`);
+      unknownPersonsNow.forEach((u) => console.log(`[NAMEGATE-1] writer-final: ${u.reason}`));
       const regen = await regenerateFlaggedParagraphs(finalProse, {
         project, cast, departed, priorProse: priorChapterProse, label: 'writer-final',
         stateFacts: stateFactsBlock, // STATECONTRACT-1
-        extraDetectors: [detectBannedVocabulary, detectSameChapterSceneDuplicates, arcRestartDetector, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector], // POLISHSAFE-4 + SCENEDUP-1 + ARCSTATE-1 + STYLEBUDGET-3 + FRAGBUDGET-1
+        extraDetectors: [detectBannedVocabulary, detectSameChapterSceneDuplicates, arcRestartDetector, templateFamilyDetector, openingEchoDetector, fragmentDensityDetector, unknownPersonDetector], // POLISHSAFE-4 + SCENEDUP-1 + ARCSTATE-1 + STYLEBUDGET-3 + FRAGBUDGET-1 + NAMEGATE-1
       });
       if (regen.regenerated > 0) finalProse = regen.text;
     }
