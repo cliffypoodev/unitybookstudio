@@ -126,7 +126,7 @@ function addSafeSpaceAfterClosingSingleQuotes(text = '') {
 
 
 
-function finalPossessiveApostropheGuard(text = '') {
+function finalPossessiveApostropheGuard(text = '', flagSink = []) {
   // Absolute last-pass guard for export/polish survivors:
   // Iris’ s -> Iris’s, Cross’ s -> Cross’s, Strauss’ s -> Strauss’s,
   // won’ t -> won’t, I’ m -> I’m.
@@ -134,13 +134,17 @@ function finalPossessiveApostropheGuard(text = '') {
   // This intentionally only collapses known contraction/possessive suffix
   // shards. It does NOT collapse plural possessives followed by normal words:
   // students’ eyes, workers’ choruses, sailors’ accounts.
-  return String(text || '')
-    .replace(/\b([A-Za-z]+)\s*[’']\s*(s|d|ll|ve|re|m|t)\b/gi, (_m, left, right) => `${left}’${String(right).toLowerCase()}`)
-    .replace(/\b(I)\s*[’']\s*(m|d|ll|ve)\b/gi, (_m, left, right) => `${left}’${String(right).toLowerCase()}`);
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: both sub-rules connect
+  // their halves with an unbounded \s*, which can match straight through a
+  // \n{2,} paragraph break, so both go through guardedReplace.
+  let out = String(text || '');
+  out = guardedReplace(out, /\b([A-Za-z]+)\s*[’']\s*(s|d|ll|ve|re|m|t)\b/gi, (_m, left, right) => `${left}’${String(right).toLowerCase()}`, flagSink, 'final possessive apostrophe guard').text;
+  out = guardedReplace(out, /\b(I)\s*[’']\s*(m|d|ll|ve)\b/gi, (_m, left, right) => `${left}’${String(right).toLowerCase()}`, flagSink, 'final possessive apostrophe guard').text;
+  return out;
 }
 
 
-function normalizeSmartApostropheSpacing(text = '', changes = []) {
+function normalizeSmartApostropheSpacing(text = '', changes = [], flagSink = []) {
   const before = String(text || '');
   let out = before;
 
@@ -149,7 +153,9 @@ function normalizeSmartApostropheSpacing(text = '', changes = []) {
   //
   // IMPORTANT: keep this marker-limited. A broad "word ’ word" rule caused
   // damage such as workers’choruses, students’eyes, and ‘The Last Goodbye’was.
-  out = out.replace(/\b([A-Za-z]+)\s*[’']\s*(s|d|ll|ve|re|m|t)\b/gi, (_m, left, right) => `${left}’${String(right).toLowerCase()}`);
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: \s* here can match
+  // through a \n{2,} paragraph break, so this goes through guardedReplace.
+  out = guardedReplace(out, /\b([A-Za-z]+)\s*[’']\s*(s|d|ll|ve|re|m|t)\b/gi, (_m, left, right) => `${left}’${String(right).toLowerCase()}`, flagSink, 'normalized smart apostrophe spacing').text;
 
   // If a plural possessive or quoted phrase has already been jammed against
   // the next word, restore the missing space without touching contractions.
@@ -160,9 +166,9 @@ function normalizeSmartApostropheSpacing(text = '', changes = []) {
   out = out.replace(/\b(in|by|from|since|until|around|circa|c\.)[ \t]*[’'](\d{2})\b/gi, (_m, pre, yr) => `${pre} ’${yr}`);
 
   // Defensive cleanup for common contraction shards.
-  out = out.replace(/\b(I)\s*[’']\s*(m|d|ll|ve)\b/gi, (_m, a, b) => `${a}’${b.toLowerCase()}`);
-  out = out.replace(/\b(you|we|they|he|she|it|that|there|what|who|where|when|why|how|let)\s*[’']\s*(s|d|ll|ve|re)\b/gi, (_m, a, b) => `${a}’${b.toLowerCase()}`);
-  out = finalPossessiveApostropheGuard(out);
+  out = guardedReplace(out, /\b(I)\s*[’']\s*(m|d|ll|ve)\b/gi, (_m, a, b) => `${a}’${b.toLowerCase()}`, flagSink, 'normalized smart apostrophe spacing').text;
+  out = guardedReplace(out, /\b(you|we|they|he|she|it|that|there|what|who|where|when|why|how|let)\s*[’']\s*(s|d|ll|ve|re)\b/gi, (_m, a, b) => `${a}’${b.toLowerCase()}`, flagSink, 'normalized smart apostrophe spacing').text;
+  out = finalPossessiveApostropheGuard(out, flagSink);
 
   if (out !== before) changes.push('normalized smart apostrophe spacing');
   return out;
@@ -304,6 +310,16 @@ function thinSongbirdStyleTics(text = '', changes = []) {
     (_m) => 'some unnamed middle state',
   ], 'thinned repeated not-quite/not-quite construction');
 
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE (documented, not converted):
+  // the \s+ here can in principle match through a \n{2,} break, but
+  // replaceAfter's `seen` counter (which occurrence to keep vs. thin) is
+  // native String.replace state — routing this one call through
+  // guardedReplace would skip the callback entirely for a boundary-crossing
+  // match, shifting which LATER occurrence gets thinned, a behavior change
+  // beyond just preventing the merge. Left as plain replace: the bounded
+  // {1,60} groups already exclude \n, so the only exposure is this one
+  // narrow, specific two-sentence repeat construction actually straddling a
+  // real paragraph break — accepted as a documented residual, not fixed.
   replaceAfter(/\bnot quite ([^.!?\n]{1,60})\.\s+not quite ([^.!?\n]{1,60})\./gi, 1, [
     (_m) => 'Something between the two.',
     (_m) => 'Some unnamed middle state.',
@@ -319,7 +335,7 @@ export function repairManuscriptArtifacts(text, options = {}) {
   const flagSink = []; // LEGACYSTAGES-1: { paragraphIndex, reason } records for a match this stage refused to let cross a paragraph break
 
   // Normalize apostrophe spacing before other rules so contraction patterns work.
-  out = normalizeSmartApostropheSpacing(out, changes);
+  out = normalizeSmartApostropheSpacing(out, changes, flagSink);
 
   // v6: hard alias enforcement is here too, so the repair still works even if
   // ProjectStudio/canonNameLock metadata detection misses the manuscript.
@@ -357,25 +373,31 @@ export function repairManuscriptArtifacts(text, options = {}) {
   }, flagSink, 'repaired swallowed action/dialogue cluster').text;
 
   // Apostrophe / contraction corruption.
-  out = applyRule(out, /\bdidn[’']?\s+change\b/gi, 'didn’t change', changes, 'fixed didn’t apostrophe corruption');
-  out = applyRule(out, /\bdoesn[’']?\s+t\b/gi, 'doesn’t', changes, 'fixed does not contraction corruption');
-  out = applyRule(out, /\bdidn[’']?\s+t\b/gi, 'didn’t', changes, 'fixed did not contraction corruption');
-  out = applyRule(out, /\bwasn[’']?\s+t\b/gi, 'wasn’t', changes, 'fixed was not contraction corruption');
-  out = applyRule(out, /\bweren[’']?\s+t\b/gi, 'weren’t', changes, 'fixed were not contraction corruption');
-  out = applyRule(out, /\bcan[’']?\s+t\b/gi, 'can’t', changes, 'fixed cannot contraction corruption');
-  out = applyRule(out, /\bcouldn[’']?\s+t\b/gi, 'couldn’t', changes, 'fixed could not contraction corruption');
-  out = applyRule(out, /\bwouldn[’']?\s+t\b/gi, 'wouldn’t', changes, 'fixed would not contraction corruption');
-  out = applyRule(out, /\bshouldn[’']?\s+t\b/gi, 'shouldn’t', changes, 'fixed should not contraction corruption');
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: every rule below connects
+  // two halves with \s+, which can match through a \n{2,} paragraph break —
+  // same risk class as the rules the original LEGACYSTAGES-1 commit guarded,
+  // just not picked up by that commit's audit. Routed through
+  // applyRuleParagraphSafe so a boundary-crossing match is flagged, not
+  // silently merged.
+  out = applyRuleParagraphSafe(out, /\bdidn[’']?\s+change\b/gi, 'didn’t change', changes, 'fixed didn’t apostrophe corruption', flagSink);
+  out = applyRuleParagraphSafe(out, /\bdoesn[’']?\s+t\b/gi, 'doesn’t', changes, 'fixed does not contraction corruption', flagSink);
+  out = applyRuleParagraphSafe(out, /\bdidn[’']?\s+t\b/gi, 'didn’t', changes, 'fixed did not contraction corruption', flagSink);
+  out = applyRuleParagraphSafe(out, /\bwasn[’']?\s+t\b/gi, 'wasn’t', changes, 'fixed was not contraction corruption', flagSink);
+  out = applyRuleParagraphSafe(out, /\bweren[’']?\s+t\b/gi, 'weren’t', changes, 'fixed were not contraction corruption', flagSink);
+  out = applyRuleParagraphSafe(out, /\bcan[’']?\s+t\b/gi, 'can’t', changes, 'fixed cannot contraction corruption', flagSink);
+  out = applyRuleParagraphSafe(out, /\bcouldn[’']?\s+t\b/gi, 'couldn’t', changes, 'fixed could not contraction corruption', flagSink);
+  out = applyRuleParagraphSafe(out, /\bwouldn[’']?\s+t\b/gi, 'wouldn’t', changes, 'fixed would not contraction corruption', flagSink);
+  out = applyRuleParagraphSafe(out, /\bshouldn[’']?\s+t\b/gi, 'shouldn’t', changes, 'fixed should not contraction corruption', flagSink);
 
   // Common malformed verb-object artifacts.
-  out = applyRule(out, /\b(The|A|His|Her|Their|Its|This|That|My|Our)\s+(door|doors|window|windows|eyes|eye|mouth|hand|hands|drawer|drawers|gate|gates|hatch|hatches|wall|walls)\s+opened\s+it\b/gi, '$1 $2 opened', changes, 'fixed opened-it artifact');
-  out = applyRule(out, /\bopened\s+it\s+(and|but|then|as|while|onto|into|toward|to|when|with)\b/gi, 'opened $1', changes, 'fixed opened-it connector artifact');
-  out = applyRule(out, /\b(the|a|his|her|their|its)\s+(door|window|eye|eyes|mouth|gate|hatch)\s+closed\s+it\b/gi, '$1 $2 closed', changes, 'fixed closed-it artifact');
+  out = applyRuleParagraphSafe(out, /\b(The|A|His|Her|Their|Its|This|That|My|Our)\s+(door|doors|window|windows|eyes|eye|mouth|hand|hands|drawer|drawers|gate|gates|hatch|hatches|wall|walls)\s+opened\s+it\b/gi, '$1 $2 opened', changes, 'fixed opened-it artifact', flagSink);
+  out = applyRuleParagraphSafe(out, /\bopened\s+it\s+(and|but|then|as|while|onto|into|toward|to|when|with)\b/gi, 'opened $1', changes, 'fixed opened-it connector artifact', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(the|a|his|her|their|its)\s+(door|window|eye|eyes|mouth|gate|hatch)\s+closed\s+it\b/gi, '$1 $2 closed', changes, 'fixed closed-it artifact', flagSink);
 
   // Breath/pause/hitch corruption.
-  out = applyRule(out, /\b(His|Her|Their|My|Iris’s|Iris'|Pauline’s|Pauline'|Langston’s|Langston'|Arthur’s|Arthur')\s+moment\s+(hitched|caught|stopped|paused)\b/g, '$1 breath $2', changes, 'fixed moment→breath artifact');
-  out = applyRule(out, /\b(his|her|their|my)\s+moment\s+(hitched|caught|stopped|paused)\b/g, '$1 breath $2', changes, 'fixed moment→breath artifact');
-  out = applyRule(out, /\b(His|Her|his|her)\s+pause\s+hitched\b/g, '$1 breath hitched', changes, 'fixed pause→breath artifact');
+  out = applyRuleParagraphSafe(out, /\b(His|Her|Their|My|Iris’s|Iris'|Pauline’s|Pauline'|Langston’s|Langston'|Arthur’s|Arthur')\s+moment\s+(hitched|caught|stopped|paused)\b/g, '$1 breath $2', changes, 'fixed moment→breath artifact', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(his|her|their|my)\s+moment\s+(hitched|caught|stopped|paused)\b/g, '$1 breath $2', changes, 'fixed moment→breath artifact', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(His|Her|his|her)\s+pause\s+hitched\b/g, '$1 breath hitched', changes, 'fixed pause→breath artifact', flagSink);
 
   // Missing conjunction/comma artifacts that do not alter quote boundaries.
   const joinRules = [
@@ -396,11 +418,14 @@ export function repairManuscriptArtifacts(text, options = {}) {
     [/\b(a cold, dense clarity)\s+(It wasn’t courage)\b/gi, '$1. $2', 'fixed sentence join'],
     [/\b(the coffee|the tea|the drink|the letter|the report),?\s+when it came\s+was\b/gi, '$1, when it came, was', 'fixed when-it-came comma'],
   ];
-  for (const [rx, repl, label] of joinRules) out = applyRule(out, rx, repl, changes, label);
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: every joinRules entry
+  // connects two literal phrases with \s+, the same unguarded-connector
+  // risk class as elsewhere in this file.
+  for (const [rx, repl, label] of joinRules) out = applyRuleParagraphSafe(out, rx, repl, changes, label, flagSink);
 
   // Safe attribution punctuation: add comma after said/asked when followed by participle/adverb phrase.
-  out = applyRule(out, /\b(he|she|they|Iris|Pauline|Langston|Arthur|Cross|Clara|Cora|Duke|Sol)\s+said\s+(cutting|turning|looking|leaning|watching|without|quietly now|softly now|settling|low)\b/gi, '$1 said, $2', changes, 'fixed said attribution comma');
-  out = applyRule(out, /\b(he|she|they|Iris|Pauline|Langston|Arthur|Cross|Clara|Cora|Duke|Sol)\s+asked\s+(cutting|turning|looking|leaning|watching|without|quietly now|softly now|settling|low)\b/gi, '$1 asked, $2', changes, 'fixed asked attribution comma');
+  out = applyRuleParagraphSafe(out, /\b(he|she|they|Iris|Pauline|Langston|Arthur|Cross|Clara|Cora|Duke|Sol)\s+said\s+(cutting|turning|looking|leaning|watching|without|quietly now|softly now|settling|low)\b/gi, '$1 said, $2', changes, 'fixed said attribution comma', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(he|she|they|Iris|Pauline|Langston|Arthur|Cross|Clara|Cora|Duke|Sol)\s+asked\s+(cutting|turning|looking|leaning|watching|without|quietly now|softly now|settling|low)\b/gi, '$1 asked, $2', changes, 'fixed asked attribution comma', flagSink);
 
   // Action sentence after dialogue should be capitalized; do NOT move quote marks.
   out = guardedReplace(out, /([.!?][”"])\s+(he|she)\s+(said\s+(?:it|the\s+word|the\s+words)|spoke\b)/g, (_m, close, who, phrase) => {
@@ -414,15 +439,16 @@ export function repairManuscriptArtifacts(text, options = {}) {
   out = applyRuleParagraphSafe(out, /\bWhen\s+she\s+spoke,\s+She\s+spoke\b/g, 'When she spoke, she spoke', changes, 'fixed duplicated spoke fragment', flagSink);
 
   // Small grammar shards observed in Songbird exports.
-  out = applyRule(out, /\bThe\s+dust\s+motes\s+swirling\b/g, 'The dust motes swirled', changes, 'fixed dangling dust-motes clause');
-  out = applyRule(out, /\bthe\s+sound\s+flat\b/g, 'the sound was flat', changes, 'fixed missing verb');
-  out = applyRule(out, /\b(She|He|Iris|Pauline|Langston|Cross|Clara|Cora)\s+spoke\s+low,\s+almost\s+meditative\b/g, '$1 spoke in a low, almost meditative voice', changes, 'fixed spoke-low phrase');
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: \s+-connected, guarded below.
+  out = applyRuleParagraphSafe(out, /\bThe\s+dust\s+motes\s+swirling\b/g, 'The dust motes swirled', changes, 'fixed dangling dust-motes clause', flagSink);
+  out = applyRuleParagraphSafe(out, /\bthe\s+sound\s+flat\b/g, 'the sound was flat', changes, 'fixed missing verb', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(She|He|Iris|Pauline|Langston|Cross|Clara|Cora)\s+spoke\s+low,\s+almost\s+meditative\b/g, '$1 spoke in a low, almost meditative voice', changes, 'fixed spoke-low phrase', flagSink);
 
   // v6: surviving Songbird-specific malformed sentence shards.
-  out = applyRule(out, /“It was\.\s+Preparation\.”/g, '“Preparation.”', changes, 'fixed It was. Preparation dialogue shard');
-  out = applyRule(out, /\b(Langston|Arthur)(['’])s\.\s+Arrangement\b/g, '$1$2 arrangement', changes, 'fixed possessive arrangement sentence shard');
-  out = applyRule(out, /\b(The|A|His|Her|Their|Its|This|That|My|Our)\s+(window|door|gate|drawer|eye|eyes|mouth|hand|hands)\s+opened\s+it\b/gi, '$1 $2 opened', changes, 'fixed opened-it survivor artifact');
-  out = applyRule(out, /([.!?]”)\s+(Thank you|Thanks|I doubt that|I[’']m not uncomfortable|Aren[’']t you|Whatever is helpful|Of course|Good|Fine|No|Yes)([.!?])”/g, '$1 “$2$3”', changes, 'fixed embedded orphan dialogue opener');
+  out = applyRuleParagraphSafe(out, /“It was\.\s+Preparation\.”/g, '“Preparation.”', changes, 'fixed It was. Preparation dialogue shard', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(Langston|Arthur)(['’])s\.\s+Arrangement\b/g, '$1$2 arrangement', changes, 'fixed possessive arrangement sentence shard', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(The|A|His|Her|Their|Its|This|That|My|Our)\s+(window|door|gate|drawer|eye|eyes|mouth|hand|hands)\s+opened\s+it\b/gi, '$1 $2 opened', changes, 'fixed opened-it survivor artifact', flagSink);
+  out = applyRuleParagraphSafe(out, /([.!?]”)\s+(Thank you|Thanks|I doubt that|I[’']m not uncomfortable|Aren[’']t you|Whatever is helpful|Of course|Good|Fine|No|Yes)([.!?])”/g, '$1 “$2$3”', changes, 'fixed embedded orphan dialogue opener', flagSink);
 
 
 
@@ -433,21 +459,26 @@ export function repairManuscriptArtifacts(text, options = {}) {
   out = applyRule(out, /“I[’']m not uncomfortableI[’']m not uncomfortable”/g, '“I’m not uncomfortable.”', changes, 'fixed duplicated I’m-not-uncomfortable dialogue');
 
   // Fix only impossible opened-it artifacts, not valid "She opened it" usages.
-  out = applyRule(out, /\b(the|a|his|her|their|its|this|that|my|our)\s+(door|window|gate|drawer|eye|eyes|mouth|hatch)\s+opened\s+it\b/gi, '$1 $2 opened', changes, 'fixed impossible opened-it subject artifact');
-  out = applyRule(out, /\b(The|A|His|Her|Their|Its|This|That|My|Our)\s+(door|window|gate|drawer|eye|eyes|mouth|hatch)\s+opened\s+it\b/g, '$1 $2 opened', changes, 'fixed impossible opened-it subject artifact');
-  out = applyRule(out, /\bbeing\s+opened\s+it\b/gi, 'being opened', changes, 'fixed being-opened-it artifact');
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: \s+-connected, guarded below.
+  out = applyRuleParagraphSafe(out, /\b(the|a|his|her|their|its|this|that|my|our)\s+(door|window|gate|drawer|eye|eyes|mouth|hatch)\s+opened\s+it\b/gi, '$1 $2 opened', changes, 'fixed impossible opened-it subject artifact', flagSink);
+  out = applyRuleParagraphSafe(out, /\b(The|A|His|Her|Their|Its|This|That|My|Our)\s+(door|window|gate|drawer|eye|eyes|mouth|hatch)\s+opened\s+it\b/g, '$1 $2 opened', changes, 'fixed impossible opened-it subject artifact', flagSink);
+  out = applyRuleParagraphSafe(out, /\bbeing\s+opened\s+it\b/gi, 'being opened', changes, 'fixed being-opened-it artifact', flagSink);
 
   // Dialogue tag punctuation survivors.
   out = applyRuleParagraphSafe(out, /“Now, Iris\.”\s+He said it mildly, chiding\./g, '“Now, Iris,” he said mildly, chiding.', changes, 'fixed Now-Iris tag punctuation', flagSink);
-  out = applyRule(out, /\b(The clock, as they say)\s+is ticking\b/g, '$1, is ticking', changes, 'fixed as-they-say comma');
+  out = applyRuleParagraphSafe(out, /\b(The clock, as they say)\s+is ticking\b/g, '$1, is ticking', changes, 'fixed as-they-say comma', flagSink);
 
   // v8 extra mechanical survivors from Songbird exports. Kept narrow and deterministic.
   out = applyRule(out, /\bThe coffee, when it came was\b/g, 'The coffee, when it came, was', changes, 'comma: coffee came');
   out = applyRule(out, /\bShe sat took out\b/g, 'She sat, took out', changes, 'comma: sat took');
   out = applyRule(out, /\bPauline opened a drawer took out\b/g, 'Pauline opened a drawer, took out', changes, 'comma: drawer took');
   out = applyRule(out, /\b([Hh]e|[Ss]he) said cutting through\b/g, '$1 said, cutting through', changes, 'comma: said cutting through');
-  out = applyRule(out, /\bthe door opened it\.\s*$/gm, 'the door opened.', changes, 'door opened it line');
-  out = applyRule(out, /\bThe door opened it\.\s*$/gm, 'The door opened.', changes, 'The door opened it line');
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: \s*$ can consume through a
+  // \n{2,} boundary via backtracking (greedily eats all contiguous
+  // whitespace, then gives back just enough for $ to anchor before the last
+  // \n), so this is in the same unguarded-connector risk class.
+  out = applyRuleParagraphSafe(out, /\bthe door opened it\.\s*$/gm, 'the door opened.', changes, 'door opened it line', flagSink);
+  out = applyRuleParagraphSafe(out, /\bThe door opened it\.\s*$/gm, 'The door opened.', changes, 'The door opened it line', flagSink);
   out = applyRule(out, /\bwho smelled always of hair tonic and nervous sweat played\b/g, 'who always smelled of hair tonic and nervous sweat, played', changes, 'Marty comma/order repair');
   out = applyRule(out, /\bHe nodded took a beat\b/g, 'He nodded, took a beat', changes, 'missing comma: nodded took');
   out = applyRule(out, /\bzips the duffel doesn’t look at her\b/g, 'zips the duffel, doesn’t look at her', changes, 'missing comma: duffel action');
@@ -491,7 +522,10 @@ export function repairManuscriptArtifacts(text, options = {}) {
   out = applyRule(out, /\btook another drag held the smoke\b/gi, 'took another drag, held the smoke', changes, 'manual line edit v19: drag comma any case');
   out = applyRule(out, /\beyes, in this light were\b/gi, 'eyes, in this light, were', changes, 'manual line edit v19: in-this-light comma');
   out = applyRule(out, /\bActor’s Studio crowd—They felt\b/g, 'Actor’s Studio crowd—they felt', changes, 'manual line edit v19: lower em-dash continuation');
-  out = applyRule(out, /\bThe Children’s Hour\. Yes\.\s+”\s*“And\?\s*”\s*“It’s… a well-made play\./g, 'The Children’s Hour. Yes.”\n“And?”\n“It’s… a well-made play.', changes, 'manual line edit v19: restore And? dialogue line');
+  // LEGACYSTAGES-1-FIX-INCOMPLETE-GUARD-COVERAGE: \s+/\s* between the
+  // dialogue fragments below, guarded (its literal-space compact sibling
+  // rule directly below stays plain applyRule — no \s metacharacter there).
+  out = applyRuleParagraphSafe(out, /\bThe Children’s Hour\. Yes\.\s+”\s*“And\?\s*”\s*“It’s… a well-made play\./g, 'The Children’s Hour. Yes.”\n“And?”\n“It’s… a well-made play.', changes, 'manual line edit v19: restore And? dialogue line', flagSink);
   out = applyRule(out, /\bThe Children’s Hour\. Yes\. ” “And\? ” “It’s… a well-made play\./g, 'The Children’s Hour. Yes.”\n“And?”\n“It’s… a well-made play.', changes, 'manual line edit v19: restore And? dialogue line compact');
   out = applyRule(out, /\bthe man, Davies turned to leave\b/gi, 'the man, Davies, turned to leave', changes, 'manual line edit v19: Davies appositive any case');
 
@@ -504,7 +538,7 @@ export function repairManuscriptArtifacts(text, options = {}) {
   out = thinSongbirdStyleTics(out, changes);
 
   // Final apostrophe normalization after other repairs.
-  out = normalizeSmartApostropheSpacing(out, changes);
+  out = normalizeSmartApostropheSpacing(out, changes, flagSink);
 
   // Tidy spacing left by repairs/removals. The first three sub-steps below only
   // ever touch horizontal ([ \t]) whitespace immediately beside a newline, or
@@ -526,7 +560,7 @@ export function repairManuscriptArtifacts(text, options = {}) {
     .replace(/\n{4,}/g, '\n\n\n')
     .trim();
 
-  const guardedOut = finalPossessiveApostropheGuard(out);
+  const guardedOut = finalPossessiveApostropheGuard(out, flagSink);
   if (guardedOut !== out) {
     changes.push('final possessive apostrophe guard');
     out = guardedOut;
