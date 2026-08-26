@@ -21,13 +21,7 @@ const ROOT = path.resolve(DIR, '..');
 
 // A battery lands here ONLY when the code it tests is not in the tree. It is not
 // a way to silence a failure - the reason is printed on every run.
-const QUARANTINE = {
-  'routerheal2.acceptance.mjs':
-    'ROUTERHEAL-2 is half-landed: ROUTERHEAL_PORT_FREE_MS and ROUTERHEAL_SERVING_MS are '
-    + 'declared in vite-server-store-plugin.js but never read, and routerHealPortFree / '
-    + 'routerHealWaitServing / the spawn retry do not exist. The battery is correct; the '
-    + 'feature is missing. Land the polling logic or delete the dead constants.',
-};
+const QUARANTINE = {};
 
 const filter = process.argv[2] || '';
 const files = fs.readdirSync(DIR)
