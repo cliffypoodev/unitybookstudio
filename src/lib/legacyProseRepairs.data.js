@@ -3,10 +3,13 @@
  *
  * postDraftCleanup.js is the general post-draft repair engine: every chapter of every
  * book in the library passes through it. It carried these phrase banks inline -
- * roughly 150 verbatim pattern/replacement pairs naming one old manuscript's cast
- * (Husbandman, Orin, Elias, Jonah, Caspian, Ronan, Kael, Lev, Silas), its props
- * ("stale coffee on his pause", "the captive still sitting on his table") and its
- * own broken sentences ("capped it set it aside", "gaze lifted found").
+ * roughly 150 verbatim pattern/replacement pairs naming one old manuscript's cast by
+ * name, its props ("stale coffee on his pause", "the captive still sitting on his
+ * table") and its own broken sentences ("capped it set it aside", "gaze lifted found").
+ * LEGACYREPAIR-1 generalized every subject-name alternation to a generic
+ * he/she/they/<CapitalizedName> class (matching crossChapterDedupe.js's
+ * collectProperNouns bounding) — the repaired phrases are unchanged; only the
+ * subject list widened from the original cast to any name-shaped subject.
  *
  * They are moved here VERBATIM and unchanged. They are NOT the default for anything.
  * A project gets prose repairs only by declaring prose_repairs_json on its own record
@@ -264,31 +267,31 @@ export const LEGACY_HARD_SURVIVOR_REPAIRS = Object.freeze([
     },
     {
       label: 'FINAL survivor: pause fogged → breath fogged',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+pause\s+(fogged\b)/g,
+      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|[A-Z][a-z]+’s)\s+pause\s+(fogged\b)/g,
       replacement: '$1 breath $2',
       fixPrefix: 'Final hard-survivor pass repaired',
     },
     {
       label: 'FINAL survivor: pause hitched → breath hitched',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+pause\s+(hitched\b)/g,
+      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|[A-Z][a-z]+’s)\s+pause\s+(hitched\b)/g,
       replacement: '$1 breath $2',
       fixPrefix: 'Final hard-survivor pass repaired',
     },
     {
       label: 'FINAL survivor: moment hitched → breath hitched',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+moment\s+(hitched\b)/g,
+      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|[A-Z][a-z]+’s)\s+moment\s+(hitched\b)/g,
       replacement: '$1 breath $2',
       fixPrefix: 'Final hard-survivor pass repaired',
     },
     {
       label: 'FINAL survivor: air hitched → breath hitched',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+air\s+(hitched\b)/g,
+      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|[A-Z][a-z]+’s)\s+air\s+(hitched\b)/g,
       replacement: '$1 breath $2',
       fixPrefix: 'Final hard-survivor pass repaired',
     },
     {
       label: 'FINAL survivor: silence hitched/fogged → breath hitched/fogged',
-      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|Orin’s|Elias’s|Jonah’s|Caspian’s|Ronan’s|Kael’s|Lev’s|Silas’s)\s+silence\s+(hitched|fogged)\b/g,
+      pattern: /\b(His|Her|Their|The man’s|The boy’s|The handler’s|The Husbandman’s|[A-Z][a-z]+’s)\s+silence\s+(hitched|fogged)\b/g,
       replacement: '$1 breath $2',
       fixPrefix: 'Final hard-survivor pass repaired',
     },
@@ -336,7 +339,7 @@ export const LEGACY_HARD_SURVIVOR_REPAIRS = Object.freeze([
     },
     {
       label: 'FINAL survivor: reached for cold coffee took sip',
-      pattern: /\b(He|She|They|Elias|Orin|Caspian|Jonah|Silas|Lev|Ronan|Kael)\s+reached for the cold coffee\s+took a sip\b/g,
+      pattern: /\b(He|She|They|[A-Z][a-z]+)\s+reached for the cold coffee\s+took a sip\b/g,
       replacement: '$1 reached for the cold coffee and took a sip',
       fixPrefix: 'Final hard-survivor pass repaired',
     },

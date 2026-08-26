@@ -44,11 +44,13 @@ const REPLACEMENTS = [
 ];
 const EXEMPT_REASONS = new Map([
   ['nameHygieneRules.js', 'rule data — the retirement dictionary itself'],
-  ['legacyProseRepairs.data.js', 'rule data — regexes that run on prose'],
-  ['manuscriptFixer.js', 'rule data — regexes that run on prose'],
   ['anthologyRenamePass.js', 'rule data — Arc J LEGACYREPAIR-1'],
   ['canonNameLock.js', 'rule data — Arc J LEGACYREPAIR-1'],
 ]);
+// LEGACYREPAIR-1: legacyProseRepairs.data.js and manuscriptFixer.js generalized
+// every subject-name regex alternation to he/she/they/<CapitalizedName> — the
+// one place this arc lifts the HYGIENE-1 exemption instead of granting it —
+// so both files come off this list entirely.
 const EXEMPT_FILES = new Set(EXEMPT_REASONS.keys());
 
 const TEST_DIR = new URL('.', import.meta.url);
@@ -104,7 +106,7 @@ function wholeWordCount(text, name) {
       if (wholeWordCount(text, name) > 0) offenders.push(`${file}:${name}`);
     }
   }
-  check('2. none of the 18 retired names occurs as a whole word in any src/lib/*.js outside the five exempt files',
+  check('2. none of the 18 retired names occurs as a whole word in any src/lib/*.js outside the three exempt files',
     offenders.length === 0, offenders.slice(0, 10).join(', '));
 }
 
@@ -116,17 +118,17 @@ function wholeWordCount(text, name) {
     missing.length === 0, `missing: ${missing.join(', ')}`);
 }
 
-// ── 4. the exempt list is exactly the five files named here, each with a reason ──
-check('4. the exempt list is exactly five files: nameHygieneRules.js, legacyProseRepairs.data.js, manuscriptFixer.js, anthologyRenamePass.js, canonNameLock.js',
-  EXEMPT_FILES.size === 5
-  && ['nameHygieneRules.js', 'legacyProseRepairs.data.js', 'manuscriptFixer.js', 'anthologyRenamePass.js', 'canonNameLock.js'].every((f) => EXEMPT_FILES.has(f)));
+// ── 4. the exempt list is exactly the three files named here, each with a reason ──
+check('4. the exempt list is exactly three files: nameHygieneRules.js, anthologyRenamePass.js, canonNameLock.js',
+  EXEMPT_FILES.size === 3
+  && ['nameHygieneRules.js', 'anthologyRenamePass.js', 'canonNameLock.js'].every((f) => EXEMPT_FILES.has(f)));
 check('4b. every exempt file carries a non-empty reason',
   [...EXEMPT_FILES].every((f) => typeof EXEMPT_REASONS.get(f) === 'string' && EXEMPT_REASONS.get(f).length > 0));
 check('4c. the two HYGIENE-1B files are exempted specifically as Arc J LEGACYREPAIR-1 rule data',
   EXEMPT_REASONS.get('anthologyRenamePass.js') === 'rule data — Arc J LEGACYREPAIR-1'
   && EXEMPT_REASONS.get('canonNameLock.js') === 'rule data — Arc J LEGACYREPAIR-1');
 
-// ── 5. the five exempt files still exist and still contain the retired names as DATA (untouched) ──
+// ── 5. the three exempt files still exist and still contain the retired names as DATA (untouched) ──
 {
   const untouched = [...EXEMPT_FILES].every((file) => {
     const p = new URL(file, SRC_LIB_DIR);

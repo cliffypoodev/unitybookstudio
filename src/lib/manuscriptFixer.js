@@ -4898,12 +4898,12 @@ function applyFragmentAndConjunctionRefinements(text) {
     },
     {
       label: 'merge fragment after exact time: noticed it every day at time. When',
-      pattern: /\b(He|She|They|Elias|Silas|Caspian|Jonah|Orin|Kael|Ronan|Lev)\s+noticed it every day at (\d{1,2}:\d{2}\s+[ap]\.m\.)\s+When\b/g,
+      pattern: /\b(He|She|They|[A-Z][a-z]+)\s+noticed it every day at (\d{1,2}:\d{2}\s+[ap]\.m\.)\s+When\b/g,
       replacement: '$1 noticed it every day at $2, when',
     },
     {
       label: 'merge fragment after exact time: noticed it at time. When',
-      pattern: /\b(He|She|They|Elias|Silas|Caspian|Jonah|Orin|Kael|Ronan|Lev)\s+noticed it at (\d{1,2}:\d{2}\s+[ap]\.m\.)\s+When\b/g,
+      pattern: /\b(He|She|They|[A-Z][a-z]+)\s+noticed it at (\d{1,2}:\d{2}\s+[ap]\.m\.)\s+When\b/g,
       replacement: '$1 noticed it at $2, when',
     },
     {
@@ -5770,47 +5770,47 @@ function applyFinalSaveGateSurvivorRepairs(text) {
     },
     {
       label: 'His/Her/Their moment fogged -> breath fogged',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+moment\s+(fogged\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+moment\s+(fogged\b)/g,
       replacement: '$1 breath $2',
     },
     {
       label: 'His/Her/Their pause fogged -> breath fogged',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+pause\s+(fogged\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+pause\s+(fogged\b)/g,
       replacement: '$1 breath $2',
     },
     {
       label: 'His/Her/Their beat fogged -> breath fogged',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+beat\s+(fogged\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+beat\s+(fogged\b)/g,
       replacement: '$1 breath $2',
     },
     {
       label: 'His/Her/Their silence fogged -> breath fogged',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+silence\s+(fogged\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+silence\s+(fogged\b)/g,
       replacement: '$1 breath $2',
     },
     {
       label: 'His/Her/Their pause hitched -> breath hitched',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+pause\s+(hitched\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+pause\s+(hitched\b)/g,
       replacement: '$1 breath $2',
     },
     {
       label: 'His/Her/Their moment hitched -> breath hitched',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+moment\s+(hitched\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+moment\s+(hitched\b)/g,
       replacement: '$1 breath $2',
     },
     {
       label: 'His/Her/Their air hitched -> breath hitched',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+air\s+(hitched\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+air\s+(hitched\b)/g,
       replacement: '$1 breath $2',
     },
     {
       label: 'His/Her/Their beat hitched -> breath hitched',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+beat\s+(hitched\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+beat\s+(hitched\b)/g,
       replacement: '$1 breath $2',
     },
     {
       label: 'His/Her/Their silence hitched -> breath hitched',
-      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+silence\s+(hitched\b)/g,
+      pattern: /\b(His|Her|Their|The man\u2019s|The boy\u2019s|The handler\u2019s|The Husbandman\u2019s|[A-Z][a-z]+\u2019s)\s+silence\s+(hitched\b)/g,
       replacement: '$1 breath $2',
     },
     {
@@ -5855,7 +5855,7 @@ function applyFinalSaveGateSurvivorRepairs(text) {
     },
     {
       label: 'His/Her/Their beat/pause/moment/silence was warm -> breath was warm',
-      pattern: /\b(His|Her|Their|Orin\u2019s|Elias\u2019s|Jonah\u2019s|Caspian\u2019s|Ronan\u2019s|Kael\u2019s|Lev\u2019s|Silas\u2019s)\s+(beat|pause|moment|silence|air)\s+(was warm\b)/g,
+      pattern: /\b(His|Her|Their|[A-Z][a-z]+\u2019s)\s+(beat|pause|moment|silence|air)\s+(was warm\b)/g,
       replacement: '$1 breath $3',
     },
     {
@@ -5875,7 +5875,7 @@ function applyFinalSaveGateSurvivorRepairs(text) {
     },
     {
       label: 'reached for cold coffee took sip -> reached for cold coffee and took sip',
-      pattern: /\b(He|She|They|Elias|Orin|Caspian|Jonah|Silas|Lev|Ronan|Kael)\s+reached for the cold coffee\s+took a sip\b/g,
+      pattern: /\b(He|She|They|[A-Z][a-z]+)\s+reached for the cold coffee\s+took a sip\b/g,
       replacement: '$1 reached for the cold coffee and took a sip',
     },
     {
