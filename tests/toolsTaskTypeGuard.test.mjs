@@ -10,9 +10,19 @@ import path from 'node:path';
  * CONFIGURATION
  * ═════════════════════════════════════════════════════════════════════════ */
 
+// TASKTYPE-1: this Set drifted from the real routing table in
+// src/lib/localLLM.js's resolveAgent() — CHATFIX-1 added 'chat' (routes to
+// ideas_chat) and the scene-execution-acceptance runners added 'evaluate'/
+// 'fix' (route to critic/polisher respectively), all correctly, but this
+// copy was never updated. test/tasktype1.acceptance.mjs derives its own
+// valid set FROM resolveAgent() itself, so this list can't silently drift
+// again without that battery catching it.
 const VALID_TASK_TYPES = new Set([
   'analytics',
+  'chat',
   'critique',
+  'evaluate',
+  'fix',
   'foundation',
   'outline',
   'polish',

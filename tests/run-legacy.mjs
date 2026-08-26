@@ -182,7 +182,11 @@ export const CLASSIFICATION = {
   'serverStore.test.mjs': { class: 'regression', reason: "the fixture's synthetic user id fails authCore.js's userDataDir validation ('Invalid user id'), returning 500 instead of 201 on the very first create-record check — either the fixture's id format is stale or the validation was tightened since this test was written; not confirmed which" },
   'slopRegressionRevert.test.mjs': { class: 'regression', reason: 'a single structural check expects the NF recast path to have its own explicit slop-regression-reporting log line (distinct from the fiction path\'s) and it does not. 18/19 other checks, including the live-execution revert behavior itself, pass' },
   'staleUrlResolutionRegression.mjs': { class: 'regression', reason: 'the export gate no longer blocks stale-URL content that failed the safety gate at full 20-chapter scope (checks 8, 16), and the same shared "simulate a 20-chapter export" helper throws "Cannot read properties of undefined (reading length)" seen identically in chapter2SafeReplaceResolutionRegression.mjs and chapter6PolishRegression.mjs (check 15) — three independent files hitting one shared helper/signature change. 17/20 other checks pass' },
-  'toolsTaskTypeGuard.test.mjs': { class: 'regression', reason: "the static task_type scanner found 4 real, currently-live invalid values in production code: components/FloatingBrainstorm.jsx:285 and components/notebook/IdeasChatbot.jsx:253 both use task_type:'chat', and lib/sceneExecutionAcceptanceRunners.js:132/216 use 'evaluate'/'fix' — none are in VALID_TASK_TYPES. 8/9 other checks pass" },
+  // TASKTYPE-1: the 4 flagged call sites were always correct — resolveAgent()
+  // in localLLM.js already routes 'chat'/'evaluate'/'fix' to real, configured
+  // agents (ideas_chat/critic/polisher). Only this test's own hand-copied
+  // VALID_TASK_TYPES had drifted; fixed, now 9/9 green.
+  'toolsTaskTypeGuard.test.mjs': { class: 'run' },
   'unityContaminationSourceRegression.test.mjs': { class: 'regression', reason: "buildProjectContextHeader's contamination canary is expected to mention 'Unity Supported Living' and 'care documentation' by name and does not — the canary exists and works for other terms, this is a wording gap. 24/26 other checks pass" },
 };
 
