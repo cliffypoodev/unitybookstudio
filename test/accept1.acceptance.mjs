@@ -24,6 +24,7 @@ import { register } from 'node:module';
 register('../tests/helpers/aliasLoader.mjs', import.meta.url);
 const { buildAcceptanceReport, fetchProjectMaterial, UBS_ACCEPT_VERSION } = await import('../scripts/ubs-accept.mjs');
 const { createStoreClient } = await import('../scripts/ubs-run.mjs');
+const { harvestCastNames: harvestCastNamesForTest } = await import('../src/lib/pronounLock.js');
 
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
@@ -311,6 +312,129 @@ check('9. UBS_ACCEPT_VERSION is exported', typeof UBS_ACCEPT_VERSION === 'string
   const c = findCriterion(report, 'event-class-replay');
   check('13b. a book with no scene_beats_json anywhere PASSes event-class-replay (no ledger to violate)', c.status === 'PASS', JSON.stringify(c));
 }
+
+// ── 14. ACCEPT-1B (finding 68): the malformedsent criterion must report the
+// GATE's own [MALFORMEDSENT] number, not an independent re-scan. The gate
+// only scans chapters over 200 chars (exportSafetyGate.js's msBodies
+// filter), so a short chapter holding a malformed sentence is exactly the
+// fixture where an unfiltered re-scan (the removed old ubs-accept.mjs
+// formula) would disagree with the gate's own count. ──
+{
+  const shortMalformed = 'Were a ragtag collection of misfits who refused to quit.'; // 56 chars — under the gate's 200-char floor
+  const longClean = 'Ottie tightened the last bolt on the manifold and wiped grease from her hands, the engine humming back to life as Ludo watched from the doorway with his arms crossed, saying absolutely nothing for a long moment while the crew went about their business around them both in the quiet morning light.';
+  const project = { book_type: 'fiction', characters_md: CHAR_BIBLE, title: 'Malformed Gate Number Test' };
+  const chapters = [
+    makeChapter(1, 'Chapter 1', shortMalformed),
+    makeChapter(2, 'Chapter 2', longClean),
+  ];
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project, chapters }));
+  const c = findCriterion(report, 'malformedsent');
+  check('14. malformedsent PASSes on a fixture where the gate\'s own 200-char floor excludes the only malformed sentence', c.status === 'PASS', JSON.stringify(c));
+
+  // Sanity check on the fixture itself: an unfiltered re-scan (the removed
+  // old formula) WOULD have found it — proving this fixture actually
+  // exercises the divergence finding 68 described, not a vacuous case.
+  const { scanMalformedSentences } = await import('../src/lib/malformedSentence.js');
+  const naiveCast = harvestCastNamesForTest(project.characters_md, chapters.map((ch) => ch.content_md));
+  const naiveTotal = chapters.reduce((sum, ch) => sum + scanMalformedSentences(ch.content_md, naiveCast).length, 0);
+  check('14b. sanity: an unfiltered re-scan of this fixture WOULD disagree with the gate (proves the fixture is not vacuous)', naiveTotal > 0, `naive total ${naiveTotal}`);
+}
+
+// ── 15. ACCEPT-1B (finding 67/68): scene-dupes measures the LIVE library
+// (moved into src/lib/sceneDuplicateSweep.js by SCENEDUP-3), not the dead
+// stamp it used to import. This fixture repeats an action scene almost
+// verbatim inside a chapter long enough (diverse, mutually-unrelated filler
+// paragraphs) that the match lands as a medium-confidence "reported"
+// duplicate rather than being capped by the sweep's own 10%-of-chapter
+// removal-safety limit — proving the criterion sees genuine duplicates the
+// live algorithm finds, not just near-exact removable ones. ──
+const SCENE_DUPE_FIXTURE_PARAGRAPHS = [
+  "Mara stood at the edge of the rooftop that morning, watching the city wake up slowly below her in the grey light, thinking about everything that had happened since they arrived.",
+  "Mara sprinted down the narrow alley, breath ragged, boots slapping against wet stone as the guards' shouts echoed behind her in the dark rain-soaked night air. She could hear their pursuit gaining fast, boots pounding the same street she had just crossed only moments before, and she knew the window of escape was closing quickly now.",
+  "Dov waited by the fire escape at the back of the crumbling building, waving her toward the rusted stairs bolted loosely to the brick wall above the alley. Two guards rounded the corner behind them, batons drawn, shouting for them to stop running immediately or face the harsh consequences of resisting arrest tonight in the district.",
+  "Ilse had already climbed halfway up when Mara finally reached the stairs, her hands slick with cold sweat against the rusted metal railing beneath her trembling fingers. The alley behind them filled with the sound of running boots, and somewhere above a window slammed shut hard against the noise of the chase outside the walls.",
+  "They reached the flat rooftop just as the first guard emerged into the alley below them, and Dov pulled the heavy fire door shut behind them tight. He wedged a broken length of pipe through the door handle to slow the guards down, and every single one of them knew it would not hold for long.",
+  "The barometer had been falling steadily since Tuesday, and by Thursday evening the clouds over the valley had turned the color of old pewter, heavy and low enough that the ridge line disappeared entirely behind a curtain of mist that would not lift until well past the following weekend.",
+  "The long division problem on the chalkboard had stumped nearly half the class, until the teacher walked through each remainder step by step, showing how the seven carried forward changed everything about the final quotient in ways nobody had anticipated from the first two lines of working.",
+  "The chess match had gone eleven moves past where either player expected an opening advantage to matter, both clocks ticking down toward the increment as the knight maneuvered quietly toward a square nobody at the table had bothered to defend against three moves earlier.",
+  "The tomato vines had finally outgrown their stakes, sprawling sideways across the raised bed until the whole corner of the garden looked more like a green tangle than any deliberate planting scheme the gardener had originally sketched out back in early spring.",
+  "The mechanic found the leak almost by accident, tracing a thin trail of coolant back along the hose clamp to a hairline crack that had probably been widening for months before anyone noticed the temperature gauge creeping upward on longer drives.",
+  "The evening train was running nine minutes late out of the junction, according to the board, though the platform announcer blamed a signal fault two stations back rather than anything to do with the usual weekday congestion at that particular crossing.",
+  "The scarf pattern called for a cable twist every sixth row, and by the time the knitter reached the halfway point she had developed a rhythm that let her follow the chart almost without looking, needles clicking steadily through the quiet evening.",
+  "The chemistry demonstration involved slowly heating a beaker of pale blue solution until it turned a deep amber, a color change the students dutifully recorded in their lab notebooks without fully grasping the reaction taking place beneath the surface.",
+  "The football match had been scoreless through the first half, both defenses holding firm against increasingly desperate attacks, until a corner kick in the sixty-third minute finally found a head that nobody in the box had accounted for.",
+  "The museum's new wing devoted an entire gallery to pottery shards recovered from a single excavation site, arranged chronologically so visitors could trace how the glazing technique had shifted gradually across nearly four centuries of continuous use.",
+  "The courtroom fell quiet as the clerk read the exhibit list aloud, each item numbered and cross-referenced against a binder thick enough that the junior associate had spent the entire previous night just indexing its pages correctly.",
+  "The spelling bee came down to a word neither finalist had encountered before, and the younger of the two asked for it to be used in a sentence twice before finally attempting a spelling that turned out to be correct.",
+  "The marathon route wound through four different neighborhoods before looping back along the river, and organizers had stationed water tables every two miles after last year's unusually warm race left several runners struggling near the eighteenth mile marker.",
+  "The farmers market set up early that Saturday, stalls of late-season squash and jars of honey arranged before the first customers arrived, while a small crowd already gathered around the stand selling fresh bread straight from a portable oven.",
+  "The jazz trio played past closing time, the bassist and drummer trading a loose, unhurried rhythm while the pianist wandered through a melody nobody in the room quite recognized but everybody seemed content to simply follow anyway.",
+  "The science fair judges lingered longest at a project measuring how different soil compositions affected seedling growth, impressed less by the results than by the sheer number of carefully labeled control groups the student had maintained.",
+  "The library renovation uncovered a bricked-over window nobody had documented in any of the building's surviving plans, prompting a brief pause in construction while the historical society was consulted about whether it should be reopened.",
+  "The bicycle race split into two distinct packs by the second climb, the smaller group setting a pace the rest simply could not match on a gradient that steepened unexpectedly just past the halfway feed station.",
+  "The puppet show ran twenty minutes longer than scheduled after one string tangled badly backstage, though most of the younger children in the audience seemed not to notice the delay at all, absorbed entirely in the story.",
+  "The astronomy club set up three telescopes on the hill behind the school, waiting for a break in the thin cloud cover that finally came just after ten, giving everyone a clear enough view of the rings to gasp audibly.",
+  "The glacier had retreated nearly forty meters since the last survey, a fact the research team confirmed by matching their GPS readings against stakes driven into the ice a full decade earlier by a different expedition entirely.",
+  "The volcano had been dormant long enough that a thin layer of soil had formed on its lower slopes, supporting scrub grass and a handful of stubborn shrubs that somehow survived each mild tremor without much visible damage.",
+  "The coral reef survey took four dives to complete, each pass mapping a different quadrant of bleached and healthy coral so the marine biologists could compare this year's damage against three previous seasons of recorded data.",
+  "The radio tower technician spent most of the afternoon replacing a corroded connector near the base, grumbling about the salt air the whole time even though he had done this exact repair a dozen times before.",
+  "The lighthouse keeper logged the weather every four hours without fail, a habit so ingrained after eleven years that she sometimes caught herself reciting cloud cover and wind direction aloud to an empty room.",
+  "The greenhouse thermostat had been misbehaving for a week, swinging the interior temperature by nearly fifteen degrees overnight until someone finally traced the fault back to a loose wire behind the control panel.",
+  "The vineyard workers began the harvest earlier than usual that year, racing an incoming storm that threatened to split the ripening grapes if it arrived even a single day before the crew finished the eastern rows.",
+  "The dairy farm's new milking parlor cut the morning routine by nearly an hour, though the herd took almost two full weeks to adjust to the unfamiliar layout without balking at the gate each time.",
+  "The wind turbine technicians rappelled down from the nacelle just before the storm front arrived, having finished the blade inspection with barely enough daylight left to pack their gear before the first heavy gusts hit.",
+  "The subway tunnel excavation hit an unexpected pocket of groundwater, forcing the crew to bring in extra pumps overnight so the boring machine could resume its slow crawl toward the next station by morning.",
+  "The opera rehearsal ran long after the conductor stopped the orchestra three times in the second act, each time isolating a different section until the brass finally landed the transition cleanly on the fourth attempt.",
+  "The ballet class spent the entire hour on a single combination, the instructor calling out corrections about arm placement until even the most advanced students in the front row started second-guessing their own timing.",
+  "The pottery kiln took nearly eighteen hours to cool completely, and the apprentice who opened it too early last month still had not lived down the resulting crack that ran clean through a client's commissioned vase.",
+  "The watch repair shop smelled faintly of machine oil, and the old clockmaker worked under a single bright lamp, tweezers steady despite his age as he set a hairspring back into place with practiced patience.",
+  "The bookbinder trimmed the signature edges by hand, a slow and exacting process she preferred over the shop's mechanical cutter, insisting that the slight variation gave each finished volume its own particular character.",
+  "The soap maker measured the lye solution twice before adding it to the oils, a habit born from one memorable batch years earlier that had turned out far too caustic to sell at the weekend market.",
+  "The cheese aging room stayed at a constant twelve degrees year-round, rows of wheels turned by hand every few days so the rind developed evenly instead of drying unevenly on whichever side faced the door.",
+  "The herb garden behind the kitchen supplied most of the restaurant's rosemary and thyme, though the head cook still complained every winter about having to buy basil from the market once the frost set in.",
+  "The kite festival drew a bigger crowd than organizers expected, the field crowded with color by midafternoon as competing teams tried to out-maneuver each other in a series of increasingly elaborate aerial routines.",
+  "The ice skating rink resurfaced the ice twice daily during the tournament, the Zamboni driver timing each pass carefully so the surface stayed smooth through back-to-back matches without ever fully refreezing between sessions.",
+  "The tailoring shop kept a drawer of mismatched buttons sorted loosely by size, and customers occasionally spent longer picking a replacement button than the tailor spent actually sewing it back onto the garment.",
+  "The falconry demonstration ran twice a day during the county fair, the trainer explaining each bird's history to a crowd that grew noticeably quieter whenever the hawk banked low over their heads before returning to the glove.",
+  "The cartography students spent the whole semester digitizing a set of nineteenth-century survey maps, correcting for projection distortion that had crept in wherever the original surveyors misjudged the curvature of a particularly hilly county.",
+  "The calligraphy workshop began with basic strokes before anyone touched real ink, the instructor insisting that steady pressure mattered far more than speed for students who kept rushing ahead of her demonstration.",
+  "The beekeeper checked the hives every ten days through the summer, noting brood pattern and honey stores in a battered notebook that had outlasted three different smokers over the years.",
+  "The surfing lesson started in water barely past the knees, the instructor walking each student through popping up on a stationary board before anyone was allowed near an actual incoming wave that morning.",
+  "The origami club met every Wednesday in the back corner of the library, folding increasingly complex cranes and boxes from squares of paper donated by a local print shop that no longer needed the offcuts.",
+  "The quilting circle had been meeting in the same church basement for eleven years, trading fabric scraps and half-finished blocks while the coffee pot in the corner ran continuously from nine until noon.",
+  "The brewery's new batch needed another two weeks in the tank before anyone would know whether the adjusted hop schedule had actually fixed the bitterness problem customers kept mentioning about the previous release.",
+  "The taxidermist worked slowly on the fox, more concerned with getting the ears right than finishing quickly, since a poorly shaped ear was the first thing any experienced hunter would notice on the wall mount.",
+  "The dance hall floor had been resurfaced twice in a decade, the caretaker still complaining that the new finish scuffed differently under the band's heavier instrument cases than the old varnish ever had.",
+  "Mara sprinted down the narrow alley, breath ragged, boots slapping against wet stone as the guards' shouts echoed behind her in the dark rain-soaked night air. She could hear their pursuit gaining fast, boots pounding the same street she had just crossed only moments before, and she knew the window of escape was closing quickly now.",
+  "Dov waited by the fire escape at the back of the crumbling building, waving her toward the rusted stairs bolted loosely to the brick wall above the alley. Two guards rounded the corner behind them, batons drawn, shouting for them to stop running immediately or face the harsh consequences of resisting arrest tonight in the district.",
+  "Ilse had already climbed halfway up when Mara finally reached the stairs, her hands slick with cold sweat against the rusted metal railing beneath her trembling fingers. The alley behind them filled with the sound of running boots, and somewhere above a window slammed shut hard against the noise of the chase outside the walls.",
+  "They reached the flat rooftop just as the first guard emerged into the alley below them, and Dov pulled the heavy fire door shut behind them tight. He wedged a broken length of pipe through the door handle to slow the guards down, and every single one of them knew it would not hold for long."
+];
+{
+  const project = { book_type: 'fiction', characters_md: '## Mara\nA dockworker.\n\n## Dov\nHer brother.\n\n## Ilse\nThe harbor-master.', title: 'Scene Dupe Test' };
+  const content = SCENE_DUPE_FIXTURE_PARAGRAPHS.join('\n\n');
+  const chapters = [makeChapter(1, 'Rooftop', content)];
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project, chapters }));
+  const c = findCriterion(report, 'scene-dupes');
+  check('15. scene-dupes FAILs on a same-chapter near-duplicate scene, using the live library', c.status === 'FAIL', JSON.stringify(c));
+  check('15b. the FAIL detail no longer carries the old dead-code disclaimer', !/dead-code|WAVE5|opposite verdicts/i.test(c.detail), c.detail);
+}
+
+// ── 16. ACCEPT-1B: template-budget lists EVERY over-budget family, not only
+// the first — two distinct families (each bookBudget 3) pushed to 5
+// occurrences apiece must both appear in the FAIL detail. ──
+{
+  const overBudgetBody = 'The air smelled of ozone. ozone again. Another ozone moment entirely. Then more ozone drifting past. And ozone once more before it faded. '
+    + 'She tasted burnt sugar. burnt sugar lingered on her tongue. Still burnt sugar somehow. Always burnt sugar in that kitchen. One more burnt sugar note at the end. '
+    + 'It was the first stop of a long journey neither of them had planned to take together this way, and nobody spoke of it again for a good while after that.';
+  const project = { book_type: 'fiction', characters_md: CHAR_BIBLE, title: 'Budget Test' };
+  const chapters = [makeChapter(1, 'Chapter 1', overBudgetBody)];
+  const report = await withCapturedConsole(() => buildAcceptanceReport({ project, chapters }));
+  const c = findCriterion(report, 'template-budget');
+  check('16. template-budget FAILs when two families are both over budget', c.status === 'FAIL', JSON.stringify(c));
+  check('16b. both over-budget families are named in the detail, not only the first', c.detail.includes('ozone') && c.detail.includes('burnt sugar'), c.detail);
+}
+
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
