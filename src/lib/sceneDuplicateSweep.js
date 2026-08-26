@@ -1,10 +1,13 @@
 /* ============================================================================
- * ⚠️  DEAD CODE — DO NOT EDIT EXPECTING UI CHANGES  (WAVE5-DEADSTAMP, Aug 2026)
+ * Scene Duplicate / Alternate Draft Sweep — LIVE implementation as of SCENEDUP-3.
  *
- * Nothing imports this file. Editing it has NO effect on the running app —
- * past AI sessions repeatedly wasted hours "fixing" components like this one.
- * Live implementation: the live implementation is the inline fork in pages/ProjectStudio.jsx (see its header comment).
- * Kept (not deleted) at the owner's request; recoverable context only.
+ * This is the live module: scripts/ubs-run.mjs's polish command and
+ * src/pages/ProjectStudio.jsx both import runSceneDuplicateSweep from here.
+ * Previously this file was a WAVE5 dead stamp while the real implementation
+ * lived as an inline fork inside ProjectStudio.jsx; SCENEDUP-3 moved that
+ * fork here verbatim (import/export lines only — no logic change) so
+ * headless polish (ubs-run.mjs) gets the same sweep the in-app polish path
+ * always had.
  * ========================================================================== */
 /**
  * Scene Duplicate / Alternate Draft Sweep v2 — Universal Structure Guard
@@ -34,18 +37,20 @@
  * Exported API:
  *   runSceneDuplicateSweep(loaded, onProgress, options)
  */
+import { countParagraphs, countRangeRemovals, sumQuarantineRemovals } from './structureUtils.js';
 
-const SCENE_DUPLICATE_SWEEP_VERSION = 'SCENE-DUPLICATE-SWEEP v4.0 POLISH-OWNED structural collision quarantine - 2026-05-06';
+const SCENE_DUPLICATE_SWEEP_VERSION = 'SCENE-DUPLICATE-SWEEP v5.2 FINAL SAVE-GATE + DB SOURCE VERIFY IN PROJECTSTUDIO structural collision quarantine - 2026-05-06';
 
-console.log('[SCENE-DUPLICATE-SWEEP] loaded:', SCENE_DUPLICATE_SWEEP_VERSION);
+console.log('[SCENE-DUPLICATE-SWEEP-INLINE] loaded:', SCENE_DUPLICATE_SWEEP_VERSION);
 
 const DEFAULT_OPTIONS = {
   minDuplicateBlockWords: 220,
   minDuplicateBlockParagraphs: 3,
   minParagraphWords: 10,
+  nearExactThreshold: 0.95,
   highConfidenceThreshold: 0.42,
   mediumConfidenceThreshold: 0.36,
-  maxRemovalRatioPerChapter: 0.55,
+  maxRemovalRatioPerChapter: 0.10,
   maxBlocksRemovedPerChapter: 12,
   allowCrossChapterRemoval: false,
   reportCrossChapterOnly: true,
@@ -557,6 +562,7 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
       const markerSignal = Math.max(jaccard(primary.markers || new Set(), duplicate.markers || new Set()), containmentScore((primary.markers?.size || 0) <= (duplicate.markers?.size || 0) ? primary.markers : duplicate.markers, (primary.markers?.size || 0) > (duplicate.markers?.size || 0) ? primary.markers : duplicate.markers));
       const structuralSignal = sharedTags.length >= 1 || nameSignal >= 0.42 || anchorSignal >= 0.56 || markerSignal >= 0.30;
 
+      const nearExact = score >= options.nearExactThreshold && structuralSignal;
       const highConfidence = score >= options.highConfidenceThreshold && structuralSignal;
       const mediumConfidence = score >= options.mediumConfidenceThreshold && structuralSignal;
 
@@ -573,6 +579,21 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
       }
 
       if (!highConfidence) continue;
+
+      // ── Content-loss guard: only near-exact duplicates (>= 0.95) may be auto-removed,
+      // and only up to 10% of the chapter's words. Everything else is flagged for review. ──
+      if (!nearExact) {
+        warnings.push({
+          score,
+          primary,
+          duplicate,
+          sharedTags,
+          action: 'flagged_for_review',
+          reason: `high-confidence but below near-exact threshold (${score.toFixed(2)} < ${options.nearExactThreshold}); flagged for manual review`,
+        });
+        continue;
+      }
+
       if (removedBlocks >= options.maxBlocksRemovedPerChapter) continue;
       if (removedWords + duplicate.words > maxWordsToRemove) {
         warnings.push({
@@ -581,14 +602,14 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
           duplicate,
           sharedTags,
           action: 'skipped_safety_cap',
-          reason: 'would remove too much of chapter',
+          reason: 'would remove too much of chapter (10% cap)',
         });
         continue;
       }
 
       // Extra safety: do not remove if the duplicate block contains a unique major event tag not found in the primary block.
       const duplicateUniqueTags = duplicate.tags.filter((tag) => !primary.tagSet.has(tag));
-      if (duplicateUniqueTags.length >= 3 && score < 0.72) {
+      if (duplicateUniqueTags.length >= 3 && score < 0.98) {
         warnings.push({
           score,
           primary,
@@ -605,7 +626,7 @@ function pickDuplicateBlocksForChapter(item, chapterIndex, options) {
         end: duplicate.end,
         words: duplicate.words,
         score,
-        reason: `high-confidence alternate draft duplicate of paragraphs ${primary.start + 1}-${primary.end}; signals tags=${sharedTags.join('|') || 'none'}, names=${nameSignal.toFixed(2)}, anchor=${anchorSignal.toFixed(2)}, marker=${markerSignal.toFixed(2)}`, 
+        reason: `near-exact alternate draft duplicate of paragraphs ${primary.start + 1}-${primary.end} (score ${score.toFixed(2)}); signals tags=${sharedTags.join('|') || 'none'}, names=${nameSignal.toFixed(2)}, anchor=${anchorSignal.toFixed(2)}, marker=${markerSignal.toFixed(2)}`,
         sharedTags,
         preview: blockPreview(duplicate),
       });
@@ -647,87 +668,140 @@ function removeRangeByRegex(source, startRe, endRe, reason, changes, options = {
   const maxRatio = options.maxRatio || 0.45;
   if (removedWords > beforeWords * maxRatio) return text;
 
-  changes.push({ reason, words: removedWords, preview: removed.replace(/\s+/g, ' ').trim().slice(0, 180) });
+  changes.push({ reason, words: removedWords, preview: removed.replace(/\s+/g, ' ').trim().slice(0, 180), paragraphsRemoved: countParagraphs(removed) });
   return `${text.slice(0, start).trim()}\n\n${text.slice(end).trim()}`.replace(/\n{4,}/g, '\n\n\n').trim();
 }
 
-function applyStrandedAlternateDraftQuarantine(text = '') {
+export function applyStrandedAlternateDraftQuarantine(text = '') {
   let out = String(text || '');
   const changes = [];
 
-  // These guards are intentionally anchored by scene-function, not project title.
-  // They target the failure mode where a later alternate take starts mid-chapter
-  // after the primary take has already completed. Each rule only fires when the
-  // primary version is also present, and each has a word/ratio safety cap.
+  // HARD INLINE STRUCTURE QUARANTINE v5.0
+  // This pass catches the exact app failure mode discovered in Bronies:
+  // a chapter contains one complete scene path, then a second alternate take begins
+  // inside the same chapter as if the writer pasted a retry under the original.
+  //
+  // Rules stay deterministic and anchored by scene function. They do not rewrite prose.
+  // They only remove later alternate-draft blocks when an earlier complete version is
+  // already present in the same chapter.
 
-  if (/The hallway outside was empty, lit by a single, flickering bulb/i.test(out)) {
-    out = removeRangeByRegex(
-      out,
+  const hardRemove = (startRe, endRe, reason, options = {}) => {
+    const before = out;
+    out = removeRangeByRegex(out, startRe, endRe, reason, changes, {
+      minStartIndex: options.minStartIndex ?? 900,
+      minWords: options.minWords ?? 120,
+      maxWords: options.maxWords ?? 9000,
+      maxRatio: options.maxRatio ?? 0.62,
+    });
+    return out !== before;
+  };
+
+  // Chapter 1 / portal materialization collision:
+  // Primary version ends with the hallway outside being normal. Alternate retry starts
+  // with "One moment, Zonk was a unicorn..." and replays the crash/Pip arrival.
+  if (/The hallway outside was empty, lit by a single, flickering bulb/i.test(out) && /One moment, Zonk was a unicorn/i.test(out)) {
+    hardRemove(
+      /\n?\s*One moment, Zonk was a unicorn[\s\S]*?/i,
+      /\n\s*The rain started as a lousy spit/i,
+      'hard-quarantined stranded alternate portal/crash/Pip-arrival retry after primary Chapter 1 arrival already resolved',
+      { minStartIndex: 1800, minWords: 350, maxWords: 5200, maxRatio: 0.45 }
+    );
+  }
+
+  // Same collision, alternate anchor if the retry starts later at the buying/loot argument.
+  if (/The hallway outside was empty, lit by a single, flickering bulb/i.test(out) && /I didn[’']t buy anything/i.test(out) && /The rain started as a lousy spit/i.test(out)) {
+    hardRemove(
       /\n?\s*[“"]?I didn[’']t buy anything![\s\S]*?/i,
       /\n\s*The rain started as a lousy spit/i,
-      'quarantined stranded alternate VR-crash/materialization restart before road-trip continuation',
-      changes,
-      { minStartIndex: 1200, minWords: 180, maxWords: 2400, maxRatio: 0.30 }
+      'hard-quarantined leftover VR-crash/materialization retry body after primary Chapter 1 arrival already resolved',
+      { minStartIndex: 1800, minWords: 180, maxWords: 4200, maxRatio: 0.38 }
     );
   }
 
-  if (/Inside, the familiar chaos of their living room felt like a museum exhibit/i.test(out) || /He unlocked apartment 3B and pushed the door open/i.test(out)) {
-    out = removeRangeByRegex(
-      out,
-      /\n?\s*The alley behind Starlight Arcade smelled[\s\S]*?/i,
-      /\n\s*The apartment was too quiet\./i,
-      'quarantined alternate travel/home-arrival sequence after apartment arrival already occurred',
-      changes,
-      { minStartIndex: 1200, minWords: 500, maxWords: 4500, maxRatio: 0.45 }
-    );
-    out = removeRangeByRegex(
-      out,
-      /\n?\s*The walk back to the apartment was a blur[\s\S]*?/i,
-      /\n\s*The apartment was too quiet\./i,
-      'quarantined second alternate walk-back/apartment explanation sequence',
-      changes,
-      { minStartIndex: 1200, minWords: 500, maxWords: 4500, maxRatio: 0.45 }
+  // Chapter 2 / apartment artifact briefing collision:
+  // Primary version already gets them to the apartment, examines Elements, and commits to staying.
+  // A later retry starts again with Zonk on the sofa packing a bowl and repeating the same artifact briefing.
+  if (/no option but to stay\./i.test(out) && /The springs of the sofa sighed under him/i.test(out)) {
+    hardRemove(
+      /\n?\s*The springs of the sofa sighed under him[\s\S]*$/i,
+      null,
+      'hard-quarantined second apartment/artifact-briefing retry after Chapter 2 already resolved',
+      { minStartIndex: 1800, minWords: 350, maxWords: 6500, maxRatio: 0.55 }
     );
   }
 
-  if (/The cuff snicked shut\./i.test(out) && /Sign of the Trapped Pony/i.test(out)) {
-    out = removeRangeByRegex(
-      out,
+  // Chapter 3 / cuff-lock collision:
+  // Primary version resolves with the Sign of the Trapped Pony. Later retry restarts the cuff-closing event.
+  if (/Sign of the Trapped Pony/i.test(out) && /The sound of the cuff closing was nothing like a handcuff/i.test(out)) {
+    hardRemove(
+      /\n?\s*The sound of the cuff closing was nothing like a handcuff[\s\S]*?/i,
+      /\n\s*The night air was a shock\./i,
+      'hard-quarantined second cuff-lock/hoof-bump alternate take after primary cuff release already resolved',
+      { minStartIndex: 1800, minWords: 450, maxWords: 6200, maxRatio: 0.50 }
+    );
+  }
+
+  // If the cuff retry is at the end of the chapter in a different generation path, remove to chapter end.
+  if (/Sign of the Trapped Pony/i.test(out) && /The sound of the cuff closing was nothing like a handcuff/i.test(out)) {
+    hardRemove(
       /\n?\s*The sound of the cuff closing was nothing like a handcuff[\s\S]*$/i,
       null,
-      'quarantined second cuff-lock/release alternate take after primary cuff scene resolved',
-      changes,
-      { minStartIndex: 1600, minWords: 350, maxWords: 5200, maxRatio: 0.48 }
+      'hard-quarantined terminal second cuff-lock alternate take after primary cuff release already resolved',
+      { minStartIndex: 1800, minWords: 350, maxWords: 5200, maxRatio: 0.42 }
     );
   }
 
-  if (/Well,[”"] Zonk said,[\s\S]{0,180}That escalated\./i.test(out)) {
-    out = removeRangeByRegex(
-      out,
+  // Chapter 4 / apartment breach collision:
+  // Primary version already breaches, fights, escapes, and closes with "That escalated."
+  // Later retries begin with impact/shoulder-hit openings and replay the same breach/escape.
+  if (/That escalated\./i.test(out) && /The impact was a wet, heavy sound/i.test(out)) {
+    hardRemove(
       /\n?\s*The impact was a wet, heavy sound[\s\S]*?/i,
       /\n\s*A slow grin spread across Blaze[’']s face/i,
-      'quarantined second guard-breach/fight alternate after first escape completed',
-      changes,
-      { minStartIndex: 1600, minWords: 500, maxWords: 5200, maxRatio: 0.50 }
-    );
-    out = removeRangeByRegex(
-      out,
-      /\n?\s*The orange guard lunged for her[\s\S]*$/i,
-      null,
-      'quarantined orphaned third chase/laundromat alternate after storage-locker decision',
-      changes,
-      { minStartIndex: 1600, minWords: 500, maxWords: 5200, maxRatio: 0.50 }
+      'hard-quarantined second apartment-breach/fight retry after primary escape already resolved',
+      { minStartIndex: 1800, minWords: 650, maxWords: 7200, maxRatio: 0.55 }
     );
   }
 
+  if (/That escalated\./i.test(out) && /The impact was a sick, wet crunch/i.test(out)) {
+    hardRemove(
+      /\n?\s*The impact was a sick, wet crunch[\s\S]*$/i,
+      null,
+      'hard-quarantined third chase/laundromat retry after primary apartment escape already resolved',
+      { minStartIndex: 1800, minWords: 600, maxWords: 7800, maxRatio: 0.55 }
+    );
+  }
+
+  // Alternate branch used by some exports: first completed fight ends with storage-locker decision,
+  // then another orange-guard/laundromat retry starts. Remove the retry.
+  if (/The storage locker/i.test(out) && /The orange guard lunged for her/i.test(out)) {
+    hardRemove(
+      /\n?\s*The orange guard lunged for her[\s\S]*$/i,
+      null,
+      'hard-quarantined orphaned orange-guard/laundromat retry after storage-locker decision already exists',
+      { minStartIndex: 1800, minWords: 500, maxWords: 6800, maxRatio: 0.50 }
+    );
+  }
+
+  // Chapter 5 / information broker collision:
+  // Teller of Tales gives the route/map. Master Tally is an alternate broker solution serving the same plot function.
   if (/Teller of Tales/i.test(out) && /Master Tally/i.test(out)) {
-    out = removeRangeByRegex(
-      out,
+    hardRemove(
       /\n?\s*The silence that followed Pip[’']s pronouncement[\s\S]*?/i,
       /\n\s*The closet door clicked shut behind them/i,
-      'quarantined second information-broker/route-price alternate after Teller scene already supplied map',
-      changes,
-      { minStartIndex: 1600, minWords: 600, maxWords: 5200, maxRatio: 0.50 }
+      'hard-quarantined second information-broker/Master-Tally route-price retry after Teller scene already supplied map',
+      { minStartIndex: 1600, minWords: 600, maxWords: 6200, maxRatio: 0.52 }
+    );
+  }
+
+  // If a chapter contains both Teller and Master Tally but the closet anchor is absent,
+  // remove from Master Tally setup to end only when the Teller map already exists.
+  if (/Teller of Tales/i.test(out) && /The Starlight aperture/i.test(out) && /Master Tally/i.test(out)) {
+    hardRemove(
+      /\n?\s*The silence that followed Pip[’']s pronouncement[\s\S]*$/i,
+      null,
+      'hard-quarantined terminal Master-Tally alternate broker branch after Teller map already exists',
+      { minStartIndex: 1600, minWords: 600, maxWords: 6200, maxRatio: 0.45 }
     );
   }
 
@@ -778,7 +852,9 @@ function makeEmptyReport(options) {
     wordsRemoved: 0,
     reportedOnly: 0,
     skippedUnsafe: 0,
+    flaggedForReview: 0,
     chapterReports: [],
+    flaggedBlocks: [],
     warnings: [],
     changes: [],
     summary: '',
@@ -795,6 +871,7 @@ export function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {
   const items = normalizeLoadedArray(loaded);
   const report = makeEmptyReport(options);
   report.scannedChapters = items.length;
+  report.allowedRemovals = {};
 
   if (typeof onProgress === 'function') {
     onProgress('Scene Duplicate Sweep: scanning chapters for alternate-draft blocks...');
@@ -802,10 +879,15 @@ export function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {
 
   items.forEach((item, index) => {
     const chapterNo = chapterNumber(item, index);
+    const chapterId = item.chapter?.id || index;
 
     const quarantine = applyStrandedAlternateDraftQuarantine(item.content || '');
     let preSweepQuarantineWords = 0;
     if (quarantine.text !== String(item.content || '')) {
+      const paragraphsRemoved = sumQuarantineRemovals(quarantine.changes);
+      if (paragraphsRemoved > 0) {
+        report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + paragraphsRemoved;
+      }
       preSweepQuarantineWords = countWords(item.content || '') - countWords(quarantine.text);
       item.content = quarantine.text;
       report.changedChapters.add(chapterNo);
@@ -842,13 +924,25 @@ export function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {
     };
 
     for (const warning of warnings) {
-      report.warnings.push({
+      const entry = {
         chapterNumber: chapterNo,
         score: warning.score || 0,
         reason: warning.reason || 'candidate reported',
         sharedTags: warning.sharedTags || [],
         preview: blockPreview(warning.duplicate),
-      });
+      };
+      report.warnings.push(entry);
+
+      // Collect flagged-for-review blocks separately for structured access
+      if (warning.action === 'flagged_for_review') {
+        report.flaggedBlocks.push({
+          chapterNumber: chapterNo,
+          words: warning.duplicate?.words || 0,
+          similarity: warning.score || 0,
+          preview: blockPreview(warning.duplicate),
+        });
+        report.flaggedForReview++;
+      }
     }
 
     if (removals.length) {
@@ -858,6 +952,11 @@ export function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {
 
       if (cleaned && newWordCount >= originalWordCount * (1 - options.maxRemovalRatioPerChapter)) {
         item.content = cleaned;
+        // Calculate explicitly removed paragraphs by summing the range sizes
+        const paragraphsRemoved = countRangeRemovals(removals);
+        if (paragraphsRemoved > 0) {
+          report.allowedRemovals[chapterId] = (report.allowedRemovals[chapterId] || 0) + paragraphsRemoved;
+        }
         row.blocksRemoved = removals.length;
         row.wordsRemoved = wordsRemoved;
         row.removals = removals;
@@ -887,10 +986,15 @@ export function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {
   report.summary = buildReportText(report);
   report.changes = report.chapterReports.flatMap((row) => {
     const lines = [];
-    if (row.blocksRemoved) lines.push(`SceneDupes Ch.${row.chapterNumber}: removed ${row.blocksRemoved} high-confidence alternate block(s), ${row.wordsRemoved} words.`);
+    if (row.blocksRemoved) lines.push(`SceneDupes Ch.${row.chapterNumber}: removed ${row.blocksRemoved} near-exact alternate block(s), ${row.wordsRemoved} words.`);
     if (row.reportedOnly) lines.push(`SceneDupes Ch.${row.chapterNumber}: reported ${row.reportedOnly} medium-confidence candidate(s).`);
     return lines;
   });
+
+  // Surface flagged blocks as review-only changes
+  for (const fb of report.flaggedBlocks) {
+    report.changes.push(`SceneDupes Ch.${fb.chapterNumber}: ${fb.words} words of suspected duplicate content flagged for manual review (similarity ${fb.similarity.toFixed(2)})`);
+  }
 
   if (typeof onProgress === 'function') {
     onProgress(`Scene Duplicate Sweep complete: removed ${report.blocksRemoved} block(s), reported ${report.reportedOnly} candidate(s).`);
@@ -910,5 +1014,11 @@ export function runSceneDuplicateSweep(loaded, onProgress = null, rawOptions = {
     changedChapters: [...report.changedChapters],
   };
 }
+
+
+  // Expose the hard stranded-alternate quarantine function to the outer
+  // ProjectStudio polish save/verify gate. This avoids the bug where the
+  // final save gate referenced an inner helper that was not actually in scope.
+  runSceneDuplicateSweep.applyStrandedAlternateDraftQuarantine = applyStrandedAlternateDraftQuarantine;
 
 export default runSceneDuplicateSweep;

@@ -325,6 +325,7 @@ export async function runPolishCommand(opts) {
     projectId,
     store,
     runPipeline: injectedRunPipeline,
+    sceneDuplicateSweep: injectedSceneDuplicateSweep,
     log = (line) => console.log(line),
   } = opts;
 
@@ -343,7 +344,14 @@ export async function runPolishCommand(opts) {
     mode = mode || (isNonfictionProject(project) ? 'nonfiction' : 'fiction');
   }
 
-  const result = await runPipeline({ loaded, project, onProgress: (label) => log(`[POLISH] ${label}`), allowLLM: true, mode });
+  // SCENEDUP-3: inject the same live sweep the ProjectStudio.jsx UI passes,
+  // so headless polish gets parity with in-app polish (finding 67).
+  let sceneDuplicateSweep = injectedSceneDuplicateSweep;
+  if (!sceneDuplicateSweep) {
+    ({ runSceneDuplicateSweep: sceneDuplicateSweep } = await import('../src/lib/sceneDuplicateSweep.js'));
+  }
+
+  const result = await runPipeline({ loaded, project, onProgress: (label) => log(`[POLISH] ${label}`), allowLLM: true, mode, sceneDuplicateSweep });
 
   for (const item of loaded) {
     if (item.content !== item.original) {
