@@ -92,14 +92,24 @@ export function createStoreClient({ baseUrl, token, fetchImpl = fetch }) {
   }
   function entity(name) {
     return {
-      get: (id) => call('GET', `/api/store/${name}/get/${id}`),
+      // BEATLEDGER-1: encodeURIComponent so a _FileStore key containing `/`
+      // (every real one — `${projectId}/${chapterId}/chapter-....md`) survives
+      // as ONE path segment; the server's route parser splits the raw
+      // pathname on `/` before decoding, so an un-encoded id would be sliced
+      // into several. Harmless for Chapter/NovelProject's plain ids.
+      get: (id) => call('GET', `/api/store/${name}/get/${encodeURIComponent(id)}`),
       filter: (query = {}, sort, limit) => call('POST', `/api/store/${name}/filter`, { query, sort, limit }),
-      update: (id, fields) => call('POST', `/api/store/${name}/update/${id}`, fields),
+      update: (id, fields) => call('POST', `/api/store/${name}/update/${encodeURIComponent(id)}`, fields),
+      create: (fields) => call('POST', `/api/store/${name}/create`, fields),
     };
   }
   return {
     Chapter: entity('Chapter'),
     NovelProject: entity('NovelProject'),
+    // BEATLEDGER-1: _FileStore (resolving a chapter's content_md_url without
+    // reading data/ files directly) and BeatLedgerEntry (the backfill writes).
+    _FileStore: entity('_FileStore'),
+    BeatLedgerEntry: entity('BeatLedgerEntry'),
   };
 }
 
