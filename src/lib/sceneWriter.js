@@ -43,6 +43,8 @@ import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
 import { makeUnknownPersonDetector } from '@/lib/nameGate'; // NAMEGATE-1
 import { captureGeneration, isProseLabCaptureEnabled } from '@/lib/proseLab'; // PROSELAB-1
+import { isBeatExtractionEnabled, extractSceneBeats, recordSceneBeats } from '@/lib/beatLedger'; // BEATLEDGER-1
+import { callAgentWithMeta } from '@/lib/localLLM'; // BEATLEDGER-1
 import { collectProperNouns } from '@/lib/crossChapterDedupe';
 import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
 import { buildCharacterState, buildCharacterStateContract, extractBeatDeclaredStateUpdates, collectChapterBeatEvents, corroborateBeatDeclaredReturns } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2 / CHARSTATE-2B
@@ -127,6 +129,14 @@ import {
 } from '@/lib/anthologyEngine';
 
 console.log('[SCENE-WRITER] Loaded sceneWriter-RECOVERY-v19-nf-target-clamp-no-negative-scene-words');
+
+// BEATLEDGER-1: sceneWriter.js runs in both the browser and Node scripts, so
+// this uses the Web Crypto API (globalThis.crypto.subtle) rather than
+// node:crypto — available in both, unlike a Node-only import.
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(text || '')));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
 
 function extractTextFromLLMResult(value) {
   if (value == null) return '';
@@ -5037,6 +5047,46 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
   // ProjectStudio passes the prior chapters, so echo repair spends its one
   // LLM call there, not here.
   finalProse = await finalizeChapterProse(finalProse, project, priorChapterProse, stateContractResult);
+
+  // BEATLEDGER-1: this chapter's scenes are now ACCEPTED — finalizeChapterProse's
+  // chapter-level repair pass just succeeded. Capture-only, flag default off,
+  // sequential (one LLM call at a time, never Promise.all), fails open per
+  // scene so a single extraction failure can never block or alter the save.
+  // Uses generatedScenes (already populated above, in order) rather than
+  // re-deriving scene boundaries from finalProse — each entry's acceptedProse
+  // is exactly the text this scene's beats are extracted from, so scene_anchor/
+  // scene_hash always describe the prose the extraction actually read.
+  // extractorModel is `model` — the SAME model variable this chapter's prose
+  // was drafted with (resolved once, above, via pickProseModel) — never
+  // re-resolved, so it can never pick a different model than the writer used.
+  if (isBeatExtractionEnabled(project)) {
+    for (const gs of generatedScenes) {
+      const sceneProseForBeats = String(gs?.acceptedProse || gs?.prose || '');
+      if (!sceneProseForBeats.trim()) continue;
+      try {
+        const beats = await extractSceneBeats({
+          project,
+          chapterNumber,
+          sceneNumber: gs.sceneNumber ?? null,
+          prose: sceneProseForBeats,
+          callLLM: (prompt) => callAgentWithMeta({ prompt, taskType: 'beats', project, model, temperature: 0.2, maxTokens: 2048 }),
+        });
+        await recordSceneBeats({
+          beats,
+          project,
+          chapterId: chapter?.id ?? null,
+          chapterNumber,
+          sceneNumber: gs.sceneNumber ?? null,
+          sceneAnchor: sceneProseForBeats.slice(0, 120),
+          sceneHash: await sha256Hex(sceneProseForBeats),
+          source: 'live',
+          extractorModel: model,
+        });
+      } catch (beatErr) {
+        console.warn(`[BEATLEDGER-1] Ch.${chapterNumber} scene ${gs.sceneNumber ?? '?'}: beat extraction failed (fail-open, save unaffected): ${beatErr?.message || beatErr}`);
+      }
+    }
+  }
 
   // Semantic source verification (nonfiction): one MODEL pass over the whole
   // chapter (semanticSourceCheck — previously defined but never wired) catches
