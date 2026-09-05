@@ -110,6 +110,8 @@ export function createStoreClient({ baseUrl, token, fetchImpl = fetch }) {
     // reading data/ files directly) and BeatLedgerEntry (the backfill writes).
     _FileStore: entity('_FileStore'),
     BeatLedgerEntry: entity('BeatLedgerEntry'),
+    // SCENEDELTA-1: the deltas-backfill script's writes.
+    SceneDelta: entity('SceneDelta'),
   };
 }
 
