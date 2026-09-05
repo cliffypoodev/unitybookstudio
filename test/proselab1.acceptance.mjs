@@ -4,6 +4,8 @@
 // (localDB.js + vite-server-store-plugin.js), and the report script
 // (scripts/proselab-summary.mjs).
 import fs from 'node:fs';
+import crypto from 'node:crypto';
+import { register } from 'node:module';
 import {
   PROSELAB_VERSION,
   PROSE_LAB_CAPTURE_FEATURE,
@@ -17,6 +19,15 @@ import {
   formatSummaryReport,
   fetchCaptures,
 } from '../scripts/proselab-summary.mjs';
+
+// PROSELAB-1B: sceneWriter.js uses Vite's `@/` alias, which bare Node cannot
+// resolve on its own. Registering the same loader test:narrative-connect
+// uses (tests/helpers/aliasLoader.mjs) lets THIS battery import it directly
+// and run measurePromptSections against real fixtures instead of only
+// source-scanning it (checks 39-41 below still source-scan the two capture
+// call sites, which don't need real execution).
+register(new URL('../tests/helpers/aliasLoader.mjs', import.meta.url));
+const { measurePromptSections, buildSceneWriterDebugPrompt } = await import('../src/lib/sceneWriter.js');
 
 let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
@@ -176,6 +187,81 @@ check('44. parseArgs treats a trailing flag with no value as boolean true', pars
   }
   check('61. fetchCaptures throws a loud error on a non-OK response (never a silent empty result)', threw);
 }
+
+// ── PROSELAB-1B: prompt_sections is filled in via measurePromptSections ──
+check('62. measurePromptSections is exported from sceneWriter.js', typeof measurePromptSections === 'function');
+check('63. both capture call sites populate promptSections via measurePromptSections (source-shape)', (SCENEWRITER_SRC.match(/promptSections = measurePromptSections\(scenePromptArgs\)/g) || []).length === 2);
+check('64. measurePromptSections is wrapped fail-open at both call sites (a throw must never break generation)', (SCENEWRITER_SRC.match(/try \{ promptSections = measurePromptSections\(scenePromptArgs\); \} catch/g) || []).length === 2);
+check('65. captureGeneration receives promptSections at both call sites', (SCENEWRITER_SRC.match(/promptSections,\s*\n\s*output: /g) || []).length === 2);
+
+const FICTION_FIXTURE = {
+  project: { id: 'proj-fixture', title: 'Fixture Book', genre: 'thriller' },
+  chapter: { id: 'ch1', chapter_number: 1 },
+  spec: {
+    scene_id: 'ch01-s01',
+    scene_number: 1,
+    characters_present: ['Mara', 'Dov'],
+    props_present: ['the ledger'],
+    entry_state: 'Mara arrives at the dock.',
+    exit_state: 'Mara leaves with the ledger.',
+    required_events: ['Mara confronts Dov'],
+  },
+  targetWords: 800,
+};
+
+// 66. sections present for a fiction fixture
+const fixtureSections = measurePromptSections(FICTION_FIXTURE);
+check(
+  '66. sections present for a fiction fixture (named blocks + stateContract/sceneCast populated)',
+  Object.keys(fixtureSections).length >= 40
+    && fixtureSections.stateContract > 0
+    && fixtureSections.sceneCast > 0
+    && fixtureSections.chapterContextBlock > 0,
+  JSON.stringify(fixtureSections)
+);
+
+// 67. sum of sections within 2% of the real compiled prompt's char count
+const fixturePrompt = buildSceneWriterDebugPrompt(FICTION_FIXTURE);
+const sectionSum = Object.values(fixtureSections).reduce((a, b) => a + b, 0);
+const relativeGap = Math.abs(sectionSum - fixturePrompt.length) / fixturePrompt.length;
+check(
+  '67. sum of measured sections is within 2% of prompt_char_count',
+  relativeGap <= 0.02,
+  `sectionSum=${sectionSum} promptLength=${fixturePrompt.length} gap=${(relativeGap * 100).toFixed(2)}%`
+);
+
+// 68. the prompt string itself is unchanged by the PROSELAB-1B refactor (pinned hash,
+// cross-checked by hand against the pre-refactor HEAD f3c112ef via `git stash`)
+const fixtureHash = crypto.createHash('sha256').update(fixturePrompt).digest('hex');
+check(
+  '68. compiled prompt is byte-identical to the pre-PROSELAB-1B baseline (pinned hash)',
+  fixtureHash === 'e411174216d8e367b4dc9cf73f93d8b8ab9117ca9609359555ce50712649af07',
+  `got ${fixtureHash}`
+);
+
+// 69-70. sections absent -> {} not a crash (captureGeneration's existing Phase-0 default,
+// re-asserted here since Step 0 is the first caller to rely on it going empty-handed)
+{
+  let threw = false;
+  let record = null;
+  try {
+    record = await captureGeneration({ projectId: 'p3' }, { create: async () => {} });
+  } catch {
+    threw = true;
+  }
+  check('69. omitting promptSections entirely never crashes captureGeneration', threw === false);
+  check('70. omitting promptSections defaults to {} (not undefined/null)', record && typeof record.prompt_sections === 'object' && Object.keys(record.prompt_sections).length === 0);
+}
+
+// 71. measurePromptSections itself never throws on a bare-minimum spec (fail-open shape)
+check('71. measurePromptSections tolerates a minimal fixture (no crash, all-zero-or-numeric sections)', (() => {
+  try {
+    const s = measurePromptSections({ project: {}, chapter: {}, spec: {} });
+    return typeof s === 'object' && Object.values(s).every((v) => typeof v === 'number');
+  } catch {
+    return false;
+  }
+})());
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
