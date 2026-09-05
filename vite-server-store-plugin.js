@@ -42,6 +42,7 @@ const ENTITY_STORES = [
   'CoverArtGallery', 'PromptCatalog', 'ProjectFolder',
   'BookProject', '_FileStore', '_MigrationMeta',
   'PublishingAsset',
+  'ProseLabCapture', // PROSELAB-1: Phase 0 generation-capture records
 ];
 
 // ── Per-entity async mutex ──────────────────────────────────────────────

@@ -15,6 +15,7 @@ const ENTITY_STORES = [
   'BookProject', // legacy alias
   '_FileStore',  // local file storage (replaces GitHub)
   'PublishingAsset', // saved tool outputs (blurbs, titles, transforms, etc.)
+  'ProseLabCapture', // PROSELAB-1: Phase 0 generation-capture records
 ];
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -236,6 +237,7 @@ export const entities = {
   ProjectFolder: createEntityProxy('ProjectFolder'),
   BookProject: createEntityProxy('BookProject'),
   PublishingAsset: createEntityProxy('PublishingAsset'),
+  ProseLabCapture: createEntityProxy('ProseLabCapture'),
 };
 
 // ── Database Utilities ──

@@ -42,6 +42,7 @@ import { buildCustomAuthorStyleBlock, loadAuthorStyle } from '@/lib/authorStyleP
 import { buildPriorChapterEventLedger } from '@/lib/eventLedger'; // EVENTLEDGER-1B
 import { buildPronounCanon, buildPronounCanonLines, harvestCastNames } from '@/lib/pronounLock'; // PRONOUNLOCK-1
 import { makeUnknownPersonDetector } from '@/lib/nameGate'; // NAMEGATE-1
+import { captureGeneration, isProseLabCaptureEnabled } from '@/lib/proseLab'; // PROSELAB-1
 import { collectProperNouns } from '@/lib/crossChapterDedupe';
 import { buildRoleCanonLine } from '@/lib/canonRoles'; // CANON-2
 import { buildCharacterState, buildCharacterStateContract, extractBeatDeclaredStateUpdates, collectChapterBeatEvents, corroborateBeatDeclaredReturns } from '@/lib/characterStateLedger'; // CHARSTATE-1 / CHARSTATE-2 / CHARSTATE-2B
@@ -4161,6 +4162,20 @@ export async function generateChapterSceneByScene({
         maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
       });
       sceneProse = lightCleanSceneOutput(generated.prose);
+      if (isProseLabCaptureEnabled(project)) { // PROSELAB-1: capture-only, flag default off
+        await captureGeneration({
+          projectId: project?.id,
+          chapter: chapterNumber,
+          sceneId: spec?.scene_id ?? null,
+          attempt,
+          model,
+          temperature: (isNF ? 0.55 : 0.72) + (attempt - 1) * 0.05,
+          compiledPrompt: prompt,
+          output: generated?.prose ?? '',
+          accepted: Boolean(sceneProse),
+          repairReason: generated?.repaired ? 'internal-repair' : (sceneProse ? null : 'empty-reroll'),
+        });
+      }
       if (sceneProse) break;
       console.warn('[sceneWriter] Scene ' + (spec.sceneNumber || i + 1) + ' returned empty prose (attempt ' + attempt + '/' + MAX_EMPTY_REROLLS + ') — re-rolling.');
     }
@@ -5253,6 +5268,21 @@ export async function generateSingleScene({
     temperature: isNonfictionProject(project) || isNonfictionAnthology(project) ? 0.55 : 0.72,
     maxTokens: Math.max(3500, Math.min(8000, Number(spec.targetWords || 800) * 3)),
   });
+
+  if (isProseLabCaptureEnabled(project)) { // PROSELAB-1: capture-only, flag default off
+    await captureGeneration({
+      projectId: project?.id,
+      chapter: chapter?.chapter_number ?? chapter?.number ?? null,
+      sceneId: spec?.scene_id ?? null,
+      attempt: 1,
+      model,
+      temperature: isNonfictionProject(project) || isNonfictionAnthology(project) ? 0.55 : 0.72,
+      compiledPrompt: prompt,
+      output: generated?.prose ?? '',
+      accepted: Boolean(generated?.prose),
+      repairReason: generated?.repaired ? 'internal-repair' : null,
+    });
+  }
 
   const prose = cleanSceneOutput(generated.prose, project);  // single-scene path: deep clean is appropriate here
   const wordCount = countWords(prose);
