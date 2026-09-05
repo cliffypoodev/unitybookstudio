@@ -140,7 +140,13 @@ const AGENT_SYSTEM_PROMPTS = {
   nonfiction_writer: '',
 };
 
-export async function callLlama({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null, numCtx = AGENT_NUM_CTX, baseUrl = LLAMA_BASE_URL, ctxTokens = AGENT_NUM_CTX, agentKey = null }) {
+// BEATLEDGER-1: callLlama's text-only return cannot distinguish a genuine
+// empty/short answer from a truncated one (finish_reason === 'length') —
+// the two need different handling downstream (extraction failure vs. a
+// real zero-beat result). callLlamaWithMeta is the one place that talks to
+// the wire; callLlama is now a thin wrapper over it so every existing
+// caller keeps the exact same string-only contract, byte-identical.
+export async function callLlamaWithMeta({ model, prompt, systemPrompt, temperature = 0.7, maxTokens = 8192, jsonSchema = null, numCtx = AGENT_NUM_CTX, baseUrl = LLAMA_BASE_URL, ctxTokens = AGENT_NUM_CTX, agentKey = null }) {
   const messages = [];
   if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
 
@@ -229,6 +235,7 @@ export async function callLlama({ model, prompt, systemPrompt, temperature = 0.7
 
   const data = await response.json();
   let text = data?.choices?.[0]?.message?.content || '';
+  const finishReason = data?.choices?.[0]?.finish_reason || null;
 
   // AUDITPROMPT-1: an empty completion is indistinguishable downstream from a
   // model that answered badly - both arrive as unusable text. It normally means
@@ -237,7 +244,7 @@ export async function callLlama({ model, prompt, systemPrompt, temperature = 0.7
     const msg = data?.choices?.[0]?.message || {};
     console.warn(
       `[LOCAL-LLM] EMPTY completion from ${model} | message keys: ${Object.keys(msg).join(',') || 'none'}` +
-      ` | finish_reason: ${data?.choices?.[0]?.finish_reason || 'none'}` +
+      ` | finish_reason: ${finishReason || 'none'}` +
       ` | reasoning_content length: ${String(msg.reasoning_content || '').length}`
     );
   }
@@ -257,7 +264,11 @@ export async function callLlama({ model, prompt, systemPrompt, temperature = 0.7
   text = stripModelControlTokens(text).text;
   text = text.trim();
 
-  return text;
+  return { text, finishReason };
+}
+
+export async function callLlama(args) {
+  return (await callLlamaWithMeta(args)).text;
 }
 
 export function resolveAgent(taskType, project = null) {
@@ -294,7 +305,7 @@ export function resolveAgent(taskType, project = null) {
   return isNSFW ? 'ghostwriter_nsfw' : 'ghostwriter';
 }
 
-export async function callAgent({ prompt, taskType = 'prose', project = null, temperature, maxTokens = 8192, jsonSchema = null, model = null, systemPromptOverride = null }) {
+function resolveAgentCallArgs({ taskType, project, temperature, model, systemPromptOverride }) {
   const agentKey = resolveAgent(taskType, project);
   const resolvedModel = model || AGENT_MODELS[agentKey];
   const resolvedTemp = temperature ?? AGENT_TEMPERATURES[agentKey] ?? 0.7;
@@ -303,10 +314,27 @@ export async function callAgent({ prompt, taskType = 'prose', project = null, te
   // ROUTE-1: endpoint and real context window are per-role data, not code.
   const baseUrl = AGENT_ENDPOINTS[agentKey] || LLAMA_BASE_URL;
   const ctxTokens = AGENT_CTX_TOKENS[agentKey] ?? numCtx;
+  return { agentKey, resolvedModel, resolvedTemp, systemPrompt, numCtx, baseUrl, ctxTokens };
+}
+
+export async function callAgent({ prompt, taskType = 'prose', project = null, temperature, maxTokens = 8192, jsonSchema = null, model = null, systemPromptOverride = null }) {
+  const { agentKey, resolvedModel, resolvedTemp, systemPrompt, numCtx, baseUrl, ctxTokens } =
+    resolveAgentCallArgs({ taskType, project, temperature, model, systemPromptOverride });
 
   console.log(`[LOCAL-LLM] Agent: ${agentKey} | Model: ${resolvedModel} | Temp: ${resolvedTemp} | Ctx: ${numCtx} | Endpoint: ${baseUrl} | Task: ${taskType}`);
 
   return callLlama({ model: resolvedModel, prompt, systemPrompt, temperature: resolvedTemp, maxTokens, jsonSchema, numCtx, baseUrl, ctxTokens, agentKey });
+}
+
+// BEATLEDGER-1: same routing as callAgent, but surfaces finishReason so a
+// caller can distinguish a genuine empty/short answer from a truncated one.
+export async function callAgentWithMeta({ prompt, taskType = 'prose', project = null, temperature, maxTokens = 8192, jsonSchema = null, model = null, systemPromptOverride = null }) {
+  const { agentKey, resolvedModel, resolvedTemp, systemPrompt, numCtx, baseUrl, ctxTokens } =
+    resolveAgentCallArgs({ taskType, project, temperature, model, systemPromptOverride });
+
+  console.log(`[LOCAL-LLM] Agent: ${agentKey} | Model: ${resolvedModel} | Temp: ${resolvedTemp} | Ctx: ${numCtx} | Endpoint: ${baseUrl} | Task: ${taskType}`);
+
+  return callLlamaWithMeta({ model: resolvedModel, prompt, systemPrompt, temperature: resolvedTemp, maxTokens, jsonSchema, numCtx, baseUrl, ctxTokens, agentKey });
 }
 
 export async function checkLlamaHealth() {

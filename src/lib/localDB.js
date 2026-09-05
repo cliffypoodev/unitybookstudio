@@ -16,6 +16,7 @@ const ENTITY_STORES = [
   '_FileStore',  // local file storage (replaces GitHub)
   'PublishingAsset', // saved tool outputs (blurbs, titles, transforms, etc.)
   'ProseLabCapture', // PROSELAB-1: Phase 0 generation-capture records
+  'BeatLedgerEntry', // BEATLEDGER-1: Phase 1A dramatized-beat records
 ];
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -238,6 +239,7 @@ export const entities = {
   BookProject: createEntityProxy('BookProject'),
   PublishingAsset: createEntityProxy('PublishingAsset'),
   ProseLabCapture: createEntityProxy('ProseLabCapture'),
+  BeatLedgerEntry: createEntityProxy('BeatLedgerEntry'),
 };
 
 // ── Database Utilities ──
