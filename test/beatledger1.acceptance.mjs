@@ -193,7 +193,7 @@ check('36. parseArgs parses --project and --chapters', (() => { const f = parseA
     extractSceneBeats: mockExtract,
     recordSceneBeats,
     pickModel: () => 'mock-model',
-    callLLM: async () => ({ text: '[]', finishReason: 'stop' }),
+    callAgentWithMeta: async () => ({ text: '[]', finishReason: 'stop' }),
     log: () => {},
   });
   check('39. runBackfillCommand extracts sequentially, in chapter_number order (never Promise.all)', callOrder.join(',') === '1,2,3');
@@ -208,10 +208,40 @@ check('36. parseArgs parses --project and --chapters', (() => { const f = parseA
     extractSceneBeats: mockExtract,
     recordSceneBeats,
     pickModel: () => 'mock-model',
-    callLLM: async () => ({ text: '[]', finishReason: 'stop' }),
+    callAgentWithMeta: async () => ({ text: '[]', finishReason: 'stop' }),
     log: () => {},
   });
   check('43. backfill is idempotent — a chapter with an existing entry is skipped on re-run', report2.skipped.includes(1) && beatLedgerEntries.length === 1);
+}
+
+// ── BEATLEDGER-1B: the callLLM wrapper runBackfillCommand builds MUST
+// forward model: extractorModel to callAgentWithMeta — never let it fall
+// back to resolveAgent's own (wrong, for nonfiction) model choice. Uses the
+// REAL extractSceneBeats (not mocked) so the wrapper is actually exercised,
+// and mocks callAgentWithMeta itself (not callLLM) to capture what it
+// receives. See 2026-09-05's real backfill run against a live project: this
+// exact gap sent every extraction call to `architect`/deepseek-r1-14b
+// instead of the writer's model.
+{
+  const store = {
+    NovelProject: { get: async () => ({ id: 'proj-model-check' }) },
+    Chapter: { filter: async () => ([{ id: 'ch1', chapter_number: 1, content_md: 'Mara walks the dock.' }]) },
+    BeatLedgerEntry: {
+      filter: async () => [],
+      create: async () => {},
+    },
+  };
+  let capturedModel = null;
+  await runBackfillCommand({
+    projectId: 'proj-model-check',
+    store,
+    extractSceneBeats,
+    recordSceneBeats,
+    pickModel: () => 'the-writer-model',
+    callAgentWithMeta: async ({ model }) => { capturedModel = model; return { text: '[]', finishReason: 'stop' }; },
+    log: () => {},
+  });
+  check('44. runBackfillCommand\'s callLLM wrapper forwards model: extractorModel to callAgentWithMeta (never resolveAgent\'s default)', capturedModel === 'the-writer-model');
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);

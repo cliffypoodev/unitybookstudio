@@ -146,7 +146,7 @@ check('29. deltas-backfill.mjs writes only SceneDelta (source scan: never Chapte
   const report = await runDeltasBackfillCommand({
     projectId: 'proj-9', store,
     deriveSceneDelta: mockDerive, recordSceneDelta,
-    pickModel: () => 'mock-model', callLLM: async () => ({ text: '{}', finishReason: 'stop' }),
+    pickModel: () => 'mock-model', callAgentWithMeta: async () => ({ text: '{}', finishReason: 'stop' }),
     log: () => {},
   });
   check('30. runDeltasBackfillCommand derives sequentially, scene by scene within a chapter (never Promise.all)', callOrder.join(',') === '1.0,1.1,2.0');
@@ -156,10 +156,32 @@ check('29. deltas-backfill.mjs writes only SceneDelta (source scan: never Chapte
   const report2 = await runDeltasBackfillCommand({
     projectId: 'proj-9', store,
     deriveSceneDelta: mockDerive, recordSceneDelta,
-    pickModel: () => 'mock-model', callLLM: async () => ({ text: '{}', finishReason: 'stop' }),
+    pickModel: () => 'mock-model', callAgentWithMeta: async () => ({ text: '{}', finishReason: 'stop' }),
     log: () => {},
   });
   check('33. backfill is idempotent — a chapter with existing entries is skipped on re-run', report2.skipped.includes(1) && sceneDeltaEntries.length === 2);
+}
+
+// ── BEATLEDGER-1B (same fix, same shape): runDeltasBackfillCommand's callLLM
+// wrapper MUST forward model: extractorModel to callAgentWithMeta. Uses the
+// REAL deriveSceneDelta (not mocked) so the wrapper is actually exercised.
+{
+  const store = {
+    NovelProject: { get: async () => ({ id: 'proj-model-check' }) },
+    Chapter: { filter: async () => ([{ id: 'ch1', chapter_number: 1, scene_beats_json: JSON.stringify({ beats: [{ scene_id: 's1' }] }) }]) },
+    SceneDelta: { filter: async () => [], create: async () => {} },
+  };
+  let capturedModel = null;
+  await runDeltasBackfillCommand({
+    projectId: 'proj-model-check',
+    store,
+    deriveSceneDelta,
+    recordSceneDelta,
+    pickModel: () => 'the-writer-model',
+    callAgentWithMeta: async ({ model }) => { capturedModel = model; return { text: '{"newInformation":"x","stateChange":"y","conflictType":"z","participants":[]}', finishReason: 'stop' }; },
+    log: () => {},
+  });
+  check('34. runDeltasBackfillCommand\'s callLLM wrapper forwards model: extractorModel to callAgentWithMeta (never resolveAgent\'s default)', capturedModel === 'the-writer-model');
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
