@@ -1373,7 +1373,12 @@ ${sectionTitle ? `- Current section title: ${sectionTitle}` : ''}
 ${hasPrior ? '- Assume previous sections already established the premise; do not restart the chapter.' : ''}`;
 }
 
-function buildFictionPrompt({
+// PROSELAB-1B: the named sub-block strings, in join order, as one object.
+// buildFictionPrompt derives the prompt string from Object.values(...) of
+// this — a pure reshape, not a second computation — so the prompt output
+// cannot drift from what measurePromptSections reports. Extracted so both
+// can share one source of truth for "what are this prompt's named blocks."
+function computeFictionPromptSections({
   project,
   chapter,
   chapters = [],
@@ -1441,8 +1446,8 @@ function buildFictionPrompt({
     ? `REJECTED-DRAFT CORRECTIONS — BINDING:\nThe previous chapter draft was rejected. Fix every issue below while still following this scene's immutable state contract. Do not create an alternate event sequence.\n${compact(revisionFeedback, 5000)}`
     : '';
 
-  return [
-    `You are the prose engine for a professional long-form book-writing app. Your job is to write the next scene as polished manuscript prose.`,
+  return {
+    introBlock: `You are the prose engine for a professional long-form book-writing app. Your job is to write the next scene as polished manuscript prose.`,
     HUMAN_PROSE_PRIORITY_BLOCK,
     projectHeader,
     genreBlock,
@@ -1483,12 +1488,16 @@ function buildFictionPrompt({
     MANDATORY_ENFORCEMENT_BLOCK,
     authorVoiceReminder,
     outputRules,
-  ]
-    .filter(Boolean)
-    .join('\n\n');
+  };
 }
 
-function buildNonfictionPrompt({
+function buildFictionPrompt(args) {
+  return Object.values(computeFictionPromptSections(args)).filter(Boolean).join('\n\n');
+}
+
+// PROSELAB-1B: mirrors computeFictionPromptSections — same reshape, same
+// guarantee (buildNonfictionPrompt is a pure join of this object's values).
+function computeNonfictionPromptSections({
   project,
   chapter,
   chapters = [],
@@ -1543,8 +1552,8 @@ function buildNonfictionPrompt({
   const citationBibliographyDisciplineBlock = buildCitationBibliographyDisciplineBlock(project, relevantResearch, chapter);
   const authorVoiceReminder = buildAuthorVoiceReminder(project);
 
-  return [
-    `You are the nonfiction prose engine for a professional book-writing app. Write disciplined investigative/historical nonfiction manuscript prose using only the supplied project material and research.`,
+  return {
+    introBlock: `You are the nonfiction prose engine for a professional book-writing app. Write disciplined investigative/historical nonfiction manuscript prose using only the supplied project material and research.`,
     nonfictionPerspectiveFirewall,
     projectHeader,
     genreBlock,
@@ -1575,9 +1584,11 @@ function buildNonfictionPrompt({
     sceneSpecBlock,
     authorVoiceReminder,
     outputRules,
-  ]
-    .filter(Boolean)
-    .join('\n\n');
+  };
+}
+
+function buildNonfictionPrompt(args) {
+  return Object.values(computeNonfictionPromptSections(args)).filter(Boolean).join('\n\n');
 }
 
 function buildRepairPrompt({ originalPrompt, brokenProse, issues, targetWords }) {
@@ -2462,6 +2473,33 @@ function filterTwistContextForScene(twistContext, spec) {
   }
 
   return filtered.join('\n\n');
+}
+
+// PROSELAB-1B: rebuilds the same named blocks buildScenePrompt assembles and
+// reports { blockName: charCount } — never the prompt text itself. Capture-
+// only; callers must not use this to alter generation. The fiction/nonfiction
+// branch mirrors buildScenePrompt's own isNF check so the reported section
+// set always matches the prompt that was actually built for this project.
+// A ~2% gap against the real prompt_char_count is expected (join separators,
+// and — only when foreign-story quotes are present — ARCH2-4b-a excision).
+export function measurePromptSections(args) {
+  const isNF = isNonfictionProject(args.project) || isNonfictionAnthology(args.project);
+  const blockSections = isNF ? computeNonfictionPromptSections(args) : computeFictionPromptSections(args);
+  const sceneCast = buildSceneCastBlock(args.spec || args);
+  const stateContract = isNF ? '' : buildSceneStateContractBlock(args.spec || args);
+  const serializedLedger = args.runtimeLedger ? serializeLedger(args.runtimeLedger) : '';
+  const ledgerInstruction = serializedLedger
+    ? `\n\n${serializedLedger}\n\nCRITICAL NARRATIVE-STATE DIRECTIVE:\n- You must begin exactly from the actual final state established above.\n- Do NOT resurrect any character marked DEAD.\n- Do NOT utilize any object marked UNAVAILABLE/DESTROYED.\n- Do NOT replay any RECENT COMPLETED EVENTS.`
+    : '';
+
+  const sections = {};
+  for (const [name, value] of Object.entries(blockSections)) {
+    sections[name] = typeof value === 'string' ? value.length : 0;
+  }
+  sections.stateContract = stateContract.length;
+  sections.sceneCast = sceneCast.length;
+  sections.ledgerInstruction = ledgerInstruction.length;
+  return sections;
 }
 
 function buildScenePrompt(args) {
@@ -4065,7 +4103,7 @@ export async function generateChapterSceneByScene({
       }
     }
 
-    const basePrompt = buildScenePrompt({
+    const scenePromptArgs = {
       project,
       chapter,
       chapters: allProjectChapters,
@@ -4085,7 +4123,8 @@ export async function generateChapterSceneByScene({
       includeFullCraft,
       revisionFeedback,
       runtimeLedger,
-    });
+    };
+    const basePrompt = buildScenePrompt(scenePromptArgs);
     const promptCanaryResult = applySceneExecutionPromptCanary({
       state: sceneExecutionPromptCanaryState,
       prompt: basePrompt,
@@ -4163,6 +4202,8 @@ export async function generateChapterSceneByScene({
       });
       sceneProse = lightCleanSceneOutput(generated.prose);
       if (isProseLabCaptureEnabled(project)) { // PROSELAB-1: capture-only, flag default off
+        let promptSections = {};
+        try { promptSections = measurePromptSections(scenePromptArgs); } catch { /* PROSELAB-1B: fail-open, capture must never break generation */ }
         await captureGeneration({
           projectId: project?.id,
           chapter: chapterNumber,
@@ -4171,6 +4212,7 @@ export async function generateChapterSceneByScene({
           model,
           temperature: (isNF ? 0.55 : 0.72) + (attempt - 1) * 0.05,
           compiledPrompt: prompt,
+          promptSections,
           output: generated?.prose ?? '',
           accepted: Boolean(sceneProse),
           repairReason: generated?.repaired ? 'internal-repair' : (sceneProse ? null : 'empty-reroll'),
@@ -5238,7 +5280,7 @@ export async function generateSingleScene({
       getTwistBlock(project, chapter),
     ]);
 
-  const prompt = buildScenePrompt({
+  const scenePromptArgs = {
     project,
     chapter,
     spec,
@@ -5255,7 +5297,8 @@ export async function generateSingleScene({
     volumeContractBlock,
     authorStyleBlock,
     includeFullCraft,
-  });
+  };
+  const prompt = buildScenePrompt(scenePromptArgs);
 
   const generated = await generateSceneWithRepair({
     project,
@@ -5270,6 +5313,8 @@ export async function generateSingleScene({
   });
 
   if (isProseLabCaptureEnabled(project)) { // PROSELAB-1: capture-only, flag default off
+    let promptSections = {};
+    try { promptSections = measurePromptSections(scenePromptArgs); } catch { /* PROSELAB-1B: fail-open, capture must never break generation */ }
     await captureGeneration({
       projectId: project?.id,
       chapter: chapter?.chapter_number ?? chapter?.number ?? null,
@@ -5278,6 +5323,7 @@ export async function generateSingleScene({
       model,
       temperature: isNonfictionProject(project) || isNonfictionAnthology(project) ? 0.55 : 0.72,
       compiledPrompt: prompt,
+      promptSections,
       output: generated?.prose ?? '',
       accepted: Boolean(generated?.prose),
       repairReason: generated?.repaired ? 'internal-repair' : null,
