@@ -9,6 +9,7 @@ import { MANDATORY_ENFORCEMENT_BLOCK } from '@/lib/enforcementBlock';
 import { buildNonfictionBeatPrompt, nonfictionBeatSchema, NF_SECTION_MODES, NF_BEAT_TEMPLATES, detectNfTemplate, getChapterBeat } from '@/lib/nonfictionBeats';
 import { buildAnthologySpiceBeatContext } from '@/lib/anthologyEngine';
 import { buildTwistFoundationBlock, parseTwistsToMd } from '@/lib/plotTwists';
+import { isSceneDeltaEnabled, buildSceneDeltaFieldBlock } from './sceneDelta.js'; // SCENEDELTA-1
 export { NF_SECTION_MODES, NF_BEAT_TEMPLATES, detectNfTemplate, getChapterBeat, nonfictionBeatSchema };
 export { parseTwistsToMd };
 
@@ -1478,6 +1479,11 @@ Each beat must include:
 Return JSON only.`;
   }
 
+  // SCENEDELTA-1: the ONE place Phase 1 touches an existing prompt (planner,
+  // not writer — UBS_plan.md explicitly allows this). Flag off -> ''
+  // -> the returned prompt string is byte-identical to before this change.
+  const sceneDeltaFieldBlock = isSceneDeltaEnabled(project) ? buildSceneDeltaFieldBlock() : '';
+
   return `${constraintBlock}\n${contextHeader}
 
 POSITION: Chapter ${chapterNumber} of ${totalChapters}. ${actPosition}
@@ -1531,7 +1537,7 @@ Each beat must include:
 - conflict: the specific tension or obstacle in this scene
 - emotional_arc: the emotional shift from scene start to end (e.g., "hopeful → desperate")
 - tension_level: 1-10 scale for this scene's intensity
-- exit_hook: how this scene propels the reader into the next one
+- exit_hook: how this scene propels the reader into the next one${sceneDeltaFieldBlock}
 
 Rules:
 - Beats must form a coherent arc across the chapter with rising tension

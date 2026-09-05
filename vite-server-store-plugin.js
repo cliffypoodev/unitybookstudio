@@ -44,6 +44,7 @@ const ENTITY_STORES = [
   'PublishingAsset',
   'ProseLabCapture', // PROSELAB-1: Phase 0 generation-capture records
   'BeatLedgerEntry', // BEATLEDGER-1: Phase 1A dramatized-beat records
+  'SceneDelta', // SCENEDELTA-1: Phase 1B planned-scene delta records
 ];
 
 // ── Per-entity async mutex ──────────────────────────────────────────────

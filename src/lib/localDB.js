@@ -17,6 +17,7 @@ const ENTITY_STORES = [
   'PublishingAsset', // saved tool outputs (blurbs, titles, transforms, etc.)
   'ProseLabCapture', // PROSELAB-1: Phase 0 generation-capture records
   'BeatLedgerEntry', // BEATLEDGER-1: Phase 1A dramatized-beat records
+  'SceneDelta', // SCENEDELTA-1: Phase 1B planned-scene delta records
 ];
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -240,6 +241,7 @@ export const entities = {
   PublishingAsset: createEntityProxy('PublishingAsset'),
   ProseLabCapture: createEntityProxy('ProseLabCapture'),
   BeatLedgerEntry: createEntityProxy('BeatLedgerEntry'),
+  SceneDelta: createEntityProxy('SceneDelta'),
 };
 
 // ── Database Utilities ──

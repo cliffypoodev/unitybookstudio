@@ -431,6 +431,17 @@ function compactSceneBeatsForEntity(beatResult = {}, chapter = null) {
       tension_level: Number(unit.tension_level || 0),
       exit_hook: truncateForEntityField(unit.exit_hook, 300),
       word_target: Number(unit.word_target || unit.target_words || 0) || undefined,
+      // SCENEDELTA-1: rides along when the planner included it (flag on),
+      // ignored when absent (flag off, or an older plan) — `unit.delta`
+      // undefined here means the key is simply omitted, never a crash.
+      delta: (unit.delta && typeof unit.delta === 'object' && !Array.isArray(unit.delta))
+        ? {
+            newInformation: truncateForEntityField(unit.delta.newInformation, 300),
+            stateChange: truncateForEntityField(unit.delta.stateChange, 300),
+            conflictType: truncateForEntityField(unit.delta.conflictType, 80),
+            participants: slimArrayForEntityField(unit.delta.participants || [], 12, 100),
+          }
+        : undefined,
     });
 
     const fictionContract = {
