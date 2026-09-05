@@ -78,7 +78,7 @@ export async function resolveChapterProse(chapter, store) {
  * Sequential, idempotent chapter-level backfill. Every real dependency is
  * injectable via opts so the battery can run this with no store, no model,
  * no network: opts.store, opts.extractSceneBeats, opts.recordSceneBeats,
- * opts.resolveChapterProse, opts.pickModel, opts.callLLM.
+ * opts.resolveChapterProse, opts.pickModel, opts.callAgentWithMeta.
  */
 export async function runBackfillCommand(opts) {
   const {
@@ -89,7 +89,7 @@ export async function runBackfillCommand(opts) {
     extractSceneBeats: extractFn,
     recordSceneBeats: recordFn,
     pickModel: pickModelFn,
-    callLLM,
+    callAgentWithMeta,
     log = (line) => console.log(line),
   } = opts;
 
@@ -103,6 +103,12 @@ export async function runBackfillCommand(opts) {
 
   const extractorModel = pickModelFn(project);
   log(`[BEATLEDGER-1] backfill: project ${projectId}, ${targetChapters.length} chapter(s) targeted, model=${extractorModel}.`);
+  // BEATLEDGER-1B: built here, AFTER extractorModel is resolved, and passed
+  // `model: extractorModel` explicitly on every call — this was the bug: the
+  // previous callLLM closure was built before any project/model was known
+  // and never forwarded a model at all, so callAgentWithMeta fell back to
+  // resolveAgent's OWN (wrong, for nonfiction) model choice.
+  const callLLM = (prompt) => callAgentWithMeta({ prompt, taskType: 'beats', model: extractorModel, temperature: 0.2, maxTokens: 2048 });
 
   const report = { skipped: [], counts: [], failed: [] };
 
@@ -167,7 +173,7 @@ export async function runBackfillCommand(opts) {
   return report;
 }
 
-async function buildBackfillDeps({ store }) {
+async function buildBackfillDeps() {
   const [{ extractSceneBeats, recordSceneBeats }, { pickModel }, { callAgentWithMeta }] = await Promise.all([
     import('../src/lib/beatLedger.js'),
     import('../src/lib/modelRouting.js'),
@@ -177,7 +183,7 @@ async function buildBackfillDeps({ store }) {
     extractSceneBeats,
     recordSceneBeats,
     pickModel: (project) => pickModel('prose', project),
-    callLLM: (prompt) => callAgentWithMeta({ prompt, taskType: 'beats', temperature: 0.2, maxTokens: 2048 }),
+    callAgentWithMeta,
   };
 }
 
@@ -192,7 +198,7 @@ async function main(argv) {
   const token = readRunnerToken(dataDir);
   const baseUrl = process.env.UBS_SERVER_URL || 'http://127.0.0.1:5180';
   const store = createStoreClient({ baseUrl, token });
-  const deps = await buildBackfillDeps({ store });
+  const deps = await buildBackfillDeps();
 
   const report = await runBackfillCommand({
     projectId: flags.project,

@@ -67,7 +67,7 @@ export function parsePlannedScenes(chapter) {
 /**
  * Sequential, idempotent scene-level backfill. Every real dependency is
  * injectable via opts: opts.store, opts.deriveSceneDelta, opts.recordSceneDelta,
- * opts.pickModel, opts.callLLM.
+ * opts.pickModel, opts.callAgentWithMeta.
  */
 export async function runDeltasBackfillCommand(opts) {
   const {
@@ -77,7 +77,7 @@ export async function runDeltasBackfillCommand(opts) {
     deriveSceneDelta: deriveFn,
     recordSceneDelta: recordFn,
     pickModel: pickModelFn,
-    callLLM,
+    callAgentWithMeta,
     log = (line) => console.log(line),
   } = opts;
 
@@ -91,6 +91,9 @@ export async function runDeltasBackfillCommand(opts) {
 
   const extractorModel = pickModelFn(project);
   log(`[SCENEDELTA-1] backfill: project ${projectId}, ${targetChapters.length} chapter(s) targeted, model=${extractorModel}.`);
+  // BEATLEDGER-1B (same fix, same file shape): built AFTER extractorModel is
+  // resolved, forwarding `model: extractorModel` explicitly on every call.
+  const callLLM = (prompt) => callAgentWithMeta({ prompt, taskType: 'beats', model: extractorModel, temperature: 0.2, maxTokens: 1024 });
 
   const report = { skipped: [], derived: [], failed: [] };
 
@@ -153,7 +156,7 @@ async function buildDeltasBackfillDeps() {
     deriveSceneDelta,
     recordSceneDelta,
     pickModel: (project) => pickModel('prose', project),
-    callLLM: (prompt) => callAgentWithMeta({ prompt, taskType: 'beats', temperature: 0.2, maxTokens: 1024 }),
+    callAgentWithMeta,
   };
 }
 
