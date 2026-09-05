@@ -7,7 +7,32 @@ import { stripModelControlTokens } from './modelLeakGuard.js';
 
 // NETFIX-1: same-origin path proxied by vite to the Studio's llama.cpp —
 // works identically on localhost and on remote devices over Tailscale.
-const LLAMA_BASE_URL = '/llama';
+//
+// LOCALLLM-NODE-1: '/llama' is a RELATIVE path. A browser resolves it
+// same-origin (NETFIX-1, above); Vite's dev-server proxy then forwards it to
+// the real llama.cpp router (vite.config.js: '/llama' -> 127.0.0.1:8081). A
+// headless Node process (scripts/beats-backfill.mjs, scripts/deltas-
+// backfill.mjs) has no origin to resolve a relative path against — `fetch`
+// throws "Failed to parse URL from /llama/v1/chat/completions" (confirmed
+// live, 2026-09-05, running beats-backfill.mjs against a real project).
+//
+// Fix: under Node, point at the dev server directly over HTTP instead of
+// the llama router — DISCOVERED (by reading vite-server-store-plugin.js)
+// that '/llama' is already in that server's PROTECTED_PREFIXES and accepts
+// the SAME runner-token header scripts/ubs-run.mjs already uses for
+// /api/store/ (getRunnerTokenUser reads x-ubs-runner-token, loopback-only,
+// before falling through to Vite's own /llama proxy) — no need to bypass
+// the dev server and hit the router at 127.0.0.1:8081 directly. The
+// backfill scripts set process.env.UBS_RUNNER_TOKEN before importing this
+// module (module-load-time constants below only need to be right once).
+//
+// Browser behavior is unchanged: LLAMA_BASE_URL stays the literal string
+// '/llama' whenever `window` exists.
+const IS_NODE_RUNTIME = typeof window === 'undefined';
+const LLAMA_BASE_URL = IS_NODE_RUNTIME
+  ? `${process.env.UBS_SERVER_URL || 'http://127.0.0.1:5180'}/llama`
+  : '/llama';
+const NODE_RUNNER_TOKEN = IS_NODE_RUNTIME ? (process.env.UBS_RUNNER_TOKEN || '') : '';
 
 const SEARCH_BRIDGE_URL = '/search-bridge/search';
 
@@ -69,16 +94,21 @@ export const AGENT_NUM_CTX_OVERRIDES = {
 // Default: every role points at the Studio, so this table is a no-op until a
 // role is deliberately moved. Moving a role is a one-line data edit here plus
 // one matching proxy entry in vite.config.js. No other file changes.
+// LOCALLLM-NODE-1: every role points at the SAME endpoint — LLAMA_BASE_URL,
+// not the literal string '/llama'. All nine used to be hardcoded to
+// '/llama', which meant resolving LLAMA_BASE_URL for Node had NO effect
+// here: `AGENT_ENDPOINTS[agentKey] || LLAMA_BASE_URL` never fell through to
+// the fallback, because the literal was always truthy.
 export const AGENT_ENDPOINTS = {
-  ghostwriter:       '/llama',
-  ghostwriter_nsfw:  '/llama',
-  architect:         '/llama',
-  architect_nsfw:    '/llama',
-  researcher:        '/llama',
-  critic:            '/llama',
-  polisher:          '/llama',
-  ideas_chat:        '/llama',
-  nonfiction_writer: '/llama',
+  ghostwriter:       LLAMA_BASE_URL,
+  ghostwriter_nsfw:  LLAMA_BASE_URL,
+  architect:         LLAMA_BASE_URL,
+  architect_nsfw:    LLAMA_BASE_URL,
+  researcher:        LLAMA_BASE_URL,
+  critic:            LLAMA_BASE_URL,
+  polisher:          LLAMA_BASE_URL,
+  ideas_chat:        LLAMA_BASE_URL,
+  nonfiction_writer: LLAMA_BASE_URL,
 };
 
 // ROUTE-1: the REAL PER-SLOT context window, in tokens, of the machine each role
@@ -210,7 +240,13 @@ export async function callLlamaWithMeta({ model, prompt, systemPrompt, temperatu
   try {
     response = await fetch(`${baseUrl}/v1/chat/completions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // LOCALLLM-NODE-1: the runner-token header only ever has a value under
+      // Node with UBS_RUNNER_TOKEN set (NODE_RUNNER_TOKEN is '' in the
+      // browser) — a browser request is byte-identical to before this change.
+      headers: {
+        'Content-Type': 'application/json',
+        ...(NODE_RUNNER_TOKEN ? { 'x-ubs-runner-token': NODE_RUNNER_TOKEN } : {}),
+      },
       body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(1200000),
     });

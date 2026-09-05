@@ -198,6 +198,10 @@ async function main(argv) {
   const token = readRunnerToken(dataDir);
   const baseUrl = process.env.UBS_SERVER_URL || 'http://127.0.0.1:5180';
   const store = createStoreClient({ baseUrl, token });
+  // LOCALLLM-NODE-1: localLLM.js reads UBS_RUNNER_TOKEN at module-load time
+  // to authenticate its own '/llama' calls under Node — must be set BEFORE
+  // buildBackfillDeps() dynamically imports it.
+  process.env.UBS_RUNNER_TOKEN = token;
   const deps = await buildBackfillDeps();
 
   const report = await runBackfillCommand({
