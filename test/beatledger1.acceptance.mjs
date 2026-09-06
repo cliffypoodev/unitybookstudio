@@ -6,6 +6,7 @@
 // battery), and the backfill script (scripts/beats-backfill.mjs). Generic
 // fixture names only (Mara, Dov, Ilse) — no real book names.
 import fs from 'node:fs';
+import { resolveAgent, AGENT_CTX_TOKENS } from '../src/lib/localLLM.js';
 import {
   BEAT_LEDGER_VERSION,
   BEAT_EXTRACTION_FEATURE,
@@ -243,6 +244,23 @@ check('36. parseArgs parses --project and --chapters', (() => { const f = parseA
   });
   check('44. runBackfillCommand\'s callLLM wrapper forwards model: extractorModel to callAgentWithMeta (never resolveAgent\'s default)', capturedModel === 'the-writer-model');
 }
+
+// ── BEATLEDGER-1C: extraction has its own agent key, independent of project
+// type (never shadowed by nonfiction/NSFW routing the way the writer's own
+// key is), with a context-window entry equal to the writer's (ghostwriter) —
+// and both real callers (the live hook, the backfill script) use it instead
+// of taskType 'beats' (the scene-beat PLANNER's taskType, a different
+// concept that used to make extraction's logs misleadingly say `Agent:
+// architect`).
+check(
+  '45. beat extraction has its own agent key (beat_extractor), independent of project type, with AGENT_CTX_TOKENS equal to the writer\'s, and both callers use taskType \'beat_extraction\' (never \'beats\', the planner\'s taskType)',
+  resolveAgent('beat_extraction', null) === 'beat_extractor'
+    && resolveAgent('beat_extraction', { book_type: 'nonfiction' }) === 'beat_extractor'
+    && resolveAgent('beat_extraction', { spice_level: 4 }) === 'beat_extractor'
+    && AGENT_CTX_TOKENS.beat_extractor === AGENT_CTX_TOKENS.ghostwriter
+    && fs.readFileSync(new URL('../scripts/beats-backfill.mjs', import.meta.url), 'utf8').includes("taskType: 'beat_extraction'")
+    && SCENEWRITER_SRC.includes("taskType: 'beat_extraction'")
+);
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
