@@ -9,6 +9,8 @@
 // aliasing) is injected via callLLM, same scope boundary as beatLedger.js:
 // this file never resolves or calls a model itself.
 
+export const REPETITION_SWEEP_VERSION = 'repetition-sweep-v1';
+
 // ── word-overlap similarity (the plan's stated default; no embeddings
 // dependency added just for this — see docs/phase2-notes.md for the
 // DISCOVER result on whether the local router exposes /v1/embeddings) ──
@@ -257,5 +259,197 @@ export function recommendForUnitPair(unitA, unitB, matchedBeats) {
     laterUnit: unitLabel(later),
     keep: [],
     compress: laterBeats,
+  };
+}
+
+// ── cluster detection: union-find, type-agnostic, looser threshold ──
+// Looser than the pairwise sweep threshold ON PURPOSE: a motif delivered
+// five times, each instance only mildly similar to any ONE other instance,
+// never crosses a strict pairwise bar — but the motif itself is still a
+// repetition problem. Type-agnostic because the motif might recur across
+// different beat types (a "quiet realization" that's sometimes tagged
+// emotional_beat, sometimes decision).
+export const CLUSTER_SIMILARITY_THRESHOLD = 0.3;
+export const CLUSTER_MIN_OCCURRENCES = 3;
+
+// Same name-token exclusion as compareBeats — otherwise every beat
+// involving the protagonist would cluster together on nothing but her name.
+function beatClusterTokens(beat) {
+  const names = participantTokenSet(beat?.participants);
+  return contentTokenSet(`${beat?.subject || ''} ${beat?.summary || ''}`, names);
+}
+
+class UnionFind {
+  constructor(n) {
+    this.parent = Array.from({ length: n }, (_, i) => i);
+  }
+  find(x) {
+    while (this.parent[x] !== x) {
+      this.parent[x] = this.parent[this.parent[x]];
+      x = this.parent[x];
+    }
+    return x;
+  }
+  union(a, b) {
+    const ra = this.find(a);
+    const rb = this.find(b);
+    if (ra !== rb) this.parent[ra] = rb;
+  }
+}
+
+/**
+ * Union-find over every beat in the book. Reports groups of size >=
+ * minOccurrences as clusters/motifs, independent of whether any single pair
+ * inside the group crosses the pairwise sweep threshold.
+ */
+export function detectClusters(allBeats, { threshold = CLUSTER_SIMILARITY_THRESHOLD, minOccurrences = CLUSTER_MIN_OCCURRENCES } = {}) {
+  const beats = allBeats || [];
+  const tokenSets = beats.map(beatClusterTokens);
+  const uf = new UnionFind(beats.length);
+  for (let i = 0; i < beats.length; i++) {
+    for (let j = i + 1; j < beats.length; j++) {
+      if (jaccard(tokenSets[i], tokenSets[j]) >= threshold) uf.union(i, j);
+    }
+  }
+  const groups = new Map();
+  for (let i = 0; i < beats.length; i++) {
+    const root = uf.find(i);
+    if (!groups.has(root)) groups.set(root, []);
+    groups.get(root).push(beats[i]);
+  }
+  return [...groups.values()]
+    .filter((g) => g.length >= minOccurrences)
+    .map((g) => ({
+      occurrences: g.length,
+      beats: g,
+      sampleSubject: g[0]?.subject || '',
+    }));
+}
+
+// ── entity aliasing: optional, one model call per book, in-memory only ──
+function stripCodeFence(text) {
+  const trimmed = String(text || '').trim();
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  return fenced ? fenced[1].trim() : trimmed;
+}
+
+const ENTITY_ALIAS_PROMPT_HEADER = `You are resolving character-name variants in a novel's participant list. Some names may refer to the SAME person under different labels (a nickname, an epithet, a formal name). Map every variant to ONE canonical name. A name with no variant maps to itself. Output ONLY a JSON object: { "variant name": "canonical name", ... }. Do not invent names not in the list.`;
+
+/**
+ * ONE model call per book (same-model rule — the caller's callLLM decides
+ * which model, per the BEATLEDGER-1B lesson: this function never resolves
+ * one itself). Maps participant-name variants to one canonical name for
+ * THIS sweep's in-memory comparisons only — never rewrites stored
+ * BeatLedgerEntry records. Fails open: an aliasing failure (missing
+ * callLLM, empty/truncated/malformed response) runs the sweep without
+ * aliasing and says so — it must never block the mechanical, model-free
+ * part of the sweep.
+ */
+export async function buildEntityAliasMap(allBeats, { callLLM } = {}) {
+  if (typeof callLLM !== 'function') {
+    return { aliasMap: {}, applied: false, reason: 'no callLLM provided' };
+  }
+  const names = new Set();
+  for (const b of allBeats || []) {
+    for (const p of b?.participants || []) {
+      const trimmed = String(p || '').trim();
+      if (trimmed) names.add(trimmed);
+    }
+  }
+  if (names.size === 0) {
+    return { aliasMap: {}, applied: false, reason: 'no participants' };
+  }
+  const prompt = `${ENTITY_ALIAS_PROMPT_HEADER}\n\nNAMES:\n${[...names].join('\n')}`;
+  try {
+    const result = await callLLM(prompt);
+    const text = typeof result?.text === 'string' ? result.text : '';
+    if (!text.trim()) throw new Error('empty completion');
+    if (result?.finishReason === 'length') throw new Error('truncated (finish_reason=length)');
+    const parsed = JSON.parse(stripCodeFence(text));
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('parsed JSON is not an object');
+    }
+    const aliasMap = {};
+    for (const [variant, canonical] of Object.entries(parsed)) {
+      if (typeof canonical === 'string' && canonical.trim()) aliasMap[variant] = canonical.trim();
+    }
+    console.log(`[SWEEP-1] entity alias map (in-memory only, store unchanged): ${JSON.stringify(aliasMap)}`);
+    return { aliasMap, applied: true };
+  } catch (err) {
+    console.warn(`[SWEEP-1] entity aliasing FAILED — running without aliasing: ${err?.message || err}`);
+    return { aliasMap: {}, applied: false, reason: err?.message || String(err) };
+  }
+}
+
+/**
+ * Applies an alias map to one beat's participants, returning a NEW object
+ * when anything changed (never mutates the input) — the in-memory-only
+ * guarantee: this is never passed to any store write.
+ */
+export function applyAliasToBeat(beat, aliasMap) {
+  if (!aliasMap || Object.keys(aliasMap).length === 0) return beat;
+  const participants = Array.isArray(beat?.participants) ? beat.participants : [];
+  const aliased = participants.map((p) => aliasMap[p] || p);
+  const changed = aliased.some((p, i) => p !== participants[i]);
+  return changed ? { ...beat, participants: aliased } : beat;
+}
+
+// ── sweepProject: ties it all together ──
+export const DEFAULT_SWEEP_THRESHOLD = 0.72;
+
+function groupIntoUnits(entries) {
+  const map = new Map();
+  for (const entry of entries || []) {
+    const key = `${entry.chapter_number}::${entry.scene_number === null || entry.scene_number === undefined ? 'null' : entry.scene_number}`;
+    if (!map.has(key)) {
+      map.set(key, { chapterNumber: entry.chapter_number, sceneNumber: entry.scene_number ?? null, beats: [] });
+    }
+    map.get(key).beats.push(entry);
+  }
+  return [...map.values()].sort((a, b) => {
+    if (a.chapterNumber !== b.chapterNumber) return a.chapterNumber - b.chapterNumber;
+    return (a.sceneNumber ?? -1) - (b.sceneNumber ?? -1);
+  });
+}
+
+/**
+ * Runs the full mechanical sweep for one project: fetches its
+ * BeatLedgerEntry rows via `store` (never Chapter/NovelProject), groups them
+ * into units (a scene for live entries, a chapter for backfill ones —
+ * keyed by chapter_number + scene_number), optionally aliases participant
+ * names in memory (one model call, never persisted), compares every unit
+ * pair, and clusters every beat in the book independently of the pairwise
+ * threshold. `distance` for compareUnits is the units' ORDINAL position gap
+ * (index difference after sorting), not a chapter-number difference.
+ */
+export async function sweepProject(projectId, { store, threshold = DEFAULT_SWEEP_THRESHOLD, callLLM } = {}) {
+  const entries = await store.BeatLedgerEntry.filter({ project_id: projectId });
+  let units = groupIntoUnits(entries);
+
+  const aliasResult = await buildEntityAliasMap(entries, { callLLM });
+  if (aliasResult.applied) {
+    units = units.map((u) => ({ ...u, beats: u.beats.map((b) => applyAliasToBeat(b, aliasResult.aliasMap)) }));
+  }
+
+  const pairs = [];
+  for (let i = 0; i < units.length; i++) {
+    for (let j = i + 1; j < units.length; j++) {
+      const distance = j - i;
+      const cmp = compareUnits(units[i], units[j], distance);
+      if (cmp.score >= threshold) {
+        pairs.push({ ...cmp, recommendation: recommendForUnitPair(units[i], units[j], cmp.matchedBeats) });
+      }
+    }
+  }
+  pairs.sort((a, b) => b.score - a.score);
+
+  const clusters = detectClusters(units.flatMap((u) => u.beats));
+
+  return {
+    pairs,
+    clusters,
+    aliasMap: aliasResult.aliasMap,
+    aliasApplied: aliasResult.applied,
+    unitCount: units.length,
   };
 }
