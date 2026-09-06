@@ -112,6 +112,8 @@ export function createStoreClient({ baseUrl, token, fetchImpl = fetch }) {
     BeatLedgerEntry: entity('BeatLedgerEntry'),
     // SCENEDELTA-1: the deltas-backfill script's writes.
     SceneDelta: entity('SceneDelta'),
+    // SWEEP-1: report scripts save their output as a PublishingAsset.
+    PublishingAsset: entity('PublishingAsset'),
   };
 }
 

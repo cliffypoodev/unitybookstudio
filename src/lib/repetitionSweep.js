@@ -453,3 +453,35 @@ export async function sweepProject(projectId, { store, threshold = DEFAULT_SWEEP
     unitCount: units.length,
   };
 }
+
+// ── report formatting (scripts/sweep.mjs prints this; PublishingAsset
+// content is the underlying JSON, not this text) ──
+function formatPairRecommendation(rec) {
+  if (rec.action === 'full_cut_later') {
+    return `keep ${rec.earlierUnit} (first staging), cut/compress ${rec.laterUnit}`;
+  }
+  const keepTypes = rec.keep.map((b) => b.beat_type).join(', ') || 'none';
+  return `keep ${rec.earlierUnit} (first staging); ${rec.laterUnit} PARTIAL — keep ${rec.keep.length} unmatched beat(s) [${keepTypes}], compress the rest`;
+}
+
+export function formatSweepReport(result, { threshold = DEFAULT_SWEEP_THRESHOLD, projectTitle = '' } = {}) {
+  const lines = [];
+  lines.push(`REPETITION SWEEP${projectTitle ? ` — "${projectTitle}"` : ''}`);
+  lines.push(`Units analyzed: ${result.unitCount}`);
+  lines.push(`Entity aliasing: ${result.aliasApplied ? `applied (${Object.keys(result.aliasMap || {}).length} mapping(s))` : 'not applied'}`);
+  lines.push(`Pairs above threshold (${threshold}): ${result.pairs.length}`);
+  result.pairs.forEach((pair, i) => {
+    lines.push(`${i + 1}. ${pair.unitA} <-> ${pair.unitB}  score ${pair.score.toFixed(2)}`);
+    const bp = pair.bestPair;
+    if (bp) {
+      const participants = [...new Set([...(bp.beatA?.participants || []), ...(bp.beatB?.participants || [])])].join('+');
+      lines.push(`   ${bp.beatA?.beat_type || '?'}: ${participants} re: ${bp.beatA?.subject || '?'} — content ${bp.contentScore.toFixed(2)}, emotional ${bp.emotionalScore.toFixed(2)}`);
+    }
+    lines.push(`   recommendation: ${formatPairRecommendation(pair.recommendation)}`);
+  });
+  lines.push(`Clusters (>= ${CLUSTER_MIN_OCCURRENCES} occurrences, looser bar than the pairwise threshold): ${result.clusters.length}`);
+  result.clusters.forEach((c, i) => {
+    lines.push(`  ${i + 1}. "${c.sampleSubject}" x${c.occurrences}`);
+  });
+  return lines.join('\n');
+}
