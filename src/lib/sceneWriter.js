@@ -5069,7 +5069,7 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
           chapterNumber,
           sceneNumber: gs.sceneNumber ?? null,
           prose: sceneProseForBeats,
-          callLLM: (prompt) => callAgentWithMeta({ prompt, taskType: 'beats', project, model, temperature: 0.2, maxTokens: 2048 }),
+          callLLM: (prompt) => callAgentWithMeta({ prompt, taskType: 'beat_extraction', project, model, temperature: 0.2, maxTokens: 2048 }),
         });
         await recordSceneBeats({
           beats,

@@ -54,6 +54,14 @@ export async function searchWeb(query, n = 5) {
 }
 
 export const AGENT_MODELS = {
+  // BEATLEDGER-1C: beat extraction (extractSceneBeats) has its OWN agent key
+  // so the log stops saying `Agent: architect` (taskType 'beats' — the SAME
+  // string the scene-beat PLANNER uses — collided the two concepts).
+  // extractSceneBeats callers always pass `model:` explicitly (the
+  // BEATLEDGER-1B same-model-as-the-writer rule), so this default is only a
+  // fallback for a caller that forgets to; it mirrors the fiction writer's
+  // default since that's the common case.
+  beat_extractor:    'qwen3.6-35b-uncensored',
   ghostwriter:       'qwen3.6-35b-uncensored',   // fiction prose (all non-nonfiction)
   ghostwriter_nsfw:  'qwen3.6-35b-uncensored',   // adult fiction — same uncensored model
   architect:         'deepseek-r1-14b',                                  // ARCHITECTSPEED-1: fiction outlines/bibles (reasoning model). Was deepseek-r1-32b; on the single-slot local rig the 32B (~20GB) cold-loads on every swap and its long reasoning blew past the anthology batch 300s cap (anthologyBatchOutline.js), so multi-story outline gen never produced a usable batch. R1-14b is the proven fast reasoning alias (already the researcher/critic model) with a proven JSON path; it loads and generates fast enough to fit the cap. Affects fiction outline/bible gen only (nonfiction foundation routes to NONFICTION_INSTRUCT_MODEL and never hits the architect override).
@@ -100,6 +108,7 @@ export const AGENT_NUM_CTX_OVERRIDES = {
 // here: `AGENT_ENDPOINTS[agentKey] || LLAMA_BASE_URL` never fell through to
 // the fallback, because the literal was always truthy.
 export const AGENT_ENDPOINTS = {
+  beat_extractor:    LLAMA_BASE_URL,
   ghostwriter:       LLAMA_BASE_URL,
   ghostwriter_nsfw:  LLAMA_BASE_URL,
   architect:         LLAMA_BASE_URL,
@@ -123,6 +132,9 @@ export const AGENT_ENDPOINTS = {
 // neither the agent nor the endpoint nor the overflow. This table plus the refusal
 // below turn that into a legible pre-flight failure.
 export const AGENT_CTX_TOKENS = {
+  // BEATLEDGER-1C: equal to the writer's (ghostwriter) — extraction never
+  // borrows the architect's context setting now that it has its own key.
+  beat_extractor:    32768,
   ghostwriter:       32768,
   ghostwriter_nsfw:  32768,
   architect:         32768,
@@ -160,6 +172,7 @@ export function checkPromptBudget({ promptChars, reserveTokens, ctxTokens, chars
 }
 
 const AGENT_SYSTEM_PROMPTS = {
+  beat_extractor: '',
   ghostwriter: '',
   ghostwriter_nsfw: '',
   architect: '',
@@ -309,6 +322,11 @@ export async function callLlama(args) {
 
 export function resolveAgent(taskType, project = null) {
   const t = String(taskType || '').toLowerCase();
+  // BEATLEDGER-1C: its own key, checked first and independent of project
+  // type — extraction always passes `model:` explicitly (BEATLEDGER-1B), so
+  // this only decides ctx/endpoint/log-label, which never vary by NSFW or
+  // nonfiction status the way the WRITER's own key does.
+  if (t === 'beat_extraction') return 'beat_extractor';
   const isNSFW = project && (
     Number(project.spice_level || 0) >= 3 ||
     /erotic|erotica|smut|bdsm|explicit/i.test(project.genre || '') ||

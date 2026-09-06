@@ -108,7 +108,7 @@ export async function runBackfillCommand(opts) {
   // previous callLLM closure was built before any project/model was known
   // and never forwarded a model at all, so callAgentWithMeta fell back to
   // resolveAgent's OWN (wrong, for nonfiction) model choice.
-  const callLLM = (prompt) => callAgentWithMeta({ prompt, taskType: 'beats', model: extractorModel, temperature: 0.2, maxTokens: 2048 });
+  const callLLM = (prompt) => callAgentWithMeta({ prompt, taskType: 'beat_extraction', model: extractorModel, temperature: 0.2, maxTokens: 2048 });
 
   const report = { skipped: [], counts: [], failed: [] };
 
