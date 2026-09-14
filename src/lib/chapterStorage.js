@@ -258,6 +258,10 @@ async function fetchTextDirectNoCache(url, label = 'chapter') {
  */
 function rewriteForLocalGitHubProxy(url) {
   if (!url) return null;
+  // HEADLESS: `window` is browser-only. Under Node there is no local dev proxy to
+  // rewrite to, so bail before touching window.location (the unguarded read
+  // threw a ReferenceError that sank the whole resolveChapterContent chain).
+  if (typeof window === 'undefined' || !window.location) return null;
   const { hostname, port } = window.location;
   const isLocalDev = (hostname === 'localhost' || hostname === '127.0.0.1') && port === '5180';
   if (!isLocalDev) return null;
