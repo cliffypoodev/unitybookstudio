@@ -294,7 +294,24 @@ export async function runDraftCommand(opts) {
     appendRunLog(dataDir, runId, `Chapter ${chapter.chapter_number}: drafting.`);
     try {
       const result = await runChapterDraftFn({ project, chapter, chapters: allChapters, deps, options: {} });
-      const contentSha256 = sha256(result?.content || '');
+      // RUNNER1-NOCG-1 (false-success fix, smoke run run-320aea5ad8b1): the
+      // orchestrator's BIBLEGATE bails with a bare `return;` when the story
+      // bible is incomplete — no throw, just an undefined result. The old
+      // code hashed `result?.content || ''`, recorded the chapter as `done`
+      // with sha256('') (e3b0c442…) plus a paragraphCount read from the
+      // chapter's PRE-EXISTING stored content, and the run exited 0. Require
+      // a real nonempty string here, before any hash/`done` bookkeeping; the
+      // catch below marks the chapter `error`, which feeds erroredCount and
+      // the non-zero exit.
+      const content = result?.content;
+      if (typeof content !== 'string' || content.trim() === '') {
+        throw new Error(
+          `Chapter ${chapter.chapter_number} (${chapter.id}): drafting returned no content ` +
+          `(result missing or content empty/whitespace) — nothing was saved; ` +
+          `refusing to record a done state.`
+        );
+      }
+      const contentSha256 = sha256(content);
       // ACCEPT-1-FIX-ADVERSARIAL-REVIEW-FINDINGS: runChapterDraftFn's
       // returned `content` is the RAW pre-save text (chapterOrchestrator.js
       // passes it to prepareChapterContent, which normalizes it — collapsing

@@ -9,6 +9,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 import {
   ensureRunnerToken, verifyRunnerToken, createUser,
@@ -264,6 +265,109 @@ const FIXTURE_CHAPTERS = [
       result.state.chapters['ch-2'].status === 'error' &&
       result.state.chapters['ch-3'].status === 'done');
     check('10b. runDraftCommand reports the error count for the caller to act on', result.erroredCount === 1);
+  } finally {
+    fs.rmSync(dataDir, { recursive: true, force: true });
+  }
+}
+
+// ── 10c-10h: RUNNER1-NOCG-1 — a missing/empty draft result must be recorded
+// as an ERROR, never a `done` with sha256('') (false success exposed by
+// smoke run run-320aea5ad8b1: the orchestrator's BIBLEGATE returns undefined
+// instead of throwing when the story bible is incomplete) ──
+{
+  const dataDir = mkScratchDir('ubs-runner1-nocg-');
+  try {
+    const EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+    // (1) undefined result (the BIBLEGATE shape) → error, not done
+    {
+      const store = makeFakeStore(FIXTURE_PROJECT, [FIXTURE_CHAPTERS[0]]);
+      const result = await runDraftCommand({
+        projectId: 'proj-1',
+        store,
+        runChapterDraft: async () => undefined,
+        deps: {},
+        dataDir,
+        log: () => {},
+      });
+      const rec = result.state.chapters['ch-1'];
+      check('10c. an undefined orchestrator result is recorded as error, not done',
+        rec.status === 'error' && typeof rec.error === 'string' && rec.error.includes('Chapter 1') && /no content/i.test(rec.error),
+        JSON.stringify(rec));
+      // (3a) no empty-content SHA and no paragraphCount on the failure
+      check('10d. the failed chapter records neither the empty-string sha nor a paragraphCount',
+        rec.contentSha256 !== EMPTY_SHA256 && !('contentSha256' in rec) && !('paragraphCount' in rec),
+        JSON.stringify(rec));
+    }
+
+    // (2a) empty-string content → error, not done
+    {
+      const store = makeFakeStore(FIXTURE_PROJECT, [FIXTURE_CHAPTERS[1]]);
+      const result = await runDraftCommand({
+        projectId: 'proj-1',
+        chapterSpec: '2',
+        store,
+        runChapterDraft: async () => ({ content: '', status: 'drafted' }),
+        deps: {},
+        dataDir,
+        log: () => {},
+      });
+      const rec = result.state.chapters['ch-2'];
+      check('10e. empty-string content is rejected as error, not done, with a clear message and no hash/paragraphCount',
+        rec.status === 'error' && result.erroredCount === 1 &&
+        !('contentSha256' in rec) && !('paragraphCount' in rec) &&
+        typeof rec.error === 'string' && rec.error.includes('Chapter 2') && /no content/i.test(rec.error),
+        JSON.stringify({ rec, erroredCount: result.erroredCount }));
+    }
+
+    // (2b) whitespace-only content → error, not done
+    {
+      const store = makeFakeStore(FIXTURE_PROJECT, [FIXTURE_CHAPTERS[2]]);
+      const result = await runDraftCommand({
+        projectId: 'proj-1',
+        chapterSpec: '3',
+        store,
+        runChapterDraft: async () => ({ content: '   \t\n  ', status: 'drafted' }),
+        deps: {},
+        dataDir,
+        log: () => {},
+      });
+      const rec = result.state.chapters['ch-3'];
+      check('10f. whitespace-only content is rejected as error, not done, with a clear message and no hash/paragraphCount',
+        rec.status === 'error' && result.erroredCount === 1 &&
+        !('contentSha256' in rec) && !('paragraphCount' in rec) &&
+        typeof rec.error === 'string' && rec.error.includes('Chapter 3') && /no content/i.test(rec.error),
+        JSON.stringify({ rec, erroredCount: result.erroredCount }));
+    }
+
+    // (5) batch behavior after one chapter fails is unchanged: fail-open
+    // across the batch, erroredCount counts it, and the GOOD chapters are
+    // still `done` with the sha of their real content (proves (4) too —
+    // a normal nonempty draft remains successful).
+    {
+      const store = makeFakeStore(FIXTURE_PROJECT, FIXTURE_CHAPTERS);
+      const result = await runDraftCommand({
+        projectId: 'proj-1',
+        store,
+        runChapterDraft: async ({ chapter }) => (
+          chapter.chapter_number === 2
+            ? undefined
+            : { content: `real content for chapter ${chapter.chapter_number}`, status: 'drafted' }
+        ),
+        deps: {},
+        dataDir,
+        log: () => {},
+      });
+      const c1 = result.state.chapters['ch-1'];
+      const c2 = result.state.chapters['ch-2'];
+      const c3 = result.state.chapters['ch-3'];
+      const goodSha = (n) => crypto.createHash('sha256').update(`real content for chapter ${n}`).digest('hex');
+      check('10g. one no-content failure does not stop the batch; good chapters stay done with their real sha',
+        c1.status === 'done' && c3.status === 'done' && c2.status === 'error' &&
+        c1.contentSha256 === goodSha(1) && c3.contentSha256 === goodSha(3),
+        JSON.stringify({ c1, c2, c3 }));
+      check('10h. erroredCount counts the no-content failure so the CLI exits non-zero', result.erroredCount === 1);
+    }
   } finally {
     fs.rmSync(dataDir, { recursive: true, force: true });
   }
