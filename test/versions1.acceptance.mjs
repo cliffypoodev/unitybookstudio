@@ -101,16 +101,19 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
   });
   const baseUrl = `http://127.0.0.1:${server.address().port}`;
 
-  // listFileVersions/serverFetch calls the global fetch with a relative
-  // "/api/store/..." URL (as it does in the real browser app) — redirect
-  // those to this ephemeral server; also record any call to `list`, which
-  // this feature must never make (110MB of content in one response).
+  // listFileVersions/serverFetch calls the global fetch with the browser's
+  // relative "/api/store/..." URL — or, under Node, the absolute URL
+  // HEADLESSSTORE-1's localDB emits (origin + "/api/store/..."). Redirect
+  // both shapes to this ephemeral server; also record any call to `list`,
+  // which this feature must never make (110MB of content in one response).
   const realFetch = globalThis.fetch;
+  const storePath = (u) => u.match(/^(?:https?:\/\/[^/]+)?(\/api\/store\/.*)$/);
   const listCalls = [];
   globalThis.fetch = (url, opts) => {
     const u = String(url);
     if (u.includes('/_FileStore/list')) listCalls.push(u);
-    if (u.startsWith('/api/store/')) return realFetch(`${baseUrl}${u}`, opts);
+    const m = storePath(u);
+    if (m) return realFetch(`${baseUrl}${m[1]}`, opts);
     return realFetch(url, opts);
   };
 
@@ -186,9 +189,11 @@ const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') +
   const baseUrl = `http://127.0.0.1:${server.address().port}`;
 
   const realFetch = globalThis.fetch;
+  const storePath = (u) => u.match(/^(?:https?:\/\/[^/]+)?(\/api\/store\/.*)$/);
   globalThis.fetch = (url, opts) => {
     const u = String(url);
-    if (u.startsWith('/api/store/')) return realFetch(`${baseUrl}${u}`, opts);
+    const m = storePath(u);
+    if (m) return realFetch(`${baseUrl}${m[1]}`, opts);
     return realFetch(url, opts);
   };
 

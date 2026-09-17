@@ -14,10 +14,24 @@ export function shouldAttemptRouterHeal(error) {
   return /compute error/i.test(String(error?.message || ''));
 }
 
+// HEADLESSSTORE-1: '/api/routerheal' resolves same-origin in the browser, but a
+// headless Node process has no origin — prefix the same dev-server base localDB.js
+// uses for /api/store/, and send the runner-token header so the server can
+// attribute the heal (loopback only). The browser keeps the relative URL.
+// Computed at import time, same as localLLM.js / localDB.js (LOCALLLM-NODE-1).
+const IS_NODE_RUNTIME = typeof window === 'undefined';
+const NODE_SERVER_BASE = IS_NODE_RUNTIME
+  ? (process.env.UBS_SERVER_URL || 'http://127.0.0.1:5180')
+  : '';
+
 async function requestRouterHeal() {
   try {
     if (typeof fetch !== 'function') return false;
-    const resp = await fetch('/api/routerheal', { method: 'POST' });
+    const url = `${NODE_SERVER_BASE}/api/routerheal`;
+    const headers = IS_NODE_RUNTIME && process.env.UBS_RUNNER_TOKEN
+      ? { 'x-ubs-runner-token': process.env.UBS_RUNNER_TOKEN }
+      : undefined;
+    const resp = await fetch(url, { method: 'POST', headers });
     const body = await resp.json().catch(() => ({}));
     console.warn('[ROUTERHEAL-1] heal response:', JSON.stringify(body));
     return body?.healed === true;
@@ -353,4 +367,4 @@ export async function generateImageWithRetry(payload, maxAttempts = 2) {
 }
 
 // Exported for testing
-export { attemptJsonSalvage as _attemptJsonSalvage, isRetryableError as _isRetryableError };
+export { attemptJsonSalvage as _attemptJsonSalvage, isRetryableError as _isRetryableError, requestRouterHeal as _requestRouterHeal };

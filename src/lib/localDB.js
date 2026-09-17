@@ -85,22 +85,45 @@ export async function idbExportAllData() {
 
 const API_BASE = '/api/store';
 
+// HEADLESSSTORE-1: a headless Node process (scripts/ubs-run.mjs) has no origin
+// to resolve the same-origin '/api/store/...' against — Node's fetch throws
+// "Failed to parse URL from /api/store/Chapter/update/…" (confirmed live in
+// run-47e07aa4737e: every Verified save for Ch.2 failed, attempt 4). Under
+// Node, prefix the dev-server base and send the runner-token header that
+// vite-server-store-plugin's getRunnerTokenUser accepts (loopback only).
+// The browser keeps the relative same-origin URL and sends no token header.
+// Computed at import time, same as localLLM.js (LOCALLLM-NODE-1): the runner
+// sets UBS_SERVER_URL/UBS_RUNNER_TOKEN before importing this module.
+const IS_NODE_RUNTIME = typeof window === 'undefined';
+const STORE_BASE_URL = IS_NODE_RUNTIME
+  ? (process.env.UBS_SERVER_URL || 'http://127.0.0.1:5180')
+  : '';
+const NODE_RUNNER_TOKEN = IS_NODE_RUNTIME
+  ? (process.env.UBS_RUNNER_TOKEN || '')
+  : '';
+
 async function serverFetch(entityName, action, options = {}) {
   const { id, body, method } = options;
   const idSuffix = id ? `/${encodeURIComponent(id)}` : '';
-  const url = `${API_BASE}/${entityName}/${action}${idSuffix}`;
+  const url = `${STORE_BASE_URL}${API_BASE}/${entityName}/${action}${idSuffix}`;
 
   const fetchOptions = { method: method || (body ? 'POST' : 'GET') };
-  if (body) {
-    fetchOptions.headers = { 'Content-Type': 'application/json' };
-    fetchOptions.body = JSON.stringify(body);
-  }
+  const headers = {};
+  if (body) headers['Content-Type'] = 'application/json';
+  if (NODE_RUNNER_TOKEN) headers['x-ubs-runner-token'] = NODE_RUNNER_TOKEN;
+  if (Object.keys(headers).length) fetchOptions.headers = headers;
+  if (body) fetchOptions.body = JSON.stringify(body);
 
   const resp = await fetch(url, fetchOptions);
-  if (resp.status === 401 && window.location.pathname !== '/login') {
+  if (resp.status === 401) {
     // AUTH-1: session expired or logged out — every store call is per-user now.
-    window.location.href = '/login';
-    throw new Error('Not authenticated');
+    // HEADLESSSTORE-1: under Node there is no window to redirect to /login —
+    // throw only (never reference window off the browser path).
+    if (IS_NODE_RUNTIME) throw new Error('Not authenticated');
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+      throw new Error('Not authenticated');
+    }
   }
   if (!resp.ok) {
     const errBody = await resp.json().catch(() => ({}));
