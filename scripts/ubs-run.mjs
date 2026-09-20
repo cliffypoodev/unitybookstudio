@@ -77,6 +77,14 @@ export function readRunnerToken(dataDir) {
 // ── Node-side store client — fetch to the dev server, no browser ────────
 const RUNNER_TOKEN_HEADER = 'x-ubs-runner-token';
 
+// Transitive headless modules read these two variables at import time, so
+// both must be set before any store/draft/polish/export dependency loads.
+// Exported so a headless harness can inject them. Never log the token.
+export function configureHeadlessEnvironment({ token, baseUrl }) {
+  process.env.UBS_RUNNER_TOKEN = token;
+  process.env.UBS_SERVER_URL = baseUrl;
+}
+
 export function createStoreClient({ baseUrl, token, fetchImpl = fetch }) {
   async function call(method, url, body) {
     const res = await fetchImpl(`${baseUrl}${url}`, {
@@ -443,6 +451,7 @@ async function main(argv) {
   const { command, flags } = parseArgs(argv);
   const token = readRunnerToken(dataDir);
   const baseUrl = process.env.UBS_SERVER_URL || 'http://127.0.0.1:5180';
+  configureHeadlessEnvironment({ token, baseUrl });
   const store = createStoreClient({ baseUrl, token });
 
   if (command === 'draft') {

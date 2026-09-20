@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 
 import {
   ensureRunnerToken, verifyRunnerToken, createUser,
@@ -17,7 +18,7 @@ import {
 import {
   UBS_RUN_VERSION, parseChapterRange, parseArgs, createStoreClient,
   runDraftCommand, runExportCommand, loadRunState, generateRunId,
-  runStopPath,
+  runStopPath, configureHeadlessEnvironment,
 } from '../scripts/ubs-run.mjs';
 
 let failures = 0;
@@ -422,6 +423,46 @@ const FIXTURE_CHAPTERS = [
     JSON.parse(calls[0].options.body).sort === 'chapter_number');
   check('12c. update posts to /api/store/Chapter/update/:id', calls[1].url === 'http://127.0.0.1:5180/api/store/Chapter/update/ch-1');
   check('12d. get reads /api/store/NovelProject/get/:id', calls[2].url === 'http://127.0.0.1:5180/api/store/NovelProject/get/proj-1' && calls[2].options.method === 'GET');
+}
+
+// ── 13a: main() calls configureHeadlessEnvironment at the right moment ───
+{
+  const src = fs.readFileSync(
+    path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..', 'scripts', 'ubs-run.mjs'),
+    'utf8'
+  );
+  const mainStart = src.indexOf('async function main');
+  const callIdx = src.indexOf('configureHeadlessEnvironment({ token, baseUrl });', mainStart);
+  const baseUrlIdx = src.indexOf('const baseUrl = process.env.UBS_SERVER_URL', mainStart);
+  const storeIdx = src.indexOf('createStoreClient({ baseUrl, token })', mainStart);
+  const dispatchIdx = src.indexOf("if (command === 'draft')", mainStart);
+
+  check('13a. main() calls configureHeadlessEnvironment({ token, baseUrl })',
+    callIdx !== -1);
+  check('13b. the call is positioned after baseUrl is resolved',
+    callIdx !== -1 && baseUrlIdx !== -1 && callIdx > baseUrlIdx);
+  check('13c. the call precedes createStoreClient and command dispatch',
+    callIdx !== -1 && storeIdx !== -1 && dispatchIdx !== -1 &&
+    callIdx < storeIdx && callIdx < dispatchIdx);
+}
+
+// ── 13: configureHeadlessEnvironment injects token + server URL ──────────
+{
+  const sentinelToken = 'headless-sentinel-token-000';
+  const priorToken = process.env.UBS_RUNNER_TOKEN;
+  const priorUrl = process.env.UBS_SERVER_URL;
+  try {
+    configureHeadlessEnvironment({ token: sentinelToken, baseUrl: 'http://127.0.0.1:5199' });
+    check('13. configureHeadlessEnvironment sets UBS_RUNNER_TOKEN',
+      process.env.UBS_RUNNER_TOKEN === sentinelToken);
+    check('13b. configureHeadlessEnvironment sets UBS_SERVER_URL',
+      process.env.UBS_SERVER_URL === 'http://127.0.0.1:5199');
+  } finally {
+    if (priorToken === undefined) delete process.env.UBS_RUNNER_TOKEN;
+    else process.env.UBS_RUNNER_TOKEN = priorToken;
+    if (priorUrl === undefined) delete process.env.UBS_SERVER_URL;
+    else process.env.UBS_SERVER_URL = priorUrl;
+  }
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
