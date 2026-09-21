@@ -1,10 +1,8 @@
 // READERPASS-1 acceptance battery (UBS_plan.md Phase 2B) — the windowed
 // reader pass. Report only: no gates, no writes to Chapter/NovelProject.
-// Generic fixture names only (Mara, Dov). No real Anthropic API key or
-// network call anywhere in this file — every callLLM is a mock.
+// Generic fixture names only (Mara, Dov). No real model or network call
+// anywhere in this file — every callLLM is a mock.
 import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import {
   READER_PASS_VERSION,
   READER_PASS_WINDOW_WORDS,
@@ -16,8 +14,11 @@ import {
 } from '../src/lib/readerPass.js';
 import {
   READERPASS_SCRIPT_VERSION,
-  MISSING_ANTHROPIC_KEY_MESSAGE,
-  resolveAnthropicKey,
+  READER_PASS_MODEL,
+  READER_PASS_TASK_TYPE,
+  READER_PASS_TRANSPORT,
+  assertLoopbackServerUrl,
+  createLocalReaderCaller,
   runReaderPassCommand,
   parseArgs,
 } from '../scripts/readerpass.mjs';
@@ -26,15 +27,15 @@ let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
 
 // ── version ──
-check('1. READER_PASS_VERSION', READER_PASS_VERSION === 'reader-pass-v1');
-check('2. READERPASS_SCRIPT_VERSION', READERPASS_SCRIPT_VERSION === 'readerpass-script-v1');
+check('1. READER_PASS_VERSION', READER_PASS_VERSION === 'reader-pass-v2-local');
+check('2. READERPASS_SCRIPT_VERSION', READERPASS_SCRIPT_VERSION === 'readerpass-script-v2-local');
 
 // ── windowing sizes ──
 {
   const words = Array.from({ length: 40000 }, (_, i) => `word${i}`).join(' ');
   const windows = buildReaderWindows(words);
-  check('3. windows are ~17k words each (READER_PASS_WINDOW_WORDS)', windows[0].endWord - windows[0].startWord === READER_PASS_WINDOW_WORDS);
-  check('4. consecutive windows overlap by ~2k words (READER_PASS_OVERLAP_WORDS)', windows[0].endWord - windows[1].startWord === READER_PASS_OVERLAP_WORDS);
+  check('3. windows use the local-context-safe word limit', windows[0].endWord - windows[0].startWord === READER_PASS_WINDOW_WORDS && READER_PASS_WINDOW_WORDS === 12000);
+  check('4. consecutive windows preserve a 1.5k-word overlap', windows[0].endWord - windows[1].startWord === READER_PASS_OVERLAP_WORDS && READER_PASS_OVERLAP_WORDS === 1500);
   check('5. the final window is clipped to the text\'s end, not padded', windows[windows.length - 1].endWord === 40000);
   check('6. an empty text produces zero windows (never a crash)', buildReaderWindows('').length === 0);
 }
@@ -76,6 +77,14 @@ check('2. READERPASS_SCRIPT_VERSION', READERPASS_SCRIPT_VERSION === 'readerpass-
     maxTokens: 4096,
   });
   check('12. a genuine zero-flag window is status "ok", distinct from a failure', result.windowResults[0].status === 'ok' && result.failedCount === 0);
+}
+{
+  const result = await runReaderPass({
+    fullText: 'x'.repeat(200),
+    callLLM: async () => ({ text: '{"flags":[]', stopReason: 'length' }),
+    maxTokens: 4096,
+  });
+  check('12b. local OpenAI finish_reason=length is also tracked as a truncation failure', result.windowResults[0].status === 'failed' && /truncated/.test(result.windowResults[0].reason));
 }
 
 // ── all-windows-failed report labeling ──
@@ -134,36 +143,37 @@ check('18. runReaderPass enforces max_tokens >= READER_PASS_MIN_MAX_TOKENS', awa
   catch (err) { return err.message.includes(String(READER_PASS_MIN_MAX_TOKENS)); }
 })());
 
-// ── missing key exits clearly ──
-{
-  const noKey = resolveAnthropicKey({ env: {}, dataDir: '/nonexistent-readerpass-fixture-dir' });
-  check('19. resolveAnthropicKey returns null when no env var and no key file exist', noKey === null);
-}
-{
-  const key = resolveAnthropicKey({ env: { UBS_ANTHROPIC_API_KEY: 'sk-test-fixture-key' }, dataDir: '/nonexistent-readerpass-fixture-dir' });
-  check('20. resolveAnthropicKey reads UBS_ANTHROPIC_API_KEY when set', key === 'sk-test-fixture-key');
-}
-{
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'readerpass1-battery-'));
-  fs.mkdirSync(path.join(tmp, '_auth'), { recursive: true });
-  fs.writeFileSync(path.join(tmp, '_auth', 'anthropic.key'), 'sk-fixture-from-file\n');
-  const key = resolveAnthropicKey({ env: {}, dataDir: tmp });
-  check('21. resolveAnthropicKey falls back to the key file when no env var is set', key === 'sk-fixture-from-file');
-}
-// suite-hygiene's live-data heuristic flags the literal path below (a
-// gitignored KEY file path, not a live-book data read) — build it without
-// the literal contiguous substring, same technique beatledger1 uses for
-// '_FileStore'.
-const KEY_FILE_PATH = 'data' + '/_auth/anthropic.key';
-check('22. the missing-key message names both the env var and the key file path', MISSING_ANTHROPIC_KEY_MESSAGE.includes('UBS_ANTHROPIC_API_KEY') && MISSING_ANTHROPIC_KEY_MESSAGE.includes(KEY_FILE_PATH));
-check('23. the missing-key message never contains an actual key value', !/sk-[a-zA-Z0-9_-]{10,}/.test(MISSING_ANTHROPIC_KEY_MESSAGE));
-check('24. the missing-key message says it does not fall back to the local model', /does not fall back/i.test(MISSING_ANTHROPIC_KEY_MESSAGE));
+// ── local-only transport and local critic routing ──
+check('19. the reader uses the local DeepSeek critic model', READER_PASS_MODEL === 'deepseek-r1-14b' && READER_PASS_TASK_TYPE === 'critique');
+check('20. the saved transport label is explicitly local-loopback', READER_PASS_TRANSPORT === 'local-loopback');
+check('21. loopback guard accepts 127.0.0.1', assertLoopbackServerUrl('http://127.0.0.1:5180') === 'http://127.0.0.1:5180');
+check('22. loopback guard accepts localhost', assertLoopbackServerUrl('http://localhost:5180') === 'http://localhost:5180');
+check('23. loopback guard rejects a remote host before any model call', (() => {
+  try { assertLoopbackServerUrl('https://example.com'); return false; }
+  catch (err) { return /local-only/.test(err.message); }
+})());
+check('24. loopback guard rejects a tailnet/LAN address', (() => {
+  try { assertLoopbackServerUrl('http://100.95.98.74:5180'); return false; }
+  catch (err) { return /local-only/.test(err.message); }
+})());
 
-// ── the API key is never logged: source-scan every console.* call site in the script ──
+{
+  let captured = null;
+  const callLLM = createLocalReaderCaller({
+    callAgentWithMeta: async (args) => { captured = args; return { text: '{"flags":[],"runningList":""}', finishReason: 'stop' }; },
+  });
+  const response = await callLLM('fixture prompt', { maxTokens: 4096 });
+  check('25. local adapter routes through critic with the locked local model', captured.taskType === 'critique' && captured.model === 'deepseek-r1-14b');
+  check('26. local adapter requests structured JSON and maps finishReason', captured.jsonSchema?.required?.includes('flags') && response.stopReason === 'stop');
+}
+
+// ── source scan: the executable has no cloud URL/provider/key seam ──
 {
   const SCRIPT_SRC = fs.readFileSync(new URL('../scripts/readerpass.mjs', import.meta.url), 'utf8');
-  const consoleCallsWithApiKey = (SCRIPT_SRC.match(/console\.(log|warn|error)\([^)]*apiKey[^)]*\)/g) || []);
-  check('25. no console.log/warn/error call site references apiKey (source scan)', consoleCallsWithApiKey.length === 0, JSON.stringify(consoleCallsWithApiKey));
+  check('27. readerpass executable contains no cloud provider, remote URL, or cloud-key reference', !/anthropic|openrouter|https:\/\/|apiKey|API_KEY/i.test(SCRIPT_SRC));
+  const configureIdx = SCRIPT_SRC.indexOf('configureHeadlessEnvironment({ token, baseUrl });');
+  const depsIdx = SCRIPT_SRC.indexOf('const deps = await buildLocalReaderDeps();');
+  check('28. headless environment is configured before localLLM is imported', configureIdx >= 0 && depsIdx > configureIdx);
 }
 
 // ── script command: manuscript assembly, report, saved asset, never Chapter/NovelProject writes ──
@@ -192,15 +202,16 @@ check('24. the missing-key message says it does not fall back to the local model
     log: () => {},
   });
 
-  check('26. the assembled manuscript includes every chapter\'s prose, in order', capturedPrompt.includes('Mara arrives at the dock') && capturedPrompt.includes('missing ledger') && capturedPrompt.indexOf('dock') < capturedPrompt.indexOf('ledger'));
-  check('27. the report names the project title', report.startsWith('READER PASS — "Fixture Book"'));
-  check('28. the report is saved as a PublishingAsset with kind \'reader_pass_report\'', createdAssets.length === 1 && createdAssets[0].kind === 'reader_pass_report');
-  check('29. the saved asset\'s content is the JSON result', JSON.parse(createdAssets[0].content).windowCount === result.windowCount);
-  check('30. runReaderPassCommand never calls Chapter.update or NovelProject.update', chapterUpdateCalled === false && novelProjectUpdateCalled === false);
+  const saved = JSON.parse(createdAssets[0].content);
+  check('29. the assembled manuscript includes every chapter\'s prose, in order', capturedPrompt.includes('Mara arrives at the dock') && capturedPrompt.includes('missing ledger') && capturedPrompt.indexOf('dock') < capturedPrompt.indexOf('ledger'));
+  check('30. the report names the project title', report.startsWith('READER PASS — "Fixture Book"'));
+  check('31. the report is saved as a PublishingAsset with kind \'reader_pass_report\'', createdAssets.length === 1 && createdAssets[0].kind === 'reader_pass_report');
+  check('32. the saved result carries local transport, model, and script metadata', saved.windowCount === result.windowCount && saved.audit.transport === 'local-loopback' && saved.audit.model === 'deepseek-r1-14b' && saved.audit.scriptVersion === 'readerpass-script-v2-local');
+  check('33. runReaderPassCommand never calls Chapter.update or NovelProject.update', chapterUpdateCalled === false && novelProjectUpdateCalled === false);
 }
 
 // ── argument parsing ──
-check('31. parseArgs parses --project', parseArgs(['--project', 'p1']).project === 'p1');
+check('34. parseArgs parses --project', parseArgs(['--project', 'p1']).project === 'p1');
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);

@@ -1,6 +1,6 @@
 // src/lib/readerPass.js
-// READERPASS-1 (UBS_plan.md Phase 2B) — the reader pass: a frontier model,
-// a DIFFERENT model family than the local writer, reads the resolved
+// LOCALREADER-1 (UBS_plan.md Phase 2B) — the reader pass: a critic from a
+// DIFFERENT model family than the local writer reads the resolved
 // manuscript in large sequential windows and flags anything that feels like
 // a rerun. Report only: nothing here gates, blocks, cuts, or modifies
 // prose, and nothing writes to Chapter/NovelProject.
@@ -8,19 +8,20 @@
 // Scope boundary (same as beatLedger.js/repetitionSweep.js): this module
 // never resolves or calls a model itself. `runReaderPass` requires an
 // injected `callLLM` — the real caller (scripts/readerpass.mjs) is
-// responsible for the Anthropic Messages API call, the API key, and never
-// printing/logging/committing that key. This file has no knowledge of API
-// keys at all.
+// responsible for enforcing the local-only transport boundary. This file
+// has no knowledge of endpoints, credentials, or model routing.
 //
 // Relative imports only, no React — this module is imported directly by
 // test/readerpass1.acceptance.mjs under bare Node.
 
-export const READER_PASS_VERSION = 'reader-pass-v1';
+export const READER_PASS_VERSION = 'reader-pass-v2-local';
 
-// The plan's stated window sizes (~15-20k words, ~2k overlap) — the middle
-// of that range.
-export const READER_PASS_WINDOW_WORDS = 17000;
-export const READER_PASS_OVERLAP_WORDS = 2000;
+// LOCALREADER-1: 12k words plus a 4k-token answer (and localLLM's reasoning
+// reserve) fits the critic endpoint's 32k-token slot under ROUTE-1's
+// conservative estimate. The route guard still refuses unusually large
+// individual windows before sending them.
+export const READER_PASS_WINDOW_WORDS = 12000;
+export const READER_PASS_OVERLAP_WORDS = 1500;
 
 // "max_tokens >= 4096" per the kickoff's standing rule. Enforced here, not
 // just documented, so a caller can't silently under-provision and turn
@@ -89,7 +90,7 @@ function dedupeFlags(flags) {
 /**
  * Runs the windowed reader pass over `fullText`. NEVER counts a truncated
  * window's flags as "zero" — a window whose completion stopped at
- * max_tokens is tracked as FAILED (incomplete), distinct from a window that
+ * max_tokens/length is tracked as FAILED (incomplete), distinct from a window that
  * genuinely returned no flags. Parse failures and API errors (thrown by
  * callLLM) are tracked the same way, per window — one window's failure
  * never stops the rest.
@@ -119,9 +120,9 @@ export async function runReaderPass({ fullText, callLLM, maxTokens = READER_PASS
       const text = typeof result?.text === 'string' ? result.text : '';
       const stopReason = result?.stopReason ?? null;
 
-      if (stopReason === 'max_tokens') {
-        console.warn(`${tag}: FAILED — truncated (stop_reason=max_tokens), incomplete, not zero flags`);
-        windowResults.push({ index: win.index, status: 'failed', reason: 'truncated (stop_reason=max_tokens)', flags: [] });
+      if (stopReason === 'max_tokens' || stopReason === 'length') {
+        console.warn(`${tag}: FAILED — truncated (stop_reason=${stopReason}), incomplete, not zero flags`);
+        windowResults.push({ index: win.index, status: 'failed', reason: `truncated (stop_reason=${stopReason})`, flags: [] });
         continue;
       }
       if (!text.trim()) {

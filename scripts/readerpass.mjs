@@ -1,36 +1,22 @@
 #!/usr/bin/env node
-// scripts/readerpass.mjs — READERPASS-1 (UBS_plan.md Phase 2B)
+// scripts/readerpass.mjs — LOCALREADER-1 (UBS_plan.md Phase 2B)
 //
 // Runs the windowed reader pass over a project's resolved manuscript using
-// the Anthropic Messages API directly — a frontier model, a DIFFERENT model
-// family than the local writer (per the plan; this must NOT be a fleet
-// model and does NOT fall back to one). Prints the report and saves it as a
-// PublishingAsset (kind: 'reader_pass_report').
+// UBS's local critic model. The command is deliberately loopback-only: it
+// refuses any UBS_SERVER_URL that could route the manuscript off-machine.
+// The critic is a different model family from the Qwen fiction writer, so
+// the pass remains an independent second opinion without a cloud provider.
 //
 //   node scripts/readerpass.mjs --project <id>
 //
-// The API key is read from UBS_ANTHROPIC_API_KEY or a gitignored
-// data/_auth/anthropic.key file (confirmed: .gitignore's `/data/` line
-// already covers this path — no .gitignore change needed). The key is
-// NEVER printed, logged, or included in any error message. If the key is
-// absent, this exits with a clear message and does not fall back to the
-// local model.
-//
-// Never reads or writes data/ files directly beyond the key file above:
-// manuscript prose resolves through the store API alone, reusing
-// beats-backfill.mjs's resolveChapterProse (inline content_md, else
-// content_md_url via the blob store). Report only — never writes Chapter
-// or NovelProject.
-//
-// readerPass.js has no @/ imports (pure, relative-only), so this script
-// does NOT need the alias loader the backfill/sweep scripts use — the only
-// thing this file imports beyond it is ubs-run.mjs's Node-builtin helpers
-// and beats-backfill.mjs's resolveChapterProse (also relative-only).
+// Manuscript prose resolves through the authenticated store API. The report
+// is saved as a PublishingAsset (kind: 'reader_pass_report'). Report only —
+// this command never writes Chapter or NovelProject.
 
-import fs from 'node:fs';
-import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import {
+  configureHeadlessEnvironment,
   createStoreClient,
   readRunnerToken,
   resolveDataDir,
@@ -38,14 +24,34 @@ import {
 import { resolveChapterProse } from './beats-backfill.mjs';
 import { runReaderPass, formatReaderPassReport } from '../src/lib/readerPass.js';
 
-export const READERPASS_SCRIPT_VERSION = 'readerpass-script-v1';
+export const READERPASS_SCRIPT_VERSION = 'readerpass-script-v2-local';
+export const READER_PASS_MODEL = 'deepseek-r1-14b';
+export const READER_PASS_TASK_TYPE = 'critique';
+export const READER_PASS_MAX_TOKENS = 4096;
+export const READER_PASS_TRANSPORT = 'local-loopback';
 
-const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-const ANTHROPIC_VERSION = '2023-06-01';
-// READERPASS-1 standing rule: a frontier model, a different model family
-// than the local writer — not configurable via CLI flag on purpose.
-export const READER_PASS_MODEL = 'claude-sonnet-5';
-const READER_PASS_MAX_TOKENS = 8192; // comfortably above the >= 4096 floor readerPass.js enforces
+const HERE = fileURLToPath(import.meta.url);
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
+const READER_PASS_JSON_SCHEMA = {
+  type: 'object',
+  properties: {
+    flags: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          location: { type: 'string' },
+          echoOf: { type: 'string' },
+          what: { type: 'string' },
+          confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+        },
+        required: ['location', 'echoOf', 'what', 'confidence'],
+      },
+    },
+    runningList: { type: 'string' },
+  },
+  required: ['flags', 'runningList'],
+};
 
 export function parseArgs(argv) {
   const flags = {};
@@ -60,74 +66,52 @@ export function parseArgs(argv) {
   return flags;
 }
 
-export const MISSING_ANTHROPIC_KEY_MESSAGE =
-  'No Anthropic API key found (set UBS_ANTHROPIC_API_KEY or create data/_auth/anthropic.key). ' +
-  'The reader pass requires a frontier model from a DIFFERENT model family than the local writer ' +
-  '— it does not fall back to the local model.';
-
 /**
- * Resolves the Anthropic API key: env var first, then the gitignored key
- * file. Never logs the key itself — only whether one was found. `env` and
- * `dataDir` are injectable so the battery never needs a real key or a real
- * data dir.
+ * Refuses any reader-pass route that is not an explicit HTTP loopback URL.
+ * This is a hard boundary, not a convention: a hostname, LAN address,
+ * tailnet address, HTTPS proxy, or URL carrying credentials is rejected.
  */
-export function resolveAnthropicKey({ env = process.env, dataDir } = {}) {
-  const fromEnv = String(env.UBS_ANTHROPIC_API_KEY || '').trim();
-  if (fromEnv) return fromEnv;
-  const keyFile = path.join(dataDir || resolveDataDir(), '_auth', 'anthropic.key');
-  if (fs.existsSync(keyFile)) {
-    const fromFile = fs.readFileSync(keyFile, 'utf8').trim();
-    if (fromFile) return fromFile;
-  }
-  return null;
-}
-
-/**
- * One call to the Anthropic Messages API. Never includes `apiKey` in any
- * thrown error message.
- */
-async function callAnthropicMessages({ prompt, apiKey, model = READER_PASS_MODEL, maxTokens = READER_PASS_MAX_TOKENS }) {
-  let response;
+export function assertLoopbackServerUrl(rawUrl) {
+  let parsed;
   try {
-    response = await fetch(ANTHROPIC_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': ANTHROPIC_VERSION,
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: maxTokens,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-      signal: AbortSignal.timeout(300000),
-    });
-  } catch (fetchErr) {
-    throw new Error(`Cannot reach the Anthropic API: ${fetchErr?.message || 'unknown error'}`);
+    parsed = new URL(String(rawUrl || ''));
+  } catch {
+    throw new Error('[LOCALREADER-1] UBS_SERVER_URL must be a valid loopback URL.');
   }
-  if (!response.ok) {
-    let errMessage = `Anthropic API returned HTTP ${response.status}`;
-    try {
-      const errBody = await response.json();
-      errMessage = errBody?.error?.message || errMessage;
-    } catch { /* keep the generic message */ }
-    throw new Error(errMessage);
+  if (parsed.protocol !== 'http:' || !LOOPBACK_HOSTS.has(parsed.hostname) || parsed.username || parsed.password) {
+    throw new Error('[LOCALREADER-1] Reader pass is local-only; UBS_SERVER_URL must use HTTP on 127.0.0.1, localhost, or [::1].');
   }
-  const data = await response.json();
-  const text = Array.isArray(data?.content)
-    ? data.content.filter((b) => b?.type === 'text').map((b) => b.text).join('')
-    : '';
-  return { text, stopReason: data?.stop_reason || null };
+  if (parsed.pathname !== '/' || parsed.search || parsed.hash) {
+    throw new Error('[LOCALREADER-1] UBS_SERVER_URL must be an origin only, with no path, query, or fragment.');
+  }
+  return parsed.origin;
 }
 
 /**
- * Resolves a project's full manuscript prose (every chapter's resolved
- * content, in chapter order, through the store API — never data/ files
- * directly), runs the reader pass, prints the report, and saves it as a
- * PublishingAsset. Every real dependency is injectable: opts.store,
- * opts.resolveChapterProse, opts.runReaderPass, opts.formatReaderPassReport,
- * opts.callLLM.
+ * Adapts localLLM's { text, finishReason } result to readerPass.js's
+ * transport-neutral { text, stopReason } contract.
+ */
+export function createLocalReaderCaller({ callAgentWithMeta, model = READER_PASS_MODEL } = {}) {
+  if (typeof callAgentWithMeta !== 'function') {
+    throw new Error('[LOCALREADER-1] callAgentWithMeta is required.');
+  }
+  return async (prompt, meta = {}) => {
+    const response = await callAgentWithMeta({
+      prompt,
+      taskType: READER_PASS_TASK_TYPE,
+      model,
+      temperature: 0.2,
+      maxTokens: meta.maxTokens || READER_PASS_MAX_TOKENS,
+      jsonSchema: READER_PASS_JSON_SCHEMA,
+    });
+    return { text: response?.text || '', stopReason: response?.finishReason ?? null };
+  };
+}
+
+/**
+ * Resolves a project's full manuscript prose through the store API, runs
+ * the reader pass, prints the report, and saves it as a PublishingAsset.
+ * Every external dependency is injectable for an offline acceptance test.
  */
 export async function runReaderPassCommand(opts) {
   const {
@@ -137,6 +121,7 @@ export async function runReaderPassCommand(opts) {
     runReaderPass: runFn,
     formatReaderPassReport: formatFn,
     callLLM,
+    audit = {},
     log = (line) => console.log(line),
   } = opts;
 
@@ -151,7 +136,17 @@ export async function runReaderPassCommand(opts) {
   }
   const fullText = parts.join('\n\n');
 
-  const result = await runFn({ fullText, callLLM });
+  const coreResult = await runFn({ fullText, callLLM, maxTokens: READER_PASS_MAX_TOKENS });
+  const result = {
+    ...coreResult,
+    audit: {
+      transport: READER_PASS_TRANSPORT,
+      model: READER_PASS_MODEL,
+      taskType: READER_PASS_TASK_TYPE,
+      scriptVersion: READERPASS_SCRIPT_VERSION,
+      ...audit,
+    },
+  };
   const report = formatFn(result, { projectTitle: project?.title || '' });
   log(report);
 
@@ -162,9 +157,14 @@ export async function runReaderPassCommand(opts) {
     content: JSON.stringify(result, null, 2),
     created_date: new Date().toISOString(),
   });
-  log(`[READERPASS-1] report saved as PublishingAsset ${asset?.id || '(no id returned)'}.`);
+  log(`[LOCALREADER-1] report saved as PublishingAsset ${asset?.id || '(no id returned)'}.`);
 
   return { result, report, asset };
+}
+
+async function buildLocalReaderDeps() {
+  const { callAgentWithMeta } = await import('../src/lib/localLLM.js');
+  return { callLLM: createLocalReaderCaller({ callAgentWithMeta }) };
 }
 
 async function main(argv) {
@@ -176,35 +176,34 @@ async function main(argv) {
     return;
   }
 
-  const apiKey = resolveAnthropicKey({ dataDir });
-  if (!apiKey) {
-    console.error(`[READERPASS-1] ${MISSING_ANTHROPIC_KEY_MESSAGE}`);
-    process.exitCode = 1;
-    return;
-  }
-
+  const baseUrl = assertLoopbackServerUrl(process.env.UBS_SERVER_URL || 'http://127.0.0.1:5180');
   const token = readRunnerToken(dataDir);
-  const baseUrl = process.env.UBS_SERVER_URL || 'http://127.0.0.1:5180';
+  configureHeadlessEnvironment({ token, baseUrl });
   const store = createStoreClient({ baseUrl, token });
-
-  const callLLM = (prompt, meta) => callAnthropicMessages({ prompt, apiKey, maxTokens: meta?.maxTokens });
+  const deps = await buildLocalReaderDeps();
 
   await runReaderPassCommand({
     projectId: flags.project,
     store,
     runReaderPass,
     formatReaderPassReport,
-    callLLM,
+    ...deps,
   });
 }
 
-// readerPass.js has no @/ imports, so this file — unlike the backfill/sweep
-// scripts — never needs the alias loader. It runs as a plain Node process
-// either way.
 const isEntryPoint = process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url;
 if (isEntryPoint) {
-  main(process.argv.slice(2)).catch((err) => {
-    console.error('[READERPASS-1] fatal:', err?.stack || err);
-    process.exitCode = 1;
-  });
+  if (!process.env.__UBS_READERPASS_RELAUNCHED) {
+    const aliasLoader = fileURLToPath(new URL('../tests/helpers/aliasLoader.mjs', import.meta.url));
+    const result = spawnSync(process.execPath, ['--loader', aliasLoader, HERE, ...process.argv.slice(2)], {
+      stdio: 'inherit',
+      env: { ...process.env, __UBS_READERPASS_RELAUNCHED: '1' },
+    });
+    process.exit(result.status ?? 1);
+  } else {
+    main(process.argv.slice(2)).catch((err) => {
+      console.error('[LOCALREADER-1] fatal:', err?.stack || err);
+      process.exitCode = 1;
+    });
+  }
 }

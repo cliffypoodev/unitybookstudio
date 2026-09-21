@@ -98,10 +98,13 @@ Rules:
   - **Beat extraction (Phase 1A):** a local fleet model via its OpenAI-compatible
     endpoint (default: Angela Qwen :1237; configurable). Extraction is a structured
     task — a smaller node is acceptable if the user prefers.
-  - **Reader pass (Phase 2B) and Arm C (Phase 5):** the **Anthropic API directly**
-    (`https://api.anthropic.com/v1/messages`, standard Anthropic SDK; user has
-    credentials). This must NOT be a fleet model — it must be a different model family
-    than the prose writer.
+  - **Reader pass (Phase 2B):** the locally served `deepseek-r1-14b` critic through
+    UBS's authenticated loopback route. `readerpass.mjs` rejects non-loopback server
+    URLs. This remains a different model family from the Qwen prose writer without
+    sending manuscript text to a cloud provider.
+  - **Arm C (Phase 5):** an optional alternate-family model served locally. Keep this
+    arm disabled until a specific local model is configured and validated; no cloud
+    transport is permitted.
   - **Arms A/B (Phase 5):** the same endpoint the production Ghostwriter uses
     (discover it in Phase 0; expected to be Angela Qwen :1237).
 
@@ -266,9 +269,10 @@ Pairs above threshold (0.72): 6
 
 ### 2B. Reader pass (different model, one job)
 
-A frontier model via the **Anthropic API directly** (see MODEL INFRASTRUCTURE — not a
-fleet model, not any local gateway) reads the manuscript in large sequential windows (~15–20k words with
-~2k overlap), carrying forward a compact running "already seen" list it maintains itself.
+A local `deepseek-r1-14b` critic, reached only through UBS's authenticated loopback
+route, reads the manuscript in sequential 12k-word windows with ~1.5k overlap. This is
+a different model family from the Qwen prose writer and carries forward a compact
+running "already seen" list it maintains itself.
 Its ONLY job:
 
 ```
@@ -395,7 +399,9 @@ configurations and stores outputs side by side:
   NO anti-repetition manifesto, NO hard word minimum — instead:
   `Expected range: X–Y words. End when the scene's event and exit condition have landed.
   Never pad to reach a count.`
-- **Arm C (thin packet, frontier model):** identical packet to B through the Anthropic API.
+- **Arm C (thin packet, alternate local model):** identical packet to B through a
+  separately configured local model family. Disabled until that local model is named
+  and validated.
 
 Output a blind-review sheet (randomized labels) covering: redundancy, padding, dialogue
 authenticity, repeated sentence shapes, distinctiveness, continuity, "which would you
@@ -434,14 +440,13 @@ user a diagnostic that pinpoints every rerun in every book.
   capped Phase 3 block. The prompt is the disease; you are not its next symptom.
 - Do not fix a flagged repetition by regenerating the scene. Fixes are cut, compress,
   or (Phase 5, experimental path only) a thin-packet rewrite.
-- Do not reference, import, configure, or shim Ollama or LiteLLM in any form. They are
-  not part of this stack and have not been for over a month. All local inference is
-  llama.cpp OpenAI-compatible endpoints; frontier calls go straight to the Anthropic API.
+- Do not reference, import, configure, or shim Ollama, LiteLLM, or cloud model APIs in
+  any form. All inference in this plan uses local llama.cpp OpenAI-compatible endpoints.
 - Do not guess or fabricate any endpoint, port, or model ID. Use the confirmed list, the
   :8790 registry, or ask.
-- Do not run detection through the same local model family that wrote the prose for the
-  reader pass — it cannot see its own habits. Extraction (1A) may use the local model;
-  the reader pass (2B) must not.
+- Do not run the reader pass through the same model family that wrote the prose — it
+  cannot see its own habits. Extraction (1A) may use the writer model; the reader pass
+  (2B) uses the separately routed local DeepSeek critic.
 - Do not hard-delete anything. Status flags only.
 - Do not skip Phase 2 calibration on known-bad manuscripts. Detectors that haven't
   caught known repetition are decoration.
