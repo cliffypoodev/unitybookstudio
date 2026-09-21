@@ -2,7 +2,7 @@
 
 import { callAgent, AGENT_MODELS, resolveAgent, searchWeb } from '@/lib/localLLM';
 import { resolveWritingModel, normalizeWritingModel, logWritingModelUsage, isWritingTask } from '@/lib/writingModel';
-import { normalizeModelId } from '@/lib/modelRouting'; // MODELFIX-4
+import { assertLocalModelId, normalizeModelId } from '@/lib/modelRouting'; // MODELFIX-4, CLOUDROUTE-1
 
 // ROUTERHEAL-1: a 500 "Compute error" from the local router means a wedged
 // worker — retrying against it is useless (three live incidents on
@@ -195,6 +195,7 @@ export async function invokeLLMWithRetry(payload, maxAttempts = 3) {
   // to the local primary model BEFORE the drop-guard, so no unknown model string
   // ever reaches llama.cpp (it returns 400 and the call silently fails).
   let resolvedModel = normalizeModelId(payload.model) || null;
+  assertLocalModelId(resolvedModel);
   if (resolvedModel) {
     const agentKey = resolveAgent(taskType, payload._project || payload.project || null);
     const agentModel = AGENT_MODELS[agentKey];

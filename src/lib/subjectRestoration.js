@@ -307,7 +307,7 @@ export async function runSubjectRestoration(project, chapters, setBusyLabel) {
 
   // Sequential processing with an inter-call delay. Previous concurrent-batch
   // approach (5 chapters at once) succeeded on batch 1 but all subsequent
-  // batches silently failed — most likely a Gemini/OpenRouter rate limit
+  // batches silently failed — most likely a legacy remote-provider rate limit
   // triggered after the first burst. Sequential is slower but reliable:
   // roughly 2-4s per chapter × ~25 chapters = ~60-90 seconds for a full pass.
   const INTER_CALL_DELAY_MS = 400;

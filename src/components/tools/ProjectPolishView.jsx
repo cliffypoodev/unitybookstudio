@@ -1002,7 +1002,8 @@ Return ONLY the replacement prose. No preamble, no commentary.`;
 
       const result = await invokeLLMWithRetry({
         prompt: rewritePrompt,
-        model: project.model_override || 'openrouter:anthropic/claude-sonnet-4',
+        task_type: 'rewrite',
+        _project: project,
         temperature: 0.7,
         max_tokens: 2000,
       });

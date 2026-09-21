@@ -4308,10 +4308,9 @@ POLISHED SAMPLE:
 ${candidateSample}`;
 
   const response = await invokeLLMWithRetry({
-    task_type: 'prose',
+    task_type: 'critique',
+    _project: project,
     prompt,
-    model: 'openai_gpt5',
-    fallback_model: 'anthropic/claude-sonnet-4-20250514',
     temperature: 0.02,
     max_tokens: 900,
   });

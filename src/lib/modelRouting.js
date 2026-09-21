@@ -33,6 +33,20 @@ const MODEL_ID_ALIASES = {
 
 export function normalizeModelId(modelId) { if (!modelId) return modelId; const c = String(modelId).trim(); return c ? (MODEL_ID_ALIASES[c] || c) : c; }
 
+// CLOUDROUTE-1: provider-qualified cloud IDs must never reach the local
+// llama.cpp transport. Legacy aliases above normalize to an installed local
+// model first; anything still carrying a cloud-provider prefix fails closed.
+const CLOUD_MODEL_ID = /^(?:openrouter:|anthropic\/|openai\/|google\/|cohere\/|mistralai\/|https?:\/\/)/i;
+export function isCloudModelId(modelId) {
+  return CLOUD_MODEL_ID.test(String(modelId || '').trim());
+}
+export function assertLocalModelId(modelId) {
+  if (isCloudModelId(modelId)) {
+    throw new Error(`[CLOUDROUTE-1] Cloud model routes are disabled: ${String(modelId).split(/[/?#]/, 1)[0] || 'unknown provider'}`);
+  }
+  return modelId;
+}
+
 export function isWritingOrStructuredTask(task) {
   return ['prose','prose_continuation','draft','chapter','chapter_plan','scene','beats','foundation','transform','publishing','bibliography','fiction_research','ideas','rewrite','outline','manuscript'].includes(String(task || '').toLowerCase());
 }
