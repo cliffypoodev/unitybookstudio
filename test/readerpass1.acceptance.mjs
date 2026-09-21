@@ -17,8 +17,11 @@ import {
   READER_PASS_MODEL,
   READER_PASS_TASK_TYPE,
   READER_PASS_TRANSPORT,
+  READER_PASS_MAX_ATTEMPTS,
+  READER_PASS_RETRY_DELAY_MS,
   assertLoopbackServerUrl,
   createLocalReaderCaller,
+  isRetryableReaderError,
   runReaderPassCommand,
   parseArgs,
 } from '../scripts/readerpass.mjs';
@@ -27,8 +30,8 @@ let failures = 0;
 const check = (name, pass, detail) => { console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass || !detail ? '' : `\n      ${detail}`)); if (!pass) failures += 1; };
 
 // ── version ──
-check('1. READER_PASS_VERSION', READER_PASS_VERSION === 'reader-pass-v2-local');
-check('2. READERPASS_SCRIPT_VERSION', READERPASS_SCRIPT_VERSION === 'readerpass-script-v2-local');
+check('1. READER_PASS_VERSION', READER_PASS_VERSION === 'reader-pass-v3-local-retry');
+check('2. READERPASS_SCRIPT_VERSION', READERPASS_SCRIPT_VERSION === 'readerpass-script-v3-local-retry');
 
 // ── windowing sizes ──
 {
@@ -167,6 +170,53 @@ check('24. loopback guard rejects a tailnet/LAN address', (() => {
   check('26. local adapter requests structured JSON and maps finishReason', captured.jsonSchema?.required?.includes('flags') && response.stopReason === 'stop');
 }
 
+// ── bounded transient retry policy ──
+check('26a. retry policy is bounded to one retry with a five-second backoff', READER_PASS_MAX_ATTEMPTS === 2 && READER_PASS_RETRY_DELAY_MS === 5000);
+check('26b. transient local transport failures are retryable', isRetryableReaderError(new Error('Cannot reach llama serve at http://127.0.0.1:5180/llama: Error: fetch failed')));
+check('26c. configuration and request errors are not retryable', !isRetryableReaderError(Object.assign(new Error('Bad request'), { status: 400 })));
+{
+  let calls = 0;
+  let sleeps = 0;
+  const callLLM = createLocalReaderCaller({
+    callAgentWithMeta: async () => {
+      calls += 1;
+      if (calls === 1) throw new Error('fetch failed');
+      return { text: '{"flags":[],"runningList":""}', finishReason: 'stop' };
+    },
+    retryDelayMs: 0,
+    sleep: async () => { sleeps += 1; },
+    log: () => {},
+  });
+  const response = await callLLM('fixture prompt', { maxTokens: 4096 });
+  check('26d. a transient failure is retried once and the successful attempt count is returned', calls === 2 && sleeps === 1 && response.attempts === 2);
+}
+{
+  let calls = 0;
+  const callLLM = createLocalReaderCaller({
+    callAgentWithMeta: async () => {
+      calls += 1;
+      throw Object.assign(new Error('Bad request'), { status: 400 });
+    },
+    retryDelayMs: 0,
+    sleep: async () => {},
+    log: () => {},
+  });
+  let attempts = null;
+  try { await callLLM('fixture prompt', { maxTokens: 4096 }); }
+  catch (err) { attempts = err.readerAttempts; }
+  check('26e. a non-transient request failure is not retried', calls === 1 && attempts === 1);
+}
+{
+  const result = await runReaderPass({
+    fullText: 'fixture prose',
+    callLLM: async () => ({ text: '{"flags":[],"runningList":""}', stopReason: 'stop', attempts: 2 }),
+    maxTokens: 4096,
+  });
+  const report = formatReaderPassReport(result);
+  check('26f. the core result records per-window attempts and aggregate retries', result.windowResults[0].attempts === 2 && result.retryCount === 1);
+  check('26g. the human-readable report discloses retries', report.includes('Retries: 1'));
+}
+
 // ── source scan: the executable has no cloud URL/provider/key seam ──
 {
   const SCRIPT_SRC = fs.readFileSync(new URL('../scripts/readerpass.mjs', import.meta.url), 'utf8');
@@ -206,7 +256,7 @@ check('24. loopback guard rejects a tailnet/LAN address', (() => {
   check('29. the assembled manuscript includes every chapter\'s prose, in order', capturedPrompt.includes('Mara arrives at the dock') && capturedPrompt.includes('missing ledger') && capturedPrompt.indexOf('dock') < capturedPrompt.indexOf('ledger'));
   check('30. the report names the project title', report.startsWith('READER PASS — "Fixture Book"'));
   check('31. the report is saved as a PublishingAsset with kind \'reader_pass_report\'', createdAssets.length === 1 && createdAssets[0].kind === 'reader_pass_report');
-  check('32. the saved result carries local transport, model, and script metadata', saved.windowCount === result.windowCount && saved.audit.transport === 'local-loopback' && saved.audit.model === 'deepseek-r1-14b' && saved.audit.scriptVersion === 'readerpass-script-v2-local');
+  check('32. the saved result carries local transport, model, script, and retry-policy metadata', saved.windowCount === result.windowCount && saved.audit.transport === 'local-loopback' && saved.audit.model === 'deepseek-r1-14b' && saved.audit.scriptVersion === 'readerpass-script-v3-local-retry' && saved.audit.maxAttemptsPerWindow === 2 && saved.audit.retryDelayMs === 5000);
   check('33. runReaderPassCommand never calls Chapter.update or NovelProject.update', chapterUpdateCalled === false && novelProjectUpdateCalled === false);
 }
 

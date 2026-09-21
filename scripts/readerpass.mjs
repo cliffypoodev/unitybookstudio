@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/readerpass.mjs — LOCALREADER-1 (UBS_plan.md Phase 2B)
+// scripts/readerpass.mjs — LOCALREADER-2 (UBS_plan.md Phase 2B)
 //
 // Runs the windowed reader pass over a project's resolved manuscript using
 // UBS's local critic model. The command is deliberately loopback-only: it
@@ -24,11 +24,13 @@ import {
 import { resolveChapterProse } from './beats-backfill.mjs';
 import { runReaderPass, formatReaderPassReport } from '../src/lib/readerPass.js';
 
-export const READERPASS_SCRIPT_VERSION = 'readerpass-script-v2-local';
+export const READERPASS_SCRIPT_VERSION = 'readerpass-script-v3-local-retry';
 export const READER_PASS_MODEL = 'deepseek-r1-14b';
 export const READER_PASS_TASK_TYPE = 'critique';
 export const READER_PASS_MAX_TOKENS = 4096;
 export const READER_PASS_TRANSPORT = 'local-loopback';
+export const READER_PASS_MAX_ATTEMPTS = 2;
+export const READER_PASS_RETRY_DELAY_MS = 5000;
 
 const HERE = fileURLToPath(import.meta.url);
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
@@ -91,20 +93,59 @@ export function assertLoopbackServerUrl(rawUrl) {
  * Adapts localLLM's { text, finishReason } result to readerPass.js's
  * transport-neutral { text, stopReason } contract.
  */
-export function createLocalReaderCaller({ callAgentWithMeta, model = READER_PASS_MODEL } = {}) {
-  if (typeof callAgentWithMeta !== 'function') {
-    throw new Error('[LOCALREADER-1] callAgentWithMeta is required.');
+export function isRetryableReaderError(error) {
+  const status = Number(error?.status ?? error?.statusCode ?? error?.response?.status);
+  if ([408, 425, 429, 500, 502, 503, 504].includes(status)) return true;
+
+  const pieces = [];
+  const seen = new Set();
+  let current = error;
+  while (current && !seen.has(current)) {
+    seen.add(current);
+    pieces.push(current?.message, current?.code, current?.name);
+    current = current?.cause;
   }
+  const detail = pieces.filter(Boolean).join(' ');
+  return /cannot reach llama serve|fetch failed|network|socket|econnreset|econnrefused|etimedout|timed?\s*out/i.test(detail);
+}
+
+const defaultSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export function createLocalReaderCaller({
+  callAgentWithMeta,
+  model = READER_PASS_MODEL,
+  maxAttempts = READER_PASS_MAX_ATTEMPTS,
+  retryDelayMs = READER_PASS_RETRY_DELAY_MS,
+  sleep = defaultSleep,
+  log = (line) => console.warn(line),
+} = {}) {
+  if (typeof callAgentWithMeta !== 'function') {
+    throw new Error('[LOCALREADER-2] callAgentWithMeta is required.');
+  }
+  const attemptLimit = Math.max(1, Number(maxAttempts) || 1);
   return async (prompt, meta = {}) => {
-    const response = await callAgentWithMeta({
-      prompt,
-      taskType: READER_PASS_TASK_TYPE,
-      model,
-      temperature: 0.2,
-      maxTokens: meta.maxTokens || READER_PASS_MAX_TOKENS,
-      jsonSchema: READER_PASS_JSON_SCHEMA,
-    });
-    return { text: response?.text || '', stopReason: response?.finishReason ?? null };
+    for (let attempt = 1; attempt <= attemptLimit; attempt++) {
+      try {
+        const response = await callAgentWithMeta({
+          prompt,
+          taskType: READER_PASS_TASK_TYPE,
+          model,
+          temperature: 0.2,
+          maxTokens: meta.maxTokens || READER_PASS_MAX_TOKENS,
+          jsonSchema: READER_PASS_JSON_SCHEMA,
+        });
+        return { text: response?.text || '', stopReason: response?.finishReason ?? null, attempts: attempt };
+      } catch (error) {
+        const retryable = isRetryableReaderError(error);
+        if (!retryable || attempt >= attemptLimit) {
+          try { error.readerAttempts = attempt; } catch { /* best-effort audit annotation */ }
+          throw error;
+        }
+        log(`[LOCALREADER-2] transient local transport failure; retrying attempt ${attempt + 1}/${attemptLimit} in ${retryDelayMs}ms.`);
+        await sleep(Math.max(0, Number(retryDelayMs) || 0));
+      }
+    }
+    throw new Error('[LOCALREADER-2] unreachable retry state.');
   };
 }
 
@@ -144,6 +185,8 @@ export async function runReaderPassCommand(opts) {
       model: READER_PASS_MODEL,
       taskType: READER_PASS_TASK_TYPE,
       scriptVersion: READERPASS_SCRIPT_VERSION,
+      maxAttemptsPerWindow: READER_PASS_MAX_ATTEMPTS,
+      retryDelayMs: READER_PASS_RETRY_DELAY_MS,
       ...audit,
     },
   };
@@ -157,7 +200,7 @@ export async function runReaderPassCommand(opts) {
     content: JSON.stringify(result, null, 2),
     created_date: new Date().toISOString(),
   });
-  log(`[LOCALREADER-1] report saved as PublishingAsset ${asset?.id || '(no id returned)'}.`);
+  log(`[LOCALREADER-2] report saved as PublishingAsset ${asset?.id || '(no id returned)'}.`);
 
   return { result, report, asset };
 }
@@ -202,7 +245,7 @@ if (isEntryPoint) {
     process.exit(result.status ?? 1);
   } else {
     main(process.argv.slice(2)).catch((err) => {
-      console.error('[LOCALREADER-1] fatal:', err?.stack || err);
+      console.error('[LOCALREADER-2] fatal:', err?.stack || err);
       process.exitCode = 1;
     });
   }

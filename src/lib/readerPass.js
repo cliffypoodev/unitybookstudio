@@ -1,5 +1,5 @@
 // src/lib/readerPass.js
-// LOCALREADER-1 (UBS_plan.md Phase 2B) — the reader pass: a critic from a
+// LOCALREADER-2 (UBS_plan.md Phase 2B) — the reader pass: a critic from a
 // DIFFERENT model family than the local writer reads the resolved
 // manuscript in large sequential windows and flags anything that feels like
 // a rerun. Report only: nothing here gates, blocks, cuts, or modifies
@@ -14,7 +14,7 @@
 // Relative imports only, no React — this module is imported directly by
 // test/readerpass1.acceptance.mjs under bare Node.
 
-export const READER_PASS_VERSION = 'reader-pass-v2-local';
+export const READER_PASS_VERSION = 'reader-pass-v3-local-retry';
 
 // LOCALREADER-1: 12k words plus a 4k-token answer (and localLLM's reasoning
 // reserve) fits the critic endpoint's 32k-token slot under ROUTE-1's
@@ -119,15 +119,16 @@ export async function runReaderPass({ fullText, callLLM, maxTokens = READER_PASS
       const result = await callLLM(buildWindowPrompt(win.text, runningList), { maxTokens });
       const text = typeof result?.text === 'string' ? result.text : '';
       const stopReason = result?.stopReason ?? null;
+      const attempts = Math.max(1, Number(result?.attempts) || 1);
 
       if (stopReason === 'max_tokens' || stopReason === 'length') {
         console.warn(`${tag}: FAILED — truncated (stop_reason=${stopReason}), incomplete, not zero flags`);
-        windowResults.push({ index: win.index, status: 'failed', reason: `truncated (stop_reason=${stopReason})`, flags: [] });
+        windowResults.push({ index: win.index, status: 'failed', reason: `truncated (stop_reason=${stopReason})`, attempts, flags: [] });
         continue;
       }
       if (!text.trim()) {
         console.warn(`${tag}: FAILED — empty completion`);
-        windowResults.push({ index: win.index, status: 'failed', reason: 'empty completion', flags: [] });
+        windowResults.push({ index: win.index, status: 'failed', reason: 'empty completion', attempts, flags: [] });
         continue;
       }
 
@@ -136,7 +137,7 @@ export async function runReaderPass({ fullText, callLLM, maxTokens = READER_PASS
         parsed = JSON.parse(stripCodeFence(text));
       } catch (err) {
         console.warn(`${tag}: FAILED — malformed JSON (${err?.message || err})`);
-        windowResults.push({ index: win.index, status: 'failed', reason: `malformed JSON (${err?.message || err})`, flags: [] });
+        windowResults.push({ index: win.index, status: 'failed', reason: `malformed JSON (${err?.message || err})`, attempts, flags: [] });
         continue;
       }
 
@@ -145,20 +146,28 @@ export async function runReaderPass({ fullText, callLLM, maxTokens = READER_PASS
         runningList = parsed.runningList.trim();
       }
       console.log(`${tag}: ${flags.length} flag(s).`);
-      windowResults.push({ index: win.index, status: 'ok', flags });
+      windowResults.push({ index: win.index, status: 'ok', attempts, flags });
     } catch (err) {
       console.warn(`${tag}: FAILED — API error (${err?.message || err})`);
-      windowResults.push({ index: win.index, status: 'failed', reason: `API error (${err?.message || err})`, flags: [] });
+      windowResults.push({
+        index: win.index,
+        status: 'failed',
+        reason: `API error (${err?.message || err})`,
+        attempts: Math.max(1, Number(err?.readerAttempts) || 1),
+        flags: [],
+      });
     }
   }
 
   const failedCount = windowResults.filter((w) => w.status === 'failed').length;
+  const retryCount = windowResults.reduce((total, w) => total + Math.max(0, (Number(w.attempts) || 1) - 1), 0);
   const flags = dedupeFlags(windowResults.flatMap((w) => w.flags));
 
   return {
     windowCount: windows.length,
     windowResults,
     failedCount,
+    retryCount,
     flags,
     runningList,
   };
@@ -173,6 +182,7 @@ export function formatReaderPassReport(result, { projectTitle = '' } = {}) {
   } else if (result.failedCount > 0) {
     lines.push(`PARTIAL FAILURE ${result.failedCount}/${result.windowCount}`);
   }
+  if (result.retryCount > 0) lines.push(`Retries: ${result.retryCount}`);
   lines.push(`Flags (deduped across overlapping windows): ${result.flags.length}`);
   result.flags.forEach((f, i) => {
     lines.push(`${i + 1}. ${f.location} echoes ${f.echoOf} [${f.confidence}] — ${f.what}`);
