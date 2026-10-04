@@ -174,8 +174,15 @@ export function findPrematureCharacterPresence(beats, departedNames) {
 }
 
 /**
- * CHARSTATE-2: pull the declared event strings off a persisted chapter
+ * CHARSTATE-2: pull the declared event/state strings off a persisted chapter
  * record's beat contract (scene_beats_json — string or parsed). Fail-safe [].
+ *
+ * CHARSTATE-3 (REDUX ch.7 -> ch.8, 2026-10-04): entry_state/exit_state are
+ * planner-authoritative continuity facts, not decorative metadata. Dropping
+ * them here can strand a character in an earlier in-chapter state (for
+ * example: leaves in scene 1, rejoins by the final scene) and make the next
+ * chapter impossible to draft. Preserve them in scene order so the
+ * cross-chapter fold can see the same state transitions the scene writer saw.
  */
 export function collectChapterBeatEvents(chapterRecord) {
   try {
@@ -187,10 +194,12 @@ export function collectChapterBeatEvents(chapterRecord) {
     const scenes = Array.isArray(beats) ? beats : (beats?.scenes || beats?.beats || []);
     const out = [];
     for (const scene of scenes) {
+      if (scene?.entry_state) out.push(`ENTRY_STATE: ${String(scene.entry_state)}`);
       if (scene?.scene_goal) out.push(String(scene.scene_goal));
       for (const ev of (Array.isArray(scene?.required_events) ? scene.required_events : [])) {
         if (ev) out.push(String(ev));
       }
+      if (scene?.exit_state) out.push(`EXIT_STATE: ${String(scene.exit_state)}`);
     }
     return out;
   } catch {
@@ -266,6 +275,33 @@ export function extractCharacterStateUpdates(prose, castNames = []) {
  *   corroborated by the character actually appearing in that chapter's text.
  * @param {string[]} castNames
  */
+function finalPlannerExitState(beatEvents = []) {
+  if (!Array.isArray(beatEvents)) return '';
+  for (let i = beatEvents.length - 1; i >= 0; i -= 1) {
+    const raw = String(beatEvents[i] || '');
+    if (/^EXIT_STATE:\s*/i.test(raw)) return raw.replace(/^EXIT_STATE:\s*/i, '').trim();
+  }
+  return '';
+}
+
+function hasTerminalDepartureEvidence(prose, name) {
+  const text = stripDialogue(String(prose || ''));
+  if (!text || !name) return false;
+  // Only an explicit departure at the actual END of the prose may overrule
+  // the planner's FINAL exit state. Looking at a character-count tail can
+  // accidentally include an earlier scene's departure in short chapters,
+  // recreating the exact chronology bug this guard is meant to solve.
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const tail = sentences.slice(-2).join(' ');
+  return departurePatterns(name).slice(0, 4).some((rx) => {
+    rx.lastIndex = 0;
+    return rx.test(tail);
+  });
+}
+
 export function buildCharacterState(chapters = [], castNames = []) {
   const state = {};
   const ensure = (name) => {
@@ -316,6 +352,29 @@ export function buildCharacterState(chapters = [], castNames = []) {
         const entry = ensure(name);
         entry.partyStatus = 'departed';
         entry.statusChapter = Number(ch.chapterNumber);
+      }
+
+      // CHARSTATE-3: the FINAL persisted exit_state is later than every
+      // in-chapter departure and therefore resolves chronology that a
+      // chapter-wide prose regex cannot order. This is intentionally narrower
+      // than the ordinary beat-declaration fallback above: only an explicit
+      // final exit-state return may override an earlier detected departure,
+      // and never when the prose itself explicitly ends with the character
+      // leaving/gone. That preserves prose authority when plan and page truly
+      // disagree while allowing natural reconciliation phrasing to survive a
+      // chapter boundary.
+      const finalExit = finalPlannerExitState(ch.beatEvents);
+      if (finalExit) {
+        const closing = extractBeatDeclaredStateUpdates([finalExit], castNames);
+        for (const name of closing.returns) {
+          if (!nameAppearsIn(ch.text, name)) continue;
+          if (hasTerminalDepartureEvidence(ch.text, name)) continue;
+          const entry = ensure(name);
+          if (entry.partyStatus === 'departed') {
+            entry.partyStatus = 'returned';
+            entry.statusChapter = Number(ch.chapterNumber);
+          }
+        }
       }
     }
   }
