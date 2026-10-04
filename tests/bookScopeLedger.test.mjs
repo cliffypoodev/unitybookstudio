@@ -298,6 +298,11 @@ check('WIRING: ProjectStudio folds prior chapters and passes the result in',
 check('WIRING: ProjectStudio persists the ledger after drafting',
   projectStudio.includes('await saveChapterLedger(chapter.id, sceneResult.narrativeLedger, chapter.chapter_number)'));
 
+check('WIRING: fast Rewrite All persists the freshly generated ledger before the next chapter',
+  projectStudio.includes('const finalNarrativeLedger =')
+  && projectStudio.includes('generatedScenes[generatedScenes.length - 1]?.ledgerAfter')
+  && projectStudio.includes('await saveChapterLedger(chapter.id, finalNarrativeLedger, chapter.chapter_number)'));
+
 check('WIRING: the persistence helpers live in chapterCohesion beside summary_json',
   cohesion.includes('export async function saveChapterLedger')
   && cohesion.includes('export async function buildPriorLedger'));
