@@ -648,6 +648,29 @@ export async function runChapterDraft({ project, chapter, chapters, deps, option
       if (!fastVerify.ok) {
         throw new Error(`Verified save failed for Ch.${chapter.chapter_number}: ${fastVerify.reason}`);
       }
+
+      // LEDGERSCOPE-FAST-1: Rewrite All uses fastDraftOnly for fiction, but the
+      // old fast path returned before persisting the freshly generated narrative
+      // ledger. The next chapter therefore folded stale pre-rewrite state and
+      // could become impossible to satisfy after several successful rewrites.
+      // Persist only AFTER the content itself passes verified save. Current
+      // sceneWriter builds ledgerAfter for every accepted scene; use the explicit
+      // narrativeLedger when available, otherwise the final scene's ledgerAfter.
+      if (!isAnth) {
+        const generatedScenes = Array.isArray(sceneResult?.generatedScenes)
+          ? sceneResult.generatedScenes
+          : [];
+        const finalNarrativeLedger =
+          sceneResult?.narrativeLedger ||
+          generatedScenes[generatedScenes.length - 1]?.ledgerAfter ||
+          null;
+        if (finalNarrativeLedger) {
+          await saveChapterLedger(chapter.id, finalNarrativeLedger, chapter.chapter_number);
+        } else {
+          console.warn(`[NARRATIVE-LEDGER] Ch.${chapter.chapter_number}: fast draft produced no final ledger to persist.`);
+        }
+      }
+
       await maybeAutoPolishChapter({ project, chapter, content: chapterContent, onProgress: (label) => deps.onProgress({ stage: 'busy-label', chapterId: chapter.id, label }) }); // WAVE5-SETTINGS
 
       deps.onProgress({ stage: 'chapter-draft-updated', chapterId: chapter.id, content: chapterContent });
