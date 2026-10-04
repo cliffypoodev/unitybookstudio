@@ -146,6 +146,49 @@ export function corroborateBeatDeclaredReturns(returns, corroborationText) {
  * until a scene's OWN text declares their return, and only for scenes AFTER
  * that one. Returns [{ scene_number, name }] — empty when the plan is clean.
  */
+function characterLabelAliases(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return new Set();
+
+  const aliases = new Set();
+  const normalized = raw
+    .toLowerCase()
+    .replace(/[“”"‘’]/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  aliases.add(normalized);
+
+  // Full beat contracts often carry a formal name plus quoted nickname
+  // ("Zinnia 'Zin' Quark") while the state machine carries the short name
+  // ("Zin"). Treat the quoted nickname and unambiguous name tokens as aliases.
+  for (const match of raw.matchAll(/['‘"“]([^'’"”]{2,})['’"”]/g)) {
+    aliases.add(String(match[1] || '').toLowerCase().trim());
+  }
+  for (const token of raw.match(/[A-Za-z][A-Za-z'’-]*/g) || []) {
+    const clean = token.toLowerCase().replace(/^['’]+|['’]+$/g, '').trim();
+    if (clean.length >= 2) aliases.add(clean);
+  }
+
+  return aliases;
+}
+
+function resolveDepartedLabel(presentLabel, departedNames) {
+  const presentAliases = characterLabelAliases(presentLabel);
+  if (!presentAliases.size) return null;
+
+  const matches = (Array.isArray(departedNames) ? departedNames : []).filter((departed) => {
+    const departedAliases = characterLabelAliases(departed);
+    for (const alias of departedAliases) {
+      if (presentAliases.has(alias)) return true;
+    }
+    return false;
+  });
+
+  // Ambiguous aliases fail open instead of accusing the wrong character.
+  return matches.length === 1 ? matches[0] : null;
+}
+
 export function findPrematureCharacterPresence(beats, departedNames) {
   const list = Array.isArray(beats) ? beats : [];
   const stillDeparted = new Set(Array.isArray(departedNames) ? departedNames : []);
@@ -164,9 +207,14 @@ export function findPrematureCharacterPresence(beats, departedNames) {
       ...(Array.isArray(beat?.characters_present) ? beat.characters_present : []),
       ...(Array.isArray(beat?.characters) ? beat.characters : []),
     ];
-    for (const name of present) {
-      if (stillDeparted.has(name)) {
-        findings.push({ scene_number: beat?.scene_number ?? null, name });
+    for (const label of present) {
+      const departedName = resolveDepartedLabel(label, [...stillDeparted]);
+      if (departedName) {
+        findings.push({
+          scene_number: beat?.scene_number ?? null,
+          name: departedName,
+          presented_as: String(label || ''),
+        });
       }
     }
   }
