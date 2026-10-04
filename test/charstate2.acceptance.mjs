@@ -189,5 +189,43 @@ check('23. export gate folds beat events and audits with per-chapter declaration
   check('29. a plan that correctly withholds the departed character until the return scene is clean', findings.length === 0, JSON.stringify(findings));
 }
 
+// 30-31. CHARSTATE-2D / live REDUX Ch.8: state carries the short nickname
+// "Zin" while architect beat casts carry the formal label "Zinnia 'Zin' Quark".
+// Alias-equivalent labels must be treated as the SAME departed character or the
+// planner accepts a scene that the prose gate later hard-rejects.
+{
+  const beats = [
+    {
+      scene_number: 1,
+      scene_goal: 'Rodge searches Elm Fork for Zin.',
+      characters: ["Roderick 'Rodge' Krye"],
+      required_events: ['Rodge finds a clue pointing toward the festival grounds.'],
+    },
+    {
+      scene_number: 2,
+      scene_goal: 'The crew gathers parts at the festival.',
+      characters: ["Zinnia 'Zin' Quark", "Roderick 'Rodge' Krye", 'Sadie'],
+      required_events: ['The crew gathers usable parts.'],
+    },
+    {
+      scene_number: 3,
+      scene_goal: 'Zin returns to the crew after reconsidering her departure.',
+      characters: ["Zinnia 'Zin' Quark", "Roderick 'Rodge' Krye"],
+      required_events: ['Zin returns to the crew and reunites with Rodge.'],
+    },
+  ];
+  const findings = findPrematureCharacterPresence(beats, ['Zin']);
+  check(
+    '30. nickname state matches the formal beat-cast label and flags premature presence',
+    findings.some((f) => f.scene_number === 2 && f.name === 'Zin' && /Zinnia/.test(f.presented_as || '')),
+    JSON.stringify(findings)
+  );
+  check(
+    '31. the later scene that actually declares the nickname return is legal',
+    !findings.some((f) => f.scene_number === 3),
+    JSON.stringify(findings)
+  );
+}
+
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
