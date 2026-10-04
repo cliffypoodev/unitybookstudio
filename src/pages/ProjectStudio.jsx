@@ -2852,6 +2852,23 @@ invalidReasons=${JSON.stringify(invalidReasons)}`);
           });
 
         if (attempt === maxContractAttempts) {
+          // CHARSTATE-2D: never accept a plan that still stages a departed
+          // character before their return merely because the architect exhausted
+          // its retry budget. Fail before expensive prose generation instead.
+          if (prematurePresence.length > 0) {
+            const error = new Error(
+              `Chapter ${chapter.chapter_number} beat contract rejected: departed character(s) are staged before their return after ${maxContractAttempts} planning attempts. ` +
+              prematurePresence.map((finding) =>
+                `${finding.name} appears in scene ${finding.scene_number ?? '?'} as ${finding.presented_as || finding.name}`
+              ).join('; ')
+            );
+            error.name = 'NarrativeInvariantError';
+            error.code = 'PREMATURE_CHARACTER_PRESENCE_UNRESOLVED';
+            error.narrativeContract = true;
+            error.details = prematurePresence;
+            throw error;
+          }
+
           if (
             Array.isArray(normalizedBeatPlan) &&
             normalizedBeatPlan.length > 0
