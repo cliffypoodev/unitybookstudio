@@ -53,6 +53,52 @@ const events = collectChapterBeatEvents(record);
 check('7. collectChapterBeatEvents pulls goals + required events from the persisted contract', events.length === 4 && events.some((ev) => ev.includes('JB returns')));
 check('8. malformed/missing beat JSON fails safe to []', collectChapterBeatEvents({ scene_beats_json: '{not json' }).length === 0 && collectChapterBeatEvents({}).length === 0);
 
+// REDUX Chapter 7 -> 8 regression (2026-10-04): a chapter may stage a
+// departure early and resolve it by the final scene's authoritative state.
+// That closing state is part of the persisted beat contract and must ride into
+// the next chapter's state fold. Otherwise the next chapter sees a character
+// as still departed and hard-blocks ordinary on-page action.
+const resolvedPriorChapterRecord = { scene_beats_json: JSON.stringify([
+  {
+    scene_number: 1,
+    scene_goal: 'Zin walks away after the argument.',
+    required_events: ['Zin leaves the crew after the confrontation.'],
+    entry_state: 'Zin and Rodge are arguing outside the ship.',
+    exit_state: 'Zin is alone in the desert; Rodge remains with the crew.',
+  },
+  {
+    scene_number: 3,
+    scene_goal: 'Rodge finds Zin and they reconcile.',
+    required_events: ['Rodge acknowledges her point and offers his support.'],
+    entry_state: 'Zin is away from the crew; Rodge has gone to find her.',
+    exit_state: 'Zin has rejoined the crew; Zin and Rodge walk back to the ship together.',
+  },
+]) };
+const resolvedPriorEvents = collectChapterBeatEvents(resolvedPriorChapterRecord);
+check(
+  '8a. prior-chapter beat collection preserves authoritative entry/exit state for cross-chapter continuity',
+  resolvedPriorEvents.some((ev) => /Zin has rejoined the crew/i.test(ev)),
+  JSON.stringify(resolvedPriorEvents)
+);
+const zinNaturalReconciliation = [
+  'Zin left the crew after the argument and walked out into the desert.',
+  'Rodge found Zin at the livery stable after dark.',
+  'They talked until the anger drained out of the room.',
+  'Zin and Rodge walked back to the ship together before dawn.',
+].join(' ');
+const zinFolded = buildCharacterState([
+  {
+    chapterNumber: 7,
+    text: ('Chapter seven continuity. '.repeat(12)) + zinNaturalReconciliation,
+    beatEvents: resolvedPriorEvents,
+  },
+], ['Zin', 'Rodge']);
+check(
+  '8b. an authoritative closing-state reunion clears an earlier same-chapter departure before the next chapter',
+  zinFolded.Zin?.partyStatus === 'returned',
+  JSON.stringify(zinFolded.Zin)
+);
+
 // ── 3. the audit accepts a DECLARED return phrased naturally (the exact live kill shape) ──
 const departedState = { JB: { introduced: null, partyStatus: 'departed', statusChapter: 9 } };
 const naturalReturn = 'The figure pushed through the wall of dust and resolved into a man they knew. JB stood at the edge of the yard, hat in hand, sand in every crease of his coat. He said he had heard the warning on the road out of town. Nobody spoke for a moment, and then Ludo stepped forward.';
