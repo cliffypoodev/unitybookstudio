@@ -489,7 +489,7 @@ export function auditProseAgainstCharacterState(prose, state = {}, castNames = [
       violations.push({
         code: 'DEPARTED_CHARACTER_ACTIVE',
         name,
-        message: `${name} departed the crew in chapter ${entry.statusChapter} and appears here acting with no return written. Either write ${name}'s return (arrival + reunion + reason) BEFORE this, or remove ${name} from the scene.`,
+        message: `${name} departed the crew in chapter ${entry.statusChapter} and appears here acting, but this scene has no authorized return event. Remove all present-tense action, dialogue, arrival, observation, or on-page presence for ${name}. References to ${name}'s absence, past memories, or inanimate possessions may remain. Do NOT invent a return.`,
         evidence: acting[0].slice(0, 120),
       });
     }
