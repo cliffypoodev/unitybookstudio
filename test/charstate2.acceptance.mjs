@@ -104,6 +104,7 @@ const departedState = { JB: { introduced: null, partyStatus: 'departed', statusC
 const naturalReturn = 'The figure pushed through the wall of dust and resolved into a man they knew. JB stood at the edge of the yard, hat in hand, sand in every crease of his coat. He said he had heard the warning on the road out of town. Nobody spoke for a moment, and then Ludo stepped forward.';
 const withoutDeclaration = auditProseAgainstCharacterState(naturalReturn, departedState, CAST);
 check('9. WITHOUT the declaration the natural-phrasing return is still flagged (CHARSTATE-1 behavior preserved)', withoutDeclaration.some((v) => v.code === 'DEPARTED_CHARACTER_ACTIVE' && v.name === 'JB'));
+check('9a. an unauthorized departed-character repair must REMOVE activity, never invent a return', withoutDeclaration.some((v) => v.code === 'DEPARTED_CHARACTER_ACTIVE' && /Do NOT invent a return/i.test(v.message) && /absence, past memories, or inanimate possessions may remain/i.test(v.message)), JSON.stringify(withoutDeclaration));
 const withDeclaration = auditProseAgainstCharacterState(naturalReturn, departedState, CAST, { declaredReturns: ['JB'] });
 check('10. WITH the beat-declared return the same prose is legal (the live hard-block is dead)', withDeclaration.length === 0);
 check('11. a declaration for JB does not legalize a DIFFERENT departed character', (() => {
@@ -142,6 +143,7 @@ check('19. every scene spec carries CUMULATIVE declared returns (scenes ≤ this
 check('20. prior-chapter prose feed carries beat events for the state fold', /resolvedPriorProse\.push\(\{ chapterNumber: Number\(prior\.chapter_number\), text: body, beatEvents: collectChapterBeatEvents\(prior\) \}\)/.test(WRITER));
 const GATE_SRC = fs.readFileSync(new URL('../src/lib/sceneContractGate.js', import.meta.url), 'utf8');
 check('21. scene gate audits with the spec\'s declared returns', GATE_SRC.includes("{ declaredReturns: spec?.__beatDeclaredReturns || [] }"));
+check('21a. contract repair explicitly forbids inventing an unauthorized departed-character return', GATE_SRC.includes('do NOT invent one') && GATE_SRC.includes('past memories, or inanimate possessions may remain'));
 const STUDIO = fs.readFileSync(new URL('../src/pages/ProjectStudio.jsx', import.meta.url), 'utf8');
 check('22. beat planner state fold carries beat events', /statePriorChapters\.push\(\{ chapterNumber: Number\(prior\.chapter_number\), text: body, beatEvents: collectChapterBeatEvents\(prior\) \}\)/.test(STUDIO));
 const EXPORT_GATE = fs.readFileSync(new URL('../src/lib/exportSafetyGate.js', import.meta.url), 'utf8');
