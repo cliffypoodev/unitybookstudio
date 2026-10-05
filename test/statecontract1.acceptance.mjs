@@ -1,4 +1,4 @@
-[Reading 195 lines from start (total: 195 lines, 0 remaining)]
+[Reading 196 lines from start (total: 196 lines, 0 remaining)]
 
 // STATECONTRACT-1 acceptance battery — one closed-world state contract per
 // chapter, composing cast/pronouns/roles/status, the prior-chapter event
@@ -191,6 +191,7 @@ check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v
   check('16. legacy pronoun/role/character-state/style lines are gated behind !stateContract', (SW.match(/&& !stateContract\)/g) || []).length >= 3);
   check('17. a local budget guard mirrors ROUTE-1 and trims EVENTS on overflow', SW.includes('checkPromptBudget') && SW.includes('EVENTS_TRIM_STEPS') && SW.includes('eventsMaxChars: EVENTS_TRIM_STEPS[step]'));
   check('17a. budget guard preserves retry headroom before the first prose call', SW.includes('MIN_RETRY_HEADROOM_TOKENS = 2500') && SW.includes('budget.headroom < MIN_RETRY_HEADROOM_TOKENS'));
+  check('17b. scene generation uses the bounded SCENECAP-1 output budget instead of the old 3x word allowance', SW.includes('function sceneGenerationMaxTokens') && SW.includes('Math.ceil(words * 2)') && !SW.includes('sceneTarget * 3'));
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
