@@ -1,3 +1,5 @@
+[Reading 195 lines from start (total: 195 lines, 0 remaining)]
+
 // STATECONTRACT-1 acceptance battery — one closed-world state contract per
 // chapter, composing cast/pronouns/roles/status, the prior-chapter event
 // ledger, resolved-arc protection, the chapter's own scene map, and the
@@ -66,6 +68,39 @@ check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v
   check('4b. a self-declared return with NO outline/beat_summary corroboration stays departed', dovUncorroborated?.status === 'departed', JSON.stringify(dovUncorroborated));
 }
 
+
+
+// 4c. CHARSTATE-4: a return in a LATER scene must not legalize the
+// departed character in an EARLIER scene's prompt. The full scene map remains.
+{
+  const priorChapters = [
+    { chapterNumber: 1, text: 'Mara walked into the room. Dov followed her. '.repeat(20) },
+    { chapterNumber: 2, text: 'Dov left the crew and walked away alone. Dov was gone. '.repeat(20) },
+  ];
+  const chapter = { chapter_number: 3, beat_summary: 'Dov returns to the crew during the final scene.' };
+  const normalizedScenes = [
+    { scene_goal: 'Mara faces the storm without Dov', required_events: ['Mara secures the depot alone'] },
+    { scene_goal: 'Mara protects the transmitter', required_events: ['Mara sacrifices spare cable'] },
+    { scene_goal: 'Dov returns to the crew during the storm', required_events: ['Dov arrives and asks to rejoin the crew'] },
+  ];
+  const project = { characters_md: CHAR_SHEET };
+  const early = buildChapterStateContract({
+    project, chapter, resolvedPriorProse: priorChapters, normalizedScenes,
+    returnScopeScenes: normalizedScenes.slice(0, 1),
+    allProjectChapters: [], cast: ['Mara', 'Dov'],
+  });
+  const late = buildChapterStateContract({
+    project, chapter, resolvedPriorProse: priorChapters, normalizedScenes,
+    returnScopeScenes: normalizedScenes,
+    allProjectChapters: [], cast: ['Mara', 'Dov'],
+  });
+  const earlyDov = early.facts.cast.find((c) => c.name === 'Dov');
+  const lateDov = late.facts.cast.find((c) => c.name === 'Dov');
+  check('4c. later-scene return does not legalize Dov in an earlier scene contract', earlyDov?.status === 'departed', JSON.stringify(earlyDov));
+  check('4d. the actual return scene scope flips Dov to present', lateDov?.status === 'present', JSON.stringify(lateDov));
+  check('4e. early scene contract still renders the FULL chapter scene map', early.block.includes('Dov returns to the crew during the storm'), early.block);
+}
+
 // 5. resolved-arc line parsed with forbidden phrases
 {
   const arcs = parseResolvedArcs(CANON_MD);
@@ -132,6 +167,10 @@ check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v
   const narrow = buildChapterStateContract({ project, chapter: { chapter_number: 21 }, resolvedPriorProse: [], normalizedScenes: [], allProjectChapters: bigChapters, cast: ['Mara'], eventsMaxChars: 400 });
   check('15a. a tight eventsMaxChars elides the OLDEST chapters and says so', /elided for length/.test(narrow.block) && !narrow.block.includes('Ch.1:') && narrow.block.includes('Ch.20:'));
   check('15b. facts.events stays the FULL list even when the prompt is trimmed', narrow.facts.events.length === 20);
+
+  const zero = buildChapterStateContract({ project, chapter: { chapter_number: 21 }, resolvedPriorProse: [], normalizedScenes: [], allProjectChapters: bigChapters, cast: ['Mara'], eventsMaxChars: 0 });
+  check('15c. eventsMaxChars=0 omits EVENTS prompt text entirely', !zero.block.includes('EVENTS ALREADY HAPPENED'));
+  check('15d. eventsMaxChars=0 still keeps the FULL event list for audits', zero.facts.events.length === 20);
 }
 
 // 10-13. source-shape: sceneWriter.js, chapterStateContract.js, autonovel.js, ProjectStudio.jsx wiring (D2)
@@ -151,7 +190,10 @@ check('1. version', CHAPTER_STATE_CONTRACT_VERSION === 'chapter-state-contract-v
   // letting the chapter die at the wire.
   check('16. legacy pronoun/role/character-state/style lines are gated behind !stateContract', (SW.match(/&& !stateContract\)/g) || []).length >= 3);
   check('17. a local budget guard mirrors ROUTE-1 and trims EVENTS on overflow', SW.includes('checkPromptBudget') && SW.includes('EVENTS_TRIM_STEPS') && SW.includes('eventsMaxChars: EVENTS_TRIM_STEPS[step]'));
+  check('17a. budget guard preserves retry headroom before the first prose call', SW.includes('MIN_RETRY_HEADROOM_TOKENS = 2500') && SW.includes('budget.headroom < MIN_RETRY_HEADROOM_TOKENS'));
 }
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
+
+[executed on device: Angela-Mac-Studio.local (a604c3c7-1b3e-4d60-b6fa-30da7de65acb)]
