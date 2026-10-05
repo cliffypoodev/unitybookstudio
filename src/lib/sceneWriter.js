@@ -1,3 +1,5 @@
+[Reading 5444 lines from start (total: 5444 lines, 0 remaining)]
+
 /**
  * Scene-by-scene chapter generation — Sudowrite-style architecture.
  * v14: preserves scene richness while preventing same-event restarts, summary flattening, and blunt on-the-nose dialogue.
@@ -3986,38 +3988,51 @@ export async function generateChapterSceneByScene({
     const spec = normalizedScenes[i];
     const priorScenes = normalizedScenes.slice(0, i);
     const futureScenes = normalizedScenes.slice(i + 1);
+
+    // CHARSTATE-4: return authorization is scene-scoped. A return declared in
+    // Scene 3 must not make a departed character "present" in Scenes 1-2.
+    // Keep the FULL chapter scene map in the closed-world contract, but only
+    // allow the prefix through the current scene to change character status.
+    const sceneReturnScope = normalizedScenes.slice(0, i + 1);
+    const sceneDeclaredReturns = characterStateCast.length
+      ? corroborateBeatDeclaredReturns(
+          extractBeatDeclaredStateUpdates(
+            sceneReturnScope.flatMap((scene) => [
+              String(scene?.scene_goal || ''),
+              ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
+            ]).filter(Boolean),
+            characterStateCast
+          ).returns,
+          returnCorroborationText
+        ).corroborated
+      : [];
+    const sceneCharacterStateContract = characterState
+      ? buildCharacterStateContract(characterState, sceneDeclaredReturns)
+      : characterStateContract;
+    const sceneStateContractResult = buildChapterStateContract({
+      project,
+      chapter,
+      resolvedPriorProse,
+      normalizedScenes,
+      returnScopeScenes: sceneReturnScope,
+      allProjectChapters,
+      cast: characterStateCast,
+    });
+
     const promptSpec = {
       ...spec,
       // KEYLEDGER-1f: who has what when this scene opens.
       pronoun_canon: pronounCanonLine, // PRONOUNLOCK-1
       pronoun_variable: pronounVariableLine, // PRONOUNVAR-1
       role_canon: roleCanonLine, // CANON-2
-      character_state: characterStateContract, // CHARSTATE-1 (prompt block)
+      character_state: sceneCharacterStateContract, // CHARSTATE-1 / CHARSTATE-4 (scene-scoped prompt block)
       __characterState: characterState, // CHARSTATE-1 (audit object)
       __characterStateCast: characterStateCast, // CHARSTATE-1
-      // CHARSTATE-2: returns DECLARED by the beat plan up to and including
-      // THIS scene. The scene that stages a planned return (and every scene
-      // after it) is legal even when the writer's phrasing does not match the
-      // narrow prose return patterns; scenes BEFORE the declaring scene still
-      // enforce the departure.
-      // CHARSTATE-2B: corroborated against this chapter's own outline/beat
-      // summary — the same guard chapterDeclaredReturns above applies, so a
-      // self-declaration with no outline corroboration never legalizes a
-      // departed character's presence in ANY scene, not just earlier ones.
-      __beatDeclaredReturns: characterStateCast.length
-        ? corroborateBeatDeclaredReturns(
-            extractBeatDeclaredStateUpdates(
-              normalizedScenes.slice(0, i + 1).flatMap((scene) => [
-                String(scene?.scene_goal || ''),
-                ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
-              ]).filter(Boolean),
-              characterStateCast
-            ).returns,
-            returnCorroborationText
-          ).corroborated
-        : [],
+      // CHARSTATE-2/4: only returns declared by scenes up to and including
+      // THIS scene are legal here. Later-scene returns cannot leak backward.
+      __beatDeclaredReturns: sceneDeclaredReturns,
       style_budget: styleBudgetBlock, // STYLEBUDGET-1
-      state_contract: stateContractResult.block, // STATECONTRACT-1
+      state_contract: sceneStateContractResult.block, // STATECONTRACT-1 / CHARSTATE-4 scene-scoped status
       banned_vocabulary: buildBannedVocabularyPromptBlock(), // POLISHSAFE-4
       holders_of_record: Object.entries(runtimeLedger.possessions || {})
         .filter(([, objs]) => Array.isArray(objs) && objs.length)
@@ -4101,15 +4116,24 @@ export async function generateChapterSceneByScene({
       const reasoningModel = /deepseek-r1|qwen3/i.test(String(model || ''));
       const sceneReserveTokens = Math.max(3500, Math.min(8000, sceneTarget * 3)) + (reasoningModel ? 4096 : 0);
       let budget = checkPromptBudget({ promptChars: buildBudgetProbePrompt().length, reserveTokens: sceneReserveTokens, ctxTokens: AGENT_NUM_CTX });
+      // STATECONTRACT-1C: "fits" is not enough. Prose retries/repair prompts add
+      // corrective instructions after the first attempt. Live REDUX ch.11 fit
+      // with only 796 tokens of headroom, then the first retry grew by ~1.6K
+      // tokens and ROUTE-1 correctly refused it. Preserve retry runway by
+      // trimming old event-history text before the FIRST call when headroom is
+      // too small; cast/status and the full scene map are never trimmed.
+      const MIN_RETRY_HEADROOM_TOKENS = 2500;
       const EVENTS_TRIM_STEPS = [2500, 1000, 400, 0];
-      for (let step = 0; !budget.fits && step < EVENTS_TRIM_STEPS.length; step += 1) {
+      for (let step = 0; (!budget.fits || budget.headroom < MIN_RETRY_HEADROOM_TOKENS) && step < EVENTS_TRIM_STEPS.length; step += 1) {
         const trimmedContract = buildChapterStateContract({
-          project, chapter, resolvedPriorProse, normalizedScenes, allProjectChapters,
+          project, chapter, resolvedPriorProse, normalizedScenes,
+          returnScopeScenes: sceneReturnScope,
+          allProjectChapters,
           cast: characterStateCast, eventsMaxChars: EVENTS_TRIM_STEPS[step],
         });
         promptSpec.state_contract = trimmedContract.block;
         budget = checkPromptBudget({ promptChars: buildBudgetProbePrompt().length, reserveTokens: sceneReserveTokens, ctxTokens: AGENT_NUM_CTX });
-        console.log(`[STATECONTRACT] scene ${i + 1} prompt budget guard: events capped to ${EVENTS_TRIM_STEPS[step]}c -> headroom ${budget.headroom}t, fits=${budget.fits}`);
+        console.log(`[STATECONTRACT] scene ${i + 1} prompt budget guard: events capped to ${EVENTS_TRIM_STEPS[step]}c -> headroom ${budget.headroom}t, fits=${budget.fits}, retryFloor=${MIN_RETRY_HEADROOM_TOKENS}t`);
       }
     }
 
@@ -5420,3 +5444,5 @@ export function buildSceneWriterDebugPrompt(args) {
 export const generateChapterByScenes = generateChapterSceneByScene;
 
 export { auditSceneFutureBoundaries, validateGeneratedSceneReplay };
+
+[executed on device: Angela-Mac-Studio.local (a604c3c7-1b3e-4d60-b6fa-30da7de65acb)]
