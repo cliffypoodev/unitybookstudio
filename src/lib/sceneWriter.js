@@ -1,4 +1,4 @@
-[Reading 5444 lines from start (total: 5444 lines, 0 remaining)]
+[Reading 5455 lines from start (total: 5455 lines, 0 remaining)]
 
 /**
  * Scene-by-scene chapter generation — Sudowrite-style architecture.
@@ -2540,6 +2540,17 @@ function buildScenePrompt(args) {
   return out;
 }
 
+function sceneGenerationMaxTokens(targetWords) {
+  const words = Math.max(1, Number(targetWords || 800));
+  // SCENECAP-1: prose targets are words, not tokens. 3x target words was
+  // excessively generous for Qwen reasoning routes because the router also
+  // reserves a separate hidden-reasoning allowance. A 1,200-word scene could
+  // therefore become a 7.7K-token non-streaming response and stall the proxy.
+  // ~2 output tokens/word is ample for English prose while still allowing
+  // normal overrun and repair passes.
+  return Math.max(2200, Math.min(5000, Math.ceil(words * 2)));
+}
+
 async function generateSceneWithRepair({
   project,
   spec,
@@ -4114,7 +4125,7 @@ export async function generateChapterSceneByScene({
         runtimeLedger,
       });
       const reasoningModel = /deepseek-r1|qwen3/i.test(String(model || ''));
-      const sceneReserveTokens = Math.max(3500, Math.min(8000, sceneTarget * 3)) + (reasoningModel ? 4096 : 0);
+      const sceneReserveTokens = sceneGenerationMaxTokens(sceneTarget) + (reasoningModel ? 4096 : 0);
       let budget = checkPromptBudget({ promptChars: buildBudgetProbePrompt().length, reserveTokens: sceneReserveTokens, ctxTokens: AGENT_NUM_CTX });
       // STATECONTRACT-1C: "fits" is not enough. Prose retries/repair prompts add
       // corrective instructions after the first attempt. Live REDUX ch.11 fit
@@ -4232,7 +4243,7 @@ export async function generateChapterSceneByScene({
         disableFallbacks,
         targetWords: sceneTarget,
         temperature: (isNF ? 0.55 : 0.72) + (attempt - 1) * 0.05,
-        maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+        maxTokens: sceneGenerationMaxTokens(sceneTarget),
       });
       sceneProse = lightCleanSceneOutput(generated.prose);
       if (isProseLabCaptureEnabled(project)) { // PROSELAB-1: capture-only, flag default off
@@ -4292,7 +4303,7 @@ export async function generateChapterSceneByScene({
           disableFallbacks,
           targetWords: sceneTarget,
           temperature: 0.72,
-          maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+          maxTokens: sceneGenerationMaxTokens(sceneTarget),
         });
         const regenProse = lightCleanSceneOutput(regenerated?.prose || '');
         if (regenProse) {
@@ -4368,7 +4379,7 @@ export async function generateChapterSceneByScene({
         disableFallbacks,
         targetWords: sceneTarget,
         temperature: isNF ? 0.5 : 0.62,
-        maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+        maxTokens: sceneGenerationMaxTokens(sceneTarget),
       });
 
       const repairedProse = lightCleanSceneOutput(repaired.prose);
@@ -4464,7 +4475,7 @@ sentenceIndex=${v.sentenceIndex}`);
             disableFallbacks,
             targetWords: sceneTarget,
             temperature: 0.48,
-            maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+            maxTokens: sceneGenerationMaxTokens(sceneTarget),
           });
 
           const passProse = lightCleanSceneOutput(repaired.prose);
@@ -4576,7 +4587,7 @@ excerpt=${JSON.stringify(v.excerpt)}`);
               disableFallbacks,
               targetWords: sceneTarget,
               temperature: 0.48,
-              maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+              maxTokens: sceneGenerationMaxTokens(sceneTarget),
             });
             const passProse = lightCleanSceneOutput(repairedExit.prose);
             if (!passProse || !passProse.trim()) break;
@@ -4691,7 +4702,7 @@ remaining=${JSON.stringify((passAudit.violations || []).map((v) => v.excerpt.sli
             disableFallbacks,
             targetWords: sceneTarget,
             temperature: 0.48,
-            maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+            maxTokens: sceneGenerationMaxTokens(sceneTarget),
           });
 
           repairedProse = lightCleanSceneOutput(repaired.prose);
@@ -4825,7 +4836,7 @@ remainingReplays=${JSON.stringify(postRepairAudit.replays)}`);
             disableFallbacks,
             targetWords: sceneTarget,
             temperature: 0.48,
-            maxTokens: Math.max(3500, Math.min(8000, sceneTarget * 3)),
+            maxTokens: sceneGenerationMaxTokens(sceneTarget),
           });
 
           repairedContractProse = lightCleanSceneOutput(contractRepair.prose);
@@ -5383,7 +5394,7 @@ export async function generateSingleScene({
     disableFallbacks,
     targetWords: spec.targetWords,
     temperature: isNonfictionProject(project) || isNonfictionAnthology(project) ? 0.55 : 0.72,
-    maxTokens: Math.max(3500, Math.min(8000, Number(spec.targetWords || 800) * 3)),
+    maxTokens: sceneGenerationMaxTokens(Number(spec.targetWords || 800)),
   });
 
   if (isProseLabCaptureEnabled(project)) { // PROSELAB-1: capture-only, flag default off
