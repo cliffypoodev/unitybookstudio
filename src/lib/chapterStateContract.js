@@ -1,3 +1,5 @@
+[Reading 269 lines from start (total: 269 lines, 0 remaining)]
+
 // src/lib/chapterStateContract.js — STATECONTRACT-1
 //
 // One closed-world state contract per chapter. The pieces already existed —
@@ -106,7 +108,9 @@ function pronounLabel(canon, name, variable) {
  * @param {object} opts.project
  * @param {object} opts.chapter - the chapter being drafted ({ chapter_number })
  * @param {Array<{chapterNumber, text, beatEvents?}>} [opts.resolvedPriorProse] - PROSEFEED-1 shape
- * @param {Array} [opts.normalizedScenes] - this chapter's scene specs
+ * @param {Array} [opts.normalizedScenes] - this chapter's full scene specs (used for the scene map)
+ * @param {Array|null} [opts.returnScopeScenes] - scene prefix allowed to declare returns for the CURRENT scene.
+ *   When omitted, the whole chapter is used (chapter-level/default behavior).
  * @param {Array} [opts.allProjectChapters] - raw chapter records (for the event ledger)
  * @param {string[]} [opts.cast] - pre-harvested cast names; harvested from the sheet + prior prose if omitted
  * @param {number} [opts.eventsMaxChars] - STATECONTRACT-1B: cap on the rendered EVENTS
@@ -120,6 +124,7 @@ export function buildChapterStateContract({
   chapter = null,
   resolvedPriorProse = [],
   normalizedScenes = [],
+  returnScopeScenes = null,
   allProjectChapters = [],
   cast = [],
   eventsMaxChars = 5000,
@@ -154,7 +159,12 @@ export function buildChapterStateContract({
       // it — never a later chapter's outline pulled forward into this
       // chapter's beat text (live REDUX ch.10 self-declared "JB returns"
       // with zero corroboration from ch.10's own outline).
-      const chapterBeatStrings = (Array.isArray(normalizedScenes) ? normalizedScenes : []).flatMap((scene) => [
+      // CHARSTATE-4: a later-scene return must not legalize the character
+      // in earlier scenes. The full normalizedScenes still renders the complete
+      // scene map, but returnScopeScenes limits which scene prefix may flip a
+      // departed character to present for the CURRENT writer prompt.
+      const returnScenes = Array.isArray(returnScopeScenes) ? returnScopeScenes : normalizedScenes;
+      const chapterBeatStrings = (Array.isArray(returnScenes) ? returnScenes : []).flatMap((scene) => [
         String(scene?.scene_goal || ''),
         ...(Array.isArray(scene?.required_events) ? scene.required_events.map((ev) => String(ev || '')) : []),
       ]).filter(Boolean);
@@ -202,11 +212,18 @@ export function buildChapterStateContract({
       const ledger = buildPriorChapterEventLedger(allProjectChapters, chapterNumber, { maxChars: eventsMaxChars });
       facts.events = ledger.events;
       telemetry.events = ledger.events.length;
-      if (ledger.text) {
+      // STATECONTRACT-1C: eventsMaxChars=0 is an explicit prompt-rendering
+      // instruction: omit EVENTS text entirely while keeping the FULL event
+      // facts for deterministic replay/audit gates. buildPriorChapterEventLedger
+      // historically treats 0 as a default-sized cap, which made the final
+      // budget-trim step expand the prompt again instead of shrinking it.
+      if (eventsMaxChars > 0 && ledger.text) {
         sections.push(ledger.text);
         if (ledger.elidedChapterCount > 0) {
           console.log(`[STATECONTRACT] trimmed events to last ${ledger.byChapter.length - ledger.elidedChapterCount} chapter(s)`);
         }
+      } else if (eventsMaxChars === 0 && ledger.events.length) {
+        console.log(`[STATECONTRACT] EVENTS prompt text omitted for budget; ${ledger.events.length} event(s) retained for audits`);
       }
     }
   } catch (eventErr) { console.warn('[STATECONTRACT] EVENTS section failed (non-fatal):', eventErr?.message || eventErr); }
@@ -252,3 +269,5 @@ export function buildChapterStateContract({
 
   return { block, facts, telemetry };
 }
+
+[executed on device: Angela-Mac-Studio.local (a604c3c7-1b3e-4d60-b6fa-30da7de65acb)]
