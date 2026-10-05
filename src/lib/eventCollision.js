@@ -1,3 +1,5 @@
+[Reading 473 lines from start (total: 473 lines, 0 remaining)]
+
 // src/lib/eventCollision.js — SCENECOLLIDE-1
 //
 // Class-based event collision detection: catches a scene or beat plan that
@@ -25,13 +27,17 @@ const ACTION_CLASSES = [
   {
     name: 'ARRIVAL',
     event: /\b(?:arriv\w*|shows?\s+up|showed\s+up|pull(?:s|ed)?\s+up|roll(?:s|ed)?\s+(?:in|up)|turn(?:s|ed)?\s+up|lands?\b|landed\b)/i,
-    prose: /\b(?:arriv\w*|shows?\s+up|showed\s+up|pull(?:s|ed)?\s+up|roll(?:s|ed)?\s+(?:in|up)|turn(?:s|ed)?\s+up|landed\b|touch(?:es|ed)?\s+down|came\s+into\s+view|appear(?:s|ed)?\s+(?:on|at|over)\b)/i,
+    // Prose-side enactment requires an actual arrival VERB. Nouns such as
+    // "JB's arrival" are references/state, not a fresh staged arrival.
+    prose: /\b(?:arriv(?:e|es|ed|ing)|shows?\s+up|showed\s+up|pull(?:s|ed)?\s+up|roll(?:s|ed)?\s+(?:in|up)|turn(?:s|ed)?\s+up|landed\b|touch(?:es|ed)?\s+down|came\s+into\s+view|appear(?:s|ed)?\s+(?:on|at|over)\b)/i,
     idiom: /\barriv\w*\s+at\s+(?:a|an|the)?\s*(?:conclusion|decision|answer|plan|compromise|truth|agreement|solution|idea)\b/i,
   },
   {
     name: 'DEPARTURE',
     event: /\b(?:depart\w*|leav\w+\s+(?:town|the\s+\w+)|drove\s+off|rode\s+off|flew\s+off|walk(?:s|ed)?\s+out\s+of)\b/i,
-    prose: /\b(?:depart\w*|drove\s+off|rode\s+off|flew\s+off|pulled\s+out\s+of|walk(?:s|ed)?\s+out\s+of)\b/i,
+    // Likewise, "JB's departure" must not be mistaken for another
+    // character departing merely because both names share a sentence.
+    prose: /\b(?:depart(?:s|ed|ing)?|drove\s+off|rode\s+off|flew\s+off|pulled\s+out\s+of|walk(?:s|ed)?\s+out\s+of)\b/i,
     idiom: null,
   },
   {
@@ -117,6 +123,23 @@ export function classifyEventAction(eventText) {
   return ACTION_CLASSES.filter((c) => c.event.test(event)).map((c) => c.name);
 }
 
+// SCENECOLLIDE-2: for ARRIVAL/DEPARTURE, only entities introduced BEFORE the
+// event verb are candidate actors. A completed event such as
+// "Nolan arrives ... forcing Zin to react" must never make Zin an "arriving"
+// entity merely because her name appears later in the same ledger sentence.
+// REVEAL keeps the broader entity set because its substance guard separately
+// requires meaningful content overlap.
+function extractEventActorEntities(eventText, className) {
+  const event = String(eventText || '');
+  if (!['ARRIVAL', 'DEPARTURE'].includes(className)) return extractEventEntities(event);
+  const cls = ACTION_CLASSES.find((c) => c.name === className);
+  const verb = cls?.event?.exec(event);
+  if (!verb) return extractEventEntities(event);
+  const actorPrefix = event.slice(0, verb.index).trim();
+  const scoped = extractEventEntities(actorPrefix);
+  return scoped.size ? scoped : extractEventEntities(event);
+}
+
 function windowsOf(proseText) {
   return String(proseText || '')
     .replace(/\b(Dr|Mr|Mrs|Ms|Prof|Sr|Jr|St)\./g, '$1<ABBR>')
@@ -179,11 +202,11 @@ export function findProseEventCollisions(priorEvents, prose) {
     const event = String(raw || '');
     const classes = classifyEventAction(event);
     if (!classes.length) continue;
-    const entities = extractEventEntities(event);
-    if (!entities.size) continue;
 
     for (const className of classes) {
       const cls = ACTION_CLASSES.find((c) => c.name === className);
+      const entities = extractEventActorEntities(event, className);
+      if (!entities.size) continue;
       for (const window of wins) {
         if (!cls.prose.test(window)) continue;
         if (cls.idiom && cls.idiom.test(window)) continue;
@@ -225,9 +248,7 @@ export function findBeatEventCollisions(beats, priorEvents) {
     const event = String(raw || '');
     const classes = classifyEventAction(event);
     if (!classes.length) continue;
-    const entities = extractEventEntities(event);
-    if (!entities.size) continue;
-    prior.push({ event, classes, entities });
+    prior.push({ event, classes });
   }
   if (!prior.length) return [];
 
@@ -244,7 +265,9 @@ export function findBeatEventCollisions(beats, priorEvents) {
           const cls = ACTION_CLASSES.find((c) => c.name === className);
           if (!cls.prose.test(textValue) && !cls.event.test(textValue)) continue;
           if (cls.idiom && cls.idiom.test(textValue)) continue;
-          const entity = windowMentionsEntity(textValue, p.entities);
+          const entities = extractEventActorEntities(p.event, className);
+          if (!entities.size) continue;
+          const entity = windowMentionsEntity(textValue, entities);
           if (!entity) continue;
           if (/\b(?:already|again|second time|once more|return\w*|back)\b/i.test(textValue)) continue; // explicit causal marker
           // SCENECOLLIDE-1C: the substance requirement applies to BEATS too.
@@ -450,3 +473,5 @@ export function rewriteFutureOutlineCollisions(beats, findings) {
 }
 
 export const EVENT_COLLISION_VERSION = 'event-collision-v2'; // LOOKAHEAD-1
+
+[executed on device: Angela-Mac-Studio.local (a604c3c7-1b3e-4d60-b6fa-30da7de65acb)]
