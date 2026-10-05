@@ -1282,7 +1282,7 @@ Rewrite ONLY the current contracted scene from scratch.
 MANDATORY:
 - Do not replay any event completed in an earlier scene.
 - Do not re-stage an arrival, departure, or revelation that has already happened — characters who already arrived are ALREADY PRESENT; open the scene with them on stage, never arriving again.
-- A character who DEPARTED the story may NOT appear, act, or speak unless this scene writes their return first. A character who already introduced themselves is KNOWN — never another first meeting.
+- A character who DEPARTED the story may return ONLY when the CURRENT scene contract explicitly requires that return. If the violation says there is no authorized return event, do NOT invent one: remove every present-tense action, dialogue line, arrival, observation, or on-page presence for that character. References to their absence, past memories, or inanimate possessions may remain. A character who already introduced themselves is KNOWN — never another first meeting.
 - Do not perform any event reserved for a later scene.
 - Perform each current required event exactly once.
 - Preserve all established injuries, deaths, locations, knowledge, possessions, and decisions.
