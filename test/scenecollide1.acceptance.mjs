@@ -1,3 +1,5 @@
+[Reading 120 lines from start (total: 120 lines, 0 remaining)]
+
 // SCENECOLLIDE-1 + CANON-2 acceptance battery.
 //
 // The defects (measured on the REDUX draft, ChatGPT re-score 73/100):
@@ -63,6 +65,18 @@ check('11. exhausted-attempt rewrite annotates the colliding beat only', rewritt
 //      ordinary prose stays clean. ──
 check('12. ordinary prose with arrivals of OTHER entities stays clean', findProseEventCollisions([ARRIVAL_EVENT], 'Mr. Thompson arrived with the wagon at noon. The mail arrived late. A storm arrived from the west that evening.').length === 0);
 
+const MULTI_ENTITY_ARRIVAL = 'Nolan Brandt arrives, escalating the tension and forcing Zin to confront her doubts.';
+check('12a. a bystander named AFTER the completed arrival verb is not treated as the arriving entity', findProseEventCollisions([MULTI_ENTITY_ARRIVAL], 'Zin dropped the spanner into the grass, where it landed with a dull metallic clink.').length === 0);
+const actorHit = findProseEventCollisions([MULTI_ENTITY_ARRIVAL], 'Nolan Brandt arrived through the dust and stopped beside the ship.');
+check('12b. the actual arrival actor is still caught after actor scoping', actorHit.length === 1 && ['Nolan','Brandt'].includes(actorHit[0].entity), JSON.stringify(actorHit));
+check('12c. planner-side bystander + landed-object wording stays clean', findBeatEventCollisions([{ scene_number: 1, scene_goal: 'Zin drops a spanner and it lands in the grass.', required_events: [] }], [MULTI_ENTITY_ARRIVAL]).length === 0);
+
+check('12d. the noun "arrival" is a reference, not a fresh prose arrival', findProseEventCollisions([ARRIVAL_EVENT], "The rival team's arrival still bothered Ottie, who kept checking the road.").length === 0);
+const DEPARTURE_EVENT = 'Zin has a heartfelt conversation with Rodge and considers leaving the crew.';
+check('12e. another character\'s noun "departure" does not restage Zin departing', findProseEventCollisions([DEPARTURE_EVENT], "Zin had spent the afternoon convincing herself that JB's departure was a practical decision.").length === 0);
+const departureHit = findProseEventCollisions([DEPARTURE_EVENT], 'Zin departed the camp before sunset and did not look back.');
+check('12f. a real departure verb for the completed-event actor is still caught', departureHit.length === 1 && departureHit[0].entity === 'Zin', JSON.stringify(departureHit));
+
 // ── 5. canon cast parsing ──
 const SHEET = `### Major Characters\n\n**1. Protagonist: Ottilie 'Ottie' Brisa**\n\n- **Role:** Navigator and heart of the crew.\n\n**2. Antagonist: Ludovic 'Ludo' Vashti**\n\n- **Role:** The gruff, no-nonsense leader of the crew.\n\n**4. Key Supporting: Perpetua 'The Tamsin' Quillon**\n\n- **Role:** The ship's engineer, tough and resourceful.`;
 const cast = parseCanonCast(SHEET);
@@ -106,3 +120,5 @@ check('28. bible generator checks its own output for contradictions at birth', B
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
+
+[executed on device: Angela-Mac-Studio.local (a604c3c7-1b3e-4d60-b6fa-30da7de65acb)]
