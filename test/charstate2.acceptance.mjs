@@ -38,6 +38,10 @@ const d1 = extractBeatDeclaredStateUpdates(['JB returns, explaining his decision
 check('1. the live required_event verb form is a declared return', d1.returns.includes('JB'));
 const d2 = extractBeatDeclaredStateUpdates(["JB's return and the crew's decision to reintegrate him."], CAST);
 check('2. the live scene_goal noun form ("JB\'s return") is a declared return', d2.returns.includes('JB'));
+check('2a. "before JB\'s return" is FUTURE context, not a declaration', extractBeatDeclaredStateUpdates(["Hold the line before JB's return."], CAST).returns.length === 0);
+check('2b. "until JB returns in scene 3" is FUTURE context, not a declaration', extractBeatDeclaredStateUpdates(["Keep him absent until JB returns in scene 3."], CAST).returns.length === 0);
+check('2c. an anticipated/not-yet return does not flip state', extractBeatDeclaredStateUpdates(["JB's return is anticipated but not yet happened."], CAST).returns.length === 0);
+check('2d. a return reserved for a later scene does not flip state', extractBeatDeclaredStateUpdates(["JB's return belongs to scene 3."], CAST).returns.length === 0);
 const d3 = extractBeatDeclaredStateUpdates(["JB's departure is referenced or explained again."], CAST);
 check('3. the live forbidden_event ("departure is referenced") declares NOTHING', d3.returns.length === 0 && d3.departures.length === 0);
 check('4. "JB\'s voice returns over the radio" is NOT a declared return', extractBeatDeclaredStateUpdates(["JB's voice returns over the radio."], CAST).returns.length === 0);
