@@ -109,6 +109,12 @@ const naturalReturn = 'The figure pushed through the wall of dust and resolved i
 const withoutDeclaration = auditProseAgainstCharacterState(naturalReturn, departedState, CAST);
 check('9. WITHOUT the declaration the natural-phrasing return is still flagged (CHARSTATE-1 behavior preserved)', withoutDeclaration.some((v) => v.code === 'DEPARTED_CHARACTER_ACTIVE' && v.name === 'JB'));
 check('9a. an unauthorized departed-character repair must REMOVE activity, never invent a return', withoutDeclaration.some((v) => v.code === 'DEPARTED_CHARACTER_ACTIVE' && /Do NOT invent a return/i.test(v.message) && /absence, past memories, or inanimate possessions may remain/i.test(v.message)), JSON.stringify(withoutDeclaration));
+const legalDepartedMemories = auditProseAgainstCharacterState('JB was always better at tying this knot. JB had taught them the trick before he left. They missed him.', departedState, CAST);
+check('9b. departed-character memories using "was/had" are legal when he does not act on-page', legalDepartedMemories.length === 0, JSON.stringify(legalDepartedMemories));
+const activeDepartedPast = auditProseAgainstCharacterState('JB stood at the hatch and grabbed the loose rope.', departedState, CAST);
+check('9c. explicit departed-character action still hard-blocks', activeDepartedPast.some((v) => v.code === 'DEPARTED_CHARACTER_ACTIVE' && v.name === 'JB'), JSON.stringify(activeDepartedPast));
+const activeDepartedProgressive = auditProseAgainstCharacterState('JB was standing inside the hatch, holding the loose rope.', departedState, CAST);
+check('9d. departed-character progressive presence still hard-blocks', activeDepartedProgressive.some((v) => v.code === 'DEPARTED_CHARACTER_ACTIVE' && v.name === 'JB'), JSON.stringify(activeDepartedProgressive));
 const withDeclaration = auditProseAgainstCharacterState(naturalReturn, departedState, CAST, { declaredReturns: ['JB'] });
 check('10. WITH the beat-declared return the same prose is legal (the live hard-block is dead)', withDeclaration.length === 0);
 check('11. a declaration for JB does not legalize a DIFFERENT departed character', (() => {
