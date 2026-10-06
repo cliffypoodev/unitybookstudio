@@ -39,9 +39,9 @@ const INTRO_PATTERNS = [
 const departurePatterns = (name) => {
   const n = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return [
-    new RegExp(String.raw`\b${n}\b[^.!?]{0,60}\b(?:left|leaves|leaving|quit)\s+the\s+(?:crew|group|team|ship|town)\b`, 'i'),
-    new RegExp(String.raw`\b${n}\s+(?:walked|walks)\s+away\b(?![^.!?]{0,40}\b(?:from the (?:table|counter|window|console|engine)))`, 'i'),
-    new RegExp(String.raw`\bwatched\s+${n}\s+(?:go|leave|walk away|disappear)\b`, 'i'),
+    new RegExp(String.raw`\b${n}\b[^.!?]{0,60}\b(?:left|leaves|leaving|quit)\s+the\s+(?:crew|group|team|town)\b|\b${n}\b[^.!?]{0,60}\b(?:left|leaves|leaving|quit)\s+the\s+ship[^.!?]{0,40}\b(?:for good|permanently|without returning|never to return)\b`, 'i'),
+    new RegExp(String.raw`\b${n}\s+(?:walked|walks)\s+away(?:\s+from\s+(?:the\s+)?(?:crew|group|team)|\s+(?:for good|permanently))\b`, 'i'),
+    new RegExp(String.raw`\bwatched\s+${n}\s+(?:go|leave|walk away|disappear)[^.!?]{0,40}\b(?:for good|for the last time|out of sight|down the road)\b`, 'i'),
     new RegExp(String.raw`\b${n}\s+was\s+gone\.`, 'i'),
     new RegExp(String.raw`\b(?:He|She|They)\s+was\s+gone\.[^A-Za-z]{0,10}$`, 'm'), // terminal paragraph closer — attributed below
   ];
