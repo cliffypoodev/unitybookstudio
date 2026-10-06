@@ -95,13 +95,33 @@ export function splitSentences(text) {
     .map((s) => s.trim()).filter(Boolean);
 }
 
-/** Aliases for a tracked object phrase: the full phrase and its head noun. */
+/** Aliases for a tracked object phrase.
+ *
+ * A generic descriptive object ("brass winding key") may safely fall back to
+ * its head noun ("key") because the phrase itself does not identify a unique
+ * owner. A possessive/named object ("JB's wrench") is different: its possessor
+ * is part of the object's identity. Treating bare "wrench" as an alias made
+ * every ordinary wrench in a scene teleport JB's specific wrench between
+ * characters. Keep possessive objects exact (while accepting straight/curly
+ * apostrophe spellings) and never collapse them to the generic head noun.
+ */
+function isPossessiveSpecificObject(phrase) {
+  return /\b[a-z0-9_-]+(?:'s|’s)\b/i.test(String(phrase || ''));
+}
+
 export function objectAliases(phrase) {
   const p = String(phrase || '').trim().toLowerCase().replace(/^(?:the|a|an)\s+/, '');
   if (!p) return [];
   const words = p.split(/\s+/);
   const head = words[words.length - 1];
   const out = new Set([p]);
+
+  if (isPossessiveSpecificObject(p)) {
+    out.add(p.replace(/’/g, "'"));
+    out.add(p.replace(/'/g, '’'));
+    return [...out].filter(Boolean);
+  }
+
   if (head && head.length > 2) out.add(head);
   return [...out];
 }
@@ -119,7 +139,15 @@ export function objectContentWords(obj) {
 }
 
 export function dedupeTrackedObjects(objects) {
-  const entries = [...new Set((objects || []).map((o) => String(o || '').trim()).filter(Boolean))]
+  const raw = [...new Set((objects || []).map((o) => String(o || '').trim()).filter(Boolean))];
+  const specificKey = (o) => isPossessiveSpecificObject(o)
+    ? String(o).toLowerCase().replace(/’/g, "'")
+    : '';
+  const unique = raw.filter((o, index) => {
+    const key = specificKey(o);
+    return !key || raw.findIndex((candidate) => specificKey(candidate) === key) === index;
+  });
+  const entries = unique
     .map((o) => ({ o, aliases: new Set(objectAliases(o)), words: objectContentWords(o) }));
   // HOLDER-2b: the alias rule compares {full phrase, head noun}, so two spellings
   // with DIFFERENT head nouns never merged - the live ch.5 run tracked
@@ -127,10 +155,16 @@ export function dedupeTrackedObjects(objects) {
   // "handle" and "handle" but distinct phrases), each accumulating its own
   // holder. One phrase's content words being a strict subset of another's is the
   // same thing described more specifically; keep the specific spelling.
+  //
+  // SPECIFICOBJ-1: never use those generic subset rules to merge a possessive
+  // identity ("JB's wrench") with an ordinary object of the same type ("wrench").
+  // The possessor is part of the identity, not a removable modifier.
   const strictSubset = (a, b) => a.size < b.size && [...a].every((w) => b.has(w));
+  const mayCollapse = (a, b) =>
+    !isPossessiveSpecificObject(a.o) && !isPossessiveSpecificObject(b.o);
   return entries
     .filter((e) => !entries.some(
-      (other) => other !== e && (
+      (other) => other !== e && mayCollapse(e, other) && (
         (
           other.aliases.size >= e.aliases.size &&
           [...e.aliases].every((a) => other.aliases.has(a)) &&
