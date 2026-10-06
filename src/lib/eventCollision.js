@@ -1,5 +1,3 @@
-[Reading 473 lines from start (total: 473 lines, 0 remaining)]
-
 // src/lib/eventCollision.js — SCENECOLLIDE-1
 //
 // Class-based event collision detection: catches a scene or beat plan that
@@ -498,5 +496,3 @@ export function rewriteFutureOutlineCollisions(beats, findings) {
 }
 
 export const EVENT_COLLISION_VERSION = 'event-collision-v2'; // LOOKAHEAD-1
-
-[executed on device: Angela-Mac-Studio.local (a604c3c7-1b3e-4d60-b6fa-30da7de65acb)]

@@ -1,5 +1,3 @@
-[Reading 120 lines from start (total: 120 lines, 0 remaining)]
-
 // SCENECOLLIDE-1 + CANON-2 acceptance battery.
 //
 // The defects (measured on the REDUX draft, ChatGPT re-score 73/100):
@@ -123,5 +121,3 @@ check('28. bible generator checks its own output for contradictions at birth', B
 
 console.log(failures === 0 ? '\nACCEPTANCE: ALL CHECKS MATCHED' : `\nACCEPTANCE: ${failures} CHECK(S) DID NOT MATCH`);
 process.exit(failures === 0 ? 0 : 1);
-
-[executed on device: Angela-Mac-Studio.local (a604c3c7-1b3e-4d60-b6fa-30da7de65acb)]
