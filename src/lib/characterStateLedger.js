@@ -521,8 +521,15 @@ export function auditProseAgainstCharacterState(prose, state = {}, castNames = [
     // A return written in THIS prose legalizes later appearances.
     const returnedHere = hasProseReturnDeclaration(narration, name);
     if (returnedHere) continue;
-    // Narrated action: name followed by a verb-ish continuation in narration.
-    const acting = narration.match(new RegExp(`\\b${n}\\b\\s+(?:was|were|is|had|stood|sat|walked|ran|grabbed|held|said|laughed|nodded|fidgeted|leaned|looked|turned|smiled|grinned|shrugged|worked|climbed|reached|moved|stepped|pointed|whispered|shouted|helped|watched|waited|followed|joined)[a-z]*\\b[^.!?]{0,80}`, 'i'));
+    // Narrated action: require an actual on-page action/presence shape.
+    // CHARSTATE-5: bare "was/were/had" is NOT enough — those forms commonly
+    // appear in legal memories ("JB was always better at this", "JB had taught
+    // them the knot") and previously made the repair prompt impossible to
+    // satisfy while preserving permitted memories of a departed character.
+    const activePresence = String.raw`(?:is|was)\s+(?:here|there|inside|outside|standing|sitting|walking|running|holding|helping|working|climbing|reaching|moving|stepping|waiting|following|joining|watching|looking|turning|smiling|leaning)\b`;
+    const activeLocation = String.raw`is\s+(?:at|beside|near|with|by|in|on)\b`;
+    const activeAction = String.raw`(?:stood|sat|walked|ran|grabbed|held|said|laughed|nodded|fidgeted|leaned|looked|turned|smiled|grinned|shrugged|worked|climbed|reached|moved|stepped|pointed|whispered|shouted|helped|watched|waited|followed|joined)\b`;
+    const acting = narration.match(new RegExp(`\\b${n}\\b\\s+(?:${activePresence}|${activeLocation}|${activeAction})[^.!?]{0,80}`, 'i'));
     if (acting) {
       violations.push({
         code: 'DEPARTED_CHARACTER_ACTIVE',
