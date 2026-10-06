@@ -69,6 +69,11 @@ check('dedupe keeps two objects that merely SHARE a noun',
   === JSON.stringify(['steel winding key', 'brass winding key']));
 check('dedupe collapses a spelling chain onto one object',
   dedupeTrackedObjects(['brass winding key', 'brass key', 'winding key']).length === 1);
+check('dedupe keeps a named possessive object distinct from a generic object of the same type',
+  JSON.stringify(dedupeTrackedObjects(['JB’s wrench', 'wrench']))
+  === JSON.stringify(['JB’s wrench', 'wrench']));
+check('dedupe collapses straight/curly apostrophe spellings of the same named object',
+  dedupeTrackedObjects(['JB’s wrench', "JB's wrench"]).length === 1);
 check('dedupe is stable on an empty list', JSON.stringify(dedupeTrackedObjects([])) === '[]');
 
 // ── QUOTED DEATHS: what a character SAYS is not what happened ──
