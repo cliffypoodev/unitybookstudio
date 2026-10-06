@@ -93,6 +93,44 @@ const beatDeparturePatterns = (name) => {
   ];
 };
 
+// CHARSTATE-4: return language can describe a FUTURE/deferred event without
+// declaring that the character has returned in the current scene. This matters
+// for contracts such as "hold the line before JB's return" or "JB's return
+// belongs to scene 3". A raw noun/verb regex must not flip state early.
+function isDeferredBeatReturnMatch(text, start, end) {
+  const source = String(text || '');
+  const before = source.slice(Math.max(0, start - 64), start);
+  const after = source.slice(end, Math.min(source.length, end + 96));
+
+  const deferredBefore = /(?:\bbefore|\buntil|\bprior\s+to|\bahead\s+of|\bwithout|\bawaiting|\bawaits|\banticipating|\banticipates|\bpending)\s*$/i;
+  const deferredAfter = /^(?:\s|[:,;()\-—]){0,12}(?:(?:is|was|remains?)\s+)?(?:anticipated|expected|pending|deferred|not\s+yet|still\s+ahead|still\s+future)\b/i;
+  const laterSceneAfter = /^.{0,72}\b(?:belongs?\s+to|reserved\s+for|must\s+wait\s+until|will\s+(?:occur|happen)|later\s+scene|future\s+scene|scene\s+\d+)\b/i;
+
+  return deferredBefore.test(before) || deferredAfter.test(after) || laterSceneAfter.test(after);
+}
+
+function hasNonDeferredReturnMatch(text, patterns) {
+  const source = String(text || '');
+  for (const pattern of patterns) {
+    const flags = pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`;
+    const scan = new RegExp(pattern.source, flags);
+    let match;
+    while ((match = scan.exec(source)) !== null) {
+      if (!isDeferredBeatReturnMatch(source, match.index, match.index + match[0].length)) return true;
+      if (match[0].length === 0) scan.lastIndex += 1;
+    }
+  }
+  return false;
+}
+
+function hasBeatReturnDeclaration(text, name) {
+  return hasNonDeferredReturnMatch(text, beatReturnPatterns(name));
+}
+
+function hasProseReturnDeclaration(text, name) {
+  return hasNonDeferredReturnMatch(text, returnPatterns(name));
+}
+
 /**
  * CHARSTATE-2: extract state changes DECLARED by beat-contract text (scene
  * goals + required events). Returns { returns: [name], departures: [name] }.
@@ -104,7 +142,7 @@ export function extractBeatDeclaredStateUpdates(eventStrings = [], castNames = [
   const departures = new Set();
   if (!text) return { returns: [], departures: [] };
   for (const name of castNames) {
-    if (beatReturnPatterns(name).some((rx) => rx.test(text))) returns.add(name);
+    if (hasBeatReturnDeclaration(text, name)) returns.add(name);
     if (beatDeparturePatterns(name).some((rx) => rx.test(text))) departures.add(name);
   }
   return { returns: [...returns], departures: [...departures] };
@@ -130,7 +168,7 @@ export function corroborateBeatDeclaredReturns(returns, corroborationText) {
   const corroborated = [];
   const uncorroborated = [];
   for (const name of Array.isArray(returns) ? returns : []) {
-    const hit = beatReturnPatterns(name).some((rx) => rx.test(text)) || returnPatterns(name).some((rx) => rx.test(text));
+    const hit = hasBeatReturnDeclaration(text, name) || hasProseReturnDeclaration(text, name);
     (hit ? corroborated : uncorroborated).push(name);
   }
   return { corroborated, uncorroborated };
@@ -290,7 +328,7 @@ export function extractCharacterStateUpdates(prose, castNames = []) {
 
   for (const name of castNames) {
     const departed = departurePatterns(name).slice(0, 4).some((rx) => rx.test(narration));
-    const returned = returnPatterns(name).some((rx) => rx.test(narration));
+    const returned = hasProseReturnDeclaration(narration, name);
     // Attribute the bare terminal "He/She was gone." to `name` only when the
     // same paragraph names them and nobody else in the cast.
     let terminalGone = false;
@@ -481,7 +519,7 @@ export function auditProseAgainstCharacterState(prose, state = {}, castNames = [
     if (declaredReturns.has(name)) continue; // CHARSTATE-2
     const n = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // A return written in THIS prose legalizes later appearances.
-    const returnedHere = returnPatterns(name).some((rx) => rx.test(narration));
+    const returnedHere = hasProseReturnDeclaration(narration, name);
     if (returnedHere) continue;
     // Narrated action: name followed by a verb-ish continuation in narration.
     const acting = narration.match(new RegExp(`\\b${n}\\b\\s+(?:was|were|is|had|stood|sat|walked|ran|grabbed|held|said|laughed|nodded|fidgeted|leaned|looked|turned|smiled|grinned|shrugged|worked|climbed|reached|moved|stepped|pointed|whispered|shouted|helped|watched|waited|followed|joined)[a-z]*\\b[^.!?]{0,80}`, 'i'));
