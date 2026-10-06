@@ -19,6 +19,7 @@
 import fs from 'node:fs';
 import {
   extractBeatDeclaredStateUpdates,
+  extractCharacterStateUpdates,
   collectChapterBeatEvents,
   buildCharacterState,
   buildCharacterStateContract,
@@ -47,6 +48,41 @@ check('3. the live forbidden_event ("departure is referenced") declares NOTHING'
 check('4. "JB\'s voice returns over the radio" is NOT a declared return', extractBeatDeclaredStateUpdates(["JB's voice returns over the radio."], CAST).returns.length === 0);
 check('5. a declared departure is extracted ("JB leaves the crew")', extractBeatDeclaredStateUpdates(['JB leaves the crew after the argument at the silo.'], CAST).departures.includes('JB'));
 check('6. unrelated beat text declares nothing', (() => { const d = extractBeatDeclaredStateUpdates(['The crew sacrifices a crucial part to shield the ship from debris.'], CAST); return d.returns.length === 0 && d.departures.length === 0; })());
+check('6a. historical recap of an earlier walk-away does not create a NEW departure', (() => {
+  const u = extractCharacterStateUpdates(
+    'Rodge remembered the night Zin walked away after their argument and returned before dawn. The memory still bothered him.',
+    ['Zin', 'Rodge']
+  );
+  return u.departures.length === 0;
+})());
+check('6b. ordinary scene traffic away from a workbench does not mark Rodge departed', (() => {
+  const u = extractCharacterStateUpdates(
+    'Rodge walked away from the repair bench to fetch the canteen, then came back with water.',
+    ['Zin', 'Rodge']
+  );
+  return u.departures.length === 0;
+})());
+check('6c. an explicit real departure from the crew still registers', (() => {
+  const u = extractCharacterStateUpdates(
+    'After the argument, Rodge left the crew and took the north road alone.',
+    ['Zin', 'Rodge']
+  );
+  return u.departures.includes('Rodge');
+})());
+check('6d. leaving the ship for an errand is scene traffic, not crew departure', (() => {
+  const u = extractCharacterStateUpdates(
+    'Rodge left the ship to fetch water from the well. He returned with the canteen before dark.',
+    ['Zin', 'Rodge']
+  );
+  return u.departures.length === 0;
+})());
+check('6e. watching someone leave the repair site is scene traffic, not crew departure', (() => {
+  const u = extractCharacterStateUpdates(
+    'Zin watched Rodge leave the repair site and head toward the well. He was back ten minutes later.',
+    ['Zin', 'Rodge']
+  );
+  return u.departures.length === 0;
+})());
 
 // ── 2. beat-event collection from a persisted record ──
 const record = { scene_beats_json: JSON.stringify([
