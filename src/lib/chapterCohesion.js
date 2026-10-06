@@ -14,11 +14,23 @@ import { resolveChapterContent } from '@/lib/chapterStorage';
 
 // ── SYSTEM 1: Chapter Summary Generation ─────────────────────────────────
 
+// Keep full source for ordinary chapters; refuse oversized input explicitly
+// rather than asking the model to infer an ending it was never shown.
+export const MAX_CHAPTER_SUMMARY_CHARS = 64000;
+
 export async function generateChapterSummary(chapterContent, chapterNumber) {
-  const summaryPrompt = `Read this chapter and produce a compressed summary for continuity tracking. Respond ONLY in JSON, no markdown, no backticks.
+  if (typeof chapterContent !== 'string' || !chapterContent.trim()) {
+    throw new TypeError('Chapter summary requires a non-empty string');
+  }
+  if (chapterContent.length > MAX_CHAPTER_SUMMARY_CHARS) {
+    const error = new RangeError('Chapter summary exceeds the 64000-character input budget; use bounded multi-part summarization rather than truncating the source.');
+    error.code = 'CHAPTER_SUMMARY_INPUT_TOO_LARGE';
+    throw error;
+  }
+  const summaryPrompt = `Read this chapter and produce a compressed summary for continuity tracking. Read through the final paragraph; report the actual final scene, not an earlier scene boundary. Respond ONLY in JSON, no markdown, no backticks.
 
 CHAPTER ${chapterNumber} TEXT:
-${chapterContent.substring(0, 12000)}
+${chapterContent}
 
 Extract:
 {
