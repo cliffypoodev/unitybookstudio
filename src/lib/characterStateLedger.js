@@ -33,13 +33,13 @@ const INTRO_PATTERNS = [
 ];
 
 // ── Departure extraction ──
-// Tight, narration-only shapes. "left the room" is scene traffic; leaving the
-// CREW/GROUP/TOWN/SHIP, walking away for good, or the terminal "X was gone."
-// are story-state changes.
+// PARTY-LOCATION-1: movement away from a town or ship is not, by itself,
+// departure from the crew. Require an explicit social departure or finality
+// for geographic exits. Apply the same distinction to prose and beat plans.
 const departurePatterns = (name) => {
   const n = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return [
-    new RegExp(String.raw`\b${n}\b[^.!?]{0,60}\b(?:left|leaves|leaving|quit)\s+the\s+(?:crew|group|team|town)\b|\b${n}\b[^.!?]{0,60}\b(?:left|leaves|leaving|quit)\s+the\s+ship[^.!?]{0,40}\b(?:for good|permanently|without returning|never to return)\b`, 'i'),
+    new RegExp(String.raw`\b${n}\b[^.!?]{0,60}\b(?:left|leaves|leaving|quit)\s+the\s+(?:crew|group|team)\b|\b${n}\b[^.!?]{0,60}\b(?:left|leaves|leaving|quit)\s+(?:the\s+)?(?:ship|town)[^.!?]{0,40}\b(?:for good|permanently|without returning|never to return)\b`, 'i'),
     new RegExp(String.raw`\b${n}\s+(?:walked|walks)\s+away(?:\s+from\s+(?:the\s+)?(?:crew|group|team)|\s+(?:for good|permanently))\b`, 'i'),
     new RegExp(String.raw`\bwatched\s+${n}\s+(?:go|leave|walk away|disappear)[^.!?]{0,40}\b(?:for good|for the last time|out of sight|down the road)\b`, 'i'),
     new RegExp(String.raw`\b${n}\s+was\s+gone\.`, 'i'),
@@ -88,7 +88,7 @@ const beatReturnPatterns = (name) => {
 const beatDeparturePatterns = (name) => {
   const n = escName(name);
   return [
-    new RegExp(String.raw`\b${n}\b(?!['’]s)[^.!?\n]{0,50}\b(?:leaves?|left|quits?|departs?|walks? away from)\s+(?:the\s+)?(?:crew|group|team|ship|town)\b`, 'i'),
+    new RegExp(String.raw`\b${n}\b(?!['’]s)[^.!?\n]{0,50}\b(?:leaves?|left|quits?|departs?|walks? away from)\s+(?:the\s+)?(?:crew|group|team)\b|\b${n}\b(?!['’]s)[^.!?\n]{0,50}\b(?:leaves?|left|quits?|departs?|walks? away from)\s+(?:the\s+)?(?:ship|town)[^.!?\n]{0,40}\b(?:for good|permanently|without returning|never to return)\b`, 'i'),
     new RegExp(String.raw`\b${n}(?:['’]s)?\s+departure\b(?![^.!?\n]{0,40}\b(?:referenced|explained|mentioned|discussed)\b)`, 'i'),
   ];
 };

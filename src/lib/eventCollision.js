@@ -140,6 +140,29 @@ function extractEventActorEntities(eventText, className) {
   return scoped.size ? scoped : extractEventEntities(event);
 }
 
+// DEPARTURE-SCOPE-1: contemplating a departure is not a completed exit.
+// Keep public action classification unchanged: future plans still need it.
+function completedEventClasses(eventText) {
+  const event = String(eventText || '');
+  return classifyEventAction(event).filter((name) => {
+    if (name !== 'DEPARTURE') return true;
+    const cls = ACTION_CLASSES.find((candidate) => candidate.name === name);
+    const scan = new RegExp(cls.event.source, 'gi');
+    return [...event.matchAll(scan)].some((match) => {
+      const before = event.slice(Math.max(0, match.index - 80), match.index);
+      return !/\b(?:considers?|considered|considering|contemplates?|contemplated|discusses|discussed|discussing|thinks? about|thought about)\s+(?:(?:a|an|the|another)\s+)?$/i.test(before);
+    });
+  });
+}
+
+// Crossing a room boundary does not restage a departure from the story.
+// Explicit finality/social departure keeps the existing hard check active.
+function isLocalExitOnly(text) {
+  const local = /\bwalk(?:s|ed)?\s+out\s+of\s+(?:the\s+)?(?:engine bay|repair bay|workshop|room|tent|shop|store|cabin)\b/i;
+  const finality = /\b(?:for good|permanently|never to return|(?:leaves?|leaving|left|quits?|depart(?:s|ed)?)\s+(?:the\s+)?(?:crew|group|team))\b/i;
+  return local.test(text) && !finality.test(text);
+}
+
 function windowsOf(proseText) {
   return String(proseText || '')
     .replace(/\b(Dr|Mr|Mrs|Ms|Prof|Sr|Jr|St)\./g, '$1<ABBR>')
@@ -200,7 +223,7 @@ export function findProseEventCollisions(priorEvents, prose) {
 
   for (const raw of Array.isArray(priorEvents) ? priorEvents : []) {
     const event = String(raw || '');
-    const classes = classifyEventAction(event);
+    const classes = completedEventClasses(event);
     if (!classes.length) continue;
 
     for (const className of classes) {
@@ -210,6 +233,7 @@ export function findProseEventCollisions(priorEvents, prose) {
       for (const window of wins) {
         if (!cls.prose.test(window)) continue;
         if (cls.idiom && cls.idiom.test(window)) continue;
+        if (className === 'DEPARTURE' && isLocalExitOnly(window)) continue;
         const entity = windowMentionsEntity(window, entities);
         if (!entity) continue;
         if (isNarrationReference(window)) continue;
@@ -246,7 +270,7 @@ export function findBeatEventCollisions(beats, priorEvents) {
   const prior = [];
   for (const raw of Array.isArray(priorEvents) ? priorEvents : []) {
     const event = String(raw || '');
-    const classes = classifyEventAction(event);
+    const classes = completedEventClasses(event);
     if (!classes.length) continue;
     prior.push({ event, classes });
   }
@@ -265,6 +289,7 @@ export function findBeatEventCollisions(beats, priorEvents) {
           const cls = ACTION_CLASSES.find((c) => c.name === className);
           if (!cls.prose.test(textValue) && !cls.event.test(textValue)) continue;
           if (cls.idiom && cls.idiom.test(textValue)) continue;
+          if (className === 'DEPARTURE' && isLocalExitOnly(textValue)) continue;
           const entities = extractEventActorEntities(p.event, className);
           if (!entities.size) continue;
           const entity = windowMentionsEntity(textValue, entities);

@@ -74,7 +74,10 @@ check('12c. planner-side bystander + landed-object wording stays clean', findBea
 check('12d. the noun "arrival" is a reference, not a fresh prose arrival', findProseEventCollisions([ARRIVAL_EVENT], "The rival team's arrival still bothered Ottie, who kept checking the road.").length === 0);
 const DEPARTURE_EVENT = 'Zin has a heartfelt conversation with Rodge and considers leaving the crew.';
 check('12e. another character\'s noun "departure" does not restage Zin departing', findProseEventCollisions([DEPARTURE_EVENT], "Zin had spent the afternoon convincing herself that JB's departure was a practical decision.").length === 0);
-const departureHit = findProseEventCollisions([DEPARTURE_EVENT], 'Zin departed the camp before sunset and did not look back.');
+// The considered-departure fixture above is not a completed departure.
+// Keep both cases: contemplation must not block, while an actual replay must.
+check('12e1. considering leaving does not count as a completed departure', findProseEventCollisions([DEPARTURE_EVENT], 'Zin departed the camp before sunset and did not look back.').length === 0);
+const departureHit = findProseEventCollisions(['Zin departs the crew for good.'], 'Zin departed the camp before sunset and did not look back.');
 check('12f. a real departure verb for the completed-event actor is still caught', departureHit.length === 1 && departureHit[0].entity === 'Zin', JSON.stringify(departureHit));
 
 // ── 5. canon cast parsing ──
