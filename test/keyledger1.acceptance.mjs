@@ -57,6 +57,39 @@ for (const [label, mk, want] of SHAPES) {
   BOOKS.forEach((b, i) => check(`   ${b.id}: ${label}`, verdicts[i]));
 }
 
+// ── SPECIFIC-OBJECT ALIASING: a named/possessive prop is not every generic tool ──
+{
+  const cast = [{ name: 'JB', gender: 'm' }, { name: 'Rodge', gender: 'm' }];
+  const genericToolUse = checkPossessionContinuity({
+    prose: 'Rodge kept turning the wrench, his knuckles white.',
+    object: 'JB’s wrench',
+    cast,
+    entryHolder: 'JB',
+  });
+  check('specific object: bare generic noun does not teleport JB’s named wrench',
+    genericToolUse.violations.length === 0 && genericToolUse.exitHolder === 'JB');
+
+  const explicitSpecificUse = checkPossessionContinuity({
+    prose: 'Rodge held JB’s wrench against the bracket.',
+    object: 'JB’s wrench',
+    cast,
+    entryHolder: 'JB',
+  });
+  check('specific object: explicit named wrench still catches an unwritten transfer',
+    explicitSpecificUse.violations.length === 1
+      && explicitSpecificUse.violations[0].from === 'JB'
+      && explicitSpecificUse.violations[0].to === 'Rodge');
+
+  const writtenSpecificTransfer = checkPossessionContinuity({
+    prose: 'JB handed Rodge JB’s wrench. Rodge tightened the bracket with the wrench.',
+    object: 'JB’s wrench',
+    cast,
+    entryHolder: 'JB',
+  });
+  check('specific object: explicit handover remains legal after the alias tightening',
+    writtenSpecificTransfer.violations.length === 0 && writtenSpecificTransfer.exitHolder === 'Rodge');
+}
+
 // ── the offer/take distinction: offering is not a transfer ──
 for (const b of BOOKS) {
   const offered = run(b, `${b.a} held the ${b.obj}. She held it out to ${b.b}. She put the ${b.obj} back in her coat.`);
